@@ -440,12 +440,13 @@ public:
 };
 
 // vtable 06fb6a04, ctor FUN_06edbc80 (RET 0xc): role 0x4; "gcs_misc_thisis+", designation,
-// number, dash, number-, "gcs_combat_takinglead".
+// number, dash, number-, "gcs_combat_takinglead" (the listener argument is ignored:
+// +0x08 = 0).
 class FGcsLineCombatTakingLead : public FGcsLine
 {
 public:
     FGcsLineCombatTakingLead(FSystemInfo* InSystem, unsigned int InSpeaker,
-                             unsigned int InListener);
+                             unsigned int Unused);
 };
 
 // vtable 06fb6a2c, ctor FUN_06edbf60 (RET 0xc): "gcs_combat_scream"; role 0x4000 for a ship
@@ -540,13 +541,14 @@ public:
 };
 
 // vtable 06fb6c74, ctor FUN_06edd6f0 (RET 0xc): role 0x4; "gcs_combat_engaging+" and the
-// listener's (the target's) faction + "_short", designation and number-; a text id of 0 makes
-// the line unplayable.
+// target's faction + "_short", designation and number-; a text id of 0 makes the line
+// unplayable. The third argument is the TARGET only, never the listener: +0x08 = 0, so the
+// comm is wing chatter addressed to nobody (the client plays it without the talking head).
 class FGcsLineCombatEngaging : public FGcsLine
 {
 public:
     FGcsLineCombatEngaging(FSystemInfo* InSystem, unsigned int InSpeaker,
-                           unsigned int InListener);
+                           unsigned int InTarget);
 };
 
 // vtable 06fb6cf0, ctor FUN_06edda20 (RET 0x10): role 0x4; "gcs_combat_noengaging+" and

@@ -1387,10 +1387,12 @@ FGcsLineCombatDeathSympathy::FGcsLineCombatDeathSympathy(FSystemInfo* InSystem,
 }
 
 FGcsLineCombatTakingLead::FGcsLineCombatTakingLead(FSystemInfo* InSystem, unsigned int InSpeaker,
-                                                   unsigned int InListener)
-    : FGcsLine(InSystem, InSpeaker, InListener)
+                                                   unsigned int Unused)
+    : FGcsLine(InSystem, InSpeaker, 0)
 {
-    // FUN_06edbc80 (06edbc80-06edbf52). 06edbcf6-06edbd18: role 0x4.
+    // FUN_06edbc80 (06edbc80-06edbf52). 06edbcb6-06edbcbb `XOR EDI,EDI ; MOV [EBX+0x8],EDI`:
+    // +0x08 = 0, the third argument is never read. 06edbcf6-06edbd18: role 0x4.
+    (void)Unused;
     if (!HasVoiceRoles(0x4))
         return;
     // 06edbd1e-06edbd29: the speaker's own ship (FUN_06f73930, not null-tested).
@@ -1564,16 +1566,20 @@ FGcsLineCombatResumePatrol::FGcsLineCombatResumePatrol(FSystemInfo* InSystem,
 }
 
 FGcsLineCombatEngaging::FGcsLineCombatEngaging(FSystemInfo* InSystem, unsigned int InSpeaker,
-                                               unsigned int InListener)
-    : FGcsLine(InSystem, InSpeaker, InListener)
+                                               unsigned int InTarget)
+    : FGcsLine(InSystem, InSpeaker, 0)
 {
-    // FUN_06edd6f0 (06edd6f0-06edda17). 06edd766-06edd788: role 0x4.
+    // FUN_06edd6f0 (06edd6f0-06edda17). 06edd726-06edd72b `XOR EDI,EDI ; MOV [EBX+0x8],EDI`:
+    // the listener is 0, NOT the target -- SendComm then goes to receiver 0 and the client
+    // plays it as chatter on channel B (no talking head, HUD_Comm 004ce26c..004ce2b9).
+    // InTarget ([ESP+0x1d0], 06edd7a0) is read only for the target's ship below.
+    // 06edd766-06edd788: role 0x4.
     if (!HasVoiceRoles(0x4))
         return;
     // 06edd78e-06edd7ba: the speaker's ship (result unused), then the target's; no target
     // ship -> System = null (MOV [EBX+0x24],EAX with EAX 0).
     System->FindShip(Speaker);
-    FContentSpaceObj* const Target = System->FindShip(Listener);
+    FContentSpaceObj* const Target = System->FindShip(InTarget);
     if (Target == nullptr)
     {
         System = nullptr;
