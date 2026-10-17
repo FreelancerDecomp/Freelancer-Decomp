@@ -64,6 +64,14 @@ docs\         documentation (English; Russian translation in docs\ru)
 `EBUEula.dll` and `gundll.dll` are the only retail binaries the port uses unchanged: they are
 third-party components of the original game and have not been reimplemented.
 
+## License
+
+The source code of Freelancer Decomp is released into the public domain under
+[The Unlicense](LICENSE). This does not cover third-party code and files in the repository:
+the vendored libraries under `src\` (`src\zlib\vendor`, `src\qhull\vendor`) keep their own
+licenses, and the retail files (`EBUEula.dll`, `EULA.RTF`, `EXE\gundll.dll`) and the game data
+remain the property of their respective owners.
+
 ## Support the project
 
 If you would like to support the work on Freelancer Decomp, donations are welcome:
