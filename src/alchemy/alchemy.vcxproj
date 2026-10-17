@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{B7E4D91A-3C5F-4A82-9E16-F2C8D0A1B405}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>alchemy</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemDefinitionGroup>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>dacom.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\dacom.h" />
+    <ClInclude Include="alchemy_types.h" />
+    <ClInclude Include="..\include\alchemy.h" />
+    <ClInclude Include="alchemy_common.h" />
+    <ClInclude Include="alchemy_math.h" />
+    <ClInclude Include="alchemy_alchemy.h" />
+    <ClInclude Include="alchemy_fxruntime.h" />
+    <ClInclude Include="alchemy_effectarchetype.h" />
+    <ClInclude Include="alchemy_effectobject.h" />
+    <ClInclude Include="alchemy_effectlibrary.h" />
+    <ClInclude Include="alchemy_genericfx.h" />
+    <ClInclude Include="alchemy_fields.h" />
+    <ClInclude Include="alchemy_emitters.h" />
+    <ClInclude Include="alchemy_appearances.h" />
+    <ClInclude Include="alchemy_ramp.h" />
+    <ClInclude Include="alchemy_nodelibrary.h" />
+    <ClInclude Include="alchemy_factory.h" />
+    <ClInclude Include="alchemy_material.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="alchemy.cpp" />
+    <ClCompile Include="alchemy_types.cpp" />
+    <ClCompile Include="alchemy_common.cpp" />
+    <ClCompile Include="alchemy_math.cpp">
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ClCompile Include="alchemy_alchemy.cpp" />
+    <ClCompile Include="alchemy_fxruntime.cpp" />
+    <ClCompile Include="alchemy_effectarchetype.cpp" />
+    <ClCompile Include="alchemy_effectobject.cpp" />
+    <ClCompile Include="alchemy_float_forward.cpp">
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <Optimization>MaxSpeed</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="alchemy_effectlibrary.cpp" />
+    <ClCompile Include="alchemy_genericfx.cpp" />
+    <ClCompile Include="alchemy_fields.cpp" />
+    <ClCompile Include="alchemy_emitters.cpp" />
+    <ClCompile Include="alchemy_appearances.cpp" />
+    <ClCompile Include="alchemy_ramp.cpp" />
+    <ClCompile Include="alchemy_nodelibrary.cpp" />
+    <ClCompile Include="alchemy_factory.cpp" />
+    <ClCompile Include="alchemy_material.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="alchemy.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

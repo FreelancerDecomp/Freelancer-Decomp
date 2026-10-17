@@ -1,0 +1,1025 @@
+#include <windows.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,0,0,43
+PRODUCTVERSION 1,0,0,41
+FILEOS 0x40004
+FILETYPE 0x2
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904b0"
+	BEGIN
+		VALUE "Comments", "Jason's Freelancer Patch"
+		VALUE "CompanyName", "Microsoft Corporation"
+		VALUE "FileDescription", "Freelancer Resources"
+		VALUE "FileVersion", "1, 0, 0, 2"
+		VALUE "InternalName", "MiscTextInfo2"
+		VALUE "LegalCopyright", "© 2003 Microsoft Corporation. All rights reserved"
+		VALUE "OriginalFilename", "MiscTextInfo2.dll"
+		VALUE "ProductName", "Freelancer"
+		VALUE "ProductVersion", "1, 0, 0, 0"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04B0  
+END
+END
+
+
+1 23 "HTML1_1.txt"
+
+2 23 "HTML2_1.txt"
+
+3 23 "HTML3_1.txt"
+
+4 23 "HTML4_1.txt"
+
+5 23 "HTML5_1.txt"
+
+6 23 "HTML6_1.txt"
+
+7 23 "HTML7_1.txt"
+
+8 23 "HTML8_1.txt"
+
+9 23 "HTML9_1.txt"
+
+10 23 "HTML10_1.txt"
+
+11 23 "HTML11_1.txt"
+
+12 23 "HTML12_1.txt"
+
+13 23 "HTML13_1.txt"
+
+14 23 "HTML14_1.txt"
+
+15 23 "HTML15_1.txt"
+
+16 23 "HTML16_1.txt"
+
+17 23 "HTML17_1.txt"
+
+18 23 "HTML18_1.txt"
+
+19 23 "HTML19_1.txt"
+
+20 23 "HTML20_1.txt"
+
+21 23 "HTML21_1.txt"
+
+22 23 "HTML22_1.txt"
+
+23 23 "HTML23_1.txt"
+
+24 23 "HTML24_1.txt"
+
+25 23 "HTML25_1.txt"
+
+26 23 "HTML26_1.txt"
+
+27 23 "HTML27_1.txt"
+
+28 23 "HTML28_1.txt"
+
+29 23 "HTML29_1.txt"
+
+30 23 "HTML30_1.txt"
+
+31 23 "HTML31_1.txt"
+
+32 23 "HTML32_1.txt"
+
+33 23 "HTML33_1.txt"
+
+34 23 "HTML34_1.txt"
+
+35 23 "HTML35_1.txt"
+
+36 23 "HTML36_1.txt"
+
+37 23 "HTML37_1.txt"
+
+38 23 "HTML38_1.txt"
+
+39 23 "HTML39_1.txt"
+
+40 23 "HTML40_1.txt"
+
+41 23 "HTML41_1.txt"
+
+42 23 "HTML42_1.txt"
+
+43 23 "HTML43_1.txt"
+
+44 23 "HTML44_1.txt"
+
+45 23 "HTML45_1.txt"
+
+46 23 "HTML46_1.txt"
+
+47 23 "HTML47_1.txt"
+
+48 23 "HTML48_1.txt"
+
+49 23 "HTML49_1.txt"
+
+50 23 "HTML50_1.txt"
+
+51 23 "HTML51_1.txt"
+
+52 23 "HTML52_1.txt"
+
+53 23 "HTML53_1.txt"
+
+54 23 "HTML54_1.txt"
+
+55 23 "HTML55_1.txt"
+
+56 23 "HTML56_1.txt"
+
+57 23 "HTML57_1.txt"
+
+58 23 "HTML58_1.txt"
+
+59 23 "HTML59_1.txt"
+
+60 23 "HTML60_1.txt"
+
+61 23 "HTML61_1.txt"
+
+62 23 "HTML62_1.txt"
+
+63 23 "HTML63_1.txt"
+
+64 23 "HTML64_1.txt"
+
+65 23 "HTML65_1.txt"
+
+66 23 "HTML66_1.txt"
+
+67 23 "HTML67_1.txt"
+
+68 23 "HTML68_1.txt"
+
+69 23 "HTML69_1.txt"
+
+70 23 "HTML70_1.txt"
+
+71 23 "HTML71_1.txt"
+
+72 23 "HTML72_1.txt"
+
+73 23 "HTML73_1.txt"
+
+74 23 "HTML74_1.txt"
+
+75 23 "HTML75_1.txt"
+
+76 23 "HTML76_1.txt"
+
+77 23 "HTML77_1.txt"
+
+78 23 "HTML78_1.txt"
+
+79 23 "HTML79_1.txt"
+
+80 23 "HTML80_1.txt"
+
+81 23 "HTML81_1.txt"
+
+82 23 "HTML82_1.txt"
+
+83 23 "HTML83_1.txt"
+
+84 23 "HTML84_1.txt"
+
+85 23 "HTML85_1.txt"
+
+86 23 "HTML86_1.txt"
+
+87 23 "HTML87_1.txt"
+
+88 23 "HTML88_1.txt"
+
+89 23 "HTML89_1.txt"
+
+90 23 "HTML90_1.txt"
+
+91 23 "HTML91_1.txt"
+
+92 23 "HTML92_1.txt"
+
+93 23 "HTML93_1.txt"
+
+94 23 "HTML94_1.txt"
+
+95 23 "HTML95_1.txt"
+
+96 23 "HTML96_1.txt"
+
+97 23 "HTML97_1.txt"
+
+98 23 "HTML98_1.txt"
+
+99 23 "HTML99_1.txt"
+
+100 23 "HTML100_1.txt"
+
+101 23 "HTML101_1.txt"
+
+102 23 "HTML102_1.txt"
+
+103 23 "HTML103_1.txt"
+
+104 23 "HTML104_1.txt"
+
+105 23 "HTML105_1.txt"
+
+106 23 "HTML106_1.txt"
+
+107 23 "HTML107_1.txt"
+
+108 23 "HTML108_1.txt"
+
+109 23 "HTML109_1.txt"
+
+110 23 "HTML110_1.txt"
+
+111 23 "HTML111_1.txt"
+
+112 23 "HTML112_1.txt"
+
+113 23 "HTML113_1.txt"
+
+114 23 "HTML114_1.txt"
+
+115 23 "HTML115_1.txt"
+
+116 23 "HTML116_1.txt"
+
+117 23 "HTML117_1.txt"
+
+118 23 "HTML118_1.txt"
+
+119 23 "HTML119_1.txt"
+
+120 23 "HTML120_1.txt"
+
+121 23 "HTML121_1.txt"
+
+122 23 "HTML122_1.txt"
+
+123 23 "HTML123_1.txt"
+
+124 23 "HTML124_1.txt"
+
+125 23 "HTML125_1.txt"
+
+126 23 "HTML126_1.txt"
+
+127 23 "HTML127_1.txt"
+
+128 23 "HTML128_1.txt"
+
+129 23 "HTML129_1.txt"
+
+130 23 "HTML130_1.txt"
+
+131 23 "HTML131_1.txt"
+
+132 23 "HTML132_1.txt"
+
+133 23 "HTML133_1.txt"
+
+134 23 "HTML134_1.txt"
+
+135 23 "HTML135_1.txt"
+
+136 23 "HTML136_1.txt"
+
+137 23 "HTML137_1.txt"
+
+138 23 "HTML138_1.txt"
+
+139 23 "HTML139_1.txt"
+
+140 23 "HTML140_1.txt"
+
+141 23 "HTML141_1.txt"
+
+142 23 "HTML142_1.txt"
+
+143 23 "HTML143_1.txt"
+
+144 23 "HTML144_1.txt"
+
+145 23 "HTML145_1.txt"
+
+146 23 "HTML146_1.txt"
+
+147 23 "HTML147_1.txt"
+
+148 23 "HTML148_1.txt"
+
+149 23 "HTML149_1.txt"
+
+150 23 "HTML150_1.txt"
+
+151 23 "HTML151_1.txt"
+
+152 23 "HTML152_1.txt"
+
+153 23 "HTML153_1.txt"
+
+154 23 "HTML154_1.txt"
+
+155 23 "HTML155_1.txt"
+
+156 23 "HTML156_1.txt"
+
+157 23 "HTML157_1.txt"
+
+158 23 "HTML158_1.txt"
+
+159 23 "HTML159_1.txt"
+
+160 23 "HTML160_1.txt"
+
+161 23 "HTML161_1.txt"
+
+162 23 "HTML162_1.txt"
+
+163 23 "HTML163_1.txt"
+
+164 23 "HTML164_1.txt"
+
+165 23 "HTML165_1.txt"
+
+166 23 "HTML166_1.txt"
+
+167 23 "HTML167_1.txt"
+
+168 23 "HTML168_1.txt"
+
+169 23 "HTML169_1.txt"
+
+170 23 "HTML170_1.txt"
+
+171 23 "HTML171_1.txt"
+
+172 23 "HTML172_1.txt"
+
+173 23 "HTML173_1.txt"
+
+174 23 "HTML174_1.txt"
+
+175 23 "HTML175_1.txt"
+
+176 23 "HTML176_1.txt"
+
+177 23 "HTML177_1.txt"
+
+178 23 "HTML178_1.txt"
+
+179 23 "HTML179_1.txt"
+
+180 23 "HTML180_1.txt"
+
+181 23 "HTML181_1.txt"
+
+182 23 "HTML182_1.txt"
+
+183 23 "HTML183_1.txt"
+
+184 23 "HTML184_1.txt"
+
+185 23 "HTML185_1.txt"
+
+186 23 "HTML186_1.txt"
+
+187 23 "HTML187_1.txt"
+
+188 23 "HTML188_1.txt"
+
+189 23 "HTML189_1.txt"
+
+190 23 "HTML190_1.txt"
+
+191 23 "HTML191_1.txt"
+
+192 23 "HTML192_1.txt"
+
+193 23 "HTML193_1.txt"
+
+194 23 "HTML194_1.txt"
+
+195 23 "HTML195_1.txt"
+
+196 23 "HTML196_1.txt"
+
+197 23 "HTML197_1.txt"
+
+198 23 "HTML198_1.txt"
+
+199 23 "HTML199_1.txt"
+
+200 23 "HTML200_1.txt"
+
+201 23 "HTML201_1.txt"
+
+202 23 "HTML202_1.txt"
+
+203 23 "HTML203_1.txt"
+
+204 23 "HTML204_1.txt"
+
+205 23 "HTML205_1.txt"
+
+206 23 "HTML206_1.txt"
+
+207 23 "HTML207_1.txt"
+
+208 23 "HTML208_1.txt"
+
+209 23 "HTML209_1.txt"
+
+210 23 "HTML210_1.txt"
+
+211 23 "HTML211_1.txt"
+
+212 23 "HTML212_1.txt"
+
+213 23 "HTML213_1.txt"
+
+214 23 "HTML214_1.txt"
+
+215 23 "HTML215_1.txt"
+
+216 23 "HTML216_1.txt"
+
+217 23 "HTML217_1.txt"
+
+218 23 "HTML218_1.txt"
+
+219 23 "HTML219_1.txt"
+
+220 23 "HTML220_1.txt"
+
+221 23 "HTML221_1.txt"
+
+222 23 "HTML222_1.txt"
+
+223 23 "HTML223_1.txt"
+
+224 23 "HTML224_1.txt"
+
+225 23 "HTML225_1.txt"
+
+226 23 "HTML226_1.txt"
+
+227 23 "HTML227_1.txt"
+
+228 23 "HTML228_1.txt"
+
+229 23 "HTML229_1.txt"
+
+230 23 "HTML230_1.txt"
+
+231 23 "HTML231_1.txt"
+
+232 23 "HTML232_1.txt"
+
+233 23 "HTML233_1.txt"
+
+234 23 "HTML234_1.txt"
+
+235 23 "HTML235_1.txt"
+
+236 23 "HTML236_1.txt"
+
+237 23 "HTML237_1.txt"
+
+238 23 "HTML238_1.txt"
+
+239 23 "HTML239_1.txt"
+
+240 23 "HTML240_1.txt"
+
+241 23 "HTML241_1.txt"
+
+242 23 "HTML242_1.txt"
+
+243 23 "HTML243_1.txt"
+
+244 23 "HTML244_1.txt"
+
+245 23 "HTML245_1.txt"
+
+246 23 "HTML246_1.txt"
+
+247 23 "HTML247_1.txt"
+
+248 23 "HTML248_1.txt"
+
+249 23 "HTML249_1.txt"
+
+250 23 "HTML250_1.txt"
+
+251 23 "HTML251_1.txt"
+
+252 23 "HTML252_1.txt"
+
+253 23 "HTML253_1.txt"
+
+254 23 "HTML254_1.txt"
+
+255 23 "HTML255_1.txt"
+
+256 23 "HTML256_1.txt"
+
+257 23 "HTML257_1.txt"
+
+258 23 "HTML258_1.txt"
+
+259 23 "HTML259_1.txt"
+
+260 23 "HTML260_1.txt"
+
+261 23 "HTML261_1.txt"
+
+262 23 "HTML262_1.txt"
+
+263 23 "HTML263_1.txt"
+
+264 23 "HTML264_1.txt"
+
+265 23 "HTML265_1.txt"
+
+266 23 "HTML266_1.txt"
+
+267 23 "HTML267_1.txt"
+
+268 23 "HTML268_1.txt"
+
+269 23 "HTML269_1.txt"
+
+270 23 "HTML270_1.txt"
+
+271 23 "HTML271_1.txt"
+
+272 23 "HTML272_1.txt"
+
+273 23 "HTML273_1.txt"
+
+274 23 "HTML274_1.txt"
+
+275 23 "HTML275_1.txt"
+
+276 23 "HTML276_1.txt"
+
+277 23 "HTML277_1.txt"
+
+278 23 "HTML278_1.txt"
+
+280 23 "HTML280_1.txt"
+
+281 23 "HTML281_1.txt"
+
+282 23 "HTML282_1.txt"
+
+283 23 "HTML283_1.txt"
+
+284 23 "HTML284_1.txt"
+
+285 23 "HTML285_1.txt"
+
+286 23 "HTML286_1.txt"
+
+287 23 "HTML287_1.txt"
+
+288 23 "HTML288_1.txt"
+
+289 23 "HTML289_1.txt"
+
+290 23 "HTML290_1.txt"
+
+291 23 "HTML291_1.txt"
+
+292 23 "HTML292_1.txt"
+
+293 23 "HTML293_1.txt"
+
+294 23 "HTML294_1.txt"
+
+295 23 "HTML295_1.txt"
+
+296 23 "HTML296_1.txt"
+
+297 23 "HTML297_1.txt"
+
+298 23 "HTML298_1.txt"
+
+299 23 "HTML299_1.txt"
+
+300 23 "HTML300_1.txt"
+
+301 23 "HTML301_1.txt"
+
+302 23 "HTML302_1.txt"
+
+303 23 "HTML303_1.txt"
+
+304 23 "HTML304_1.txt"
+
+305 23 "HTML305_1.txt"
+
+306 23 "HTML306_1.txt"
+
+307 23 "HTML307_1.txt"
+
+308 23 "HTML308_1.txt"
+
+309 23 "HTML309_1.txt"
+
+310 23 "HTML310_1.txt"
+
+311 23 "HTML311_1.txt"
+
+312 23 "HTML312_1.txt"
+
+313 23 "HTML313_1.txt"
+
+314 23 "HTML314_1.txt"
+
+315 23 "HTML315_1.txt"
+
+316 23 "HTML316_1.txt"
+
+317 23 "HTML317_1.txt"
+
+318 23 "HTML318_1.txt"
+
+319 23 "HTML319_1.txt"
+
+320 23 "HTML320_1.txt"
+
+321 23 "HTML321_1.txt"
+
+322 23 "HTML322_1.txt"
+
+323 23 "HTML323_1.txt"
+
+324 23 "HTML324_1.txt"
+
+325 23 "HTML325_1.txt"
+
+326 23 "HTML326_1.txt"
+
+327 23 "HTML327_1.txt"
+
+328 23 "HTML328_1.txt"
+
+329 23 "HTML329_1.txt"
+
+330 23 "HTML330_1.txt"
+
+331 23 "HTML331_1.txt"
+
+332 23 "HTML332_1.txt"
+
+333 23 "HTML333_1.txt"
+
+334 23 "HTML334_1.txt"
+
+335 23 "HTML335_1.txt"
+
+336 23 "HTML336_1.txt"
+
+337 23 "HTML337_1.txt"
+
+338 23 "HTML338_1.txt"
+
+339 23 "HTML339_1.txt"
+
+340 23 "HTML340_1.txt"
+
+341 23 "HTML341_1.txt"
+
+342 23 "HTML342_1.txt"
+
+343 23 "HTML343_1.txt"
+
+344 23 "HTML344_1.txt"
+
+345 23 "HTML345_1.txt"
+
+346 23 "HTML346_1.txt"
+
+347 23 "HTML347_1.txt"
+
+348 23 "HTML348_1.txt"
+
+349 23 "HTML349_1.txt"
+
+350 23 "HTML350_1.txt"
+
+351 23 "HTML351_1.txt"
+
+352 23 "HTML352_1.txt"
+
+353 23 "HTML353_1.txt"
+
+354 23 "HTML354_1.txt"
+
+355 23 "HTML355_1.txt"
+
+356 23 "HTML356_1.txt"
+
+357 23 "HTML357_1.txt"
+
+358 23 "HTML358_1.txt"
+
+359 23 "HTML359_1.txt"
+
+360 23 "HTML360_1.txt"
+
+361 23 "HTML361_1.txt"
+
+362 23 "HTML362_1.txt"
+
+363 23 "HTML363_1.txt"
+
+364 23 "HTML364_1.txt"
+
+365 23 "HTML365_1.txt"
+
+366 23 "HTML366_1.txt"
+
+367 23 "HTML367_1.txt"
+
+368 23 "HTML368_1.txt"
+
+369 23 "HTML369_1.txt"
+
+370 23 "HTML370_1.txt"
+
+371 23 "HTML371_1.txt"
+
+372 23 "HTML372_1.txt"
+
+373 23 "HTML373_1.txt"
+
+374 23 "HTML374_1.txt"
+
+375 23 "HTML375_1.txt"
+
+376 23 "HTML376_1.txt"
+
+377 23 "HTML377_1.txt"
+
+378 23 "HTML378_1.txt"
+
+379 23 "HTML379_1.txt"
+
+380 23 "HTML380_1.txt"
+
+381 23 "HTML381_1.txt"
+
+382 23 "HTML382_1.txt"
+
+383 23 "HTML383_1.txt"
+
+384 23 "HTML384_1.txt"
+
+385 23 "HTML385_1.txt"
+
+386 23 "HTML386_1.txt"
+
+387 23 "HTML387_1.txt"
+
+388 23 "HTML388_1.txt"
+
+389 23 "HTML389_1.txt"
+
+390 23 "HTML390_1.txt"
+
+391 23 "HTML391_1.txt"
+
+392 23 "HTML392_1.txt"
+
+393 23 "HTML393_1.txt"
+
+394 23 "HTML394_1.txt"
+
+395 23 "HTML395_1.txt"
+
+396 23 "HTML396_1.txt"
+
+397 23 "HTML397_1.txt"
+
+398 23 "HTML398_1.txt"
+
+399 23 "HTML399_1.txt"
+
+400 23 "HTML400_1.txt"
+
+401 23 "HTML401_1.txt"
+
+402 23 "HTML402_1.txt"
+
+403 23 "HTML403_1.txt"
+
+404 23 "HTML404_1.txt"
+
+405 23 "HTML405_1.txt"
+
+406 23 "HTML406_1.txt"
+
+407 23 "HTML407_1.txt"
+
+408 23 "HTML408_1.txt"
+
+409 23 "HTML409_1.txt"
+
+410 23 "HTML410_1.txt"
+
+411 23 "HTML411_1.txt"
+
+412 23 "HTML412_1.txt"
+
+413 23 "HTML413_1.txt"
+
+414 23 "HTML414_1.txt"
+
+415 23 "HTML415_1.txt"
+
+416 23 "HTML416_1.txt"
+
+417 23 "HTML417_1.txt"
+
+418 23 "HTML418_1.txt"
+
+419 23 "HTML419_1.txt"
+
+420 23 "HTML420_1.txt"
+
+421 23 "HTML421_1.txt"
+
+422 23 "HTML422_1.txt"
+
+423 23 "HTML423_1.txt"
+
+424 23 "HTML424_1.txt"
+
+425 23 "HTML425_1.txt"
+
+426 23 "HTML426_1.txt"
+
+427 23 "HTML427_1.txt"
+
+428 23 "HTML428_1.txt"
+
+429 23 "HTML429_1.txt"
+
+430 23 "HTML430_1.txt"
+
+431 23 "HTML431_1.txt"
+
+432 23 "HTML432_1.txt"
+
+433 23 "HTML433_1.txt"
+
+434 23 "HTML434_1.txt"
+
+435 23 "HTML435_1.txt"
+
+436 23 "HTML436_1.txt"
+
+437 23 "HTML437_1.txt"
+
+438 23 "HTML438_1.txt"
+
+439 23 "HTML439_1.txt"
+
+440 23 "HTML440_1.txt"
+
+441 23 "HTML441_1.txt"
+
+442 23 "HTML442_1.txt"
+
+443 23 "HTML443_1.txt"
+
+444 23 "HTML444_1.txt"
+
+445 23 "HTML445_1.txt"
+
+446 23 "HTML446_1.txt"
+
+447 23 "HTML447_1.txt"
+
+448 23 "HTML448_1.txt"
+
+449 23 "HTML449_1.txt"
+
+450 23 "HTML450_1.txt"
+
+451 23 "HTML451_1.txt"
+
+452 23 "HTML452_1.txt"
+
+453 23 "HTML453_1.txt"
+
+454 23 "HTML454_1.txt"
+
+455 23 "HTML455_1.txt"
+
+456 23 "HTML456_1.txt"
+
+457 23 "HTML457_1.txt"
+
+458 23 "HTML458_1.txt"
+
+459 23 "HTML459_1.txt"
+
+460 23 "HTML460_1.txt"
+
+461 23 "HTML461_1.txt"
+
+462 23 "HTML462_1.txt"
+
+463 23 "HTML463_1.txt"
+
+464 23 "HTML464_1.txt"
+
+465 23 "HTML465_1.txt"
+
+466 23 "HTML466_1.txt"
+
+467 23 "HTML467_1.txt"
+
+468 23 "HTML468_1.txt"
+
+469 23 "HTML469_1.txt"
+
+470 23 "HTML470_1.txt"
+
+471 23 "HTML471_1.txt"
+
+472 23 "HTML472_1.txt"
+
+473 23 "HTML473_1.txt"
+
+474 23 "HTML474_1.txt"
+
+475 23 "HTML475_1.txt"
+
+476 23 "HTML476_1.txt"
+
+477 23 "HTML477_1.txt"
+
+478 23 "HTML478_1.txt"
+
+479 23 "HTML479_1.txt"
+
+480 23 "HTML480_1.txt"
+
+481 23 "HTML481_1.txt"
+
+482 23 "HTML482_1.txt"
+
+483 23 "HTML483_1.txt"
+
+484 23 "HTML484_1.txt"
+
+485 23 "HTML485_1.txt"
+
+486 23 "HTML486_1.txt"
+
+487 23 "HTML487_1.txt"
+
+488 23 "HTML488_1.txt"
+
+489 23 "HTML489_1.txt"
+
+490 23 "HTML490_1.txt"
+
+491 23 "HTML491_1.txt"
+
+492 23 "HTML492_1.txt"
+
+493 23 "HTML493_1.txt"
+
+494 23 "HTML494_1.txt"
+
+495 23 "HTML495_1.txt"
+
+496 23 "HTML496_1.txt"

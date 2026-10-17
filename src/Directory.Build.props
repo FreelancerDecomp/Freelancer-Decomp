@@ -1,0 +1,55 @@
+<Project>
+  <PropertyGroup>
+    <!-- Default for projects without the shared diagnostics property sheet. -->
+    <FreelancerEnableTickProfile Condition="'$(FreelancerEnableTickProfile)'==''">0</FreelancerEnableTickProfile>
+    <!-- Port-only "Beta 2" on-screen label, FREELANCER_BETA_LABEL; off by default. -->
+    <FreelancerBetaLabel Condition="'$(FreelancerBetaLabel)'==''">0</FreelancerBetaLabel>
+    <!-- Port-only widescreen (Hor+) support, FREELANCER_WIDESCREEN_SUPPORT; 0 builds retail's 4:3-only client. -->
+    <FreelancerWidescreenSupport Condition="'$(FreelancerWidescreenSupport)'==''">1</FreelancerWidescreenSupport>
+    <!-- Port-only Direct3D 9 rendering (RP9.dll + the client's Ex hooks: volumetric nebula),
+         FREELANCER_RP9; 0 builds neither RP9.dll nor the client hooks (docs/re/rp9.md). -->
+    <FreelancerRp9 Condition="'$(FreelancerRp9)'==''">0</FreelancerRp9>
+    <!-- Port-only walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; off by default. -->
+    <FreelancerWalkMode Condition="'$(FreelancerWalkMode)'==''">0</FreelancerWalkMode>
+    <PlatformToolset>v143</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <CharacterSet>MultiByte</CharacterSet>
+    <!-- Output dir name per configuration: Release -> bin, Debug -> bin_debug, DebugASan -> binasan.
+         All are siblings at the repo root, so every ..\DATA / ..\EXE path resolves alike. -->
+    <FlBinDirName>bin</FlBinDirName>
+    <FlBinDirName Condition="'$(Configuration)'=='Debug'">bin_debug</FlBinDirName>
+    <FlBinDirName Condition="'$(Configuration)'=='DebugASan'">binasan</FlBinDirName>
+    <OutDir>$(MSBuildThisFileDirectory)..\$(FlBinDirName)\</OutDir>
+    <IntDir>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\$(Configuration)\</IntDir>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
+    <!-- DirectX 8.1 SDK (repo-root dx8/, gitignored). Headers via IncludePath append
+         (old basetsd.h must not precede the Windows 10 SDK). Override: /p:Dx8SdkDir=... -->
+    <Dx8SdkDir Condition="'$(Dx8SdkDir)'==''">$(MSBuildThisFileDirectory)..\dx8</Dx8SdkDir>
+    <!-- DirectX SDK June 2010 (RP9 only: D3DX9 headers/import lib, DxErr, d3dx9_43 redist cab).
+         Defaults to the installer's DXSDK_DIR (with or without a trailing slash). Its Include dir holds an
+         older d3d9.h, so RP9.vcxproj appends it after the Windows SDK. Override: /p:Dx9SdkDir=... -->
+    <Dx9SdkDir Condition="'$(Dx9SdkDir)'==''">$(DXSDK_DIR)</Dx9SdkDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='DebugASan'">MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <!-- x87 floating point (/arch:IA32), as the VC6-built retail modules. Retail leaves
+           FPU_PRESERVE off (EXE\dacom.ini; rp8.dll reads the key at .text:06d06bb4), so
+           Direct3D 8 CreateDevice drops the main thread's x87 precision control to 24-bit and
+           never restores it. x87 code inherits that; SSE2 code ignores the control word and
+           would keep 53-bit doubles where retail has 24-bit. -->
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

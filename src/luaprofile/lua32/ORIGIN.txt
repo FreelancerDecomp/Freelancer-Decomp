@@ -1,0 +1,18 @@
+Lua 3.2.2 private tree for luaprofile.dll (ILua / IProfileParser).
+
+Do not link Thorn.dll. Do not share lua_State with src/Thorn/lua32/.
+Each ILua instance: lua_setstate(0) then lua_open (own DAT / lua_state).
+
+Source:
+  Copied from src/Thorn/lua32/ (PUC-Rio lua-3.2.2: include/, src/*.c, src/*.h, COPYRIGHT)
+  lparser.c extracted from https://www.lua.org/ftp/lua-3.2.2.tar.gz
+    (Thorn uses lparser_stub.c; this DLL needs lua_dostring / lua_dofile source)
+
+Not copied (retail lua_open is baselib only — no iolib/strlib/mathlib):
+  src/lib/liolib.c, lstrlib.c, lmathlib.c, ldblib.c
+  Thorn lparser_stub.c
+
+lua.h LUA_VERSION remains "Lua 3.2" (retail _VERSION; stock 3.2.2 was "Lua 3.2.2").
+llex.c keeps Thorn's #include <stdio.h> for MSVC sprintf.
+
+License: PUC-Rio / TeCGraf 1994–1999 (see COPYRIGHT).

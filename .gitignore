@@ -1,0 +1,78 @@
+# Visual Studio / MSBuild
+src/.vs/
+src/**/obj/
+obj/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
+*.aps
+ipch/
+
+# DirectX 8.1 SDK (download it yourself, see README.md)
+dx8/
+
+# Build outputs (rebuilt from src/)
+bin/*.exe
+bin/*.dll
+bin/*.pdb
+bin/*.ilk
+bin/*.exp
+bin/*.lib
+bin_debug/
+binasan/
+
+# Keep the runtime config in bin/ (read from beside the exe)
+!bin/*.ini
+
+# Retail game data (supplied by the user, not versioned). The port's own data is tracked in
+# DATA_EXTRA/, next to it.
+DATA/
+
+# Retail binaries and the Ghidra listings (local reverse-engineering reference, not published).
+# gundll.dll is the one retail DLL the port loads as is, from its retail path ..\exe\gundll.dll.
+EXE/*
+!EXE/gundll.dll
+DLLS/
+
+# Retail installer files at the root: only the EULA gate is kept (..\EBUEula.dll, ..\EULA.rtf).
+/Readme.rtf
+/EBUSetup.sem
+/drvmgt.dll
+/SETUPENU.DLL
+/UNINSTAL.EXE
+/msxml3.msi
+/rds1enu.msi
+
+# Local agent instructions and state (not published)
+/AGENTS.md
+/CLAUDE.md
+.claude/
+.agent-tools/
+coordination/
+
+# OS / editor
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
+*.log
+*.dll
+*.exe
+*.msi
+*.obj
+*.pdb
+*.idb
+*.exp
+*.lib
+*.pyc
+
+# The two retail DLLs the port uses unchanged (re-included after *.dll above)
+!/EBUEula.dll
+!/EXE/gundll.dll
+
+# Throwaway RE scratch: per-investigation emulators, listing dumps, audit dumps.
+tools/_*

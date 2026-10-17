@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{2E2460CC-3158-46C3-A5F3-445D2D6C6401}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RP9</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- FreelancerRp9 (the client's FREELANCER_RP9 switch) lives in this shared sheet; read it before
+       the configuration groups so that 0 turns the project into an empty Utility build (no
+       RP9.dll, no DirectX SDK June 2010 needed). -->
+  <Import Project="..\Freelancer.Diagnostics.props" />
+  <PropertyGroup>
+    <Rp9Enabled>false</Rp9Enabled>
+    <Rp9Enabled Condition="'$(FreelancerRp9)'=='1'">true</Rp9Enabled>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Rp9Enabled)'!='true'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <TargetName>RP9</TargetName>
+    <OutDir>$(ProjectDir)..\..\$(FlBinDirName)\</OutDir>
+    <IntDir>$(ProjectDir)..\obj\RP9\$(Configuration)\</IntDir>
+    <!-- DirectX SDK June 2010 root ($(Dx9SdkDir), Directory.Build.props), with a trailing slash. -->
+    <Rp9DxSdkDir>$([MSBuild]::EnsureTrailingSlash('$(Dx9SdkDir)'))</Rp9DxSdkDir>
+    <!-- d3d9.h / d3d9.lib come from the Windows SDK. The June 2010 Include dir (D3DX9, DxErr)
+         also ships an older d3d9.h, so it is appended after the Windows SDK; its Lib\x86 is not
+         put on the library path (it holds an old d3d9.lib too) - d3dx9.lib and DxErr.lib are
+         linked by full path below. -->
+    <IncludePath>$(IncludePath);$(Rp9DxSdkDir)Include</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- Selects the Direct3D 9 branch of render/d3d8_min.h (the public render interfaces seen
+           through D3D9 types). -->
+      <PreprocessorDefinitions>RP_DIRECT3D9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <!-- legacy_stdio_definitions.lib: DxErr.lib (VS2008-built) calls the pre-UCRT stdio entry
+           points. -->
+      <AdditionalDependencies>dacom.lib;ddraw.lib;d3d9.lib;version.lib;$(Rp9DxSdkDir)Lib\x86\d3dx9.lib;$(Rp9DxSdkDir)Lib\x86\DxErr.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Rp9Enabled)'=='true'">
+    <PostBuildEvent>
+      <!-- 32-bit D3DX9 runtime next to the exe: SysWOW64 has no d3dx9_43.dll. Extracted once from
+           the June 2010 redist cab ("$(OutDir)." avoids a trailing backslash before the quote). -->
+      <Command>if not exist "$(OutDir)d3dx9_43.dll" expand "$(Rp9DxSdkDir)Redist\Jun2010_d3dx9_43_x86.cab" -F:d3dx9_43.dll "$(OutDir)."</Command>
+      <Message>RP9: d3dx9_43.dll (x86) into the output directory</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
+    <ClInclude Include="RP9.h" />
+    <ClInclude Include="RP9Ex.h" />
+    <ClInclude Include="..\include\render\IRenderPipelineEx.h" />
+    <ClInclude Include="Rp9D3d8Types.h" />
+    <ClInclude Include="Mgsdb.h" />
+    <ClInclude Include="..\include\dacom.h" />
+    <ClInclude Include="..\include\render\IRenderPipeline.h" />
+    <ClInclude Include="..\include\luaprofile.h" />
+    <ClInclude Include="..\include\render\d3d8_min.h" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
+    <ClCompile Include="RP9.cpp" />
+    <ClCompile Include="RP9Ex.cpp" />
+    <ClCompile Include="Mgsdb.cpp" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
+    <ResourceCompile Include="RP9.rc" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Rp9Enabled)'=='true'">
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="Rp9CheckDx9Sdk" BeforeTargets="PrepareForBuild" Condition="'$(Rp9Enabled)'=='true'">
+    <Error Condition="'$(Dx9SdkDir)'=='' or !Exists('$(Rp9DxSdkDir)Include\d3dx9.h')"
+           Text="RP9 needs the DirectX SDK (June 2010): set DXSDK_DIR or pass /p:Dx9SdkDir=... (looked for '$(Rp9DxSdkDir)Include\d3dx9.h')." />
+  </Target>
+</Project>

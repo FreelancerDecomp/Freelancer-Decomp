@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <FlResourceDll>true</FlResourceDll>
+    <OutDir>$(MSBuildThisFileDirectory)..\..\$(FlBinDirName)\</OutDir>
+    <EnableASAN>false</EnableASAN>
+    <IntDir>$(MSBuildThisFileDirectory)..\obj\$(MSBuildProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <NoEntry>true</NoEntry>
+      <NoEntryPoint>true</NoEntryPoint>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalOptions>/NOENTRY %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <ResourceCompile>
+      <!-- The imported .rc scripts are UTF-8; the host ANSI code page corrupts
+           punctuation and non-ASCII names before they reach the UTF-16 resources. -->
+      <AdditionalOptions>/c65001 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+</Project>

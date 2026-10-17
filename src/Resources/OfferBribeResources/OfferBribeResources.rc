@@ -1,0 +1,1764 @@
+#include <windows.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  0, 	"Random Mission Resources"
+  1, 	"%!0%!1%!2%!3%!4%!5%!6%!7%!8%!9%!10%!11%!12%!13%!14%!15%!16%!17%!18%!19%!20%!21%!22%!23"
+  2, 	"Difficulty : %d0\nReward : %d1\n"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  50, 	"You have severely disappointed %F0v1."
+  51, 	"You have made %F0v1 very pleased."
+  54, 	"Destroy %F0v1 installation at the mission waypoint."
+  55, 	"Find your target, %s0 %s1, by the mission waypoint."
+  56, 	"Find your target, %s0 %s1, by the mission waypoint."
+  57, 	"Hunt down your target, %s0 %s2, at the mission waypoint."
+  58, 	"Hunt down your target, %s0 %s2, at the mission waypoint."
+  59, 	"Kill all %F0v2 ships near the mission waypoint."
+  60, 	"Don’t let %s0 %s1 get away! Follow him to the new waypoint."
+  61, 	"Look for %s0 %s1 at the new waypoint."
+  62, 	"There are more %F0v2 ships by the waypoint. Go get ’em!"
+  63, 	"Destroy %I0v2."
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  64, 	"Destroy %I0v2."
+  65, 	"Kill all %F0v2 ships!"
+  66, 	"Hold off %s0 %s1’s cronies until he’s located."
+  67, 	"Kill %s0 %s1."
+  68, 	"Don’t worry about the %F0v2 ships."
+  69, 	"Kill all %F0v2 ships!"
+  70, 	"Hold off %s0 %s1’s cronies until he arrives."
+  71, 	"Kill %s0 %s1."
+  72, 	"Don’t worry about the %F0v2 ships."
+  73, 	"You have %d seconds to return to battle!"
+  74, 	"Destroy %L0v3!"
+  75, 	"Tractor in %L0v3!"
+  76, 	"Return %L0v3 to %B."
+  77, 	"RM bad_strid!"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  101, 	"We’ve been keeping a close watch on %F0v1 recently. "
+  102, 	"We’ve been keeping a close watch on %F0v1 recently. "
+  103, 	"Our most recent scans of %Z0v1 uncovered something very interesting. "
+  104, 	"We found %I0v1 and %I1v1 in an area that was previously empty. Your mission is to mount a quick surgical strike to remove this new threat. "
+  105, 	"Surveillance indicates that %F0v1 is up to something. "
+  106, 	"Surveillance indicates that %F0v1 are up to something. "
+  107, 	"Our analysts have scanned %Z0v1 and have found something suspicious. "
+  108, 	"We believe they are building what appears to be %I0v1 there. We can’t allow that to continue. Your mission is to fly there and put a stop to their operation. "
+  109, 	"Our scouts have informed us that more territory has fallen under the influence of %F0v1. "
+  110, 	"Our scouts have informed us that more territory has fallen under the influence of %F0v1. "
+  111, 	"A new base of theirs has recently been spotted in %Z0v1. We want it removed. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  112, 	"Your mission is to make your way to that area and eliminate %I0v2 you will find there. Understand, your primary objective is their installation, not %I1v2. "
+  113, 	"Recon has discovered a small installation run by %F0v1. "
+  114, 	"Recon has discovered a small installation run by %F0v1. "
+  115, 	"Currently it consists of %I0v1. "
+  116, 	"Despite its significance, this is far too minor a target for us to trifle with. However, we are looking for a third party willing to travel to %Z0v1 to deal with this problem for us. "
+  117, 	"Upon successful destruction of all targets, we will compensate this third party with %d0 credits. "
+  118, 	"One more thing, we also want you to eliminate all %F0v2 ships you encounter on your mission. "
+  119, 	"It is entirely your option to eliminate whatever hostile contacts you may encounter. Even if you do not, your compensation is assured with the completion of your main objective. "
+  120, 	"A more detailed scan hasn’t revealed any %F0v2 ships near their installation, so this may be a clean go. "
+  121, 	"We have already dispatched a wing of ships to %Z0v1. Meet up with them and they will assist you. "
+  122, 	"Once you’ve engaged %F0v1, we will send in other units for support. "
+  123, 	"Be advised that we can’t spare any other pilots to help you, so this will be a solo mission. "
+  124, 	"We have tracked down the wanted criminal, %s0 %s1. "
+  125, 	"This menace’s last known location was in %Z0v1. "
+  126, 	"Find him, destroy his ship, and tractor in his %L0v1. "
+  127, 	"Once it’s secured in your cargo hold, bring it back to %B so we can deal with him appropriately. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  128, 	"It appears there’s been a lot of activity from %F0v1 lately. "
+  129, 	"It appears there’s been a lot of activity from %F0v1 lately. "
+  130, 	"We’ve singled out one of their operatives, %s0 %s1. "
+  131, 	"It appears he is transporting %L0v2 in his ship. We are willing to pay to have him intercepted. "
+  132, 	"You are directed to destroy his ship and tractor in %L0v3. "
+  133, 	"We have reports that our old friend %s0 %s1 is up to some new tricks. "
+  134, 	"His ties to %F0v1 are apparently as strong as ever. "
+  135, 	"His ties to %F0v1 are apparently as strong as ever. "
+  136, 	"He recently acquired %L0v2 from an unnamed source. This is unacceptable to us. "
+  137, 	"Your mission is to find him and destroy %L0v3 at all costs. "
+  138, 	"We have tolerated %F0v1 long enough. "
+  139, 	"We have tolerated %F0v1 long enough. "
+  140, 	"One of their more active leaders, %s0 %s1, has been spotted. "
+  141, 	"He was last seen in %Z0v1 and we have reason to believe he’s still there. "
+  142, 	"You are hereby authorized to track him down and assassinate him. With his termination, perhaps they will learn some respect for %F0v1. "
+  143, 	"You are hereby authorized to track him down and assassinate him. With his termination, perhaps they will learn some respect for %F0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  144, 	"Move cautiously however, we believe that %I0v1 may be operating in the area. "
+  145, 	"A group of %F0v2 ships has been spotted. "
+  146, 	"A group of %F0v2 ships has been spotted. "
+  147, 	"We think they’re still in %Z0v1 where they were last seen. This is a simple housecleaning mission; get out there and make the area safe again. "
+  148, 	"We also understand that in addition to these ships there may be %I0v1 operating nearby. "
+  149, 	"In advance of your accepting this mission, we took the liberty of sending out some people to get the ball rolling. "
+  150, 	"In any case, once you’ve made it out there you will be joined by some of our ships, who will then act as your support. "
+  151, 	"We will dispatch a wing of our ships to %Z0v1 to assist you as soon as we can. Until then you will be solo on this one. "
+  152, 	"We’re being pressured by attacks from %F0v1. "
+  153, 	"We’re being pressured by attacks from %F0v1. "
+  154, 	"Our own sources have found they are attacking from %I0v1 and %I1v1. "
+  155, 	"Your job is to fly out to %Z0v1 and take them out — completely. "
+  156, 	"It appears %F0v1 has been very busy lately. "
+  157, 	"It appears %F0v1 have been very busy lately. "
+  158, 	"We’ve discovered that they’re building %I0v1. "
+  159, 	"We cannot afford for this to reach completion. Please fly to %Z0v1 and take care of this matter discreetly. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  160, 	"We’ve been informed that %F0v1 has just built a new installation. "
+  161, 	"We’ve been informed that the %F0v1 have just built a new installation. "
+  162, 	"This move in %Z0v1 now threatens our interests. "
+  163, 	"We want you to fly out there and destroy %I0v2. However, do not concern yourself with %I1v2, that is merely an obstacle. Your main goal is their base. "
+  164, 	"We have discovered a new %F0v2 presence. "
+  165, 	"We have discovered a new %F0v2 presence. "
+  166, 	"They have set up a new base in %Z0v1. "
+  167, 	"This is of some concern, but rather than undertake an expensive operation just to remove %I0v1, we are looking for a third party to help our cause. "
+  168, 	"We are offering %d0 credits for its removal. "
+  169, 	"Needless to say, we would also want you to terminate any and all %F0v2 ships you may come in contact with. "
+  170, 	"Naturally, you may eliminate any hostiles you may encounter in the service of your mission. However, don’t be concerned if you stay expressly to task, since you’ll be paid just the same. "
+  171, 	"Scans reveal an astonishing absence of %F0v2 ships near their base. This is odd, so proceed with caution. However, you may also be catching them at a weak moment. "
+  172, 	"A group of our ships is already on the way to %Z0v1 to help out. Link up with them and they’ll be your backup. "
+  173, 	"Once you have engaged %F0v1, we’ll send in some ships to act as backup. "
+  174, 	"Understand that we do not have the resources to call in anyone else to help you out, so you’ll be working alone. "
+  175, 	"%s0 %s1 of %F0v1 is a renegade and must be stopped. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  176, 	"%s0 %s1 of %F0v1 is a renegade and must be stopped. "
+  177, 	"He has been spotted in %Z0v1. "
+  178, 	"You are to track him down, destroy his ship, and tractor in his %L0v1. "
+  179, 	"Then, deliver it back to %B, so we may give him what’s coming to him. "
+  180, 	"We’ve just received an update regarding %s0 %s1. "
+  181, 	"He’s just gotten into a ship carrying %L0v2. "
+  182, 	"We see this as a golden opportunity to get back at %F0v1. "
+  183, 	"We see this as a golden opportunity to get back at %F0v1. "
+  184, 	"We would like you to track him down, eliminate him and pick up %L0v3. "
+  185, 	"We understand that %F0v1 has hired a new operative to do some of their dirty work. "
+  186, 	"We understand that %F0v1 have hired an operative to do some of their dirty work. "
+  187, 	"%s0 %s1 is his name, and he’s good. "
+  188, 	"He was sent to acquire %L0v2, which he has done. Now the goods are on him, and he’s on his way to the drop. It’s the perfect time to strike. "
+  189, 	"You are to track him down and eliminate all evidence of %L0v3. "
+  190, 	"%s0 %s1, one of our more troublesome enemies, has just been spotted. "
+  191, 	"At the time of this sighting, he was just entering %Z0v1. We would like you to follow him and assassinate him quickly and quietly. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  192, 	"We want his death to linger in the minds of %F0v1. "
+  193, 	"We want his death to linger in the minds of %F0v1. "
+  194, 	"Be aware though, we think that %I0v1 may also be in the area where he was last seen. "
+  195, 	"We understand some %F0v2 ships have been causing a lot of trouble. We can’t allow that to continue. "
+  196, 	"We understand some %F0v2 ships have been causing a lot of trouble. We can’t allow that to continue. "
+  197, 	"Please fly out to %Z0v1 and rid us of those pests. "
+  198, 	"We aren’t sure, but there may also be %I0v1 out there as well, so be prepared. "
+  199, 	"In order to make your job easier, we sent out a few of our own people to prepare for your arrival. "
+  200, 	"We thought you could use some help, so once you get out there a group of %F0v2 ships will be dispatched to hook up with you. "
+  201, 	"Our ships will join you in %Z0v1 to act as backup. However, until they arrive you are on your own. "
+  202, 	"It’s clear %F0v1 has gone too far this time. "
+  203, 	"It’s clear %F0v1 have gone too far this time. "
+  204, 	"We’ve just identified %I0v1 and %I1v1 of theirs dangerously close to our own interests. "
+  205, 	"Your job is to go to %Z0v1 and to terminate that base at once. "
+  206, 	"Underground sources say that %F0v1 is finishing construction on a new base. "
+  207, 	"Underground sources say that %F0v1 are finishing construction on a new base. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  208, 	"We think they’re working on %I0v1. "
+  209, 	"We would like you to travel to %Z0v1 and prevent this from succeeding. Do whatever you have to. "
+  210, 	"We have noticed that %F0v1 is trying to increase their territory. It’s a feeble attempt. "
+  211, 	"We have noticed that %F0v1 are trying to increase their territory. It’s a feeble attempt. "
+  212, 	"Regardless, you are to fly to %Z0v1 and destroy their base. "
+  213, 	"Be sure to take out %I0v2. However, leave %I1v2 intact to serve as a painful reminder. "
+  214, 	"Between us, a new base belonging to %F0v1 has been sighted. "
+  215, 	"Between us, a new base belonging to %F0v1 has been sighted. "
+  216, 	"They only have %I0v1, but still it can’t be tolerated. "
+  217, 	"The deal is: We are willing to shell out %d0 credits for its removal by a third party. "
+  218, 	"We suggest you take it. Fly out to %Z0v1 and get to work. "
+  219, 	"We do, of course, want you to kill all %F0v2 ships in that area, just to be sure. "
+  220, 	"Of course, we wouldn’t deprive you of additional kills. However, if you’re clever you’ll realize that you’re just being paid for this one sanction, not the collateral damage. Why waste your talents? "
+  221, 	"A scan of the area reveals a noticeable absence of %F0v2 ships around your target. Fools. They’ll never know what hit ’em. "
+  222, 	"We have already sent a few of our ships to %Z0v1. Rendezvous with them and they will help you accomplish your task. "
+  223, 	"Once you have engaged %F0v1, we will send in other ships to cover you. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  224, 	"Bear in mind that we will not be sending anyone else in to assist you. You will be operating on your own, so don’t do anything stupid. "
+  225, 	"%s0 %s1 of %F0v1 is a wanted man and has just been ratted out. "
+  226, 	"%s0 %s1 of %F0v1 is a wanted man and has just been ratted out. "
+  227, 	"One of his associates has informed us that he’s in %Z0v1. "
+  228, 	"We want you to track him down and smash his ship but salvage his %L0v1. "
+  229, 	"That way when you bring him back to %B, we will have something alive to start with when we exact retribution. "
+  230, 	"I am pleased to report that %F0v1 has finally made a critical mistake. "
+  231, 	"I am pleased to report that %F0v1 have finally made a critical mistake. "
+  232, 	"It appears that one of their number, %s0 %s1, has just been seen boarding a ship in an effort to move %L0v2. "
+  233, 	"At its last sighting, this ship was headed to %Z0v1. "
+  234, 	"We want you to find him, kill him, and pick up %L0v3 while you’re at it. "
+  235, 	"It seems %F0v1 has recently acquired something it shouldn’t have. "
+  236, 	"It seems %F0v1 have recently acquired something they shouldn’t have. "
+  237, 	"Apparently, %L0v2 fell into their hands. "
+  238, 	"More specifically, into %s0 %s1’s hands. "
+  239, 	"Too bad for him. We want you to find him, follow him, and then kill him. Destroy %L0v3 right then and there. We can’t afford to let that kind of cargo fall into enemy hands. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  240, 	"%F0v3 has been a thorn in our side for far too long. "
+  241, 	"%F0v3 have been a thorn in our side for far too long. "
+  242, 	"We’ve decided to make an example of one of their leaders, and we’ve chosen %s0 %s1. "
+  243, 	"He’s been tracked down to %Z0v1. "
+  244, 	"Fly out there and show him, and everyone else, what happens to people who cross %F0v1. "
+  245, 	"Fly out there and show him, and everyone else, what happens to people who cross %F0v1. "
+  246, 	"One final note, there is the possibility that your target has %I0v1 in the area. Move carefully. "
+  247, 	"Word from %Z0v1 is that there is a new infestation of scum out there. "
+  248, 	"This time it’s %F0v1. Time to call the exterminator, and that’s you. "
+  249, 	"This time it’s %F0v1. Time to call the exterminator, and that’s you. "
+  250, 	"Watch yourself though, there may also be %I0v1 operating out there as well. "
+  251, 	"In any case, we’ve already sent out some of our agents to act as your support on this mission. "
+  252, 	"So once you’re out there, a group of our ships will meet up with you and act as your cover. "
+  253, 	"We realize you may need some backup. However, until we can send a group of our ships to run interference for you in %Z0v1, you’ll be on your own out there. "
+  254, 	"Based on intelligence reports, we’ve been monitoring %F0v1 very closely lately. "
+  255, 	"Based on intelligence reports, we’ve been monitoring %F0v1 very closely lately. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  256, 	"Thanks to these efforts, we’ve noticed a lot of recent activity in %Z0v1. "
+  257, 	"Recon has identified %I0v1 and %I1v1 in this area. We cannot afford to let this group continue to expand their influence there. We want you to cut them down to size. "
+  258, 	"It’s no surprise that we’ve been having trouble with %F0v1, now more than ever. "
+  259, 	"It’s no surprise that we’ve been having trouble with %F0v1, now more than ever. "
+  260, 	"It seems every time we relax our grasp it’s perceived as a weakness, and others try to take advantage of it. Now there’s a new situation in %Z0v1. "
+  261, 	"We’ve just discovered that this group has completed the construction of %I0v1 there. Our position is simple: Now that we’ve found it, we need to take it down. Your mission is to strike this target and destroy it completely. "
+  262, 	"We need to strike a blow to the continued expansion of %F0v1. Hit them where it hurts. "
+  263, 	"We need to strike a blow to the continued expansion of %F0v1. Hit them where it hurts. "
+  264, 	"Intelligence reports they have a new base in %Z0v1. This seems like the perfect target of opportunity for us. "
+  265, 	"Your mission objective is to fly there and destroy their installation. Repeat: Only destroy %I0v2. You will leave %I1v2 untouched for now. "
+  266, 	"We’ve just discovered that %F0v1 has a new presence. "
+  267, 	"We’ve just discovered that %F0v1 have a new presence. "
+  268, 	"It’s a minor presence, I’ll grant you — just %I0v1. "
+  269, 	"However, we do still need it dealt with — and fairly soon. We are willing to pay you to fly to %Z0v1 and take care of this matter for us personally. "
+  270, 	"Once you are successful, you will receive %d0 credits and will have done us a great service. "
+  271, 	"As a side note, you are to engage all %F0v2 ships that you may encounter along the way. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  272, 	"You are also hereby authorized to destroy any other %F0v2 ships in the course of your mission. However, this is your option — you will be paid regardless. "
+  273, 	"In addition, Intelligence says there doesn’t appear to be any additional %F0v2 ships in the area, so you may be in luck. "
+  274, 	"Our ships will rendezvous with you on the way to %Z0v1. They will act as your support to help you complete your mission. "
+  275, 	"Once you engage %F0v1, we will dispatch a backup contingent of ships to act as your support should you need them. "
+  276, 	"You will be acting alone on this mission. Unfortunately, we can’t spare any other pilots to back you up, so be careful. "
+  277, 	"One of our informants has identified the whereabouts of %s0 %s1, one of our most-wanted. "
+  278, 	"Our confidence is high that he is in %Z0v1. "
+  279, 	"We want you to track him down there, destroy his ship, and retrieve his %L0v1. "
+  280, 	"Once he is in your custody, head to %B. We will take it from there. "
+  281, 	"Intelligence has just published its new findings on %F0v1. "
+  282, 	"Intelligence has just published its new findings on %F0v1. "
+  283, 	"Based on our analysis of this data, we have identified one of their operatives, %s0 %s1, as a valuable target. "
+  284, 	"He is currently between destinations — exposed — moving %L0v2. We want him intercepted. "
+  285, 	"You are authorized to track him down, destroy his ship and tractor in %L0v3. "
+  286, 	"It appears that our old friend %s0 %s1 hasn’t learned his lesson. "
+  287, 	"His activities with %F0v1 have now become a larger problem for us. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  288, 	"His activities with %F0v1 have now become a problem for us. "
+  289, 	"It appears that he has somehow acquired %L0v2. The time has come for us to act. "
+  290, 	"You are directed to locate him and eliminate %L0v3 once and for all. "
+  291, 	"Our patience with %F0v1 has grown thin. We can’t tolerate their actions any longer. "
+  292, 	"Our patience with %F0v1 has grown thin. We can’t tolerate their actions any longer. "
+  293, 	"Our profilers have identified one of their operatives, %s0 %s1, as a viable target. "
+  294, 	"We believe him to be vulnerable, in %Z0v1, right now. "
+  295, 	"You have orders to terminate him with extreme prejudice. His execution will send a clear message from %F0v1. "
+  296, 	"You have orders to terminate him with extreme prejudice. His execution will send a clear message from %F0v1. "
+  297, 	"Use caution, though. We believe that %I0v1 may be in the same area as your target and could be a danger. "
+  298, 	"We have word that a number of %F0v2 ships have just been identified. "
+  299, 	"We have word that a number of %F0v2 ships have just been identified. "
+  300, 	"You are to fly to %Z0v1 and engage them at once. Eliminate all hostile ships. "
+  301, 	"As a side note, it is possible that %I0v1 may be operating nearby, so approach with caution. "
+  302, 	"Meanwhile, we already have advance ships in the area. Hook up with them once you are out there. "
+  303, 	"Meanwhile, once you’ve made it to your destination, you will be joined by our support units. They will help you complete your mission. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  304, 	"Meanwhile, given our situation in %Z0v1, there is every likelihood that you will be acting alone. Stay frosty out there. "
+  305, 	"We’re starting to feel the pressure from %F0v1. "
+  306, 	"We’re starting to feel the pressure from %F0v1. "
+  307, 	"We’ve only now just discovered the source of our trouble to be %I0v1 and %I1v1, from which they are staging their attacks. "
+  308, 	"We want you to make your way to %Z0v1 and bring this incident to a close. Take them down. "
+  309, 	"We understand %F0v1 has embarked on a new plan. "
+  310, 	"We understand %F0v1 have embarked on a new plan. "
+  311, 	"They intend to construct %I0v1 from which they hope to sustain more effective assaults on our interests. "
+  312, 	"We can’t allow this to happen. The time to act is now. Your mission is to head to %Z0v1 and take down their installation. "
+  313, 	"We understand that %F0v1 has just installed a new base of operations. "
+  314, 	"We understand that the %F0v1 have just installed a new base of operations. "
+  315, 	"Now our own interests in and around %Z0v1 appear to be at risk. "
+  316, 	"Please go there and close down their operation. We think you can ignore %I1v2. Concentrate your fire on %I0v2, which is our main concern. "
+  317, 	"A new %F0v2 presence has just recently been discovered. "
+  318, 	"A new %F0v2 presence has just recently been discovered. "
+  319, 	"Apparently, they’ve set up a new base of operations in %Z0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  320, 	"This may not seem like a problem for us now — it’s just %I0v1, after all — but it might be in the near future. So rather than undertake the unnecessary risk of removal ourselves, we’d rather pay you to do it for us. "
+  321, 	"For this favor, we are offering you %d0 credits. "
+  322, 	"Of course, we would also want you to destroy any %F0v2 ships you encounter along the way. It’s neater that way. "
+  323, 	"Of course, you may also engage and destroy any hostiles you encounter along the way. Either way, it won’t impact our deal. "
+  324, 	"We have it on good authority that there are no %F0v2 ships near this installation right now. Excellent. This may be the right time to strike. "
+  325, 	"You’ll find that a group of our ships has already been sent to %Z0v1 to back you up. That should give you an edge. "
+  326, 	"You will engage %F0v1 first, then expect a group of our ships to act as backup — purely a precaution. "
+  327, 	"You understand, of course, that you’ll be working completely alone on this. There’ll be no one to call for backup. "
+  328, 	"%s0 %s1 of %F0v1 has caused us trouble for the last time. "
+  329, 	"%s0 %s1 of %F0v1 has caused us trouble for the last time. "
+  330, 	"He has just been seen in %Z0v1. We want him badly. "
+  331, 	"Please go after him and destroy his ship. Once you have done this, tractor in his %L0v1. "
+  332, 	"Then return to %B... He will pay for his transgressions. "
+  333, 	"We have just received information on the whereabouts of %s0 %s1. "
+  334, 	"Apparently, he’s currently in a ship carrying %L0v2. Now he’s vulnerable. "
+  335, 	"This is the best time to strike a blow against %F0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  336, 	"This is the best time to strike a blow against %F0v1. "
+  337, 	"We want you to hunt him down, eliminate him, and tractor in %L0v3. "
+  338, 	"We understand that %F0v1 has someone new working for them. "
+  339, 	"We understand that %F0v1 have someone new working for them. "
+  340, 	"%s0 %s1 has been identified as a major player in a series of crimes. "
+  341, 	"He has now stolen %L0v2 and is looking to offload them quickly to his handlers. "
+  342, 	"We want you to act as a cleaner, eliminating him and all traces of %L0v3. "
+  343, 	"%s0 %s1, one of the most dangerous operatives we know, has just been betrayed by a turncoat. "
+  344, 	"We are told that he is in %Z0v1. Your job is to make sure that he doesn’t see another day. Eliminate him. "
+  345, 	"Under a new initiative, this will be the first of many such moves against %F0v1. "
+  346, 	"Under a new initiative, this will be the first of many such moves against %F0v1. "
+  347, 	"Be advised, there may be %I0v1 at work in the area as well, so keep your eyes open. "
+  348, 	"We’ve been enduring one attack after another from %F0v1. Now we have had enough. "
+  349, 	"We’ve been enduring one attack after another from %F0v1. Now we have had enough. "
+  350, 	"Make your way to %Z0v1 and kill them. Kill them all. "
+  351, 	"Be advised that %I0v1 may be operating out there as well, so be cautious. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  352, 	"To help you accomplish your task, we have already dispatched some ships to assist you. "
+  353, 	"To help you accomplish your task, a group of %F0v2 ships will be dispatched once you reach your destination. "
+  354, 	"Our ships will rendezvous with you in %Z0v1 to be your support, but until they get there, you will be solo. "
+  355, 	"The actions of %F0v1 can no longer be tolerated. "
+  356, 	"The actions of %F0v1 can no longer be tolerated. "
+  357, 	"Now we’ve discovered %I0v1 and %I1v1 of theirs, in a very sensitive area. "
+  358, 	"We want you to go to %Z0v1 and destroy this operation once and for all. "
+  359, 	"Our informants say that %F0v1 is about to activate a new installation of some sort. "
+  360, 	"Our informants say that %F0v1 are about to activate a new installation of some sort. "
+  361, 	"We believe this installation is %I0v1. This could spell trouble for us. "
+  362, 	"We want you to go to %Z0v1 and prevent this from happening. Destroy everything. "
+  363, 	"We’ve noticed that %F0v1 is sadly trying to increase its influence. "
+  364, 	"We’ve noticed that %F0v1 are sadly trying to increase their influence. "
+  365, 	"Your mission is to fly to %Z0v1 and destroy this attempt. "
+  366, 	"We want you to eliminate %I0v2. However, leave %I1v2 to remind them of their mistake. "
+  367, 	"Our sources have identified a new base belonging to %F0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  368, 	"Our sources have identified a new base belonging to %F0v1. "
+  369, 	"There’s not much to it. They only have %I0v1. Still, we cannot afford to be lenient. "
+  370, 	"We think we can pay you %d0 credits for the removal of this irritation. "
+  371, 	"It’s a generous rate, so you should accept the work. Once you do, get right on it and head for %Z0v1. Don’t fail us. "
+  372, 	"Naturally, we want you to kill all %F0v2 ships in the area, just to be thorough. "
+  373, 	"You can kill what you like out there, but we’re only paying you for your actual work. "
+  374, 	"To our knowledge there are no %F0v2 ships around your target. Great. Now’s your chance. "
+  375, 	"Rendezvous with our ships in %Z0v1. They will help you accomplish your mission. "
+  376, 	"Once you’ve drawn first blood from %F0v1, we’ll send in additional ships to cover you. "
+  377, 	"You should realize that it’s just you out there; there’s no one else coming. If you die or fail, that’s it. "
+  378, 	"%s0 %s1 of %F0v1 is owed some payback. "
+  379, 	"%s0 %s1 of %F0v1 is owed some payback. "
+  380, 	"One of his men has told us that he is in %Z0v1 now. "
+  381, 	"We want you to get on his trail and take him out, but then scoop up his %L0v1. "
+  382, 	"Then we want you to make your way back to %B, so vengeance can be properly satisfied. "
+  383, 	"It seems %F0v1 has finally blundered. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  384, 	"It seems %F0v1 have finally blundered. "
+  385, 	"One of their men, %s0 %s1, has just boarded a ship to shift %L0v2. "
+  386, 	"Now’s our chance. The ship is heading into %Z0v1 — and our trap. "
+  387, 	"We want you to find him, kill him, and snag %L0v3 to boot. "
+  388, 	"So, %F0v1 has now done something new. "
+  389, 	"So, %F0v1 have now done something new. "
+  390, 	"Apparently, they’ve managed to snag %L0v2. "
+  391, 	"It’s clear, however, that %s0 %s1’s the mastermind behind this affront. "
+  392, 	"That makes him a very popular corpse in our book. Your mission is to acquire and then terminate him. Meanwhile, destroy %L0v3 while you’re at it, just to be on the safe side. "
+  393, 	"%F0v3 has been on our death list for a long time. "
+  394, 	"%F0v3 have been on our death list for a long time. "
+  395, 	"We’ve finally decided to assassinate one of their more visible leaders, %s0 %s1. "
+  396, 	"Fortunately, we’ve managed to locate him in %Z0v1. "
+  397, 	"We want you to go out there and give him a love letter from %F0v1 — one he won’t ever recover from. "
+  398, 	"We want you to go out there and give him a love letter from %F0v1 — one he won’t ever recover from. "
+  399, 	"One small detail: There is the chance that your target might be near %I0v1 in the area. Keep an eye out. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  400, 	"We’ve heard recently from %Z0v1, and there appears to be a problem out there. "
+  401, 	"It seems %F0v1 has overstepped its bounds. Time to teach them a lesson they won’t forget. "
+  402, 	"It seems %F0v1 have overstepped their bounds. Time to teach them a lesson they won’t forget. "
+  403, 	"However, be careful. There may also be %I0v1 operating out there as well. "
+  404, 	"In any case, we’ve already sent out some of our agents to serve as your backup. Hook up with them along the way. "
+  405, 	"In any case, a group of our ships will meet up with you once you arrive. They will act as your cover in this operation. "
+  406, 	"Unfortunately, we can only do so much right now. If you get into trouble in %Z0v1, you’re on your own out there. "
+  407, 	"Military Intelligence has had the movements of %F0v1 under close surveillance recently. "
+  408, 	"Military Intelligence has had the movements of %F0v1 under close surveillance recently. "
+  409, 	"We noticed increased comm. traffic and a jump in activity in %Z0v1, so we sent a recon team in to investigate. "
+  410, 	"They have reported that %I0v1 and %I1v1 have just come online in that area. Now we need you to go there and take down the installation. "
+  411, 	"Things have gone from bad to worse with %F0v1. "
+  412, 	"Things have gone from bad to worse with %F0v1. "
+  413, 	"Despite our best efforts, they have violated what little trust we had by building a new installation in %Z0v1. "
+  414, 	"The presence of %I0v1 out there changes everything. We can’t allow this kind of escalation. Therefore, your mission is to eliminate this problem for us. "
+  415, 	"We need to do something that will stop %F0v1 in its tracks. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  416, 	"We need to do something that will stop %F0v1 in their tracks. "
+  417, 	"We have identified one of their installations in %Z0v1 that should make a good target. "
+  418, 	"We want you to go there and take out that base. However, be sure to eliminate only %I0v2. We want you to leave %I1v2 alone to serve as a reminder to them. "
+  419, 	"Foolishly, %F0v1 has been making some minor attempts to move again. "
+  420, 	"Foolishly, %F0v1 have been making some minor attempts to move again. "
+  421, 	"We have just identified %I0v1 of theirs in a brand new area. "
+  422, 	"This is a minor annoyance for us. However, we still can’t allow them to get a better foothold in that region. We are therefore willing to hire you to head to %Z0v1 and eliminate this nuisance for us. "
+  423, 	"Once you have completed this task, you will receive %d0 credits and our gratitude. Both are worth having, I assure you. "
+  424, 	"Naturally, we will also require you to destroy any %F0v2 ships that you may encounter along the way. "
+  425, 	"Naturally, feel free to destroy any other %F0v2 ships that you may encounter along the way. However, this is entirely up to you. "
+  426, 	"The area appears to be clear of any additional %F0v2 ships, so this may be a clean mission. Take advantage of it. "
+  427, 	"You will rendezvous with a support group of ships as you head to %Z0v1. Rely on them to help you complete your mission. "
+  428, 	"As you engage %F0v1, we will direct a support group of ships to meet you. Rely on them to help you complete your mission. "
+  429, 	"You will also be flying solo on this one, so don’t take any unnecessary risks. "
+  430, 	"After days of interrogation, one of our sources has finally told us where %s0 %s1 is. We’ve been after him for a long time... "
+  431, 	"We are now fairly certain that he has been hiding out in %Z0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  432, 	"Your mission is to track him down out there, destroy his ship, and recover his %L0v1. "
+  433, 	"Once you have custody, set your course for %B. We will take delivery there. "
+  434, 	"We’ve had our eye on %F0v1 for sometime now. "
+  435, 	"We’ve had our eye on %F0v1 for sometime now. "
+  436, 	"We think the time is right to take out one of their more senior operatives, %s0 %s1. "
+  437, 	"We understand that he is in transit right now, carrying %L0v2. We don’t want him to reach his destination. "
+  438, 	"You are to find and eliminate this target, then tractor in %L0v3. Be discreet and be accurate. We can’t afford to blow this. "
+  439, 	"We have a problem that requires some immediate attention, and its name is %s0 %s1. "
+  440, 	"He has been very busy lately with %F0v1. "
+  441, 	"He has been very busy lately with %F0v1. "
+  442, 	"Now that he’s acquired %L0v2, he’s become more trouble than he is worth. "
+  443, 	"Your mission is to locate this irritant and eliminate %L0v3 once and for all. "
+  444, 	"The time has come to move against %F0v1. "
+  445, 	"The time has come to move against %F0v1. "
+  446, 	"Intelligence has identified the whereabouts of one of their more high-profile members, %s0 %s1. "
+  447, 	"As near as we can tell, he is going to be in %Z0v1 shortly. This will provide the perfect opportunity for us to act. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  448, 	"Your mission is to hunt him down and execute him on the spot. They will learn to respect %F0v1. "
+  449, 	"Your mission is to hunt him down and execute him on the spot. They will learn to respect %F0v1. "
+  450, 	"However, we also understand that there may be %I0v1 operating in the area, so use caution. "
+  451, 	"A reconnaissance unit has reported that a number of %F0v2 ships have just been spotted. "
+  452, 	"A reconnaissance unit has reported that a number of %F0v2 ships have just been spotted. "
+  453, 	"We need you to fly to %Z0v1 and eliminate them all. "
+  454, 	"Be advised, there may also be %I0v1 operating in the area. "
+  455, 	"Meanwhile, some advance ships have already been dispatched. They will be expecting you. "
+  456, 	"Meanwhile, support units will rendezvous with you once you’ve made it to your destination. Count on them to help you complete your mission. "
+  457, 	"Meanwhile, you will be operating completely alone out in %Z0v1. Do not fail us. "
+  458, 	"We’re getting a lot of heat from %F0v1 now. "
+  459, 	"We’re getting a lot of heat from %F0v1 now. "
+  460, 	"We just got word that they’ve been staging their assaults from %I0v1 and %I1v1. It’s time to take them out. "
+  461, 	"Go to %Z0v1 at once and clean house. Leave no trace. "
+  462, 	"We’ve just received some worrying news about %F0v1. "
+  463, 	"We’ve just received some worrying news about %F0v1. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  464, 	"We understand that they’re in the process of constructing %I0v1. "
+  465, 	"Naturally, we cannot allow this shift in the balance of power. We want you to fly to %Z0v1 and eliminate this problem before it gets out of control. "
+  466, 	"We now know that %F0v1 has just established a new base of operations. "
+  467, 	"We now know that %F0v1 have just established a new base of operations. "
+  468, 	"This raises grave concerns for us in %Z0v1. "
+  469, 	"We want you to fly out there and eliminate %I0v2. Don’t bother with %I1v2, focus only on your main objective. "
+  470, 	"We’ve just been informed of a new %F0v2 situation. "
+  471, 	"We’ve just been informed of a new %F0v2 situation. "
+  472, 	"They have apparently set up a new facility in %Z0v1. "
+  473, 	"This facility is minor, merely %I0v1. However just to be safe, we want you to dismantle this operation as soon as possible. "
+  474, 	"In return for this quick, discreet intervention, you will be paid %d0 credits. "
+  475, 	"Additionally, we want you to eliminate all %F0v2 ships you come in contact with. "
+  476, 	"Additionally, feel free to take on any other hostiles you run into along the way. You’ll be paid regardless. "
+  477, 	"There appear to be no %F0v2 ships in the area. That could be a good sign, so move quickly while you have the advantage. "
+  478, 	"We’ve already alerted a group of our ships to head to %Z0v1. They will rendezvous with you and serve as your backup. "
+  479, 	"Once you have engaged %F0v1, a group of our ships will arrive and serve as your backup. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  480, 	"Understand that under the circumstances, you’ll be on your own out there. "
+  481, 	"%s0 %s1 of %F0v1 is a danger to society and must be taken down. "
+  482, 	"%s0 %s1 of %F0v1 is a danger to society and must be taken down. "
+  483, 	"He has just been seen in %Z0v1. This is our chance. "
+  484, 	"We want you to track him down, destroy his ship and pick up his %L0v1. "
+  485, 	"Then, return to %B so he can face justice. "
+  486, 	"We’ve just received information regarding the criminal %s0 %s1. "
+  487, 	"We now understand that he is en route to a new destination, carrying %L0v2. "
+  488, 	"This is the moment we’ve been waiting for. This should send a message straight to %F0v1. "
+  489, 	"This is the moment we’ve been waiting for. This should send a message straight to %F0v1. "
+  490, 	"We want you to find him, eliminate him and pick up %L0v3. "
+  491, 	"We are told that %F0v1 has brought in a specialist for something big. "
+  492, 	"We are told that %F0v1 have brought in a specialist for something big. "
+  493, 	"%s0 %s1 is his name and he’s supposed to be good — very good. "
+  494, 	"His target was %L0v2, which he has now already acquired. We think that if we act fast, we can stop him from turning over the goods. "
+  495, 	"We want you to find him and destroy every trace of %L0v3. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  496, 	"%s0 %s1, a long-time thorn in our side, has just been seen. "
+  497, 	"He is headed into %Z0v1, the perfect place to disappear. We want you to help him do so, by finding and killing him before he resurfaces somewhere else. "
+  498, 	"We want %F0v1 to suspect that we did it, but we don’t want them to have any physical proof. Take every precaution. "
+  499, 	"We want %F0v1 to suspect that we did it, but we don’t want them to have any physical proof. Take every precaution. "
+  500, 	"Of course, it is entirely possible that %I0v1 may also be at work in the area too, so be very careful. "
+  501, 	"A group of %F0v2 ships appears to have been causing a lot of hassle lately. "
+  502, 	"A group of %F0v2 ships appears to have been causing a lot of hassle lately. "
+  503, 	"We want you to head to %Z0v1 and put a stop to them — permanently. "
+  504, 	"There may also be %I0v1 out there too, so take extra precautions. "
+  505, 	"To help you, we’ve sent out a few of our ships to prepare for your arrival. "
+  506, 	"Once you get out there, a group of %F0v2 ships will arrive to back you up. "
+  507, 	"Even though our ships will join you in %Z0v1, you’ll be without backup and totally alone until they arrive, so be careful. "
+  508, 	"Well, %F0v1 has crossed the line now. "
+  509, 	"Well, %F0v1 have crossed the line now. "
+  510, 	"We’ve just ID’d %I0v1 and %I1v1 of theirs. They are not in a good place. "
+  511, 	"You’re to go at once to %Z0v1 and terminate that operation post haste. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  512, 	"The underground says %F0v1 has nearly finished building a new installation. "
+  513, 	"The underground says %F0v1 have nearly finished building a new installation. "
+  514, 	"We didn’t know what it was at first, but now all evidence points to it being %I0v1. "
+  515, 	"You are to go to %Z0v1 and prevent this from happening. "
+  516, 	"We believe %F0v1 is trying to increase their presence. "
+  517, 	"We believe %F0v1 are trying to increase their presence. "
+  518, 	"Fly to %Z0v1 at once and destroy their new installation. "
+  519, 	"Take out %I0v2, but leave %I1v2 as a monument to their failure. "
+  520, 	"It appears a new installation belonging to %F0v1 has just been identified. Well, it’s at least part of an installation anyway. "
+  521, 	"It appears a new installation belonging to %F0v1 has been identified. Well, at least it’s part of an installation anyway. "
+  522, 	"Though it may only be %I0v1, that’s enough to cause us concern. "
+  523, 	"In any case, we will pay you %d0 credits to eliminate this problem for us. Make it go away. "
+  524, 	"You should fly to %Z0v1 at once and get to work as soon as possible. "
+  525, 	"Just to be sure, we do want you to kill all %F0v2 ships you encounter. "
+  526, 	"Our deal covers this kill and this kill alone. Any other fighting you do, you are doing for free. "
+  527, 	"We’ve noticed an unusual ebb in %F0v2 ships around your intended target. Excellent. That will work in your favor. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  528, 	"Rendezvous with our ships in %Z0v1. They will act as your support and help you complete your mission. "
+  529, 	"Once you have engaged %F0v1, a group of our ships will arrive to assist you in mopping up. "
+  530, 	"You’ll have no backup on this mission. Remember, you will be operating on your own, so be careful. "
+  531, 	"%s0 %s1 of %F0v1 has finally been betrayed! "
+  532, 	"%s0 %s1 of %F0v1 has finally been betrayed! "
+  533, 	"We now know, thanks to one of his associates, that he’s traveling in %Z0v1 at this moment. "
+  534, 	"We want you to track him down, destroy his ship, and pick up his %L0v1. "
+  535, 	"That way when you report back to %B, we can administer our own brand of justice. "
+  536, 	"It looks like %F0v1 just blew it. "
+  537, 	"It looks like %F0v1 just blew it. "
+  538, 	"Seems that one of their guys, %s0 %s1, has just been seen boarding a ship in an effort to shift %L0v2. "
+  539, 	"He’s on his way into %Z0v1, we are told. This is a great opportunity for us to act. "
+  540, 	"We want you to find him, knock him off and scoop up %L0v3. "
+  541, 	"It looks like %F0v1 has just stuck its nose in too deep. Now it’ll get cut off. "
+  542, 	"It looks like %F0v1 have just stuck their nose in too deep. Now it’ll get cut off. "
+  543, 	"Apparently, they’ve somehow managed to get their hands on %L0v2. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  544, 	"Or rather, they were %s0 %s1’s hands. "
+  545, 	"In response to this, we want you to find and then kill him. Also destroy %L0v3 on the spot. We can’t afford to let that kind of cargo just float around. "
+  546, 	"%F0v3 has been a great source of pain for us recently. "
+  547, 	"%F0v3 have been a great source of pain for us recently. "
+  548, 	"We’ve managed to identify and isolate the whereabouts of their leader, %s0 %s1. "
+  549, 	"Apparently, he is in %Z0v1. That’s a lucky break for us, and one we won’t waste. "
+  550, 	"Your mission is to fly out there and give him a message from %F0v1 — a final message. "
+  551, 	"Your mission is to fly out there and give him a message from %F0v1 — a final message. "
+  552, 	"Bear in mind that there is every possibility that %I0v1 may be at work there too. Watch yourself. "
+  553, 	"Word has it from %Z0v1 that there is an undesirable presence there now. "
+  554, 	"This time it’s %F0v1. We need a cleaner out there to fix this problem and we need him fast. "
+  555, 	"This time it’s %F0v1. We need a cleaner out there to fix this problem and we need him fast. "
+  556, 	"However, be careful. There may also be %I0v1 operating out there as well. Just be cautious and you should be alright. "
+  557, 	"Meanwhile, we’ve already sent out some units to act as your support on this mission. They’ll help you out. "
+  558, 	"So once you’re out there, a group of our ships will meet up with you and serve as your cover. They’ll help you out. "
+  559, 	"You might need some help out there. However, until we have another wing free, you’ll be acting on your own. Basically you’re solo on this one, so take it easy. Do your job and do it right. "
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1000, 	"Liberty Navy"
+  1001, 	"Liberty Security Force"
+  1002, 	"Liberty Police"
+  1003, 	"Bretonia Armed Forces"
+  1004, 	"Bretonia Police Authority"
+  1005, 	"Kusari Naval Forces"
+  1006, 	"Kusari State Police"
+  1007, 	"Rheinland Military"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1008, 	"Rheinland Federal Police"
+  1009, 	"Samura Heavy Industries"
+  1010, 	"Daumann Heavy Construction"
+  1011, 	"Kishiro Technologies"
+  1012, 	"Bretonia Mining and Metal"
+  1013, 	"Deep Space Engineering"
+  1014, 	"Border World Exports"
+  1015, 	"Republican Shipping"
+  1016, 	"Ageira Technologies"
+  1017, 	"Synth Foods"
+  1018, 	"Kruger Minerals"
+  1019, 	"Planetform"
+  1020, 	"Interspace Commerce"
+  1021, 	"Universal Shipping"
+  1022, 	"Cryer Pharmaceuticals"
+  1023, 	"ALG Waste Disposal"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1024, 	"Orbital Spa and Cruise Lines"
+  1025, 	"Gateway Shipping"
+  1026, 	"Corsairs"
+  1027, 	"n/a"
+  1028, 	"Outcasts"
+  1029, 	"Red Hessians"
+  1030, 	"Blood Dragons"
+  1031, 	"Junkers"
+  1032, 	"Hogosha"
+  1033, 	"Mollys"
+  1034, 	"Xenos"
+  1035, 	"Bundschuh"
+  1036, 	"Gaians"
+  1037, 	"Lane Hackers"
+  1038, 	"Unioners"
+  1039, 	"Golden Chrysanthemums"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1040, 	"LWB"
+  1041, 	"Farmers Alliance"
+  1042, 	"Liberty Rogues"
+  1043, 	"The Order"
+  1044, 	"Gas Miners Guild"
+  1045, 	"Nomads"
+  1046, 	"Independent Miners Guild"
+  1047, 	"Zoners"
+  1048, 	"Bounty Hunters Guild"
+  1049, 	"Kress’ Men"
+  1050, 	"Unknown Faction"
+  1051, 	"Fugitive"
+  1052, 	"Quintaine’s Men"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1100, 	"the Liberty Navy"
+  1101, 	"the LSF"
+  1102, 	"the Liberty Police"
+  1103, 	"the Bretonia Armed Forces"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1104, 	"the Bretonia Police Authority"
+  1105, 	"the Kusari Naval Forces"
+  1106, 	"the Kusari State Police"
+  1107, 	"the Rheinland Military"
+  1108, 	"the Rheinland Federal Police"
+  1109, 	"Samura Heavy Industries"
+  1110, 	"Daumann Heavy Construction"
+  1111, 	"Kishiro Technologies"
+  1112, 	"Bretonia Mining and Metal"
+  1113, 	"Deep Space Engineering"
+  1114, 	"Border World Exports"
+  1115, 	"Republican Shipping"
+  1116, 	"Ageira Technologies"
+  1117, 	"Synth Foods"
+  1118, 	"Kruger Minerals"
+  1119, 	"Planetform"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1120, 	"Interspace Commerce"
+  1121, 	"Universal Shipping"
+  1122, 	"Cryer Pharmaceuticals"
+  1123, 	"ALG Waste Disposal"
+  1124, 	"Orbital Spa and Cruise Lines"
+  1125, 	"Gateway Shipping"
+  1126, 	"the Corsairs"
+  1127, 	"n/a"
+  1128, 	"the Outcasts"
+  1129, 	"the Red Hessians"
+  1130, 	"the Blood Dragons"
+  1131, 	"the Junkers"
+  1132, 	"the Hogosha"
+  1133, 	"the Mollys"
+  1134, 	"the Xenos"
+  1135, 	"the Bundschuh"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1136, 	"the Gaians"
+  1137, 	"the Lane Hackers"
+  1138, 	"the Unioners"
+  1139, 	"the Golden Chrysanthemums"
+  1140, 	"the LWB"
+  1141, 	"the Farmers Alliance"
+  1142, 	"the Liberty Rogues"
+  1143, 	"The Order"
+  1144, 	"the Gas Miners Guild"
+  1145, 	"the Nomads"
+  1146, 	"the Independent Miners Guild"
+  1147, 	"the Zoners"
+  1148, 	"the Bounty Hunters Guild"
+  1149, 	"Kress’ Men"
+  1150, 	"the Unknown Faction"
+  1151, 	"Fugitive"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1152, 	"Quintaine’s Men"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1200, 	"Liberty Navy"
+  1201, 	"Liberty Security Force"
+  1202, 	"Liberty Police"
+  1203, 	"Bretonia Armed Forces"
+  1204, 	"Bretonia Police"
+  1205, 	"Kusari Naval"
+  1206, 	"Kusari Police"
+  1207, 	"Rheinland Military"
+  1208, 	"Rheinland Police"
+  1209, 	"Samura"
+  1210, 	"Daumann"
+  1211, 	"Kishiro"
+  1212, 	"Bretonia Mining and Metal"
+  1213, 	"Deep Space Engineering"
+  1214, 	"Border World Exports"
+  1215, 	"Republican Shipping"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1216, 	"Ageira"
+  1217, 	"Synth Foods"
+  1218, 	"Kruger Minerals"
+  1219, 	"Planetform"
+  1220, 	"Interspace Commerce"
+  1221, 	"Universal Shipping"
+  1222, 	"Cryer Pharmaceuticals"
+  1223, 	"ALG Waste Disposal"
+  1224, 	"Orbital Spa and Cruise Lines"
+  1225, 	"Gateway Shipping"
+  1226, 	"Corsair"
+  1227, 	"n/a"
+  1228, 	"Outcast"
+  1229, 	"Red Hessian"
+  1230, 	"Blood Dragon"
+  1231, 	"Junker"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1232, 	"Hogosha"
+  1233, 	"Molly"
+  1234, 	"Xeno"
+  1235, 	"Bundschuh"
+  1236, 	"Gaian"
+  1237, 	"Lane Hacker"
+  1238, 	"Unioner"
+  1239, 	"Golden Chrysanthemum"
+  1240, 	"LWB"
+  1241, 	"Farmers Alliance"
+  1242, 	"Liberty Rogue"
+  1243, 	"Order"
+  1244, 	"Gas Miners Guild"
+  1245, 	"Nomad"
+  1246, 	"Independent Miners Guild"
+  1247, 	"Zoner"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1248, 	"Bounty Hunters Guild"
+  1249, 	"Kress’"
+  1250, 	"Unknown Faction"
+  1251, 	"Fugitive"
+  1252, 	"Quintaine’s"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1300, 	"The Liberty Navy"
+  1301, 	"The LSF"
+  1302, 	"The Liberty Police"
+  1303, 	"The Bretonia Armed Forces"
+  1304, 	"The Bretonia Police Authority"
+  1305, 	"The Kusari Naval Forces"
+  1306, 	"The Kusari State Police"
+  1307, 	"The Rheinland Military"
+  1308, 	"The Rheinland Federal Police"
+  1309, 	"Samura Heavy Industries"
+  1310, 	"Daumann Heavy Construction"
+  1311, 	"Kishiro Technologies"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1312, 	"Bretonia Mining and Metal"
+  1313, 	"Deep Space Engineering"
+  1314, 	"Border World Exports"
+  1315, 	"Republican Shipping"
+  1316, 	"Ageira Technologies"
+  1317, 	"Synth Foods"
+  1318, 	"Kruger Minerals"
+  1319, 	"Planetform"
+  1320, 	"Interspace Commerce"
+  1321, 	"Universal Shipping"
+  1322, 	"Cryer Pharmaceuticals"
+  1323, 	"ALG Waste Disposal"
+  1324, 	"Orbital Spa and Cruise Lines"
+  1325, 	"Gateway Shipping"
+  1326, 	"The Corsairs"
+  1327, 	"n/a"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1328, 	"The Outcasts"
+  1329, 	"The Red Hessians"
+  1330, 	"The Blood Dragons"
+  1331, 	"The Junkers"
+  1332, 	"The Hogosha"
+  1333, 	"The Mollys"
+  1334, 	"The Xenos"
+  1335, 	"The Bundschuh"
+  1336, 	"The Gaians"
+  1337, 	"The Lane Hackers"
+  1338, 	"The Unioners"
+  1339, 	"The Golden Chrysanthemums"
+  1340, 	"The LWB"
+  1341, 	"The Farmers Alliance"
+  1342, 	"The Liberty Rogues"
+  1343, 	"The Order"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1344, 	"The Gas Miners Guild"
+  1345, 	"The Nomads"
+  1346, 	"The Independent Miners Guild"
+  1347, 	"The Zoners"
+  1348, 	"The Bounty Hunters Guild"
+  1349, 	"Kress’ Men"
+  1350, 	"The Unknown Faction"
+  1351, 	"Fugitive"
+  1352, 	"Quintaine’s Men"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  2000, 	"Weapons Platform"
+  2001, 	"Weapons Platforms"
+  2002, 	"Depot"
+  2003, 	"Bretonia Battleship"
+  2004, 	"Kusari Battleship"
+  2005, 	"Liberty Dreadnought"
+  2006, 	"Rheinland Battleship"
+  2007, 	"Asteroid Miner"
+  2008, 	"Outpost"
+  2009, 	"Large Space Station"
+  2010, 	"Battle Station"
+  2011, 	"Observation Post"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  2100, 	"a Weapons Platform"
+  2101, 	"some Weapons Platforms"
+  2102, 	"a Depot"
+  2103, 	"a Bretonia Battleship"
+  2104, 	"a Kusari Battleship"
+  2105, 	"a Liberty Dreadnought"
+  2106, 	"a Rheinland Battleship"
+  2107, 	"an Asteroid Miner"
+  2108, 	"an Outpost"
+  2109, 	"a Large Space Station"
+  2110, 	"a Battle Station"
+  2111, 	"an Observation Post"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  2200, 	"the Weapons Platform"
+  2201, 	"the Weapons Platforms"
+  2202, 	"the Depot"
+  2203, 	"the Bretonia Battleship"
+  2204, 	"the Kusari Battleship"
+  2205, 	"the Liberty Dreadnought"
+  2206, 	"the Rheinland Battleship"
+  2207, 	"the Asteroid Miner"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  2208, 	"the Outpost"
+  2209, 	"the Large Space Station"
+  2210, 	"the Battle Station"
+  2211, 	"the Observation Post"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3000, 	"Escape Pod"
+  3001, 	"Fusion Weapon Components"
+  3002, 	"Biotoxic Nanobots"
+  3003, 	"Anti-Personnel Weapons"
+  3004, 	"Neophage Weapons"
+  3005, 	"Dangerous Alien Artifacts"
+  3006, 	"Harvested Human Organs"
+  3007, 	"Experimental Cloning Materials"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3008, 	"Nerve Toxin"
+  3009, 	"Old Fashioned Nuclear Device"
+  3010, 	"Heavy Water"
+  3011, 	"Genetically Enhanced Bacteria"
+  3012, 	"Incendiary Planet Bombs"
+  3013, 	"Biohazardous Material"
+  3014, 	"Biowarfare Ampules"
+  3015, 	"Antimatter Bomb Components"
+  3016, 	"Quantum Bomb Components"
+  3017, 	"Hunter-Killer Robots"
+  3018, 	"Unstable Isotopes"
+  3019, 	"Blistering Agents"
+  3020, 	"Holstein Sea Serpent Venom"
+  3021, 	"Poisonous Plants"
+  3022, 	"Infectious Waste"
+  3023, 	"Carnivorous Insectoids"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3024, 	"Human Bomb Implants"
+  3025, 	"Genetically Enhanced Phage"
+  3026, 	"Viroids"
+  3027, 	"Hazardous Single-Cell Innoculin"
+  3028, 	"Mutagens"
+  3029, 	"Chemical Waste"
+  3030, 	"Water Poisoning Supplies"
+  3031, 	"Holoviral Counterfeiting Technology"
+  3032, 	"Classified Defense Plans"
+  3033, 	"Secret Military Codes"
+  3034, 	"Military Scramble Codes"
+  3035, 	"Government Agents List"
+  3036, 	"Alias List"
+  3037, 	"Station Blueprints"
+  3038, 	"Hidden Base Map"
+  3039, 	"List of Double Agents"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3040, 	"Stolen Industrial Secrets"
+  3041, 	"Smuggled Military Secrets"
+  3042, 	"Classified Alien Research"
+  3043, 	"Classified Military Research"
+  3044, 	"Secret Industrial Research"
+  3045, 	"List of Defense Network Backdoors"
+  3046, 	"List of Civilians Under Surveillance"
+  3047, 	"Secret Files on Government Officials"
+  3048, 	"Experimental Ship Research"
+  3049, 	"Experimental Weapon Research"
+  3050, 	"Experimental Troop Enhancement Research"
+  3051, 	"Military Arms Data"
+  3052, 	"Stolen Financial Codes"
+  3053, 	"Commodity Exchange Access Codes"
+  3054, 	"Classified Base Plans"
+  3055, 	"Classified Battleship Specs"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3056, 	"Government Research on Jump Holes"
+  3057, 	"Classified Artifact Reports"
+  3058, 	"Classified Artifact Research"
+  3059, 	"Military Troop Assignments"
+  3060, 	"Military Threat Assessments"
+  3061, 	"Military Defensive Weakness Profiles"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3100, 	"escape pod"
+  3101, 	"fusion weapon components"
+  3102, 	"biotoxic nanobots"
+  3103, 	"anti-personnel weapons"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3104, 	"neophage weapons"
+  3105, 	"dangerous Alien Artifacts"
+  3106, 	"harvested human organs"
+  3107, 	"experimental cloning materials"
+  3108, 	"nerve toxin"
+  3109, 	"old-fashioned nuclear device"
+  3110, 	"heavy water"
+  3111, 	"genetically enhanced bacteria"
+  3112, 	"incendiary planet bombs"
+  3113, 	"biohazardous material"
+  3114, 	"biowarfare ampules"
+  3115, 	"antimatter bomb components"
+  3116, 	"quantum bomb components"
+  3117, 	"hunter-killer robots"
+  3118, 	"unstable isotopes"
+  3119, 	"blistering agents"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3120, 	"Holstein sea serpent venom"
+  3121, 	"poisonous plants"
+  3122, 	"infectious waste"
+  3123, 	"carnivorous insectoids"
+  3124, 	"human bomb implants"
+  3125, 	"genetically enhanced phage"
+  3126, 	"viroids"
+  3127, 	"hazardous single-cell innoculin"
+  3128, 	"mutagens"
+  3129, 	"chemical waste"
+  3130, 	"water poisoning supplies"
+  3131, 	"holoviral counterfeiting technology"
+  3132, 	"classified defense plans"
+  3133, 	"secret military codes"
+  3134, 	"military scramble codes"
+  3135, 	"government agents list"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3136, 	"alias list"
+  3137, 	"station blueprints"
+  3138, 	"hidden base map"
+  3139, 	"list of double agents"
+  3140, 	"stolen industrial secrets"
+  3141, 	"smuggled military secrets"
+  3142, 	"classified alien research"
+  3143, 	"classified military research"
+  3144, 	"secret industrial research"
+  3145, 	"list of defense network backdoors"
+  3146, 	"list of civilians under surveillance"
+  3147, 	"secret files on government officials"
+  3148, 	"experimental ship research"
+  3149, 	"experimental weapon research"
+  3150, 	"experimental troop enhancement research"
+  3151, 	"military arms data"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3152, 	"stolen financial codes"
+  3153, 	"commodity exchange access codes"
+  3154, 	"classified base plans"
+  3155, 	"classified battleship specs"
+  3156, 	"government research on Jump Holes"
+  3157, 	"classified Artifact reports"
+  3158, 	"classified Artifact research"
+  3159, 	"military troop assignments"
+  3160, 	"military threat assessments"
+  3161, 	"military defensive weakness profiles"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3200, 	"an escape pod"
+  3201, 	"some fusion weapon components"
+  3202, 	"some biotoxic nanobots"
+  3203, 	"some anti-personnel weapons"
+  3204, 	"some neophage weapons"
+  3205, 	"some dangerous Alien Artifacts"
+  3206, 	"some harvested human organs"
+  3207, 	"some experimental cloning materials"
+  3208, 	"some nerve toxin"
+  3209, 	"an old-fashioned nuclear device"
+  3210, 	"some heavy water"
+  3211, 	"some genetically enhanced bacteria"
+  3212, 	"some incendiary planet bombs"
+  3213, 	"some biohazardous material"
+  3214, 	"some biowarfare ampules"
+  3215, 	"some antimatter bomb components"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3216, 	"some quantum bomb components"
+  3217, 	"some hunter-killer robots"
+  3218, 	"some unstable isotopes"
+  3219, 	"some blistering agents"
+  3220, 	"some Holstein sea serpent venom"
+  3221, 	"some poisonous plants"
+  3222, 	"some infectious waste"
+  3223, 	"some carnivorous insectoids"
+  3224, 	"some human bomb implants"
+  3225, 	"some genetically enhanced phage"
+  3226, 	"some viroids"
+  3227, 	"a hazardous single-cell innoculin"
+  3228, 	"some mutagens"
+  3229, 	"some chemical waste"
+  3230, 	"some water poisoning supplies"
+  3231, 	"some holoviral counterfeiting technology"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3232, 	"some classified defense plans"
+  3233, 	"some secret military codes"
+  3234, 	"some military scramble codes"
+  3235, 	"a government agents list"
+  3236, 	"an alias list"
+  3237, 	"some station blueprints"
+  3238, 	"a hidden base map"
+  3239, 	"a list of double agents"
+  3240, 	"some stolen industrial secrets"
+  3241, 	"some smuggled military secrets"
+  3242, 	"some classified alien research"
+  3243, 	"some classified military research"
+  3244, 	"some secret industrial research"
+  3245, 	"a list of defense network backdoors"
+  3246, 	"a list of civilians under surveillance"
+  3247, 	"some secret files on government officials"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3248, 	"some experimental ship research"
+  3249, 	"some experimental weapon research"
+  3250, 	"some experimental troop enhancement research"
+  3251, 	"some military arms data"
+  3252, 	"some stolen financial codes"
+  3253, 	"some commodity exchange access codes"
+  3254, 	"some classified base plans"
+  3255, 	"some classified battleship specs"
+  3256, 	"some government research on Jump Holes"
+  3257, 	"some classified Artifact reports"
+  3258, 	"some classified Artifact research"
+  3259, 	"some military troop assignments"
+  3260, 	"some military threat assessments"
+  3261, 	"some military defensive weakness profiles"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3300, 	"the escape pod"
+  3301, 	"the weapon components"
+  3302, 	"the nanobots"
+  3303, 	"the weapons"
+  3304, 	"the weapons"
+  3305, 	"the Artifacts"
+  3306, 	"the organs"
+  3307, 	"the cloning materials"
+  3308, 	"the toxin"
+  3309, 	"the nuclear device"
+  3310, 	"the water"
+  3311, 	"the bacteria"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3312, 	"the bombs"
+  3313, 	"the material"
+  3314, 	"the ampules"
+  3315, 	"the bomb components"
+  3316, 	"the bomb components"
+  3317, 	"the robots"
+  3318, 	"the isotopes"
+  3319, 	"the agents"
+  3320, 	"the venom"
+  3321, 	"the plants"
+  3322, 	"the waste"
+  3323, 	"the insectoids"
+  3324, 	"the implants"
+  3325, 	"the phage"
+  3326, 	"the viroids"
+  3327, 	"the innoculin"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3328, 	"the mutagens"
+  3329, 	"the waste"
+  3330, 	"the supplies"
+  3331, 	"the technology"
+  3332, 	"the plans"
+  3333, 	"the codes"
+  3334, 	"the codes"
+  3335, 	"the list"
+  3336, 	"the list"
+  3337, 	"the blueprints"
+  3338, 	"the map"
+  3339, 	"the list"
+  3340, 	"the documents"
+  3341, 	"the documents"
+  3342, 	"the research"
+  3343, 	"the research"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3344, 	"the research"
+  3345, 	"the list"
+  3346, 	"the list"
+  3347, 	"the files"
+  3348, 	"the research"
+  3349, 	"the research"
+  3350, 	"the research"
+  3351, 	"the data"
+  3352, 	"the codes"
+  3353, 	"the access codes"
+  3354, 	"the plans"
+  3355, 	"the specs"
+  3356, 	"the research"
+  3357, 	"the reports"
+  3358, 	"the research"
+  3359, 	"the assignments"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3360, 	"the assessments"
+  3361, 	"the profiles"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4000, 	"Sector"
+  4001, 	"Badlands"
+  4002, 	"Detroit Debris Field"
+  4003, 	"Jersey Debris Field"
+  4004, 	"Pittsburgh Debris Field"
+  4005, 	"Zone-21"
+  4006, 	"Sierra Ice Field"
+  4007, 	"Tahoe Ice Cloud"
+  4008, 	"Whitney Ice Field"
+  4009, 	"Alamosa Asteroid Field"
+  4010, 	"Cheyenne Asteroid Field"
+  4011, 	"Copperton Asteroid Field"
+  4012, 	"Silverton Asteroid Field"
+  4013, 	"East Dallas Debris Field"
+  4014, 	"West Dallas Debris Field"
+  4015, 	"North Dallas Debris Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4016, 	"South Dallas Debris Field"
+  4017, 	"Grande Negra"
+  4018, 	"Pequena Negra"
+  4019, 	"Texas Anomaly"
+  4020, 	"Cornwall Asteroid Field"
+  4021, 	"Cumbria Asteroid Field"
+  4022, 	"Devon Asteroid Field"
+  4023, 	"Somerset Asteroid Field"
+  4024, 	"Southampton Debris Field"
+  4025, 	"Birmingham Ice Field"
+  4026, 	"Newgate Minefield"
+  4027, 	"Sheffield North Ice Field"
+  4028, 	"Sheffield South Ice Field"
+  4029, 	"Cardiff Asteroid Field"
+  4030, 	"Grasmere Ice Cloud"
+  4031, 	"Keswick Ice Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4032, 	"Newcastle Asteroid Field"
+  4033, 	"East Leeds Smog Cloud"
+  4034, 	"LD-14 Uranium Asteroid Field"
+  4035, 	"Radioactive Dust Cloud"
+  4036, 	"Stokes Asteroid Field"
+  4037, 	"West Leeds Smog Cloud"
+  4038, 	"BMM Gold Field"
+  4039, 	"Hood Asteroid Field"
+  4040, 	"Independent Gold Field"
+  4041, 	"Molly Asteroid Field"
+  4042, 	"Arran Ice Cloud"
+  4043, 	"Islay Ice Cloud"
+  4044, 	"Tain Asteroid Field"
+  4045, 	"Chiba Field"
+  4046, 	"Kanto Field"
+  4047, 	"Keiun Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4048, 	"Saiun Cloud"
+  4049, 	"Shiun Cloud"
+  4050, 	"Hayate Dust Field"
+  4051, 	"Ohka Dust Field"
+  4052, 	"Seiran Dust Cloud"
+  4053, 	"Chuyu Cloud"
+  4054, 	"Hiryo Cloud"
+  4055, 	"Hiyo Cloud"
+  4056, 	"Kayo Cloud"
+  4057, 	"Kyofu"
+  4058, 	"Shiden Cloud"
+  4059, 	"Unyo Cloud"
+  4060, 	"Aachenfeld"
+  4061, 	"Harzfeld"
+  4062, 	"Ruhrfeld"
+  4063, 	"Saarfeld"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4064, 	"Alsterfeld"
+  4065, 	"Kielfeld"
+  4066, 	"Nordheide"
+  4067, 	"Südheide"
+  4068, 	"Ostnebel"
+  4069, 	"Westnebel"
+  4070, 	"Westerwald"
+  4071, 	"Taunusfeld"
+  4072, 	"Weisser Ring"
+  4073, 	"Daumann Lavafeld"
+  4074, 	"Kruger Lavafeld"
+  4075, 	"Giftnebel"
+  4076, 	"Schwefelnebel"
+  4077, 	"Lavafeld"
+  4078, 	"Kenai Field"
+  4079, 	"Sitka Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4080, 	"Wrangell Field"
+  4081, 	"The Barrier"
+  4082, 	"Wendell Ice Field"
+  4083, 	"Corcovado Ice Field"
+  4084, 	"Paloma Ice Cloud"
+  4085, 	"Roatan Ice Cloud"
+  4086, 	"Denko Cloud"
+  4087, 	"Kuryo Cloud"
+  4088, 	"Matsuo Cloud"
+  4089, 	"Komatsu Cloud"
+  4090, 	"Raiden Cloud"
+  4091, 	"Reppu Cloud"
+  4092, 	"Burgess Ice Field"
+  4093, 	"Coombe Asteroid Field"
+  4094, 	"Graham Ice Cloud"
+  4095, 	"Roth Asteroid Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4096, 	"Wilkes Ice Field"
+  4097, 	"Hammen Hole"
+  4098, 	"Ebersfeld Cloud"
+  4099, 	"Ebersfelde Cloud"
+  4100, 	"Furstenfelde Cloud"
+  4101, 	"Gubenfelde Cloud"
+  4102, 	"Abgrund"
+  4103, 	"Kraft Fragment"
+  4104, 	"Franke Fragment"
+  4105, 	"Madsack Fragment"
+  4106, 	"Von Rohe Belt"
+  4107, 	"Jeschke Fragment"
+  4108, 	"Yanagi Debris Field"
+  4109, 	"Yanagi Pocket"
+  4110, 	"Kunashir Cloud"
+  4111, 	"Nemuro Dust Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4112, 	"Donryu Cloud"
+  4113, 	"Gikka Dust Cloud"
+  4114, 	"Hiryu Cloud"
+  4115, 	"Samura Ice Asteroid Field"
+  4116, 	"Nago Hydrocarbon Asteroid Field"
+  4117, 	"Oxygen Asteroid Field"
+  4118, 	"Freeport 6 Ice Crystal Field"
+  4119, 	"Bermejo Cloud"
+  4120, 	"Malvinas Cloud"
+  4121, 	"Torres Ice Crystal Field"
+  4122, 	"High Radiation/Gravity Zone"
+  4123, 	"Amarus Cloud"
+  4124, 	"Napo Cloud"
+  4125, 	"Orinoco Cloud"
+  4126, 	"Sabana Fragments"
+  4127, 	"Hispania Debris Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4128, 	"Mahon Dust Cloud"
+  4129, 	"Siniestre Cloud"
+  4130, 	"Tenereife Asteroid Field"
+  4131, 	"Malvada Cloud"
+  4132, 	"Gredos Cloud"
+  4133, 	"Tau-23 Barrier Asteroid Field"
+  4134, 	"Sigma-13 Crow Nebula"
+  4135, 	"Tanner Asteroid Belt"
+  4136, 	"Tau-31 Ice Crystal Field"
+  4137, 	"Omega-7 Walker Cloud"
+  4138, 	"Omicron Beta Edge Nebula"
+  4139, 	"Planetary Fragments Field"
+  4140, 	"Explosive Gas Zone"
+  4141, 	"Radioactive Zone"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4144, 	"Okamura Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4200, 	"Sector"
+  4201, 	"the Badlands"
+  4202, 	"the Detroit Debris Field"
+  4203, 	"the Jersey Debris Field"
+  4204, 	"the Pittsburgh Debris Field"
+  4205, 	"Zone-21"
+  4206, 	"the Sierra Ice Field"
+  4207, 	"the Tahoe Ice Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4208, 	"the Whitney Ice Field"
+  4209, 	"the Alamosa Asteroid Field"
+  4210, 	"the Cheyenne Asteroid Field"
+  4211, 	"the Copperton Asteroid Field"
+  4212, 	"the Silverton Asteroid Field"
+  4213, 	"the East Dallas Debris Field"
+  4214, 	"the West Dallas Debris Field"
+  4215, 	"the North Dallas Debris Field"
+  4216, 	"the South Dallas Debris Field"
+  4217, 	"the Grande Negra"
+  4218, 	"the Pequena Negra"
+  4219, 	"the Texas Anomaly"
+  4220, 	"the Cornwall Asteroid Field"
+  4221, 	"the Cumbria Asteroid Field"
+  4222, 	"the Devon Asteroid Field"
+  4223, 	"the Somerset Asteroid Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4224, 	"the Southampton Debris Field"
+  4225, 	"the Birmingham Ice Field"
+  4226, 	"the Newgate Minefield"
+  4227, 	"the Sheffield North Ice Field"
+  4228, 	"the Sheffield South Ice Field"
+  4229, 	"the Cardiff Asteroid Field"
+  4230, 	"the Grasmere Ice Cloud"
+  4231, 	"the Keswick Ice Cloud"
+  4232, 	"the Newcastle Asteroid Field"
+  4233, 	"the East Leeds Smog Cloud"
+  4234, 	"the LD-14 Uranium Asteroid Field"
+  4235, 	"the Radioactive Dust Cloud"
+  4236, 	"the Stokes Asteroid Field"
+  4237, 	"the West Leeds Smog Cloud"
+  4238, 	"the BMM Gold Field"
+  4239, 	"the Hood Asteroid Field"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4240, 	"the Independent Gold Field"
+  4241, 	"the Molly Asteroid Field"
+  4242, 	"the Arran Ice Cloud"
+  4243, 	"the Islay Ice Cloud"
+  4244, 	"the Tain Asteroid Field"
+  4245, 	"the Chiba Field"
+  4246, 	"the Kanto Field"
+  4247, 	"the Keiun Cloud"
+  4248, 	"the Saiun Cloud"
+  4249, 	"the Shiun Cloud"
+  4250, 	"the Hayate Dust Field"
+  4251, 	"the Ohka Dust Field"
+  4252, 	"the Seiran Dust Cloud"
+  4253, 	"the Chuyu Cloud"
+  4254, 	"the Hiryo Cloud"
+  4255, 	"the Hiyo Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4256, 	"the Kayo Cloud"
+  4257, 	"the Kyofu"
+  4258, 	"the Shiden Cloud"
+  4259, 	"the Unyo Cloud"
+  4260, 	"the Aachenfeld"
+  4261, 	"the Harzfeld"
+  4262, 	"the Ruhrfeld"
+  4263, 	"the Saarfeld"
+  4264, 	"the Alsterfeld"
+  4265, 	"the Kielfeld"
+  4266, 	"the Nordheide"
+  4267, 	"the Südheide"
+  4268, 	"the Ostnebel"
+  4269, 	"the Westnebel"
+  4270, 	"the Westerwald"
+  4271, 	"the Taunusfeld"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4272, 	"the Weisser Ring"
+  4273, 	"the Daumann Lavafeld"
+  4274, 	"the Kruger Lavafeld"
+  4275, 	"the Giftnebel"
+  4276, 	"the Schwefelnebel"
+  4277, 	"the Lavafeld"
+  4278, 	"the Kenai Field"
+  4279, 	"the Sitka Field"
+  4280, 	"the Wrangell Field"
+  4281, 	"The Barrier"
+  4282, 	"the Wendell Ice Field"
+  4283, 	"the Corcovado Ice Field"
+  4284, 	"the Paloma Ice Cloud"
+  4285, 	"the Roatan Ice Cloud"
+  4286, 	"the Denko Cloud"
+  4287, 	"the Kuryo Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4288, 	"the Matsuo Cloud"
+  4289, 	"the Komatsu Cloud"
+  4290, 	"the Raiden Cloud"
+  4291, 	"the Reppu Cloud"
+  4292, 	"the Burgess Ice Field"
+  4293, 	"the Coombe Asteroid Field"
+  4294, 	"the Graham Ice Cloud"
+  4295, 	"the Roth Asteroid Field"
+  4296, 	"the Wilkes Ice Field"
+  4297, 	"the Hammen Hole"
+  4298, 	"the Ebersfeld Cloud"
+  4299, 	"the Ebersfelde Cloud"
+  4300, 	"the Furstenfelde Cloud"
+  4301, 	"the Gubenfelde Cloud"
+  4302, 	"the Abgrund"
+  4303, 	"the Kraft Fragment"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4304, 	"the Franke Fragment"
+  4305, 	"the Madsack Fragment"
+  4306, 	"the Von Rohe Belt"
+  4307, 	"the Jeschke Fragment"
+  4308, 	"the Yanagi Debris Field"
+  4309, 	"the Yanagi Pocket"
+  4310, 	"the Kunashir Cloud"
+  4311, 	"the Nemuro Dust Field"
+  4312, 	"the Donryu Cloud"
+  4313, 	"the Gikka Dust Cloud"
+  4314, 	"the Hiryu Cloud"
+  4315, 	"the Samura Ice Asteroid Field"
+  4316, 	"the Nago Hydrocarbon Asteroid Field"
+  4317, 	"the Oxygen Asteroid Field"
+  4318, 	"the Freeport 6 Ice Crystal Field"
+  4319, 	"the Bermejo Cloud"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4320, 	"the Malvinas Cloud"
+  4321, 	"the Torres Ice Crystal Field"
+  4322, 	"the High Radiation/Gravity Zone"
+  4323, 	"the Amarus Cloud"
+  4324, 	"the Napo Cloud"
+  4325, 	"the Orinoco Cloud"
+  4326, 	"the Sabana Fragments"
+  4327, 	"the Hispania Debris Field"
+  4328, 	"the Mahon Dust Cloud"
+  4329, 	"the Siniestre Cloud"
+  4330, 	"the Tenereife Asteroid Field"
+  4331, 	"the Malvada Cloud"
+  4332, 	"the Gredos Cloud"
+  4333, 	"the Tau-23 Barrier Asteroid Field"
+  4334, 	"the Sigma-13 Crow Nebula"
+  4335, 	"the Tanner Asteroid Belt"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  4336, 	"the Tau-31 Ice Crystal Field"
+  4337, 	"the Omega-7 Walker Cloud"
+  4338, 	"the Omicron Beta Edge Nebula"
+  4339, 	"the Planetary Fragments Field"
+  4340, 	"the Explosive Gas Zone"
+  4341, 	"the Radioactive Zone"
+  4344, 	"the Okamura Cloud"
+}
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,0,0,43
+PRODUCTVERSION 1,0,0,41
+FILEOS 0x40004
+FILETYPE 0x2
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904b0"
+	BEGIN
+		VALUE "Comments", "Jason's Freelancer Patch"
+		VALUE "CompanyName", "Microsoft Corporation"
+		VALUE "FileDescription", "Freelancer Resources"
+		VALUE "FileVersion", "1, 0, 0, 2"
+		VALUE "InternalName", "OfferBribeResources"
+		VALUE "LegalCopyright", "© 2003 Microsoft Corporation. All rights reserved"
+		VALUE "OriginalFilename", "OfferBribeResources.dll"
+		VALUE "ProductName", "Freelancer"
+		VALUE "ProductVersion", "1, 0, 0, 0"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04B0  
+END
+END

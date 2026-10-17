@@ -1,0 +1,111 @@
+<Project>
+  <!-- Public rendering interfaces use DX8 types; keep this SDK after the Windows SDK. -->
+  <PropertyGroup>
+    <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>
+  </PropertyGroup>
+  <!-- Evaluate after project/property-sheet values, rather than freezing the early default. -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_ENABLE_TICK_PROFILE=$(FreelancerEnableTickProfile);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Release keeps iterator debugging on (level 1, checked iterators): with any level above 0
+       a modern std container carries a proxy pointer in the dword where VC6 STL kept its
+       allocator, so std::string / vector / list / map are retail-sized and the retail field
+       offsets asserted across src/include hold. Level 0 drops that dword and shifts every
+       field after a container by 4. Debug and DebugASan keep the _DEBUG default (2), which
+       has the same layout. -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only "Beta 2" on-screen label: only the client (freelancer.exe) reads the define. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerBetaLabel)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_BETA_LABEL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only widescreen support: only the client (freelancer.exe) reads the define. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerWidescreenSupport)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_WIDESCREEN_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only Direct3D 9 extensions: the client's hooks (RP9.vcxproj itself turns into an empty
+       Utility project when the property is off). -->
+  <ItemDefinitionGroup Condition="'$(FreelancerRp9)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_RP9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <!-- Port-only walk mode in base rooms: only the client (freelancer.exe) reads the define. -->
+  <ItemDefinitionGroup Condition="'$(FreelancerWalkMode)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_WALK_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='freelancer'">
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)Freelancer.Diagnostics.xml">
+      <Context>PropertySheet</Context>
+    </PropertyPageSchema>
+  </ItemGroup>
+  <!-- DebugASan: MSVC AddressSanitizer (/fsanitize=address). Win32 requires VS 2022 17.7+.
+       Output is repo binasan\ (a sibling of bin\, same depth, so every ..\DATA / ..\EXE
+       path resolves as from bin\). Debug builds go to bin_debug\ and Release to bin\.
+       Use MSBuildThisFileDirectory (this file lives in src\) — not SolutionDir —
+       so a standalone vcxproj build does not spill into src\bin\.
+       Resource-only DLLs skip ASan (no CRT). Retail EXE\ DLLs via DllPath are not instrumented.
+       FlASanOutDir has no trailing slash: quoting $(OutDir) in Exec would eat the closing quote. -->
+  <PropertyGroup Condition="'$(Configuration)'=='DebugASan'">
+    <FlASanOutDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\binasan'))</FlASanOutDir>
+    <OutDir>$(FlASanOutDir)\</OutDir>
+    <TargetDir>$(OutDir)</TargetDir>
+    <TargetPath>$(OutDir)$(TargetName)$(TargetExt)</TargetPath>
+    <EnableASAN Condition="'$(FlResourceDll)'!='true'">true</EnableASAN>
+    <EnableASAN Condition="'$(FlResourceDll)'=='true'">false</EnableASAN>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='DebugASan'">
+    <ClCompile>
+      <!-- ASan is incompatible with /RTC, /ZI, incremental compile. -->
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;FL_ASAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <Incremental>false</Incremental>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <Lib>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <!-- Debug output is bin_debug\, not bin\ where the dev *.ini live: copy them over with the
+       absolute bin\ paths rewritten. FlDebugOutDir has no trailing slash, as FlASanOutDir. -->
+  <Target Name="CopyDebugDevIni" AfterTargets="Build"
+          Condition="'$(Configuration)'=='Debug' and '$(MSBuildProjectName)'=='freelancer'">
+    <PropertyGroup>
+      <FlDebugOutDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\bin_debug'))</FlDebugOutDir>
+    </PropertyGroup>
+    <Exec Command="python &quot;$(MSBuildThisFileDirectory)copy_dev_ini.py&quot; &quot;$(FlDebugOutDir)&quot;" />
+  </Target>
+  <Target Name="CopyASanDevIni" AfterTargets="Build"
+          Condition="'$(Configuration)'=='DebugASan' and '$(MSBuildProjectName)'=='freelancer'">
+    <PropertyGroup>
+      <FlASanRtDir Condition="Exists('$(VCToolsInstallDir)bin\Hostx86\x86\clang_rt.asan_dynamic-i386.dll')">$(VCToolsInstallDir)bin\Hostx86\x86</FlASanRtDir>
+      <FlASanRtDir Condition="'$(FlASanRtDir)'=='' and Exists('$(VCToolsInstallDir)bin\Hostx64\x86\clang_rt.asan_dynamic-i386.dll')">$(VCToolsInstallDir)bin\Hostx64\x86</FlASanRtDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <FlASanRt Include="$(FlASanRtDir)\clang_rt.asan*_dynamic-i386.dll" Condition="'$(FlASanRtDir)'!=''" />
+    </ItemGroup>
+    <Exec Command="python &quot;$(MSBuildThisFileDirectory)copy_dev_ini.py&quot; &quot;$(FlASanOutDir)&quot;" />
+    <Copy SourceFiles="@(FlASanRt)" DestinationFolder="$(FlASanOutDir)" SkipUnchangedFiles="true"
+          Condition="'@(FlASanRt)'!=''" />
+    <Warning Text="AddressSanitizer runtime DLLs not found under $(VCToolsInstallDir)bin\Hostx86\x86 or Hostx64\x86."
+             Condition="'$(FlASanRtDir)'==''" />
+  </Target>
+</Project>

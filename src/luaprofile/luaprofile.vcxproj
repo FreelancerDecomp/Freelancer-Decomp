@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{A9C4E210-8B5D-4F17-9E42-D1A0B3C5E618}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>luaprofile</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <TargetName>luaprofile</TargetName>
+    <OutDir>$(ProjectDir)..\..\$(FlBinDirName)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)lua32\include;$(ProjectDir)lua32\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>dacom.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="LuaProfileInternal.h" />
+    <ClInclude Include="..\include\luaprofile.h" />
+    <ClInclude Include="..\include\dacom.h" />
+    <ClInclude Include="lua32\include\lua.h" />
+    <ClInclude Include="lua32\include\lualib.h" />
+    <ClInclude Include="lua32\include\luadebug.h" />
+    <ClInclude Include="lua32\include\lauxlib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="luaprofile.cpp" />
+    <ClCompile Include="lua32\src\lapi.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lauxlib.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lbuffer.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lbuiltin.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\ldo.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lfunc.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lgc.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\llex.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lmem.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lobject.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lparser.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lstate.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lstring.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\ltable.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\ltm.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lundump.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lvm.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\src\lzio.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="lua32\lua32_layout.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>false</SDLCheck>
+      <ObjectFileName>$(IntDir)lua32\%(Filename).obj</ObjectFileName>
+      <DisableSpecificWarnings>4013;4101;4189;4244;4267;4311;4312;4057;4131;4127;4456;4701;4702;4706;4996</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="luaprofile.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

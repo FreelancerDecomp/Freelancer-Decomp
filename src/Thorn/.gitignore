@@ -1,0 +1,2 @@
+# OutDir is now bin\ (gitignored at repo level). Keep out/ for leftover isolated builds.
+out/

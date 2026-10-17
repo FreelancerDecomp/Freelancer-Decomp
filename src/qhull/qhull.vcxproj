@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{D4A8B2C6-3E71-4F82-B1A5-6C9D0E2F4183}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>qhull</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <!-- qhull 2002.1 (vendored under vendor\), the classic non-reentrant global-qh_qh API.
+       Retail Common.dll links an older "ipion 99/07/10" qhull (2.6 era): several functions
+       differ from 2002.1. The vendored source is modified only where it was aligned with
+       the retail listing: the error sink (FUN_06356960 instead of fprintf(qh ferr) at the
+       retail sites, each marked with its retail address), qh_new_qhull / qh_errexit /
+       qh_errprint / qh_printlists, qh_VERSION and qh_CPUclock. See
+       src/qhull/vendor/COPYING.txt for the Qhull license and required attribution. -->
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <SDLCheck>false</SDLCheck>
+      <CompileAs>CompileAsC</CompileAs>
+      <WarningLevel>Level1</WarningLevel>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4013;4018;4028;4090;4101;4113;4131;4133;4142;4152;4189;4244;4267;4305;4306;4700;4701;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="vendor\geom.h" />
+    <ClInclude Include="vendor\io.h" />
+    <ClInclude Include="vendor\mem.h" />
+    <ClInclude Include="vendor\merge.h" />
+    <ClInclude Include="vendor\poly.h" />
+    <ClInclude Include="vendor\qhull.h" />
+    <ClInclude Include="vendor\qhull_a.h" />
+    <ClInclude Include="vendor\qset.h" />
+    <ClInclude Include="vendor\stat.h" />
+    <ClInclude Include="vendor\user.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="vendor\geom.c" />
+    <ClCompile Include="vendor\geom2.c" />
+    <ClCompile Include="vendor\global.c" />
+    <ClCompile Include="vendor\io.c" />
+    <ClCompile Include="vendor\mem.c" />
+    <ClCompile Include="vendor\merge.c" />
+    <ClCompile Include="vendor\poly.c" />
+    <ClCompile Include="vendor\poly2.c" />
+    <ClCompile Include="vendor\qhull.c" />
+    <ClCompile Include="vendor\qset.c" />
+    <ClCompile Include="vendor\stat.c" />
+    <ClCompile Include="vendor\user.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vendor\COPYING.txt" />
+    <None Include="vendor\README.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

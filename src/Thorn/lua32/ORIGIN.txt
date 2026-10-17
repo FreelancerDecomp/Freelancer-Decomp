@@ -1,0 +1,37 @@
+Lua 3.2.2 vendored for Thorn IScriptEngine slot 4 (undump + VM).
+
+Source: https://www.lua.org/ftp/lua-3.2.2.tar.gz
+Date: 2000-02-22
+SHA-256: 4e04059f43acdcde5f7fd491c731df9279dac87d288a08c6eaeb31760c9876e0
+
+License: PUC-Rio / TeCGraf 1994–1999 (see COPYRIGHT). Permissive; not MIT Lua 5.x.
+
+Copied unmodified from the tarball:
+  include/lua.h, luadebug.h, lualib.h, lauxlib.h
+  src/lapi.c, lstate.c, ldo.c, lundump.c, lvm.c, ltable.c, lgc.c,
+  lstring.c, lobject.c, lmem.c, lfunc.c, ltm.c, lzio.c, llex.c,
+  lbuiltin.c, lauxlib.c, lbuffer.c, plus matching headers / lopcodes.h
+  src/lib/lmathlib.c, src/lib/liolib.c, src/lib/lstrlib.c
+
+Not copied (retail DllMain does not lua_strlibopen):
+  src/lua/*, src/luac/*, src/lib/ldblib.c,
+  src/lib/linit.c (that linit opens strlib)
+
+lstrlib.c is compiled so liolib can link luaI_classend / luaI_singlematch.
+lua_strlibopen is never called (same as retail DllMain).
+
+lparser.c (the stock 3.2.2 recursive-descent parser + code emitter) is NOT
+vendored here a second time: lparser_stub.c #includes the single shared copy
+at src/luaprofile/lua32/src/lparser.c, so Thorn compiles the real luaY_parser
+(text .thn / lua_dostring path). Retail thorn.dll carries this exact code at
+0x06f526d0..0x06f54dd0 (init_state .. recfield; luaY_parser = FUN_06f52650),
+so every function in that window maps 1:1 onto lparser.c; the tracker names
+them by their lparser.c identifiers.
+
+Thorn additions (not PUC-Rio):
+  lparser_stub.c — one-line #include of the shared luaprofile lparser.c
+  (historically a luaY_parser-errors stub, no longer)
+
+Thorn alterations of PUC-Rio files (plainly marked):
+  include/lua.h — LUA_VERSION "Lua 3.2" (retail FUN_06f51100); stock 3.2.2 was "Lua 3.2.2"
+  src/llex.c — added #include <stdio.h> for MSVC sprintf

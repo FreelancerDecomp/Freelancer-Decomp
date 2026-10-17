@@ -1,0 +1,37 @@
+#include <windows.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+
+
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,0,0,5
+PRODUCTVERSION 1,0,0,5
+FILEOS 0x40004
+FILETYPE 0x2
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904b0"
+	BEGIN
+		VALUE "Comments", "Way cool particle and other effects engine"
+		VALUE "CompanyName", "Digital Anvil"
+		VALUE "FileDescription", "Alchemy Effect Engine"
+		VALUE "FileVersion", "1, 0, 0, 5"
+		VALUE "InternalName", "Alchemy"
+		VALUE "LegalCopyright", "Copyright \251 2000"
+		VALUE "OriginalFilename", "Alchemy.dll"
+		VALUE "ProductName", "Digital Anvil Alchemy Effects System"
+		VALUE "ProductVersion", "1, 0, 0, 5"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04B0  
+END
+END

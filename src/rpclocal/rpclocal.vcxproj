@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>rpclocal</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_USRDLL;RPCLOCAL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <!-- Common.lib: retail rpclocal.dll imports COMMON.DLL (FmtStr::flatten,
+           FmtStr::unflatten, ~FmtStr and FmtStr::Val::get_flattened_size, IAT slots
+           .rdata:06db30dc / 06db3008 / 06db3094 / 06db30e0), so linking it here is what
+           retail does, not a new dependency. Common.dll does not import rpclocal.dll in
+           either direction, so there is no cycle. -->
+      <AdditionalDependencies>kernel32.lib;user32.lib;Common.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\rpc_iserver.h" />
+    <ClInclude Include="..\include\rpc_iclient.h" />
+    <ClInclude Include="..\include\rpc_structs.h" />
+    <ClInclude Include="rpc_transport.h" />
+    <ClInclude Include="rpc_payloads.h" />
+    <ClInclude Include="rpc_containers.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="rpclocal.cpp" />
+    <ClCompile Include="rpc_transport.cpp" />
+    <ClCompile Include="rpc_packet_registry.cpp" />
+    <ClCompile Include="rpc_client_proxy.cpp" />
+    <ClCompile Include="rpc_dispatch.cpp" />
+    <ClCompile Include="rpc_payload_ch1.cpp" />
+    <ClCompile Include="rpc_payload_ch2.cpp" />
+    <ClCompile Include="rpc_payload_ch3.cpp" />
+    <ClCompile Include="rpc_containers.cpp" />
+    <ClCompile Include="rpc_wire_ch1.cpp" />
+    <ClCompile Include="rpc_wire_ch2.cpp" />
+    <ClCompile Include="rpc_wire_generic.cpp" />
+    <ClCompile Include="rpc_wire_fields.cpp" />
+    <ClCompile Include="rpc_wire_varlen.cpp" />
+    <ClCompile Include="rpc_wire_closeout.cpp" />
+    <ClCompile Include="rpc_wire_ch3.cpp" />
+    <ClCompile Include="rpc_packet_dump.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Retail rpclocal.dll imports DACOM.DLL::FDUMP (ordinal 13, IAT slot
+         .rdata:06db311c) and calls it from five sites: 06d86b0f, 06d86b40, 06d86b70,
+         06d86be0 (the debug-only channel-3 cases of FUN_06d86a70) and 06d8f265
+         (IServerImpl::Startup, LoadLibrary failure). Referenced as a project the same
+         way Server, Common and the rest link dacom.lib. -->
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <!-- Common.lib is linked above (retail imports COMMON.DLL FmtStr exports); the
+         reference makes MSBuild build Common before rpclocal links against it, the
+         same way freelancer.vcxproj orders itself after Common. -->
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

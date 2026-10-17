@@ -1,0 +1,2652 @@
+#include <windows.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1002, 	"Javelin Missile"
+  1003, 	"Javelin Missile"
+  1004, 	"Slingshot Missile"
+  1005, 	"Catapult Missile"
+  1006, 	"Lancer Missile"
+  1007, 	"Cannonball Missile"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1008, 	"Stalker Missile"
+  1009, 	"Windstalker Missile"
+  1010, 	"Moonstalker Missile"
+  1011, 	"Sunstalker Missile"
+  1012, 	"Firestalker Missile"
+  1013, 	"Eraser Missile"
+  1014, 	"Sweeper Missile"
+  1015, 	"Neutralizer Missile"
+  1016, 	"Paralyzer Missile"
+  1017, 	"Wasp Cruise Disruptor"
+  1018, 	"Hornet Cruise Disruptor"
+  1019, 	"Starkiller Torpedo Launcher"
+  1020, 	"Sunslayer Torpedo Launcher"
+  1021, 	"Drone Mine"
+  1022, 	"Wardog Mine"
+  1023, 	"Tadpole Mine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1024, 	"Swatter Mine"
+  1025, 	"Screamer Mine"
+  1026, 	"Seeker Mine"
+  1027, 	"Razor Mine"
+  1028, 	"Driller Mine"
+  1029, 	"Cutter Mine"
+  1030, 	"Ripper Mine"
+  1031, 	"Barrager Mk I"
+  1032, 	"Barrager Mk II"
+  1033, 	"Barrager Mk III"
+  1034, 	"Barrager Turret Mk I"
+  1035, 	"Barrager Turret Mk II"
+  1036, 	"Barrager Turret Mk III"
+  1037, 	"Azrael"
+  1038, 	"Drail"
+  1039, 	"Raphael"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1040, 	"Usiel"
+  1041, 	"Vassago"
+  1042, 	"Zaphiel Turret"
+  1043, 	"Badariel Turret"
+  1044, 	"Sapiel Turret"
+  1045, 	"Thoth Turret"
+  1046, 	"Dragoon Type 1"
+  1047, 	"Dragoon Type 2"
+  1048, 	"Dragoon Type 3"
+  1049, 	"Wyrm Type 1"
+  1050, 	"Wyrm Type 2"
+  1051, 	"Pyros Type 1"
+  1052, 	"Pyros Type 2"
+  1053, 	"Pyros Type 3"
+  1054, 	"Kraken Type 1"
+  1055, 	"Kraken Type 2"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1056, 	"Dragoon Type 1 Turret"
+  1057, 	"Dragoon Type 2 Turret"
+  1058, 	"Wyrm Turret"
+  1059, 	"Pyros Type 1 Turret"
+  1060, 	"Pyros Type 2 Turret"
+  1061, 	"Kraken Turret"
+  1062, 	"Angelito Mk I"
+  1063, 	"Angelito Mk II"
+  1064, 	"Angelito Mk III"
+  1065, 	"Salamanca Mk I"
+  1066, 	"Salamanca Mk II"
+  1067, 	"Borroco"
+  1068, 	"Rapier"
+  1069, 	"Tizona del Cid"
+  1070, 	"Angelito Turret Mk I"
+  1071, 	"Angelito Turret Mk II"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1072, 	"Salamanca Turret"
+  1073, 	"Borroco Turret"
+  1074, 	"Rapier Turret"
+  1075, 	"Death's Hand Mk I"
+  1076, 	"Death's Hand Mk I"
+  1077, 	"Death's Hand Mk II"
+  1078, 	"Death's Hand Mk III"
+  1079, 	"Reaper Mk I"
+  1080, 	"Reaper Mk II"
+  1081, 	"Reaper Mk III"
+  1082, 	"Death's Hand Turret Mk I"
+  1083, 	"Death's Hand Turret Mk II"
+  1084, 	"Reaper Turret Mk I"
+  1085, 	"Reaper Turret Mk II"
+  1086, 	"Sunblast A"
+  1087, 	"Sunblast B"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1088, 	"Skyblast A"
+  1089, 	"Skyblast B"
+  1090, 	"Sunblast Turret"
+  1091, 	"Skyblast A Turret"
+  1092, 	"Skyblast B Turret"
+  1093, 	"Small Transport Turret Mk I"
+  1094, 	"Small Transport Turret Mk II"
+  1095, 	"Small Transport Turret Mk III"
+  1096, 	"Large Transport Turret Mk I"
+  1097, 	"Large Transport Turret Mk II"
+  1098, 	"Large Transport Turret Mk III"
+  1099, 	"Small Train Turret Mk I"
+  1100, 	"Small Train Turret Mk II"
+  1101, 	"Small Train Turret Mk III"
+  1102, 	"Medium Train Turret Mk I"
+  1103, 	"Medium Train Turret Mk II"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1104, 	"Medium Train Turret Mk III"
+  1105, 	"Large Train Turret Mk I"
+  1106, 	"Large Train Turret Mk II"
+  1107, 	"Large Train Turret Mk III"
+  1108, 	"Matterthief 1"
+  1109, 	"Matterthief 2"
+  1110, 	"Vampire 1"
+  1111, 	"Vampire 2"
+  1112, 	"Vampire 3"
+  1113, 	"Matterthief Turret"
+  1114, 	"Vampire 1 Turret"
+  1115, 	"Vampire 2 Turret"
+  1116, 	"Small Transport Turret Mk I"
+  1117, 	"Small Transport Turret Mk II"
+  1118, 	"Small Transport Turret Mk III"
+  1119, 	"Large Transport Turret Mk I"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1120, 	"Large Transport Turret Mk II"
+  1121, 	"Large Transport Turret Mk III"
+  1122, 	"Small Train Turret Mk I"
+  1123, 	"Small Train Turret Mk II"
+  1124, 	"Small Train Turret Mk III"
+  1125, 	"Medium Train Turret Mk I"
+  1126, 	"Medium Train Turret Mk II"
+  1127, 	"Medium Train Turret Mk III"
+  1128, 	"Large Train Turret Mk I"
+  1129, 	"Large Train Turret Mk II"
+  1130, 	"Large Train Turret Mk III"
+  1131, 	"Small Miner Turret"
+  1132, 	"Medium Miner Turret"
+  1133, 	"Large Miner Turret"
+  1134, 	"Gunslinger Mk I"
+  1135, 	"Gunslinger Mk II"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1136, 	"Winchester Mk I"
+  1137, 	"Winchester Mk II"
+  1138, 	"Reaver Mk I"
+  1139, 	"Reaver Mk II"
+  1140, 	"Brave Mk I"
+  1141, 	"Brave Mk II"
+  1142, 	"Warrior Mk I"
+  1143, 	"Warrior Mk II"
+  1144, 	"Buckshot"
+  1145, 	"Gunslinger Mk I Turret"
+  1146, 	"Gunslinger Mk II Turret"
+  1147, 	"Winchester Turret"
+  1148, 	"Reaver Turret"
+  1149, 	"Brave Turret"
+  1150, 	"Warrior Turret"
+  1151, 	"Buckshot Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1152, 	"Natter"
+  1153, 	"Natter Zwei"
+  1154, 	"Roter Blitz"
+  1155, 	"Natterturn"
+  1156, 	"Natter Turret"
+  1157, 	"Roter Blitz Turret"
+  1158, 	"Tanto"
+  1159, 	"Wakizashi"
+  1160, 	"Katana"
+  1161, 	"Gendaito"
+  1162, 	"Tanto Turret"
+  1163, 	"Katana Turret"
+  1164, 	"Luger Type A"
+  1165, 	"Luger Type B"
+  1166, 	"Luger Type C"
+  1167, 	"Luger Turret Type A"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1168, 	"Luger Turret Type B"
+  1169, 	"Helios"
+  1170, 	"Helios 2"
+  1171, 	"Fury"
+  1172, 	"Fury 2"
+  1173, 	"Fury 3"
+  1174, 	"Helios Turret"
+  1175, 	"Fury Turret"
+  1176, 	"Fury 2 Turret"
+  1177, 	"Hellflurry Mk I"
+  1178, 	"Hellflurry Mk II"
+  1179, 	"Hellflurry Mk III"
+  1180, 	"Hellflurry Turret Mk I"
+  1181, 	"Hellflurry Turret Mk II"
+  1182, 	"Drake Type A"
+  1183, 	"Drake Type B"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1184, 	"Drake Type C"
+  1185, 	"Drake Type A Turret"
+  1186, 	"Drake Type B Turret"
+  1187, 	"Dublin Duster Mk I"
+  1188, 	"Dublin Duster Mk II"
+  1189, 	"Dublin Duster Mk III"
+  1190, 	"Dublin Duster Turret Mk I"
+  1191, 	"Dublin Duster Turret Mk II"
+  1192, 	"Avenger"
+  1193, 	"Avenger Type B"
+  1194, 	"Gaia's Savior"
+  1195, 	"Gaia's Savior Type B"
+  1196, 	"Protector Mk I"
+  1197, 	"Protector Mk II"
+  1198, 	"Protector Mk III"
+  1199, 	"Suncannon A"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1200, 	"Suncannon B"
+  1201, 	"Suncannon C"
+  1202, 	"Devastator"
+  1203, 	"Adv. Devastator"
+  1204, 	"Eliminator"
+  1205, 	"Adv. Eliminator"
+  1206, 	"Vulture"
+  1207, 	"Vulture 2"
+  1208, 	"Vulture 3"
+  1209, 	"Scorpion"
+  1210, 	"Adv. Scorpion"
+  1211, 	"Tarantula"
+  1212, 	"Adv. Tarantula"
+  1213, 	"Justice Mk I"
+  1214, 	"Justice Mk II"
+  1215, 	"Justice Mk III"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1216, 	"Vengeance Mk I"
+  1217, 	"Vengeance Mk II"
+  1218, 	"Vengeance Mk III"
+  1219, 	"Vengeance Mk III"
+  1220, 	"Lavablade Mk I"
+  1221, 	"Lavablade Mk II"
+  1222, 	"Lavablade Mk III"
+  1223, 	"Magma Hammer Mk I"
+  1224, 	"Magma Hammer Mk II"
+  1225, 	"Magma Hammer Mk III"
+  1226, 	"Justice Turret Mk I"
+  1227, 	"Justice Turret Mk II"
+  1228, 	"Vengeance Turret"
+  1229, 	"Lavablade Turret Mk I"
+  1230, 	"Lavablade Turret Mk II"
+  1231, 	"Magma Hammer Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1232, 	"Cruiser Turret"
+  1233, 	"Cruiser Forward Gun"
+  1234, 	"Cruiser Missile Turret"
+  1235, 	"Battleship Primary Turret"
+  1236, 	"Battleship Secondary Turret"
+  1237, 	"Battleship Tertiary Turret"
+  1238, 	"Battleship Defense Turret"
+  1239, 	"Battleship Flak Turret"
+  1240, 	"Battleship Missile Turret"
+  1241, 	"Prison Turret"
+  1242, 	"Ripper"
+  1243, 	"Adv. Ripper"
+  1244, 	"Dissolver"
+  1245, 	"Adv. Dissolver"
+  1246, 	"Skyrail"
+  1247, 	"Adv. Skyrail"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1248, 	"Sunrail"
+  1249, 	"Adv. Sunrail"
+  1250, 	"Ripper Turret"
+  1251, 	"Adv. Ripper Turret"
+  1252, 	"Dissolver Turret"
+  1253, 	"Skyrail Turret"
+  1254, 	"Adv. Skyrail Turret"
+  1255, 	"Sunrail Turret"
+  1256, 	"Destroyer Primary Turret"
+  1257, 	"Destroyer Secondary Turret"
+  1258, 	"Destroyer Tertiary Turret"
+  1259, 	"Destroyer Defense Turret"
+  1260, 	"Destroyer Missile Turret"
+  1261, 	"Gunboat Primary Turret"
+  1262, 	"Gunboat Secondary Turret"
+  1263, 	"Gunboat Large Forward Gun"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1264, 	"Gunboat Missile Turret"
+  1265, 	"Battleship Primary Turret"
+  1266, 	"Battleship Secondary Turret"
+  1267, 	"Battleship Tertiary Turret"
+  1268, 	"Battleship Defense Turret"
+  1269, 	"Battleship Flak Turret"
+  1270, 	"Battleship Missile Turret"
+  1271, 	"Prison Turret"
+  1272, 	"Scrambler 1"
+  1273, 	"Scrambler 2"
+  1274, 	"Disinfector 1"
+  1275, 	"Disinfector 2"
+  1276, 	"Sunfury 1"
+  1277, 	"Sunfury 2"
+  1278, 	"Sunfrenzy 1"
+  1279, 	"Sunfrenzy 2"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1280, 	"Scrambler 1 Turret"
+  1281, 	"Scrambler 2 Turret"
+  1282, 	"Disinfector Turret"
+  1283, 	"Sunfury 1 Turret"
+  1284, 	"Sunfury 2 Turret"
+  1285, 	"Sunfrenzy Turret"
+  1286, 	"Destroyer Primary Turret"
+  1287, 	"Destroyer Secondary Turret"
+  1288, 	"Destroyer Defense Turret"
+  1289, 	"Destroyer Missile Turret"
+  1290, 	"Gunboat Defense Turret"
+  1291, 	"Gunboat Large Forward Gun"
+  1292, 	"Gunboat Missile Turret"
+  1293, 	"Battleship Primary Turret"
+  1294, 	"Battleship Secondary Turret"
+  1295, 	"Battleship Tertiary Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1296, 	"Battleship Defense Turret"
+  1297, 	"Battleship Flak Turret"
+  1298, 	"Battleship Missile Turret"
+  1299, 	"Prison Turret"
+  1300, 	"Stealthblade Mk I"
+  1301, 	"Stealthblade Mk I"
+  1302, 	"Stealthblade Mk I"
+  1303, 	"Stealthblade Mk II"
+  1304, 	"Hornviper Mk I"
+  1305, 	"Hornviper Mk II"
+  1306, 	"Flamecurse Mk I"
+  1307, 	"Flamecurse Mk II"
+  1308, 	"Firekiss Mk I"
+  1309, 	"Firekiss Mk II"
+  1310, 	"Stealthblade Turret Mk I"
+  1311, 	"Stealthblade Turret Mk II"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1312, 	"Hornviper Turret"
+  1313, 	"Flamecurse Turret Mk I"
+  1314, 	"Flamecurse Turret Mk II"
+  1315, 	"Firekiss Turret"
+  1316, 	"Cruiser Primary Turret"
+  1317, 	"Cruiser Primary Turret"
+  1318, 	"Cruiser Secondary Turret"
+  1319, 	"Cruiser Secondary Turret"
+  1320, 	"Cruiser Tertiary Turret"
+  1321, 	"Cruiser Tertiary Turret"
+  1322, 	"Cruiser Defense Turret"
+  1323, 	"Cruiser Defense Turret"
+  1324, 	"Cruiser Missile Turret"
+  1325, 	"Gunboat Primary Turret"
+  1326, 	"Gunboat Secondary Turret"
+  1327, 	"Gunboat Large Forward Gun"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1328, 	"Gunboat Missile Turret"
+  1329, 	"Battleship Primary Turret"
+  1330, 	"Battleship Secondary Turret"
+  1331, 	"Battleship Tertiary Turret"
+  1332, 	"Battleship Defense Turret"
+  1333, 	"Battleship Flak Turret"
+  1334, 	"Battleship Missile Turret"
+  1335, 	"Battleship Primary Turret"
+  1336, 	"Battleship Secondary Turret"
+  1337, 	"Battleship Tertiary Turret"
+  1338, 	"Battleship Defense Turret"
+  1339, 	"Battleship Flak Turret"
+  1340, 	"Battleship Missile Turret"
+  1341, 	"Prison Turret"
+  1342, 	"Starbeam"
+  1343, 	"Adv. Starbeam"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1344, 	"Heavy Starbeam"
+  1345, 	"Flashpoint"
+  1346, 	"Adv. Flashpoint"
+  1347, 	"Heavy Flashpoint"
+  1348, 	"Stunpulse"
+  1349, 	"Adv. Stunpulse"
+  1350, 	"Debilitator"
+  1351, 	"Adv. Debilitator"
+  1352, 	"Starbeam Turret"
+  1353, 	"Adv. Starbeam Turret"
+  1354, 	"Flashpoint Turret"
+  1355, 	"Stunpulse Turret"
+  1356, 	"Debilitator Turret"
+  1357, 	"Adv. Debilitator Turret"
+  1358, 	"Small Transport Turret Mk I"
+  1359, 	"Small Transport Turret Mk II"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1360, 	"Small Transport Turret Mk III"
+  1361, 	"Large Transport Turret Mk I"
+  1362, 	"Large Transport Turret Mk II"
+  1363, 	"Large Transport Turret Mk III"
+  1364, 	"Small Train Turret Mk I"
+  1365, 	"Small Train Turret Mk II"
+  1366, 	"Small Train Turret Mk III"
+  1367, 	"Medium Train Turret Mk I"
+  1368, 	"Medium Train Turret Mk II"
+  1369, 	"Medium Train Turret Mk III"
+  1370, 	"Large Train Turret Mk I"
+  1371, 	"Large Train Turret Mk II"
+  1372, 	"Large Train Turret Mk III"
+  1373, 	"Small Miner Turret"
+  1374, 	"Medium Miner Turret"
+  1375, 	"Large Miner Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1376, 	"Lifter Turret"
+  1377, 	"Repair Turret"
+  1378, 	"Liner Turret"
+  1379, 	"Nomad Laser"
+  1380, 	"Nomad Laser"
+  1381, 	"Nomad Laser"
+  1382, 	"Nomad Cruise Disruptor"
+  1383, 	"Nomad Torpedo"
+  1384, 	"Nomad Turret"
+  1385, 	"Nomad Turret"
+  1386, 	"Nomad Turret"
+  1387, 	"Nomad Turret"
+  1388, 	"Nomad Energy Blaster"
+  1389, 	"Nomad Energy Cannon"
+  1390, 	"Nomad Prototype"
+  1391, 	"Rowlett's Revenge"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1392, 	"ONYX"
+  1393, 	"BLOODSTONE"
+  1394, 	"JADE"
+  1395, 	"DIAMONDBACK"
+  1396, 	"IRON HAMMER"
+  1397, 	"SILVER FIRE"
+  1398, 	"GOLDEN BLADE"
+  1399, 	"BLUE BLAZE"
+  1400, 	"DARK BLOSSOM"
+  1401, 	"WILD FIRE"
+  1402, 	"THOR'S HAMMER"
+  1403, 	"PROMETHEUS"
+  1404, 	"GUARDIAN"
+  1405, 	"CERBERUS"
+  1406, 	"ARCHANGEL"
+  1407, 	"Small Station Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1408, 	"Large Station Turret"
+  1409, 	"Liberty Small Station Turret"
+  1410, 	"Liberty Large Station Turret"
+  1411, 	"Liberty Small Station Turret"
+  1412, 	"Liberty Large Station Turret"
+  1413, 	"Liberty Small Station Turret"
+  1414, 	"Liberty Large Station Turret"
+  1415, 	"Bretonia Small Station Turret"
+  1416, 	"Bretonia Large Station Turret"
+  1417, 	"Bretonia Small Station Turret"
+  1418, 	"Bretonia Large Station Turret"
+  1419, 	"Bretonia Small Station Turret"
+  1420, 	"Bretonia Large Station Turret"
+  1421, 	"Kusari Small Station Turret"
+  1422, 	"Kusari Large Station Turret"
+  1423, 	"Kusari Small Station Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1424, 	"Kusari Large Station Turret"
+  1425, 	"Kusari Small Station Turret"
+  1426, 	"Kusari Large Station Turret"
+  1427, 	"Rheinland Small Station Turret"
+  1428, 	"Rheinland Large Station Turret"
+  1429, 	"Rheinland Small Station Turret"
+  1430, 	"Rheinland Large Station Turret"
+  1431, 	"Rheinland Small Station Turret"
+  1432, 	"Rheinland Large Station Turret"
+  1433, 	"Civilian Small Station Turret"
+  1434, 	"Civilian Large Station Turret"
+  1435, 	"Civilian Small Station Turret"
+  1436, 	"Civilian Large Station Turret"
+  1437, 	"Civilian Small Station Turret"
+  1438, 	"Civilian Large Station Turret"
+  1439, 	"Pirate Small Station Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1440, 	"Pirate Large Station Turret"
+  1441, 	"Pirate Small Station Turret"
+  1442, 	"Pirate Large Station Turret"
+  1443, 	"Pirate Small Station Turret"
+  1444, 	"Pirate Large Station Turret"
+  1445, 	"Liberty Weapon Platform Laser Turret"
+  1446, 	"Liberty Weapon Platform Missile Turret"
+  1447, 	"Liberty Weapon Platform Laser Turret"
+  1448, 	"Liberty Weapon Platform Laser Turret"
+  1449, 	"Liberty Weapon Platform Laser Turret"
+  1450, 	"Liberty Weapon Platform Laser Turret"
+  1451, 	"Liberty Weapon Platform Missile Turret"
+  1452, 	"Liberty Weapon Platform Missile Turret"
+  1453, 	"Liberty Weapon Platform Missile Turret"
+  1454, 	"Liberty Weapon Platform Missile Turret"
+  1455, 	"Bretonia Weapon Platform Laser Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1456, 	"Bretonia Weapon Platform Laser Turret"
+  1457, 	"Bretonia Weapon Platform Laser Turret"
+  1458, 	"Bretonia Weapon Platform Missile Turret"
+  1459, 	"Bretonia Weapon Platform Missile Turret"
+  1460, 	"Bretonia Weapon Platform Missile Turret"
+  1461, 	"Kusari Weapon Platform Laser Turret"
+  1462, 	"Kusari Weapon Platform Laser Turret"
+  1463, 	"Kusari Weapon Platform Laser Turret"
+  1464, 	"Kusari Weapon Platform Missile Turret"
+  1465, 	"Kusari Weapon Platform Missile Turret"
+  1466, 	"Kusari Weapon Platform Missile Turret"
+  1467, 	"Rheinland Weapon Platform Laser Turret"
+  1468, 	"Rheinland Weapon Platform Laser Turret"
+  1469, 	"Rheinland Weapon Platform Laser Turret"
+  1470, 	"Rheinland Weapon Platform Missile Turret"
+  1471, 	"Rheinland Weapon Platform Missile Turret"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1472, 	"Rheinland Weapon Platform Missile Turret"
+  1473, 	"Civilian Weapon Platform Laser Turret"
+  1474, 	"Civilian Weapon Platform Laser Turret"
+  1475, 	"Civilian Weapon Platform Laser Turret"
+  1476, 	"Civilian Weapon Platform Missile Turret"
+  1477, 	"Civilian Weapon Platform Missile Turret"
+  1478, 	"Civilian Weapon Platform Missile Turret"
+  1479, 	"Pirate Weapon Platform Laser Turret"
+  1480, 	"Pirate Weapon Platform Laser Turret"
+  1481, 	"Pirate Weapon Platform Laser Turret"
+  1482, 	"Pirate Weapon Platform Missile Turret"
+  1483, 	"Pirate Weapon Platform Missile Turret"
+  1484, 	"Pirate Weapon Platform Missile Turret"
+  1485, 	"Small WP Gun"
+  1486, 	"Small WP Launcher"
+  1487, 	"Liberty Small Weapon Platform Gun"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1488, 	"Liberty Small Weapon Platform Gun"
+  1489, 	"Liberty Small Weapon Platform Gun"
+  1490, 	"Liberty Small Weapon Platform Missile"
+  1491, 	"Liberty Small Weapon Platform Missile"
+  1492, 	"Liberty Small Weapon Platform Missile"
+  1493, 	"Bretonia Small Weapon Platform Gun"
+  1494, 	"Bretonia Small Weapon Platform Gun"
+  1495, 	"Bretonia Small Weapon Platform Gun"
+  1496, 	"Bretonia Small Weapon Platform Missile"
+  1497, 	"Bretonia Small Weapon Platform Missile"
+  1498, 	"Bretonia Small Weapon Platform Missile"
+  1499, 	"Kusari Small Weapon Platform Gun"
+  1500, 	"Kusari Small Weapon Platform Gun"
+  1501, 	"Kusari Small Weapon Platform Gun"
+  1502, 	"Kusari Small Weapon Platform Missile"
+  1503, 	"Kusari Small Weapon Platform Missile"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1504, 	"Kusari Small Weapon Platform Missile"
+  1505, 	"Rheinland Small Weapon Platform Gun"
+  1506, 	"Rheinland Small Weapon Platform Gun"
+  1507, 	"Rheinland Small Weapon Platform Gun"
+  1508, 	"Rheinland Small Weapon Platform Missile"
+  1509, 	"Rheinland Small Weapon Platform Missile"
+  1510, 	"Rheinland Small Weapon Platform Missile"
+  1511, 	"Civilian Small Weapon Platform Gun"
+  1512, 	"Civilian Small Weapon Platform Gun"
+  1513, 	"Civilian Small Weapon Platform Gun"
+  1514, 	"Civilian Small Weapon Platform Missile"
+  1515, 	"Civilian Small Weapon Platform Missile"
+  1516, 	"Civilian Small Weapon Platform Missile"
+  1517, 	"Pirate Small Weapon Platform Gun"
+  1518, 	"Pirate Small Weapon Platform Gun"
+  1519, 	"Pirate Small Weapon Platform Gun"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1520, 	"Pirate Small Weapon Platform Missile"
+  1521, 	"Pirate Small Weapon Platform Missile"
+  1522, 	"Pirate Small Weapon Platform Missile"
+  1523, 	"Nomad Turret"
+  1524, 	"Nomad Turret"
+  1526, 	"Escape Pod Engine"
+  1527, 	"Starflier Engine"
+  1528, 	"Startracker Engine"
+  1529, 	"Starblazer Engine"
+  1530, 	"Civilian L. F. Engine"
+  1531, 	"Civilian H. F. Engine"
+  1532, 	"Civilian V. H. F. Engine"
+  1533, 	"Borderworld L. F. Engine"
+  1534, 	"Borderworld H. F. Engine"
+  1535, 	"Borderworld V. H. F. Engine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1536, 	"Borderworld Fr. Engine"
+  1537, 	"Corsair L. F. Engine"
+  1538, 	"Corsair H. F. Engine"
+  1539, 	"Corsair V. H. F. Engine"
+  1540, 	"Bounty Hunter L. F. Engine"
+  1541, 	"Bounty Hunter H. F. Engine"
+  1542, 	"Bounty Hunter V. H. F. Engine"
+  1543, 	"Liberty L. F. Engine"
+  1544, 	"Liberty H. F. Engine"
+  1545, 	"Liberty Fr. Engine"
+  1546, 	"Bretonia L. F. Engine"
+  1547, 	"Bretonia H. F. Engine"
+  1548, 	"Bretonia Fr. Engine"
+  1549, 	"Kusari L. F. Engine"
+  1550, 	"Kusari H. F. Engine"
+  1551, 	"Kusari Fr. Engine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1552, 	"Rheinland L. F. Engine"
+  1553, 	"Rheinland H. F. Engine"
+  1554, 	"Rheinland Fr. Engine"
+  1555, 	"Pirate L. F. Engine"
+  1556, 	"Pirate H. F. Engine"
+  1557, 	"Pirate Fr. Engine"
+  1558, 	"Order H. F. Engine"
+  1560, 	"NPC-Only Infinite Power Supply"
+  1561, 	"Starflier Powerplant"
+  1562, 	"Startracker Powerplant"
+  1563, 	"Civilian L. F. Powerplant"
+  1564, 	"Civilian H. F. Powerplant"
+  1565, 	"Civilian V. H. F. Powerplant"
+  1566, 	"Borderworld L. F. Powerplant"
+  1567, 	"Borderworld H. F. Powerplant"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1568, 	"Borderworld V. H. F. Powerplant"
+  1569, 	"Borderworld Fr. Powerplant"
+  1570, 	"Corsair L. F. Powerplant"
+  1571, 	"Corsair H. F. Powerplant"
+  1572, 	"Corsair V. H. F. Powerplant"
+  1573, 	"Bounty Hunter L. F. Powerplant"
+  1574, 	"Bounty Hunter H. F. Powerplant"
+  1575, 	"Bounty Hunter V. H. F. Powerplant"
+  1576, 	"Liberty L. F. Powerplant"
+  1577, 	"Liberty H. F. Powerplant"
+  1578, 	"Liberty Fr. Powerplant"
+  1579, 	"Bretonia L. F. Powerplant"
+  1580, 	"Bretonia H. F. Powerplant"
+  1581, 	"Bretonia Fr. Powerplant"
+  1582, 	"Kusari L. F. Powerplant"
+  1583, 	"Kusari H. F. Powerplant"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1584, 	"Kusari Fr. Powerplant"
+  1585, 	"Rheinland L. F. Powerplant"
+  1586, 	"Rheinland H. F. Powerplant"
+  1587, 	"Rheinland Fr. Powerplant"
+  1588, 	"Pirate L. F. Powerplant"
+  1589, 	"Pirate H. F. Powerplant"
+  1590, 	"Pirate Fr. Powerplant"
+  1591, 	"Order H. F. Powerplant"
+  1593, 	"Thruster"
+  1594, 	"Deluxe Thruster"
+  1595, 	"Heavy Thruster"
+  1596, 	"Advanced Thruster"
+  1597, 	"Order Thruster"
+  1598, 	"Nomad Thruster"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1600, 	"Light Tractor Beam"
+  1602, 	"Nanobots"
+  1604, 	"Shield Battery"
+  1606, 	"Scanner"
+  1607, 	"Deep Scanner"
+  1609, 	"Countermeasure Dropper"
+  1610, 	"Imp. Countermeasure Dropper"
+  1611, 	"Adv. Countermeasure Dropper"
+  1613, 	"Light Fighter Uber Shield"
+  1614, 	"Heavy Fighter Uber Shield"
+  1615, 	"Sentry Graviton Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1616, 	"Adv. Sentry Graviton Shield"
+  1617, 	"Guardian Graviton Shield"
+  1618, 	"Adv. Guardian Graviton Shield"
+  1619, 	"Sentinel Graviton Shield"
+  1620, 	"Adv. Sentinel Graviton Shield"
+  1621, 	"Protector Graviton Shield"
+  1622, 	"Adv. Protector Graviton Shield"
+  1623, 	"Champion Graviton Shield"
+  1624, 	"Adv. Champion Graviton Shield"
+  1625, 	"Rampart Molecular Shield"
+  1626, 	"Adv. Rampart Molecular Shield"
+  1627, 	"Sconce Molecular Shield"
+  1628, 	"Adv. Sconce Molecular Shield"
+  1629, 	"Palisade Molecular Shield"
+  1630, 	"Adv. Palisade Molecular Shield"
+  1631, 	"Bulwark Molecular Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1632, 	"Adv. Bulwark Molecular Shield"
+  1633, 	"Barrier Molecular Shield"
+  1634, 	"Adv. Barrier Molecular Shield"
+  1635, 	"Armet Positron Shield"
+  1636, 	"Adv. Armet Positron Shield"
+  1637, 	"Cuisse Positron Shield"
+  1638, 	"Adv. Cuisse Positron Shield"
+  1639, 	"Pourpoint Positron Shield"
+  1640, 	"Adv. Pourpoint Positron Shield"
+  1641, 	"Aegis Positron Shield"
+  1642, 	"Adv. Aegis Positron Shield"
+  1643, 	"Brigandine Positron Shield"
+  1644, 	"Adv. Brigandine Positron Shield"
+  1645, 	"Sentry L. F. Shield"
+  1646, 	"Adv. Sentry L. F. Shield"
+  1647, 	"Guardian L. F. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1648, 	"Adv. Guardian L. F. Shield"
+  1649, 	"Sentinel L. F. Shield"
+  1650, 	"Adv. Sentinel L. F. Shield"
+  1651, 	"Protector L. F. Shield"
+  1652, 	"Adv. Protector L. F. Shield"
+  1653, 	"Champion L. F. Shield"
+  1654, 	"Adv. Champion L. F. Shield"
+  1655, 	"Sentry H. F. Shield"
+  1656, 	"Adv. Sentry H. F. Shield"
+  1657, 	"Guardian H. F. Shield"
+  1658, 	"Adv. Guardian H. F. Shield"
+  1659, 	"Sentinel H. F. Shield"
+  1660, 	"Adv. Sentinel H. F. Shield"
+  1661, 	"Protector H. F. Shield"
+  1662, 	"Adv. Protector H. F. Shield"
+  1663, 	"Champion H. F. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1664, 	"Adv. Champion H. F. Shield"
+  1665, 	"Sentry Fr. Shield"
+  1666, 	"Adv. Sentry Fr. Shield"
+  1667, 	"Guardian Fr. Shield"
+  1668, 	"Adv. Guardian Fr. Shield"
+  1669, 	"Sentinel Fr. Shield"
+  1670, 	"Adv. Sentinel Fr. Shield"
+  1671, 	"Protector Fr. Shield"
+  1672, 	"Adv. Protector Fr. Shield"
+  1673, 	"Champion Fr. Shield"
+  1674, 	"Adv. Champion Fr. Shield"
+  1675, 	"Rampart L. F. Shield"
+  1676, 	"Adv. Rampart L. F. Shield"
+  1677, 	"Sconce L. F. Shield"
+  1678, 	"Adv. Sconce L. F. Shield"
+  1679, 	"Palisade L. F. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1680, 	"Adv. Palisade L. F. Shield"
+  1681, 	"Bulwark L. F. Shield"
+  1682, 	"Adv. Bulwark L. F. Shield"
+  1683, 	"Barrier L. F. Shield"
+  1684, 	"Adv. Barrier L. F. Shield"
+  1685, 	"Rampart H. F. Shield"
+  1686, 	"Adv. Rampart H. F. Shield"
+  1687, 	"Sconce H. F. Shield"
+  1688, 	"Adv. Sconce H. F. Shield"
+  1689, 	"Palisade H. F. Shield"
+  1690, 	"Adv. Palisade H. F. Shield"
+  1691, 	"Bulwark H. F. Shield"
+  1692, 	"Adv. Bulwark H. F. Shield"
+  1693, 	"Barrier H. F. Shield"
+  1694, 	"Adv. Barrier H. F. Shield"
+  1695, 	"Rampart Fr. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1696, 	"Adv. Rampart Fr. Shield"
+  1697, 	"Sconce Fr. Shield"
+  1698, 	"Adv. Sconce Fr. Shield"
+  1699, 	"Palisade Fr. Shield"
+  1700, 	"Adv. Palisade Fr. Shield"
+  1701, 	"Bulwark Fr. Shield"
+  1702, 	"Adv. Bulwark Fr. Shield"
+  1703, 	"Barrier Fr. Shield"
+  1704, 	"Adv. Barrier Fr. Shield"
+  1705, 	"Armet L. F. Shield"
+  1706, 	"Adv. Armet L. F. Shield"
+  1707, 	"Cuisse L. F. Shield"
+  1708, 	"Adv. Cuisse L. F. Shield"
+  1709, 	"Pourpoint L. F. Shield"
+  1710, 	"Adv. Pourpoint L. F. Shield"
+  1711, 	"Aegis L. F. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1712, 	"Adv. Aegis L. F. Shield"
+  1713, 	"Brigandine L. F. Shield"
+  1714, 	"Adv. Brigandine L. F. Shield"
+  1715, 	"Armet H. F. Shield"
+  1716, 	"Adv. Armet H. F. Shield"
+  1717, 	"Cuisse H. F. Shield"
+  1718, 	"Adv. Cuisse H. F. Shield"
+  1719, 	"Pourpoint H. F. Shield"
+  1720, 	"Adv. Pourpoint H. F. Shield"
+  1721, 	"Aegis H. F. Shield"
+  1722, 	"Adv. Aegis H. F. Shield"
+  1723, 	"Brigandine H. F. Shield"
+  1724, 	"Adv. Brigandine H. F. Shield"
+  1725, 	"Armet Fr. Shield"
+  1726, 	"Adv. Armet Fr. Shield"
+  1727, 	"Cuisse Fr. Shield"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1728, 	"Adv. Cuisse Fr. Shield"
+  1729, 	"Pourpoint Fr. Shield"
+  1730, 	"Adv. Pourpoint Fr. Shield"
+  1731, 	"Aegis Fr. Shield"
+  1732, 	"Adv. Aegis Fr. Shield"
+  1733, 	"Brigandine Fr. Shield"
+  1734, 	"Adv. Brigandine Fr. Shield"
+  1735, 	"Order H. F. Shield"
+  1737, 	"Transport Engine"
+  1738, 	"Large Transport Engine"
+  1739, 	"Train Transport Engine"
+  1740, 	"Large Train Trans. Eng."
+  1741, 	"Armored Transport Eng."
+  1742, 	"Miner Engine"
+  1743, 	"Liberty Cruiser Engine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1744, 	"Liberty Battleship Eng."
+  1745, 	"Liberty Dreadnought Eng."
+  1746, 	"Bretonia Destroyer Eng."
+  1747, 	"Bretonia Battleship Eng."
+  1748, 	"Bretonia Gunboat Eng."
+  1749, 	"Kusari Gunboat Engine"
+  1750, 	"Kusari Destroyer Eng."
+  1751, 	"Kusari Battleship Eng."
+  1752, 	"Rh. Gunboat Engine"
+  1753, 	"Rh. Cruiser Engine"
+  1754, 	"Rh. Battleship Engine"
+  1755, 	"CSV Engine"
+  1756, 	"Heavy Lifter Engine"
+  1757, 	"Luxury Liner Engine"
+  1758, 	"Prison Liner Engine"
+  1759, 	"Repair Ship Engine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  1760, 	"Nomad Fighter Engine"
+  1761, 	"Nomad Gunboat Engine"
+  1762, 	"Nomad Battleship Engine"
+  1763, 	"Osiris Engine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3002, 	"Javelin Missile"
+  3003, 	"Javelin Missile"
+  3004, 	"Slingshot Missile"
+  3005, 	"Catapult Missile"
+  3006, 	"Lancer Missile"
+  3007, 	"Cannonball Missile"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3008, 	"Stalker Missile"
+  3009, 	"Windstalker Missile"
+  3010, 	"Moonstalker Missile"
+  3011, 	"Sunstalker Missile"
+  3012, 	"Firestalker Missile"
+  3013, 	"Eraser Missile"
+  3014, 	"Sweeper Missile"
+  3015, 	"Neutralizer Missile"
+  3016, 	"Paralyzer Missile"
+  3017, 	"Wasp Missile"
+  3018, 	"Hornet Missile"
+  3019, 	"Starkiller Torpedo"
+  3020, 	"Sunslayer Torpedo"
+  3021, 	"Drone Mine"
+  3022, 	"Wardog Mine"
+  3023, 	"Tadpole Mine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3024, 	"Swatter Mine"
+  3025, 	"Screamer Mine"
+  3026, 	"Seeker Mine"
+  3027, 	"Razor Mine"
+  3028, 	"Driller Mine"
+  3029, 	"Cutter Mine"
+  3030, 	"Ripper Mine"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  3609, 	"Countermeasure Flare"
+  3610, 	"Imp. Countermeasure Flare"
+  3611, 	"Adv. Countermeasure Flare"
+}
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,0,0,44
+PRODUCTVERSION 1,0,0,41
+FILEOS 0x40004
+FILETYPE 0x2
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904b0"
+	BEGIN
+		VALUE "Comments", "Jason's Freelancer Patch"
+		VALUE "CompanyName", "Microsoft Corporation"
+		VALUE "FileDescription", "Freelancer Resources"
+		VALUE "FileVersion", "1, 0, 0, 3"
+		VALUE "InternalName", "EquipResources"
+		VALUE "LegalCopyright", "© 2003 Microsoft Corporation. All rights reserved"
+		VALUE "OriginalFilename", "EquipResources.dll"
+		VALUE "ProductName", "Freelancer"
+		VALUE "ProductVersion", "1, 0, 0, 0"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04B0  
+END
+END
+
+
+2002 23 "HTML2002_1.txt"
+
+2003 23 "HTML2003_1.txt"
+
+2004 23 "HTML2004_1.txt"
+
+2005 23 "HTML2005_1.txt"
+
+2006 23 "HTML2006_1.txt"
+
+2007 23 "HTML2007_1.txt"
+
+2008 23 "HTML2008_1.txt"
+
+2009 23 "HTML2009_1.txt"
+
+2010 23 "HTML2010_1.txt"
+
+2011 23 "HTML2011_1.txt"
+
+2012 23 "HTML2012_1.txt"
+
+2013 23 "HTML2013_1.txt"
+
+2014 23 "HTML2014_1.txt"
+
+2015 23 "HTML2015_1.txt"
+
+2016 23 "HTML2016_1.txt"
+
+2017 23 "HTML2017_1.txt"
+
+2018 23 "HTML2018_1.txt"
+
+2019 23 "HTML2019_1.txt"
+
+2020 23 "HTML2020_1.txt"
+
+2021 23 "HTML2021_1.txt"
+
+2022 23 "HTML2022_1.txt"
+
+2023 23 "HTML2023_1.txt"
+
+2024 23 "HTML2024_1.txt"
+
+2025 23 "HTML2025_1.txt"
+
+2026 23 "HTML2026_1.txt"
+
+2027 23 "HTML2027_1.txt"
+
+2028 23 "HTML2028_1.txt"
+
+2029 23 "HTML2029_1.txt"
+
+2030 23 "HTML2030_1.txt"
+
+2031 23 "HTML2031_1.txt"
+
+2032 23 "HTML2032_1.txt"
+
+2033 23 "HTML2033_1.txt"
+
+2034 23 "HTML2034_1.txt"
+
+2035 23 "HTML2035_1.txt"
+
+2036 23 "HTML2036_1.txt"
+
+2037 23 "HTML2037_1.txt"
+
+2038 23 "HTML2038_1.txt"
+
+2039 23 "HTML2039_1.txt"
+
+2040 23 "HTML2040_1.txt"
+
+2041 23 "HTML2041_1.txt"
+
+2042 23 "HTML2042_1.txt"
+
+2043 23 "HTML2043_1.txt"
+
+2044 23 "HTML2044_1.txt"
+
+2045 23 "HTML2045_1.txt"
+
+2046 23 "HTML2046_1.txt"
+
+2047 23 "HTML2047_1.txt"
+
+2048 23 "HTML2048_1.txt"
+
+2049 23 "HTML2049_1.txt"
+
+2050 23 "HTML2050_1.txt"
+
+2051 23 "HTML2051_1.txt"
+
+2052 23 "HTML2052_1.txt"
+
+2053 23 "HTML2053_1.txt"
+
+2054 23 "HTML2054_1.txt"
+
+2055 23 "HTML2055_1.txt"
+
+2056 23 "HTML2056_1.txt"
+
+2057 23 "HTML2057_1.txt"
+
+2058 23 "HTML2058_1.txt"
+
+2059 23 "HTML2059_1.txt"
+
+2060 23 "HTML2060_1.txt"
+
+2061 23 "HTML2061_1.txt"
+
+2062 23 "HTML2062_1.txt"
+
+2063 23 "HTML2063_1.txt"
+
+2064 23 "HTML2064_1.txt"
+
+2065 23 "HTML2065_1.txt"
+
+2066 23 "HTML2066_1.txt"
+
+2067 23 "HTML2067_1.txt"
+
+2068 23 "HTML2068_1.txt"
+
+2069 23 "HTML2069_1.txt"
+
+2070 23 "HTML2070_1.txt"
+
+2071 23 "HTML2071_1.txt"
+
+2072 23 "HTML2072_1.txt"
+
+2073 23 "HTML2073_1.txt"
+
+2074 23 "HTML2074_1.txt"
+
+2075 23 "HTML2075_1.txt"
+
+2076 23 "HTML2076_1.txt"
+
+2077 23 "HTML2077_1.txt"
+
+2078 23 "HTML2078_1.txt"
+
+2079 23 "HTML2079_1.txt"
+
+2080 23 "HTML2080_1.txt"
+
+2081 23 "HTML2081_1.txt"
+
+2082 23 "HTML2082_1.txt"
+
+2083 23 "HTML2083_1.txt"
+
+2084 23 "HTML2084_1.txt"
+
+2085 23 "HTML2085_1.txt"
+
+2086 23 "HTML2086_1.txt"
+
+2087 23 "HTML2087_1.txt"
+
+2088 23 "HTML2088_1.txt"
+
+2089 23 "HTML2089_1.txt"
+
+2090 23 "HTML2090_1.txt"
+
+2091 23 "HTML2091_1.txt"
+
+2092 23 "HTML2092_1.txt"
+
+2093 23 "HTML2093_1.txt"
+
+2094 23 "HTML2094_1.txt"
+
+2095 23 "HTML2095_1.txt"
+
+2096 23 "HTML2096_1.txt"
+
+2097 23 "HTML2097_1.txt"
+
+2098 23 "HTML2098_1.txt"
+
+2099 23 "HTML2099_1.txt"
+
+2100 23 "HTML2100_1.txt"
+
+2101 23 "HTML2101_1.txt"
+
+2102 23 "HTML2102_1.txt"
+
+2103 23 "HTML2103_1.txt"
+
+2104 23 "HTML2104_1.txt"
+
+2105 23 "HTML2105_1.txt"
+
+2106 23 "HTML2106_1.txt"
+
+2107 23 "HTML2107_1.txt"
+
+2108 23 "HTML2108_1.txt"
+
+2109 23 "HTML2109_1.txt"
+
+2110 23 "HTML2110_1.txt"
+
+2111 23 "HTML2111_1.txt"
+
+2112 23 "HTML2112_1.txt"
+
+2113 23 "HTML2113_1.txt"
+
+2114 23 "HTML2114_1.txt"
+
+2115 23 "HTML2115_1.txt"
+
+2116 23 "HTML2116_1.txt"
+
+2117 23 "HTML2117_1.txt"
+
+2118 23 "HTML2118_1.txt"
+
+2119 23 "HTML2119_1.txt"
+
+2120 23 "HTML2120_1.txt"
+
+2121 23 "HTML2121_1.txt"
+
+2122 23 "HTML2122_1.txt"
+
+2123 23 "HTML2123_1.txt"
+
+2124 23 "HTML2124_1.txt"
+
+2125 23 "HTML2125_1.txt"
+
+2126 23 "HTML2126_1.txt"
+
+2127 23 "HTML2127_1.txt"
+
+2128 23 "HTML2128_1.txt"
+
+2129 23 "HTML2129_1.txt"
+
+2130 23 "HTML2130_1.txt"
+
+2131 23 "HTML2131_1.txt"
+
+2132 23 "HTML2132_1.txt"
+
+2133 23 "HTML2133_1.txt"
+
+2134 23 "HTML2134_1.txt"
+
+2135 23 "HTML2135_1.txt"
+
+2136 23 "HTML2136_1.txt"
+
+2137 23 "HTML2137_1.txt"
+
+2138 23 "HTML2138_1.txt"
+
+2139 23 "HTML2139_1.txt"
+
+2140 23 "HTML2140_1.txt"
+
+2141 23 "HTML2141_1.txt"
+
+2142 23 "HTML2142_1.txt"
+
+2143 23 "HTML2143_1.txt"
+
+2144 23 "HTML2144_1.txt"
+
+2145 23 "HTML2145_1.txt"
+
+2146 23 "HTML2146_1.txt"
+
+2147 23 "HTML2147_1.txt"
+
+2148 23 "HTML2148_1.txt"
+
+2149 23 "HTML2149_1.txt"
+
+2150 23 "HTML2150_1.txt"
+
+2151 23 "HTML2151_1.txt"
+
+2152 23 "HTML2152_1.txt"
+
+2153 23 "HTML2153_1.txt"
+
+2154 23 "HTML2154_1.txt"
+
+2155 23 "HTML2155_1.txt"
+
+2156 23 "HTML2156_1.txt"
+
+2157 23 "HTML2157_1.txt"
+
+2158 23 "HTML2158_1.txt"
+
+2159 23 "HTML2159_1.txt"
+
+2160 23 "HTML2160_1.txt"
+
+2161 23 "HTML2161_1.txt"
+
+2162 23 "HTML2162_1.txt"
+
+2163 23 "HTML2163_1.txt"
+
+2164 23 "HTML2164_1.txt"
+
+2165 23 "HTML2165_1.txt"
+
+2166 23 "HTML2166_1.txt"
+
+2167 23 "HTML2167_1.txt"
+
+2168 23 "HTML2168_1.txt"
+
+2169 23 "HTML2169_1.txt"
+
+2170 23 "HTML2170_1.txt"
+
+2171 23 "HTML2171_1.txt"
+
+2172 23 "HTML2172_1.txt"
+
+2173 23 "HTML2173_1.txt"
+
+2174 23 "HTML2174_1.txt"
+
+2175 23 "HTML2175_1.txt"
+
+2176 23 "HTML2176_1.txt"
+
+2177 23 "HTML2177_1.txt"
+
+2178 23 "HTML2178_1.txt"
+
+2179 23 "HTML2179_1.txt"
+
+2180 23 "HTML2180_1.txt"
+
+2181 23 "HTML2181_1.txt"
+
+2182 23 "HTML2182_1.txt"
+
+2183 23 "HTML2183_1.txt"
+
+2184 23 "HTML2184_1.txt"
+
+2185 23 "HTML2185_1.txt"
+
+2186 23 "HTML2186_1.txt"
+
+2187 23 "HTML2187_1.txt"
+
+2188 23 "HTML2188_1.txt"
+
+2189 23 "HTML2189_1.txt"
+
+2190 23 "HTML2190_1.txt"
+
+2191 23 "HTML2191_1.txt"
+
+2192 23 "HTML2192_1.txt"
+
+2193 23 "HTML2193_1.txt"
+
+2194 23 "HTML2194_1.txt"
+
+2195 23 "HTML2195_1.txt"
+
+2196 23 "HTML2196_1.txt"
+
+2197 23 "HTML2197_1.txt"
+
+2198 23 "HTML2198_1.txt"
+
+2199 23 "HTML2199_1.txt"
+
+2200 23 "HTML2200_1.txt"
+
+2201 23 "HTML2201_1.txt"
+
+2202 23 "HTML2202_1.txt"
+
+2203 23 "HTML2203_1.txt"
+
+2204 23 "HTML2204_1.txt"
+
+2205 23 "HTML2205_1.txt"
+
+2206 23 "HTML2206_1.txt"
+
+2207 23 "HTML2207_1.txt"
+
+2208 23 "HTML2208_1.txt"
+
+2209 23 "HTML2209_1.txt"
+
+2210 23 "HTML2210_1.txt"
+
+2211 23 "HTML2211_1.txt"
+
+2212 23 "HTML2212_1.txt"
+
+2213 23 "HTML2213_1.txt"
+
+2214 23 "HTML2214_1.txt"
+
+2215 23 "HTML2215_1.txt"
+
+2216 23 "HTML2216_1.txt"
+
+2217 23 "HTML2217_1.txt"
+
+2218 23 "HTML2218_1.txt"
+
+2219 23 "HTML2219_1.txt"
+
+2220 23 "HTML2220_1.txt"
+
+2221 23 "HTML2221_1.txt"
+
+2222 23 "HTML2222_1.txt"
+
+2223 23 "HTML2223_1.txt"
+
+2224 23 "HTML2224_1.txt"
+
+2225 23 "HTML2225_1.txt"
+
+2226 23 "HTML2226_1.txt"
+
+2227 23 "HTML2227_1.txt"
+
+2228 23 "HTML2228_1.txt"
+
+2229 23 "HTML2229_1.txt"
+
+2230 23 "HTML2230_1.txt"
+
+2231 23 "HTML2231_1.txt"
+
+2232 23 "HTML2232_1.txt"
+
+2233 23 "HTML2233_1.txt"
+
+2234 23 "HTML2234_1.txt"
+
+2235 23 "HTML2235_1.txt"
+
+2236 23 "HTML2236_1.txt"
+
+2237 23 "HTML2237_1.txt"
+
+2238 23 "HTML2238_1.txt"
+
+2239 23 "HTML2239_1.txt"
+
+2240 23 "HTML2240_1.txt"
+
+2241 23 "HTML2241_1.txt"
+
+2242 23 "HTML2242_1.txt"
+
+2243 23 "HTML2243_1.txt"
+
+2244 23 "HTML2244_1.txt"
+
+2245 23 "HTML2245_1.txt"
+
+2246 23 "HTML2246_1.txt"
+
+2247 23 "HTML2247_1.txt"
+
+2248 23 "HTML2248_1.txt"
+
+2249 23 "HTML2249_1.txt"
+
+2250 23 "HTML2250_1.txt"
+
+2251 23 "HTML2251_1.txt"
+
+2252 23 "HTML2252_1.txt"
+
+2253 23 "HTML2253_1.txt"
+
+2254 23 "HTML2254_1.txt"
+
+2255 23 "HTML2255_1.txt"
+
+2256 23 "HTML2256_1.txt"
+
+2257 23 "HTML2257_1.txt"
+
+2258 23 "HTML2258_1.txt"
+
+2259 23 "HTML2259_1.txt"
+
+2260 23 "HTML2260_1.txt"
+
+2261 23 "HTML2261_1.txt"
+
+2262 23 "HTML2262_1.txt"
+
+2263 23 "HTML2263_1.txt"
+
+2264 23 "HTML2264_1.txt"
+
+2265 23 "HTML2265_1.txt"
+
+2266 23 "HTML2266_1.txt"
+
+2267 23 "HTML2267_1.txt"
+
+2268 23 "HTML2268_1.txt"
+
+2269 23 "HTML2269_1.txt"
+
+2270 23 "HTML2270_1.txt"
+
+2271 23 "HTML2271_1.txt"
+
+2272 23 "HTML2272_1.txt"
+
+2273 23 "HTML2273_1.txt"
+
+2274 23 "HTML2274_1.txt"
+
+2275 23 "HTML2275_1.txt"
+
+2276 23 "HTML2276_1.txt"
+
+2277 23 "HTML2277_1.txt"
+
+2278 23 "HTML2278_1.txt"
+
+2279 23 "HTML2279_1.txt"
+
+2280 23 "HTML2280_1.txt"
+
+2281 23 "HTML2281_1.txt"
+
+2282 23 "HTML2282_1.txt"
+
+2283 23 "HTML2283_1.txt"
+
+2284 23 "HTML2284_1.txt"
+
+2285 23 "HTML2285_1.txt"
+
+2286 23 "HTML2286_1.txt"
+
+2287 23 "HTML2287_1.txt"
+
+2288 23 "HTML2288_1.txt"
+
+2289 23 "HTML2289_1.txt"
+
+2290 23 "HTML2290_1.txt"
+
+2291 23 "HTML2291_1.txt"
+
+2292 23 "HTML2292_1.txt"
+
+2293 23 "HTML2293_1.txt"
+
+2294 23 "HTML2294_1.txt"
+
+2295 23 "HTML2295_1.txt"
+
+2296 23 "HTML2296_1.txt"
+
+2297 23 "HTML2297_1.txt"
+
+2298 23 "HTML2298_1.txt"
+
+2299 23 "HTML2299_1.txt"
+
+2300 23 "HTML2300_1.txt"
+
+2301 23 "HTML2301_1.txt"
+
+2302 23 "HTML2302_1.txt"
+
+2303 23 "HTML2303_1.txt"
+
+2304 23 "HTML2304_1.txt"
+
+2305 23 "HTML2305_1.txt"
+
+2306 23 "HTML2306_1.txt"
+
+2307 23 "HTML2307_1.txt"
+
+2308 23 "HTML2308_1.txt"
+
+2309 23 "HTML2309_1.txt"
+
+2310 23 "HTML2310_1.txt"
+
+2311 23 "HTML2311_1.txt"
+
+2312 23 "HTML2312_1.txt"
+
+2313 23 "HTML2313_1.txt"
+
+2314 23 "HTML2314_1.txt"
+
+2315 23 "HTML2315_1.txt"
+
+2316 23 "HTML2316_1.txt"
+
+2317 23 "HTML2317_1.txt"
+
+2318 23 "HTML2318_1.txt"
+
+2319 23 "HTML2319_1.txt"
+
+2320 23 "HTML2320_1.txt"
+
+2321 23 "HTML2321_1.txt"
+
+2322 23 "HTML2322_1.txt"
+
+2323 23 "HTML2323_1.txt"
+
+2324 23 "HTML2324_1.txt"
+
+2325 23 "HTML2325_1.txt"
+
+2326 23 "HTML2326_1.txt"
+
+2327 23 "HTML2327_1.txt"
+
+2328 23 "HTML2328_1.txt"
+
+2329 23 "HTML2329_1.txt"
+
+2330 23 "HTML2330_1.txt"
+
+2331 23 "HTML2331_1.txt"
+
+2332 23 "HTML2332_1.txt"
+
+2333 23 "HTML2333_1.txt"
+
+2334 23 "HTML2334_1.txt"
+
+2335 23 "HTML2335_1.txt"
+
+2336 23 "HTML2336_1.txt"
+
+2337 23 "HTML2337_1.txt"
+
+2338 23 "HTML2338_1.txt"
+
+2339 23 "HTML2339_1.txt"
+
+2340 23 "HTML2340_1.txt"
+
+2341 23 "HTML2341_1.txt"
+
+2342 23 "HTML2342_1.txt"
+
+2343 23 "HTML2343_1.txt"
+
+2344 23 "HTML2344_1.txt"
+
+2345 23 "HTML2345_1.txt"
+
+2346 23 "HTML2346_1.txt"
+
+2347 23 "HTML2347_1.txt"
+
+2348 23 "HTML2348_1.txt"
+
+2349 23 "HTML2349_1.txt"
+
+2350 23 "HTML2350_1.txt"
+
+2351 23 "HTML2351_1.txt"
+
+2352 23 "HTML2352_1.txt"
+
+2353 23 "HTML2353_1.txt"
+
+2354 23 "HTML2354_1.txt"
+
+2355 23 "HTML2355_1.txt"
+
+2356 23 "HTML2356_1.txt"
+
+2357 23 "HTML2357_1.txt"
+
+2358 23 "HTML2358_1.txt"
+
+2359 23 "HTML2359_1.txt"
+
+2360 23 "HTML2360_1.txt"
+
+2361 23 "HTML2361_1.txt"
+
+2362 23 "HTML2362_1.txt"
+
+2363 23 "HTML2363_1.txt"
+
+2364 23 "HTML2364_1.txt"
+
+2365 23 "HTML2365_1.txt"
+
+2366 23 "HTML2366_1.txt"
+
+2367 23 "HTML2367_1.txt"
+
+2368 23 "HTML2368_1.txt"
+
+2369 23 "HTML2369_1.txt"
+
+2370 23 "HTML2370_1.txt"
+
+2371 23 "HTML2371_1.txt"
+
+2372 23 "HTML2372_1.txt"
+
+2373 23 "HTML2373_1.txt"
+
+2374 23 "HTML2374_1.txt"
+
+2375 23 "HTML2375_1.txt"
+
+2376 23 "HTML2376_1.txt"
+
+2377 23 "HTML2377_1.txt"
+
+2378 23 "HTML2378_1.txt"
+
+2379 23 "HTML2379_1.txt"
+
+2380 23 "HTML2380_1.txt"
+
+2381 23 "HTML2381_1.txt"
+
+2382 23 "HTML2382_1.txt"
+
+2383 23 "HTML2383_1.txt"
+
+2384 23 "HTML2384_1.txt"
+
+2385 23 "HTML2385_1.txt"
+
+2386 23 "HTML2386_1.txt"
+
+2387 23 "HTML2387_1.txt"
+
+2388 23 "HTML2388_1.txt"
+
+2389 23 "HTML2389_1.txt"
+
+2390 23 "HTML2390_1.txt"
+
+2391 23 "HTML2391_1.txt"
+
+2392 23 "HTML2392_1.txt"
+
+2393 23 "HTML2393_1.txt"
+
+2394 23 "HTML2394_1.txt"
+
+2395 23 "HTML2395_1.txt"
+
+2396 23 "HTML2396_1.txt"
+
+2397 23 "HTML2397_1.txt"
+
+2398 23 "HTML2398_1.txt"
+
+2399 23 "HTML2399_1.txt"
+
+2400 23 "HTML2400_1.txt"
+
+2401 23 "HTML2401_1.txt"
+
+2402 23 "HTML2402_1.txt"
+
+2403 23 "HTML2403_1.txt"
+
+2404 23 "HTML2404_1.txt"
+
+2405 23 "HTML2405_1.txt"
+
+2406 23 "HTML2406_1.txt"
+
+2407 23 "HTML2407_1.txt"
+
+2408 23 "HTML2408_1.txt"
+
+2409 23 "HTML2409_1.txt"
+
+2410 23 "HTML2410_1.txt"
+
+2411 23 "HTML2411_1.txt"
+
+2412 23 "HTML2412_1.txt"
+
+2413 23 "HTML2413_1.txt"
+
+2414 23 "HTML2414_1.txt"
+
+2415 23 "HTML2415_1.txt"
+
+2416 23 "HTML2416_1.txt"
+
+2417 23 "HTML2417_1.txt"
+
+2418 23 "HTML2418_1.txt"
+
+2419 23 "HTML2419_1.txt"
+
+2420 23 "HTML2420_1.txt"
+
+2421 23 "HTML2421_1.txt"
+
+2422 23 "HTML2422_1.txt"
+
+2423 23 "HTML2423_1.txt"
+
+2424 23 "HTML2424_1.txt"
+
+2425 23 "HTML2425_1.txt"
+
+2426 23 "HTML2426_1.txt"
+
+2427 23 "HTML2427_1.txt"
+
+2428 23 "HTML2428_1.txt"
+
+2429 23 "HTML2429_1.txt"
+
+2430 23 "HTML2430_1.txt"
+
+2431 23 "HTML2431_1.txt"
+
+2432 23 "HTML2432_1.txt"
+
+2433 23 "HTML2433_1.txt"
+
+2434 23 "HTML2434_1.txt"
+
+2435 23 "HTML2435_1.txt"
+
+2436 23 "HTML2436_1.txt"
+
+2437 23 "HTML2437_1.txt"
+
+2438 23 "HTML2438_1.txt"
+
+2439 23 "HTML2439_1.txt"
+
+2440 23 "HTML2440_1.txt"
+
+2441 23 "HTML2441_1.txt"
+
+2442 23 "HTML2442_1.txt"
+
+2443 23 "HTML2443_1.txt"
+
+2444 23 "HTML2444_1.txt"
+
+2445 23 "HTML2445_1.txt"
+
+2446 23 "HTML2446_1.txt"
+
+2447 23 "HTML2447_1.txt"
+
+2448 23 "HTML2448_1.txt"
+
+2449 23 "HTML2449_1.txt"
+
+2450 23 "HTML2450_1.txt"
+
+2451 23 "HTML2451_1.txt"
+
+2452 23 "HTML2452_1.txt"
+
+2453 23 "HTML2453_1.txt"
+
+2454 23 "HTML2454_1.txt"
+
+2455 23 "HTML2455_1.txt"
+
+2456 23 "HTML2456_1.txt"
+
+2457 23 "HTML2457_1.txt"
+
+2458 23 "HTML2458_1.txt"
+
+2459 23 "HTML2459_1.txt"
+
+2460 23 "HTML2460_1.txt"
+
+2461 23 "HTML2461_1.txt"
+
+2462 23 "HTML2462_1.txt"
+
+2463 23 "HTML2463_1.txt"
+
+2464 23 "HTML2464_1.txt"
+
+2465 23 "HTML2465_1.txt"
+
+2466 23 "HTML2466_1.txt"
+
+2467 23 "HTML2467_1.txt"
+
+2468 23 "HTML2468_1.txt"
+
+2469 23 "HTML2469_1.txt"
+
+2470 23 "HTML2470_1.txt"
+
+2471 23 "HTML2471_1.txt"
+
+2472 23 "HTML2472_1.txt"
+
+2473 23 "HTML2473_1.txt"
+
+2474 23 "HTML2474_1.txt"
+
+2475 23 "HTML2475_1.txt"
+
+2476 23 "HTML2476_1.txt"
+
+2477 23 "HTML2477_1.txt"
+
+2478 23 "HTML2478_1.txt"
+
+2479 23 "HTML2479_1.txt"
+
+2480 23 "HTML2480_1.txt"
+
+2481 23 "HTML2481_1.txt"
+
+2482 23 "HTML2482_1.txt"
+
+2483 23 "HTML2483_1.txt"
+
+2484 23 "HTML2484_1.txt"
+
+2485 23 "HTML2485_1.txt"
+
+2486 23 "HTML2486_1.txt"
+
+2487 23 "HTML2487_1.txt"
+
+2488 23 "HTML2488_1.txt"
+
+2489 23 "HTML2489_1.txt"
+
+2490 23 "HTML2490_1.txt"
+
+2491 23 "HTML2491_1.txt"
+
+2492 23 "HTML2492_1.txt"
+
+2493 23 "HTML2493_1.txt"
+
+2494 23 "HTML2494_1.txt"
+
+2495 23 "HTML2495_1.txt"
+
+2496 23 "HTML2496_1.txt"
+
+2497 23 "HTML2497_1.txt"
+
+2498 23 "HTML2498_1.txt"
+
+2499 23 "HTML2499_1.txt"
+
+2500 23 "HTML2500_1.txt"
+
+2501 23 "HTML2501_1.txt"
+
+2502 23 "HTML2502_1.txt"
+
+2503 23 "HTML2503_1.txt"
+
+2504 23 "HTML2504_1.txt"
+
+2505 23 "HTML2505_1.txt"
+
+2506 23 "HTML2506_1.txt"
+
+2507 23 "HTML2507_1.txt"
+
+2508 23 "HTML2508_1.txt"
+
+2509 23 "HTML2509_1.txt"
+
+2510 23 "HTML2510_1.txt"
+
+2511 23 "HTML2511_1.txt"
+
+2512 23 "HTML2512_1.txt"
+
+2513 23 "HTML2513_1.txt"
+
+2514 23 "HTML2514_1.txt"
+
+2515 23 "HTML2515_1.txt"
+
+2516 23 "HTML2516_1.txt"
+
+2517 23 "HTML2517_1.txt"
+
+2518 23 "HTML2518_1.txt"
+
+2519 23 "HTML2519_1.txt"
+
+2520 23 "HTML2520_1.txt"
+
+2521 23 "HTML2521_1.txt"
+
+2522 23 "HTML2522_1.txt"
+
+2523 23 "HTML2523_1.txt"
+
+2524 23 "HTML2524_1.txt"
+
+2526 23 "HTML2526_1.txt"
+
+2527 23 "HTML2527_1.txt"
+
+2528 23 "HTML2528_1.txt"
+
+2529 23 "HTML2529_1.txt"
+
+2530 23 "HTML2530_1.txt"
+
+2531 23 "HTML2531_1.txt"
+
+2532 23 "HTML2532_1.txt"
+
+2533 23 "HTML2533_1.txt"
+
+2534 23 "HTML2534_1.txt"
+
+2535 23 "HTML2535_1.txt"
+
+2536 23 "HTML2536_1.txt"
+
+2537 23 "HTML2537_1.txt"
+
+2538 23 "HTML2538_1.txt"
+
+2539 23 "HTML2539_1.txt"
+
+2540 23 "HTML2540_1.txt"
+
+2541 23 "HTML2541_1.txt"
+
+2542 23 "HTML2542_1.txt"
+
+2543 23 "HTML2543_1.txt"
+
+2544 23 "HTML2544_1.txt"
+
+2545 23 "HTML2545_1.txt"
+
+2546 23 "HTML2546_1.txt"
+
+2547 23 "HTML2547_1.txt"
+
+2548 23 "HTML2548_1.txt"
+
+2549 23 "HTML2549_1.txt"
+
+2550 23 "HTML2550_1.txt"
+
+2551 23 "HTML2551_1.txt"
+
+2552 23 "HTML2552_1.txt"
+
+2553 23 "HTML2553_1.txt"
+
+2554 23 "HTML2554_1.txt"
+
+2555 23 "HTML2555_1.txt"
+
+2556 23 "HTML2556_1.txt"
+
+2557 23 "HTML2557_1.txt"
+
+2558 23 "HTML2558_1.txt"
+
+2560 23 "HTML2560_1.txt"
+
+2561 23 "HTML2561_1.txt"
+
+2562 23 "HTML2562_1.txt"
+
+2563 23 "HTML2563_1.txt"
+
+2564 23 "HTML2564_1.txt"
+
+2565 23 "HTML2565_1.txt"
+
+2566 23 "HTML2566_1.txt"
+
+2567 23 "HTML2567_1.txt"
+
+2568 23 "HTML2568_1.txt"
+
+2569 23 "HTML2569_1.txt"
+
+2570 23 "HTML2570_1.txt"
+
+2571 23 "HTML2571_1.txt"
+
+2572 23 "HTML2572_1.txt"
+
+2573 23 "HTML2573_1.txt"
+
+2574 23 "HTML2574_1.txt"
+
+2575 23 "HTML2575_1.txt"
+
+2576 23 "HTML2576_1.txt"
+
+2577 23 "HTML2577_1.txt"
+
+2578 23 "HTML2578_1.txt"
+
+2579 23 "HTML2579_1.txt"
+
+2580 23 "HTML2580_1.txt"
+
+2581 23 "HTML2581_1.txt"
+
+2582 23 "HTML2582_1.txt"
+
+2583 23 "HTML2583_1.txt"
+
+2584 23 "HTML2584_1.txt"
+
+2585 23 "HTML2585_1.txt"
+
+2586 23 "HTML2586_1.txt"
+
+2587 23 "HTML2587_1.txt"
+
+2588 23 "HTML2588_1.txt"
+
+2589 23 "HTML2589_1.txt"
+
+2590 23 "HTML2590_1.txt"
+
+2591 23 "HTML2591_1.txt"
+
+2593 23 "HTML2593_1.txt"
+
+2594 23 "HTML2594_1.txt"
+
+2595 23 "HTML2595_1.txt"
+
+2596 23 "HTML2596_1.txt"
+
+2597 23 "HTML2597_1.txt"
+
+2598 23 "HTML2598_1.txt"
+
+2600 23 "HTML2600_1.txt"
+
+2602 23 "HTML2602_1.txt"
+
+2604 23 "HTML2604_1.txt"
+
+2606 23 "HTML2606_1.txt"
+
+2607 23 "HTML2607_1.txt"
+
+2609 23 "HTML2609_1.txt"
+
+2610 23 "HTML2610_1.txt"
+
+2611 23 "HTML2611_1.txt"
+
+2613 23 "HTML2613_1.txt"
+
+2614 23 "HTML2614_1.txt"
+
+2615 23 "HTML2615_1.txt"
+
+2616 23 "HTML2616_1.txt"
+
+2617 23 "HTML2617_1.txt"
+
+2618 23 "HTML2618_1.txt"
+
+2619 23 "HTML2619_1.txt"
+
+2620 23 "HTML2620_1.txt"
+
+2621 23 "HTML2621_1.txt"
+
+2622 23 "HTML2622_1.txt"
+
+2623 23 "HTML2623_1.txt"
+
+2624 23 "HTML2624_1.txt"
+
+2625 23 "HTML2625_1.txt"
+
+2626 23 "HTML2626_1.txt"
+
+2627 23 "HTML2627_1.txt"
+
+2628 23 "HTML2628_1.txt"
+
+2629 23 "HTML2629_1.txt"
+
+2630 23 "HTML2630_1.txt"
+
+2631 23 "HTML2631_1.txt"
+
+2632 23 "HTML2632_1.txt"
+
+2633 23 "HTML2633_1.txt"
+
+2634 23 "HTML2634_1.txt"
+
+2635 23 "HTML2635_1.txt"
+
+2636 23 "HTML2636_1.txt"
+
+2637 23 "HTML2637_1.txt"
+
+2638 23 "HTML2638_1.txt"
+
+2639 23 "HTML2639_1.txt"
+
+2640 23 "HTML2640_1.txt"
+
+2641 23 "HTML2641_1.txt"
+
+2642 23 "HTML2642_1.txt"
+
+2643 23 "HTML2643_1.txt"
+
+2644 23 "HTML2644_1.txt"
+
+2645 23 "HTML2645_1.txt"
+
+2646 23 "HTML2646_1.txt"
+
+2647 23 "HTML2647_1.txt"
+
+2648 23 "HTML2648_1.txt"
+
+2649 23 "HTML2649_1.txt"
+
+2650 23 "HTML2650_1.txt"
+
+2651 23 "HTML2651_1.txt"
+
+2652 23 "HTML2652_1.txt"
+
+2653 23 "HTML2653_1.txt"
+
+2654 23 "HTML2654_1.txt"
+
+2655 23 "HTML2655_1.txt"
+
+2656 23 "HTML2656_1.txt"
+
+2657 23 "HTML2657_1.txt"
+
+2658 23 "HTML2658_1.txt"
+
+2659 23 "HTML2659_1.txt"
+
+2660 23 "HTML2660_1.txt"
+
+2661 23 "HTML2661_1.txt"
+
+2662 23 "HTML2662_1.txt"
+
+2663 23 "HTML2663_1.txt"
+
+2664 23 "HTML2664_1.txt"
+
+2665 23 "HTML2665_1.txt"
+
+2666 23 "HTML2666_1.txt"
+
+2667 23 "HTML2667_1.txt"
+
+2668 23 "HTML2668_1.txt"
+
+2669 23 "HTML2669_1.txt"
+
+2670 23 "HTML2670_1.txt"
+
+2671 23 "HTML2671_1.txt"
+
+2672 23 "HTML2672_1.txt"
+
+2673 23 "HTML2673_1.txt"
+
+2674 23 "HTML2674_1.txt"
+
+2675 23 "HTML2675_1.txt"
+
+2676 23 "HTML2676_1.txt"
+
+2677 23 "HTML2677_1.txt"
+
+2678 23 "HTML2678_1.txt"
+
+2679 23 "HTML2679_1.txt"
+
+2680 23 "HTML2680_1.txt"
+
+2681 23 "HTML2681_1.txt"
+
+2682 23 "HTML2682_1.txt"
+
+2683 23 "HTML2683_1.txt"
+
+2684 23 "HTML2684_1.txt"
+
+2685 23 "HTML2685_1.txt"
+
+2686 23 "HTML2686_1.txt"
+
+2687 23 "HTML2687_1.txt"
+
+2688 23 "HTML2688_1.txt"
+
+2689 23 "HTML2689_1.txt"
+
+2690 23 "HTML2690_1.txt"
+
+2691 23 "HTML2691_1.txt"
+
+2692 23 "HTML2692_1.txt"
+
+2693 23 "HTML2693_1.txt"
+
+2694 23 "HTML2694_1.txt"
+
+2695 23 "HTML2695_1.txt"
+
+2696 23 "HTML2696_1.txt"
+
+2697 23 "HTML2697_1.txt"
+
+2698 23 "HTML2698_1.txt"
+
+2699 23 "HTML2699_1.txt"
+
+2700 23 "HTML2700_1.txt"
+
+2701 23 "HTML2701_1.txt"
+
+2702 23 "HTML2702_1.txt"
+
+2703 23 "HTML2703_1.txt"
+
+2704 23 "HTML2704_1.txt"
+
+2705 23 "HTML2705_1.txt"
+
+2706 23 "HTML2706_1.txt"
+
+2707 23 "HTML2707_1.txt"
+
+2708 23 "HTML2708_1.txt"
+
+2709 23 "HTML2709_1.txt"
+
+2710 23 "HTML2710_1.txt"
+
+2711 23 "HTML2711_1.txt"
+
+2712 23 "HTML2712_1.txt"
+
+2713 23 "HTML2713_1.txt"
+
+2714 23 "HTML2714_1.txt"
+
+2715 23 "HTML2715_1.txt"
+
+2716 23 "HTML2716_1.txt"
+
+2717 23 "HTML2717_1.txt"
+
+2718 23 "HTML2718_1.txt"
+
+2719 23 "HTML2719_1.txt"
+
+2720 23 "HTML2720_1.txt"
+
+2721 23 "HTML2721_1.txt"
+
+2722 23 "HTML2722_1.txt"
+
+2723 23 "HTML2723_1.txt"
+
+2724 23 "HTML2724_1.txt"
+
+2725 23 "HTML2725_1.txt"
+
+2726 23 "HTML2726_1.txt"
+
+2727 23 "HTML2727_1.txt"
+
+2728 23 "HTML2728_1.txt"
+
+2729 23 "HTML2729_1.txt"
+
+2730 23 "HTML2730_1.txt"
+
+2731 23 "HTML2731_1.txt"
+
+2732 23 "HTML2732_1.txt"
+
+2733 23 "HTML2733_1.txt"
+
+2734 23 "HTML2734_1.txt"
+
+2735 23 "HTML2735_1.txt"
+
+2737 23 "HTML2737_1.txt"
+
+2738 23 "HTML2738_1.txt"
+
+2739 23 "HTML2739_1.txt"
+
+2740 23 "HTML2740_1.txt"
+
+2741 23 "HTML2741_1.txt"
+
+2742 23 "HTML2742_1.txt"
+
+2743 23 "HTML2743_1.txt"
+
+2744 23 "HTML2744_1.txt"
+
+2745 23 "HTML2745_1.txt"
+
+2746 23 "HTML2746_1.txt"
+
+2747 23 "HTML2747_1.txt"
+
+2748 23 "HTML2748_1.txt"
+
+2749 23 "HTML2749_1.txt"
+
+2750 23 "HTML2750_1.txt"
+
+2751 23 "HTML2751_1.txt"
+
+2752 23 "HTML2752_1.txt"
+
+2753 23 "HTML2753_1.txt"
+
+2754 23 "HTML2754_1.txt"
+
+2755 23 "HTML2755_1.txt"
+
+2756 23 "HTML2756_1.txt"
+
+2757 23 "HTML2757_1.txt"
+
+2758 23 "HTML2758_1.txt"
+
+2759 23 "HTML2759_1.txt"
+
+2760 23 "HTML2760_1.txt"
+
+2761 23 "HTML2761_1.txt"
+
+2762 23 "HTML2762_1.txt"
+
+2763 23 "HTML2763_1.txt"
+
+4002 23 "HTML4002_1.txt"
+
+4003 23 "HTML4003_1.txt"
+
+4004 23 "HTML4004_1.txt"
+
+4005 23 "HTML4005_1.txt"
+
+4006 23 "HTML4006_1.txt"
+
+4007 23 "HTML4007_1.txt"
+
+4008 23 "HTML4008_1.txt"
+
+4009 23 "HTML4009_1.txt"
+
+4010 23 "HTML4010_1.txt"
+
+4011 23 "HTML4011_1.txt"
+
+4012 23 "HTML4012_1.txt"
+
+4013 23 "HTML4013_1.txt"
+
+4014 23 "HTML4014_1.txt"
+
+4015 23 "HTML4015_1.txt"
+
+4016 23 "HTML4016_1.txt"
+
+4017 23 "HTML4017_1.txt"
+
+4018 23 "HTML4018_1.txt"
+
+4019 23 "HTML4019_1.txt"
+
+4020 23 "HTML4020_1.txt"
+
+4021 23 "HTML4021_1.txt"
+
+4022 23 "HTML4022_1.txt"
+
+4023 23 "HTML4023_1.txt"
+
+4024 23 "HTML4024_1.txt"
+
+4025 23 "HTML4025_1.txt"
+
+4026 23 "HTML4026_1.txt"
+
+4027 23 "HTML4027_1.txt"
+
+4028 23 "HTML4028_1.txt"
+
+4029 23 "HTML4029_1.txt"
+
+4030 23 "HTML4030_1.txt"
+
+4609 23 "HTML4609_1.txt"
+
+4610 23 "HTML4610_1.txt"
+
+4611 23 "HTML4611_1.txt"

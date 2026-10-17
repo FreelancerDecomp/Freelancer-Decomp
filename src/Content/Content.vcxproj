@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{E8B4C102-6D7A-4E91-A5C3-B0F1D2849E17}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Content</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <TargetName>Content</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <ModuleDefinitionFile>Content.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Server.lib;Common.lib;dacom.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <ClCompile>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <ClCompile>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Server\Server.vcxproj">
+      <Project>{B1C2D3E4-F5A6-7890-BCDE-F12345678901}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\content.h" />
+    <ClInclude Include="ContentInternal.h" />
+    <ClInclude Include="ContentMessageRouter.h" />
+    <ClInclude Include="ContentPlayerState.h" />
+    <ClInclude Include="ContentRefObject.h" />
+    <ClInclude Include="BaseDB.h" />
+    <ClInclude Include="BaseSupport.h" />
+    <ClInclude Include="GenericScripts.h" />
+    <ClInclude Include="Voices.h" />
+    <ClInclude Include="LootProps.h" />
+    <ClInclude Include="ContentStageNames.h" />
+    <ClInclude Include="ContentStaticIds.h" />
+    <ClInclude Include="ContentDefaultId.h" />
+    <ClInclude Include="RandomMissionDB.h" />
+    <ClInclude Include="RandomEncounters.h" />
+    <ClInclude Include="RandomMissionRuntime.h" />
+    <ClInclude Include="RandomMissionMachine.h" />
+    <ClInclude Include="RandomMissionGen.h" />
+    <ClInclude Include="Encounters.h" />
+    <ClInclude Include="Populators.h" />
+    <ClInclude Include="SystemInfo.h" />
+    <ClInclude Include="PatrolPaths.h" />
+    <ClInclude Include="EncounterParams.h" />
+    <ClInclude Include="Guides.h" />
+    <ClInclude Include="PilotPersonalities.h" />
+    <ClInclude Include="NpcShips.h" />
+    <ClInclude Include="NpcBase.h" />
+    <ClInclude Include="BehaviorCmds.h" />
+    <ClInclude Include="ObjListDirective.h" />
+    <ClInclude Include="NpcCreate.h" />
+    <ClInclude Include="NpcShip.h" />
+    <ClInclude Include="MissionObject.h" />
+    <ClInclude Include="MissionScript.h" />
+    <ClInclude Include="MissionCnd.h" />
+    <ClInclude Include="MissionAct.h" />
+    <ClInclude Include="SystemConnections.h" />
+    <ClInclude Include="TradelaneRequests.h" />
+    <ClInclude Include="FactionProps.h" />
+    <ClInclude Include="DockQueues.h" />
+    <ClInclude Include="Cargo.h" />
+    <ClInclude Include="MissionObjList.h" />
+    <ClInclude Include="ContentSort.h" />
+    <ClInclude Include="Gcs.h" />
+    <ClInclude Include="SpacePaths.h" />
+    <ClInclude Include="NpcNames.h" />
+    <ClInclude Include="GuidesInternal.h" />
+    <ClInclude Include="RefHandle.h" />
+    <ClInclude Include="RtcScripts.h" />
+    <ClInclude Include="MissionDialogs.h" />
+    <ClInclude Include="CombatReputation.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Content.cpp" />
+    <ClCompile Include="ContentDataPath.cpp" />
+    <ClCompile Include="ContentMessageRouter.cpp" />
+    <ClCompile Include="Support.cpp" />
+    <ClCompile Include="GameSupport.cpp" />
+    <ClCompile Include="SpaceSupport.cpp" />
+    <ClCompile Include="BaseSupport.cpp" />
+    <ClCompile Include="GenericScripts.cpp" />
+    <ClCompile Include="Voices.cpp" />
+    <ClCompile Include="PlayerState.cpp" />
+    <ClCompile Include="BaseDB.cpp" />
+    <ClCompile Include="BaseNpcRecords.cpp" />
+    <ClCompile Include="LootProps.cpp" />
+    <ClCompile Include="Populators.cpp" />
+    <ClCompile Include="Story.cpp" />
+    <ClCompile Include="StoryLauncher.cpp" />
+    <ClCompile Include="StoryMissions.cpp" />
+    <ClCompile Include="MissionObject.cpp" />
+    <ClCompile Include="MissionScript.cpp" />
+    <ClCompile Include="MissionCnd.cpp" />
+    <ClCompile Include="MissionAct.cpp" />
+    <ClCompile Include="RandomMissionDB.cpp" />
+    <ClCompile Include="RandomEncounters.cpp" />
+    <ClCompile Include="RandomMissionRuntime.cpp" />
+    <ClCompile Include="RandomMissionTriggers.cpp" />
+    <ClCompile Include="RandomMissionMachine.cpp" />
+    <ClCompile Include="RandomMissionVignette.cpp" />
+    <ClCompile Include="RandomMissionGen.cpp" />
+    <ClCompile Include="Encounters.cpp" />
+    <ClCompile Include="SystemInfo.cpp" />
+    <ClCompile Include="Zones.cpp" />
+    <ClCompile Include="PatrolPaths.cpp" />
+    <ClCompile Include="EncounterParams.cpp" />
+    <ClCompile Include="Guides.cpp" />
+    <ClCompile Include="PilotPersonalities.cpp" />
+    <ClCompile Include="NpcShips.cpp" />
+    <ClCompile Include="NpcBase.cpp" />
+    <ClCompile Include="BehaviorCmds.cpp" />
+    <ClCompile Include="NpcCreate.cpp" />
+    <ClCompile Include="NpcShip.cpp" />
+    <ClCompile Include="SystemConnections.cpp" />
+    <ClCompile Include="TradelaneRequests.cpp" />
+    <ClCompile Include="CombatReputation.cpp" />
+    <ClCompile Include="DestroyMission.cpp" />
+    <ClCompile Include="FactionProps.cpp" />
+    <ClCompile Include="DockQueues.cpp" />
+    <ClCompile Include="Cargo.cpp" />
+    <ClCompile Include="MissionObjList.cpp" />
+    <ClCompile Include="Gcs.cpp" />
+    <ClCompile Include="SpacePaths.cpp" />
+    <ClCompile Include="NpcNames.cpp" />
+    <ClCompile Include="GotoGuides.cpp" />
+    <ClCompile Include="RtcScripts.cpp" />
+    <ClCompile Include="MissionDialogs.cpp" />
+    <ClCompile Include="MissionSave.cpp" />
+    <ClCompile Include="SpawnPlacement.cpp" />
+    <ClCompile Include="PatrolGuides.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

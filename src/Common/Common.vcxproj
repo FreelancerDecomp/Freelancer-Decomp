@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Common</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\Freelancer.Diagnostics.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>Common</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>COMMON_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4251;4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <!-- /sdl makes the compiler give every dllexport class an exported
+           __autoclassinit2 member. Retail Common.dll exports none, and the
+           module exports exactly the names retail exports. -->
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\common_exports.h" />
+    <ClInclude Include="..\include\common_tradeoffer.h" />
+    <ClInclude Include="..\include\common_timing.h" />
+    <ClInclude Include="..\include\common_async.h" />
+    <ClInclude Include="..\include\common_errorhandler.h" />
+    <ClInclude Include="..\include\common_dataconfig.h" />
+    <ClInclude Include="common_geometry_internal.h" />
+    <ClInclude Include="common_cobject_internal.h" />
+    <ClInclude Include="common_cequip_internal.h" />
+    <ClInclude Include="common_goods_internal.h" />
+    <ClInclude Include="common_archetype_internal.h" />
+    <ClInclude Include="common_text_internal.h" />
+    <ClInclude Include="common_aisteer_internal.h" />
+    <ClInclude Include="common_idea_internal.h" />
+    <ClInclude Include="common_reputation_internal.h" />
+    <ClInclude Include="common_behavior_internal.h" />
+    <ClInclude Include="common_systemmanager_internal.h" />
+    <ClInclude Include="common_universe_internal.h" />
+    <ClInclude Include="common_physys_internal.h" />
+    <ClInclude Include="..\include\common_id.h" />
+    <ClInclude Include="..\include\common_ini.h" />
+    <ClInclude Include="..\include\common_archetype.h" />
+    <ClInclude Include="..\include\common_universe.h" />
+    <ClInclude Include="..\include\common_spatial.h" />
+    <ClInclude Include="..\include\common_zone.h" />
+    <ClInclude Include="..\include\common_goods.h" />
+    <ClInclude Include="..\include\common_reputation.h" />
+    <ClInclude Include="..\include\common_fuses.h" />
+    <ClInclude Include="..\include\common_newchar.h" />
+    <ClInclude Include="..\include\common_cliobj.h" />
+    <ClInclude Include="..\include\common_csys.h" />
+    <ClInclude Include="..\include\common_physys.h" />
+    <ClInclude Include="..\include\common_tick_profile.h" />
+    <ClInclude Include="physics_tick_profile.h" />
+    <ClInclude Include="..\include\common_cobject.h" />
+    <ClInclude Include="..\include\common_cheapset.h" />
+    <ClInclude Include="..\include\common_casteroid.h" />
+    <ClInclude Include="..\include\common_phyarch.h" />
+    <ClInclude Include="..\include\common_cequip.h" />
+    <ClInclude Include="..\include\common_text.h" />
+    <ClInclude Include="..\include\common_net.h" />
+    <ClInclude Include="..\include\common_iface.h" />
+    <ClInclude Include="..\include\common_systemmanager.h" />
+    <ClInclude Include="..\include\common_pub.h" />
+    <ClInclude Include="..\include\common_aisteer.h" />
+    <ClInclude Include="..\include\common_iustategraph.h" />
+    <ClInclude Include="..\include\common_idea.h" />
+    <ClInclude Include="..\include\common_misc.h" />
+    <ClInclude Include="..\include\common_behavior.h" />
+    <ClInclude Include="..\include\common_dockbehavior.h" />
+    <ClInclude Include="..\include\common_buzzbehavior.h" />
+    <ClInclude Include="..\include\common_itlbehavior.h" />
+    <ClInclude Include="..\include\common_idlebehavior.h" />
+    <ClInclude Include="..\include\common_followbehavior.h" />
+    <ClInclude Include="..\include\common_drasticevadebehavior.h" />
+    <ClInclude Include="..\include\common_evadebehavior.h" />
+    <ClInclude Include="..\include\common_trailbehavior.h" />
+    <ClInclude Include="..\include\common_launchbehavior.h" />
+    <ClInclude Include="..\include\common_cruisebehavior.h" />
+    <ClInclude Include="..\include\common_lootbehavior.h" />
+    <ClInclude Include="..\include\common_nullbehavior.h" />
+    <ClInclude Include="..\include\common_strafebehavior.h" />
+    <ClInclude Include="..\include\common_delaybehavior.h" />
+    <ClInclude Include="..\include\common_fleebehavior.h" />
+    <ClInclude Include="..\include\common_gotobehavior.h" />
+    <ClInclude Include="..\include\common_freeflightbehavior.h" />
+    <ClInclude Include="..\include\common_facebehavior.h" />
+    <ClInclude Include="..\include\common_guidebehavior.h" />
+    <ClInclude Include="..\include\common_largeshipbehavior.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common_tractorarm.cpp" />
+    <ClCompile Include="common_flashlightsetinfo.cpp" />
+    <ClCompile Include="common_tradeoffer.cpp" />
+    <ClCompile Include="common_timing.cpp" />
+    <ClCompile Include="common_async.cpp" />
+    <ClCompile Include="common_errorhandler.cpp" />
+    <ClCompile Include="common_dataconfig.cpp" />
+    <ClCompile Include="common_archetypeloader.cpp" />
+    <ClCompile Include="common_targetmanager.cpp" />
+    <ClCompile Include="common_pathfind.cpp" />
+    <ClCompile Include="common_sysmgr_timertable.cpp" />
+    <ClCompile Include="common_gunconvergence.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_vhash.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_hash.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_malloc.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_message.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_u_bigvector.cpp" />
+    <ClCompile Include="common_csys.cpp" />
+    <ClCompile Include="common_physys.cpp" />
+    <ClCompile Include="common_phycontroller.cpp" />
+    <ClCompile Include="common_phycollisionstate.cpp" />
+    <ClCompile Include="common_physicalsystem.cpp" />
+    <ClCompile Include="common_controllergolem.cpp" />
+    <ClCompile Include="common_physys_build.cpp" />
+    <ClCompile Include="common_physys_query.cpp" />
+    <ClCompile Include="common_phantom.cpp" />
+    <ClCompile Include="common_remotephysics.cpp" />
+    <ClCompile Include="common_sphereintruder.cpp" />
+    <ClCompile Include="common_tick_profile.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_core.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_real_object.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_phantom.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_ov_element.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_sphere_query.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_impact_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_impact.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_environment.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_simulation_unit.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_controller.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_material.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_contact_point.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_great_matrix.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_mindist_settings.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_friction_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_active_value.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_listener.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_calc_next_psi_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_cluster_manager.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_mindist_solve.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_mindist_limiter.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_listmanager_topology.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_ledge_sweep_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_ray_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_compact_ledge_solver.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_mindist_minimize.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_oo_watcher.cpp" />
+    <ClCompile Include="..\IVP\ivp_collision\ivp_mindist_create.cpp" />
+    <ClCompile Include="..\IVP\ivp_physics\ivp_surman_polygon.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_random.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_min_hash.cpp" />
+    <ClCompile Include="..\IVP\ivp_utility\ivp_message_router.cpp" />
+    <ClCompile Include="common_cobject.cpp" />
+    <ClCompile Include="common_engineobject.cpp" />
+    <ClCompile Include="common_csimple.cpp" />
+    <ClCompile Include="common_cprojectile.cpp" />
+    <ClCompile Include="common_carchgroup.cpp" />
+    <ClCompile Include="common_ceqobj.cpp" />
+    <ClCompile Include="common_cship.cpp" />
+    <ClCompile Include="common_csolar.cpp" />
+    <ClCompile Include="common_cmine.cpp" />
+    <ClCompile Include="common_cloot.cpp" />
+    <ClCompile Include="common_casteroidobj.cpp" />
+    <ClCompile Include="common_deadreckonedvector.cpp" />
+    <ClCompile Include="common_subobjectid.cpp" />
+    <ClCompile Include="common_hierarchy.cpp" />
+    <ClCompile Include="common_casteroid.cpp" />
+    <ClCompile Include="common_casteroidfield.cpp" />
+    <ClCompile Include="common_phyarch.cpp" />
+    <ClCompile Include="common_cobjdb.cpp" />
+    <ClCompile Include="common_cequip.cpp" />
+    <ClCompile Include="common_cattachment.cpp" />
+    <ClCompile Include="common_cattachedequip.cpp" />
+    <ClCompile Include="common_cecargo.cpp" />
+    <ClCompile Include="common_cepower.cpp" />
+    <ClCompile Include="common_ceengine.cpp" />
+    <ClCompile Include="common_cegun.cpp" />
+    <ClCompile Include="common_celauncher.cpp" />
+    <ClCompile Include="common_ceshield.cpp" />
+    <ClCompile Include="common_cethruster.cpp" />
+    <ClCompile Include="common_cetractor.cpp" />
+    <ClCompile Include="common_cescanner.cpp" />
+    <ClCompile Include="common_cesmallequip.cpp" />
+    <ClCompile Include="common_cedroppers.cpp" />
+    <ClCompile Include="common_cefx.cpp" />
+    <ClCompile Include="common_cecloak.cpp" />
+    <ClCompile Include="common_csteering.cpp" />
+    <ClCompile Include="common_laneaction.cpp" />
+    <ClCompile Include="common_launchaction.cpp" />
+    <ClCompile Include="common_id.cpp" />
+    <ClCompile Include="common_stringcache.cpp" />
+    <ClCompile Include="common_textfile.cpp" />
+    <ClCompile Include="common_ini.cpp" />
+    <ClCompile Include="common_dacom_stricmp.cpp" />
+    <ClCompile Include="msvcrt_atof.cpp" />
+    <ClCompile Include="common_archetype.cpp" />
+    <ClCompile Include="common_archetype_ships.cpp" />
+    <ClCompile Include="common_archetype_equipment.cpp" />
+    <ClCompile Include="common_archetype_weapons.cpp" />
+    <ClCompile Include="common_archetype_misc.cpp" />
+    <ClCompile Include="common_universe.cpp" />
+    <ClCompile Include="common_universe_system.cpp" />
+    <ClCompile Include="common_universe_base.cpp" />
+    <ClCompile Include="common_spatial.cpp" />
+    <ClCompile Include="common_zone.cpp" />
+    <ClCompile Include="common_equipdesc.cpp" />
+    <ClCompile Include="common_constants.cpp" />
+    <ClCompile Include="common_loadout.cpp" />
+    <ClCompile Include="common_goodinfo.cpp" />
+    <ClCompile Include="common_basedata.cpp" />
+    <ClCompile Include="common_roomdata.cpp" />
+    <ClCompile Include="common_hardpointsummary.cpp" />
+    <ClCompile Include="common_roominfo.cpp" />
+    <ClCompile Include="common_baseproperties.cpp" />
+    <ClCompile Include="common_basewatcher.cpp" />
+    <ClCompile Include="common_costume.cpp" />
+    <ClCompile Include="common_reputation.cpp" />
+    <ClCompile Include="common_vibe.cpp" />
+    <ClCompile Include="common_fuses.cpp" />
+    <ClCompile Include="common_newchar.cpp" />
+    <ClCompile Include="common_rtcslider.cpp" />
+    <ClCompile Include="common_pubstategraph.cpp" />
+    <ClCompile Include="common_rect.cpp" />
+    <ClCompile Include="common_fmtstr.cpp" />
+    <ClCompile Include="common_textrender.cpp" />
+    <ClCompile Include="common_rdlnodes.cpp" />
+    <ClCompile Include="common_renderdisplaylist.cpp" />
+    <ClCompile Include="common_rdlio.cpp" />
+    <ClCompile Include="common_watchable.cpp" />
+    <ClCompile Include="common_mpcritsec.cpp" />
+    <ClCompile Include="common_marshalbuffer.cpp" />
+    <ClCompile Include="common_statemachine.cpp" />
+    <ClCompile Include="common_playeraccount.cpp" />
+    <ClCompile Include="common_exclusionzone.cpp" />
+    <ClCompile Include="common_iobjinspectimpl.cpp" />
+    <ClCompile Include="common_behaviormanager.cpp" />
+    <ClCompile Include="common_scriptbehavior.cpp" />
+    <ClCompile Include="common_behaviortypes.cpp" />
+    <ClCompile Include="common_actiondb.cpp" />
+    <ClCompile Include="common_pub.cpp" />
+    <ClCompile Include="common_aisteer.cpp" />
+    <ClCompile Include="common_obstacleavoidance.cpp" />
+    <ClCompile Include="common_crspline.cpp" />
+    <ClCompile Include="common_aiintercept.cpp" />
+    <ClCompile Include="common_aifirecontrol.cpp" />
+    <ClCompile Include="common_airaycast.cpp" />
+    <ClCompile Include="common_aitarget.cpp" />
+    <ClCompile Include="common_iustategraph.cpp" />
+    <ClCompile Include="common_idea.cpp" />
+    <ClCompile Include="common_moveidea.cpp" />
+    <ClCompile Include="common_matchthrottleidea.cpp" />
+    <ClCompile Include="common_faceidea.cpp" />
+    <ClCompile Include="common_splinemoveidea.cpp" />
+    <ClCompile Include="common_dodgeidea.cpp" />
+    <ClCompile Include="common_breakawayidea.cpp" />
+    <ClCompile Include="common_dodgemissileidea.cpp" />
+    <ClCompile Include="common_systemmanager.cpp" />
+    <ClCompile Include="common_sysmgr_gungroups.cpp" />
+    <ClCompile Include="common_repairmanager.cpp" />
+    <ClCompile Include="common_thrustmanager.cpp" />
+    <ClCompile Include="common_misc.cpp" />
+    <ClCompile Include="common_file.cpp" />
+    <ClCompile Include="common_heap.cpp" />
+    <ClCompile Include="common_damagelist.cpp" />
+    <ClCompile Include="common_behavior.cpp" />
+    <ClCompile Include="common_basefollowerbehavior.cpp" />
+    <ClCompile Include="common_formationbehavior.cpp" />
+    <ClCompile Include="common_dockbehavior.cpp" />
+    <ClCompile Include="common_buzzbehavior.cpp" />
+    <ClCompile Include="common_itlbehavior.cpp" />
+    <ClCompile Include="common_idlebehavior.cpp" />
+    <ClCompile Include="common_followbehavior.cpp" />
+    <ClCompile Include="common_drasticevadebehavior.cpp" />
+    <ClCompile Include="common_evadebehavior.cpp" />
+    <ClCompile Include="common_trailbehavior.cpp" />
+    <ClCompile Include="common_launchbehavior.cpp" />
+    <ClCompile Include="common_cruisebehavior.cpp" />
+    <ClCompile Include="common_lootbehavior.cpp" />
+    <ClCompile Include="common_nullbehavior.cpp" />
+    <ClCompile Include="common_strafebehavior.cpp" />
+    <ClCompile Include="common_delaybehavior.cpp" />
+    <ClCompile Include="common_fleebehavior.cpp" />
+    <ClCompile Include="common_gotobehavior.cpp" />
+    <ClCompile Include="common_freeflightbehavior.cpp" />
+    <ClCompile Include="common_facebehavior.cpp" />
+    <ClCompile Include="common_guidebehavior.cpp" />
+    <ClCompile Include="common_largeshipbehavior.cpp" />
+    <ClCompile Include="common_animdb.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_surface_builder_pointsoup.cpp">
+      <AdditionalIncludeDirectories>..\qhull\vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_surface_builder_ledge_soup.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_compact_ledge.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_template_polygon.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_object_polygon_tetra.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_compact_ledge_gen.cpp" />
+    <ClCompile Include="..\IVP\ivp_compact_builder\ivp_surface_builder_polygon_convex.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_surface_builder_pointsoup.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_surface_builder_ledge_soup.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_point_hash.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_builder_math.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_template_polygon.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_object_polygon_tetra.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_compact_ledge_gen.h" />
+    <ClInclude Include="..\IVP\ivp_compact_builder\ivp_surface_builder_polygon_convex.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_hash.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_vhash.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_crc32.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_malloc.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_core_trap.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_u_bigvector.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_random.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_min_hash.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_message_router.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_great_matrix.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_mindist_settings.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_friction_solver.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_listener.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_calc_next_psi_solver.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_cluster_manager.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_surman_polygon.h" />
+    <ClInclude Include="..\IVP\ivp_physics\ivp_phantom.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_u_set_active.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_ray_solver.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_compact_surface.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_compact_ledge_solver.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_oo_watcher.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_mindist_create.h" />
+    <ClInclude Include="..\IVP\ivp_collision\ivp_mindist_minimize.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DALib\DALib.vcxproj">
+      <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\qhull\qhull.vcxproj">
+      <Project>{D4A8B2C6-3E71-4F82-B1A5-6C9D0E2F4183}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Common.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

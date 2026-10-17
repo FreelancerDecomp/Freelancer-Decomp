@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{B7E4F810-2A6C-4D91-9E53-C1D4A8B0F617}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>zlib</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <SDLCheck>false</SDLCheck>
+      <CompileAs>CompileAsC</CompileAs>
+      <PreprocessorDefinitions>ZLIB_WINAPI;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;$(ProjectDir)vendor\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4244;4267;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>zlib.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="vendor\crc32.h" />
+    <ClInclude Include="vendor\deflate.h" />
+    <ClInclude Include="vendor\gzguts.h" />
+    <ClInclude Include="vendor\inffast.h" />
+    <ClInclude Include="vendor\inffixed.h" />
+    <ClInclude Include="vendor\inflate.h" />
+    <ClInclude Include="vendor\inftrees.h" />
+    <ClInclude Include="vendor\trees.h" />
+    <ClInclude Include="vendor\zconf.h" />
+    <ClInclude Include="vendor\zlib.h" />
+    <ClInclude Include="vendor\zutil.h" />
+    <ClInclude Include="vendor\minizip\crypt.h" />
+    <ClInclude Include="vendor\minizip\ioapi.h" />
+    <ClInclude Include="vendor\minizip\unzip.h" />
+    <ClInclude Include="vendor\minizip\zip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="vendor\adler32.c" />
+    <ClCompile Include="vendor\compress.c" />
+    <ClCompile Include="vendor\crc32.c" />
+    <ClCompile Include="vendor\deflate.c" />
+    <ClCompile Include="vendor\gzclose.c" />
+    <ClCompile Include="vendor\gzlib.c" />
+    <ClCompile Include="vendor\gzread.c" />
+    <ClCompile Include="vendor\gzwrite.c" />
+    <ClCompile Include="vendor\inffast.c" />
+    <ClCompile Include="vendor\inflate.c" />
+    <ClCompile Include="vendor\inftrees.c" />
+    <ClCompile Include="vendor\trees.c" />
+    <ClCompile Include="vendor\uncompr.c" />
+    <ClCompile Include="vendor\zutil.c" />
+    <ClCompile Include="vendor\minizip\ioapi.c" />
+    <ClCompile Include="vendor\minizip\unzip.c" />
+    <ClCompile Include="vendor\minizip\zip.c" />
+    <ClCompile Include="zlib_version_compat.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="zlib.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="zlib.def" />
+    <None Include="vendor\LICENSE" />
+    <None Include="vendor\README" />
+    <None Include="vendor\minizip\MiniZip64_info.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

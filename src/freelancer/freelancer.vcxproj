@@ -1,0 +1,566 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{7E2C0A19-8B3C-4D4E-9516-A7B8C9D0E1F2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>freelancer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\Freelancer.Diagnostics.props" />
+  </ImportGroup>
+  <!-- dalib_net.h (DirectPlay8 network classes freelancer.exe exports like retail) needs
+       dplay8.h from the DX8 SDK; appended last so the Windows SDK basetsd.h wins. -->
+  <PropertyGroup>
+    <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\Content;$(ProjectDir)..\imeui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- FREELANCER_EXPORTS selects the declarations freelancer.exe exports itself
+           (retail FreeLancer.exe carries a 69-name export table, no .def): see the
+           export macros in src/include/rpc_iclient.h and src/include/common_exports.h. -->
+      <PreprocessorDefinitions>FREELANCER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- /sdl makes the compiler give every dllexport class with data members an
+           exported __autoclassinit2 member (bin\Server.dll showed 12 before Server.vcxproj
+           turned it off). Retail FreeLancer.exe exports none, and the exe must export
+           exactly the names retail exports. -->
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\bin;$(ProjectDir)..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;imeui.lib;ole32.lib;gdi32.lib;user32.lib;advapi32.lib;shell32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Client\globals.h" />
+    <ClInclude Include="Client\fl_ime_input_box.h" />
+    <ClInclude Include="Client\chat_text_input.h" />
+    <ClInclude Include="Client\chat_control.h" />
+    <ClInclude Include="Client\game_options.h" />
+    <ClInclude Include="Client\gate_tunnel.h" />
+    <ClInclude Include="Client\client_environment.h" />
+    <ClInclude Include="Client\client_state.h" />
+    <ClInclude Include="Client\nn_preferences.h" />
+    <ClInclude Include="Client\wincontrol_base.h" />
+    <ClInclude Include="Client\win3d.h" />
+    <ClInclude Include="Client\text_win.h" />
+    <ClInclude Include="Client\event_handler.h" />
+    <ClInclude Include="Client\type_select.h" />
+    <ClInclude Include="Client\page_options.h" />
+    <ClInclude Include="Client\page_account_select.h" />
+    <ClInclude Include="Client\win_object.h" />
+    <ClInclude Include="Client\list_box.h" />
+    <ClInclude Include="Client\rich_text_win.h" />
+    <ClInclude Include="Client\tooltip_hover.h" />
+    <ClInclude Include="Client\ui_page_desc.h" />
+    <ClInclude Include="Client\ui_page.h" />
+    <ClInclude Include="Client\ui_rich_text_win.h" />
+    <ClInclude Include="Client\win_factory.h" />
+    <ClInclude Include="Client\ui_static_text.h" />
+    <ClInclude Include="Client\ui_list_box.h" />
+    <ClInclude Include="Client\ui_scroll.h" />
+    <ClInclude Include="Client\nn_button_control.h" />
+    <ClInclude Include="Client\nn_static_control.h" />
+    <ClInclude Include="Client\nn_montage_draw.h" />
+    <ClInclude Include="Client\nn_text_control.h" />
+    <ClInclude Include="Client\wire_controls.h" />
+    <ClInclude Include="Client\nn_prompt.h" />
+    <ClInclude Include="Client\nn_modal.h" />
+    <ClInclude Include="Client\nn_main_button.h" />
+    <ClInclude Include="Client\nav_bar.h" />
+    <ClInclude Include="Client\infocard_map.h" />
+    <ClInclude Include="Client\knowledge_map.h" />
+    <ClInclude Include="Client\nn_messaging.h" />
+    <ClInclude Include="Client\nn_mission_message.h" />
+    <ClInclude Include="Client\sound_archetype.h" />
+    <ClInclude Include="Client\character_info.h" />
+    <ClInclude Include="Client\nn_exit.h" />
+    <ClInclude Include="Client\nn_help.h" />
+    <ClInclude Include="Client\nn_player_info.h" />
+    <ClInclude Include="Client\nn_offer_dialog.h" />
+    <ClInclude Include="Client\nn_pause.h" />
+    <ClInclude Include="Client\nn_confirm.h" />
+    <ClInclude Include="Client\nn_load_save.h" />
+    <ClInclude Include="Client\nn_network_operation.h" />
+    <ClInclude Include="Client\nn_error.h" />
+    <ClInclude Include="Client\nn_blocking_dialog.h" />
+    <ClInclude Include="Client\nn_ui_pulse.h" />
+    <ClInclude Include="Client\ui_text_msg_button.h" />
+    <ClInclude Include="Client\ui_text_edit.h" />
+    <ClInclude Include="Client\ui_win_deform.h" />
+    <ClInclude Include="Client\ui_ship_view_control.h" />
+    <ClInclude Include="Client\vc6_sort.h" />
+    <ClInclude Include="Client\ui_win_object.h" />
+    <ClInclude Include="Client\ui_table.h" />
+    <ClInclude Include="Client\ui_fast_table.h" />
+    <ClInclude Include="Client\menu_wincontrol_base.h" />
+    <ClInclude Include="Client\mission_briefing.h" />
+    <ClInclude Include="Client\client_frame_tick.h" />
+    <ClInclude Include="Client\client_tick_profile.h" />
+    <ClInclude Include="Client\widescreen.h" />
+    <ClInclude Include="Client\connect_handshake.h" />
+    <ClInclude Include="Client\connect_lists.h" />
+    <ClInclude Include="Client\login_mgr.h" />
+    <ClInclude Include="Client\cockpit_load.h" />
+    <ClInclude Include="Client\menu_ui_init.h" />
+    <ClInclude Include="Client\menu_fonts_load.h" />
+    <ClInclude Include="Client\font_atlas.h" />
+    <ClInclude Include="Client\font_imp.h" />
+    <ClInclude Include="Client\font_string.h" />
+    <ClInclude Include="Client\ids_strings.h" />
+    <ClInclude Include="Client\dealer_equip_stats.h" />
+    <ClInclude Include="Client\player_behavior.h" />
+    <ClInclude Include="Client\player_spawn.h" />
+    <ClInclude Include="Client\space_env_fx.h" />
+    <ClInclude Include="Client\star_sphere.h" />
+    <ClInclude Include="Client\star_sys.h" />
+    <ClInclude Include="Client\effect_vertex_batch.h" />
+    <ClInclude Include="Client\effect_base.h" />
+    <ClInclude Include="Client\beam_effect.h" />
+    <ClInclude Include="Client\cli_projectile_fx.h" />
+    <ClInclude Include="Client\cli_tractor_beam.h" />
+    <ClInclude Include="Client\fl_fx_mesh.h" />
+    <ClInclude Include="Client\client_debris.h" />
+    <ClInclude Include="Client\client_explosion.h" />
+    <ClInclude Include="Client\client_land_action.h" />
+    <ClInclude Include="Client\particle_effect.h" />
+    <ClInclude Include="Client\alchemy_float_forward.h" />
+    <ClInclude Include="Client\effect_type_info.h" />
+    <ClInclude Include="Client\effect_type_list.h" />
+    <ClInclude Include="Client\tradelane_fx.h" />
+    <ClInclude Include="Client\cli_asteroid.h" />
+    <ClInclude Include="Client\cli_asteroid_dynamic.h" />
+    <ClInclude Include="Client\cli_asteroid_med.h" />
+    <ClInclude Include="Client\asteroid_billboard.h" />
+    <ClInclude Include="Client\part_cache.h" />
+    <ClInclude Include="Client\space_client_objects_fx.h" />
+    <ClInclude Include="Client\ship_space_supt_fx.h" />
+    <ClInclude Include="Client\menu_pilot_select.h" />
+    <ClInclude Include="Client\menu_keymap_config.h" />
+    <ClInclude Include="Client\screen_quad_state.h" />
+    <ClInclude Include="Client\character_select_equip.h" />
+    <ClInclude Include="Client\space_dust.h" />
+    <ClInclude Include="Client\space_scene_draw.h" />
+    <ClInclude Include="Client\space_scene_obj_draw.h" />
+    <ClInclude Include="Client\render_ex.h" />
+    <ClInclude Include="Client\nebula_volume.h" />
+    <ClInclude Include="Client\space_scene_load.h" />
+    <ClInclude Include="Client\scene_render_registry.h" />
+    <ClInclude Include="Client\space_state.h" />
+    <ClInclude Include="Client\win3d_render.h" />
+    <ClInclude Include="Client\win3d_renderables.h" />
+    <ClInclude Include="Client\intro_connect.h" />
+    <ClInclude Include="Client\menu_ui_draw.h" />
+    <ClInclude Include="Client\menu_ui_widgets.h" />
+    <ClInclude Include="Client\nn_repair.h" />
+    <ClInclude Include="Client\nn_story_star.h" />
+    <ClInclude Include="Client\nn_ship_trader.h" />
+    <ClInclude Include="Client\nn_trade.h" />
+    <ClInclude Include="Client\cargo_bar_control.h" />
+    <ClInclude Include="Client\equip_visual_set.h" />
+    <ClInclude Include="Client\scroll_control.h" />
+    <ClInclude Include="Client\trade_equip_list.h" />
+    <ClInclude Include="Client\ship_view_control.h" />
+    <ClInclude Include="Client\nn_inventory.h" />
+    <ClInclude Include="Client\nn_dealer.h" />
+    <ClInclude Include="Client\commodity_by_base.h" />
+    <ClInclude Include="Client\client_base_market.h" />
+    <ClInclude Include="Client\swapped_material.h" />
+    <ClInclude Include="Client\mirror_property_bucket.h" />
+    <ClInclude Include="Client\nn_mission_vendor.h" />
+    <ClInclude Include="Client\nn_news.h" />
+    <ClInclude Include="Client\nn_navmap.h" />
+    <ClInclude Include="Client\mission_created_solars.h" />
+    <ClInclude Include="Client\nn_scanner.h" />
+    <ClInclude Include="Client\nn_text_scratch.h" />
+    <ClInclude Include="Client\main_command_handler.h" />
+    <ClInclude Include="Client\menu_enter_state.h" />
+    <ClInclude Include="Client\image.h" />
+    <ClInclude Include="Client\loading_screen.h" />
+    <ClInclude Include="Client\pixel_format.h" />
+    <ClInclude Include="Client\menu_universe_base.h" />
+    <ClInclude Include="Client\room_control.h" />
+    <ClInclude Include="Client\room_control_hotspot.h" />
+    <ClInclude Include="Client\anim_script_set.h" />
+    <ClInclude Include="Client\flash_light.h" />
+    <ClInclude Include="Client\gameflow.h" />
+    <ClInclude Include="Client\base_walk.h" />
+    <ClInclude Include="Client\base_walk_math.h" />
+    <ClInclude Include="Client\gf_hotspot.h" />
+    <ClInclude Include="Client\object_prop.h" />
+    <ClInclude Include="Client\room_camera.h" />
+    <ClInclude Include="Client\gf_script.h" />
+    <ClInclude Include="Client\gf_script_object.h" />
+    <ClInclude Include="Client\gf_thorn_component.h" />
+    <ClInclude Include="Client\gf_thorn_compound.h" />
+    <ClInclude Include="Client\gf_thorn_deformable.h" />
+    <ClInclude Include="Client\gf_character_object.h" />
+    <ClInclude Include="Client\gf_thorn_camera.h" />
+    <ClInclude Include="Client\gf_thorn_light.h" />
+    <ClInclude Include="Client\gf_thorn_marker.h" />
+    <ClInclude Include="Client\gf_thorn_psys.h" />
+    <ClInclude Include="Client\gf_thorn_scene.h" />
+    <ClInclude Include="Client\gf_thorn_sound.h" />
+    <ClInclude Include="Client\gf_object_ship.h" />
+    <ClInclude Include="Client\lights_camera.h" />
+    <ClInclude Include="Client\menu_sound_arch.h" />
+    <ClInclude Include="Client\engine_light.h" />
+    <ClInclude Include="Client\graph_library.h" />
+    <ClInclude Include="Client\misc_util.h" />
+    <ClInclude Include="Client\texture_shapes.h" />
+    <ClInclude Include="Client\texture_panels.h" />
+    <ClInclude Include="Client\vis_effect_arch.h" />
+    <ClInclude Include="Client\hud_element_list.h" />
+    <ClInclude Include="Client\hud_command_dispatch.h" />
+    <ClInclude Include="Client\hud_comm.h" />
+    <ClInclude Include="Client\hud_targetable_objects.h" />
+    <ClInclude Include="Client\button_mover.h" />
+    <ClInclude Include="Client\hud_target.h" />
+    <ClInclude Include="Client\hud_status_core.h" />
+    <ClInclude Include="Client\hud_weapon_groups.h" />
+    <ClInclude Include="Client\hud_cruise_progress.h" />
+    <ClInclude Include="Client\hud_contact_list.h" />
+    <ClInclude Include="Client\hud_damage_indicator.h" />
+    <ClInclude Include="Client\hud_maneuvers.h" />
+    <ClInclude Include="Client\hud_waypoint.h" />
+    <ClInclude Include="Client\hud_widescreen.h" />
+    <ClInclude Include="Client\jump_effect.h" />
+    <ClInclude Include="Client\best_path.h" />
+    <ClInclude Include="Client\client_cliobj.h" />
+    <ClInclude Include="Client\client_mesh_load.h" />
+    <ClInclude Include="Client\engine_character.h" />
+    <ClInclude Include="Client\hud_button.h" />
+    <ClInclude Include="Client\input_manager.h" />
+    <ClInclude Include="Client\perf_options.h" />
+    <ClInclude Include="Client\voice_profiles.h" />
+    <ClInclude Include="Client\sound_config.h" />
+    <ClInclude Include="Client\connect_flow.h" />
+    <ClInclude Include="Client\server_connect.h" />
+    <ClInclude Include="Client\server_filter.h" />
+    <ClInclude Include="Client\reg_key_stack.h" />
+    <ClInclude Include="Client\page_server_select.h" />
+    <ClInclude Include="Client\server_filter_dialog.h" />
+    <ClInclude Include="Client\intro_page_util.h" />
+    <ClInclude Include="Client\page_character_create.h" />
+    <ClInclude Include="Client\page_character_select.h" />
+    <ClInclude Include="Client\page_character_select_single.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Client\client_state.cpp" />
+    <ClCompile Include="Client\voice_profiles.cpp" />
+    <ClCompile Include="Client\sound_config.cpp" />
+    <ClCompile Include="Client\nn_preferences.cpp" />
+    <ClCompile Include="Client\wincontrol_base.cpp" />
+    <ClCompile Include="Client\win3d.cpp" />
+    <ClCompile Include="Client\text_win.cpp" />
+    <ClCompile Include="Client\type_select.cpp" />
+    <ClCompile Include="Client\page_options.cpp" />
+    <ClCompile Include="Client\page_account_select.cpp" />
+    <ClCompile Include="Client\win_object.cpp" />
+    <ClCompile Include="Client\list_box.cpp" />
+    <ClCompile Include="Client\rich_text_win.cpp" />
+    <ClCompile Include="Client\ui_page_desc.cpp" />
+    <ClCompile Include="Client\ui_page.cpp" />
+    <ClCompile Include="Client\ui_rich_text_win.cpp" />
+    <ClCompile Include="Client\win_factory.cpp" />
+    <ClCompile Include="Client\ui_static_text.cpp" />
+    <ClCompile Include="Client\ui_list_box.cpp" />
+    <ClCompile Include="Client\ui_scroll.cpp" />
+    <ClCompile Include="Client\nn_button_control.cpp" />
+    <ClCompile Include="Client\nn_static_control.cpp" />
+    <ClCompile Include="Client\nn_montage_draw.cpp" />
+    <ClCompile Include="Client\nn_text_control.cpp" />
+    <ClCompile Include="Client\wire_controls.cpp" />
+    <ClCompile Include="Client\nn_prompt.cpp" />
+    <ClCompile Include="Client\nn_modal.cpp" />
+    <ClCompile Include="Client\nn_main_button.cpp" />
+    <ClCompile Include="Client\nav_bar.cpp" />
+    <ClCompile Include="Client\infocard_map.cpp" />
+    <ClCompile Include="Client\knowledge_map.cpp" />
+    <ClCompile Include="Client\nn_messaging.cpp" />
+    <ClCompile Include="Client\nn_mission_message.cpp" />
+    <ClCompile Include="Client\character_info.cpp" />
+    <ClCompile Include="Client\nn_exit.cpp" />
+    <ClCompile Include="Client\nn_help.cpp" />
+    <ClCompile Include="Client\nn_player_info.cpp" />
+    <ClCompile Include="Client\nn_offer_dialog.cpp" />
+    <ClCompile Include="Client\nn_pause.cpp" />
+    <ClCompile Include="Client\nn_confirm.cpp" />
+    <ClCompile Include="Client\nn_load_save.cpp" />
+    <ClCompile Include="Client\nn_network_operation.cpp" />
+    <ClCompile Include="Client\nn_error.cpp" />
+    <ClCompile Include="Client\nn_blocking_dialog.cpp" />
+    <ClCompile Include="Client\wincontrol_children.cpp" />
+    <ClCompile Include="Client\nn_ui_pulse.cpp" />
+    <ClCompile Include="Client\nn_tooltip.cpp" />
+    <ClCompile Include="Client\nn_rollover.cpp" />
+    <ClCompile Include="Client\nn_group_control.cpp" />
+    <ClCompile Include="Client\menu_mp_session.cpp" />
+    <ClCompile Include="Client\font_string.cpp" />
+    <ClCompile Include="Client\font_imp.cpp" />
+    <ClCompile Include="Client\font_atlas.cpp" />
+    <ClCompile Include="Client\menu_enter_state.cpp" />
+    <ClCompile Include="Client\ui_text_msg_button.cpp" />
+    <ClCompile Include="Client\ui_text_edit.cpp" />
+    <ClCompile Include="Client\ui_win_deform.cpp" />
+    <ClCompile Include="Client\ui_ship_view_control.cpp" />
+    <ClCompile Include="Client\ui_win_object.cpp" />
+    <ClCompile Include="Client\ui_table.cpp" />
+    <ClCompile Include="Client\ui_fast_table.cpp" />
+    <ClCompile Include="Client\mission_briefing.cpp" />
+    <ClCompile Include="Client\client_frame_tick.cpp" />
+    <ClCompile Include="Client\client_tick_profile.cpp" />
+    <ClCompile Include="Client\connect_handshake.cpp" />
+    <ClCompile Include="Client\connect_lists.cpp" />
+    <ClCompile Include="Client\login_mgr.cpp" />
+    <ClCompile Include="Client\cockpit_load.cpp" />
+    <ClCompile Include="Client\player_behavior.cpp" />
+    <ClCompile Include="Client\player_spawn.cpp" />
+    <ClCompile Include="Client\client_objdb.cpp" />
+    <ClCompile Include="Client\client_gameobj.cpp" />
+    <ClCompile Include="Client\client_debris.cpp" />
+    <ClCompile Include="Client\client_explosion.cpp" />
+    <ClCompile Include="Client\client_land_action.cpp" />
+    <ClCompile Include="Client\character_select_equip.cpp" />
+    <ClCompile Include="Client\client_equip_fx.cpp" />
+    <ClCompile Include="Client\client_fuse.cpp" />
+    <ClCompile Include="Client\tradelane_fx.cpp" />
+    <ClCompile Include="Client\effect_base.cpp" />
+    <ClCompile Include="Client\effect_vertex_batch.cpp" />
+    <ClCompile Include="Client\beam_effect.cpp" />
+    <ClCompile Include="Client\cli_projectile_fx.cpp" />
+    <ClCompile Include="Client\cli_tractor_beam.cpp" />
+    <ClCompile Include="Client\fl_fx_mesh.cpp" />
+    <ClCompile Include="Client\particle_effect.cpp" />
+    <ClCompile Include="Client\alchemy_float_forward.cpp">
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <Optimization>MaxSpeed</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="Client\effect_type_info.cpp" />
+    <ClCompile Include="Client\effect_type_list.cpp" />
+    <ClCompile Include="Client\ship_camera_params.cpp" />
+    <ClCompile Include="Client\space_camera.cpp" />
+    <ClCompile Include="Client\space_camera_third.cpp" />
+    <ClCompile Include="Client\space_camera_game.cpp" />
+    <ClCompile Include="Client\space_camera_rear.cpp" />
+    <ClCompile Include="Client\space_camera_turret.cpp" />
+    <ClCompile Include="Client\space_camera_first.cpp" />
+    <ClCompile Include="Client\space_camera_script.cpp" />
+    <ClCompile Include="Client\space_letterbox.cpp" />
+    <ClCompile Include="Client\fade_to_black.cpp" />
+    <ClCompile Include="Client\space_camera_static.cpp" />
+    <ClCompile Include="Client\space_camera_docking.cpp" />
+    <ClCompile Include="Client\space_camera_death.cpp" />
+    <ClCompile Include="Client\win3d_immediate.cpp" />
+    <ClCompile Include="Client\cli_asteroid.cpp" />
+    <ClCompile Include="Client\cli_asteroid_dynamic.cpp" />
+    <ClCompile Include="Client\cli_asteroid_med.cpp" />
+    <ClCompile Include="Client\asteroid_billboard.cpp" />
+    <ClCompile Include="Client\cli_nebula.cpp" />
+    <ClCompile Include="Client\texture_panels.cpp" />
+    <ClCompile Include="Client\star_sphere.cpp" />
+    <ClCompile Include="Client\star_sys.cpp" />
+    <ClCompile Include="Client\part_cache.cpp" />
+    <ClCompile Include="Client\space_dust.cpp" />
+    <ClCompile Include="Client\space_scene_draw.cpp" />
+    <ClCompile Include="Client\space_scene_obj_draw.cpp" />
+    <ClCompile Include="Client\render_ex.cpp" />
+    <ClCompile Include="Client\nebula_volume.cpp" />
+    <ClCompile Include="Client\space_scene_load.cpp" />
+    <ClCompile Include="Client\space_solar_world.cpp" />
+    <ClCompile Include="Client\scene_render_registry.cpp" />
+    <ClCompile Include="Client\space_state.cpp" />
+    <ClCompile Include="Client\win3d_render.cpp" />
+    <ClCompile Include="Client\win3d_engine_submit.cpp" />
+    <ClCompile Include="Client\win3d_renderables.cpp" />
+    <ClCompile Include="Client\intro_connect.cpp" />
+    <ClCompile Include="Client\image.cpp" />
+    <ClCompile Include="Client\loading_screen.cpp" />
+    <ClCompile Include="Client\pixel_format.cpp" />
+    <ClCompile Include="Client\menu_universe_base.cpp" />
+    <ClCompile Include="Client\room_control.cpp" />
+    <ClCompile Include="Client\room_control_hotspot.cpp" />
+    <ClCompile Include="Client\anim_script_set.cpp" />
+    <ClCompile Include="Client\flash_light.cpp" />
+    <ClCompile Include="Client\gameflow.cpp" />
+    <ClCompile Include="Client\base_walk.cpp" />
+    <ClCompile Include="Client\gf_hotspot.cpp" />
+    <ClCompile Include="Client\object_prop.cpp" />
+    <ClCompile Include="Client\room_camera.cpp" />
+    <ClCompile Include="Client\gf_script.cpp" />
+    <ClCompile Include="Client\gf_script_object.cpp" />
+    <ClCompile Include="Client\gf_thorn_component.cpp" />
+    <ClCompile Include="Client\gf_thorn_compound.cpp" />
+    <ClCompile Include="Client\gf_thorn_deformable.cpp" />
+    <ClCompile Include="Client\gf_character_object.cpp" />
+    <ClCompile Include="Client\gf_script_spawn.cpp" />
+    <ClCompile Include="Client\gf_thorn_camera.cpp" />
+    <ClCompile Include="Client\gf_thorn_light.cpp" />
+    <ClCompile Include="Client\gf_thorn_marker.cpp" />
+    <ClCompile Include="Client\gf_thorn_psys.cpp" />
+    <ClCompile Include="Client\gf_thorn_scene.cpp" />
+    <ClCompile Include="Client\gf_thorn_sound.cpp" />
+    <ClCompile Include="Client\gf_object_ship.cpp" />
+    <ClCompile Include="Client\lights_camera.cpp" />
+    <ClCompile Include="Client\menu_sound_arch.cpp" />
+    <ClCompile Include="Client\engine_light.cpp" />
+    <ClCompile Include="Client\graph_library.cpp" />
+    <ClCompile Include="Client\misc_util.cpp" />
+    <ClCompile Include="Client\texture_shapes.cpp" />
+    <ClCompile Include="Client\hud_element_list.cpp" />
+    <ClCompile Include="Client\hud_command_dispatch.cpp" />
+    <ClCompile Include="Client\hud_comm.cpp" />
+    <ClCompile Include="Client\hud_targetable_objects.cpp" />
+    <ClCompile Include="Client\button_mover.cpp" />
+    <ClCompile Include="Client\hud_target.cpp" />
+    <ClCompile Include="Client\hud_target_panel.cpp" />
+    <ClCompile Include="Client\hud_status_core.cpp" />
+    <ClCompile Include="Client\hud_weapon_groups.cpp" />
+    <ClCompile Include="Client\hud_cruise_progress.cpp" />
+    <ClCompile Include="Client\hud_contact_list.cpp" />
+    <ClCompile Include="Client\hud_damage_indicator.cpp" />
+    <ClCompile Include="Client\hud_maneuvers.cpp" />
+    <ClCompile Include="Client\hud_waypoint.cpp" />
+    <ClCompile Include="Client\hud_widescreen.cpp" />
+    <ClCompile Include="Client\jump_effect.cpp" />
+    <ClCompile Include="Client\best_path.cpp" />
+    <ClCompile Include="Client\client_cliobj.cpp" />
+    <!-- Static-init order (retail XC table): the material cache (client_cliobj.cpp, slot
+         0x0060f0bc) is built before the VisEffect map (vis_effect_arch.cpp, slot 0x0060f19c), so
+         ~FVisEffectArch (FUN_0042edb0) still finds it at exit. MSVC runs .CRT$XCU in link order,
+         which is this order: keep vis_effect_arch.cpp after client_cliobj.cpp. -->
+    <ClCompile Include="Client\vis_effect_arch.cpp" />
+    <ClCompile Include="Client\client_mesh_load.cpp" />
+    <ClCompile Include="Client\engine_character.cpp" />
+    <ClCompile Include="Client\hud_button.cpp" />
+    <ClCompile Include="Client\input_manager.cpp" />
+    <ClCompile Include="Client\client_ime_focus.cpp" />
+    <ClCompile Include="Client\fl_ime_input_box.cpp" />
+    <ClCompile Include="Client\chat_text_input.cpp" />
+    <ClCompile Include="Client\chat_control.cpp" />
+    <ClCompile Include="Client\perf_options.cpp" />
+    <ClCompile Include="Client\menu_ui_draw.cpp" />
+    <ClCompile Include="Client\menu_ui_widgets.cpp" />
+    <ClCompile Include="Client\nn_repair.cpp" />
+    <ClCompile Include="Client\nn_story_star.cpp" />
+    <ClCompile Include="Client\nn_ship_trader.cpp" />
+    <ClCompile Include="Client\nn_trade.cpp" />
+    <ClCompile Include="Client\cargo_bar_control.cpp" />
+    <ClCompile Include="Client\equip_visual_set.cpp" />
+    <ClCompile Include="Client\scroll_control.cpp" />
+    <ClCompile Include="Client\trade_equip_list.cpp" />
+    <ClCompile Include="Client\ship_view_control.cpp" />
+    <ClCompile Include="Client\nn_inventory.cpp" />
+    <ClCompile Include="Client\nn_dealer.cpp" />
+    <ClCompile Include="Client\commodity_by_base.cpp" />
+    <ClCompile Include="Client\client_base_market.cpp" />
+    <ClCompile Include="Client\swapped_material.cpp" />
+    <ClCompile Include="Client\nn_mission_vendor.cpp" />
+    <ClCompile Include="Client\nn_news.cpp" />
+    <ClCompile Include="Client\nn_navmap.cpp" />
+    <ClCompile Include="Client\nn_navmap_panels.cpp" />
+    <ClCompile Include="Client\nn_navmap_update.cpp" />
+    <ClCompile Include="Client\nn_navmap_build.cpp" />
+    <ClCompile Include="Client\nn_navmap_view.cpp" />
+    <ClCompile Include="Client\nn_navmap_draw.cpp" />
+    <ClCompile Include="Client\nn_navmap_input.cpp" />
+    <ClCompile Include="Client\mission_created_solars.cpp" />
+    <ClCompile Include="Client\nn_scanner.cpp" />
+    <ClCompile Include="Client\nn_text_scratch.cpp" />
+    <ClCompile Include="Client\main_command_handler.cpp" />
+    <ClCompile Include="Client\menu_keymap.cpp" />
+    <ClCompile Include="Client\screen_quad_state.cpp" />
+    <ClCompile Include="Client\connect_flow.cpp" />
+    <ClCompile Include="Client\client_exports.cpp" />
+    <ClCompile Include="Client\client_iclient.cpp" />
+    <ClCompile Include="Client\client_iclient_space.cpp" />
+    <ClCompile Include="Client\main.cpp" />
+    <ClCompile Include="Client\window.cpp" />
+    <ClCompile Include="Client\message_pump.cpp" />
+    <ClCompile Include="Client\engine_init.cpp" />
+    <ClCompile Include="Client\menu_ui_init.cpp" />
+    <ClCompile Include="Client\dataconfig_progress.cpp" />
+    <ClCompile Include="Client\menu_fonts_load.cpp" />
+    <ClCompile Include="Client\ids_strings.cpp" />
+    <ClCompile Include="Client\ids_rdl.cpp" />
+    <ClCompile Include="Client\dealer_equip_stats.cpp" />
+    <ClCompile Include="Client\chat_init.cpp" />
+    <ClCompile Include="Client\game_options.cpp" />
+    <ClCompile Include="Client\gate_tunnel.cpp" />
+    <ClCompile Include="Client\client_timing.cpp" />
+    <ClCompile Include="Client\server_connect.cpp" />
+    <ClCompile Include="Client\server_filter.cpp" />
+    <ClCompile Include="Client\reg_key_stack.cpp" />
+    <ClCompile Include="Client\page_server_select.cpp" />
+    <ClCompile Include="Client\server_filter_dialog.cpp" />
+    <ClCompile Include="Client\intro_page_util.cpp" />
+    <ClCompile Include="Client\page_character_create.cpp" />
+    <ClCompile Include="Client\page_character_select.cpp" />
+    <ClCompile Include="Client\page_character_select_single.cpp" />
+    <ClCompile Include="Client\startup_config.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\freelancer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\ICON103_1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DALib\DALib.vcxproj">
+      <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\imeui\imeui.vcxproj">
+      <Project>{D3E4F5A6-B7C8-4D90-8E12-3F4A5B6C7D8E}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <!-- PlayerDB creates Restart.fl from NewPlayer.fl beside the executable: it is tracked in bin\
+       and copied into bin_debug\ / binasan\ by copy_dev_ini.py (Directory.Build.targets). -->
+</Project>

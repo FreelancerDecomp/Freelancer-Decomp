@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{B1C2D3E4-F5A6-7890-BCDE-F12345678901}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Server</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_USRDLL;SERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- /sdl makes the compiler give every dllexport class an exported
+           __autoclassinit2 member. Retail Server.dll exports none, and the
+           module exports exactly the names retail exports. -->
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'">true</MultiProcessorCompilation>
+      <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Common.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\common_server.h" />
+    <ClInclude Include="..\include\common_server_types.h" />
+    <ClInclude Include="..\include\server_savegame.h" />
+    <ClInclude Include="..\include\server_savefile.h" />
+    <ClInclude Include="..\include\server_fuse.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="IServerImpl.cpp" />
+    <ClCompile Include="server_pub.cpp" />
+    <ClCompile Include="server_classes.cpp" />
+    <ClCompile Include="server_chat.cpp" />
+    <ClCompile Include="server_gameobject.cpp" />
+    <ClCompile Include="server_observer.cpp" />
+    <ClCompile Include="server_createinfo.cpp" />
+    <ClCompile Include="server_savegame.cpp" />
+    <ClCompile Include="server_savefile.cpp" />
+    <ClCompile Include="server_fuse.cpp" />
+    <ClCompile Include="server_loot.cpp" />
+    <ClCompile Include="server_mine.cpp" />
+    <ClCompile Include="server_guided.cpp" />
+    <ClCompile Include="server_countermeasure.cpp" />
+    <ClCompile Include="server_basedb.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Retail Server.dll imports DACOM.DLL::FDUMP at 97 call sites
+         (the thunk at 0x06d64a44), so the dependency is part of the module's
+         real import table, not a convenience. Referenced as a project the same
+         way Common, DALib, ReadFile and the rest do it. -->
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <!-- Retail Server.dll imports DALIB.DLL::??1MD5Hash@@UAE@XZ: its own exported
+         MD5Hash deleting destructor (md5hash.h, MD5HASH_API) calls DALib's. -->
+    <ProjectReference Include="..\DALib\DALib.vcxproj">
+      <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

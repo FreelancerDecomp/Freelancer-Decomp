@@ -1,0 +1,616 @@
+#include <windows.h>
+#include <commctrl.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+128 BITMAP "BITMAP128_1.bmp"
+
+159 BITMAP "BITMAP159_1.bmp"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+6 MENU
+{
+  POPUP "&File"
+  {
+    MENUITEM "&New\tCtrl+N",  57600
+    MENUITEM "&Open...\tCtrl+O",  57601
+    MENUITEM "&Save\tCtrl+S",  57603
+    MENUITEM "Save &As...",  57604
+    MENUITEM SEPARATOR
+    MENUITEM "&Print...\tCtrl+P",  57607
+    MENUITEM "Print Pre&view",  57609
+    MENUITEM "P&rint Setup...",  57606
+    MENUITEM SEPARATOR
+    MENUITEM "E&xit",  57665
+  }
+  MENUITEM SEPARATOR
+  MENUITEM SEPARATOR
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+128 MENU
+{
+  POPUP "&File"
+  {
+    MENUITEM "E&xit",  57665
+  }
+  POPUP "&Edit"
+  {
+    MENUITEM "&Copy\tCtrl+C",  57634
+    MENUITEM "Select A&ll\tCtrl+A",  57642
+    MENUITEM SEPARATOR
+    MENUITEM "&Find...\tCtrl+F",  57636
+    MENUITEM "F&ind Next\tF3",  57640
+    MENUITEM SEPARATOR
+    MENUITEM "<<OLE VERBS GO HERE>>",  57872
+    MENUITEM SEPARATOR
+    MENUITEM "&Accounts...",  32774
+    MENUITEM "Server &News...",  32778
+  }
+  POPUP "&View"
+  {
+    MENUITEM "&Status Bar",  59393
+    MENUITEM SEPARATOR
+    MENUITEM "Status S&ummary",  32780
+    MENUITEM "&Console",  32781
+  }
+  POPUP "&Chat"
+  {
+    MENUITEM "Chat With &Universe",  32775
+    MENUITEM "Chat With &Star System",  32776
+    MENUITEM "Chat With &Player",  32777
+  }
+  POPUP "&Help"
+  {
+    MENUITEM "&About FLServer...",  57664
+  }
+  POPUP "&Debug"
+  {
+    MENUITEM "&Debug",  32771,  GRAYED
+    MENUITEM "&AI Debugger",  32772
+    MENUITEM "&Crash Me",  32779,  GRAYED
+  }
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+100 DIALOG 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About FLServer"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL 128, -1, STATIC, SS_ICON | WS_CHILD | WS_VISIBLE, 11, 17, 20, 20 
+   CONTROL "FLServer Version 1.0", -1, STATIC, SS_LEFT | SS_NOPREFIX | WS_CHILD | WS_VISIBLE | WS_GROUP, 40, 10, 119, 8 
+   CONTROL "Copyright (C) 2003 Microsoft Corporation", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 40, 25, 176, 8 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP, 178, 7, 50, 14 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+130 DIALOG 0, 0, 142, 130
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Server Settings"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 15, 100, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 75, 100, 50, 14 
+   CONTROL "Slider1", 1000, "msctls_trackbar32", TBS_HORZ | TBS_AUTOTICKS | TBS_BOTH | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 15, 20, 110, 20 
+   CONTROL "Server refresh rate (Hertz) :", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 15, 10, 85, 8 
+   CONTROL "020", 1001, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 105, 10, 13, 8 
+   CONTROL "Spin1", 1002, "msctls_updown32", UDS_ARROWKEYS | UDS_HORZ | WS_CHILD | WS_VISIBLE, 101, 60, 15, 10 
+   CONTROL "Debug Text Level :", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 15, 60, 65, 8 
+   CONTROL "04", 1003, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 81, 60, 14, 8 
+   CONTROL "", -1, BUTTON, BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 10, 5, 120, 40 
+   CONTROL "", -1, BUTTON, BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 10, 50, 120, 40 
+   CONTROL "Shows normal output", 1004, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 15, 75, 105, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+131 DIALOG 0, 0, 226, 334
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Server Information..."
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "Tree1", 1005, "SysTreeView32", TVS_HASBUTTONS | TVS_HASLINES | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 7, 212, 320 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+132 DIALOG 0, 0, 413, 219
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Server Configuration"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1006, "RICHEDIT20W", ES_CENTER | ES_MULTILINE | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 18, 245, 14 
+   CONTROL "", 1007, "RICHEDIT20W", ES_LEFT | ES_MULTILINE | ES_WANTRETURN | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 58, 245, 46 
+   CONTROL "", 1008, "RICHEDIT20W", ES_CENTER | ES_MULTILINE | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 42, 129, 175, 14 
+   CONTROL "", 1012, EDIT, ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 96, 168, 43, 14 
+   CONTROL "Spin1", 1011, "msctls_updown32", UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_CHILD | WS_VISIBLE, 138, 168, 11, 14 
+   CONTROL "Allow New Players", 1010, BUTTON, BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 267, 25, 78, 10 
+   CONTROL "Make Your Server Internet Accessible", 1014, BUTTON, BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 267, 39, 135, 10 
+   CONTROL "Allow Players to Harm Other Players", 1059, BUTTON, BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 267, 52, 131, 10 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 149, 198, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 215, 198, 50, 14 
+   CONTROL "Enter the name that will identify your server to other players:", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 245, 8 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 41, 243, 1 
+   CONTROL "Enter a description of your server:", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 46, 245, 8 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 111, 242, 1 
+   CONTROL "If you want to protect your server with a password, enter it here:", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 116, 245, 8 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 151, 244, 1 
+   CONTROL "How many people do you want to let play at one time?", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 156, 245, 8 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 190, 243, 1 
+   CONTROL "<legal notice goes here>", 1070, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 267, 116, 127, 68 
+   CONTROL "Select options for your server", -1, BUTTON, BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 257, 7, 149, 67 
+   CONTROL "NOTE", -1, BUTTON, BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 255, 103, 151, 89 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+135 DIALOG 0, 0, 311, 190
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Manage Accounts"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1035, LISTBOX, LBS_STANDARD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 7, 228, 164 
+   CONTROL "OK", 1, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 244, 42, 60, 14 
+   CONTROL "Edit Account", 1029, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 244, 7, 60, 14 
+   CONTROL "Delete Account", 1028, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 244, 25, 60, 14 
+   CONTROL "* Red accounts are banned", 1045, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 174, 88, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+138 DIALOG 0, 0, 165, 73
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create Account"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1037, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 60, 7, 97, 14 
+   CONTROL "", 1038, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 60, 26, 97, 14 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 24, 52, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 90, 52, 50, 14 
+   CONTROL "Account Name:", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 9, 50, 8 
+   CONTROL "Password:", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 23, 28, 34, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+141 DIALOGEX 0, 0, 190, 230
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Account"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1040, LISTBOX, LBS_STANDARD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 98, 176, 82 
+   CONTROL "Delete", 1041, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 70, 183, 49, 14 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 37, 209, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 103, 209, 50, 14 
+   CONTROL "", 1037, "RICHEDIT20W", ES_CENTER | ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 7, 176, 14 , WS_EX_STATICEDGE
+   CONTROL "Character List", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 86, 176, 11 , WS_EX_CLIENTEDGE
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 8, 202, 172, 1 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 9, 44, 172, 1 
+   CONTROL "Banned", 1044, BUTTON, BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 74, 55, 41, 10 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 10, 74, 171, 1 
+   CONTROL "Kick Account From Server", 1045, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 25, 176, 14 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+142 DIALOG 0, 0, 186, 46
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Are you sure?"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "Yes", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 35, 25, 50, 14 
+   CONTROL "No", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 101, 25, 50, 14 
+   CONTROL "Are you sure you want to do that?", -1, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 39, 7, 107, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+143 DIALOG 0, 0, 148, 49
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Password"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1038, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 44, 7, 97, 14 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 16, 28, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 82, 28, 50, 14 
+   CONTROL "Password:", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 9, 34, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+144 DIALOG 0, 0, 186, 43
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Operation Complete"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 68, 22, 50, 14 
+   CONTROL "The password has been set!", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 47, 7, 90, 8 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+145 DIALOG 0, 0, 186, 59
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Error"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 68, 38, 50, 14 
+   CONTROL "That account could not be created.  The name that you provided matches an already existing account name.  Choose another name and try again.", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 179, 29 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+146 DIALOG 0, 0, 227, 174
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Universe Chat"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1047, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | ES_WANTRETURN | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 131, 213, 14 
+   CONTROL "Close", 1053, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 88, 152, 50, 14 
+   CONTROL "", 1048, "RICHEDIT20W", ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 7, 213, 120 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+147 DIALOG 0, 0, 319, 204
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Manage Accounts & Characters"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1040, LISTBOX, LBS_NOTIFY | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 7, 237, 170 
+   CONTROL "Edit Account", 1029, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 252, 7, 60, 14 
+   CONTROL "Delete Account", 3, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 252, 28, 60, 14 
+   CONTROL "Delete Character", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_TABSTOP, 252, 57, 60, 14 
+   CONTROL "OK", 1, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 252, 86, 60, 14 
+   CONTROL "* Red accounts are banned", 1045, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 187, 88, 8 
+   CONTROL "* Italic accounts are currently logged in", 1047, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 179, 123, 8 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 254, 48, 58, 1 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 255, 78, 57, 1 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+148 DIALOG 0, 0, 227, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Chat With Account"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1047, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | ES_WANTRETURN | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 151, 213, 14 
+   CONTROL "Close", 1053, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 88, 172, 50, 14 
+   CONTROL "", 1048, "RICHEDIT20W", ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 26, 213, 120 
+   CONTROL "", 1049, "RICHEDIT20W", ES_CENTER | ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 7, 213, 14 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+149 DIALOG 0, 0, 227, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Star System Chat"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1047, "RICHEDIT20W", ES_LEFT | ES_AUTOHSCROLL | ES_WANTRETURN | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 151, 213, 14 
+   CONTROL "Close", 1053, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 88, 172, 50, 14 
+   CONTROL "", 1048, "RICHEDIT20W", ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 27, 213, 120 
+   CONTROL "", 1049, "RICHEDIT20W", ES_CENTER | ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 7, 7, 213, 14 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+150 DIALOG 0, 0, 176, 193
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Select A Star System"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 30, 172, 50, 14 
+   CONTROL "", 1040, LISTBOX, LBS_STANDARD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 46, 162, 121 
+   CONTROL "The list below contains star systems that have players in them right now.  Select a star system to begin chatting.", -1, STATIC, SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 162, 26 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 96, 172, 50, 14 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 39, 162, 1 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+151 DIALOG 0, 0, 176, 186
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Choose A Player"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 30, 165, 50, 14 
+   CONTROL "", 1057, LISTBOX, LBS_STANDARD | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 36, 162, 121 
+   CONTROL "The list below contains players currently logged in.  Select a player to begin chatting.", -1, STATIC, SS_CENTER | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 162, 18 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 96, 165, 50, 14 
+   CONTROL "", -1, STATIC, SS_ETCHEDHORZ | WS_CHILD | WS_VISIBLE, 7, 28, 161, 1 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+152 DIALOG 0, 0, 186, 90
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Server News"
+FONT 8, "MS Sans Serif"
+{
+   CONTROL "", 1058, "RICHEDIT20W", ES_LEFT | ES_MULTILINE | ES_WANTRETURN | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_TABSTOP, 7, 7, 172, 57 
+   CONTROL "OK", 1, BUTTON, BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 35, 69, 50, 14 
+   CONTROL "Cancel", 2, BUTTON, BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 101, 69, 50, 14 
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+156 DIALOGEX 0, 0, 281, 165
+STYLE DS_SETFONT | WS_CHILD
+CAPTION ""
+FONT 12, "Agency FB"
+{
+   CONTROL "Progress1", 1061, "msctls_progress32", PBS_SMOOTH | PBS_VERTICAL | WS_CHILD | WS_VISIBLE | WS_BORDER, 213, 52, 16, 90 
+   CONTROL "SERVER LOAD", -1, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 195, 36, 51, 9 , WS_EX_TRANSPARENT
+   CONTROL "0", 1063, STATIC, SS_CENTER | SS_CENTERIMAGE | SS_SUNKEN | WS_CHILD | WS_VISIBLE | WS_GROUP, 199, 144, 45, 13 , WS_EX_TRANSPARENT
+   CONTROL "List1", 1040, "SysListView32", LVS_REPORT | LVS_NOSORTHEADER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 18, 68, 157, 89 
+   CONTROL "SERVER STATISTICS", -1, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 50, 58, 93, 9 , WS_EX_TRANSPARENT
+   CONTROL "FREELANCER", 1064, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 267, 27 , WS_EX_TRANSPARENT
+   CONTROL "SERVER NAME", -1, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 70, 36, 51, 9 , WS_EX_TRANSPARENT
+   CONTROL "", 1067, "RICHEDIT20W", ES_CENTER | ES_READONLY | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 7, 45, 185, 11 , WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE
+}
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+160 DIALOGEX 0, 0, 266, 46
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE
+CAPTION ""
+FONT 12, "Agency FB"
+{
+   CONTROL "Please wait while the server shuts down...", 1069, STATIC, SS_CENTER | SS_CENTERIMAGE | WS_CHILD | WS_VISIBLE | WS_GROUP, 7, 7, 252, 31 , WS_EX_TRANSPARENT
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  100, 	"OLE initialization failed.  Make sure that the OLE libraries are the correct version."
+  101, 	"BAD STRING"
+  102, 	"Failed to create object.  Make sure the object is entered in the system registry."
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  128, 	"FLServer\n\nFLServ\nFLServ Files (*.txt)\n.txt\nFLServer.Document\nFLServ Document"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  32771, 	"Toggles the display of the server debugging features."
+  32772, 	"Toggles display of AI Debugger window."
+  32773, 	"Create and manage accounts for this server..."
+  32779, 	"Forces the server to crash. For Dr. Watson testing."
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57344, 	"FLServer"
+  57345, 	"Ready"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57600, 	"Create a new document\nNew"
+  57601, 	"Open an existing document\nOpen"
+  57602, 	"Close the active document\nClose"
+  57603, 	"Save the active document\nSave"
+  57604, 	"Save the active document with a new name\nSave As"
+  57605, 	"Change the printing options\nPage Setup"
+  57606, 	"Change the printer and printing options\nPrint Setup"
+  57607, 	"Print the active document\nPrint"
+  57609, 	"Display full pages\nPrint Preview"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57632, 	"Erase the selection\nErase"
+  57633, 	"Erase everything\nErase All"
+  57634, 	"Copy the selection and put it on the Clipboard\nCopy"
+  57635, 	"Cut the selection and put it on the Clipboard\nCut"
+  57636, 	"Find the specified text\nFind"
+  57637, 	"Insert Clipboard contents\nPaste"
+  57638, 	"Insert Clipboard contents and a link to its source\nPaste Link"
+  57639, 	"Insert Clipboard contents with options\nPaste Special"
+  57640, 	"Repeat the last action\nRepeat"
+  57641, 	"Replace specific text with different text\nReplace"
+  57642, 	"Select the entire document\nSelect All"
+  57643, 	"Undo the last action\nUndo"
+  57644, 	"Redo the previously undone action\nRedo"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57653, 	"Split the active window into panes\nSplit"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57664, 	"Display program information, version number and copyright\nAbout"
+  57665, 	"Quit the application; prompts to save documents\nExit"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57680, 	"Switch to the next window pane\nNext Pane"
+  57681, 	"Switch back to the previous window pane\nPrevious Pane"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57856, 	"Insert new embedded object\nNew Object"
+  57857, 	"Edit linked objects\nEdit Links"
+  57858, 	"Convert object to different type\nConvert Object"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  57872, 	"Activate embedded or linked object"
+  57873, 	"Activate embedded or linked object"
+  57874, 	"Activate embedded or linked object"
+  57875, 	"Activate embedded or linked object"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  59136, 	"EXT"
+  59137, 	"CAP"
+  59138, 	"NUM"
+  59139, 	"SCRL"
+  59140, 	"OVR"
+  59141, 	"REC"
+  59142, 	"0000000.00 kbi, 0000000.00 kbo"
+  59143, 	"Time: 00:00:00"
+  59144, 	"Connects: 00"
+  59145, 	"0000  bp/s"
+  59146, 	"PktOut: 00000"
+  59147, 	"PktIn: 00000"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  59392, 	"Show or hide the toolbar\nToggle ToolBar"
+  59393, 	"Show or hide the status bar\nToggle StatusBar"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  61184, 	"Change the window size"
+  61185, 	"Change the window position"
+  61186, 	"Reduce the window to an icon"
+  61187, 	"Enlarge the window to full size"
+  61188, 	"Switch to the next document window"
+  61189, 	"Switch to the previous document window"
+  61190, 	"Close the active window and prompts to save the documents"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  61202, 	"Restore the window to normal size"
+  61203, 	"Activate Task List"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  61445, 	"Close print preview mode\nCancel Preview"
+  61446, 	"Please check the number of people that you want to let play at one time.  That number must be between 1 and 128."
+  61447, 	"You must provide a name for your server."
+  61448, 	"Connecting to list server..."
+  61449, 	"Failed to make connection to list server..."
+  61450, 	"Lost connection to list server..."
+  61451, 	"Established connection to list server..."
+  61452, 	"Sending game information to list server..."
+  61453, 	"Freelancer Server"
+  61454, 	"Loading initial data..."
+  61455, 	"Starting logic thread..."
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  61456, 	"Unable to find valid account name and signature.  Aborting..."
+  61457, 	"Server running, ready for log in."
+  61458, 	"%d msec"
+  61459, 	"Statistic"
+  61460, 	"Current Value"
+  61461, 	"Player Count"
+  61462, 	"Total Logins"
+  61463, 	"Total Logouts"
+  61464, 	"Failed Logins"
+  61465, 	"Aborted Missions"
+  61466, 	"Player deaths"
+  61467, 	"Total objects"
+  61468, 	"Ships (Player & AI)"
+  61469, 	"Active Systems"
+  61470, 	"LOADING........................"
+  61471, 	"Could not set the server port: %u"
+}
+
+STRINGTABLE
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+  61472, 	"Could not open the log file: %s"
+  61473, 	"Could not set the log severity: %d (bad value)"
+  61474, 	"Could not set the max lines: %d (bad value )"
+  61475, 	"Could not set trim line value: %d (bad value)"
+  61476, 	"Could not set refresh rate: %f (bad value?)"
+  61477, 	"Unknown command line parameter: %s. Passing it to the general handler..."
+  61479, 	"%s Version %d.%d Build %d"
+  61480, 	"%.2f kbi, %.2f kbo"
+  61481, 	"Connects: %02d"
+  61482, 	"%03.2f kbp/s"
+  61483, 	"PktOut: %05d"
+  61484, 	"PktIn: %05d"
+  61485, 	"You acknowledge and agree that Microsoft has no control over or responsibility for your experience while hosting Multiplayer Games, or any content or other information or data you may create, encounter or receive, including chat, while you are hosting Multiplayer Games."
+}
+
+
+6 ACCELERATORS
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+	"N", 57600, CONTROL, VIRTKEY
+	"O", 57601, CONTROL, VIRTKEY
+	"S", 57603, CONTROL, VIRTKEY
+	"P", 57607, CONTROL, VIRTKEY
+	VK_F6, 57680, VIRTKEY
+	VK_F6, 57681, SHIFT, VIRTKEY
+	VK_ESCAPE, 32768, NOINVERT, VIRTKEY
+}
+
+
+128 ACCELERATORS
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+{
+	"N", 57600, CONTROL, VIRTKEY
+	"O", 57601, CONTROL, VIRTKEY
+	"S", 57603, CONTROL, VIRTKEY
+	"P", 57607, CONTROL, VIRTKEY
+	"Z", 57643, CONTROL, VIRTKEY
+	"X", 57635, CONTROL, VIRTKEY
+	"C", 57634, CONTROL, VIRTKEY
+	"V", 57637, CONTROL, VIRTKEY
+	"A", 57642, CONTROL, VIRTKEY
+	"F", 57636, CONTROL, VIRTKEY
+	VK_F3, 57640, VIRTKEY
+	"H", 57641, CONTROL, VIRTKEY
+	VK_RETURN, 57860, NOINVERT, ALT, VIRTKEY
+	VK_BACK, 57643, ALT, VIRTKEY
+	VK_DELETE, 57635, SHIFT, VIRTKEY
+	VK_INSERT, 57634, CONTROL, VIRTKEY
+	VK_INSERT, 57637, SHIFT, VIRTKEY
+	VK_F6, 57680, VIRTKEY
+	VK_F6, 57681, SHIFT, VIRTKEY
+	VK_ESCAPE, 32768, NOINVERT, VIRTKEY
+}
+
+128 ICON "ICON128_1.ico"
+
+129 ICON "ICON129_1.ico"
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,0,0,41
+PRODUCTVERSION 1,0,0,41
+FILEOS 0x40004
+FILETYPE 0x1
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904b0"
+	BEGIN
+		VALUE "CompanyName", "Microsoft Corporation"
+		VALUE "FileDescription", "Freelancer Resources"
+		VALUE "FileVersion", "1, 0, 0, 0"
+		VALUE "LegalCopyright", "© 2003 Microsoft Corporation. All rights reserved"
+		VALUE "ProductName", "Freelancer"
+		VALUE "ProductVersion", "1, 0, 0, 0"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04B0  
+END
+END
+
+
+// binary RT_TOOLBAR 128 "241128_1.bin" skipped (not an rc.exe TOOLBAR script)

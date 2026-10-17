@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{A3C49D2C-9E49-4C76-88CE-579F7126E6FF}</ProjectGuid>
+    <Keyword>MFCProj</Keyword>
+    <RootNamespace>FLServer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <!-- Retail FLServer.exe is an MFC42 doc/view application linked against the ANSI
+       MFC42.DLL (imports by ordinal): dynamic MFC, multibyte character set. -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugASan|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <!-- dalib_net.h (DirectPlay8 types) needs dplay8.h from the DX8 SDK; appended last so the
+       Windows SDK basetsd.h wins. -->
+  <PropertyGroup>
+    <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>
+    <TargetName>FLServer</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- Every translation unit includes StdAfx.h first (MFC must see windows.h first);
+           no precompiled header, so a file another lane adds cannot break the PCH chain. -->
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <!-- Retail FLServer.exe exports nothing; /sdl would add nothing here but keep it in
+           line with freelancer.vcxproj. -->
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;Server.lib;RemoteClient.lib;imm32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- Retail FLServer.exe's 71-name export table: forwarders to Server/DALib/Common plus
+           @57 ServerLogf (.text:0040e330). -->
+      <ModuleDefinitionFile>FLServer.def</ModuleDefinitionFile>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)res;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="FLServer.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="FLServerDoc.h" />
+    <ClInclude Include="FLServerView.h" />
+    <ClInclude Include="CntrItem.h" />
+    <ClInclude Include="ShutdownDlg.h" />
+    <ClInclude Include="ServerControl.h" />
+    <ClInclude Include="RichEditText.h" />
+    <ClInclude Include="Motd.h" />
+    <ClInclude Include="AreYouSureDlg.h" />
+    <ClInclude Include="ErrorDlg.h" />
+    <ClInclude Include="FLListBox.h" />
+    <ClInclude Include="AccountsDlg.h" />
+    <ClInclude Include="OperationCompleteDlg.h" />
+    <ClInclude Include="ServerNewsDlg.h" />
+    <ClInclude Include="SetPasswordDlg.h" />
+    <ClInclude Include="ChatAccountDlg.h" />
+    <ClInclude Include="ChatSystemDlg.h" />
+    <ClInclude Include="StarSystemList.h" />
+    <ClInclude Include="EditAccountDlg.h" />
+    <ClInclude Include="ChoosePlayerDlg.h" />
+    <ClInclude Include="SelectStarSystemDlg.h" />
+    <ClInclude Include="ServerConfigDlg.h" />
+    <ClInclude Include="CreateAccountDlg.h" />
+    <ClInclude Include="ServerInfoDlg.h" />
+    <ClInclude Include="ChatRdl.h" />
+    <ClInclude Include="IFLListBox.h" />
+    <ClInclude Include="ResourceStrings.h" />
+    <ClInclude Include="UniverseChatDlg.h" />
+    <ClInclude Include="FLSummaryForm.h" />
+    <ClInclude Include="FLServerCmdLine.h" />
+    <ClInclude Include="CrashReport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FLServer.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="FLServerDoc.cpp" />
+    <ClCompile Include="FLServerView.cpp" />
+    <ClCompile Include="CntrItem.cpp" />
+    <ClCompile Include="ShutdownDlg.cpp" />
+    <ClCompile Include="ServerControl.cpp" />
+    <ClCompile Include="RichEditText.cpp" />
+    <ClCompile Include="Motd.cpp" />
+    <ClCompile Include="AreYouSureDlg.cpp" />
+    <ClCompile Include="ErrorDlg.cpp" />
+    <ClCompile Include="FLListBox.cpp" />
+    <ClCompile Include="AccountsDlg.cpp" />
+    <ClCompile Include="OperationCompleteDlg.cpp" />
+    <ClCompile Include="ServerNewsDlg.cpp" />
+    <ClCompile Include="SetPasswordDlg.cpp" />
+    <ClCompile Include="EditAccountDlg.cpp" />
+    <ClCompile Include="ChoosePlayerDlg.cpp" />
+    <ClCompile Include="SelectStarSystemDlg.cpp" />
+    <ClCompile Include="ServerConfigDlg.cpp" />
+    <ClCompile Include="CreateAccountDlg.cpp" />
+    <ClCompile Include="ServerInfoDlg.cpp" />
+    <ClCompile Include="ChatRdl.cpp" />
+    <ClCompile Include="ChatAccountDlg.cpp" />
+    <ClCompile Include="ChatSystemDlg.cpp" />
+    <ClCompile Include="ResourceStrings.cpp" />
+    <ClCompile Include="StarSystemList.cpp" />
+    <ClCompile Include="UniverseChatDlg.cpp" />
+    <ClCompile Include="FLSummaryForm.cpp" />
+    <ClCompile Include="FLServerCmdLine.cpp" />
+    <ClCompile Include="CrashReport.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FLServer.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="FLServer.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\ICON128_1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DALib\DALib.vcxproj">
+      <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Server\Server.vcxproj">
+      <Project>{B1C2D3E4-F5A6-7890-BCDE-F12345678901}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\RemoteClient\RemoteClient.vcxproj">
+      <Project>{C1111111-2222-3333-4444-555555555555}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Resources\serverresources\serverresources.vcxproj">
+      <Project>{E1A10001-5E50-4A01-9C01-000000000008}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

@@ -1,0 +1,32 @@
+#include <windows.h>
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEVERSION 1,1,4,0
+PRODUCTVERSION 1,1,4,0
+FILEOS 0x10004
+FILETYPE 0x2
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+	BLOCK "040904E4"
+	BEGIN
+		VALUE "FileDescription", "zlib data compression library"
+		VALUE "FileVersion", "1.1.4.0"
+		VALUE "InternalName", "zlib"
+		VALUE "OriginalFilename", "zlib.dll"
+		VALUE "ProductName", "ZLib.DLL"
+		VALUE "Comments", "DLL support by Alessandro Iacopetti & Gilles Vollant"
+		VALUE "LegalCopyright", "(C) 1995-2002 Jean-loup Gailly & Mark Adler"
+	END
+END
+
+BLOCK "VarFileInfo"
+BEGIN
+	VALUE "Translation", 0x0409, 0x04E4  
+END
+END

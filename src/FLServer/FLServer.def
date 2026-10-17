@@ -1,0 +1,90 @@
+; Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
+; faithful to the behaviour of the original game.
+; This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
+; developed by Digital Anvil.
+; Author: Giperion.
+
+; FLServer.exe export surface = retail's (dumpbin -exports EXE\FLServer.exe: 71 names,
+; ordinals 1..71). Retail compiled its own copies of these shared-header class members into the
+; exe because the headers resolved to dllexport in its build; every copy is instruction-identical
+; to the owner DLL's own export. Our headers resolve to dllimport in FLServer, so each one is
+; forwarded to the owner DLL's export of the same name (checked against dumpbin -exports of
+; bin\Server.dll, bin\DALib.dll, bin\Common.dll). Exceptions:
+;   @45 GetMOTD: the modern wchar_t decoration (_W) replaces VC6's G (accepted: compare by
+;       class/method/arity, AGENTS.md); retail ?GetMOTD@PlayerDB@@QAEAAV?$basic_string@GU?$char_traits@G@std@@V?$allocator@G@2@@std@@XZ
+;   @57 ServerLogf: FLServer's own function (.text:0040e330), exported from the local definition;
+;       its declaration must mangle to ?ServerLogf@@YAHUErrorCode@@PBDZZ.
+; The ??_7 vftables are data in retail; forwarders carry no DATA attribute.
+NAME FLServer
+EXPORTS
+    ??0CAccount@@QAE@ABV0@@Z=Server.??0CAccount@@QAE@ABV0@@Z @1
+    ??0CDPMsgList@@QAE@ABV0@@Z=DALib.??0CDPMsgList@@QAE@ABV0@@Z @2
+    ??0CDPServer@@QAE@ABV0@@Z=DALib.??0CDPServer@@QAE@ABV0@@Z @3
+    ??0CDeadReckonedVector@@QAE@ABV0@@Z=Common.??0CDeadReckonedVector@@QAE@ABV0@@Z @4
+    ??0CGunWrapper@@QAE@ABV0@@Z=DALib.??0CGunWrapper@@QAE@ABV0@@Z @5
+    ??0CPlayerGroup@@QAE@ABV0@@Z=Server.??0CPlayerGroup@@QAE@ABV0@@Z @6
+    ??0CRemotePhysicsSimulation@@QAE@ABV0@@Z=Common.??0CRemotePhysicsSimulation@@QAE@ABV0@@Z @7
+    ??0IClient@@QAE@ABV0@@Z=Server.??0IClient@@QAE@ABV0@@Z @8
+    ??0IClient@@QAE@XZ=Server.??0IClient@@QAE@XZ @9
+    ??0IServerImpl@@QAE@ABU0@@Z=Server.??0IServerImpl@@QAE@ABU0@@Z @10
+    ??0IServerImpl@@QAE@XZ=Server.??0IServerImpl@@QAE@XZ @11
+    ??0MD5Hash@@QAE@ABV0@@Z=DALib.??0MD5Hash@@QAE@ABV0@@Z @12
+    ??0PlayerDB@@QAE@ABV0@@Z=Server.??0PlayerDB@@QAE@ABV0@@Z @13
+    ??4CAccount@@QAEAAV0@ABV0@@Z=Server.??4CAccount@@QAEAAV0@ABV0@@Z @14
+    ??4CDPMsgList@@QAEAAV0@ABV0@@Z=DALib.??4CDPMsgList@@QAEAAV0@ABV0@@Z @15
+    ??4CDPServer@@QAEAAV0@ABV0@@Z=DALib.??4CDPServer@@QAEAAV0@ABV0@@Z @16
+    ??4CDeadReckonedVector@@QAEAAV0@ABV0@@Z=Common.??4CDeadReckonedVector@@QAEAAV0@ABV0@@Z @17
+    ??4CGunWrapper@@QAEAAV0@ABV0@@Z=DALib.??4CGunWrapper@@QAEAAV0@ABV0@@Z @18
+    ??4CPlayerGroup@@QAEAAV0@ABV0@@Z=Server.??4CPlayerGroup@@QAEAAV0@ABV0@@Z @19
+    ??4CRemotePhysicsSimulation@@QAEAAV0@ABV0@@Z=Common.??4CRemotePhysicsSimulation@@QAEAAV0@ABV0@@Z @20
+    ??4IClient@@QAEAAV0@ABV0@@Z=Server.??4IClient@@QAEAAV0@ABV0@@Z @21
+    ??4IServerImpl@@QAEAAU0@ABU0@@Z=Server.??4IServerImpl@@QAEAAU0@ABU0@@Z @22
+    ??4MD5Hash@@QAEAAV0@ABV0@@Z=DALib.??4MD5Hash@@QAEAAV0@ABV0@@Z @23
+    ??4PlayerDB@@QAEAAV0@ABV0@@Z=Server.??4PlayerDB@@QAEAAV0@ABV0@@Z @24
+    ??APlayerDB@@QAEAAUPlayerData@@ABI@Z=Server.??APlayerDB@@QAEAAUPlayerData@@ABI@Z @25
+    ??_7CAccount@@6B@=Server.??_7CAccount@@6B@ @26
+    ??_7CDPMsgList@@6B@=DALib.??_7CDPMsgList@@6B@ @27
+    ??_7CDPServer@@6B@=DALib.??_7CDPServer@@6B@ @28
+    ??_7CDeadReckonedVector@@6B@=Common.??_7CDeadReckonedVector@@6B@ @29
+    ??_7CGunWrapper@@6B@=DALib.??_7CGunWrapper@@6B@ @30
+    ??_7CPlayerGroup@@6B@=Server.??_7CPlayerGroup@@6B@ @31
+    ??_7CRemotePhysicsSimulation@@6B@=Common.??_7CRemotePhysicsSimulation@@6B@ @32
+    ??_7IClient@@6B@=Server.??_7IClient@@6B@ @33
+    ??_7IServerImpl@@6BIChatServer@@@=Server.??_7IServerImpl@@6BIChatServer@@@ @34
+    ??_7IServerImpl@@6BIServer@@@=Server.??_7IServerImpl@@6BIServer@@@ @35
+    ??_7MD5Hash@@6B@=DALib.??_7MD5Hash@@6B@ @36
+    ?CalcError@CDeadReckonedVector@@QAENABVVector@@@Z=Common.?CalcError@CDeadReckonedVector@@QAENABVVector@@@Z @37
+    ?CalcPositionError@CRemotePhysicsSimulation@@QAENABVVector@@@Z=Common.?CalcPositionError@CRemotePhysicsSimulation@@QAENABVVector@@@Z @38
+    ?DispatchQueue@CGunWrapper@@QAEXXZ=DALib.?DispatchQueue@CGunWrapper@@QAEXXZ @39
+    ?GetBrowser@CGunWrapper@@QAEPAUIGunBrowser@@XZ=DALib.?GetBrowser@CGunWrapper@@QAEPAUIGunBrowser@@XZ @40
+    ?GetConnection@CGunWrapper@@QAEPAUIGunConnection@@XZ=DALib.?GetConnection@CGunWrapper@@QAEPAUIGunConnection@@XZ @41
+    ?GetHost@CGunWrapper@@QAEPAUIGunHost@@XZ=DALib.?GetHost@CGunWrapper@@QAEPAUIGunHost@@XZ @42
+    ?GetID@CPlayerGroup@@QAEIXZ=Server.?GetID@CPlayerGroup@@QAEIXZ @43
+    ?GetLatestUpdate@CRemotePhysicsSimulation@@QAE?AVVector@@XZ=Common.?GetLatestUpdate@CRemotePhysicsSimulation@@QAE?AVVector@@XZ @44
+    ?GetMOTD@PlayerDB@@QAEAAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@XZ=Server.?GetMOTD@PlayerDB@@QAEAAV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@XZ @45
+    ?GetMaxPlayerCount@PlayerDB@@QAEIXZ=Server.?GetMaxPlayerCount@PlayerDB@@QAEIXZ @46
+    ?GetSample@CDeadReckonedVector@@QAEABVVector@@H@Z=Common.?GetSample@CDeadReckonedVector@@QAEABVVector@@H@Z @47
+    ?GetSample@CRemotePhysicsSimulation@@QAE?AVVector@@H@Z=Common.?GetSample@CRemotePhysicsSimulation@@QAE?AVVector@@H@Z @48
+    ?GetSampleCount@CRemotePhysicsSimulation@@QAEKXZ=Common.?GetSampleCount@CRemotePhysicsSimulation@@QAEKXZ @49
+    ?GetServerID@PlayerDB@@QAEIXZ=Server.?GetServerID@PlayerDB@@QAEIXZ @50
+    ?GetServerSig@PlayerDB@@QAEPBDXZ=Server.?GetServerSig@PlayerDB@@QAEPBDXZ @51
+    ?GetSimulationTime@CRemotePhysicsSimulation@@QAENXZ=Common.?GetSimulationTime@CRemotePhysicsSimulation@@QAENXZ @52
+    ?GetStatePtr@MD5Hash@@QAEPAEXZ=DALib.?GetStatePtr@MD5Hash@@QAEPAEXZ @53
+    ?IsFull@CPlayerGroup@@QAE_NXZ=Server.?IsFull@CPlayerGroup@@QAE_NXZ @54
+    ?NormalizeProjectedPosition@CDeadReckonedVector@@QAEXXZ=Common.?NormalizeProjectedPosition@CDeadReckonedVector@@QAEXXZ @55
+    ?NormalizeTrackedPosition@CDeadReckonedVector@@QAEXXZ=Common.?NormalizeTrackedPosition@CDeadReckonedVector@@QAEXXZ @56
+    ?ServerLogf@@YAHUErrorCode@@PBDZZ @57
+    ?SetLogging@CRemotePhysicsSimulation@@QAEX_N@Z=Common.?SetLogging@CRemotePhysicsSimulation@@QAEX_N@Z @58
+    ?combat_drift_event@ContentCallback@AI@pub@@UAEXXZ=Common.?combat_drift_event@ContentCallback@AI@pub@@UAEXXZ @59
+    ?combat_state_notification@ContentCallback@AI@pub@@UAEXW4CSNType@123@II@Z=Common.?combat_state_notification@ContentCallback@AI@pub@@UAEXW4CSNType@123@II@Z @60
+    ?follow_event@ContentCallback@AI@pub@@UAEXIIW4FollowStatusType@123@M@Z=Common.?follow_event@ContentCallback@AI@pub@@UAEXIIW4FollowStatusType@123@M@Z @61
+    ?get_creation_type@ContentCallback@AI@pub@@UAE?AW4CreationType@123@XZ=Common.?get_creation_type@ContentCallback@AI@pub@@UAE?AW4CreationType@123@XZ @62
+    ?information_request@ContentCallback@AI@pub@@UAE_NW4InformationType@123@HPAD@Z=Common.?information_request@ContentCallback@AI@pub@@UAE_NW4InformationType@123@HPAD@Z @63
+    ?is_valid@PlayerDB@@QAE_NABI@Z=Server.?is_valid@PlayerDB@@QAE_NABI@Z @64
+    ?is_valid_ship_owner@PlayerDB@@QAE_NABI0@Z=Server.?is_valid_ship_owner@PlayerDB@@QAE_NABI0@Z @65
+    ?lead_object_event@ContentCallback@AI@pub@@UAEXIIW4LeadProgressType@123@MABVVector@@@Z=Common.?lead_object_event@ContentCallback@AI@pub@@UAEXIIW4LeadProgressType@123@MABVVector@@@Z @66
+    ?request_flee_destination@ContentCallback@AI@pub@@UAE_NIW4FleeReason@123@AAW4FleeDestinationType@123@AAVVector@@AAIAAM@Z=Common.?request_flee_destination@ContentCallback@AI@pub@@UAE_NIW4FleeReason@123@AAW4FleeDestinationType@123@AAVVector@@AAIAAM@Z @67
+    ?scan_state_change@ContentCallback@AI@pub@@UAEX_N@Z=Common.?scan_state_change@ContentCallback@AI@pub@@UAEX_N@Z @68
+    ?ship_in_sights_event@ContentCallback@AI@pub@@UAEXI@Z=Common.?ship_in_sights_event@ContentCallback@AI@pub@@UAEXI@Z @69
+    ?tether_object_event@ContentCallback@AI@pub@@UAEXIIW4TetherStatusType@123@ABVVector@@@Z=Common.?tether_object_event@ContentCallback@AI@pub@@UAEXIIW4TetherStatusType@123@ABVVector@@@Z @70
+    ?to_index@PlayerDB@@AAEII@Z=Server.?to_index@PlayerDB@@AAEII@Z @71

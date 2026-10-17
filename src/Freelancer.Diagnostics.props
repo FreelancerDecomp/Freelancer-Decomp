@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Shared by Common and freelancer; edit this sheet through VS Property Manager. -->
+  <PropertyGroup Label="UserMacros">
+    <FreelancerEnableTickProfile>0</FreelancerEnableTickProfile>
+    <FreelancerBetaLabel>0</FreelancerBetaLabel>
+    <FreelancerWidescreenSupport>1</FreelancerWidescreenSupport>
+    <FreelancerRp9>0</FreelancerRp9>
+    <FreelancerWalkMode>1</FreelancerWalkMode>
+  </PropertyGroup>
+</Project>
