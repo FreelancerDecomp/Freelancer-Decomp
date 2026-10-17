@@ -63,3 +63,21 @@ docs\         documentation (English; Russian translation in docs\ru)
 
 `EBUEula.dll` and `gundll.dll` are the only retail binaries the port uses unchanged: they are
 third-party components of the original game and have not been reimplemented.
+
+## Support the project
+
+If you would like to support the work on Freelancer Decomp, donations are welcome:
+
+| Currency (network) | Address |
+|---|---|
+| USDT (BEP20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
+| USDT (TRC20) | `TZA2s2A7m8rCuXgDsMJs7XhyoZmX7BBc6j` |
+| Bitcoin (BTC) | `1JooBx2a86hNhqdU7uYiKAfxaHVHBqD1wV` |
+| ETH (ERC20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
+
+Send only the currency listed on a line, over the network listed next to it.
+
+## Contacts
+
+- Discord: `@Giperion`
+- Email: [gipdereline@gmail.com](mailto:gipdereline@gmail.com)

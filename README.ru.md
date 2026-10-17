@@ -65,3 +65,21 @@ docs\         документация (английская; русский п�
 
 `EBUEula.dll` и `gundll.dll` — единственные retail-бинарники, которые порт использует без
 изменений: это сторонние компоненты оригинальной игры, они не переписывались.
+
+## Поддержать проект
+
+Если хотите поддержать работу над Freelancer Decomp, буду рад донату:
+
+| Валюта (сеть) | Адрес |
+|---|---|
+| USDT (BEP20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
+| USDT (TRC20) | `TZA2s2A7m8rCuXgDsMJs7XhyoZmX7BBc6j` |
+| Bitcoin (BTC) | `1JooBx2a86hNhqdU7uYiKAfxaHVHBqD1wV` |
+| ETH (ERC20) | `0x3bedb75137d850b8f24a42f488459a6a94489105` |
+
+Отправляйте только указанную в строке валюту и только через указанную рядом сеть.
+
+## Контакты
+
+- Discord: `@Giperion`
+- Email: [gipdereline@gmail.com](mailto:gipdereline@gmail.com)
