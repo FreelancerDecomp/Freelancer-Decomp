@@ -3310,12 +3310,7 @@ static unsigned char RpcServerSendCommQuantize(const float* Value) {
 
 static void RpcServerSendCommExpand(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerSendCommExpand
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandByte(Widened, GRpcServerSendCommExpand, Value);
 }
 
 // RC 06b4cd10 / RS 06be7910.
