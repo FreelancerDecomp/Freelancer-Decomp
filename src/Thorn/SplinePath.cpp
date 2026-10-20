@@ -102,18 +102,7 @@ namespace
     // Squad blend weight: 2*t*(1-t), with a final float result.
     float SquadBlendRetail(const float* T)
     {
-        const float One = 1.0f;
-        float Blend;
-        __asm
-        {
-            mov ecx, T
-            fld One
-            fsub dword ptr [ecx]
-            fmul dword ptr [ecx]
-            fadd st(0), st(0)
-            fstp Blend
-        }
-        return Blend;
+        return ThornSplineQuaternion::SquadBlend(*T);
     }
 
     // LAB_06f34420: tangent basis with explicit float normalization boundaries.
