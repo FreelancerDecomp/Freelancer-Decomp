@@ -866,45 +866,16 @@ namespace
 
     float Lerp1(float A, float B, float T) { return A + (B - A) * T; }
 
-    // AUDIO 4745e..47588: the private caller keeps one owned progress below
-    // capture/result. Ordinary C++ changed FADDP/store and final-pop stages.
-    void AudioLerpFloat(const float* From, const float* To, float* Output)
+    void AudioLerpFloat(const float* From, const float* To, float* Output, double Progress)
     {
-        __asm
-        {
-            mov eax, From
-            fld dword ptr [eax]
-            mov eax, To
-            fld dword ptr [eax]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            mov eax, Output
-            fstp dword ptr [eax]
-            fstp st(0)
-        }
+        ThornSceneInterpolation::Audio(Output, From, To, Progress);
     }
 
-    // 47500/47534: wrapped32 SUB zero-extends into FILD qword;
-    // FIADD reads signed capture. The normal caller performs the modern cast.
-#pragma warning(push)
-#pragma warning(disable: 4716) // The x86 double result is left in ST(0).
-    __declspec(noinline) double ComputeAudioLerpInteger(int From, int To)
+    // Audio's wrapped difference is unsigned; capture remains signed.
+    int ComputeAudioLerpInteger(int From, int To, double Progress)
     {
-        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
-                                            static_cast<unsigned int>(From);
-        const unsigned long long Difference = DifferenceBits;
-        __asm
-        {
-            fild qword ptr Difference
-            fmul st(0), st(1)
-            fiadd dword ptr From
-        }
-#if defined(__clang__)
-        return ThornReturnSt0Double();
-#endif
+        return ThornSceneInteger::Audio(From, To, Progress);
     }
-#pragma warning(pop)
 
     // Signed wrapping difference and a final truncation to the low integer word.
     int ComputeLightColor(int From, int To, const float* U)
@@ -4195,43 +4166,33 @@ unsigned char FThornEvent::TickAudioPropAnim(int TimeMs, FThornScene* Scene)
         {
             FThornExtendedProgress Progress;
             EvaluateProgressExtended(TimeMs, &Progress, false);
-            // Retain the existing typed80 result through baseline and every selected term.
-            const FThornExtendedProgress* ProgressValue = &Progress;
-            __asm
-            {
-                mov eax, ProgressValue
-                fld tbyte ptr [eax]
-            }
+            const double ProgressValue = ThornExtendedProgress::LoadDouble(Progress.Bytes);
             // 47438..47448 selects the current payload AFTER the curve callback.
             FThornEntity* Primary = *PrimaryEntry;
             const int Mask = AudioMask;
             FThornAudio8 Out;
             std::memcpy(&Out, Primary->Audio, sizeof(Out));
             if ((Mask & 1) != 0)
-                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation, ProgressValue);
             if ((Mask & 2) != 0)
-                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan);
+                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan, ProgressValue);
             // 4748d..474b9 repeats these two stores, including exceptional FP effects.
             if ((Mask & 1) != 0)
-                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation, ProgressValue);
             if ((Mask & 2) != 0)
-                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan);
+                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan, ProgressValue);
             if ((Mask & 4) != 0)
-                AudioLerpFloat(&AudioCapture.Dmin, &To.Dmin, &Out.Dmin);
+                AudioLerpFloat(&AudioCapture.Dmin, &To.Dmin, &Out.Dmin, ProgressValue);
             if ((Mask & 8) != 0)
-                AudioLerpFloat(&AudioCapture.Dmax, &To.Dmax, &Out.Dmax);
+                AudioLerpFloat(&AudioCapture.Dmax, &To.Dmax, &Out.Dmax, ProgressValue);
             if ((Mask & 0x10) != 0)
-                Out.Ain = static_cast<int>(static_cast<unsigned int>(static_cast<__int64>(
-                    ComputeAudioLerpInteger(AudioCapture.Ain, To.Ain))));
+                Out.Ain = ComputeAudioLerpInteger(AudioCapture.Ain, To.Ain, ProgressValue);
             if ((Mask & 0x20) != 0)
-                Out.Aout = static_cast<int>(static_cast<unsigned int>(static_cast<__int64>(
-                    ComputeAudioLerpInteger(AudioCapture.Aout, To.Aout))));
+                Out.Aout = ComputeAudioLerpInteger(AudioCapture.Aout, To.Aout, ProgressValue);
             if ((Mask & 0x40) != 0)
-                AudioLerpFloat(&AudioCapture.Atout, &To.Atout, &Out.Atout);
+                AudioLerpFloat(&AudioCapture.Atout, &To.Atout, &Out.Atout, ProgressValue);
             if ((Mask & 0x80) != 0)
-                AudioLerpFloat(&AudioCapture.Rmix, &To.Rmix, &Out.Rmix);
-            // 47592 waits and discards progress before the output callback.
-            __asm { fstp st(0) }
+                AudioLerpFloat(&AudioCapture.Rmix, &To.Rmix, &Out.Rmix, ProgressValue);
             float OutWords[8];
             std::memcpy(OutWords, &Out, sizeof(Out));
             ApplyAudioProps(Primary, OutWords);

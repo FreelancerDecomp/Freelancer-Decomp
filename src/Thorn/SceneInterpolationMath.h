@@ -37,6 +37,13 @@ namespace ThornSceneInterpolation
         ThornExtendedProgress::StoreDouble(bytes, fraction);
         return std::ldexp(static_cast<double>(ThornExtendedProgress::LoadFloat(bytes)), exponent);
     }
+    inline void Audio(float* output, const float* from, const float* to, double progress)
+    {
+        const double captured = *from, target = *to;
+        const double difference = WrapIntermediate(target - captured);
+        const double product = WrapIntermediate(difference * progress);
+        *output = static_cast<float>(WrapIntermediate(product + captured));
+    }
     inline float WrapScale(float* last, double progress, float rounded, bool spatial)
     {
         const double change = WrapIntermediate(progress - static_cast<double>(*last));

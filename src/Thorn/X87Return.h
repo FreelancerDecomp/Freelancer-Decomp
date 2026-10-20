@@ -9,8 +9,4 @@
 {
     __asm { ret }
 }
-[[maybe_unused]] static __declspec(naked) double __cdecl ThornReturnSt0Double()
-{
-    __asm { ret }
-}
 #endif
