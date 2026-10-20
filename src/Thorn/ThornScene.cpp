@@ -4889,16 +4889,7 @@ unsigned char FThornEvent::TickPsysPropAnim(int TimeMs, FThornScene* Scene)
                 if ((PsysMask & 1) != 0)
                 {
                     const float* Capture = &SparamCapture;
-                    __asm {
-                        mov edx, Capture
-                        fld dword ptr [edx]
-                        fld dword ptr Target
-                        fsub st(0), st(1)
-                        fmul dword ptr Scale
-                        fadd st(0), st(1)
-                        fstp dword ptr Result
-                        fstp st(0)
-                    }
+                    ThornSceneInterpolation::Lerp(Capture, &Target, &Scale, &Result);
                 }
                 ApplyPsysSparam(Primary, &Result);
             }
