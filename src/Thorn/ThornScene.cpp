@@ -1855,39 +1855,7 @@ namespace
     // 47f9a..47fdf: rounded X and retained Y/Z differences form the zero-direction test.
     bool BuildAttachLookDirection(float* DirectionOut, const float* Target, const float* Origin)
     {
-        unsigned char bUseDirection;
-        const float Zero = 0.0f;
-        __asm
-        {
-            mov ecx, Target
-            mov edx, Origin
-            mov eax, DirectionOut
-            fld dword ptr [ecx+8]
-            fsub dword ptr [edx+8]
-            fld dword ptr [ecx+4]
-            fsub dword ptr [edx+4]
-            fld dword ptr [ecx]
-            fsub dword ptr [edx]
-            fstp dword ptr [eax]
-            fst dword ptr [eax+4]
-            fld st(1)
-            fstp dword ptr [eax+8]
-            fld dword ptr [eax]
-            fmul dword ptr [eax]
-            fld st(1)
-            fmul st(0), st(2)
-            faddp st(1), st(0)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fcomp dword ptr Zero
-            fnstsw ax
-            fstp st(0)
-            test ah, 44h
-            fstp st(0)
-            setp bUseDirection
-        }
-        return bUseDirection != 0;
+        return ThornSceneInterpolation::AttachDirection(DirectionOut, Target, Origin);
     }
 
     // These local frames are raw retail MOVs, even with a pending x87 trap.
