@@ -1,7 +1,60 @@
 #pragma once
 
+#include <cfenv>
+#include <cstdint>
+#include <cstring>
+
 namespace ThornPortableSplineMath
 {
+    inline void ScaleStored(float* dst, const float* src, const float* factorInput)
+    {
+        std::uint32_t factorBits;
+        std::memcpy(&factorBits, factorInput, sizeof(factorBits));
+        const bool factorNaN = (factorBits & 0x7fffffffu) > 0x7f800000u;
+        const bool factorSignaling = factorNaN && !(factorBits & 0x00400000u);
+        for (int index = 2; index >= 0; --index)
+        {
+            std::uint32_t bits;
+            std::memcpy(&bits, src + index, sizeof(bits));
+            const volatile double loaded = static_cast<double>(src[index]);
+            const bool sourceNaN = (bits & 0x7fffffffu) > 0x7f800000u;
+            if (sourceNaN || factorNaN)
+            {
+                if (factorSignaling || (sourceNaN && !(bits & 0x00400000u)))
+                    std::feraiseexcept(FE_INVALID);
+                std::uint32_t chosen = factorBits | 0x00400000u;
+                if (sourceNaN)
+                {
+                    chosen = bits | 0x00400000u;
+                    // FLD has quieted the source before FMUL sees the factor.
+                    // A signaling memory NaN loses to that quiet source NaN;
+                    // two quiet NaNs select larger payload, positive on a tie.
+                    if (factorNaN && !factorSignaling)
+                    {
+                        const auto sourceMagnitude = chosen & 0x7fffffffu;
+                        const auto factorMagnitude = factorBits & 0x7fffffffu;
+                        if (sourceMagnitude < factorMagnitude ||
+                            (sourceMagnitude == factorMagnitude && factorBits < chosen))
+                            chosen = factorBits;
+                    }
+                }
+                std::memcpy(dst + index, &chosen, sizeof(chosen));
+            }
+            else if (((bits & 0x7fffffffu) == 0x7f800000u && (factorBits & 0x7fffffffu) == 0) ||
+                     ((factorBits & 0x7fffffffu) == 0x7f800000u && (bits & 0x7fffffffu) == 0))
+            {
+                std::feraiseexcept(FE_INVALID);
+                const std::uint32_t indefinite = 0xffc00000u;
+                std::memcpy(dst + index, &indefinite, sizeof(indefinite));
+            }
+            else
+                // Keep this read inside the finite/ordinary branch. A speculative
+                // factor load would add a denormal flag when a source NaN wins.
+                dst[index] = static_cast<float>(loaded) *
+                    *static_cast<const volatile float*>(factorInput);
+        }
+    }
+
     inline void NegateVector(float* dst, const float* src)
     {
         // Read Z/Y/X before publishing X/Y/Z, including for overlapping ranges.
