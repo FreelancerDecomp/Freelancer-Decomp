@@ -1363,19 +1363,7 @@ namespace
     // 46e6d..46ed8: publish float Delta, then reread Applied using the unrounded change.
     void AccumulateAxisDelta(const float* AnimT, const float* Angle, float* Applied, float* Delta)
     {
-        __asm
-        {
-            mov eax, Applied
-            mov ecx, AnimT
-            mov edx, Angle
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            fsub dword ptr [eax]
-            mov ecx, Delta
-            fst dword ptr [ecx]
-            fadd dword ptr [eax]
-            fstp dword ptr [eax]
-        }
+        ThornSceneInterpolation::AxisDelta(AnimT, Angle, Applied, Delta);
     }
 
     // 46eef..46fd7: FCOS is stored to float, FSIN remains on x87 through
