@@ -8,6 +8,7 @@
 #include "readfile.h"
 #include "ThornScene.h"
 #include "ThornModernAdapters.h"
+#include "LuaTableProbe.h"
 
 #include <cstdio>
 #include <cstring>
@@ -768,17 +769,7 @@ namespace
     // after the table predicate and lua_pushobject callback.
     lua_Object GetLightDoubleProbe(lua_Object Table, unsigned int Index)
     {
-        if (lua_istable(Table) == 0)
-            return G_ThornLuaNil;
-        lua_pushobject(Table);
-        const unsigned long long IntegerIndex = Index;
-        double Number;
-        __asm {
-            fild qword ptr IntegerIndex
-            fstp qword ptr Number
-        }
-        lua_pushnumber(Number);
-        return lua_gettable();
+        return ThornLuaDetail::GetLightDoubleProbe(Table, Index, G_ThornLuaNil);
     }
 
     // FUN_06f27c10, shared by traced LIGHT/entity consumers. A pointer keeps the float
