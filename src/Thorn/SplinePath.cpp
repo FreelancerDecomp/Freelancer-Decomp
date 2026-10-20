@@ -515,57 +515,7 @@ namespace
     // retain norm for FSIN, but publish a float scale before Scale3D.
     void QuatFirstControlExp(FQuat& Dst, const FQuat& Q)
     {
-        const float Epsilon = G_QuatSinEps;
-        float Norm;
-        float Scale;
-        bool bScaleVector = false;
-        // Intrinsic C++ changes FSIN/FCOS results and drops the float scale
-        // boundary in Release; the root PC/RC probe confirms numeric cases.
-        // Explicit pointer operands avoid compiler-specific reference dereferencing.
-        auto* const QAsmPtr = &Q;
-        __asm
-        {
-            mov edx, QAsmPtr
-            fld dword ptr [edx + 4]
-            fmul dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            fmul dword ptr [edx + 8]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul dword ptr [edx + 12]
-            faddp st(1), st(0)
-            fsqrt
-            fst Norm
-            fsin
-            fcom Epsilon
-            fnstsw ax
-            test ah, 1
-            jnz FirstExpCopyVector
-            fdiv Norm
-            fstp Scale
-            mov bScaleVector, 1
-            jmp FirstExpVectorReady
-        FirstExpCopyVector:
-            fstp st(0)
-        FirstExpVectorReady:
-        }
-        FQuat Result;
-        if (bScaleVector)
-            ThornSplineMath::Scale(&Result.X, &Q.X, Scale);
-        else
-        {
-            std::memcpy(&Result.X, &Q.X, sizeof(float));
-            std::memcpy(&Result.Y, &Q.Y, sizeof(float));
-            std::memcpy(&Result.Z, &Q.Z, sizeof(float));
-        }
-        // FCOS follows Scale3D, and consumes its explicit float norm.
-        __asm
-        {
-            fld Norm
-            fcos
-            fstp Result.W
-        }
-        std::memcpy(&Dst, &Result, sizeof(Result));
+        ThornSplineQuaternion::Exp(Dst, Q, true, true, G_QuatSinEps);
     }
 
     // FUN_06f24670 rounds the norm before FSIN. The first inline exp
