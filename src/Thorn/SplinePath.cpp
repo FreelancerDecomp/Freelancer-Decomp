@@ -482,40 +482,7 @@ namespace
 
     void QuatScale(FQuat& Dst, const FQuat& Q, float S)
     {
-        float W;
-        float X;
-        float Y;
-        float Z;
-        // Release C++ retained S and reversed the first three FMUL operands:
-        // the differential probe found NaN payload and denormal flag changes.
-        // Explicit pointer operands avoid compiler-specific reference dereferencing.
-        auto* const DstAsmPtr = &Dst;
-        auto* const QAsmPtr = &Q;
-        __asm
-        {
-            mov edx, QAsmPtr
-            fld S
-            fmul dword ptr [edx]
-            fstp W
-            fld S
-            fmul dword ptr [edx + 4]
-            fstp X
-            fld S
-            fmul dword ptr [edx + 8]
-            fstp Y
-            fld S
-            fmul dword ptr [edx + 12]
-            mov edx, DstAsmPtr
-            mov eax, W
-            mov dword ptr [edx], eax
-            mov eax, X
-            mov dword ptr [edx + 4], eax
-            fstp Z
-            mov eax, Y
-            mov dword ptr [edx + 8], eax
-            mov eax, Z
-            mov dword ptr [edx + 12], eax
-        }
+        ThornSplineQuaternion::Scale(Dst, Q, S);
     }
 
     // FUN_06f24070 is conjugation, with a raw retained W and negated XYZ.
