@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #define RPCLOCAL_EXPORTS
+#include "portable_rpc_item_fields.h"
 #include <windows.h>
 #include "../include/rpc_iserver.h"
 #define GetChatClientInterface __NetworkGetChatClientInterface
@@ -431,19 +432,8 @@ void IServerImpl::ReqAddItem(unsigned int ArchId, const char* Hardpoint, int Cou
         float* HealthDestination = &TypedPacket->Health;
         unsigned char Mounted;
         // 06bd75bd..75db: FLD precedes both integer stores; FSTP follows them.
-        __asm {
-            fld Health
-            mov eax, ArchId
-            mov edx, ArchDestination
-            mov dword ptr [edx], eax
-            mov eax, Count
-            mov edx, CountDestination
-            mov dword ptr [edx], eax
-            mov al, byte ptr bMounted
-            mov Mounted, al
-            mov edx, HealthDestination
-            fstp dword ptr [edx]
-        }
+        PortableRpcItemFields::Store(ArchDestination, CountDestination, HealthDestination,
+                                     &Mounted, ArchId, Count, &Health, bMounted);
         TypedPacket->bMounted = Mounted;
         TypedPacket->CopyHardpoint(Hardpoint, static_cast<unsigned int>(strlen(Hardpoint) + 1u));
         this->PushToServer(Packet->AsRaw());
