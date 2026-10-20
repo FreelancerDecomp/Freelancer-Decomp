@@ -55,6 +55,7 @@
     <ClInclude Include="MaterialRegex.h" />
     <ClInclude Include="MaterialBatcher.h" />
     <ClInclude Include="TextureLibrary.h" />
+    <ClInclude Include="TexturePlaybackMath.h" />
     <ClInclude Include="MaterialAnimation.h" />
   </ItemGroup>
   <ItemGroup>

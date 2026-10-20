@@ -7,6 +7,7 @@
 #include "portable_integer_conversion.h"
 #include "portable_vector_load.h"
 #include "TextureLibrary.h"
+#include "TexturePlaybackMath.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
 #include <cmath>
@@ -449,17 +450,7 @@ namespace
 
     double PlaybackDuration(unsigned int Count, float Rate)
     {
-        const unsigned long long IntegerCount = Count;
-        const double Epsilon = 1e-6;
-        double Duration;
-        __asm
-        {
-            fild IntegerCount
-            fdiv Rate
-            fsub Epsilon
-            fstp Duration
-        }
-        return Duration;
+        return TexturePlaybackMath::Duration(Count, Rate);
     }
 
     void InitializePlayback(FTexturePlayback* Entry, FTextureEntry* Source)
