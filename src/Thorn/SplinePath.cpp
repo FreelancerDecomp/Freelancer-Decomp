@@ -1317,25 +1317,7 @@ namespace
         // 21f45/21f5b: snapshot differences before publishing the ghost vector.
         static void SubtractGhostVector(FVec3& OutputVector, const FVec3& A, const FVec3& B)
         {
-            // Explicit pointer operands avoid compiler-specific reference dereferencing.
-            auto* const OutputVectorAsmPtr = &OutputVector;
-            auto* const AAsmPtr = &A;
-            auto* const BAsmPtr = &B;
-            __asm
-            {
-                mov eax, AAsmPtr
-                mov ecx, BAsmPtr
-                mov edx, OutputVectorAsmPtr
-                fld dword ptr [eax + 8]
-                fsub dword ptr [ecx + 8]
-                fld dword ptr [eax + 4]
-                fsub dword ptr [ecx + 4]
-                fld dword ptr [eax]
-                fsub dword ptr [ecx]
-                fstp dword ptr [edx]
-                fstp dword ptr [edx + 4]
-                fstp dword ptr [edx + 8]
-            }
+            ThornSplineSampling::SubtractGhost(OutputVector, A, B);
         }
 
         // OPEN construction uses CR at 0.1/0.9, with different endpoint staging.
