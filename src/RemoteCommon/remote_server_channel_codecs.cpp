@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "portable_rpc_quantization.h"
+#include "portable_rpc_server_quantization.h"
 #include "portable_double_load.h"
 #include "portable_vector_load.h"
 #include "rpc_server_channel_codec.h"
@@ -3254,28 +3255,10 @@ unsigned int FRpcServerSetCollisionGroupsPacket::Decode(const unsigned char* Buf
 // FMUL double 255.0 (RC 06b6e390 / RS 06c0e270), MSVCRT _ftol (truncating 64-bit FISTP),
 // low byte. Its inverse: the byte zero-extended, FILD dword, FMUL double 2/51 (RC 06b6e948 /
 // RS 06c0e280, 3fa41414'14141414), FSTP float.
-static const float GRpcServerSendCommTenth = 0.1f;
-static const double GRpcServerSendCommScale255 = 255.0;
 static const double GRpcServerSendCommExpand = 2.0 / 51.0;
 
 static unsigned char RpcServerSendCommQuantize(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul dword ptr GRpcServerSendCommTenth
-        fmul qword ptr GRpcServerSendCommScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcServerQuantization::QuantizeComm(Value));
 }
 
 static void RpcServerSendCommExpand(unsigned char Encoded, float* Value) {
