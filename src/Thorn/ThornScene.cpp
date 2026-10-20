@@ -2169,22 +2169,7 @@ namespace
 
     void InterpolateFloorHeight(const float* Capture, const float* Target, const float* ScaleSource, float* HeightOutput)
     {
-        // 49b31..49b4a: Capture remains below the unrounded difference/product.
-        float Height;
-        __asm
-        {
-            mov ecx, Capture
-            fld dword ptr [ecx]
-            mov edx, Target
-            fld dword ptr [edx]
-            fsub st(0), st(1)
-            mov ecx, ScaleSource
-            fmul dword ptr [ecx]
-            fadd st(0), st(1)
-            fstp Height
-            fstp st(0)
-        }
-        std::memcpy(HeightOutput, &Height, sizeof(Height));
+        ThornSceneInterpolation::Lerp(Capture, Target, ScaleSource, HeightOutput);
     }
 
     int EventElapsedTime(int TimeMs, int StartTimeMs)
