@@ -695,38 +695,7 @@ namespace
     // 2e5b2 and the inlined axis normalizations use the same sum order.
     void NormalizeAxis3(float* V)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            mov ecx, V
-            fld dword ptr [ecx+8]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            fdivr dword ptr One
-            mov eax, V
-            fld dword ptr [eax]
-            fmul st(0), st(1)
-            fstp dword ptr [eax]
-            fld dword ptr [eax+4]
-            fmul st(0), st(1)
-            fstp dword ptr [eax+4]
-            fld dword ptr [eax+8]
-            fmul st(0), st(1)
-            fstp dword ptr [eax+8]
-            fstp st(0)
-        }
+        ThornSceneGeometry::Normalize(V[0], V[1], V[2]);
     }
 
     // Inlined 2e53d/2e7c7/2e737: Up cross Front, Z/Y/X float stores.
