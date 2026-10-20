@@ -11,6 +11,8 @@
 #include "X87Return.h"
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
+#include "SceneInterpolationMath.h"
+#include "CompactLightMath.h"
 #include "PortableComparison.h"
 #include "SceneGeometryMath.h"
 #include "portable_vector_load.h"
@@ -925,26 +927,10 @@ namespace
     }
 #pragma warning(pop)
 
-    // FOG 48eb3..48f0c retains both inputs on x87 before FSUB/FMUL/FADD.
-    // Normal C++ pointer expressions reload From for FSUB/FADD; float locals
-    // add early FSTP32 stores. Native wave68 proved both differ for SNaN/load
-    // ordering. Keep this existing arithmetic-only kernel; it has no calls.
+    // FOG 48eb3..48f0c: snapshot both scalar endpoints before publication.
     void FogLerpFloat(const float* From, const float* To, const float* U, float* ResultValue)
     {
-        __asm
-        {
-            mov eax, From
-            fld dword ptr [eax]
-            mov eax, To
-            fld dword ptr [eax]
-            fsub st(0), st(1)
-            mov eax, U
-            fmul dword ptr [eax]
-            fadd st(0), st(1)
-            mov eax, ResultValue
-            fstp dword ptr [eax]
-            fstp st(0)
-        }
+        ThornSceneInterpolation::Lerp(From, To, U, ResultValue);
     }
 
     // FOG 48f17..48f98 wraps SUB as an int32, FILDs that value, then
@@ -1232,9 +1218,7 @@ namespace
         return ThornPortableComparison::AtLeastOne(U);
     }
 
-    // 45d81..45e0e retains X/Y differences, rounds Z's difference and X's
-    // product, then publishes each raw result before the next final FSTP.
-    // Both native C++ configurations changed these FP lifetimes/publications.
+    // 45d81..45e0e: preserve the float Z difference and X product boundaries.
     void InterpolateLightDirection(float* Out, const float* From, const float* To, const float* U)
     {
         float Capture[3];
@@ -1413,8 +1397,7 @@ namespace
         std::memcpy(Out4, &ResultQuat, sizeof(ResultQuat));
     }
 
-    // 46d5a..46db5 retains each subtraction/product on x87 until its
-    // final float store; the inputs are current event-owned positions.
+    // 46d5a..46db5: publish one component before rereading the next inputs.
     void LerpSpatialPosition(float* ResultPosition, const float* From, const float* To, const float* Scale)
     {
         __asm
@@ -1441,8 +1424,7 @@ namespace
         }
     }
 
-    // 46e6d..46ed8 stores the delta as float, but adds old Applied to the
-    // still-extended delta before storing the new accumulator.
+    // 46e6d..46ed8: publish float Delta, then reread Applied using the unrounded change.
     void AccumulateAxisDelta(const float* AnimT, const float* Angle, float* Applied, float* Delta)
     {
         __asm
@@ -1946,8 +1928,7 @@ namespace
         }
     }
 
-    // 47f9a..47fdf: squared-direction test retains Y/Z subtraction on x87.
-    // TEST AH,44h + JNP exits on zero; fall-through invokes the look-at helper.
+    // 47f9a..47fdf: rounded X and retained Y/Z differences form the zero-direction test.
     bool BuildAttachLookDirection(float* DirectionOut, const float* Target, const float* Origin)
     {
         unsigned char bUseDirection;

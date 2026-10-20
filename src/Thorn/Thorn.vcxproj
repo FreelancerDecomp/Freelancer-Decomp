@@ -56,6 +56,8 @@
     <ClInclude Include="ThornControlCalls.h" />
     <ClInclude Include="SplineMath.h" />
     <ClInclude Include="SceneGeometryMath.h" />
+    <ClInclude Include="SceneInterpolationMath.h" />
+    <ClInclude Include="CompactLightMath.h" />
     <ClInclude Include="SplineQuaternionMath.h" />
     <ClInclude Include="SplineSamplingMath.h" />
     <ClInclude Include="LuaPropertyMath.h" />
