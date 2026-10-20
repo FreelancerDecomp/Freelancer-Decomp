@@ -78,18 +78,7 @@ static void math_atan (void) {
 static void math_atan2 (void) {
   const double First = luaL_check_number(1);
   const double Second = luaL_check_number(2);
-  const unsigned long long ScaleBits = 0x404ca5dc1a63c1f8ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  __asm {
-    fld First
-    fld Second
-    fpatan
-    fmul Scale
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaAtan2(First, Second));
 }
 
 static void math_ceil (void) {
