@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "portable_integer_conversion.h"
+#include "portable_vector_load.h"
 #include "Thorn.h"
 #include "readfile.h"
 #include "ThornScene.h"
@@ -733,15 +734,7 @@ namespace
         StoreLuaNumberFloat(GetIndexOrNil(Table, 2.0), &Coordinates[1]);
         const lua_Object Z = GetIndexOrNil(Table, 3.0);
         const double Number = lua_getnumber(Z);
-        __asm {
-            fld qword ptr Number
-            fld dword ptr Coordinates[0]
-            mov edx, Output
-            mov ecx, dword ptr Coordinates[4]
-            fstp dword ptr [edx]
-            fstp dword ptr [edx + 8]
-            mov dword ptr [edx + 4], ecx
-        }
+        PortableVectorLoad::CopyMixed(Output, Coordinates, &Number);
         return true;
     }
 
