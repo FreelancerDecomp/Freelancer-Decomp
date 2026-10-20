@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include <cmath>
 #include "common_physys.h"
 
 #include "common_archetype.h"
@@ -29,7 +30,6 @@
 #include "../IVP/ivp_physics/ivp_mindist_settings.h"
 #include "../IVP/ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
 #include "common_csys.h"  // Acquire3DMathEngine
-#include "x87_trig.h"     // X87SinF / X87CosF (PhySys_UpdateJointedChildren, .text:062884bc / 062884d7)
 // PhySys::CalcClosestPointOnSynapse (FUN_0628b7a0, near GetClosestPhantomIntruderPos
 // below) walks retail's compact half-edge mesh directly -- IVP_Compact_Edge /
 // IVP_Compact_Triangle / IVP_Compact_Ledge and IVP_U_Float_Point.
@@ -266,7 +266,7 @@ namespace CmnPhySys
                 // divided (FDIVR) by the axis length FUN_06347e60 (sqrt(x*x + y*y + z*z) on the
                 // x87 stack), FSTP float; FCOS of the half angle, FSTP float.
                 float const HalfAngle = Angle * 0.5f;
-                float const SinHalf = X87SinF(HalfAngle);
+                float const SinHalf = static_cast<float>(std::sin(static_cast<double>(HalfAngle)));
                 double const AxisLength = sqrt((double)(Joint->Axis.X) * Joint->Axis.X +
                                                (double)(Joint->Axis.Y) * Joint->Axis.Y +
                                                (double)(Joint->Axis.Z) * Joint->Axis.Z);
@@ -274,7 +274,7 @@ namespace CmnPhySys
 
                 // .text:062884e7..06288516: the rotation quaternion (W = cos, XYZ = Axis * scale).
                 FQuaternion Rotation;
-                Rotation.W = X87CosF(HalfAngle);
+                Rotation.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
                 Rotation.X = Joint->Axis.X * AxisScale;
                 Rotation.Y = Joint->Axis.Y * AxisScale;
                 Rotation.Z = Joint->Axis.Z * AxisScale;

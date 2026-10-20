@@ -7,6 +7,7 @@
 // LaneAction (trade-lane transit controller) -- split out of common_cequip.cpp (CMN-B2).
 // Declared in common_cequip.h. Retail re-derives the watched traveller (`head ? head - 8 : 0`)
 // at every use; TradelaneObj() is that expression, and nothing between two uses changes it.
+#include <cmath>
 #include "common_cequip.h"
 #include "x86math.h"
 
@@ -19,7 +20,6 @@
 #include "common_physys.h"
 #include "common_universe.h"
 #include "../IVP/ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
-#include "x87_trig.h"        // retail's inline FSIN / FCOS (BuildRingTransform, 062c19d0)
 
 #include <math.h>
 #include <string.h>
@@ -175,8 +175,8 @@ void LaneAction::BuildRingTransform(IObjInspect const* Ring, LaneRingTransform& 
     // 062c191e-062c1981: Y rotation by DAT_0639e2d0, the double 3.1415927410125732 (float PI
     // widened, not M_PI), cos and sin each rounded to float.
     double const Angle = 3.1415927410125732;
-    float const CosA = X87CosF(Angle);
-    float const SinA = X87SinF(Angle);
+    float const CosA = static_cast<float>(std::cos(static_cast<double>(Angle)));
+    float const SinA = static_cast<float>(std::sin(static_cast<double>(Angle)));
     Matrix const RotY(CosA, 0.0f, SinA,
                       0.0f, 1.0f, 0.0f,
                       -SinA, 0.0f, CosA);
@@ -345,8 +345,8 @@ void LaneAction::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<
             // rounded to float, sin kept unrounded. Each row (c0, c2) of an identity matrix is
             // turned in place: c0 = cos*c0 - sin*c2, c2 = c0*sin + cos*c2.
             double const Angle = (double)Dt * -0.56;
-            float const CosA = X87CosF(Angle);
-            double const SinA = X87Sin(Angle);
+            float const CosA = static_cast<float>(std::cos(static_cast<double>(Angle)));
+            double const SinA = std::sin(static_cast<double>(Angle));
             Matrix Turn(1.0f, 0.0f, 0.0f,
                         0.0f, 1.0f, 0.0f,
                         0.0f, 0.0f, 1.0f);

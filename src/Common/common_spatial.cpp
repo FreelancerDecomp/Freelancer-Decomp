@@ -21,7 +21,6 @@
 #include <list>
 #include <vector>
 
-#include "x87_trig.h" // X87Tan (BspPartition::QueryFrustum, 063314eb FPTAN)
 
 // DACOM.DLL!stricmp (Common IAT 0639902c), src/Common/common_dacom_stricmp.cpp.
 int CallDacomStricmp(const char* Left, const char* Right);
@@ -1388,7 +1387,7 @@ int BspPartition::QueryFrustum(Geometry::Frustum const* Frustum, FSpatialQueryRe
     // The frustum's bounding sphere, then this object's own sphere query (vtbl+0x1c).
     // FCOMPP AngleY / AngleX, TEST AH,5 / JP: AngleY unless it is (ordered) below AngleX.
     float const Angle = !(Frustum->AngleY < Frustum->AngleX) ? Frustum->AngleY : Frustum->AngleX;
-    double const Half = X87Tan((double)(Angle) * 0.5) * Frustum->Distance;
+    double const Half = std::tan((double)(Angle) * 0.5) * Frustum->Distance;
     float Radius;
     double Offset;
     // FCOMP / TEST AH,1 / JNZ: C0 is set for below and for unordered.

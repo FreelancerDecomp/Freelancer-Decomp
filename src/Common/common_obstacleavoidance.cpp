@@ -24,7 +24,6 @@
 #include "common_pathfind.h"      // PathfindManager (embeds ObstacleAvoidance at +0x268)
 #include "common_cobjdb.h"        // IObjDB
 #include "common_spatial.h"       // ISpatialPartition, FSpatialQueryResult (ClassifyShipObstaclePhase)
-#include "x87_trig.h"             // retail's inline FSIN / FCOS
 
 #include <cmath>
 #include <cstdint>
@@ -267,8 +266,8 @@ void ObstacleAvoidance::Update(float Dt)
     // 062de6f4-062de730: probe spiral in ship space -- radius 900.0f / LookAhead * Breadth
     // kept on the stack, angle SpiralAngle, depth -900.0f.
     double const SpiralRadius = 900.0f / (double)(LookAhead) * Breadth;
-    Vector const ProbeLocal{ (float)(X87Cos((double)(SpiralAngle)) * SpiralRadius),
-                             (float)(X87Sin((double)(SpiralAngle)) * SpiralRadius),
+    Vector const ProbeLocal{ (float)(std::cos(static_cast<double>(SpiralAngle)) * SpiralRadius),
+                             (float)(std::sin(static_cast<double>(SpiralAngle)) * SpiralRadius),
                              -900.0f };
 
     // 062de737-062de788: rotated into world space (3DMathEngine +0x2c, DAT_063fca10 is the
@@ -415,8 +414,8 @@ void ObstacleAvoidance::Update(float Dt)
         {
             double const HalfAngle = (1.0 - Dot) * GAvoidTurnGain * 0.5f;
             FQuaternion Turn;
-            Turn.W = X87CosF(HalfAngle);
-            float const AxisScale = (float)(X87Sin(HalfAngle) / std::sqrt(
+            Turn.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
+            float const AxisScale = (float)(std::sin(static_cast<double>(HalfAngle)) / std::sqrt(
                 (double)(Axis.z) * Axis.z + (double)(Axis.y) * Axis.y
                 + (double)(Axis.x) * Axis.x));
             Turn.X = Axis.x * AxisScale;                 // FUN_06288830
@@ -447,8 +446,8 @@ void ObstacleAvoidance::Update(float Dt)
         // (1/32768) * 2*pi (double) kept on the stack.
         float const Radius = (float)((double)(std::rand()) * 3.0517578125e-05f * ConeRadius);
         double const Angle = (double)(std::rand()) * 3.0517578125e-05f * 6.2831854820251465;
-        Vector const ConeLocal{ (float)(X87Cos(Angle) * Radius),
-                                (float)(X87Sin(Angle) * Radius), ConeDepth };
+        Vector const ConeLocal{ (float)(std::cos(static_cast<double>(Angle)) * Radius),
+                                (float)(std::sin(static_cast<double>(Angle)) * Radius), ConeDepth };
 
         // 062dedf6-062dee7f: world end point (+0x2c) and the nose -> end offset.
         Vector ConeOffset;
@@ -580,8 +579,8 @@ void ObstacleAvoidance::Update(float Dt)
         // 062df165-062df212: quaternion (cos, Axis * sin / |Axis|), 3DMathEngine +0x54 and
         // +0x2c on Forward.
         FQuaternion Turn;
-        Turn.W = X87CosF(HalfAngle);
-        float const AxisScale = (float)(X87Sin(HalfAngle) / std::sqrt(
+        Turn.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
+        float const AxisScale = (float)(std::sin(static_cast<double>(HalfAngle)) / std::sqrt(
             (double)(Axis.z) * Axis.z + (double)(Axis.y) * Axis.y
             + (double)(Axis.x) * Axis.x));
         Turn.X = Axis.x * AxisScale;                     // FUN_06288830
@@ -725,10 +724,10 @@ Vector RotateTowardBySlerp(Vector const& From, Vector const& To, float Angle)
     float const AxisZ = (float)((double)(To.y) * From.x - (double)(From.y) * To.x);
     double const HalfAngle = (double)(Angle) * 0.5f;
     double const AxisLength = std::sqrt(((double)(AxisZ) * AxisZ + AxisX * AxisX) + AxisY * AxisY);
-    float const SinOverLength = (float)(X87Sin(HalfAngle) / AxisLength);
+    float const SinOverLength = (float)(std::sin(static_cast<double>(HalfAngle)) / AxisLength);
 
     FQuaternion Quat;
-    Quat.W = X87CosF(HalfAngle);
+    Quat.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
     Quat.X = (float)(SinOverLength * AxisX);
     Quat.Y = (float)(SinOverLength * AxisY);
     Quat.Z = (float)((double)(AxisZ) * SinOverLength);
@@ -1494,14 +1493,14 @@ void PathfindManager::UpdateHeadingBlend(float Dt)
                 double const HalfAngle = std::acos((double)(DotF)) *
                                          (((double)(4.0f) - LocalTimer) * 0.25f) * 0.5f;
                 FQuaternion Quat;
-                Quat.W = X87CosF(HalfAngle);
+                Quat.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
 
                 // 062dc732-062dc780: K = sin(Half) / sqrt((z*z + x*x) + y*y) FSTP float, then
                 // FUN_06288830 scales Axis by K (one float product per component).
                 double const AxisLength = std::sqrt(((double)(Axis.z) * Axis.z +
                                                      (double)(Axis.x) * Axis.x) +
                                                     (double)(Axis.y) * Axis.y);
-                float const K = (float)(X87Sin(HalfAngle) / AxisLength);
+                float const K = (float)(std::sin(static_cast<double>(HalfAngle)) / AxisLength);
                 Quat.X = Axis.x * K;
                 Quat.Y = Axis.y * K;
                 Quat.Z = Axis.z * K;

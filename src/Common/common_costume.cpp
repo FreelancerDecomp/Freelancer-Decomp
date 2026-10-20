@@ -20,7 +20,6 @@
 #include <cstring>
 #include <new>
 
-#include "x87_trig.h" // X87Tan (DetailSwitchTable::adjust_distance, 062fed6a / 062fed77 FPTAN)
 
 namespace
 {
@@ -307,8 +306,8 @@ float DetailSwitchTable::adjust_distance(float Distance, float AngleDeg, float /
     // FovXHalf (+0x10), FDIVP, FMUL Distance -- all on the x87 stack. The only caller
     // (freelancer.exe 00445078) stores the result as a float straight away.
     double const DegToRad = (double)0.017453277f;
-    double const TanAngle = X87Tan((double)AngleDeg * DegToRad);
-    double const TanFov = X87Tan((double)FovXHalf * DegToRad);
+    double const TanAngle = std::tan((double)AngleDeg * DegToRad);
+    double const TanFov = std::tan((double)FovXHalf * DegToRad);
     return (float)((TanAngle / TanFov) * (double)Distance);
 }
 
