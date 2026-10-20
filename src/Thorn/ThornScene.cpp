@@ -708,30 +708,7 @@ namespace
     // Inlined 2e687/2e85f: Dir cross Side, Z/Y/X float stores.
     void CrossAxisUp3(float* Result, const float* Dir, const float* Side)
     {
-        __asm
-        {
-            mov ecx, Dir
-            mov edx, Side
-            mov eax, Result
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx+4]
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx+8]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-        }
+        ThornSceneGeometry::CrossUp(Result, Dir, Side);
     }
 
     bool AxisDotNotGreater(const float* Up, const float* Dir)
