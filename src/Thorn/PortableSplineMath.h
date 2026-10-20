@@ -2,6 +2,17 @@
 
 namespace ThornPortableSplineMath
 {
+    inline void NegateVector(float* dst, const float* src)
+    {
+        // Read Z/Y/X before publishing X/Y/Z, including for overlapping ranges.
+        const volatile double z = static_cast<double>(src[2]);
+        const volatile double y = static_cast<double>(src[1]);
+        const volatile double x = static_cast<double>(src[0]);
+        dst[0] = static_cast<float>(-x);
+        dst[1] = static_cast<float>(-y);
+        dst[2] = static_cast<float>(-z);
+    }
+
     inline void DoubleStored(float* dst, const float* src)
     {
         // Keep float additions and the original Z/Y/X publication order.
