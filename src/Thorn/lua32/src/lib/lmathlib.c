@@ -124,23 +124,7 @@ static void math_log10 (void) {
 /* Retail address binding: LAB_06f56700 -> math_exp. */
 static void math_exp (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  __asm {
-    fld Input
-    fldl2e
-    fmulp st(1), st(0)
-    fld st(0)
-    frndint
-    fxch st(1)
-    fsub st(0), st(1)
-    f2xm1
-    fld1
-    faddp st(1), st(0)
-    fscale
-    fstp st(1)
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaExp(Input));
 }
 
 static void math_deg (void) {
