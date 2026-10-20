@@ -8,7 +8,6 @@
 #include "readfile.h"
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
-#include "X87Return.h"
 #include "ExtendedProgressCodec.h"
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
@@ -3307,71 +3306,27 @@ void FThornEvent::ReleaseMotionOwnedState()
     MotionAnimationStorage.Reset();
 }
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // Preserve the retail extended ST(0) return.
-#pragma float_control(precise, off, push) // Keep the complete curve FMUL/FADD result in ST(0).
 float FThornEvent::EvaluateControlBackedCurve(float Scale, int TimeMs)
 {
-    // Full454f0..4556f: TEST AH,44h / JNP takes only ordered equality.
-    // Equal gives 40h (odd parity); unordered gives 44h (even parity).
-    const float Zero = 0.0f;
-    const float One = 1.0f;
-    bool bScaleZero;
-    __asm
+    if (Scale == 0.0f) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    const int Duration = Desc.DurationMs;
+    IParamCurve* Curve = ParamCurve;
+    const double Quotient = ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration);
+    const float Ratio = static_cast<float>(Quotient);
+    double Value = Quotient;
+    if (Curve != nullptr)
     {
-        fld Scale
-        fcomp Zero
-        fnstsw ax
-        test ah, 44h
-        setnp al
-        mov bScaleZero, al
+        const int Period = PcurvePeriod;
+        int SignedElapsed;
+        std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+        const float CurveValue = Period > 0 ? Curve->Slot12WrapEvaluate(SignedElapsed, Period) : Curve->Evaluate(Ratio);
+        Value = CurveValue;
     }
-    if (bScaleZero)
-    {
-        __asm { fld One }
-    }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                         static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        const int Duration = Desc.DurationMs;
-        IParamCurve* Curve = ParamCurve;
-        float Ratio;
-        // 4551b..45527 always computes/stores the ratio, even before Slot12.
-        // FST does not pop: the unbound arithmetic consumes extended ST(0).
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            fst Ratio
-        }
-        if (Curve != nullptr)
-        {
-            const int Period = PcurvePeriod;
-            __asm { fstp st(0) }
-            // Ordinary typed expression: retain the curve return through both
-            // operations, and read StartPercent only after the callback.
-            if (Period > 0)
-                return Curve->Slot12WrapEvaluate(static_cast<int>(ElapsedBits), Period) * Scale + StartPercent;
-            return Curve->Evaluate(Ratio) * Scale + StartPercent;
-        }
-        // Scale is the incoming argument; StartPercent is read AFTER curve
-        // callbacks. The unbound quotient stays extended through both operations.
-        const float* StartPercentValue = &StartPercent;
-        __asm
-        {
-            fmul Scale
-            mov edx, StartPercentValue
-            fadd dword ptr [edx]
-        }
-    }
-#if defined(__clang__)
-    return ThornReturnSt0Float();
-#endif
+    // StartPercent is read only after the curve callback has returned.
+    const double Product = ThornSceneInterpolation::WrapIntermediate(Value * static_cast<double>(Scale));
+    return static_cast<float>(ThornSceneInterpolation::WrapIntermediate(Product + static_cast<double>(StartPercent)));
 }
-#pragma float_control(pop)
-#pragma warning(pop)
 
 namespace
 {
@@ -3612,102 +3567,32 @@ void FThornEvent::PackMotionDesc()
     MotionDesc.Field50 = Field_0x50;
 }
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // The retail result is returned explicitly in ST(0).
 float FThornEvent::EvaluateProgress(int TimeMs) const
 {
-    // 06f4a450: USER_EVENT's fixed progress slot returns +0.
-    if (bUserDescriptorOwner)
-        return 0.0f;
-    // 06f4a490: SET MONITOR's fixed progress slot returns +0 without a curve call.
-    if (&Desc == &SetCameraDesc)
-        return 0.0f;
-    // Full 49b90..49c1c: unbound quotient remains extended; bound calls
-    // return directly through ordinary typed C++ virtual dispatch.
+    if (bUserDescriptorOwner || &Desc == &SetCameraDesc) return 0.0f;
     const int Duration = Desc.DurationMs;
-    const float One = 1.0f;
-    if (Duration == 0)
+    if (Duration == 0) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    IParamCurve* Curve = ParamCurve;
+    if (Curve != nullptr && PcurvePeriod > 0)
     {
-        __asm { fld One }
+        int SignedElapsed;
+        std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+        return Curve->Slot12WrapEvaluate(SignedElapsed, PcurvePeriod);
     }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                          static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        IParamCurve* Curve = ParamCurve;
-        if (Curve != nullptr)
-        {
-            const int Period = PcurvePeriod;
-            if (Period > 0)
-            {
-                return Curve->Slot12WrapEvaluate(static_cast<int>(ElapsedBits), Period);
-            }
-            else
-            {
-                float Ratio;
-                __asm {
-                    fild qword ptr ExtendedElapsed
-                    fidiv Duration
-                    fstp Ratio
-                }
-                return Curve->Evaluate(Ratio);
-            }
-        }
-        else
-        {
-            __asm
-            {
-                fild qword ptr ExtendedElapsed
-                fidiv Duration
-            }
-        }
-    }
-#if defined(__clang__)
-    return ThornReturnSt0Float();
-#endif
+    const float Ratio = static_cast<float>(ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration));
+    return Curve != nullptr ? Curve->Evaluate(Ratio) : Ratio;
 }
-#pragma warning(pop)
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // Return the reloaded ratio or curve's original ST(0).
 float FThornEvent::EvaluateProgressNoPeriodWrap(int TimeMs) const
 {
-    // Full493e0..49437: this copy ALWAYS stores the quotient as float,
-    // including the unbound path. Bound output returns directly from typed call.
     const int Duration = Desc.DurationMs;
-    const float One = 1.0f;
-    if (Duration == 0)
-    {
-        __asm { fld One }
-    }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                          static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        IParamCurve* Curve = ParamCurve;
-        float Ratio;
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            fstp Ratio
-        }
-        if (Curve != nullptr)
-        {
-            return Curve->Evaluate(Ratio);
-        }
-        else
-        {
-            __asm { fld Ratio }
-        }
-    }
-#if defined(__clang__)
-    return ThornReturnSt0Float();
-#endif
+    if (Duration == 0) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    IParamCurve* Curve = ParamCurve;
+    const float Ratio = static_cast<float>(ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration));
+    return Curve != nullptr ? Curve->Evaluate(Ratio) : Ratio;
 }
-#pragma warning(pop)
 
 void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* Result,
                                            bool bNoPeriodWrap) const
@@ -3715,63 +3600,31 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
     const int Duration = Desc.DurationMs;
     if (Duration == 0)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            fld One
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
+        ThornExtendedProgress::StoreDouble(Result->Bytes, 1.0);
         return;
     }
     IParamCurve* Curve = ParamCurve;
-    const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                      static_cast<unsigned int>(Desc.StartMs);
-    const long long ExtendedElapsed = ElapsedBits;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
     if (!bNoPeriodWrap && Curve != nullptr)
     {
         const int Period = PcurvePeriod;
         if (Period > 0)
         {
-            // Modern internal method retains the exact Slot12 result in output80.
-            Curve->WrapEvaluateToExtended(static_cast<int>(ElapsedBits), Period, Result);
+            int SignedElapsed;
+            std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+            Curve->WrapEvaluateToExtended(SignedElapsed, Period, Result);
             return;
         }
     }
+    const double Quotient = ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration);
     if (!bNoPeriodWrap && Curve == nullptr)
     {
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
+        ThornExtendedProgress::StoreDouble(Result->Bytes, Quotient);
         return;
     }
-    // Both ordinary Evaluate branches require one float argument store.
-    // NoPeriodWrap also requires that store in the unbound path (493e0).
-    float Ratio;
-    __asm
-    {
-        fild qword ptr ExtendedElapsed
-        fidiv Duration
-        fstp Ratio
-    }
-    if (Curve != nullptr)
-    {
-        // No return-value capture: the typed worker publishes its original80.
-        Curve->EvaluateToExtended(&Ratio, Result);
-    }
-    else
-    {
-        __asm
-        {
-            fld Ratio
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
-    }
+    const float Ratio = static_cast<float>(Quotient);
+    if (Curve != nullptr) Curve->EvaluateToExtended(&Ratio, Result);
+    else ThornExtendedProgress::StoreDouble(Result->Bytes, static_cast<double>(Ratio));
 }
 
 const char* FThornEvent::TypeName() const
