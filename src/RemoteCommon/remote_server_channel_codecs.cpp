@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_vector_load.h"
 #include "rpc_server_channel_codec.h"
 #include "common_goods.h" // RS-P2: EquipDesc, EquipDescVector, StringAlloc (0x24/0x25)
 
@@ -634,16 +635,7 @@ void RpcServerCreateObjectRead(const FRpcServerCreateObjectFields* Fields,
     // 06bd531c..06bd532b: FLD z, y, x, then FSTP x, y, z.
     const float* PositionIn = &Fields->Position.x;
     float* PositionOut = &Info->Position.x;
-    __asm {
-        mov eax, PositionIn
-        mov edx, PositionOut
-        fld dword ptr [eax + 8]
-        fld dword ptr [eax + 4]
-        fld dword ptr [eax]
-        fstp dword ptr [edx]
-        fstp dword ptr [edx + 4]
-        fstp dword ptr [edx + 8]
-    }
+    PortableVectorLoad::Copy(PositionOut, PositionIn);
     // 06bd532e..06bd533b: an identity quaternion is built in place, then 06bd533e..
     // 06bd5353 overwrite it with integer moves.
     Info->Orientation.w = 1.0f;
