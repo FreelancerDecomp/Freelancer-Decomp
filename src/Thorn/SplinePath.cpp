@@ -477,29 +477,7 @@ namespace
 
     void QuatAdd(FQuat& Dst, const FQuat& A, const FQuat& B)
     {
-        // Ordinary double temporaries spill to qword in Debug. At PC64,
-        // 1 + 2^-60 then traps on that spill before the retail W publication.
-        FQuat* const DstPtr = &Dst;
-        const FQuat* const APtr = &A;
-        const FQuat* const BPtr = &B;
-        __asm
-        {
-            mov edx, APtr
-            mov ecx, BPtr
-            fld dword ptr [edx + 12]
-            fadd dword ptr [ecx + 12]
-            fld dword ptr [edx + 8]
-            fadd dword ptr [ecx + 8]
-            fld dword ptr [edx + 4]
-            fadd dword ptr [ecx + 4]
-            fld dword ptr [edx]
-            fadd dword ptr [ecx]
-            mov edx, DstPtr
-            fstp dword ptr [edx]
-            fstp dword ptr [edx + 4]
-            fstp dword ptr [edx + 8]
-            fstp dword ptr [edx + 12]
-        }
+        ThornSplineQuaternion::Add(Dst, A, B);
     }
 
     void QuatScale(FQuat& Dst, const FQuat& Q, float S)
