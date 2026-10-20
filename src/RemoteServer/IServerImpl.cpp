@@ -1014,12 +1014,7 @@ void IServerImpl::AddTradeEquip(unsigned int SessionId, const EquipDesc& Equip) 
         TypedPacket->EquipCount = Equip.get_count();
         const float* HealthSource = &Equip.Health;
         float* HealthDestination = &TypedPacket->EquipHealth;
-        __asm {
-            mov eax, HealthSource
-            mov edx, HealthDestination
-            fld dword ptr [eax]
-            fstp dword ptr [edx]
-        }
+        PortableFloatLoad::Copy(HealthDestination, HealthSource);
         TypedPacket->EquipId = Equip.get_id();
         this->PushToServer(Packet->AsRaw());
     }
