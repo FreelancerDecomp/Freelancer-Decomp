@@ -148,20 +148,6 @@ namespace
         memset(Table, 0, static_cast<size_t>(Capacity) * sizeof(FCachedIntPair));
     }
 
-    float PackColorAsFloatBits(unsigned Packed)
-    {
-        float Bits = 0.0f;
-        memcpy(&Bits, &Packed, sizeof(Bits));
-        return Bits;
-    }
-
-    unsigned UnpackColorBits(float Bits)
-    {
-        unsigned Packed = 0;
-        memcpy(&Packed, &Bits, sizeof(Packed));
-        return Packed;
-    }
-
     I3DMathEngine* AcquireScreenQuadMath()
     {
         // FUN_005b73e0 → CreateInstance("3DMathEngine"); cached as DAT_00616494.
@@ -520,7 +506,7 @@ namespace
         Out->Y = Y;
         Out->Z = Rec.DepthA;
         Out->Rhw = Rec.DepthB;
-        Out->Color = UnpackColorBits(Rec.ColorBits);
+        Out->Color = Rec.ColorBits;
         Out->Specular = 0;
         Out->U = U;
         Out->V = V;
@@ -855,7 +841,7 @@ namespace
         Rec.V0 = V0;
         Rec.U1 = U1;
         Rec.V1 = V1;
-        Rec.ColorBits = PackColorAsFloatBits(Packed);
+        Rec.ColorBits = Packed;
         AppendRecordToNode(C->Current, Rec);
     }
 }
@@ -1024,8 +1010,7 @@ void ScreenQuadEnqueueIcon(ICamera* Cam, float const* Position, unsigned long Ar
         Rec.V0 = ClipV0;
         Rec.U1 = ClipU1;
         Rec.V1 = ClipV1;
-        unsigned const ColorBits = static_cast<unsigned>(Argb);
-        memcpy(&Rec.ColorBits, &ColorBits, sizeof(ColorBits));
+        Rec.ColorBits = static_cast<unsigned>(Argb);
         return;
     }
 
@@ -1307,7 +1292,7 @@ void __cdecl ScreenQuadDrawBigImageTile(void* TextureHandle, unsigned long Packe
             Rec.V0 = V0;
             Rec.U1 = U1;
             Rec.V1 = V1;
-            Rec.ColorBits = PackColorAsFloatBits(static_cast<unsigned>(PackedColor));
+            Rec.ColorBits = static_cast<unsigned>(PackedColor);
             AppendRecordToNode(Node, Rec);
 
             // 0x00404b80..0x00404b94: FUN_00403ea0(DALib::Pipeline, DAT_0061648c).
