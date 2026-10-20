@@ -88,24 +88,7 @@ static unsigned char RpcServerQuantizeHull(int HitPts, unsigned int ArchetypeId)
 // byte, FMUL 1/255, FMULP, _ftol; the low dword is stored.
 static int RpcServerExpandHull(unsigned char Encoded, unsigned int ArchetypeId) {
     const int MaxHitPts = Archetype::GetArchMaxHitPts(ArchetypeId);
-    const int Widened = static_cast<int>(Encoded);
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Result;
-    __asm {
-        fild dword ptr MaxHitPts
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerInverse255
-        fmulp st(1), st
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Result
-        fldcw OldControl
-    }
-    return static_cast<int>(Result);
+    return PortableRpcServerQuantization::ExpandHull(Encoded, MaxHitPts);
 }
 
 // The hardpoint dictionary. Names: RC .data:06b73708, RS .data:06c13700 (42 entries,
