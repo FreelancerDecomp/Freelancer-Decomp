@@ -76,7 +76,7 @@ namespace ThornSplineMath
         ThornPortableSplineMath::NegateStored(Dst, Src);
     }
 
-    inline void CatmullRom3D(const float* P0, const float* P1, const float* P2, const float* P3, float U, float* ResultVector) 
+    inline void CatmullRom3D(const float* P0, const float* P1, const float* P2, const float* P3, float U, float* ResultVector)
     {
         const float U2 = U * U;
         const float U3 = U2 * U;
@@ -125,7 +125,7 @@ namespace ThornSplineMath
         ResultVector[1] = y;
         ResultVector[2] = z;
     }
-    
+
     inline void CatmullRomTangent3D(
         const float* P0,
         const float* P1,

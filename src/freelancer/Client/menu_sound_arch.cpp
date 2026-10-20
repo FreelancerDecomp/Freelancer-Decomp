@@ -1310,7 +1310,7 @@ namespace
             float Base = 0.f;
             float ModeDb = 0.f;
             bool bDuck = false;
-            
+
             switch (Type)
             {
             case 0:
@@ -1352,7 +1352,7 @@ namespace
             // Original x87 comparison: silent if <= threshold
             // or unordered (NaN).
             const bool bSilent = !(TotalDb > kSilenceDb);
-            
+
             if (bSilent != 0)
             {
                 MixerScale = kMixerNoScore;

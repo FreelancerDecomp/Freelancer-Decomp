@@ -728,7 +728,7 @@ namespace
     // Min / (Min + Rolloff * (Dist * DistanceFactor - Min)) -> FLDLG2 + FYL2X (log10) ->
     // FMUL double 10.0 -> FADD the client attenuation -> FSTP float. Kept as x87 code because
     // FYL2X is not bit-identical to the CRT log10. No guard on the log argument.
-    
+
     float SoftwareAttenuation(
         float MinDistance,
         float Dist,

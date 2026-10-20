@@ -1482,13 +1482,13 @@ namespace AlchemyImpl
         _mm_store_ss(&Out[0], CosValue);
         _mm_store_ss(&Out[1], SinValue);
     }
-    
+
     static void ComputeSinCosFpu(float AngleRadians, float* Output)
     {
         Output[0] = std::cos(AngleRadians);
         Output[1] = std::sin(AngleRadians);
     }
-    
+
     FnAlchemySinCos G_AlchemySinCos = ComputeSinCosFpu; // PTR_FUN_062572a0
 
     void SelectAlchemyMathImplementation()
