@@ -13,6 +13,18 @@ namespace ThornSceneInterpolation
         const double a=*from,b=*to;
         *output=static_cast<float>(a+(b-a)*static_cast<double>(*progress));
     }
+    inline void Camera(float* output, const float* target, const float* captured,
+                       double progress, int mask)
+    {
+        // Writes are observable through overlapping input arrays. Preserve the
+        // original FOV, aspect, near, far order and reread each selected field.
+        const unsigned order[] = {0, 3, 1, 2};
+        for (unsigned index : order) {
+            if ((static_cast<unsigned>(mask) & (1u << index)) == 0) continue;
+            const double from = captured[index], to = target[index];
+            output[index] = static_cast<float>(from + (to - from) * progress);
+        }
+    }
     inline void SpatialPosition(float* output,const float* from,const float* to,const float* scale)
     {
         for (int index=0;index<3;++index) Lerp(from+index,to+index,scale,output+index);
