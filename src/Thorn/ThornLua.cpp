@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_integer_conversion.h"
 #include "Thorn.h"
 #include "readfile.h"
 #include "ThornScene.h"
@@ -128,23 +129,8 @@ namespace
 
     int LuaNumberToRetailInt(lua_Object Object)
     {
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return static_cast<int>(static_cast<unsigned int>(PortableIntegerConversion::ToInt64Bits(&Number)));
     }
 
     // The inline LIGHT vectors use three float locals, then integer copies.
