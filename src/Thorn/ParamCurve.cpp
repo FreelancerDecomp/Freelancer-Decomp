@@ -168,62 +168,10 @@ namespace
     // 2f2f0: preserve the complete extended x87 value in typed output, including
     // the caller-supplied nullable outside values. A C++ float polynomial
     // would round U²/U³ and the intermediate sums before the retail stores.
-    __declspec(naked) void __cdecl CatmullRom1D(const float* P0, const float* P1,
+    void __cdecl CatmullRom1D(const float* P0, const float* P1,
                                                const float* P2, const float* P3, float U, FThornExtendedProgress* Output)
     {
-        __asm
-        {
-            fld dword ptr [esp + 14h]
-            mov eax, dword ptr [esp + 4]
-            test eax, eax
-            fmul dword ptr [esp + 14h]
-            fld dword ptr [esp + 14h]
-            push esi
-            mov esi, dword ptr [esp + 0ch]
-            fmul st(0), st(1)
-            jnz ScalarLeftPresent
-            mov eax, esi
-        ScalarLeftPresent:
-            mov edx, dword ptr [esp + 14h]
-            test edx, edx
-            mov ecx, dword ptr [esp + 10h]
-            jnz ScalarRightPresent
-            mov edx, ecx
-        ScalarRightPresent:
-            fld dword ptr [eax]
-            fadd st(0), st(0)
-            fld dword ptr [esi]
-            fmul G_ScalarFive
-            fsubp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul G_ScalarFour
-            faddp st(1), st(0)
-            fsub dword ptr [edx]
-            fmulp st(2), st(0)
-            fld dword ptr [esi]
-            fmul G_ScalarThree
-            fsub dword ptr [eax]
-            fld dword ptr [ecx]
-            fmul G_ScalarThree
-            fsubp st(1), st(0)
-            fadd dword ptr [edx]
-            fmul st(0), st(1)
-            faddp st(2), st(0)
-            fld dword ptr [ecx]
-            fsub dword ptr [eax]
-            fmul dword ptr [esp + 18h]
-            faddp st(2), st(0)
-            fld dword ptr [esi]
-            pop esi
-            fadd st(0), st(0)
-            faddp st(2), st(0)
-            fxch st(1)
-            fmul G_ScalarHalf
-            fstp st(1)
-            mov eax, dword ptr [esp + 18h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Catmull(P0, P1, P2, P3, U));
     }
 
     __declspec(naked) void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
