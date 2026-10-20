@@ -713,30 +713,7 @@ namespace
 
     bool AxisDotNotGreater(const float* Up, const float* Dir)
     {
-        // Raw DAT_06f5a248 = 3fefae147ae147ae (double 0.99).
-        const double Threshold = 0.99;
-        unsigned char bNotGreater;
-        __asm
-        {
-            mov ecx, Up
-            mov edx, Dir
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx+8]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx+4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            faddp st(1), st(0)
-            fabs
-            fcomp qword ptr Threshold
-            fnstsw ax
-            test ah, 41h
-            setnz bNotGreater
-        }
-        // TEST AH41/JNZ selects not-greater, including unordered; greater
-        // falls through to the near-parallel fallback in the retail listing.
-        return bNotGreater != 0;
+        return ThornSceneGeometry::AxisDotNotGreater(Up, Dir);
     }
 
     // FUN_06f2e440 РІР‚вЂќ look-at frame from direction + Lua up/front axis IDs (0..5).
