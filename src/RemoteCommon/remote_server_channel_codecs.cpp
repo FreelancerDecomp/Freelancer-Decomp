@@ -44,22 +44,7 @@ static const double GRpcServerInverse255 = 1.0 / 255.0;
 // FLD float, FMUL double 255.0, MSVCRT _ftol (truncating 64-bit), low byte
 // (06c08bb8..06c08bc1 equipment health, 06c08e01..06c08e0a collision health).
 static unsigned char RpcServerQuantize255(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul qword ptr GRpcServerScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeByte(Value, GRpcServerScale255));
 }
 
 // The byte ZERO-extended, FILD dword, FMUL double 1/255, FSTP float (06c09446..06c09460,
