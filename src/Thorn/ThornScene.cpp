@@ -1258,98 +1258,9 @@ namespace
 
     void ApplyAxisRotFpu(float* Orient9, const FQuaternion& BaseQuat4, int AxisId, const float* DeltaDeg)
     {
-        const unsigned int PiOver180Bits = 0x3c8efa35u;
         const unsigned int Kind = static_cast<unsigned int>(AxisId);
         float Rot[9];
-        InitializeEventFrameWords(Rot);
-        if (Kind <= 5u)
-        {
-            float CosValue;
-            __asm
-            {
-                mov eax, DeltaDeg
-                fld dword ptr [eax]
-                fmul dword ptr PiOver180Bits
-                fld st(0)
-                fcos
-                fstp dword ptr CosValue
-                fsin
-                mov edx, Kind
-                cmp edx, 0
-                je AxisXColumns
-                cmp edx, 3
-                je AxisXColumns
-                cmp edx, 1
-                je AxisYColumns
-                cmp edx, 4
-                je AxisYColumns
-                lea eax, Rot
-                add eax, 12
-                mov ecx, 3
-            AxisZLoop:
-                fld dword ptr [eax-12]
-                add eax, 4
-                dec ecx
-                fld dword ptr CosValue
-                fmul st(0), st(1)
-                fld st(2)
-                fmul dword ptr [eax-4]
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-16]
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                fxch st(1)
-                fmul st(0), st(2)
-                faddp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisZLoop
-                jmp AxisColumnsDone
-            AxisXColumns:
-                lea eax, Rot
-                add eax, 24
-                mov ecx, 3
-            AxisXLoop:
-                fld dword ptr [eax-12]
-                add eax, 4
-                dec ecx
-                fld dword ptr CosValue
-                fmul st(0), st(1)
-                fld st(2)
-                fmul dword ptr [eax-4]
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-16]
-                fmul st(0), st(1)
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                faddp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisXLoop
-                jmp AxisColumnsDone
-            AxisYColumns:
-                lea eax, Rot
-                add eax, 24
-                mov ecx, 3
-            AxisYLoop:
-                fld dword ptr [eax-24]
-                add eax, 4
-                dec ecx
-                fld st(1)
-                fmul dword ptr [eax-4]
-                fld st(1)
-                fmul dword ptr CosValue
-                faddp st(1), st(0)
-                fstp dword ptr [eax-28]
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                fxch st(1)
-                fmul st(0), st(2)
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisYLoop
-            AxisColumnsDone:
-                fstp st(0)
-            }
-        }
+        ThornSceneInterpolation::AxisRotation(Rot, AxisId, DeltaDeg);
 
         I3DMathEngine* Math = AcquireSceneEventMathEngine();
         FQuaternion BaseQuaternion;
