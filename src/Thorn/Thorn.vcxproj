@@ -57,6 +57,7 @@
     <ClInclude Include="SplineMath.h" />
     <ClInclude Include="SceneGeometryMath.h" />
     <ClInclude Include="LuaPropertyMath.h" />
+    <ClInclude Include="lua32\src\PortableNumberMath.h" />
     <ClInclude Include="lua32\src\lib\PortableMath.h" />
     <ClInclude Include="..\include\dacom.h" />
     <ClInclude Include="lua32\include\lua.h" />
