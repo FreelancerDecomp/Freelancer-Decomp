@@ -1186,20 +1186,7 @@ namespace
     bool IsIkLuaNumberNonzero(lua_Object Object)
     {
         const double Number = lua_getnumber(Object);
-        const double Zero = 0.0;
-        unsigned char bResult;
-        // Actual Debug emits FUCOMPP for C++ !=, even with local /fp:except:
-        // that omits retail's invalid flag for quiet NaN. Only this ordered
-        // comparison is explicit; the Lua function call remains ordinary C++.
-        __asm
-        {
-            fld qword ptr Number
-            fcomp qword ptr Zero
-            fnstsw ax
-            test ah, 44h
-            setp bResult
-        }
-        return bResult != 0;
+        return ThornPortableComparison::Nonzero(&Number);
     }
 
     // FUN_06f2a5b0: mutate the live packet in the order of the Lua callbacks.
