@@ -200,81 +200,9 @@ namespace
     using ThornCurveDetail::ConstructHermiteRecord;
 
     // FUN_06f30480: all 60 instructions; only normalized S is stored as float.
-    __declspec(naked) void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
+    void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
     {
-        __asm
-        {
-            // Copy input bits into private argument scratch, without an FP load.
-            mov eax, dword ptr [esp + 0ch]
-            mov eax, dword ptr [eax]
-            mov dword ptr [esp + 0ch], eax
-            mov ecx, dword ptr [esp + 4]
-            fld dword ptr [ecx + 4]
-            fcomp dword ptr [esp + 0ch]
-            fnstsw ax
-            test ah, 44h
-            jp CompareRight
-            fld dword ptr [ecx]
-            jmp HermiteStoreOutput
-        CompareRight:
-            mov edx, dword ptr [esp + 8]
-            fld dword ptr [edx + 4]
-            fcomp dword ptr [esp + 0ch]
-            fnstsw ax
-            test ah, 44h
-            jp NormalizeTime
-            fld dword ptr [edx]
-            jmp HermiteStoreOutput
-        NormalizeTime:
-            fld dword ptr [edx + 4]
-            mov eax, dword ptr [ecx + 0ch]
-            cmp eax, -1
-            fsub dword ptr [ecx + 4]
-            fld dword ptr [esp + 0ch]
-            fsub dword ptr [ecx + 4]
-            fdiv st(0), st(1)
-            fstp dword ptr [esp + 0ch]
-            jnz EvaluatePolynomial
-            fstp st(0)
-            fld dword ptr [ecx]
-            jmp HermiteStoreOutput
-        EvaluatePolynomial:
-            fld dword ptr [esp + 0ch]
-            fmul dword ptr [esp + 0ch]
-            fld dword ptr [esp + 0ch]
-            fmul st(0), st(1)
-            fld st(0)
-            fadd st(0), st(1)
-            fld st(2)
-            fmul G_ScalarThree
-            fld st(3)
-            fadd st(0), st(0)
-            fsubr st(0), st(3)
-            fadd dword ptr [esp + 0ch]
-            fmul dword ptr [ecx + 0ch]
-            fmul st(0), st(5)
-            fxch st(3)
-            fsub st(0), st(4)
-            fmul dword ptr [edx + 8]
-            fmul st(0), st(5)
-            faddp st(3), st(0)
-            fld st(1)
-            fsub st(0), st(1)
-            fadd G_ScalarOne
-            fmul dword ptr [ecx]
-            faddp st(3), st(0)
-            fsub st(0), st(1)
-            fmul dword ptr [edx]
-            faddp st(2), st(0)
-            fxch st(1)
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-        HermiteStoreOutput:
-            mov eax, dword ptr [esp + 10h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Hermite(A, B, T));
     }
 
     // FUN_06f30520: exact endpoint/seed/walk arithmetic, followed by an
