@@ -507,70 +507,7 @@ namespace
 
     void CrossLookAtVector(FVec3& Result, const FVec3& A, const FVec3& B, bool bReverseOrder)
     {
-        // Retain the old matrix column before products. First cross computes
-        // X/Y/Z; the second computes Z/Y/X. The ordinary Release candidate
-        // changes operand stages and output before an unmasked exception.
-        // A direct output reference also avoids Release NRVO losing the
-        // local aggregate written through an asm LEA.
-        FVec3* const ResultPtr = &Result;
-        const FVec3* const APtr = &A;
-        const FVec3* const BPtr = &B;
-        __asm
-        {
-            mov edx, APtr
-            mov ecx, BPtr
-            mov eax, ResultPtr
-            fld dword ptr [ecx]
-            fld dword ptr [ecx + 4]
-            fld dword ptr [ecx + 8]
-            cmp bReverseOrder, 0
-            jne LookAtReverseCross
-            fld dword ptr [edx + 8]
-            fmul st(0), st(2)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fld dword ptr [edx]
-            fmul st(0), st(1)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(4)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 4]
-            fstp st(0)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(2)
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 8]
-            fstp st(0)
-            fstp st(0)
-            jmp LookAtCrossDone
-        LookAtReverseCross:
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(4)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 8]
-            fld dword ptr [edx + 8]
-            fmul st(0), st(3)
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 4]
-            fld dword ptr [edx + 4]
-            fmul st(0), st(1)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(3)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fstp st(0)
-            fstp st(0)
-            fstp st(0)
-        LookAtCrossDone:
-        }
+        ThornSceneGeometry::LookAtCross(Result, A, B, bReverseOrder);
     }
 
     void BuildLookAtFromTangent(const FVec3& Tangent, float* OutXform)
