@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_rpc_quantization.h"
 #include "portable_double_load.h"
 #include "portable_vector_load.h"
 #include "rpc_server_channel_codec.h"
@@ -40,12 +41,7 @@ unsigned char RpcServerQuantize127(const float* Value) {
 
 void RpcServerExpand127(unsigned char Encoded, float* Value) {
     const int Quantized = static_cast<signed char>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Quantized
-        fmul qword ptr GRpcServerInverse127
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandByte(Quantized, GRpcServerInverse127, Value);
 }
 
 // --- create-object block: 0x04 CREATESHIP and 0x42 CREATESOLAR (RS-P10) ---
