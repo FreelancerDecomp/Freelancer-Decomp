@@ -6,6 +6,8 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#include "SplineQuaternionMath.h"
+#include "SplineSamplingMath.h"
 #include "SceneGeometryMath.h"
 
 #include <cmath>
@@ -91,37 +93,13 @@ namespace
         CoreQuatNlerpWithMath(Math, Dst, A, B, T);
     }
 
-    // Inlined FUN_06f21770 inverse: vector dot kept on x87, then W^2,
-    // unconditional reciprocal, and one float store before quat scaling.
-    // Debug C++ reads signalling Z before adding X^2+Y^2; at PC53 that
-    // changes the first unmasked exception from precision to invalid.
+    // Inlined FUN_06f21770: inverse squared norm, narrowed once to float.
     void QuatInverseScaleRetail(const FQuat& Q, float& Scale)
     {
-        const float One = 1.0f;
-        const FQuat* const QPtr = &Q;
-        float* const ScalePtr = &Scale;
-        __asm
-        {
-            mov ecx, ScalePtr
-            mov edx, QPtr
-            fld dword ptr [edx + 4]
-            fmul st(0), st(0)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fdivr One
-            fstp dword ptr [ecx]
-        }
+        Scale = ThornSplineQuaternion::InverseScale(Q);
     }
 
-    // Debug C++ rounds Product to double before doubling: actual PC64
-    // probes differ in the final float and denormal-operand status.
+    // Squad blend weight: 2*t*(1-t), with a final float result.
     float SquadBlendRetail(const float* T)
     {
         const float One = 1.0f;
@@ -138,10 +116,7 @@ namespace
         return Blend;
     }
 
-    // LAB_06f34420, 06f34440..345e8. The ordinary C++ candidate differs
-    // at PC24/round-down: tangent {-0, min-subnormal, -min-subnormal}
-    // produces matrix X 0x3f7fffff instead of 0x3f800000 in Release.
-    // Debug also adds denormal-operand status through extra reloads.
+    // LAB_06f34420: tangent basis with explicit float normalization boundaries.
     void BuildSlot5MatrixRetail(const FVec3& Tangent, float* Mat9)
     {
         float Scratch[27];
@@ -405,9 +380,7 @@ namespace
         return true;
     }
 
-    // FUN_06f22030 22122..22176 keeps chord differences/norm extended.
-    // C++ double spills and sqrt calls gave actual Debug/Release differences.
-    // Publish the row directly: reloading a returned subnormal float adds DE.
+    // FUN_06f22030: publish cumulative length before reading the global offset.
     void AccumulateSegmentSampleRetail(FVec3& Prev, const FVec3& Cur,
                                        const float& GlobalOffset, float& SegmentLength,
                                        float& SampleTime)
@@ -460,9 +433,7 @@ namespace
         return Total;
     }
 
-    // FUN_06f222d0 22360..22397: one extended reciprocal, 17 float
-    // products/stores. C++ FMUL swaps the retained reciprocal with the
-    // loaded element; actual Debug/Release probes differ in NaN payload/DE.
+    // FUN_06f222d0: one reciprocal shared by 17 float sample stores.
     void NormalizeSegmentSamplesRetail(float* Table, float Total)
     {
         const float One = 1.0f;
@@ -595,8 +566,7 @@ namespace
         std::memcpy(&Dst.Z, &StoredZ, sizeof(float));
     }
 
-    // Standalone FUN_06f24190 keeps the ratio extended; the three
-    // inline FUN_06f21770 log paths store it as float before scaling.
+    // Standalone log retains a double scale; control variants narrow it to float.
 #pragma intrinsic(acos)
     __declspec(noinline) bool IsQuatLogAccepted(const float& W)
     {
@@ -1786,9 +1756,7 @@ namespace
             return GR_OK;
         }
 
-        // 21f45/21f5b call 23570: retain Z/Y/X, then float-publish X/Y/Z.
-        // Debug C++ spills Z to double first: at PC64, 1-2^-60 traps precision
-        // before a signalling Y; retail instead reaches Y and traps invalid.
+        // 21f45/21f5b: snapshot differences before publishing the ghost vector.
         static void SubtractGhostVector(FVec3& OutputVector, const FVec3& A, const FVec3& B)
         {
             // Explicit pointer operands avoid compiler-specific reference dereferencing.
