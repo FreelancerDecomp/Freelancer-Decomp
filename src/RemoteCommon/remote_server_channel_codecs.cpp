@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_double_load.h"
 #include "portable_vector_load.h"
 #include "rpc_server_channel_codec.h"
 #include "common_goods.h" // RS-P2: EquipDesc, EquipDescVector, StringAlloc (0x24/0x25)
@@ -1119,12 +1120,7 @@ unsigned int FRpcServerCharSelectVerifiedPacket::Encode(unsigned char** BufferHo
     const double* Source = &Time;
     const unsigned int Cached = MarshalPtr;                            // 06b5ff75
     double* Destination = reinterpret_cast<double*>(Cached);
-    __asm {
-        mov eax, Source
-        mov edx, Destination
-        fld qword ptr [eax]
-        fstp qword ptr [edx]
-    }
+    PortableDoubleLoad::Copy(Destination, Source);
     MarshalPtr = Cached + 8u;                                          // 06b5ff87
     return Stream.FinishEncodeSuccess(OutLength);                      // 06b5ff89
 }
