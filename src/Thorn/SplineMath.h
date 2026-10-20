@@ -113,20 +113,7 @@ namespace ThornSplineMath
 
     inline void Negate(float* Dst, const float* Src)
     {
-        __asm
-        {
-            mov ecx, Src
-            mov eax, Dst
-            fld dword ptr [ecx + 8]
-            fchs
-            fld dword ptr [ecx + 4]
-            fchs
-            fld dword ptr [ecx]
-            fchs
-            fstp dword ptr [eax]
-            fstp dword ptr [eax + 4]
-            fstp dword ptr [eax + 8]
-        }
+        ThornPortableSplineMath::NegateVector(Dst, Src);
     }
 
     inline void ScaleStored(float* Dst, const float* Src, float Factor)
