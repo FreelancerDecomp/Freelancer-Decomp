@@ -287,47 +287,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API TransformXform(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        // 71890..718ed: translation is added while each dot remains extended,
-        // then that component is stored before the next source read.
-        float* ResultVector = &Dst.X;
-        const float* TransformValues = &Xform.Rotation.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov eax, TransformValues
-            mov ecx, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 24h]
-            fstp dword ptr [edx]
-            fld dword ptr [eax + 14h]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 0ch]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 10h]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 28h]
-            fstp dword ptr [edx + 4]
-            fld dword ptr [eax + 20h]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 18h]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 1ch]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 2ch]
-            fstp dword ptr [edx + 8]
-        }
+        X86TransformMath::Apply(Dst, Xform, Source);
         return GR_OK;
     }
 
