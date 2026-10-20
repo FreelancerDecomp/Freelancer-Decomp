@@ -1976,13 +1976,8 @@ namespace
     // Write the final float directly; returning it would add a reload/store.
     void StoreAnimTValue(const FThornExtendedProgress* Progress, float* Output)
     {
-        __asm
-        {
-            mov ecx, Progress
-            fld tbyte ptr [ecx]
-            mov ecx, Output
-            fstp dword ptr [ecx]
-        }
+        const float Value = ThornExtendedProgress::LoadFloat(Progress->Bytes);
+        std::memcpy(Output, &Value, sizeof(Value));
     }
 
     float StoreAnimT(const FThornExtendedProgress* Progress)
