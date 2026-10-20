@@ -1373,7 +1373,7 @@ unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommi
 void RpcUpdateExpand(signed char Encoded, float& Value) {
     const int Quantized = Encoded;
     float* Destination = &Value;
-    PortableRpcQuantization::ExpandByte(Quantized, GUpdateInverseScale, Destination);
+    PortableRpcQuantization::ExpandInteger(Quantized, GUpdateInverseScale, Destination);
 }
 
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
@@ -1488,13 +1488,7 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
     }
     if (bCommitBefore) Stream.CommitReadPointer(Width);
     float* Destination = &Value;
-    __asm {
-        mov eax, Scale
-        mov ecx, Destination
-        fild dword ptr Quantized
-        fmul qword ptr [eax]
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Quantized, *Scale, Destination);
     if (!bCommitBefore) Stream.CommitReadPointer(Width);
     return true;
 }

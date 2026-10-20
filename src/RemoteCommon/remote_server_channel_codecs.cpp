@@ -41,7 +41,7 @@ unsigned char RpcServerQuantize127(const float* Value) {
 
 void RpcServerExpand127(unsigned char Encoded, float* Value) {
     const int Quantized = static_cast<signed char>(Encoded);
-    PortableRpcQuantization::ExpandByte(Quantized, GRpcServerInverse127, Value);
+    PortableRpcQuantization::ExpandInteger(Quantized, GRpcServerInverse127, Value);
 }
 
 // --- create-object block: 0x04 CREATESHIP and 0x42 CREATESOLAR (RS-P10) ---
@@ -81,7 +81,7 @@ static unsigned char RpcServerQuantize255(const float* Value) {
 // 06c09724..06c09743).
 static void RpcServerExpand255(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    PortableRpcQuantization::ExpandByte(Widened, GRpcServerInverse255, Value);
+    PortableRpcQuantization::ExpandInteger(Widened, GRpcServerInverse255, Value);
 }
 
 // 06c089bc..06c089e6, the hull byte: FILD the int hit points, FSTP to a float local
@@ -3310,7 +3310,7 @@ static unsigned char RpcServerSendCommQuantize(const float* Value) {
 
 static void RpcServerSendCommExpand(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    PortableRpcQuantization::ExpandByte(Widened, GRpcServerSendCommExpand, Value);
+    PortableRpcQuantization::ExpandInteger(Widened, GRpcServerSendCommExpand, Value);
 }
 
 // RC 06b4cd10 / RS 06be7910.
