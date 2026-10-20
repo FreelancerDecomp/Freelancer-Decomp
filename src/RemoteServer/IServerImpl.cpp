@@ -6,6 +6,7 @@
 
 #define RPCLOCAL_EXPORTS
 #include "portable_rpc_item_fields.h"
+#include "portable_rpc_update_fields.h"
 #include <windows.h>
 #include "../include/rpc_iserver.h"
 #define GetChatClientInterface __NetworkGetChatClientInterface
@@ -656,14 +657,9 @@ void IServerImpl::Hail(unsigned int ObjectId, unsigned int Arg1, unsigned int Ar
 void IServerImpl::SPObjUpdate(const SSPObjUpdateInfo& Info, unsigned int SessionId) {
     FPacketBase* Packet = nullptr;
     if (Serializer->Allocate(1, 0x01, &Packet) == 0) {
-        const double* TimeSource = &Info.Timestamp;
         float NarrowedTime;
         // 06bd7fc6/7fcc narrows before any packet payload store.
-        __asm {
-            mov eax, TimeSource
-            fld qword ptr [eax]
-            fstp dword ptr NarrowedTime
-        }
+        PortableRpcUpdateFields::NarrowTimestamp(&NarrowedTime, &Info.Timestamp);
         FRpcUpdateObjectPacket* TypedPacket = static_cast<FRpcUpdateObjectPacket*>(Packet);
         TypedPacket->Field_0x00 = Info.Field_0x2c;
         TypedPacket->ObjectId = Info.ObjectId;
