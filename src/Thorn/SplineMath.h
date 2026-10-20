@@ -75,21 +75,7 @@ namespace ThornSplineMath
     // Inlined operations in 21000 evaluate/store Z, Y, X in that order.
     inline void Subtract(float* Dst, const float* A, const float* B)
     {
-        __asm
-        {
-            mov ecx, A
-            mov edx, B
-            mov eax, Dst
-            fld dword ptr [ecx + 8]
-            fsub dword ptr [edx + 8]
-            fstp dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fsub dword ptr [edx + 4]
-            fstp dword ptr [eax + 4]
-            fld dword ptr [ecx]
-            fsub dword ptr [edx]
-            fstp dword ptr [eax]
-        }
+        ThornPortableSplineMath::SubtractStored(Dst, A, B);
     }
 
     inline void AddStored(float* Dst, const float* A, const float* B)
