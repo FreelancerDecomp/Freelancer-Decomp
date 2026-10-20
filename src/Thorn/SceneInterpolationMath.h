@@ -1,4 +1,6 @@
 #pragma once
+#include "ExtendedProgressCodec.h"
+#include "FpEnvironment.h"
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -24,6 +26,43 @@ namespace ThornSceneInterpolation
             const double from = captured[index], to = target[index];
             output[index] = static_cast<float>(from + (to - from) * progress);
         }
+    }
+    inline double WrapIntermediate(double value)
+    {
+        if (ThornFpEnvironment::Precision() != 24 || !std::isfinite(value) || value == 0.0) return value;
+        // Round the significand without imposing binary32's exponent range.
+        int exponent;
+        const double fraction = std::frexp(value, &exponent);
+        unsigned char bytes[10];
+        ThornExtendedProgress::StoreDouble(bytes, fraction);
+        return std::ldexp(static_cast<double>(ThornExtendedProgress::LoadFloat(bytes)), exponent);
+    }
+    inline float WrapScale(float* last, double progress, float rounded, bool spatial)
+    {
+        const double change = WrapIntermediate(progress - static_cast<double>(*last));
+        const float delta = static_cast<float>(change);
+        if (change == 0.0) return 0.0f;
+        if (!((spatial ? static_cast<double>(rounded) : progress) < 1.0)) return 1.0f;
+        const double remaining = WrapIntermediate(1.0 - static_cast<double>(*last));
+        const float scale = remaining == 0.0 ? 1.0f :
+            static_cast<float>(WrapIntermediate(static_cast<double>(delta) / remaining));
+        *last = rounded;
+        return scale;
+    }
+    inline void SpatialWrap(float* last, const unsigned char* bytes, float* roundedOutput, float* scaleOutput)
+    {
+        const double progress = ThornExtendedProgress::LoadDouble(bytes);
+        const float rounded = ThornExtendedProgress::LoadFloat(bytes);
+        const float scale = WrapScale(last, progress, rounded, true);
+        std::memcpy(roundedOutput, &rounded, sizeof(rounded));
+        std::memcpy(scaleOutput, &scale, sizeof(scale));
+    }
+    inline void FloorWrap(float* last, const unsigned char* bytes, float* scaleOutput)
+    {
+        const double progress = ThornExtendedProgress::LoadDouble(bytes);
+        const float rounded = ThornExtendedProgress::LoadFloat(bytes);
+        const float scale = WrapScale(last, progress, rounded, false);
+        std::memcpy(scaleOutput, &scale, sizeof(scale));
     }
     inline void SpatialPosition(float* output,const float* from,const float* to,const float* scale)
     {
