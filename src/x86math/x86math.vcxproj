@@ -43,6 +43,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ScalarMath.h" />
     <ClInclude Include="..\include\x86math.h" />
     <ClInclude Include="..\include\dacom.h" />
   </ItemGroup>

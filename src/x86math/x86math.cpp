@@ -6,6 +6,7 @@
 
 #include "x86math.h"
 #include "PortableFastDot.h"
+#include "ScalarMath.h"
 
 // DACOM-wide result codes (see the note in x86math.h); kept local until dacom.h owns them.
 
@@ -25,63 +26,6 @@ namespace
     // LAB_06f71170: CMPSB.REPE ECX=0xD — 12 chars + NUL, not CRT strcmp.
     const unsigned int G_ComponentNameBytes = 13;
     static_assert(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
-
-    // DAT_06f74030..06f7442f: 0x400 bytes (06f74430 is a separate guard byte). Readers index
-    // with (bits >> 14) & 0x3FF (06f72851/06f728d1).
-    unsigned char G_InvSqrtTable[0x400];
-
-    // Retail PE .data at DAT_06f74030 is BSS (on-disk zeros). FUN_06f71010 / DllMain fill all
-    // 0x400 entries via FSQRT + FDIVR qword 1.0, then (bits + 0x2000) >> 15. Match that x87 path.
-    void BuildInvSqrtTable()
-    {
-        const double One = 1.0;
-        for (unsigned int Index = 0; Index < 0x400; ++Index)
-        {
-            unsigned int Bits = (Index | 0xFC00u) << 14;
-            unsigned int RecipBits = 0;
-#if defined(_M_IX86)
-            __asm
-            {
-                fld dword ptr [Bits]
-                fsqrt
-                fdivr qword ptr [One]
-                fstp dword ptr [RecipBits]
-            }
-#else
-            union
-            {
-                unsigned int AsBits;
-                float Value;
-            } Pun;
-            Pun.AsBits = Bits;
-            Pun.Value = static_cast<float>(1.0 / std::sqrt(static_cast<double>(Pun.Value)));
-            RecipBits = Pun.AsBits;
-#endif
-            G_InvSqrtTable[Index] = static_cast<unsigned char>((RecipBits + 0x2000u) >> 15);
-        }
-        // 06f7104c / 06f710fb: MOV byte [06f74230],0xFF = base + 0x200. Index 0x200 is the
-        // mantissa-1.0 slot (X = 1.0, 4.0, ...): its computed byte wraps to 0x00, retail patches it.
-        G_InvSqrtTable[0x200] = 0xFF;
-    }
-
-    float TableInvSqrt(float X)
-    {
-        union
-        {
-            unsigned int Bits;
-            float Value;
-        } Pun;
-        Pun.Value = X;
-        unsigned int Exponent = (Pun.Bits >> 23) & 0xFFu;
-        const unsigned int TableIndex = (Pun.Bits >> 14) & 0x3FFu;
-        unsigned int Guess = (0x5F000000u - (Exponent << 22)) & 0xFF800000u;
-        Guess |= static_cast<unsigned int>(G_InvSqrtTable[TableIndex]) << 15;
-        Pun.Bits = Guess;
-        float Y = Pun.Value;
-        Y = (3.0f - Y * Y * X) * Y * 0.5f;
-        Y = (3.0f - Y * Y * X) * Y * 0.5f;
-        return Y;
-    }
 
     // LAB_06f71830: Rotate/TransformMatrix literal shared x87 body.
     // Stores precede the next component source reads, including aliased calls.
@@ -1469,13 +1413,13 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API InvSqrt(float& Dst, float X) override
     {
-        Dst = TableInvSqrt(X);
+        Dst = X86ScalarMath::InvSqrt(X);
         return GR_OK;
     }
 
     GENRESULT DACOM_API Sqrt(float& Dst, float X) override
     {
-        Dst = TableInvSqrt(X) * X;
+        Dst = X86ScalarMath::Sqrt(X);
         return GR_OK;
     }
 };
@@ -1489,7 +1433,7 @@ BOOL WINAPI DllMain(HINSTANCE Module, DWORD Reason, LPVOID /*Reserved*/)
     if (Reason == DLL_PROCESS_ATTACH)
     {
         DisableThreadLibraryCalls(Module);
-        // FUN_06f71090: PUSH 8 / operator_new. Null → DAT=0, RET TRUE, no InvSqrt table.
+        // FUN_06f71090: PUSH 8 / operator_new. Null returns TRUE without registration.
         void* Memory = ::operator new(8, std::nothrow);
         if (Memory == nullptr)
         {
@@ -1497,7 +1441,6 @@ BOOL WINAPI DllMain(HINSTANCE Module, DWORD Reason, LPVOID /*Reserved*/)
             return TRUE;
         }
         G_Engine = new (Memory) FMathEngine();
-        BuildInvSqrtTable();
         // 06f71107: DACOM_Acquire; JZ 06f71145 skips registration silently (no log in retail).
         ICOManager* Dacom = DACOM_Acquire();
         if (Dacom != nullptr)
