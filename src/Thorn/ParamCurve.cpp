@@ -280,26 +280,7 @@ namespace
 
     // FUN_06f33df0: construction copies Value/T raw, but tangent values pass
     // through FLD/FSTP in reverse load order. Assignment is a different path.
-    __declspec(naked) void __cdecl ConstructHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            test eax, eax
-            jz ConstructionDone
-            mov ecx, dword ptr [esp + 8]
-            mov edx, dword ptr [ecx]
-            mov dword ptr [eax], edx
-            mov edx, dword ptr [ecx + 4]
-            mov dword ptr [eax + 4], edx
-            fld dword ptr [ecx + 0ch]
-            fld dword ptr [ecx + 8]
-            fstp dword ptr [eax + 8]
-            fstp dword ptr [eax + 0ch]
-        ConstructionDone:
-            ret
-        }
-    }
+    using ThornCurveDetail::ConstructHermiteRecord;
 
     // FUN_06f30480: all 60 instructions; only normalized S is stored as float.
     __declspec(naked) void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
