@@ -100,14 +100,7 @@ static void math_mod (void) {
 /* Retail address binding: LAB_06f566a0 -> math_sqrt. */
 static void math_sqrt (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  /* Current compiled sqrt/intrinsic differs from owned FSQRT under RC_DOWN. */
-  __asm {
-    fld Input
-    fsqrt
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaSqrt(Input));
 }
 
 static void math_pow (void) {
