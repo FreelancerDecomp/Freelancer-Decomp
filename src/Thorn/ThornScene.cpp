@@ -1357,28 +1357,7 @@ namespace
     // 46d5a..46db5: publish one component before rereading the next inputs.
     void LerpSpatialPosition(float* ResultPosition, const float* From, const float* To, const float* Scale)
     {
-        __asm
-        {
-            mov eax, ResultPosition
-            mov ecx, From
-            mov edx, To
-            mov esi, Scale
-            fld dword ptr [edx]
-            fsub dword ptr [ecx]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx]
-            fstp dword ptr [eax]
-            fld dword ptr [edx+4]
-            fsub dword ptr [ecx+4]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx+4]
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fsub dword ptr [ecx+8]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx+8]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneInterpolation::SpatialPosition(ResultPosition, From, To, Scale);
     }
 
     // 46e6d..46ed8: publish float Delta, then reread Applied using the unrounded change.
