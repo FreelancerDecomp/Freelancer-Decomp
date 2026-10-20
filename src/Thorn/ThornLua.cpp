@@ -12,6 +12,7 @@
 #include "ThornModernAdapters.h"
 #include "LuaTableProbe.h"
 #include "PortableComparison.h"
+#include "LuaPropertyMath.h"
 
 #include <cstdio>
 #include <cstring>
@@ -95,26 +96,11 @@ namespace
         return static_cast<int>(static_cast<unsigned int>(static_cast<long long>(Value)));
     }
 
-    // Keep the FMUL result on x87 through the retail chop-to-qword conversion.
+    // Scale and truncate without an intermediate binary64 product store.
     int LuaMillisecondsToRetailInt(lua_Object Object)
     {
-        const double Scale = 1000.0;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fmul qword ptr Scale
-            fnstcw OldControl
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornLuaPropertyMath::Milliseconds(Number);
     }
 
     // Retail per-type constructor tails use a 32-bit ADD. Preserve its bits
