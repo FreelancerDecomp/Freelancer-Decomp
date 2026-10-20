@@ -55,6 +55,7 @@
     <ClInclude Include="ThornScene.h" />
     <ClInclude Include="ThornControlCalls.h" />
     <ClInclude Include="SplineMath.h" />
+    <ClInclude Include="SceneGeometryMath.h" />
     <ClInclude Include="lua32\src\lib\PortableMath.h" />
     <ClInclude Include="..\include\dacom.h" />
     <ClInclude Include="lua32\include\lua.h" />

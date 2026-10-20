@@ -12,6 +12,7 @@
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
 #include "PortableComparison.h"
+#include "SceneGeometryMath.h"
 #include "portable_vector_load.h"
 
 #include <cmath>
@@ -386,36 +387,13 @@ namespace
         Copy3(Pos3, &Xform12[9]);
     }
 
-    // FUN_06f2ecc0: keep Z/Y/X differences on x87 until every input is read.
+    // FUN_06f2ecc0: snapshot the cross product before publishing X/Y/Z.
     void Cross3(float* Result, const float* A, const float* B)
     {
-        __asm
-        {
-            mov ecx, A
-            mov eax, B
-            fld dword ptr [ecx]
-            fmul dword ptr [eax+4]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [eax]
-            fsubp st(1), st(0)
-            fld dword ptr [ecx+8]
-            fmul dword ptr [eax]
-            fld dword ptr [eax+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fld dword ptr [ecx+4]
-            fmul dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [eax+4]
-            mov eax, Result
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fstp dword ptr [eax+4]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneGeometry::Cross(Result, A, B);
     }
 
-    // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then extended reciprocal.
+    // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then reciprocal length.
     void Normalize3(float* V)
     {
         const float One = 1.0f;
@@ -743,8 +721,7 @@ namespace
         Copy9(Orient, WorldOrient);
     }
 
-    // 2e5b2 and each inlined axis normalization multiply FLD(component)
-    // by the still-extended reciprocal, then discard the reciprocal last.
+    // 2e5b2 and the inlined axis normalizations use the same sum order.
     void NormalizeAxis3(float* V)
     {
         const float One = 1.0f;

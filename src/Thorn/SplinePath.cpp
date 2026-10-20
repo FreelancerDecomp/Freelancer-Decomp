@@ -6,6 +6,7 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#include "SceneGeometryMath.h"
 
 #include <cmath>
 #include <cstdio>
