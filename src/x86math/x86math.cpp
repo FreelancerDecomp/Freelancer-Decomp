@@ -29,47 +29,10 @@ namespace
     const unsigned int G_ComponentNameBytes = 13;
     static_assert(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
 
-    // LAB_06f71830: Rotate/TransformMatrix literal shared x87 body.
-    // Stores precede the next component source reads, including aliased calls.
+    // Rotate/TransformMatrix share the portable, in-place-safe batch operation.
     void MulVecByMatrix(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
     {
-        float* ResultVector = &Dst.X;
-        const float* MatrixValues = &Matrix.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov ecx, MatrixValues
-            mov eax, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx]
-            fld dword ptr [ecx + 014h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 010h]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [ecx + 020h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 018h]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 01ch]
-            fmul dword ptr [eax + 4]
-            xor eax, eax
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 8]
-        }
+        X86MatrixMath::TransformVector(Dst, Matrix, Source);
     }
 
     // LAB_06f718f0: shared InverseRotate/TransposeTransform body. Each
