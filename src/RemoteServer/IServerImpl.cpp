@@ -330,11 +330,7 @@ void IServerImpl::ReqHullStatus(float HullStatus, unsigned int SessionId) {
     if (Serializer->Allocate(3, FLPACKET_CLIENT_REQHULLSTATUS, &Packet) == 0) {
         FRpcRequestHullStatusPacket* TypedPacket = static_cast<FRpcRequestHullStatusPacket*>(Packet);
         float* Destination = &TypedPacket->Value;
-        __asm {
-            fld HullStatus
-            mov eax, Destination
-            fstp dword ptr [eax]
-        }
+        PortableFloatLoad::Copy(Destination, &HullStatus);
         this->PushToServer(Packet->AsRaw());
     }
 }
