@@ -6,6 +6,8 @@
 
 #include "x86math.h"
 #include "BatchTransform.h"
+#include "MatrixMath.h"
+#include "TransformMath.h"
 #include "ScalarMath.h"
 #include "QuaternionMath.h"
 
@@ -347,53 +349,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API MulMatrix(FMatrix& Dst, const FMatrix& A, const FMatrix& B) override
     {
-        // 71670..716e1: literal x87 loop, preserving product/add/store order
-        // and immediate alias visibility between individual result writes.
-        float* ResultMatrix = &Dst.D[0][0];
-        const float* LeftMatrix = &A.D[0][0];
-        const float* RightMatrix = &B.D[0][0];
-        __asm
-        {
-            mov edx, ResultMatrix
-            mov ecx, RightMatrix
-            mov edi, LeftMatrix
-            mov esi, edx
-            sub esi, edi
-            lea eax, [edi + 4]
-            mov edi, 3
-        MatrixRowLoop:
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 18h]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax]
-            add eax, 0ch
-            add edx, 0ch
-            dec edi
-            faddp st(1), st(0)
-            fld dword ptr [eax - 10h]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fstp dword ptr [edx - 0ch]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax - 10h]
-            fld dword ptr [eax - 8]
-            fmul dword ptr [ecx + 1ch]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 10h]
-            fmul dword ptr [eax - 0ch]
-            faddp st(1), st(0)
-            fstp dword ptr [esi + eax - 0ch]
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax - 10h]
-            fld dword ptr [eax - 8]
-            fmul dword ptr [ecx + 20h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 14h]
-            fmul dword ptr [eax - 0ch]
-            faddp st(1), st(0)
-            fstp dword ptr [edx - 4]
-            jnz MatrixRowLoop
-        }
+        X86MatrixMath::Multiply(Dst, A, B);
         return GR_OK;
     }
 
