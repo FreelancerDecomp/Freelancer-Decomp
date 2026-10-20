@@ -1221,50 +1221,7 @@ namespace
     // 45d81..45e0e: preserve the float Z difference and X product boundaries.
     void InterpolateLightDirection(float* Out, const float* From, const float* To, const float* U)
     {
-        float Capture[3];
-        float DifferenceZ;
-        float DeltaX;
-        float Result[3];
-        __asm
-        {
-            mov eax, To
-            fld dword ptr [eax]
-            mov edx, From
-            mov ecx, dword ptr [edx]
-            mov dword ptr Capture, ecx
-            fsub dword ptr Capture
-            mov ecx, dword ptr [edx + 4]
-            fld dword ptr [eax + 4]
-            mov edx, dword ptr [edx + 8]
-            mov dword ptr Capture[4], ecx
-            fsub dword ptr Capture[4]
-            fld dword ptr [eax + 8]
-            mov dword ptr Capture[8], edx
-            fsub dword ptr Capture[8]
-            fstp dword ptr DifferenceZ
-            fxch st(1)
-            mov eax, U
-            fmul dword ptr [eax]
-            fstp dword ptr DeltaX
-            fmul dword ptr [eax]
-            fld dword ptr DifferenceZ
-            fmul dword ptr [eax]
-            fld dword ptr DeltaX
-            fadd dword ptr Capture
-            fstp dword ptr Result
-            mov eax, dword ptr Result
-            fxch st(1)
-            fadd dword ptr Capture[4]
-            mov ecx, Out
-            mov dword ptr [ecx], eax
-            fstp dword ptr Result[4]
-            mov eax, dword ptr Result[4]
-            fadd dword ptr Capture[8]
-            mov dword ptr [ecx + 4], eax
-            fstp dword ptr Result[8]
-            mov eax, dword ptr Result[8]
-            mov dword ptr [ecx + 8], eax
-        }
+        ThornSceneInterpolation::LightDirection(Out, From, To, U);
     }
 
     // LAB_06f45890 FPU mask loop. Out starts as live primary; To is target (or secondary live).
