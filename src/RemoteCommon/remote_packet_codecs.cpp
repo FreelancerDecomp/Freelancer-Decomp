@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_rpc_quantization.h"
 #include "rpc_packet_codec.h"
 #include "common_misc.h" // SinglePlayer selects retail's two FIREWEAPON formats.
 #include "common_net.h" // PLAYER_TRADE counts its trailer by IsMPServer direction.
@@ -1372,12 +1373,7 @@ unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommi
 void RpcUpdateExpand(signed char Encoded, float& Value) {
     const int Quantized = Encoded;
     float* Destination = &Value;
-    __asm {
-        mov ecx, Destination
-        fild dword ptr Quantized
-        fmul qword ptr GUpdateInverseScale
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandByte(Quantized, GUpdateInverseScale, Destination);
 }
 
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
