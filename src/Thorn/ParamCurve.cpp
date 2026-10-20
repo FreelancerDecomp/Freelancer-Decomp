@@ -8,6 +8,7 @@
 #include "SplineMath.h"
 #include "X87Return.h"
 #include "HermiteRecord.h"
+#include "ExtendedFloatStorage.h"
 
 #include <cmath>
 #include <cstring>
@@ -58,13 +59,7 @@ namespace
 
     void StoreParamFloat(FThornExtendedProgress* Output, const float* Value)
     {
-        __asm
-        {
-            mov ecx, Value
-            fld dword ptr [ecx]
-            mov ecx, Output
-            fstp tbyte ptr [ecx]
-        }
+        ThornPortableMath::StoreFloatToExtended80(Output->Bytes, Value);
     }
 
     typedef std::list<FParamKey> FParamEvaluationList;
