@@ -9,6 +9,7 @@
 #include "ThornScene.h"
 #include "ThornModernAdapters.h"
 #include "LuaTableProbe.h"
+#include "PortableComparison.h"
 
 #include <cstdio>
 #include <cstring>
@@ -677,23 +678,8 @@ namespace
     // Unordered/nonzero is true, with the original x87 comparison effects.
     unsigned char ReadFogByte(lua_Object Object)
     {
-        const unsigned long long ZeroBits = 0;
-        unsigned char Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fcomp qword ptr ZeroBits
-            fnstsw ax
-            test ah, 44h
-            jnp FogByteEqual
-            mov al, 1
-            jmp FogByteStore
-        FogByteEqual:
-            xor al, al
-        FogByteStore:
-            mov Result, al
-        }
-        return Result;
+        return static_cast<unsigned char>(ThornPortableComparison::Nonzero(&Number));
     }
 
     void LoadFogKeys(lua_Object Fog, FThornFog8* Target, int* Mask)

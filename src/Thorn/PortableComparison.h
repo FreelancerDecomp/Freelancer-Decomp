@@ -7,6 +7,21 @@
 
 namespace ThornPortableComparison
 {
+    inline bool Nonzero(const double* value)
+    {
+        static_assert(sizeof(double) == 8 && std::numeric_limits<double>::is_iec559,
+                      "IEEE binary64 required");
+        const volatile double loaded = *value;
+        std::uint64_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & UINT64_C(0x7fffffffffffffff)) > UINT64_C(0x7ff0000000000000))
+        {
+            std::feraiseexcept(FE_INVALID);
+            return true;
+        }
+        return loaded != 0.0;
+    }
+
     inline bool AtLeastOne(const float* value)
     {
         const volatile double promoted = static_cast<double>(*value);
