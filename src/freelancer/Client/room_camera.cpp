@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_float_load.h"
 #include "room_camera.h"
 
 #include "common_csys.h"
@@ -627,13 +628,7 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
     // FUN_00556e00.
     // Retail consumes the raw argument with FLD/FSTP at this callee boundary.
     float* Destination = &Camera->ZNear;
-    __asm
-    {
-        mov eax, ZNear
-        fld dword ptr [eax]
-        mov eax, Destination
-        fstp dword ptr [eax]
-    }
+    PortableFloatLoad::Copy(Destination, ZNear);
 
     const double TanX =
         tan((static_cast<double>(Camera->HalfFovXDeg) + Camera->HalfFovXDeg) * kPiOver360);
