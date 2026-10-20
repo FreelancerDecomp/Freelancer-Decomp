@@ -18,6 +18,7 @@
 #include <new>
 #include <stdint.h>
 #include <stdlib.h>
+#include <cmath>
 
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "dsound.lib")
@@ -727,30 +728,30 @@ namespace
     // Min / (Min + Rolloff * (Dist * DistanceFactor - Min)) -> FLDLG2 + FYL2X (log10) ->
     // FMUL double 10.0 -> FADD the client attenuation -> FSTP float. Kept as x87 code because
     // FYL2X is not bit-identical to the CRT log10. No guard on the log argument.
-    float SoftwareAttenuation(float MinDistance, float Dist, float DistanceFactor,
-                              float RolloffFactor, float ClientAtten)
+    
+    float SoftwareAttenuation(
+        float MinDistance,
+        float Dist,
+        float DistanceFactor,
+        float RolloffFactor,
+        float ClientAtten)
     {
-        static const double kTen = 10.0; // DAT_06ee9480
-        float Result;
-        __asm
-        {
-            fld MinDistance
-            fld Dist
-            fmul DistanceFactor
-            fsub st(0), st(1)
-            fmul RolloffFactor
-            fadd st(0), st(1)
-            fdivr st(0), st(1)
-            fldlg2
-            fxch st(1)
-            fyl2x
-            fmul kTen
-            fstp st(1)
-            fadd ClientAtten
-            fstp Result
-        }
-        return Result;
+        const double minDistance = MinDistance;
+
+        const double scaledDistance =
+            static_cast<double>(Dist) * DistanceFactor;
+
+        const double denominator =
+            minDistance +
+            (scaledDistance - minDistance) * RolloffFactor;
+
+        const double ratio = minDistance / denominator;
+
+        return static_cast<float>(
+            10.0 * std::log10(ratio) + ClientAtten
+        );
     }
+
 
     // FUN_06ee1670 cdecl: clamp vs DAT_06ee9220=-100 / DAT_06ee9250=100,
     // return pow(DAT_06ee9248=2.0, pitch * DAT_06ee9240=0.01f). The clamp is
