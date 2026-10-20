@@ -885,20 +885,7 @@ namespace
 #pragma warning(disable: 4716) // Virtual evaluator returns extended ST(0).
         float DACOM_API Slot12WrapEvaluate(int A, int B) override
         {
-            int Remainder;
-            float Normalized;
-            // 2f810: signed IDIV (including both hardware fault cases), then
-            // integer x87 normalization and ONE float store before slot3.
-            __asm
-            {
-                mov eax, A
-                cdq
-                idiv B
-                mov Remainder, edx
-                fild Remainder
-                fidiv B
-                fstp dword ptr Normalized
-            }
+            const float Normalized = ThornParamMath::WrappedRatio(A, B);
             return Evaluate(Normalized);
         }
 #pragma warning(pop)
