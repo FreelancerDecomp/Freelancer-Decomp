@@ -112,15 +112,7 @@ static void math_pow (void) {
 /* Retail address binding: LAB_06f566c0 -> math_log. */
 static void math_log (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  __asm {
-    fld Input
-    fldln2
-    fxch st(1)
-    fyl2x
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaLog(Input));
 }
 
 /* Retail address binding: LAB_06f566e0 -> math_log10. */
