@@ -71,19 +71,7 @@ static void math_acos (void) {
 ** FPATAN with FLD1 is atan(argument), then converted from radians. */
 static void math_atan (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x404ca5dc1a63c1f8ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* Native C/intrinsic atan differs from this owned FPATAN at PC24. */
-  __asm {
-    fld Input
-    fld1
-    fpatan
-    fmul Scale
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaAtan(Input));
 }
 
 /* Check argument 1 before argument 2; the API returns degrees. */
