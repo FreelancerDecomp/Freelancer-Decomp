@@ -287,14 +287,9 @@ namespace
     {
         return PortableFastDot::Zero();
     }
-    __declspec(naked) float FAST_DOT_ENTRY(FastDotZZO)
+    float FAST_DOT_ENTRY(FastDotZZO)
     {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            ret 4
-        }
+        return PortableFastDot::Component<2>(Vec);
     }
     __declspec(naked) float FAST_DOT_ENTRY(FastDotZZG)
     {
