@@ -10,6 +10,7 @@
 #include "ThornControlCalls.h"
 #include "X87Return.h"
 #include "PortableSplineMath.h"
+#include "PortableSceneMath.h"
 #include "portable_vector_load.h"
 
 #include <cmath>
@@ -509,32 +510,7 @@ namespace
     // Preserve x87 sNaN conversion and input/output overlap ordering.
     void Transpose9(float* Out9, const float* In9)
     {
-        unsigned int RawWord;
-        __asm
-        {
-            mov ecx, In9
-            fld dword ptr [ecx+20h]
-            mov eax, dword ptr [ecx+0ch]
-            fld dword ptr [ecx+14h]
-            mov RawWord, eax
-            fld dword ptr [ecx+8]
-            mov eax, Out9
-            fld dword ptr [ecx+1ch]
-            fld dword ptr [ecx+10h]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx+18h]
-            fld dword ptr [ecx]
-            mov ecx, RawWord
-            fstp dword ptr [eax]
-            mov dword ptr [eax+4], ecx
-            fstp dword ptr [eax+8]
-            fstp dword ptr [eax+0ch]
-            fstp dword ptr [eax+10h]
-            fstp dword ptr [eax+14h]
-            fstp dword ptr [eax+18h]
-            fstp dword ptr [eax+1ch]
-            fstp dword ptr [eax+20h]
-        }
+        ThornPortableSceneMath::Transpose9(Out9, In9);
     }
 
     // FUN_06f3b9a0: math +0x38 transpose_transform(out, csys.orient, csys.pos).
