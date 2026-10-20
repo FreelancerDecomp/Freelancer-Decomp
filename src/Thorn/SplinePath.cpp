@@ -523,73 +523,7 @@ namespace
     // still use its explicit float copy in both paths.
     void QuatExpRetail(FQuat& Dst, const FQuat& Q, bool bKeepNormForSin)
     {
-        const float Epsilon = G_QuatSinEps;
-        float Norm;
-        FQuat Result;
-        Result.X = Q.X;
-        Result.Y = Q.Y;
-        Result.Z = Q.Z;
-        // Explicit pointer operands avoid compiler-specific reference dereferencing.
-        auto* const QAsmPtr = &Q;
-        __asm
-        {
-            mov edx, QAsmPtr
-            fld dword ptr [edx + 4]
-            fmul st(0), st(0)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fsqrt
-            fst Norm
-            cmp bKeepNormForSin, 0
-            jne ExpSin
-            fstp st(0)
-            fld Norm
-        ExpSin:
-            fsin
-            fcom Epsilon
-            fnstsw ax
-            test ah, 01h
-            jnz ExpPopSin
-            fdiv Norm
-            lea ecx, Result
-            fld st(0)
-            fmul dword ptr [edx + 4]
-            fstp dword ptr [ecx + 4]
-            fld st(0)
-            fmul dword ptr [edx + 8]
-            fstp dword ptr [ecx + 8]
-            fmul dword ptr [edx + 12]
-            fstp dword ptr [ecx + 12]
-            jmp ExpCos
-        ExpPopSin:
-            fstp st(0)
-            // Standalone fallback copies via FLD/FSTP; the inline first
-            // control copies raw words. Preserve even signaling NaN handling.
-            cmp bKeepNormForSin, 0
-            jne ExpCos
-            lea ecx, Result
-            fld dword ptr [edx + 12]
-            fld dword ptr [edx + 8]
-            fld dword ptr [edx + 4]
-            fld Norm
-            fcos
-            fstp dword ptr [ecx]
-            fstp dword ptr [ecx + 4]
-            fstp dword ptr [ecx + 8]
-            fstp dword ptr [ecx + 12]
-            jmp ExpDone
-        ExpCos:
-            lea ecx, Result
-            fld Norm
-            fcos
-            fstp dword ptr [ecx]
-        ExpDone:
-        }
-        Dst = Result;
+        ThornSplineQuaternion::Exp(Dst, Q, bKeepNormForSin, false, G_QuatSinEps);
     }
 
     void QuatExp(FQuat& Dst, const FQuat& Q)
