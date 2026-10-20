@@ -1129,20 +1129,7 @@ namespace
         {
             const float* T0 = &Left->T;
             const float* T1 = &Right->T;
-            float U;
-            // 2f266..2f285: extended subtracts/divide, then one FSTP DWORD.
-            __asm
-            {
-                mov eax, T0
-                mov ecx, T1
-                mov edx, T
-                fld dword ptr [edx]
-                fsub dword ptr [eax]
-                fld dword ptr [ecx]
-                fsub dword ptr [eax]
-                fdivp st(1), st(0)
-                fstp U
-            }
+            const float U = ThornParamMath::NormalizeTime(T, T0, T1);
             const float* P0 = nullptr;
             const float* P3 = nullptr;
             FParamEvaluationList::const_iterator Outside = Left;
