@@ -702,34 +702,7 @@ namespace
     // Initial basis differs only in the operand order of the final product.
     void CrossAxisSide3(float* Result, const float* Up, const float* Front, bool bInitial)
     {
-        const float* LastLeft = bInitial ? Front + 1 : Up + 2;
-        const float* LastRight = bInitial ? Up + 2 : Front + 1;
-        __asm
-        {
-            mov ecx, Up
-            mov edx, Front
-            mov eax, Result
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx+4]
-            mov ecx, LastLeft
-            mov edx, LastRight
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-        }
+        ThornSceneGeometry::CrossSide(Result, Up, Front, bInitial);
     }
 
     // Inlined 2e687/2e85f: Dir cross Side, Z/Y/X float stores.
