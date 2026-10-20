@@ -77,8 +77,10 @@
   <ItemDefinitionGroup Condition="'$(Rp9Enabled)'=='true'">
     <PostBuildEvent>
       <!-- 32-bit D3DX9 runtime next to the exe: SysWOW64 has no d3dx9_43.dll. Extracted once from
-           the June 2010 redist cab ("$(OutDir)." avoids a trailing backslash before the quote). -->
-      <Command>if not exist "$(OutDir)d3dx9_43.dll" expand "$(Rp9DxSdkDir)Redist\Jun2010_d3dx9_43_x86.cab" -F:d3dx9_43.dll "$(OutDir)."</Command>
+           the June 2010 redist cab ("$(OutDir)." avoids a trailing backslash before the quote).
+           Windows' expand.exe by full path: from a Git Bash/MSYS shell a bare "expand" is
+           coreutils' (/usr/bin/expand, earlier on PATH), which fails with exit code 1. -->
+      <Command>if not exist "$(OutDir)d3dx9_43.dll" "$(SystemRoot)\System32\expand.exe" "$(Rp9DxSdkDir)Redist\Jun2010_d3dx9_43_x86.cab" -F:d3dx9_43.dll "$(OutDir)."</Command>
       <Message>RP9: d3dx9_43.dll (x86) into the output directory</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>

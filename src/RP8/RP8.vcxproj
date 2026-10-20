@@ -57,6 +57,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>dacom.lib;ddraw.lib;d3d8.lib;d3dx8.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <!-- DX8.1 SDK d3dx8.lib objects carry -defaultlib:libci (the VC6 single-threaded iostream
+           library), which no current toolset ships; RP8 does not use iostreams. -->
+      <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(Dx8SdkDir)\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <!-- DX8.1 SDK d3dx8.lib has no SafeSEH tables; Release otherwise links with /SAFESEH. -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
