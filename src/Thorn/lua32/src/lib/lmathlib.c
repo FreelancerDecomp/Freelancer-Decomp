@@ -45,18 +45,7 @@ static void math_sin (void) {
 
 static void math_cos (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* 56560: native C/intrinsic FCOS policy differs on finite and C2 inputs. */
-  __asm {
-    fld Input
-    fmul Scale
-    fcos
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaCos(Input));
 }
 
 static void math_tan (void) {
