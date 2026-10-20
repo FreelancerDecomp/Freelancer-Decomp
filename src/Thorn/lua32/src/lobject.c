@@ -153,10 +153,8 @@ __declspec(noinline) int LuaParseSignedNumberObject (char *Text, int Sign,
   if (!(Parsed >= 0.0)) return 2;
   ttype(Object) = LUA_T_NUMBER;
   nvalue(Object) = Parsed*Sign;
-  /* Retail 06f4ce3e discards its retained operand with waiting FSTP ST0.
-  ** Optimized C consumes that operand earlier and otherwise returns before
-  ** an unmasked payload-store trap.  Preserve this proved waiting boundary. */
-  __asm { fwait }
+  /* Portable C follows the runtime's exception-delivery rules; no x87-only
+  ** waiting instruction is needed for the parsed value or object result. */
   return 0;
 }
 
