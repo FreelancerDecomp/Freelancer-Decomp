@@ -396,36 +396,7 @@ namespace
     // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then reciprocal length.
     void Normalize3(float* V)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            mov ecx, V
-            fld dword ptr [ecx+8]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            fdivr dword ptr One
-            mov eax, V
-            fld st(0)
-            fmul dword ptr [eax]
-            fstp dword ptr [eax]
-            fld st(0)
-            fmul dword ptr [eax+4]
-            fstp dword ptr [eax+4]
-            fmul dword ptr [eax+8]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneGeometry::Normalize(V[0], V[1], V[2]);
     }
 
     // FUN_06f23090: separate input/output, all FLD/FCHS before stores.
