@@ -1358,46 +1358,7 @@ void RpcUpdateExpand(signed char Encoded, float& Value) {
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
 // selects the strictly-less tier. Z has only the small comparison in retail.
 unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
-    const float* Source = &Value;
-    unsigned char Tier;
-    if (bHasMediumTier) {
-        __asm {
-            mov ecx, Source
-            xor edx, edx
-            fld dword ptr [ecx]
-            fabs
-            fcom qword ptr GFireSmallLimit
-            fnstsw ax
-            test ah, 5
-            jp FireTryMedium
-            fstp st(0)
-            mov dl, 1
-            jmp FireTierDone
-        FireTryMedium:
-            fcomp qword ptr GFireMediumLimit
-            fnstsw ax
-            test ah, 5
-            jp FireTierDone
-            mov dl, 2
-        FireTierDone:
-            mov Tier, dl
-        }
-    } else {
-        __asm {
-            mov ecx, Source
-            xor edx, edx
-            fld dword ptr [ecx]
-            fabs
-            fcomp qword ptr GFireSmallLimit
-            fnstsw ax
-            test ah, 5
-            jp FireSmallDone
-            mov dl, 1
-        FireSmallDone:
-            mov Tier, dl
-        }
-    }
-    return Tier;
+    return PortableRpcQuantization::PickFireTier(&Value, bHasMediumTier);
 }
 
 // Native FMUL float followed by FMUL double, then _ftol's truncating signed

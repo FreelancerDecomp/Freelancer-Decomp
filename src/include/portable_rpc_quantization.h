@@ -1,9 +1,25 @@
 #pragma once
 
 #include "portable_integer_conversion.h"
+#include <cmath>
 
 namespace PortableRpcQuantization
 {
+    inline unsigned char PickFireTier(const float* value, bool hasMediumTier)
+    {
+        const volatile double promoted = static_cast<double>(*value);
+        std::uint32_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & 0x7fffffffu) > 0x7f800000u)
+        {
+            std::feraiseexcept(FE_INVALID);
+            return 0;
+        }
+        const double magnitude = std::fabs(static_cast<double>(promoted));
+        if (magnitude < 64.0) return 1;
+        return hasMediumTier && magnitude < 8192.0 ? 2 : 0;
+    }
+
     inline std::uint64_t QuantizeFire(const float* value, bool medium)
     {
         // Power-of-two prescaling is exact; the integer multiplier needs at
