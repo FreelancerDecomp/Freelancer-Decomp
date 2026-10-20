@@ -776,26 +776,14 @@ namespace
     // argument's bits intact until the retail FLD after lua_pushobject.
     lua_Object GetLightFloatIndex(lua_Object Table, const float* Index)
     {
-        if (lua_istable(Table) == 0)
-            return G_ThornLuaNil;
-        lua_pushobject(Table);
-        // 27c28..27c30: widen the pointed float only after pushobject.
-        // Every current caller supplies an unexposed local float index.
-        lua_pushnumber(static_cast<double>(*Index));
-        return lua_gettable();
+        return ThornLuaDetail::GetLightFloatIndex(Table, Index, G_ThornLuaNil);
     }
 
     // Specular/ambient/direction convert their loop index before 27c10's
     // table predicate, even when that predicate selects the cached nil.
     lua_Object GetLightFloatProbe(lua_Object Table, unsigned int Index)
     {
-        const unsigned long long IntegerIndex = Index;
-        float FloatIndex;
-        __asm {
-            fild qword ptr IntegerIndex
-            fstp dword ptr FloatIndex
-        }
-        return GetLightFloatIndex(Table, &FloatIndex);
+        return ThornLuaDetail::GetLightFloatProbe(Table, Index, G_ThornLuaNil);
     }
 
     // FUN_06f28750: X/Y are float locals; Z remains ST0 until publication.
