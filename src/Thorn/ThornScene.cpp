@@ -1555,7 +1555,7 @@ namespace
         SceneQuatToMatrix(Math, Out9, Quat);
     }
 
-    void SlerpQuat4(float* Out4, const FQuaternion& From4, const FQuaternion& To4, const float* U)
+    void NlerpQuat4(float* Out4, const FQuaternion& From4, const FQuaternion& To4, const float* U)
     {
         I3DMathEngine* Math = AcquireSceneEventMathEngine();
         FQuaternion FromQuat;
@@ -1565,7 +1565,7 @@ namespace
         // The sole kernel is pure; U stays a pointer for its actual load stage.
         std::memcpy(&FromQuat, &From4, sizeof(FromQuat));
         std::memcpy(&ToQuat, &To4, sizeof(ToQuat));
-        Math->QuatSlerpValue(ResultQuat, FromQuat, ToQuat, U);
+        Math->QuatNlerpValue(ResultQuat, FromQuat, ToQuat, U);
         std::memcpy(Out4, &ResultQuat, sizeof(ResultQuat));
     }
 
@@ -5579,7 +5579,7 @@ unsigned char FThornEvent::TickSpatialPropAnim(int TimeMs, FThornScene* Scene)
         {
             float Quat[4];
             float Orient[9];
-            SlerpQuat4(Quat, CaptureQuat, TargetQuat, &Scale);
+            NlerpQuat4(Quat, CaptureQuat, TargetQuat, &Scale);
             Quat4ToMat9(Orient, Quat);
             (*PrimaryEntry)->InnerSetOrient(Orient);
         }

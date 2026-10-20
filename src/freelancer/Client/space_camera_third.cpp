@@ -665,7 +665,7 @@ bool ThirdPersonCameraSolve(FThirdPersonCamera* Cam, float* Out12, float DeltaSe
 
             // 0x00519449..0x0051948a: slerp by dt * +0x200 (stored).
             const float T = static_cast<float>(static_cast<double>(DeltaSeconds) * Cam->TurnRateScale);
-            CockpitMathEngine()->QuatSlerp(Q64, Qa8, Qdc, T);
+            CockpitMathEngine()->QuatNlerp(Q64, Qa8, Qdc, T);
 
             // 0x0051948d..0x0051951d: back to a matrix; up = its column 1; M = it.
             Q48 = Q64;
@@ -737,7 +737,7 @@ bool ThirdPersonCameraSolve(FThirdPersonCamera* Cam, float* Out12, float DeltaSe
                         Dot = 0.0f;
                     const float T = static_cast<float>(
                         (static_cast<double>(Dot) + 1.0f) * Cam->TurnRateScale * DeltaSeconds * 0.5f);
-                    CockpitMathEngine()->QuatSlerp(Q64, Q24, Qdc, T);
+                    CockpitMathEngine()->QuatNlerp(Q64, Q24, Qdc, T);
                     Q48 = Q64;
                     CockpitMathEngine()->QuaternionToMatrix(AsMatrix(Mec), Q48);
                     float V3c[3];
@@ -898,7 +898,7 @@ bool ThirdPersonCameraSolve(FThirdPersonCamera* Cam, float* Out12, float DeltaSe
         Cam->PrevAngularRate = static_cast<float>(Rate);
 
         // 0x00519e10..0x00519ea0: M = slerp(q(target), q(M), fraction).
-        CockpitMathEngine()->QuatSlerp(Q64, Q164, Q134, Fraction);
+        CockpitMathEngine()->QuatNlerp(Q64, Q164, Q134, Fraction);
         Q48 = Q64;
         CockpitMathEngine()->QuaternionToMatrix(AsMatrix(M110), Q48);
         memcpy(M, M110, sizeof(M));
@@ -923,8 +923,8 @@ bool ThirdPersonCameraSolve(FThirdPersonCamera* Cam, float* Out12, float DeltaSe
         memcpy(Cam->ResetOrient, M, sizeof(M));
         FQuaternion Q144;
         CockpitMathEngine()->MatrixToQuaternion(Q144, AsMatrix(M));
-        const float LookAheadSlerp = Cam->TurnLookAheadSlerpAmount;
-        CockpitMathEngine()->QuatSlerp(Q64, Q144, Q154, LookAheadSlerp);
+        const float LookAheadNlerp = Cam->TurnLookAheadSlerpAmount;
+        CockpitMathEngine()->QuatNlerp(Q64, Q144, Q154, LookAheadNlerp);
         Q48 = Q64;
         CockpitMathEngine()->QuaternionToMatrix(AsMatrix(M110), Q48);
         memcpy(M, M110, sizeof(M));

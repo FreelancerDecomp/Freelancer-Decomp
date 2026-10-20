@@ -124,7 +124,7 @@ void MixerBlendPosQuat(float* Out, const float* A, const float* B, float T)
     Out[1] = Local[1];
     Out[2] = Local[2];
     I3DMathEngine* Math = Acquire3DMathEngine();                 // DAT_0662b0f8
-    Math->QuatSlerp(*(FQuaternion*)(Local),
+    Math->QuatNlerp(*(FQuaternion*)(Local),
                     *(const FQuaternion*)(A + 3),
                     *(const FQuaternion*)(B + 3), T); // 0661d4cb..e0
     Out[3] = Local[0];                                           // 0661d4e3..0661d500
@@ -135,7 +135,7 @@ void MixerBlendPosQuat(float* Out, const float* A, const float* B, float T)
 
 // FUN_0661d510 cdecl (Out, A, B, T): copy both quaternions to locals, slerp into a third
 // local, copy that to Out.
-void MixerSlerpQuat(float* Out, const float* A, const float* B, float T)
+void MixerNlerpQuat(float* Out, const float* A, const float* B, float T)
 {
     FQuaternion LocalB;
     FQuaternion LocalA;
@@ -143,7 +143,7 @@ void MixerSlerpQuat(float* Out, const float* A, const float* B, float T)
     std::memcpy(&LocalB, B, sizeof(LocalB));                      // 0661d513..32
     std::memcpy(&LocalA, A, sizeof(LocalA));                      // 0661d52a..54
     I3DMathEngine* Math = Acquire3DMathEngine();                 // DAT_0662b0f8
-    Math->QuatSlerp(Result, LocalA, LocalB, T); // 0661d564..7b
+    Math->QuatNlerp(Result, LocalA, LocalB, T); // 0661d564..7b
     std::memcpy(Out, &Result, sizeof(Result));                    // 0661d57e..9a
 }
 
@@ -346,7 +346,7 @@ void FMixerBlend::Evaluate(float* Out, FMixerStack* Stack)
         break;
     }
     case 4:                                                      // 0661d3e2
-        MixerSlerpQuat(Out, LeftOverlay->Values, RightOverlay->Values, Weight);
+        MixerNlerpQuat(Out, LeftOverlay->Values, RightOverlay->Values, Weight);
         break;
     case 7:                                                      // 0661d406
         MixerBlendPosQuat(Out, LeftOverlay->Values, RightOverlay->Values, Weight);

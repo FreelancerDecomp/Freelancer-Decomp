@@ -40,9 +40,9 @@ static GENRESULT MathQuatToMatrix(I3DMathEngine* Math, float* Dst, const float* 
     return Math->QuaternionToMatrix(*(FMatrix*)Dst, *(const FQuaternion*)A);
 }
 
-static GENRESULT MathQuatSlerp(I3DMathEngine* Math, float* Dst, const float* A, const float* B, float C)
+static GENRESULT MathQuatNlerp(I3DMathEngine* Math, float* Dst, const float* A, const float* B, float C)
 {
-    return Math->QuatSlerp(*(FQuaternion*)Dst, *(const FQuaternion*)A, *(const FQuaternion*)B, C);
+    return Math->QuatNlerp(*(FQuaternion*)Dst, *(const FQuaternion*)A, *(const FQuaternion*)B, C);
 }
 
 
@@ -1548,7 +1548,7 @@ static unsigned long DACOM_API TypedSlerpType4(FQuatTypedChannel* This, float* O
     LeftCopy[3] = Left[3];
     I3DMathEngine* Math = Acquire3DMathEngine();
     float Result[4];
-    MathQuatSlerp(Math, Result, LeftCopy, RightCopy, (float)Alpha);
+    MathQuatNlerp(Math, Result, LeftCopy, RightCopy, (float)Alpha);
     Out[0] = Result[0];
     Out[1] = Result[1];
     Out[2] = Result[2];
@@ -1561,7 +1561,7 @@ static unsigned long DACOM_API TypedSlerpType4(FQuatTypedChannel* This, float* O
     Result[1] = 0.0f;
     Result[2] = 0.0f;
     Result[3] = 0.0f;
-    MathQuatSlerp(Math, LeftCopy, Result, Out, This->Scale);
+    MathQuatNlerp(Math, LeftCopy, Result, Out, This->Scale);
     Out[0] = LeftCopy[0];
     Out[1] = LeftCopy[1];
     Out[2] = LeftCopy[2];
@@ -2035,7 +2035,7 @@ static unsigned long DACOM_API TypedLerpPosQuat(FPosQuatTypedChannel* This, floa
     const float Blend = (float)Alpha;
     I3DMathEngine* Math = Acquire3DMathEngine();
     float Quat[4];
-    MathQuatSlerp(Math, Quat, Left + 3, Right + 3, Blend);
+    MathQuatNlerp(Math, Quat, Left + 3, Right + 3, Blend);
     Out[3] = Quat[0];
     Out[4] = Quat[1];
     Out[5] = Quat[2];
@@ -2057,14 +2057,14 @@ static unsigned long DACOM_API TypedLerpPosQuatScaled(FPosQuatTypedChannel* This
         return ScaleBits;
     I3DMathEngine* Math = Acquire3DMathEngine();
     float const Identity[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
-    float Slerped[4];
-    MathQuatSlerp(Math, Slerped, Identity, Out + 3, This->Scale);
-    Out[3] = Slerped[0];
-    Out[4] = Slerped[1];
-    Out[5] = Slerped[2];
-    Out[6] = Slerped[3];
+    float Nlerped[4];
+    MathQuatNlerp(Math, Nlerped, Identity, Out + 3, This->Scale);
+    Out[3] = Nlerped[0];
+    Out[4] = Nlerped[1];
+    Out[5] = Nlerped[2];
+    Out[6] = Nlerped[3];
     unsigned long LastBits = 0;
-    std::memcpy(&LastBits, &Slerped[3], sizeof(LastBits));
+    std::memcpy(&LastBits, &Nlerped[3], sizeof(LastBits));
     return LastBits;
 }
 

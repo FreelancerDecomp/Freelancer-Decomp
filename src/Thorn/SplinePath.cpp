@@ -72,7 +72,7 @@ namespace
         std::memcpy(&Dst, &Product, sizeof(Dst));
     }
 
-    void CoreQuatSlerpWithMath(I3DMathEngine* Math, FQuat& Dst,
+    void CoreQuatNlerpWithMath(I3DMathEngine* Math, FQuat& Dst,
         const FQuat& A, const FQuat& B, const float* T)
     {
         FQuaternion InputA;
@@ -80,14 +80,14 @@ namespace
         FQuaternion Result;
         std::memcpy(&InputA, &A, sizeof(InputA));
         std::memcpy(&InputB, &B, sizeof(InputB));
-        Math->QuatSlerpValue(Result, InputA, InputB, T);
+        Math->QuatNlerpValue(Result, InputA, InputB, T);
         std::memcpy(&Dst, &Result, sizeof(Dst));
     }
 
-    void CoreQuatSlerp(FQuat& Dst, const FQuat& A, const FQuat& B, const float* T)
+    void CoreQuatNlerp(FQuat& Dst, const FQuat& A, const FQuat& B, const float* T)
     {
         I3DMathEngine* Math = AcquireSplineCoreMathEngine();
-        CoreQuatSlerpWithMath(Math, Dst, A, B, T);
+        CoreQuatNlerpWithMath(Math, Dst, A, B, T);
     }
 
     // Inlined FUN_06f21770 inverse: vector dot kept on x87, then W^2,
@@ -1044,27 +1044,27 @@ namespace
         CoreQuatMul(Dst, Center, ExpQ);
     }
 
-    // FUN_06f248c0: squad(q1,a,b,q2,t) = slerp(slerp(q1,q2,t), slerp(a,b,t), 2t(1-t))
+    // FUN_06f248c0: squad(q1,a,b,q2,t) = nlerp(nlerp(q1,q2,t), nlerp(a,b,t), 2t(1-t))
     // Retail (thorn.dll.txt:10393-10488) calls I3DMathEngine vtbl+0x58 three
     // times and never tests any of the three GENRESULTs -- the blend and
-    // final slerp always consume whatever the previous call wrote, and the
+    // final nlerp always consume whatever the previous call wrote, and the
     // four output dwords are always stored.
     void QuatSquad(FQuat& Dst, const FQuat& Q1, const FQuat& A, const FQuat& B,
                    const FQuat& Q2, const float* T)
     {
-        FQuat SlerpAb;
-        FQuat SlerpQ;
-        CoreQuatSlerp(SlerpAb, A, B, T);
-        CoreQuatSlerp(SlerpQ, Q1, Q2, T);
+        FQuat NlerpAb;
+        FQuat NlerpQ;
+        CoreQuatNlerp(NlerpAb, A, B, T);
+        CoreQuatNlerp(NlerpQ, Q1, Q2, T);
         // 24952..24969 acquires the third cache BEFORE reading T for Blend.
         I3DMathEngine* Math = AcquireSplineCoreMathEngine();
         const float Blend = SquadBlendRetail(T);
-        CoreQuatSlerpWithMath(Math, Dst, SlerpQ, SlerpAb, &Blend);
+        CoreQuatNlerpWithMath(Math, Dst, NlerpQ, NlerpAb, &Blend);
     }
 
     // FUN_06f21770: Catmull-Rom quaternion on Q0..Q3 at U. Retail
     // (thorn.dll.txt:4396-4754) never tests the GENRESULT of any inner
-    // QuatMul/QuatSlerp vtbl call and unconditionally stores the result;
+    // QuatMul/QuatNlerp vtbl call and unconditionally stores the result;
     // it always falls through to `XOR EAX,EAX / RET`, i.e. forced success.
     bool EvalCrOrientation(const FQuat& Q0, const FQuat& Q1, const FQuat& Q2,
                            const FQuat& Q3, float U, FQuat& Out)
@@ -2242,7 +2242,7 @@ namespace
             EvalCrOrientation(Q0, Q1, Q2, Q3, U0, SampleA);
             EvalCrOrientation(Q0, Q1, Q2, Q3, U1, SampleB);
             FQuat Result;
-            CoreQuatSlerp(Result, SampleA, SampleB, &Fraction);
+            CoreQuatNlerp(Result, SampleA, SampleB, &Fraction);
             std::memcpy(Out, &Result.W, sizeof(float));
             std::memcpy(Out + 1, &Result.X, sizeof(float));
             std::memcpy(Out + 2, &Result.Y, sizeof(float));
@@ -2379,11 +2379,11 @@ GENRESULT ThornQuatMul(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQ
                          reinterpret_cast<const FQuaternion&>(B));
 }
 
-GENRESULT ThornQuatSlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T)
+GENRESULT ThornQuatNlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T)
 {
     if (Math == nullptr)
         return GR_GENERIC;
-    return Math->QuatSlerp(reinterpret_cast<FQuaternion&>(Dst), // +0x58
+    return Math->QuatNlerp(reinterpret_cast<FQuaternion&>(Dst), // +0x58
                            reinterpret_cast<const FQuaternion&>(A),
                            reinterpret_cast<const FQuaternion&>(B), T);
 }

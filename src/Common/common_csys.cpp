@@ -673,7 +673,7 @@ float __cdecl Csys_error(Csys const& A, Csys const& B)
 // FUN_06391cf0 == Acquire3DMathEngine before every call):
 //   +0x50 MatrixToQuaternion(qB, B.Orient)        .text:06307bf5
 //   +0x50 MatrixToQuaternion(qA, A.Orient)        .text:06307c1b
-//   +0x58 QuatSlerp(qOut, qA, qB, T)              .text:06307c4b
+//   +0x58 QuatNlerp(qOut, qA, qB, T)              .text:06307c4b
 //   qOut copied to a temporary                     .text:06307c4e-06307c71
 //   +0x54 QuaternionToMatrix(M, qTmp)             .text:06307c90
 // Return codes are ignored by retail. Result = {Pos, M} copied through the hidden pointer.
@@ -696,7 +696,7 @@ Csys __cdecl Csys_interpolate(Csys A, Csys B, float T)
     FQuaternion QuatOut;
     Acquire3DMathEngine()->MatrixToQuaternion(QuatB, (FMatrix const&)B.Orient);
     Acquire3DMathEngine()->MatrixToQuaternion(QuatA, (FMatrix const&)A.Orient);
-    Acquire3DMathEngine()->QuatSlerp(QuatOut, QuatA, QuatB, T);
+    Acquire3DMathEngine()->QuatNlerp(QuatOut, QuatA, QuatB, T);
     FQuaternion const QuatTmp = QuatOut;
     Acquire3DMathEngine()->QuaternionToMatrix((FMatrix&)Result.Orient, QuatTmp);
     return Result;

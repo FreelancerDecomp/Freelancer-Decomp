@@ -1094,7 +1094,7 @@ void RoomControlUpdateCameraMove(FRoomRuntime* Runtime, float Delta)
     // 0x00449b61..0x00449bf5: slerp From -> To by T (slot 0x58), back to a matrix (slot 0x54),
     // installed with Pos.
     FQuaternion Quat;
-    RoomCameraMath()->QuatSlerp(Quat, Runtime->CameraFromQuat, Runtime->CameraToQuat, T);
+    RoomCameraMath()->QuatNlerp(Quat, Runtime->CameraFromQuat, Runtime->CameraToQuat, T);
     FMatrix Orient;
     RoomCameraMath()->QuaternionToMatrix(Orient, Quat);
     float Transform[12];

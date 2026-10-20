@@ -593,9 +593,9 @@ void LaneAction::do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<
         // 062c2180-062c2193: Blend = TransitElapsed * (1/3) (double DAT_0639e0e8), rounded.
         float const Blend = (float)((double)TransitElapsed * (1.0 / 3.0));
 
-        // 062c21a3-062c21bc: QuatSlerp(Dst, CapturedShipOrient, LaneQuat, Blend) (slot 0x58).
+        // 062c21a3-062c21bc: QuatNlerp(Dst, CapturedShipOrient, LaneQuat, Blend) (slot 0x58).
         Quaternion Blended;
-        Math->QuatSlerp((FQuaternion&)Blended, (FQuaternion const&)CapturedShipOrient,
+        Math->QuatNlerp((FQuaternion&)Blended, (FQuaternion const&)CapturedShipOrient,
                         (FQuaternion const&)LaneQuat, Blend);
 
         // 062c21f2-062c2219: back to a matrix (slot 0x54), copied into the lane rotation.

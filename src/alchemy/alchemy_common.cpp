@@ -773,7 +773,7 @@ namespace AlchemyImpl
 
     // ALC-1 2026-09-26: MultiplyQuatWxyz / SlerpQuatWxyz / ApplySmoothRotationSlerp /
     // WriteVelOrientQuat were removed with IntegratePool's particle branch. They were a
-    // lookalike of FUN_0622ff00 (nlerp for the engine's QuatSlerp, acos(N.y) on the
+    // lookalike of FUN_0622ff00 (nlerp for the engine's QuatNlerp, acos(N.y) on the
     // |N.y| >= 0.99 side where retail takes acos(N.x), an invented zero-length guard);
     // the listing port is FxParticleAppearance::IntegrateRecord (alchemy_appearances.cpp).
 
