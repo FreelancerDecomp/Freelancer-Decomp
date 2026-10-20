@@ -459,19 +459,8 @@ void IServerImpl::ReqModifyItem(unsigned short EquipId, const char* Hardpoint, i
         float* HealthDestination = &TypedPacket->Health;
         unsigned char Mounted;
         // 06bd768d..76ad: retain MOVZX and the stores between FLD and FSTP.
-        __asm {
-            fld Health
-            movzx eax, EquipId
-            mov edx, EquipDestination
-            mov dword ptr [edx], eax
-            mov eax, Count
-            mov edx, CountDestination
-            mov dword ptr [edx], eax
-            mov al, byte ptr bMounted
-            mov Mounted, al
-            mov edx, HealthDestination
-            fstp dword ptr [edx]
-        }
+        PortableRpcItemFields::Store(EquipDestination, CountDestination, HealthDestination,
+                                     &Mounted, static_cast<unsigned int>(EquipId), Count, &Health, bMounted);
         TypedPacket->bMounted = Mounted;
         TypedPacket->CopyHardpoint(Hardpoint, static_cast<unsigned int>(strlen(Hardpoint) + 1u));
         this->PushToServer(Packet->AsRaw());
