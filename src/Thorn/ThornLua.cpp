@@ -1209,25 +1209,8 @@ namespace
     int ReadSceneStartMilliseconds(lua_Object Object)
     {
         const int bNil = lua_isnil(Object);
-        const unsigned int ScaleBits = 0x447a0000u;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = bNil != 0 ? 0.0 : lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fmul dword ptr ScaleBits
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornLuaPropertyMath::Milliseconds(Number);
     }
 
     // 2964b..2966c retains Z below the X/Y ftol operations. Y is loaded
