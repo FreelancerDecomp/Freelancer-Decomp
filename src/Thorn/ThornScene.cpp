@@ -1911,22 +1911,10 @@ namespace
     // FUN_06f43560: descriptor+c8 is untouched; +d0 is runtime state.
     void ApplyPsysSparam(FThornEntity* Entity, const float* Value)
     {
-        float Argument;
-        float* Runtime = &Entity->PsysRuntimeSparam;
-        __asm {
-            mov eax, Value
-            fld dword ptr [eax]
-            fst dword ptr Argument
-            mov edx, Runtime
-            fstp dword ptr [edx]
-        }
-        // The pointer is read only after the runtime float has been published.
+        const float Argument = ThornSceneInterpolation::PublishParticle(&Entity->PsysRuntimeSparam, Value);
         IPSysControl* Control = Entity->PsysControl;
         if (Control != nullptr)
-        {
-            // Typed public slot6; the argument was already rounded above.
             Control->SetSparam(Argument);
-        }
     }
 
     // LAB_06f46a6b..46aee: store Tfloat but retain original slot6 ST value
