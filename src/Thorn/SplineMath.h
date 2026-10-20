@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #pragma once
+#include "PortableSplineMath.h"
 
 // Private Thorn arithmetic. FUN_06f21000 and its vector helpers retain
 // extended x87 values only where the retail listing omits a float store.
@@ -161,20 +162,7 @@ namespace ThornSplineMath
 
     inline void NegateStored(float* Dst, const float* Src)
     {
-        __asm
-        {
-            mov ecx, Src
-            mov eax, Dst
-            fld dword ptr [ecx + 8]
-            fchs
-            fstp dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fchs
-            fstp dword ptr [eax + 4]
-            fld dword ptr [ecx]
-            fchs
-            fstp dword ptr [eax]
-        }
+        ThornPortableSplineMath::NegateStored(Dst, Src);
     }
 
     inline void CatmullRom3D(const float* P0, const float* P1, const float* P2,
