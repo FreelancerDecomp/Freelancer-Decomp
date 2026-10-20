@@ -81,12 +81,7 @@ static unsigned char RpcServerQuantize255(const float* Value) {
 // 06c09724..06c09743).
 static void RpcServerExpand255(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerInverse255
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandByte(Widened, GRpcServerInverse255, Value);
 }
 
 // 06c089bc..06c089e6, the hull byte: FILD the int hit points, FSTP to a float local
