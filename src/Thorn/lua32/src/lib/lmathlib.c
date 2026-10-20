@@ -12,6 +12,7 @@
 #include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
+#include "PortableMath.h"
 
 
 #undef PI
@@ -39,19 +40,7 @@ static void math_abs (void) {
 
 static void math_sin (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* 56540: the compiled C/intrinsic candidates reduce huge inputs, while
-     retail FSIN leaves out-of-range operands unchanged (C2). */
-  __asm {
-    fld Input
-    fmul Scale
-    fsin
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaSin(Input));
 }
 
 static void math_cos (void) {
@@ -70,8 +59,6 @@ static void math_cos (void) {
   lua_pushnumber(Result);
 }
 
-/* 56580: FPTAN's unconditional extra pop also owns the C2 failure path.
-** Native C/intrinsic candidates were proved different on finite inputs. */
 static void math_tan (void) {
   const double Input = luaL_check_number(1);
   const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
@@ -121,9 +108,7 @@ static void math_atan (void) {
   lua_pushnumber(Result);
 }
 
-/* LAB_06f56600 checks argument 1 before argument 2, then FPATAN and
-** FMUL by the literal degree scale. Both compiled ordinary C candidates
-** differed from this kernel in the native precision/rounding probe. */
+/* Check argument 1 before argument 2; the API returns degrees. */
 static void math_atan2 (void) {
   const double First = luaL_check_number(1);
   const double Second = luaL_check_number(2);
@@ -176,8 +161,7 @@ static void math_pow (void) {
   lua_pushnumber(pow(First, Second));
 }
 
-/* Retail address binding: LAB_06f566c0 -> math_log.
-** Compiled log/intrinsic gave different bits under the current RC. */
+/* Retail address binding: LAB_06f566c0 -> math_log. */
 static void math_log (void) {
   const double Input = luaL_check_number(1);
   double Result;
@@ -191,8 +175,7 @@ static void math_log (void) {
   lua_pushnumber(Result);
 }
 
-/* Retail address binding: LAB_06f566e0 -> math_log10.
-** The native log10/intrinsic candidates differ from this owned sequence. */
+/* Retail address binding: LAB_06f566e0 -> math_log10. */
 static void math_log10 (void) {
   const double Input = luaL_check_number(1);
   double Result;
@@ -206,8 +189,7 @@ static void math_log10 (void) {
   lua_pushnumber(Result);
 }
 
-/* Retail address binding: LAB_06f56700 -> math_exp.
-** Ordinary C/intrinsic exp differs from the owned sequence at PC24. */
+/* Retail address binding: LAB_06f56700 -> math_exp. */
 static void math_exp (void) {
   const double Input = luaL_check_number(1);
   double Result;
