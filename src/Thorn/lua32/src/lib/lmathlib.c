@@ -50,18 +50,7 @@ static void math_cos (void) {
 
 static void math_tan (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  __asm {
-    fld Input
-    fmul Scale
-    fptan
-    fstp st(0)
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaTan(Input));
 }
 
 static void math_asin (void) {
