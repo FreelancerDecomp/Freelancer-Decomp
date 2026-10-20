@@ -2346,7 +2346,7 @@ void HudTargetableObjects::DrawTargetReticle()
 
             // 0x004ee8e0..0x004ee9c2: the faction short name of the ship's vibe (+0x104), unless
             // the affiliation query fails or the ids is 0, -1, 0x30386 or 0x303b8; a lone space
-            // is dropped, anything else gets a trailing space.
+            // is dropped, anything else is followed by " - ".
             unsigned ShortNameIds = 0;   // EBP
             int const Vibe = static_cast<int>(static_cast<CEqObj const*>(Ship)->VibeId);   // [ESP+0x90]
             unsigned Affiliation = 0;
@@ -2363,7 +2363,7 @@ void HudTargetableObjects::DrawTargetReticle()
                 if (wcslen(Faction) > 1 || Faction[0] != L' ')
                 {
                     wcscat(Text, Faction);
-                    wcscat(Text, L" ");   // DAT_005d01f4
+                    wcscat(Text, L" - "); // 0x004ee9ba: DAT_005d01f4
                 }
             }
             wcscat(Text, Ship->get_pilot_name());
@@ -3010,7 +3010,7 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
                             if (wcslen(Faction) > 1 || Faction[0] != L' ')
                             {
                                 wcscat(Text, Faction);
-                                wcscat(Text, L" ");   // DAT_005d01f4
+                                wcscat(Text, L" - "); // 0x004effe4: DAT_005d01f4
                             }
                         }
                     }

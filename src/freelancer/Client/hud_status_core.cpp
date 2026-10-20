@@ -1727,12 +1727,12 @@ void HUD_Status::UpdateSpecialModeCaptions()
     }
 
     // 0x004dcb37..0x004dcc44: the cancel caption -- ids 0x62d as a format around the name of the
-    // key bound to the command that leaves the mode ("?" when none is bound): 0xbf in the turret
+    // key bound to the command that leaves the mode ("???" when none is bound): 0xbf in the turret
     // view, 0xf with mouse flight unlocked, 0xc8 otherwise.
     GetIdsStringWWithRawFallback(0x62d, G_StatusScratchFormat,
                                  G_NnTextScratchCapacity); // FUN_004347e0
     wchar_t KeyName[0x100];
-    wcscpy(KeyName, L"?");
+    wcscpy(KeyName, L"???"); // 0x004dcb58: DAT_005d0214
     unsigned Command = 0xc8;
     if (bTurretView != 0)
     {
