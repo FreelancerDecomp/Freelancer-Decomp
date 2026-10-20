@@ -9,6 +9,7 @@
 #include "X87Return.h"
 #include "HermiteRecord.h"
 #include "ExtendedFloatStorage.h"
+#include "PortableComparison.h"
 
 #include <cmath>
 #include <cstring>
@@ -66,19 +67,7 @@ namespace
 
     bool ParamStrictLess(const float* Left, const float* Right)
     {
-        // FLD/FCOMP; TEST AH,05; JP takes equal/greater/unordered.
-        unsigned char bLess;
-        __asm
-        {
-            mov ecx, Left
-            fld dword ptr [ecx]
-            mov ecx, Right
-            fcomp dword ptr [ecx]
-            fnstsw ax
-            test ah, 05h
-            setnp bLess
-        }
-        return bLess != 0;
+        return ThornPortableComparison::StrictLess(Left, Right);
     }
 
     void MergeEvaluationLists(FParamEvaluationList& Destination, FParamEvaluationList& Source)
