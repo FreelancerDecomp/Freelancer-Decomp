@@ -60,28 +60,9 @@ static void RpcServerExpand255(unsigned char Encoded, float* Value) {
 // 255.0, _ftol, low byte. A zero maximum divides to an infinity whose _ftol result
 // (0x8000000000000000) has a low byte of 0, as in retail.
 static unsigned char RpcServerQuantizeHull(int HitPts, unsigned int ArchetypeId) {
-    float Points;
-    __asm {
-        fild dword ptr HitPts
-        fstp dword ptr Points
-    }
+    const float Points = PortableRpcServerQuantization::PrepareHull(HitPts);
     const int MaxHitPts = Archetype::GetArchMaxHitPts(ArchetypeId);
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        fild dword ptr MaxHitPts
-        fdivr dword ptr Points
-        fmul qword ptr GRpcServerScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return PortableRpcServerQuantization::QuantizeHull(Points, MaxHitPts);
 }
 
 // 06c0928a..06c092b4, the inverse: GetArchMaxHitPts, FILD it, FILD the zero-extended
