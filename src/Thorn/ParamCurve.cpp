@@ -795,45 +795,7 @@ namespace
 
         int DACOM_API AddKey(float F0, float F1, float F2, float F3) override
         {
-            const float Zero = 0.0f;
-            const float One = 1.0f;
-            int TimeClass;
-            // 2f560..2f5f0: reject strictly outside, select only ordered
-            // endpoint equality; unordered reaches new-key construction.
-            __asm
-            {
-                fld F0
-                fcomp Zero
-                fnstsw ax
-                test ah, 05h
-                jnp AddTimeRejected
-                fld F0
-                fcomp One
-                fnstsw ax
-                test ah, 41h
-                jz AddTimeRejected
-                fld F0
-                fcomp Zero
-                fnstsw ax
-                test ah, 44h
-                jnp AddTimeZero
-                fld F0
-                fcomp One
-                fnstsw ax
-                test ah, 44h
-                jnp AddTimeOne
-                mov TimeClass, 3
-                jmp AddTimeDone
-            AddTimeRejected:
-                mov TimeClass, -1
-                jmp AddTimeDone
-            AddTimeZero:
-                mov TimeClass, 0
-                jmp AddTimeDone
-            AddTimeOne:
-                mov TimeClass, 1
-            AddTimeDone:
-            }
+            const int TimeClass = ThornParamMath::ClassifyTime(F0);
             if (TimeClass < 0)
                 return -1;
 
