@@ -21,22 +21,7 @@ static const double GRpcServerScale127 = 127.0;
 static const double GRpcServerInverse127 = 1.0 / 127.0;
 
 unsigned char RpcServerQuantize127(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul qword ptr GRpcServerScale127
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeByte(Value, GRpcServerScale127));
 }
 
 void RpcServerExpand127(unsigned char Encoded, float* Value) {
