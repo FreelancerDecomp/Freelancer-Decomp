@@ -174,31 +174,9 @@ namespace
         ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Catmull(P0, P1, P2, P3, U));
     }
 
-    __declspec(naked) void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
+    void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
     {
-        // 2f948..2f961: extended subtraction/divide/product/add to 80-bit output.
-        __asm
-        {
-            // Copy input bits into private argument scratch, without an FP load.
-            mov eax, dword ptr [esp + 0ch]
-            mov eax, dword ptr [eax]
-            mov dword ptr [esp + 0ch], eax
-            mov eax, dword ptr [esp + 4]
-            mov ecx, dword ptr [esp + 8]
-            fld dword ptr [eax + 4]
-            fld dword ptr [esp + 0ch]
-            fsub dword ptr [eax]
-            fld dword ptr [ecx]
-            fsub dword ptr [eax]
-            fdivp st(1), st(0)
-            fld dword ptr [ecx + 4]
-            fsub st(0), st(2)
-            fmulp st(1), st(0)
-            faddp st(1), st(0)
-            mov eax, dword ptr [esp + 10h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Lerp(*Left, *Right, T));
     }
 
     // FUN_06f21000: shared exact x87 arithmetic including helper float stores.
