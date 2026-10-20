@@ -276,23 +276,7 @@ namespace
     // FUN_06f222d0: one reciprocal shared by 17 float sample stores.
     void NormalizeSegmentSamplesRetail(float* Table, float Total)
     {
-        const float One = 1.0f;
-        const int Count = G_SamplesPerSegment;
-        __asm
-        {
-            mov edx, Table
-            mov ecx, Count
-            fld One
-            fdiv Total
-        NormalizeSample:
-            fld st(0)
-            fmul dword ptr [edx]
-            fstp dword ptr [edx]
-            add edx, 4
-            dec ecx
-            jnz NormalizeSample
-            fstp st(0)
-        }
+        ThornSplineSampling::NormalizeSamples(Table, Total, G_SamplesPerSegment);
     }
 
     void LerpVec3(const FVec3& A, const FVec3& B, float F, FVec3& Out)
