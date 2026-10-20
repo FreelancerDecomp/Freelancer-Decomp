@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_vector_load.h"
 #include "TextureLibrary.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
@@ -993,19 +994,7 @@ GENRESULT FTextureLibrary::LoadLegacyTextureRecord(IFileSystem* RootFileSystem,
         const FTextureFrame* Source = &Frames[Index];
         FTextureFrame* Destination = &Entry->Frames[Index];
         Destination->ChildIndex = Source->ChildIndex;
-        __asm
-        {
-            mov ecx, Source
-            mov edx, Destination
-            fld dword ptr [ecx+16]
-            fld dword ptr [ecx+12]
-            fld dword ptr [ecx+8]
-            fld dword ptr [ecx+4]
-            fstp dword ptr [edx+4]
-            fstp dword ptr [edx+8]
-            fstp dword ptr [edx+12]
-            fstp dword ptr [edx+16]
-        }
+        PortableVectorLoad::CopyFour(Destination->Uv, Source->Uv);
     }
     Entry->TileRate = FramesPerSecond;
     Entry->Children.resize(TextureCount, nullptr);
