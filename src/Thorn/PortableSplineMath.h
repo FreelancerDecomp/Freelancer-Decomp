@@ -2,6 +2,16 @@
 
 namespace ThornPortableSplineMath
 {
+    inline void DoubleStored(float* dst, const float* src)
+    {
+        // Keep float additions and the original Z/Y/X publication order.
+        // Widening and narrowing through a temporary can add an x87 waiting
+        // load, altering C1 and when an unmasked overflow is delivered.
+        dst[2] = src[2] + src[2];
+        dst[1] = src[1] + src[1];
+        dst[0] = src[0] + src[0];
+    }
+
     inline void NegateStored(float* dst, const float* src)
     {
         // Widen before negating: a raw sign-bit XOR would fail to quiet an

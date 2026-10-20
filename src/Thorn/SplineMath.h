@@ -69,20 +69,7 @@ namespace ThornSplineMath
 
     inline void DoubleStored(float* Dst, const float* Src)
     {
-        __asm
-        {
-            mov ecx, Src
-            mov eax, Dst
-            fld dword ptr [ecx + 8]
-            fadd st(0), st(0)
-            fstp dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fadd st(0), st(0)
-            fstp dword ptr [eax + 4]
-            fld dword ptr [ecx]
-            fadd st(0), st(0)
-            fstp dword ptr [eax]
-        }
+        ThornPortableSplineMath::DoubleStored(Dst, Src);
     }
 
     // Inlined operations in 21000 evaluate/store Z, Y, X in that order.
