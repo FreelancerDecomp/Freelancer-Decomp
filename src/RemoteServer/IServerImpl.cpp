@@ -1062,11 +1062,7 @@ void IServerImpl::ReqDifficultyScale(float Scale, unsigned int SessionId) {
     if (Serializer->Allocate(3, FLPACKET_CLIENT_REQDIFFICULTYSCALE, &Packet) == 0) {
         FRpcRequestDifficultyScalePacket* TypedPacket = static_cast<FRpcRequestDifficultyScalePacket*>(Packet);
         float* Destination = &TypedPacket->Value;
-        __asm {
-            fld Scale
-            mov eax, Destination
-            fstp dword ptr [eax]
-        }
+        PortableFloatLoad::Copy(Destination, &Scale);
         this->PushToServer(Packet->AsRaw());
     }
 }
