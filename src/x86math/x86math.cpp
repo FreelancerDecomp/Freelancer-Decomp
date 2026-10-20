@@ -35,60 +35,15 @@ namespace
         X86MatrixMath::TransformVector(Dst, Matrix, Source);
     }
 
-    // LAB_06f718f0: shared InverseRotate/TransposeTransform body. Each
-    // output float is stored before the next component reads the source.
+    // InverseRotate/TransposeTransform share the portable transpose operation.
     void MulVecByTranspose(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
     {
-        float* ResultVector = &Dst.X;
-        const float* MatrixValues = &Matrix.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov ecx, MatrixValues
-            mov eax, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [ecx + 018h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx]
-            fld dword ptr [ecx + 01ch]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 010h]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [ecx + 020h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 014h]
-            fmul dword ptr [eax + 4]
-            xor eax, eax
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 8]
-        }
+        X86MatrixMath::TransformTranspose(Dst, Matrix, Source);
     }
 
     void TransposeMatrix(FMatrix& Dst, const FMatrix& Source)
     {
-        Dst.D[0][0] = Source.D[0][0];
-        Dst.D[0][1] = Source.D[1][0];
-        Dst.D[0][2] = Source.D[2][0];
-        Dst.D[1][0] = Source.D[0][1];
-        Dst.D[1][1] = Source.D[1][1];
-        Dst.D[1][2] = Source.D[2][1];
-        Dst.D[2][0] = Source.D[0][2];
-        Dst.D[2][1] = Source.D[1][2];
-        Dst.D[2][2] = Source.D[2][2];
+        X86MatrixMath::Transpose(Dst, Source);
     }
 
     void WriteAdjugate(FMatrix& Dst, const FMatrix& Source, float Scale)
