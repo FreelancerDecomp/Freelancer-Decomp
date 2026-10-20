@@ -7,6 +7,19 @@
 
 namespace ThornPortableComparison
 {
+    inline bool AtLeastOne(const float* value)
+    {
+        const volatile double promoted = static_cast<double>(*value);
+        std::uint32_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & 0x7fffffffu) > 0x7f800000u)
+        {
+            std::feraiseexcept(FE_INVALID);
+            return false;
+        }
+        return promoted >= 1.0;
+    }
+
     inline bool Nonzero(const float* value)
     {
         const volatile double promoted = static_cast<double>(*value);

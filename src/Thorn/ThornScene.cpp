@@ -1385,17 +1385,7 @@ namespace
     // C++ reverses the operands or changes the waiting instruction boundary.
     bool IsLightInterpolationComplete(const float* U)
     {
-        static const float One = 1.0f;
-        unsigned short Status;
-        __asm
-        {
-            mov eax, U
-            fld dword ptr [eax]
-            fcomp dword ptr One
-            fnstsw Status
-        }
-        // TEST AH,01 + JNZ skips for less/unordered; equal/greater continue.
-        return (Status & 0x0100u) == 0;
+        return ThornPortableComparison::AtLeastOne(U);
     }
 
     // 45d81..45e0e retains X/Y differences, rounds Z's difference and X's
