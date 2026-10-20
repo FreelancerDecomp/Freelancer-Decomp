@@ -6,38 +6,43 @@
 
 namespace ThornPortableSplineMath
 {
+    // The left operand has already passed through a numerical load. Preserve
+    // x87's NaN selection against the still-raw right memory operand.
+    inline bool PropagateLoadedNaN(std::uint32_t left, std::uint32_t right,
+                                   std::uint32_t* result)
+    {
+        const bool leftNaN = (left & 0x7fffffffu) > 0x7f800000u;
+        const bool rightNaN = (right & 0x7fffffffu) > 0x7f800000u;
+        if (!leftNaN && !rightNaN) return false;
+        const bool rightSignaling = rightNaN && !(right & 0x00400000u);
+        if (rightSignaling || (leftNaN && !(left & 0x00400000u)))
+            std::feraiseexcept(FE_INVALID);
+        *result = right | 0x00400000u;
+        if (leftNaN)
+        {
+            *result = left | 0x00400000u;
+            if (rightNaN && !rightSignaling)
+            {
+                const auto a = *result & 0x7fffffffu;
+                const auto b = right & 0x7fffffffu;
+                if (a < b || (a == b && right < *result)) *result = right;
+            }
+        }
+        return true;
+    }
+
     inline void ScaleStored(float* dst, const float* src, const float* factorInput)
     {
         std::uint32_t factorBits;
         std::memcpy(&factorBits, factorInput, sizeof(factorBits));
-        const bool factorNaN = (factorBits & 0x7fffffffu) > 0x7f800000u;
-        const bool factorSignaling = factorNaN && !(factorBits & 0x00400000u);
         for (int index = 2; index >= 0; --index)
         {
             std::uint32_t bits;
             std::memcpy(&bits, src + index, sizeof(bits));
             const volatile double loaded = static_cast<double>(src[index]);
-            const bool sourceNaN = (bits & 0x7fffffffu) > 0x7f800000u;
-            if (sourceNaN || factorNaN)
+            std::uint32_t chosen;
+            if (PropagateLoadedNaN(bits, factorBits, &chosen))
             {
-                if (factorSignaling || (sourceNaN && !(bits & 0x00400000u)))
-                    std::feraiseexcept(FE_INVALID);
-                std::uint32_t chosen = factorBits | 0x00400000u;
-                if (sourceNaN)
-                {
-                    chosen = bits | 0x00400000u;
-                    // FLD has quieted the source before FMUL sees the factor.
-                    // A signaling memory NaN loses to that quiet source NaN;
-                    // two quiet NaNs select larger payload, positive on a tie.
-                    if (factorNaN && !factorSignaling)
-                    {
-                        const auto sourceMagnitude = chosen & 0x7fffffffu;
-                        const auto factorMagnitude = factorBits & 0x7fffffffu;
-                        if (sourceMagnitude < factorMagnitude ||
-                            (sourceMagnitude == factorMagnitude && factorBits < chosen))
-                            chosen = factorBits;
-                    }
-                }
                 std::memcpy(dst + index, &chosen, sizeof(chosen));
             }
             else if (((bits & 0x7fffffffu) == 0x7f800000u && (factorBits & 0x7fffffffu) == 0) ||
@@ -53,6 +58,40 @@ namespace ThornPortableSplineMath
                 dst[index] = static_cast<float>(loaded) *
                     *static_cast<const volatile float*>(factorInput);
         }
+    }
+
+    template<bool Subtract> inline void BinaryStored(float* dst, const float* left, const float* right)
+    {
+        for (int index = 2; index >= 0; --index)
+        {
+            std::uint32_t a, b, result;
+            std::memcpy(&a, left + index, sizeof(a));
+            std::memcpy(&b, right + index, sizeof(b));
+            const volatile double loaded = static_cast<double>(left[index]);
+            if (PropagateLoadedNaN(a, b, &result))
+                std::memcpy(dst + index, &result, sizeof(result));
+            else if ((a & 0x7fffffffu) == 0x7f800000u && (b & 0x7fffffffu) == 0x7f800000u &&
+                     (((a ^ b) & 0x80000000u) != 0) != Subtract)
+            {
+                std::feraiseexcept(FE_INVALID);
+                result = 0xffc00000u;
+                std::memcpy(dst + index, &result, sizeof(result));
+            }
+            else if constexpr (Subtract)
+                dst[index] = static_cast<float>(loaded) - *static_cast<const volatile float*>(right + index);
+            else
+                dst[index] = static_cast<float>(loaded) + *static_cast<const volatile float*>(right + index);
+        }
+    }
+
+    inline void AddStored(float* dst, const float* left, const float* right)
+    {
+        BinaryStored<false>(dst, left, right);
+    }
+
+    inline void SubtractStored(float* dst, const float* left, const float* right)
+    {
+        BinaryStored<true>(dst, left, right);
     }
 
     inline void NegateVector(float* dst, const float* src)
