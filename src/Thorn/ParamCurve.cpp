@@ -6,6 +6,8 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#include "X87Return.h"
+#include "HermiteRecord.h"
 
 #include <cmath>
 #include <cstring>
@@ -150,13 +152,8 @@ namespace
         }
     }
 
-    struct FHermiteKnot
-    {
-        float Value;
-        float T;
-        float MIn;
-        float MOut;
-    };
+    using ThornCurveDetail::FHermiteKnot;
+    using ThornCurveDetail::AssignHermiteRecord;
 
     struct FCurveSpec
     {
@@ -309,24 +306,6 @@ namespace
         }
     }
 
-    // 33160/331b0 assign four DWORDs, without loading tangent floats.
-    void AssignHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
-    {
-        __asm
-        {
-            mov eax, Destination
-            mov ecx, Source
-            mov edx, dword ptr [ecx]
-            mov dword ptr [eax], edx
-            mov edx, dword ptr [ecx + 4]
-            mov dword ptr [eax + 4], edx
-            mov edx, dword ptr [ecx + 8]
-            mov dword ptr [eax + 8], edx
-            mov edx, dword ptr [ecx + 0ch]
-            mov dword ptr [eax + 0ch], edx
-        }
-    }
-
     // FUN_06f30480: all 60 instructions; only normalized S is stored as float.
     __declspec(naked) void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
     {
@@ -407,80 +386,96 @@ namespace
 
     // FUN_06f30520: exact endpoint/seed/walk arithmetic, followed by an
     // ordinary typed kernel call. No C++ function is invoked inside asm.
-    void HermiteEvaluate(const FHermiteKnot* Begin, int Count, const float* T, FThornExtendedProgress* Output)
+    __declspec(noinline) void HermiteEvaluate(const FHermiteKnot* Begin, int Count, const float* T, FThornExtendedProgress* Output)
     {
-        const FHermiteKnot* Left;
-        const FHermiteKnot* Right;
-        int LastIndex;
-        float FirstTime;
-        float LastTime;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Seed;
-        unsigned char bEndpoint = 0;
+        // A named local operand can use the compiler's realigned frame register.
+        // Clang may choose ESI for that register, which this asm also modifies.
+        // Address all operands through one fixed EBX state pointer instead.
+        struct FState
+        {
+            const FHermiteKnot* Begin;
+            int Count;
+            const float* T;
+            FThornExtendedProgress* Output;
+            const FHermiteKnot* Left;
+            const FHermiteKnot* Right;
+            int LastIndex;
+            float FirstTime;
+            float LastTime;
+            unsigned short OldControl;
+            unsigned short ChopControl;
+            // FISTP still writes eight bytes, without imposing 8-byte C++
+            // alignment and introducing another realigned frame register.
+            unsigned int Seed[2];
+            unsigned char bEndpoint;
+        } State = {Begin, Count, T, Output};
+        static_assert(offsetof(FState, T) == 8 && offsetof(FState, Left) == 0x10 &&
+                      offsetof(FState, OldControl) == 0x24 && offsetof(FState, Seed) == 0x28 &&
+                      offsetof(FState, bEndpoint) == 0x30 && alignof(FState) == 4, "Hermite asm state offsets");
         __asm
         {
-            mov esi, Begin
+            lea ebx, State
+            mov esi, dword ptr [ebx]
             test esi, esi
             jnz HermiteReadCount
             xor eax, eax
             jmp HermiteCountReady
         HermiteReadCount:
-            mov eax, Count
+            mov eax, dword ptr [ebx + 4]
         HermiteCountReady:
             cmp eax, 1
             jne HermiteCheckEndpoints
             fld dword ptr [esi]
             jmp HermiteEndpointOutput
         HermiteCheckEndpoints:
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fld dword ptr [edx]
             dec eax
-            mov LastIndex, eax
+            mov dword ptr [ebx + 18h], eax
             shl eax, 4
             add eax, esi
             mov edi, eax
             mov eax, dword ptr [esi + 4]
             mov ecx, dword ptr [edi + 4]
-            mov FirstTime, eax
-            fcomp FirstTime
-            mov LastTime, ecx
+            mov dword ptr [ebx + 1ch], eax
+            fcomp dword ptr [ebx + 1ch]
+            mov dword ptr [ebx + 20h], ecx
             fnstsw ax
             test ah, 05h
             jp HermiteCheckLastEndpoint
             fld dword ptr [esi]
             jmp HermiteEndpointOutput
         HermiteCheckLastEndpoint:
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fld dword ptr [edx]
-            fcomp LastTime
+            fcomp dword ptr [ebx + 20h]
             fnstsw ax
             test ah, 41h
             jnz HermiteSeedSegment
             fld dword ptr [edi]
             jmp HermiteEndpointOutput
         HermiteSeedSegment:
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fld dword ptr [edx]
-            fsub FirstTime
-            fld LastTime
-            fsub FirstTime
+            fsub dword ptr [ebx + 1ch]
+            fld dword ptr [ebx + 20h]
+            fsub dword ptr [ebx + 1ch]
             fdivp st(1), st(0)
-            fimul LastIndex
-            fstcw OldControl
+            fimul dword ptr [ebx + 18h]
+            fstcw word ptr [ebx + 24h]
             fwait
-            mov ax, OldControl
+            mov ax, word ptr [ebx + 24h]
             or ah, 0ch
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Seed
-            fldcw OldControl
-            mov eax, dword ptr Seed
+            mov word ptr [ebx + 26h], ax
+            fldcw word ptr [ebx + 26h]
+            fistp qword ptr [ebx + 28h]
+            fldcw word ptr [ebx + 24h]
+            mov eax, dword ptr [ebx + 28h]
             mov ecx, eax
             shl ecx, 4
             fld dword ptr [ecx + esi + 4]
             add ecx, esi
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fcomp dword ptr [edx]
             fnstsw ax
             test ah, 41h
@@ -489,7 +484,7 @@ namespace
             jbe HermiteBackwardPair
         HermiteWalkBackward:
             fld dword ptr [ecx + 4]
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fcomp dword ptr [edx]
             fnstsw ax
             test ah, 05h
@@ -505,7 +500,7 @@ namespace
             ja HermiteForwardPair
         HermiteWalkForward:
             fld dword ptr [ecx + 4]
-            mov edx, T
+            mov edx, dword ptr [ebx + 8]
             fcomp dword ptr [edx]
             fnstsw ax
             test ah, 41h
@@ -517,17 +512,17 @@ namespace
             mov eax, ecx
             add ecx, -10h
         HermiteSelectedPair:
-            mov Left, ecx
-            mov Right, eax
+            mov dword ptr [ebx + 10h], ecx
+            mov dword ptr [ebx + 14h], eax
             jmp HermitePhaseDone
         HermiteEndpointOutput:
-            mov ecx, Output
+            mov ecx, dword ptr [ebx + 0ch]
             fstp tbyte ptr [ecx]
-            mov bEndpoint, 1
+            mov byte ptr [ebx + 30h], 1
         HermitePhaseDone:
         }
-        if (!bEndpoint)
-            Hermite1D(*Left, *Right, T, Output);
+        if (!State.bEndpoint)
+            Hermite1D(*State.Left, *State.Right, T, Output);
     }
 
     void ApplyHermiteTangents(FHermiteKnot* Knots, int Count, int TangentMode)
@@ -778,7 +773,11 @@ namespace
             // The typed worker preserves its result in 80-bit output storage.
             // Pass the original argument address: no FP load before worker comparisons.
             EvaluateExtended(&T, &Result);
+#if defined(__clang__)
+            return ThornReturnExtendedFloat(&Result);
+#else
             __asm { fld tbyte ptr Result }
+#endif
         }
 #pragma warning(pop)
 
