@@ -32,6 +32,7 @@
 // unregister_object_hash_entry() further down. ObjectHashMap stays void*
 // because the single-slot mode stores a candidate pointer in it directly.
 #include "../ivp_utility/ivp_vhash.h"
+#include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte
 
 
 // Internal IVP helper types
@@ -201,7 +202,7 @@ void __fastcall FUN_063465a0(IVP_Core* Core)
     else
     {
         // `SHL ECX,0x18; CMP ECX,0x8000000; JLE skip` -- signed.
-        if (static_cast<int32_t>(Core->MovementState << 24) > 0x08000000)
+        if (IVP_SignedLowByte(Core->MovementState) > 8)
         {
             Core->MovementState = (Core->MovementState & 0xffffff08u) | 0x8u;
         }

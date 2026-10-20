@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte
 
 // ============================================================================
 // FUN_06348e10: IVP_Simulation_Unit's real constructor. See the header's own
@@ -617,7 +618,7 @@ void IVP_Simulation_Unit_Revive_If_Sleeping(IVP_Simulation_Unit* Unit, IVP_Envir
             break;
         }
         IVP_Core* const Core = Unit->Cores.elems[Index];
-        if (static_cast<int32_t>(Core->MovementState << 24) < 0x08000000)
+        if (IVP_SignedLowByte(Core->MovementState) < 8)
         {
             continue;
         }
