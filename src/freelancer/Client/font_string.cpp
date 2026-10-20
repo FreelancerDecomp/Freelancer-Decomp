@@ -662,7 +662,7 @@ void FontStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
                     Record.V0 = ShadowV0;
                     Record.U1 = ShadowU1;
                     Record.V1 = ShadowV1;
-                    std::memcpy(&Record.ColorBits, &Color, sizeof(Color));
+                    Record.ColorBits = Color;
                     ScreenQuadAppendRecord(Record);
                 }
             }
@@ -682,7 +682,7 @@ void FontStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
             Record.V0 = V0;
             Record.U1 = U1;
             Record.V1 = V1;
-            std::memcpy(&Record.ColorBits, &Color, sizeof(Color));
+            Record.ColorBits = Color;
             ScreenQuadAppendRecord(Record);
         }
     }
@@ -1912,7 +1912,7 @@ void NumberStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
                 Record.V0 = ClipV0;
                 Record.U1 = ShadowU1;
                 Record.V1 = ClipV1;
-                std::memcpy(&Record.ColorBits, &Color, sizeof(Color));
+                Record.ColorBits = Color;
                 ScreenQuadAppendRecord(Record);
             }
         }
@@ -1938,7 +1938,7 @@ void NumberStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
         Record.V0 = ClipV0;
         Record.U1 = Uv.U1;
         Record.V1 = ClipV1;
-        std::memcpy(&Record.ColorBits, &Color, sizeof(Color));
+        Record.ColorBits = Color;
         ScreenQuadAppendRecord(Record);
     }
 }

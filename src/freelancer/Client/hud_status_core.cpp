@@ -362,7 +362,7 @@ void HUD_Core::DrawBars(float DesignY, unsigned long Color, float Ratio)
         std::memcpy(&Record.V0, &G_ScreenQuadDefaultFrame[2], sizeof(float));
         std::memcpy(&Record.U1, &G_ScreenQuadDefaultFrame[3], sizeof(float));
         std::memcpy(&Record.V1, &G_ScreenQuadDefaultFrame[4], sizeof(float));
-        std::memcpy(&Record.ColorBits, &Color, sizeof(Record.ColorBits));
+        Record.ColorBits = Color;
         ScreenQuadAppendRecord(Record);
         // TEST AH,0x41 / JZ: only a strictly greater (ordered) next left edge ends the row.
         if (NextLeft > static_cast<double>(FillEnd))

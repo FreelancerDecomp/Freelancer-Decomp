@@ -1010,7 +1010,7 @@ void ScreenQuadEnqueueIcon(ICamera* Cam, float const* Position, unsigned long Ar
         Rec.V0 = ClipV0;
         Rec.U1 = ClipU1;
         Rec.V1 = ClipV1;
-        Rec.ColorBits = static_cast<unsigned>(Argb);
+        Rec.ColorBits = Argb;
         return;
     }
 
@@ -1292,7 +1292,7 @@ void __cdecl ScreenQuadDrawBigImageTile(void* TextureHandle, unsigned long Packe
             Rec.V0 = V0;
             Rec.U1 = U1;
             Rec.V1 = V1;
-            Rec.ColorBits = static_cast<unsigned>(PackedColor);
+            Rec.ColorBits = PackedColor;
             AppendRecordToNode(Node, Rec);
 
             // 0x00404b80..0x00404b94: FUN_00403ea0(DALib::Pipeline, DAT_0061648c).

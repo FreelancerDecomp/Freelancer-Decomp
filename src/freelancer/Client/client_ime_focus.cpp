@@ -208,7 +208,7 @@ void ClientIMEFocus::DrawRect(int X1, int Y1, int X2, int Y2, DWORD Color)
     Record.V0 = V0;
     Record.U1 = U1;
     Record.V1 = V1;
-    std::memcpy(&Record.ColorBits, &Color, sizeof(unsigned));
+    Record.ColorBits = Color;
     ScreenQuadAppendRecord(Record);
 }
 
