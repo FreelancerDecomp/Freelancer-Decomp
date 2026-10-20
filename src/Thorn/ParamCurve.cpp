@@ -1106,16 +1106,7 @@ namespace
             {
                 const float* KeyTime = &Key->T;
                 unsigned char bGreater;
-                __asm
-                {
-                    mov ecx, KeyTime
-                    fld dword ptr [ecx]
-                    mov edx, T
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 41h
-                    setz bGreater
-                }
+                bGreater = ThornParamMath::Greater(KeyTime, T);
                 if (bGreater)
                 {
                     if (Previous == EvaluationKeys_.end())
