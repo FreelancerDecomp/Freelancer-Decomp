@@ -35,7 +35,12 @@ struct FScreenQuadRecord
     float V0;       // +0x1c
     float U1;       // +0x20
     float V1;       // +0x24
-    float ColorBits; // +0x28  packed ARGB as float bit-pattern
+    // +0x28 packed ARGB, a raw dword: retail only ever moves it with MOV (the vertex expand
+    // FUN_004042c0 reads it at 0x00404387, 0x004043d6, 0x0040440c, 0x0040443d). Not a float:
+    // in an x87 build (/arch:IA32) a float passed by value goes through FLD/FSTP, which
+    // quiets a signalling NaN, and an opaque colour (A = 0xFF) with R in 0x80..0xBF is one --
+    // its R would gain 0x40 (grey 0xFF808080 -> 0xFFC08080).
+    unsigned ColorBits;
 };
 
 // The pipeline render-state saver retail keeps on the stack (FUN_00403ea0, FUN_00404720,
