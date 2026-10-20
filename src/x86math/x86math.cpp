@@ -29,23 +29,6 @@ namespace
     const unsigned int G_ComponentNameBytes = 13;
     static_assert(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
 
-    // Rotate/TransformMatrix share the portable, in-place-safe batch operation.
-    void MulVecByMatrix(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
-    {
-        X86MatrixMath::TransformVector(Dst, Matrix, Source);
-    }
-
-    // InverseRotate/TransposeTransform share the portable transpose operation.
-    void MulVecByTranspose(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
-    {
-        X86MatrixMath::TransformTranspose(Dst, Matrix, Source);
-    }
-
-    void TransposeMatrix(FMatrix& Dst, const FMatrix& Source)
-    {
-        X86MatrixMath::Transpose(Dst, Source);
-    }
-
     void WriteAdjugate(FMatrix& Dst, const FMatrix& Source, float Scale)
     {
         Dst.D[0][0] = (Source.D[1][1] * Source.D[2][2] - Source.D[1][2] * Source.D[2][1]) * Scale;
@@ -58,8 +41,6 @@ namespace
         Dst.D[1][2] = -(Source.D[0][0] * Source.D[1][2] - Source.D[0][2] * Source.D[1][0]) * Scale;
         Dst.D[2][2] = (Source.D[0][0] * Source.D[1][1] - Source.D[0][1] * Source.D[1][0]) * Scale;
     }
-
-
 }
 
 struct FMathEngine final : I3DMathEngine, IComponentFactory
@@ -171,25 +152,25 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API TransformMatrix(FVector& Dst, const FMatrix& Matrix, const FVector& Source) override
     {
-        MulVecByMatrix(Dst, Matrix, Source);
+        X86MatrixMath::TransformVector(Dst, Matrix, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API Rotate(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        MulVecByMatrix(Dst, Xform.Rotation, Source);
+        X86MatrixMath::TransformVector(Dst, Xform.Rotation, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API InverseRotate(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        MulVecByTranspose(Dst, Xform.Rotation, Source);
+        X86MatrixMath::TransformTranspose(Dst, Xform.Rotation, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API TransposeTransform(FVector& Dst, const FMatrix& Matrix, const FVector& Source) override
     {
-        MulVecByTranspose(Dst, Matrix, Source);
+        X86MatrixMath::TransformTranspose(Dst, Matrix, Source);
         return GR_OK;
     }
 
@@ -197,7 +178,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     {
         const FVector Delta = {Source.X - Xform.Translation.X, Source.Y - Xform.Translation.Y,
                                Source.Z - Xform.Translation.Z};
-        MulVecByTranspose(Dst, Xform.Rotation, Delta);
+        X86MatrixMath::TransformTranspose(Dst, Xform.Rotation, Delta);
         return GR_OK;
     }
 
@@ -219,7 +200,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
                                                int Count) override
     {
         FMatrix Transposed;
-        TransposeMatrix(Transposed, Matrix);
+        X86MatrixMath::Transpose(Transposed, Matrix);
         return TransformListMatrix(Dst, Transposed, Source, Count);
     }
 
@@ -228,10 +209,10 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     {
         FVector NegTranslation = {-Xform.Translation.X, -Xform.Translation.Y, -Xform.Translation.Z};
         FVector InvTranslation;
-        MulVecByTranspose(InvTranslation, Xform.Rotation, NegTranslation);
+        X86MatrixMath::TransformTranspose(InvTranslation, Xform.Rotation, NegTranslation);
 
         FTransform Inverse = {};
-        TransposeMatrix(Inverse.Rotation, Xform.Rotation);
+        X86MatrixMath::Transpose(Inverse.Rotation, Xform.Rotation);
         Inverse.Translation = InvTranslation;
         return TransformListXform(Dst, Inverse, Source, Count);
     }
