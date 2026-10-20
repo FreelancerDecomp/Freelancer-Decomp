@@ -309,12 +309,7 @@ void CClientImpl::SendCommonPlayerTradeAddTradeEquip(unsigned int ClientId, unsi
         TypedPacket->EquipCount = Item.Count;
         const float* SourceHealth = &Item.Health;
         float* DestinationHealth = &TypedPacket->EquipHealth;
-        __asm {
-            mov eax, SourceHealth
-            mov edx, DestinationHealth
-            fld dword ptr [eax]
-            fstp dword ptr [edx]
-        }
+        PortableFloatLoad::Copy(DestinationHealth, SourceHealth);
         TypedPacket->TargetPlayer = ShipId;
         TypedPacket->EquipId = Item.Id;
         PushToClient(ClientId, Packet->AsRaw());
