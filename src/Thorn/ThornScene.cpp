@@ -9,6 +9,7 @@
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
 #include "X87Return.h"
+#include "ExtendedProgressCodec.h"
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
 #include "SceneInterpolationMath.h"

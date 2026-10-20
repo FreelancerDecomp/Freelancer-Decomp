@@ -6,7 +6,9 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
-#include "X87Return.h"
+#include "ExtendedProgressCodec.h"
+#include "ParamCurveMath.h"
+#include "CurvePolynomialMath.h"
 #include "HermiteRecord.h"
 #include "ExtendedFloatStorage.h"
 #include "PortableComparison.h"
@@ -735,14 +737,8 @@ namespace
         float DACOM_API Evaluate(float T) override
         {
             FThornExtendedProgress Result;
-            // The typed worker preserves its result in 80-bit output storage.
-            // Pass the original argument address: no FP load before worker comparisons.
             EvaluateExtended(&T, &Result);
-#if defined(__clang__)
-            return ThornReturnExtendedFloat(&Result);
-#else
-            __asm { fld tbyte ptr Result }
-#endif
+            return ThornExtendedProgress::LoadFloat(Result.Bytes);
         }
 #pragma warning(pop)
 
