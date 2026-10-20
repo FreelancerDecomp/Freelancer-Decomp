@@ -2071,7 +2071,7 @@ void HUD_ContactList::Draw()
                             wchar_t Faction[0x80];
                             IdsInto(ShortName, Faction, 0x80);
                             wcscat(Name, Faction);
-                            wcscat(Name, L" ");
+                            wcscat(Name, L" - "); // 0x004d301c: DAT_005d01f4
                         }
                         wchar_t Pilot[0xff];
                         FmtStrSprintf(&NameB, Pilot, 0xff);
@@ -2098,7 +2098,7 @@ void HUD_ContactList::Draw()
                         {
                             if (bNamed != 0)
                             {
-                                wcscat(Name, L" ");
+                                wcscat(Name, L" - "); // 0x004d30ff: DAT_005d01f4
                             }
                             wchar_t TypeName[0x80];
                             IdsInto(GetObjectIdsName(Simple), TypeName, 0x80); // FUN_005472a0
@@ -2126,7 +2126,7 @@ void HUD_ContactList::Draw()
                                 }
                                 else
                                 {
-                                    wcscat(Name, L" ");
+                                    wcscat(Name, L" - "); // 0x004d3258: DAT_005d01f4
                                     bNamed = 1;
                                 }
                             }
