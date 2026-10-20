@@ -1403,28 +1403,7 @@ unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
 // Native FMUL float followed by FMUL double, then _ftol's truncating signed
 // integer conversion. Tier selection bounds the finite result to +/-32767.
 unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
-    const float* Source = &Value;
-    const float* PreScale = bMedium ? &GFireMediumPreScale : &GFireSmallPreScale;
-    const double* Scale = bMedium ? &GFireMediumScale : &GFireSmallScale;
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Source
-        mov eax, PreScale
-        mov edx, Scale
-        fld dword ptr [ecx]
-        fmul dword ptr [eax]
-        fmul qword ptr [edx]
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned int>(Quantized);
+    return static_cast<unsigned int>(PortableRpcQuantization::QuantizeFire(&Value, bMedium));
 }
 
 bool RpcFirePutComponent(FRpcWireStream& Stream, const float& Value,
