@@ -13,6 +13,7 @@
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
 #include "SceneInterpolationMath.h"
+#include "SceneIntegerMath.h"
 #include "CompactLightMath.h"
 #include "PortableComparison.h"
 #include "SceneGeometryMath.h"
@@ -905,28 +906,11 @@ namespace
     }
 #pragma warning(pop)
 
-    // 45ce4/45d10/45d35: signed low32 difference, FMUL float U, FIADD From.
-    // Actual C++ Debug/Release spilled these operands to double. Only the
-    // arithmetic is explicit; the ordinary caller performs the modern cast.
-#pragma warning(push)
-#pragma warning(disable: 4716) // The x86 double result is left in ST(0).
-    __declspec(noinline) double ComputeLightColor(int From, int To, const float* U)
+    // Signed wrapping difference and a final truncation to the low integer word.
+    int ComputeLightColor(int From, int To, const float* U)
     {
-        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
-                                            static_cast<unsigned int>(From);
-        const int Difference = static_cast<int>(DifferenceBits);
-        __asm
-        {
-            fild dword ptr Difference
-            mov eax, U
-            fmul dword ptr [eax]
-            fiadd dword ptr From
-        }
-#if defined(__clang__)
-        return ThornReturnSt0Double();
-#endif
+        return ThornSceneInteger::Color(From, To, U);
     }
-#pragma warning(pop)
 
     // FOG 48eb3..48f0c: snapshot both scalar endpoints before publication.
     void FogLerpFloat(const float* From, const float* To, const float* U, float* ResultValue)
@@ -938,28 +922,7 @@ namespace
     // FMUL/FIADD and _ftol's chop-to-qword with low32 return. No float store.
     int FogLerpInteger(int From, int To, const float* U)
     {
-        int Difference;
-        long long Result;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        __asm
-        {
-            mov eax, To
-            sub eax, From
-            mov Difference, eax
-            fild Difference
-            mov eax, U
-            fmul dword ptr [eax]
-            fiadd From
-            fstcw OldControl
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornSceneInteger::Color(From, To, U);
     }
 
     void CopyLightProps(FThornLightProps* Dst, const FThornLightProps* Src)
