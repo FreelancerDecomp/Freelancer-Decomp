@@ -1338,39 +1338,7 @@ namespace
                            Points_[LiveCount_], 0.9f, Points_[EndGhost]);
             const FVec3* LastPoint = &Points_[LiveCount_];
             FVec3* GhostPoint = &Points_[EndGhost];
-            float DifferenceZ;
-            float X;
-            float Y;
-            float Z;
-            // Release reassociates the ordinary C++ additions and selects
-            // different NaN payloads (58 concrete probe mismatches).
-            // Keep only this arithmetic/publication sequence bounded here.
-            __asm
-            {
-                mov ecx, LastPoint
-                mov edx, GhostPoint
-                fld dword ptr [ecx]
-                fsub dword ptr [edx]
-                fld dword ptr [ecx + 4]
-                fsub dword ptr [edx + 4]
-                fld dword ptr [ecx + 8]
-                fsub dword ptr [edx + 8]
-                fstp DifferenceZ
-                fxch st(1)
-                fadd dword ptr [ecx]
-                fstp X
-                fadd dword ptr [ecx + 4]
-                fstp Y
-                fld DifferenceZ
-                fadd dword ptr [ecx + 8]
-                mov eax, X
-                mov dword ptr [edx], eax
-                mov eax, Y
-                mov dword ptr [edx + 4], eax
-                fstp Z
-                mov eax, Z
-                mov dword ptr [edx + 8], eax
-            }
+            ThornSplineSampling::ExtendEndGhost(*LastPoint, *GhostPoint);
         }
 
         void ApplyLoadedQuats(const FQuat* Quats, int Count)
