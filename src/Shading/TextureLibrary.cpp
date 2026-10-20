@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_integer_conversion.h"
 #include "portable_vector_load.h"
 #include "TextureLibrary.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
@@ -495,23 +496,7 @@ namespace
 
     unsigned int TruncatePlaybackFrame(double Value)
     {
-        // MSVCRT ftol returns the low dword of an x87 signed-qword conversion.
-        // Preserve its indefinite result for NaN/overflow instead of a C++ cast.
-        unsigned short SavedControl;
-        unsigned short TruncateControl;
-        long long Converted;
-        __asm
-        {
-            fnstcw SavedControl
-            mov ax, SavedControl
-            or ax, 0x0c00
-            mov TruncateControl, ax
-            fldcw TruncateControl
-            fld Value
-            fistp Converted
-            fldcw SavedControl
-        }
-        return (unsigned int)Converted;
+        return static_cast<unsigned int>(PortableIntegerConversion::ToInt64Bits(&Value));
     }
 
     void SetPlaybackElapsed(FTexturePlayback* Entry, float Seconds)
