@@ -11,6 +11,7 @@
 #include "X87Return.h"
 #include "PortableSplineMath.h"
 #include "PortableSceneMath.h"
+#include "PortableComparison.h"
 #include "portable_vector_load.h"
 
 #include <cmath>
@@ -8206,19 +8207,7 @@ namespace
 
     bool ShouldSaveNonzeroFloat(const float* Value)
     {
-        const float Zero = 0.0f;
-        unsigned char Emit;
-        __asm {
-            mov edx, Value
-            fld dword ptr [edx]
-            fcomp dword ptr Zero
-            fnstsw ax
-            test ah, 44h
-            setp al
-            mov Emit, al
-        }
-        // TEST AH,44h / JNP skips equality; unordered and nonzero emit.
-        return Emit != 0;
+        return ThornPortableComparison::Nonzero(Value);
     }
 
     int SaveBufAppendPromotedFloatAsInteger(FThornSaveBuf* Buf, const char* Format, const float* Value)
