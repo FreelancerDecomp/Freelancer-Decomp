@@ -37,6 +37,7 @@
 #include "ivp_listmanager_topology.h" // for IVP_ListManager_RefreshAttachedCtxAndCountLive / IVP_ComputePairRecordMassFactor's own declarations (item 3231/3243, d229:cluster-06355200) -- included here so the compiler enforces the signature match against ivp_listmanager_topology.h's declarations instead of relying on link-time agreement alone.
 #include "../ivp_utility/ivp_vector_math.h"
 #include "../ivp_utility/ivp_core_trap.h" // IVP_CoreTrap (retail's `MOV dword ptr [0],0`)
+#include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte (insert_exact_mindist)
 #include "../../include/common_physys.h"
 #include "ivp_ledge_sweep_solver.h" // the collision-time estimator dispatch layer (items 3380-3384) and its eight drivers
 #include "ivp_mindist_create.h" // IVP_Create_Exact_Mindists (FUN_0634e0b0), called by SpawnOrDeferChild (06362c70)
@@ -2019,10 +2020,11 @@ void IVP_Mindist_Manager::insert_exact_mindist(IVP_Ledge_Mindist* Mindist)
         Mindist->exact_mindist_went_invalid(this); // :0634eae5 `CALL [EDX+0x1c]` (slot 7) with this manager
         return;
     }
-    // (coreB->MovementState | coreA->MovementState) << 24, signed `< 0x21000000`.
-    const int32_t Movement = static_cast<int32_t>(
-        (Mindist->synapse[1].l_obj->core->MovementState | Mindist->synapse[0].l_obj->core->MovementState) << 24); // :0634eaaf-:0634eac9
-    IVP_RescheduleCollisionEvent(Mindist, (Movement < 0x21000000) ? 1 : 0, 0); // :0634eacc-:0634eadb (SETL)
+    // (coreB->MovementState | coreA->MovementState) << 24, signed `< 0x21000000`:
+    // the signed low byte of the OR against 0x21 (ivp_signed_byte.h).
+    const int32_t Movement = IVP_SignedLowByte(
+        Mindist->synapse[1].l_obj->core->MovementState | Mindist->synapse[0].l_obj->core->MovementState); // :0634eaaf-:0634eac9
+    IVP_RescheduleCollisionEvent(Mindist, (Movement < 0x21) ? 1 : 0, 0); // :0634eacc-:0634eadb (SETL)
 }
 
 // ---------------------------------------------------------------------------

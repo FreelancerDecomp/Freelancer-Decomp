@@ -351,6 +351,7 @@
     <ClInclude Include="..\IVP\ivp_utility\ivp_crc32.h" />
     <ClInclude Include="..\IVP\ivp_utility\ivp_malloc.h" />
     <ClInclude Include="..\IVP\ivp_utility\ivp_core_trap.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_signed_byte.h" />
     <ClInclude Include="..\IVP\ivp_utility\ivp_u_bigvector.h" />
     <ClInclude Include="..\IVP\ivp_utility\ivp_random.h" />
     <ClInclude Include="..\IVP\ivp_utility\ivp_min_hash.h" />

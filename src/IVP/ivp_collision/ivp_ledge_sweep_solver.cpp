@@ -74,6 +74,7 @@
 #include "../ivp_physics/ivp_mindist.h"
 #include "../ivp_compact_builder/ivp_compact_ledge.h"
 #include "ivp_compact_ledge_solver.h" // calc_hesse_vec_object_not_normized (FUN_0635b940)
+#include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte (IVP_Sweep_Frame_Cache::Init)
 
 #include <cmath>
 
@@ -753,14 +754,17 @@ void IVP_Sweep_Frame_Cache::Init(FIVP_Sweep_Cache_Source *Source)
     this->Object = Source->Object;
     this->Core = this->Object->core;
 
-    // :0635dea5-:0635deb0. Literal transcription of the shift-and-signed-
-    // compare, not the (int8_t)(flags) >= 8 form it reduces to, so that the
-    // listing and the port line up instruction for instruction.
-    const int32_t ShiftedFlags = static_cast<int32_t>(this->Object->flags << 24);
+    // :0635dea5-:0635deb0 `SHL EAX,0x18; CMP EAX,0x8000000; JL`: the signed
+    // low byte of flags against 8. Written as IVP_SignedLowByte, not as the
+    // shift: MSVC folded `(int32_t)(flags << 24) < 0x08000000` into a compare
+    // of the whole dword, so a moving ship (flags 0x101) took the static
+    // branch, its 20 future frames were never extrapolated and the sweep never
+    // found the contact (ivp_signed_byte.h).
+    const int32_t MovementByte = IVP_SignedLowByte(this->Object->flags);
 
     IVP_U_Matrix *const PreparedFrame = &Source->Frame;
 
-    if (ShiftedFlags < 0x08000000)
+    if (MovementByte < 8)
     {
         // :0635ded0-:0635dee7. Twenty stores of zero, walking DOWN from
         // FrameAtSlot[20] to FrameAtSlot[1], then slot 0 set explicitly.

@@ -15,6 +15,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte
 
 // x87 convention for this file (/arch:IA32): every value retail keeps on the FPU stack is a
 // `double` here, and a `float` only where the listing has FSTP/FST dword. FCOM outcomes are
@@ -573,7 +574,7 @@ void IVP_Calc_Next_PSI_Solver::set_transformation(const IVP_U_Quat* Rotation, co
         Hull->InnerValueAtLastEdit = (float)((double)(Distance) + Hull->InnerValueAtLastEdit);
 
         // :06351dcc-:06351dec -- an object whose movement state byte is >= 8.
-        if (static_cast<int32_t>(Object->flags << 24) >= 0x08000000)
+        if (IVP_SignedLowByte(Object->flags) >= 8)
         {
             IVP_Real_Object_Free_Cache_Object(Object); // :06351dda FUN_0634d510 (cdecl)
             Object->recalc_exact_mindists();           // :06351de5 FUN_063454b0
