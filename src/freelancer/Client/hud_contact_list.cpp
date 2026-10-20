@@ -2030,14 +2030,14 @@ void HUD_ContactList::Draw()
             }
             else
             {
-                wcscat(Name, L"?");                      // LAB_004d389d
+                wcscat(Name, L"???");                    // LAB_004d389d: DAT_005d0214
             }
         }
         else if (Gameobj->GetFlag3IfSurfaceWidthUnchanged() && !(bRefreshNames && Entry.Kind == 7))
         {
             // 0x004d2d98..0x004d2dc0: the object's label is still good.
             RowLabels[Row] = Gameobj->GetFontString48();
-            wcscat(Name, L"?");
+            wcscat(Name, L"???"); // 0x004d2dc0 -> LAB_004d389d
         }
         else
         {
@@ -2172,7 +2172,7 @@ void HUD_ContactList::Draw()
                         // LAB_004d3895.
                         if (bNamed == 0)
                         {
-                            wcscat(Name, L"?");
+                            wcscat(Name, L"???"); // 0x004d389d: DAT_005d0214
                         }
                     }
                     else if (Kind == 0xa && (Simple->TypeBits & 0x7f0000u) != 0)
