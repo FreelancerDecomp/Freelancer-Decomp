@@ -139,25 +139,7 @@ namespace
         Dst.D[2][2] = (Source.D[0][0] * Source.D[1][1] - Source.D[0][1] * Source.D[1][0]) * Scale;
     }
 
-    // Retail FSQRT + FDIVR dword 1.0 (DAT_06f730f8). This helper has no
-    // production caller; portable quaternion normalization is in QuaternionMath.h.
-    float RecipSqrtFsqrt(float LenSq)
-    {
-        const float One = 1.0f;
-#if defined(_M_IX86)
-        float Result = 0.0f;
-        __asm
-        {
-            fld dword ptr [LenSq]
-            fsqrt
-            fdivr dword ptr [One]
-            fstp dword ptr [Result]
-        }
-        return Result;
-#else
-        return One / std::sqrt(LenSq);
-#endif
-    }
+
 }
 
 struct FMathEngine final : I3DMathEngine, IComponentFactory
