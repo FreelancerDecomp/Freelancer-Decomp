@@ -264,46 +264,7 @@ namespace
                                        const float& GlobalOffset, float& SegmentLength,
                                        float& SampleTime)
     {
-        // One addressable argument block avoids exhausting clang-cl's inline
-        // asm operand registers; the x87 instruction sequence is unchanged.
-        const void* const Args[] = {&Prev, &Cur, &GlobalOffset, &SegmentLength, &SampleTime};
-        __asm
-        {
-            lea esi, Args
-            mov edx, dword ptr [esi + 4]
-            mov ecx, dword ptr [esi]
-            fld dword ptr [edx]
-            fsub dword ptr [ecx]
-            mov eax, dword ptr [edx]
-            fld dword ptr [edx + 4]
-            mov ebx, dword ptr [edx + 8]
-            fsub dword ptr [ecx + 4]
-            mov edi, dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            mov dword ptr [ecx], eax
-            fsub dword ptr [ecx + 8]
-            fld st(0)
-            mov dword ptr [ecx + 8], ebx
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            mov dword ptr [ecx + 4], edi
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            mov eax, dword ptr [esi + 12]
-            fadd dword ptr [eax]
-            fst dword ptr [eax]
-            mov eax, dword ptr [esi + 8]
-            fadd dword ptr [eax]
-            mov edx, dword ptr [esi + 16]
-            fstp dword ptr [edx]
-        }
+        ThornSplineSampling::Accumulate(Prev, Cur, GlobalOffset, SegmentLength, SampleTime);
     }
 
     // Observe pending exceptions after Total is stored and before Time is published.
