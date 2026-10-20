@@ -98,10 +98,12 @@ namespace
     void QuatInverseScaleRetail(const FQuat& Q, float& Scale)
     {
         const float One = 1.0f;
+        const FQuat* const QPtr = &Q;
+        float* const ScalePtr = &Scale;
         __asm
         {
-            mov ecx, Scale
-            mov edx, Q
+            mov ecx, ScalePtr
+            mov edx, QPtr
             fld dword ptr [edx + 4]
             fmul st(0), st(0)
             fld dword ptr [edx + 8]
@@ -410,10 +412,14 @@ namespace
                                        const float& GlobalOffset, float& SegmentLength,
                                        float& SampleTime)
     {
+        // One addressable argument block avoids exhausting clang-cl's inline
+        // asm operand registers; the x87 instruction sequence is unchanged.
+        const void* const Args[] = {&Prev, &Cur, &GlobalOffset, &SegmentLength, &SampleTime};
         __asm
         {
-            mov edx, Cur
-            mov ecx, Prev
+            lea esi, Args
+            mov edx, dword ptr [esi + 4]
+            mov ecx, dword ptr [esi]
             fld dword ptr [edx]
             fsub dword ptr [ecx]
             mov eax, dword ptr [edx]
@@ -438,12 +444,12 @@ namespace
             fstp st(3)
             fstp st(0)
             fstp st(0)
-            mov eax, SegmentLength
+            mov eax, dword ptr [esi + 12]
             fadd dword ptr [eax]
             fst dword ptr [eax]
-            mov eax, GlobalOffset
+            mov eax, dword ptr [esi + 8]
             fadd dword ptr [eax]
-            mov edx, SampleTime
+            mov edx, dword ptr [esi + 16]
             fstp dword ptr [edx]
         }
     }
@@ -496,34 +502,7 @@ namespace
     // The two input columns are read before rotational output publication.
     void NormalizeLookAtVector(FVec3& Vector)
     {
-        const float One = 1.0f;
-        // The intrinsic C++ candidate changes PC24/RC_DOWN output bits and
-        // spills Inverse to qword in Debug. 341cc..34215 retains it through
-        // all three float stores; 342b5..342f7 uses the same arithmetic.
-        __asm
-        {
-            mov edx, Vector
-            fld dword ptr [edx + 8]
-            fmul dword ptr [edx + 8]
-            fld dword ptr [edx + 4]
-            fmul dword ptr [edx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [edx]
-            fmul dword ptr [edx]
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fld dword ptr [edx]
-            fmul st(0), st(1)
-            fstp dword ptr [edx]
-            fld dword ptr [edx + 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 8]
-            fstp st(0)
-        }
+        ThornSceneGeometry::Normalize(Vector.X, Vector.Y, Vector.Z, true);
     }
 
     void CrossLookAtVector(FVec3& Result, const FVec3& A, const FVec3& B, bool bReverseOrder)
@@ -533,11 +512,14 @@ namespace
         // changes operand stages and output before an unmasked exception.
         // A direct output reference also avoids Release NRVO losing the
         // local aggregate written through an asm LEA.
+        FVec3* const ResultPtr = &Result;
+        const FVec3* const APtr = &A;
+        const FVec3* const BPtr = &B;
         __asm
         {
-            mov edx, A
-            mov ecx, B
-            mov eax, Result
+            mov edx, APtr
+            mov ecx, BPtr
+            mov eax, ResultPtr
             fld dword ptr [ecx]
             fld dword ptr [ecx + 4]
             fld dword ptr [ecx + 8]
@@ -623,9 +605,13 @@ namespace
         // 3435d..343d2: the Z product precedes the first caller store, its
         // float store follows it. Ordinary Release publishes output before
         // its unmasked invalid exception; retain this arithmetic/store span.
+        const void* const Args[] = {OutXform, &AxisZ, &Forward, &AxisY, &One};
         __asm
         {
-            lea edx, AxisZ
+            lea esi, Args
+            mov edx, dword ptr [esi + 4]
+            mov edi, dword ptr [esi + 8]
+            mov ebx, dword ptr [esi + 12]
             fld dword ptr [edx]
             fmul dword ptr [edx]
             fld dword ptr [edx + 4]
@@ -635,7 +621,8 @@ namespace
             fmul dword ptr [edx + 8]
             faddp st(1), st(0)
             fsqrt
-            fdivr One
+            mov eax, dword ptr [esi + 16]
+            fdivr dword ptr [eax]
             fld dword ptr [edx]
             fmul st(0), st(1)
             fstp dword ptr [edx]
@@ -644,20 +631,20 @@ namespace
             fstp dword ptr [edx + 4]
             fld dword ptr [edx + 8]
             fmul st(0), st(1)
-            mov ecx, OutXform
-            mov eax, Forward.X
+            mov ecx, dword ptr [esi]
+            mov eax, dword ptr [edi + 0]
             mov dword ptr [ecx], eax
             fstp dword ptr [edx + 8]
-            mov eax, AxisY.X
+            mov eax, dword ptr [ebx + 0]
             mov dword ptr [ecx + 4], eax
             fstp st(0)
-            mov eax, Forward.Y
+            mov eax, dword ptr [edi + 4]
             mov dword ptr [ecx + 12], eax
-            mov eax, Forward.Z
+            mov eax, dword ptr [edi + 8]
             mov dword ptr [ecx + 24], eax
-            mov eax, AxisY.Y
+            mov eax, dword ptr [ebx + 4]
             mov dword ptr [ecx + 16], eax
-            mov eax, AxisY.Z
+            mov eax, dword ptr [ebx + 8]
             mov dword ptr [ecx + 28], eax
             fld dword ptr [edx + 8]
             fchs
@@ -681,10 +668,13 @@ namespace
     {
         // Ordinary double temporaries spill to qword in Debug. At PC64,
         // 1 + 2^-60 then traps on that spill before the retail W publication.
+        FQuat* const DstPtr = &Dst;
+        const FQuat* const APtr = &A;
+        const FQuat* const BPtr = &B;
         __asm
         {
-            mov edx, A
-            mov ecx, B
+            mov edx, APtr
+            mov ecx, BPtr
             fld dword ptr [edx + 12]
             fadd dword ptr [ecx + 12]
             fld dword ptr [edx + 8]
@@ -693,7 +683,7 @@ namespace
             fadd dword ptr [ecx + 4]
             fld dword ptr [edx]
             fadd dword ptr [ecx]
-            mov edx, Dst
+            mov edx, DstPtr
             fstp dword ptr [edx]
             fstp dword ptr [edx + 4]
             fstp dword ptr [edx + 8]
@@ -709,9 +699,12 @@ namespace
         float Z;
         // Release C++ retained S and reversed the first three FMUL operands:
         // the differential probe found NaN payload and denormal flag changes.
+        // Explicit pointer operands avoid compiler-specific reference dereferencing.
+        auto* const DstAsmPtr = &Dst;
+        auto* const QAsmPtr = &Q;
         __asm
         {
-            mov edx, Q
+            mov edx, QAsmPtr
             fld S
             fmul dword ptr [edx]
             fstp W
@@ -723,7 +716,7 @@ namespace
             fstp Y
             fld S
             fmul dword ptr [edx + 12]
-            mov edx, Dst
+            mov edx, DstAsmPtr
             mov eax, W
             mov dword ptr [edx], eax
             mov eax, X
@@ -785,6 +778,9 @@ namespace
         // The intrinsic candidate spills Z before publishing X/Y: with a
         // denormal Z and unmasked DE, both builds trap before those stores.
         // 241ce..241f0 publishes X/Y between the Z product and its float store.
+        // Explicit pointer operands avoid compiler-specific reference dereferencing.
+        auto* const DstAsmPtr = &Dst;
+        auto* const QAsmPtr = &Q;
         __asm
         {
             fld Angle
@@ -805,7 +801,7 @@ namespace
         LogRetainedProducts:
             fxch st(1)
             fstp st(0)
-            mov edx, Q
+            mov edx, QAsmPtr
             fld st(0)
             fmul dword ptr [edx + 4]
             fstp X
@@ -813,7 +809,7 @@ namespace
             fmul dword ptr [edx + 8]
             fstp Y
             fmul dword ptr [edx + 12]
-            mov ecx, Dst
+            mov ecx, DstAsmPtr
             mov eax, X
             mov dword ptr [ecx + 4], eax
             mov eax, Y
@@ -865,9 +861,11 @@ namespace
         bool bScaleVector = false;
         // Intrinsic C++ changes FSIN/FCOS results and drops the float scale
         // boundary in Release; the root PC/RC probe confirms numeric cases.
+        // Explicit pointer operands avoid compiler-specific reference dereferencing.
+        auto* const QAsmPtr = &Q;
         __asm
         {
-            mov edx, Q
+            mov edx, QAsmPtr
             fld dword ptr [edx + 4]
             fmul dword ptr [edx + 4]
             fld dword ptr [edx + 8]
@@ -921,9 +919,11 @@ namespace
         Result.X = Q.X;
         Result.Y = Q.Y;
         Result.Z = Q.Z;
+        // Explicit pointer operands avoid compiler-specific reference dereferencing.
+        auto* const QAsmPtr = &Q;
         __asm
         {
-            mov edx, Q
+            mov edx, QAsmPtr
             fld dword ptr [edx + 4]
             fmul st(0), st(0)
             fld dword ptr [edx + 8]
@@ -1940,11 +1940,15 @@ namespace
         // before a signalling Y; retail instead reaches Y and traps invalid.
         static void SubtractGhostVector(FVec3& OutputVector, const FVec3& A, const FVec3& B)
         {
+            // Explicit pointer operands avoid compiler-specific reference dereferencing.
+            auto* const OutputVectorAsmPtr = &OutputVector;
+            auto* const AAsmPtr = &A;
+            auto* const BAsmPtr = &B;
             __asm
             {
-                mov eax, A
-                mov ecx, B
-                mov edx, OutputVector
+                mov eax, AAsmPtr
+                mov ecx, BAsmPtr
+                mov edx, OutputVectorAsmPtr
                 fld dword ptr [eax + 8]
                 fsub dword ptr [ecx + 8]
                 fld dword ptr [eax + 4]
