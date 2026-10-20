@@ -1345,29 +1345,8 @@ const double GUpdateInverseScale = 1.0 / 127.0;   // PE 06c0df48: 08040281402080
 // plus its width (RC06b64d58/06b64d5b, 06b64e3d/06b64e3e); it never rereads Ptr.
 unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommit,
     unsigned int CommittedPointer) {
-    const float* Source = &Value;
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Source
-        fld dword ptr [ecx]
-        fmul qword ptr GFireSmallScale
-        mov ecx, PointerToCommit
-        test ecx, ecx
-        jz UpdateConversion
-        mov eax, CommittedPointer
-        mov dword ptr [ecx], eax
-    UpdateConversion:
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeUpdate(
+        &Value, PointerToCommit, CommittedPointer));
 }
 
 void RpcUpdateExpand(signed char Encoded, float& Value) {
