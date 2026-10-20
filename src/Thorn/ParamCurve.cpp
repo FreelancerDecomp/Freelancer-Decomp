@@ -954,16 +954,7 @@ namespace
                 unsigned char bInsertBefore;
                 // TEST AH,41/JNP breaks on less/equal. Greater/unordered
                 // have even parity and advance; no C++ float comparison.
-                __asm
-                {
-                    mov ecx, NewTime
-                    mov edx, ExistingTime
-                    fld dword ptr [ecx]
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 41h
-                    setnp bInsertBefore
-                }
+                bInsertBefore = ThornParamMath::LessEqual(NewTime, ExistingTime);
                 if (bInsertBefore)
                     break;
                 InsertAt = InsertAt + 1;
