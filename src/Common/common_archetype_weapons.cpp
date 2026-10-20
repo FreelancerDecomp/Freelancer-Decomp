@@ -8,6 +8,7 @@
 // CounterMeasure -- split out of common_archetype.cpp (retail Archetype.cpp, one TU) in CMN-SPLIT
 // phase B.
 
+#include <cmath>
 #include "common_archetype.h"
 #include "common_archetype_internal.h"
 
@@ -20,7 +21,6 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "readfile.h"
-#include "x87_trig.h" // X87CosF (Munition::read seeker_fov_deg, 062f723c FCOS; FSTP float)
 
 #include <cstddef>
 #include <list>
@@ -624,7 +624,7 @@ namespace Archetype
             // unrounded get_value_float result (value_num = same read without the float
             // rounding), FSTP float.
             double Deg = Reader.value_num(0);
-            SeekerFovCos = X87CosF(Deg * (double)0.017453292f);
+            SeekerFovCos = static_cast<float>(std::cos(Deg * (double)0.017453292f));
             return true;
         }
 

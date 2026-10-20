@@ -15,7 +15,6 @@
 #include "ivp_controller.h"                    // IVP_Event_Sim
 #include "ivp_calc_next_psi_solver.h"
 #include "../ivp_collision/ivp_listmanager_topology.h" // FUN_0635a1e0 / FUN_06358c50 / FUN_06355c10
-#include "x87_trig.h"
 #include <cmath>
 #include <cstdint>
 
@@ -68,7 +67,7 @@ void IVP_Impact_Solver_Long_Term_Get_Cos_Sin_For_Impact(float FrictionVal, float
                                                          float* OutCos, float* OutSin)
 {
     const double TanAngle = (std::sqrt((double)(OrthComp)) + GIvpOne) * FrictionVal;
-    const double Angle = X87Atan(TanAngle);
+    const double Angle = std::atan(static_cast<double>(TanAngle));
     const double Angle2 = Angle * Angle;
     const double Cos = (GIvpOne - Angle2 * GIvpHalf) + (Angle2 * Angle2) * GIvpOneTwentyFourth;
     *OutCos = (float)(Cos);

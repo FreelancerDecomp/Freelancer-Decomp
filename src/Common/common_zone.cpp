@@ -21,6 +21,7 @@
 //   TEST 0x41 / JP  taken when ST > src or unordered       TEST 1 / JNZ   taken when ST < src or unordered
 //   TEST 0x44 / JP  taken when ST != src or unordered
 
+#include <cmath>
 #include "common_zone.h"
 #include "common_archetype.h" // CacheString
 
@@ -32,7 +33,6 @@
 #include "DALib.h"
 #include "dacom.h"
 
-#include "x87_trig.h" // retail's inline FSIN / FCOS / FPTAN (CullQuatFromAxisAngle, FrustumCull)
 
 #include <math.h>
 #include <stdlib.h>
@@ -784,8 +784,8 @@ namespace
         double const Half = (double)(Angle) * kCullHalf;
         double const Length = sqrt(((double)(Axis.x) * Axis.x + (double)(Axis.y) * Axis.y) +
                                    (double)(Axis.z) * Axis.z);
-        float const Scale = (float)(X87Sin(Half) / Length);
-        Quat.W = X87CosF(Half);
+        float const Scale = (float)(std::sin(static_cast<double>(Half)) / Length);
+        Quat.W = static_cast<float>(std::cos(static_cast<double>(Half)));
         Quat.X = Scale * Axis.x;
         Quat.Y = Scale * Axis.y;
         Quat.Z = Scale * Axis.z;
@@ -1127,8 +1127,8 @@ namespace
     {
         double const Angle = ((double)(Step) * Sweep) / GFrustumCapSteps;
         // FCOS; FCHS; FSTP dword and FSIN; FSTP dword: one rounding each (negation is exact).
-        float const Sin = X87SinF(Angle);
-        float const NegCos = -X87CosF(Angle);
+        float const Sin = static_cast<float>(std::sin(static_cast<double>(Angle)));
+        float const NegCos = -static_cast<float>(std::cos(static_cast<double>(Angle)));
         Vector const Dir = bHorizontal ? MakeVector(Sin, 0.0f, NegCos) : MakeVector(0.0f, Sin, NegCos);
         FCullPlane Plane;
         CullPlaneSet(Plane, Center, Dir);
@@ -2107,7 +2107,7 @@ bool __cdecl FrustumCull(Geometry::Frustum const& Frustum, Universe::IZone const
     unsigned const Horizontal = Straddle & 3u;
     if (Horizontal == 1u || Horizontal == 2u)
     {
-        float const Spread = (float)(X87Tan((double)Frustum.AngleX * 0.5) * Distance);
+        float const Spread = (float)(std::tan((double)Frustum.AngleX * 0.5) * Distance);
         Vector const Right = FrustumColumn(Frustum, 0);
         Vector Center = Vec3Add(Frustum.Xform.Translation, Vec3Scale(Back, Distance));
         float Sweep;
@@ -2133,7 +2133,7 @@ bool __cdecl FrustumCull(Geometry::Frustum const& Frustum, Universe::IZone const
     unsigned const Vertical = Straddle & 0xcu;
     if (Vertical == 4u || Vertical == 8u)
     {
-        float const Spread = (float)(X87Tan((double)Frustum.AngleY * 0.5) * Distance);
+        float const Spread = (float)(std::tan((double)Frustum.AngleY * 0.5) * Distance);
         Vector const Up = FrustumColumn(Frustum, 1);
         Vector Center = Vec3Add(Frustum.Xform.Translation, Vec3Scale(Back, Distance));
         float Sweep;

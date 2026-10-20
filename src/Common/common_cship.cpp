@@ -8,7 +8,6 @@
 #include "common_cobject.h"
 #include "common_cobject_internal.h" // CmnCobject::RotateWorldToObjectSpace, GetObjectDbCollisionGroup
 #include "x86math.h"
-#include "x87_trig.h"   // retail's inline FSIN / FCOS (CShip::generate_follow_offset)
 
 #include "common_cobjdb.h"
 #include "common_goods.h"
@@ -912,8 +911,8 @@ bool CShip::generate_follow_offset(IObjInspect const* Inspect, Transform& OutOff
     // reloaded rounded one. Rows {cos, -sin, 0}, {sin, cos, 0}, {0, 0, 1}.
     double const Angle = (double)(Quad) * (double)(3.1415927f) * 0.5;
     float const AngleRounded = (float)(Angle);
-    float const Cos = X87CosF(Angle);
-    float const Sin = X87SinF((double)(AngleRounded));
+    float const Cos = static_cast<float>(std::cos(static_cast<double>(Angle)));
+    float const Sin = static_cast<float>(std::sin(static_cast<double>(AngleRounded)));
     Matrix Spin;
     Spin.E[0][0] = Cos;
     Spin.E[0][1] = -Sin;

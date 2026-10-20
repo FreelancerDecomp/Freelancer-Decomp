@@ -5,11 +5,15 @@
 // Author: Giperion.
 
 #include "x86math.h"
+#include "BatchTransform.h"
+#include "MatrixMath.h"
+#include "TransformMath.h"
+#include "ScalarMath.h"
+#include "QuaternionMath.h"
 
 // DACOM-wide result codes (see the note in x86math.h); kept local until dacom.h owns them.
 
 #include <cmath>
-#include <cstddef>
 #include <cstring>
 #include <new>
 
@@ -25,162 +29,6 @@ namespace
     const unsigned int G_ComponentNameBytes = 13;
     static_assert(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
 
-    // DAT_06f74030..06f7442f: 0x400 bytes (06f74430 is a separate guard byte). Readers index
-    // with (bits >> 14) & 0x3FF (06f72851/06f728d1).
-    unsigned char G_InvSqrtTable[0x400];
-
-    // Retail PE .data at DAT_06f74030 is BSS (on-disk zeros). FUN_06f71010 / DllMain fill all
-    // 0x400 entries via FSQRT + FDIVR qword 1.0, then (bits + 0x2000) >> 15. Match that x87 path.
-    void BuildInvSqrtTable()
-    {
-        const double One = 1.0;
-        for (unsigned int Index = 0; Index < 0x400; ++Index)
-        {
-            unsigned int Bits = (Index | 0xFC00u) << 14;
-            unsigned int RecipBits = 0;
-#if defined(_M_IX86)
-            __asm
-            {
-                fld dword ptr [Bits]
-                fsqrt
-                fdivr qword ptr [One]
-                fstp dword ptr [RecipBits]
-            }
-#else
-            union
-            {
-                unsigned int AsBits;
-                float Value;
-            } Pun;
-            Pun.AsBits = Bits;
-            Pun.Value = static_cast<float>(1.0 / std::sqrt(static_cast<double>(Pun.Value)));
-            RecipBits = Pun.AsBits;
-#endif
-            G_InvSqrtTable[Index] = static_cast<unsigned char>((RecipBits + 0x2000u) >> 15);
-        }
-        // 06f7104c / 06f710fb: MOV byte [06f74230],0xFF = base + 0x200. Index 0x200 is the
-        // mantissa-1.0 slot (X = 1.0, 4.0, ...): its computed byte wraps to 0x00, retail patches it.
-        G_InvSqrtTable[0x200] = 0xFF;
-    }
-
-    float TableInvSqrt(float X)
-    {
-        union
-        {
-            unsigned int Bits;
-            float Value;
-        } Pun;
-        Pun.Value = X;
-        unsigned int Exponent = (Pun.Bits >> 23) & 0xFFu;
-        const unsigned int TableIndex = (Pun.Bits >> 14) & 0x3FFu;
-        unsigned int Guess = (0x5F000000u - (Exponent << 22)) & 0xFF800000u;
-        Guess |= static_cast<unsigned int>(G_InvSqrtTable[TableIndex]) << 15;
-        Pun.Bits = Guess;
-        float Y = Pun.Value;
-        Y = (3.0f - Y * Y * X) * Y * 0.5f;
-        Y = (3.0f - Y * Y * X) * Y * 0.5f;
-        return Y;
-    }
-
-    // LAB_06f71830: Rotate/TransformMatrix literal shared x87 body.
-    // Stores precede the next component source reads, including aliased calls.
-    void MulVecByMatrix(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
-    {
-        float* ResultVector = &Dst.X;
-        const float* MatrixValues = &Matrix.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov ecx, MatrixValues
-            mov eax, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx]
-            fld dword ptr [ecx + 014h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 010h]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [ecx + 020h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 018h]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 01ch]
-            fmul dword ptr [eax + 4]
-            xor eax, eax
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 8]
-        }
-    }
-
-    // LAB_06f718f0: shared InverseRotate/TransposeTransform body. Each
-    // output float is stored before the next component reads the source.
-    void MulVecByTranspose(FVector& Dst, const FMatrix& Matrix, const FVector& Source)
-    {
-        float* ResultVector = &Dst.X;
-        const float* MatrixValues = &Matrix.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov ecx, MatrixValues
-            mov eax, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [ecx + 018h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx]
-            fld dword ptr [ecx + 01ch]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 010h]
-            fmul dword ptr [eax + 4]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [ecx + 020h]
-            fmul dword ptr [eax + 8]
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 014h]
-            fmul dword ptr [eax + 4]
-            xor eax, eax
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 8]
-        }
-    }
-
-    void TransposeMatrix(FMatrix& Dst, const FMatrix& Source)
-    {
-        Dst.D[0][0] = Source.D[0][0];
-        Dst.D[0][1] = Source.D[1][0];
-        Dst.D[0][2] = Source.D[2][0];
-        Dst.D[1][0] = Source.D[0][1];
-        Dst.D[1][1] = Source.D[1][1];
-        Dst.D[1][2] = Source.D[2][1];
-        Dst.D[2][0] = Source.D[0][2];
-        Dst.D[2][1] = Source.D[1][2];
-        Dst.D[2][2] = Source.D[2][2];
-    }
-
     void WriteAdjugate(FMatrix& Dst, const FMatrix& Source, float Scale)
     {
         Dst.D[0][0] = (Source.D[1][1] * Source.D[2][2] - Source.D[1][2] * Source.D[2][1]) * Scale;
@@ -192,523 +40,6 @@ namespace
         Dst.D[0][2] = (Source.D[0][1] * Source.D[1][2] - Source.D[0][2] * Source.D[1][1]) * Scale;
         Dst.D[1][2] = -(Source.D[0][0] * Source.D[1][2] - Source.D[0][2] * Source.D[1][0]) * Scale;
         Dst.D[2][2] = (Source.D[0][0] * Source.D[1][1] - Source.D[0][1] * Source.D[1][0]) * Scale;
-    }
-
-    // Retail FSQRT + FDIVR dword 1.0 (DAT_06f730f8). quat_slerp (LAB_06f724d0)
-    // uses this path, not table InvSqrt (FUN_06f72830).
-    float RecipSqrtFsqrt(float LenSq)
-    {
-        const float One = 1.0f;
-#if defined(_M_IX86)
-        float Result = 0.0f;
-        __asm
-        {
-            fld dword ptr [LenSq]
-            fsqrt
-            fdivr dword ptr [One]
-            fstp dword ptr [Result]
-        }
-        return Result;
-#else
-        return One / std::sqrt(LenSq);
-#endif
-    }
-
-    // FastDot (FUN_06f71af0 + LAB_06f71d60…LAB_06f71f90): classify each row coeff
-    // as ==0 / ==1 / other. Retail layout: kernel @ +0xC, saved-ops int @ +0x10.
-    // Callers: FUN_06f719b0 (slot 17) and LAB_06f71fb0 (slot 16) only — both wired.
-    // Kernels are isolated thiscall / RET 4 / ST0. Slots 16/17 stay DACOM stdcall.
-    struct FFastDot
-    {
-        float A;
-        float B;
-        float C;
-        float (FFastDot::*Kernel)(const FVector* Vec);
-        int SavedOps;
-
-        float FastDotZZZ(const FVector* Vec);
-        float FastDotZZO(const FVector* Vec);
-        float FastDotZZG(const FVector* Vec);
-        float FastDotZOZ(const FVector* Vec);
-        float FastDotZOO(const FVector* Vec);
-        float FastDotZOG(const FVector* Vec);
-        float FastDotZGZ(const FVector* Vec);
-        float FastDotZGO(const FVector* Vec);
-        float FastDotZGG(const FVector* Vec);
-        float FastDotOZZ(const FVector* Vec);
-        float FastDotOZO(const FVector* Vec);
-        float FastDotOZG(const FVector* Vec);
-        float FastDotOOZ(const FVector* Vec);
-        float FastDotOOO(const FVector* Vec);
-        float FastDotOOG(const FVector* Vec);
-        float FastDotOGZ(const FVector* Vec);
-        float FastDotOGO(const FVector* Vec);
-        float FastDotOGG(const FVector* Vec);
-        float FastDotGZZ(const FVector* Vec);
-        float FastDotGZO(const FVector* Vec);
-        float FastDotGZG(const FVector* Vec);
-        float FastDotGOZ(const FVector* Vec);
-        float FastDotGOO(const FVector* Vec);
-        float FastDotGOG(const FVector* Vec);
-        float FastDotGGZ(const FVector* Vec);
-        float FastDotGGO(const FVector* Vec);
-        float FastDotGGG(const FVector* Vec);
-    };
-
-    typedef float (FFastDot::*FFastDotKernel)(const FVector* Vec);
-
-    int ClassifyLane(float X)
-    {
-        if (X == 0.0f)
-            return 0;
-        if (X == 1.0f)
-            return 1;
-        return 2;
-    }
-
-#if defined(_M_IX86)
-    // DAT_06f730fc — FLD of +0.0; FLDZ is the same value (ZZZ only).
-    __declspec(naked) float FFastDot::FastDotZZZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            fldz
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZZO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZZG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZOZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZOO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fadd dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZOG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fadd dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZGZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZGO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            fadd dword ptr [eax + 8]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotZGG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOZZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOZO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOZG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOOZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOOO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fadd dword ptr [eax + 4]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOOG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fadd dword ptr [eax + 4]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOGZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOGO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            fadd dword ptr [eax + 8]
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotOGG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st
-            fadd dword ptr [eax]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGZZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGZO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            fadd dword ptr [eax + 8]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGZG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGOZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            fadd dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGOO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            fadd dword ptr [eax + 8]
-            fadd dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGOG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st
-            fadd dword ptr [eax + 4]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGGZ(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGGO(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st
-            fadd dword ptr [eax + 8]
-            ret 4
-        }
-    }
-    __declspec(naked) float FFastDot::FastDotGGG(const FVector* /*Vec*/)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st
-            ret 4
-        }
-    }
-#else
-    float FFastDot::FastDotZZZ(const FVector*) { return 0.0f; }
-    float FFastDot::FastDotZZO(const FVector* Vec) { return Vec->Z; }
-    float FFastDot::FastDotZZG(const FVector* Vec) { return Vec->Z * C; }
-    float FFastDot::FastDotZOZ(const FVector* Vec) { return Vec->Y; }
-    float FFastDot::FastDotZOO(const FVector* Vec) { return Vec->Z + Vec->Y; }
-    float FFastDot::FastDotZOG(const FVector* Vec) { return Vec->Z * C + Vec->Y; }
-    float FFastDot::FastDotZGZ(const FVector* Vec) { return Vec->Y * B; }
-    float FFastDot::FastDotZGO(const FVector* Vec) { return Vec->Y * B + Vec->Z; }
-    float FFastDot::FastDotZGG(const FVector* Vec) { return Vec->Z * C + Vec->Y * B; }
-    float FFastDot::FastDotOZZ(const FVector* Vec) { return Vec->X; }
-    float FFastDot::FastDotOZO(const FVector* Vec) { return Vec->Z + Vec->X; }
-    float FFastDot::FastDotOZG(const FVector* Vec) { return Vec->Z * C + Vec->X; }
-    float FFastDot::FastDotOOZ(const FVector* Vec) { return Vec->Y + Vec->X; }
-    float FFastDot::FastDotOOO(const FVector* Vec) { return Vec->Z + Vec->Y + Vec->X; }
-    float FFastDot::FastDotOOG(const FVector* Vec) { return Vec->Z * C + Vec->Y + Vec->X; }
-    float FFastDot::FastDotOGZ(const FVector* Vec) { return Vec->Y * B + Vec->X; }
-    float FFastDot::FastDotOGO(const FVector* Vec) { return Vec->Y * B + Vec->Z + Vec->X; }
-    float FFastDot::FastDotOGG(const FVector* Vec) { return Vec->Z * C + Vec->Y * B + Vec->X; }
-    float FFastDot::FastDotGZZ(const FVector* Vec) { return Vec->X * A; }
-    float FFastDot::FastDotGZO(const FVector* Vec) { return Vec->X * A + Vec->Z; }
-    float FFastDot::FastDotGZG(const FVector* Vec) { return Vec->Z * C + Vec->X * A; }
-    float FFastDot::FastDotGOZ(const FVector* Vec) { return Vec->X * A + Vec->Y; }
-    float FFastDot::FastDotGOO(const FVector* Vec) { return Vec->X * A + Vec->Z + Vec->Y; }
-    float FFastDot::FastDotGOG(const FVector* Vec) { return Vec->Z * C + Vec->X * A + Vec->Y; }
-    float FFastDot::FastDotGGZ(const FVector* Vec) { return Vec->Y * B + Vec->X * A; }
-    float FFastDot::FastDotGGO(const FVector* Vec) { return Vec->Y * B + Vec->X * A + Vec->Z; }
-    float FFastDot::FastDotGGG(const FVector* Vec) { return Vec->Z * C + Vec->Y * B + Vec->X * A; }
-#endif
-
-    const FFastDotKernel G_FastDotKernels[27] = {
-        &FFastDot::FastDotZZZ, &FFastDot::FastDotZZO, &FFastDot::FastDotZZG, &FFastDot::FastDotZOZ,
-        &FFastDot::FastDotZOO, &FFastDot::FastDotZOG, &FFastDot::FastDotZGZ, &FFastDot::FastDotZGO,
-        &FFastDot::FastDotZGG, &FFastDot::FastDotOZZ, &FFastDot::FastDotOZO, &FFastDot::FastDotOZG,
-        &FFastDot::FastDotOOZ, &FFastDot::FastDotOOO, &FFastDot::FastDotOOG, &FFastDot::FastDotOGZ,
-        &FFastDot::FastDotOGO, &FFastDot::FastDotOGG, &FFastDot::FastDotGZZ, &FFastDot::FastDotGZO,
-        &FFastDot::FastDotGZG, &FFastDot::FastDotGOZ, &FFastDot::FastDotGOO, &FFastDot::FastDotGOG,
-        &FFastDot::FastDotGGZ, &FFastDot::FastDotGGO, &FFastDot::FastDotGGG};
-
-    const int G_FastDotSavedOps[27] = {5, 5, 4, 5, 4, 3, 4, 3, 2, 5, 4, 3, 4, 3, 2, 3, 2, 1, 4, 3, 2, 3, 2, 1, 2, 1, 0};
-
-    static_assert(offsetof(FFastDot, A) == 0, "FastDot A");
-    static_assert(offsetof(FFastDot, B) == 4, "FastDot B");
-    static_assert(offsetof(FFastDot, C) == 8, "FastDot C");
-    static_assert(offsetof(FFastDot, Kernel) == 0xC, "retail kernel @ +0xC");
-    static_assert(offsetof(FFastDot, SavedOps) == 0x10, "retail saved-ops @ +0x10");
-    static_assert(sizeof(FFastDotKernel) == 4, "MSVC simple-class member pointer is a code address");
-
-    // Ordinary C++ member dispatch; the native result/store boundary is
-    // checked against 71ab4..71ad2 and 72110..7213c.
-    void StoreKernelPlain(FFastDot& Dot, const FVector* Src, float* Dst)
-    {
-        *Dst = (Dot.*Dot.Kernel)(Src);
-    }
-
-    void StoreKernelAdd(FFastDot& Dot, const FVector* Src, float* Dst, const float* Addend)
-    {
-        *Dst = (Dot.*Dot.Kernel)(Src) + *Addend;
-    }
-
-    void BindFastDot(FFastDot& Dot, float A, float B, float C)
-    {
-        Dot.A = A;
-        Dot.B = B;
-        Dot.C = C;
-        const int KernelId = ClassifyLane(A) * 9 + ClassifyLane(B) * 3 + ClassifyLane(C);
-        Dot.SavedOps = G_FastDotSavedOps[KernelId];
-        Dot.Kernel = G_FastDotKernels[KernelId];
-    }
-
-    void TransformListFast(FVector* Dst, const FMatrix& Matrix, const FVector* Source, int Count,
-                           const FVector* Translation)
-    {
-        FFastDot Row0;
-        FFastDot Row1;
-        FFastDot Row2;
-        BindFastDot(Row0, Matrix.D[0][0], Matrix.D[0][1], Matrix.D[0][2]);
-        BindFastDot(Row1, Matrix.D[1][0], Matrix.D[1][1], Matrix.D[1][2]);
-        BindFastDot(Row2, Matrix.D[2][0], Matrix.D[2][1], Matrix.D[2][2]);
-
-        const FVector* End = Source + Count;
-        const FVector* Src = Source;
-        FVector* Out = Dst;
-
-        if (Row0.SavedOps + Row1.SavedOps + Row2.SavedOps < 4)
-        {
-            while (Src < End)
-            {
-                const float X = Src->X;
-                const float Y = Src->Y;
-                const float Z = Src->Z;
-                if (Translation != nullptr)
-                {
-                    // 7209b..720e8: the FIRST row adds X/Z/Y; rows 1/2 add Z/Y/X.
-                    // Each destination is written before reading the next row.
-                    Out->X = ((X * Matrix.D[0][0] + Z * Matrix.D[0][2]) +
-                              Y * Matrix.D[0][1]) + Translation->X;
-                    Out->Y = ((Z * Matrix.D[1][2] + Y * Matrix.D[1][1]) +
-                              X * Matrix.D[1][0]) + Translation->Y;
-                    Out->Z = ((Z * Matrix.D[2][2] + Y * Matrix.D[2][1]) +
-                              X * Matrix.D[2][0]) + Translation->Z;
-                }
-                else
-                {
-                    // 71a49..71a8d: Z/Y/X addition order, one final float store.
-                    Out->X = (Z * Matrix.D[0][2] + Y * Matrix.D[0][1]) + X * Matrix.D[0][0];
-                    Out->Y = (Z * Matrix.D[1][2] + Y * Matrix.D[1][1]) + X * Matrix.D[1][0];
-                    Out->Z = (Z * Matrix.D[2][2] + Y * Matrix.D[2][1]) + X * Matrix.D[2][0];
-                }
-                ++Src;
-                ++Out;
-            }
-            return;
-        }
-
-        if (Translation != nullptr)
-        {
-            while (Src < End)
-            {
-                StoreKernelAdd(Row0, Src, &Out->X, &Translation->X);
-                StoreKernelAdd(Row1, Src, &Out->Y, &Translation->Y);
-                StoreKernelAdd(Row2, Src, &Out->Z, &Translation->Z);
-                ++Src;
-                ++Out;
-            }
-            return;
-        }
-
-        while (Src < End)
-        {
-            StoreKernelPlain(Row0, Src, &Out->X);
-            StoreKernelPlain(Row1, Src, &Out->Y);
-            StoreKernelPlain(Row2, Src, &Out->Z);
-            ++Src;
-            ++Out;
-        }
     }
 }
 
@@ -789,181 +120,13 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API MulTransform(FTransform& Dst, const FTransform& A, const FTransform& B) override
     {
-        // LAB_06f716f0: literal row/translation interleave and x87 sum order.
-        // Input words are read after each output store, including aliased calls.
-        float* ResultTransform = &Dst.Rotation.D[0][0];
-        const float* LeftTransform = &A.Rotation.D[0][0];
-        const float* RightTransform = &B.Rotation.D[0][0];
-        __asm
-        {
-            mov eax, LeftTransform
-            mov ecx, RightTransform
-            mov edx, ResultTransform
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 0ch]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 018h]
-            fmul dword ptr [eax + 8]
-            faddp st(1), st(0)
-            fstp dword ptr [edx]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 010h]
-            fld dword ptr [ecx + 01ch]
-            fmul dword ptr [eax + 8]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 014h]
-            fld dword ptr [ecx + 020h]
-            fmul dword ptr [eax + 8]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 028h]
-            fld dword ptr [ecx + 02ch]
-            fmul dword ptr [eax + 8]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 024h]
-            fmul dword ptr [eax]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 024h]
-            fstp dword ptr [edx + 024h]
-            fld dword ptr [eax + 010h]
-            fmul dword ptr [ecx + 0ch]
-            fld dword ptr [eax + 0ch]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 014h]
-            fmul dword ptr [ecx + 018h]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 0ch]
-            fld dword ptr [eax + 014h]
-            fmul dword ptr [ecx + 01ch]
-            fld dword ptr [eax + 010h]
-            fmul dword ptr [ecx + 010h]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 0ch]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 010h]
-            fld dword ptr [eax + 014h]
-            fmul dword ptr [ecx + 020h]
-            fld dword ptr [eax + 010h]
-            fmul dword ptr [ecx + 014h]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 0ch]
-            fmul dword ptr [ecx + 8]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 014h]
-            fld dword ptr [ecx + 02ch]
-            fmul dword ptr [eax + 014h]
-            fld dword ptr [ecx + 028h]
-            fmul dword ptr [eax + 010h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 024h]
-            fmul dword ptr [eax + 0ch]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 028h]
-            fstp dword ptr [edx + 028h]
-            fld dword ptr [eax + 01ch]
-            fmul dword ptr [ecx + 0ch]
-            fld dword ptr [eax + 020h]
-            fmul dword ptr [ecx + 018h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [eax + 018h]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 018h]
-            fld dword ptr [eax + 020h]
-            fmul dword ptr [ecx + 01ch]
-            fld dword ptr [eax + 01ch]
-            fmul dword ptr [ecx + 010h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax + 018h]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 01ch]
-            fld dword ptr [eax + 020h]
-            fmul dword ptr [ecx + 020h]
-            fld dword ptr [eax + 01ch]
-            fmul dword ptr [ecx + 014h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax + 018h]
-            faddp st(1), st(0)
-            fstp dword ptr [edx + 020h]
-            fld dword ptr [eax + 020h]
-            fmul dword ptr [ecx + 02ch]
-            fld dword ptr [eax + 01ch]
-            fmul dword ptr [ecx + 028h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 024h]
-            fmul dword ptr [eax + 018h]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 02ch]
-            xor eax, eax
-            fstp dword ptr [edx + 02ch]
-        }
+        X86TransformMath::Compose(Dst, A, B);
         return GR_OK;
     }
 
     GENRESULT DACOM_API MulMatrix(FMatrix& Dst, const FMatrix& A, const FMatrix& B) override
     {
-        // 71670..716e1: literal x87 loop, preserving product/add/store order
-        // and immediate alias visibility between individual result writes.
-        float* ResultMatrix = &Dst.D[0][0];
-        const float* LeftMatrix = &A.D[0][0];
-        const float* RightMatrix = &B.D[0][0];
-        __asm
-        {
-            mov edx, ResultMatrix
-            mov ecx, RightMatrix
-            mov edi, LeftMatrix
-            mov esi, edx
-            sub esi, edi
-            lea eax, [edi + 4]
-            mov edi, 3
-        MatrixRowLoop:
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 18h]
-            fld dword ptr [ecx + 0ch]
-            fmul dword ptr [eax]
-            add eax, 0ch
-            add edx, 0ch
-            dec edi
-            faddp st(1), st(0)
-            fld dword ptr [eax - 10h]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fstp dword ptr [edx - 0ch]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [eax - 10h]
-            fld dword ptr [eax - 8]
-            fmul dword ptr [ecx + 1ch]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 10h]
-            fmul dword ptr [eax - 0ch]
-            faddp st(1), st(0)
-            fstp dword ptr [esi + eax - 0ch]
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [eax - 10h]
-            fld dword ptr [eax - 8]
-            fmul dword ptr [ecx + 20h]
-            faddp st(1), st(0)
-            fld dword ptr [ecx + 14h]
-            fmul dword ptr [eax - 0ch]
-            faddp st(1), st(0)
-            fstp dword ptr [edx - 4]
-            jnz MatrixRowLoop
-        }
+        X86MatrixMath::Multiply(Dst, A, B);
         return GR_OK;
     }
 
@@ -983,71 +146,31 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API TransformXform(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        // 71890..718ed: translation is added while each dot remains extended,
-        // then that component is stored before the next source read.
-        float* ResultVector = &Dst.X;
-        const float* TransformValues = &Xform.Rotation.D[0][0];
-        const float* SourceVector = &Source.X;
-        __asm
-        {
-            mov eax, TransformValues
-            mov ecx, SourceVector
-            mov edx, ResultVector
-            fld dword ptr [eax + 8]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 4]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [eax]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 24h]
-            fstp dword ptr [edx]
-            fld dword ptr [eax + 14h]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 0ch]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 10h]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 28h]
-            fstp dword ptr [edx + 4]
-            fld dword ptr [eax + 20h]
-            fmul dword ptr [ecx + 8]
-            fld dword ptr [eax + 18h]
-            fmul dword ptr [ecx]
-            faddp st(1), st(0)
-            fld dword ptr [eax + 1ch]
-            fmul dword ptr [ecx + 4]
-            faddp st(1), st(0)
-            fadd dword ptr [eax + 2ch]
-            fstp dword ptr [edx + 8]
-        }
+        X86TransformMath::Apply(Dst, Xform, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API TransformMatrix(FVector& Dst, const FMatrix& Matrix, const FVector& Source) override
     {
-        MulVecByMatrix(Dst, Matrix, Source);
+        X86MatrixMath::TransformVector(Dst, Matrix, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API Rotate(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        MulVecByMatrix(Dst, Xform.Rotation, Source);
+        X86MatrixMath::TransformVector(Dst, Xform.Rotation, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API InverseRotate(FVector& Dst, const FTransform& Xform, const FVector& Source) override
     {
-        MulVecByTranspose(Dst, Xform.Rotation, Source);
+        X86MatrixMath::TransformTranspose(Dst, Xform.Rotation, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API TransposeTransform(FVector& Dst, const FMatrix& Matrix, const FVector& Source) override
     {
-        MulVecByTranspose(Dst, Matrix, Source);
+        X86MatrixMath::TransformTranspose(Dst, Matrix, Source);
         return GR_OK;
     }
 
@@ -1055,24 +178,21 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     {
         const FVector Delta = {Source.X - Xform.Translation.X, Source.Y - Xform.Translation.Y,
                                Source.Z - Xform.Translation.Z};
-        MulVecByTranspose(Dst, Xform.Rotation, Delta);
+        X86MatrixMath::TransformTranspose(Dst, Xform.Rotation, Delta);
         return GR_OK;
     }
 
     GENRESULT DACOM_API TransformListXform(FVector* Dst, const FTransform& Xform, const FVector* Source,
                                            int Count) override
     {
-        if (Xform.Translation.X == 0.0f && Xform.Translation.Y == 0.0f && Xform.Translation.Z == 0.0f)
-            return TransformListMatrix(Dst, Xform.Rotation, Source, Count);
-
-        TransformListFast(Dst, Xform.Rotation, Source, Count, &Xform.Translation);
+        X86BatchMath::TransformList(Dst, Xform.Rotation, Source, Count, &Xform.Translation);
         return GR_OK;
     }
 
     GENRESULT DACOM_API TransformListMatrix(FVector* Dst, const FMatrix& Matrix, const FVector* Source,
                                             int Count) override
     {
-        TransformListFast(Dst, Matrix, Source, Count, nullptr);
+        X86BatchMath::TransformList(Dst, Matrix, Source, Count);
         return GR_OK;
     }
 
@@ -1080,7 +200,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
                                                int Count) override
     {
         FMatrix Transposed;
-        TransposeMatrix(Transposed, Matrix);
+        X86MatrixMath::Transpose(Transposed, Matrix);
         return TransformListMatrix(Dst, Transposed, Source, Count);
     }
 
@@ -1089,330 +209,34 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     {
         FVector NegTranslation = {-Xform.Translation.X, -Xform.Translation.Y, -Xform.Translation.Z};
         FVector InvTranslation;
-        MulVecByTranspose(InvTranslation, Xform.Rotation, NegTranslation);
+        X86MatrixMath::TransformTranspose(InvTranslation, Xform.Rotation, NegTranslation);
 
         FTransform Inverse = {};
-        TransposeMatrix(Inverse.Rotation, Xform.Rotation);
+        X86MatrixMath::Transpose(Inverse.Rotation, Xform.Rotation);
         Inverse.Translation = InvTranslation;
         return TransformListXform(Dst, Inverse, Source, Count);
     }
 
     GENRESULT DACOM_API MatrixToQuaternion(FQuaternion& Dst, const FMatrix& Source) override
     {
-        const FMatrix* SourceMatrix = &Source;
-        FQuaternion* DestinationQuat = &Dst;
-        const float Zero = 0.0f;
-        const float One = 1.0f;
-        const float Half = 0.5f;
-        static const int NextAxis[3] = {1, 2, 0};
-        // LAB_06f72290..723b1 keeps the trace, root and reciprocal on x87;
-        // only the four destination writes round to float. AND EAX,4100/JNZ
-        // takes the not-greater (including unordered) branch in all three tests.
-        // Keep the branch-specific store/read order for aliased source/output.
-        __asm
-        {
-            mov ecx, SourceMatrix
-            mov edi, DestinationQuat
-            fld dword ptr [ecx + 10h]
-            fadd dword ptr [ecx]
-            fadd dword ptr [ecx + 20h]
-            fcom Zero
-            fnstsw ax
-            and eax, 4100h
-            jnz MatrixQuatNotPositive
-            fadd One
-            fsqrt
-            fld Half
-            fmul st(0), st(1)
-            fstp dword ptr [edi]
-            fdivr Half
-            fld dword ptr [ecx + 1ch]
-            fsub dword ptr [ecx + 14h]
-            fmul st(0), st(1)
-            fstp dword ptr [edi + 4]
-            fld dword ptr [ecx + 8]
-            fsub dword ptr [ecx + 18h]
-            fmul st(0), st(1)
-            fstp dword ptr [edi + 8]
-            fld dword ptr [ecx + 0ch]
-            fsub dword ptr [ecx + 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edi + 0ch]
-            fstp st(0)
-            jmp MatrixQuatDone
-        MatrixQuatNotPositive:
-            fstp st(0)
-            fld dword ptr [ecx + 10h]
-            fcomp dword ptr [ecx]
-            xor edx, edx
-            fnstsw ax
-            and eax, 4100h
-            jnz MatrixQuatSecondDiagonal
-            mov edx, 1
-        MatrixQuatSecondDiagonal:
-            fld dword ptr [ecx + 20h]
-            mov eax, edx
-            shl eax, 4
-            fcomp dword ptr [ecx + eax]
-            fnstsw ax
-            and eax, 4100h
-            jnz MatrixQuatIndices
-            mov edx, 2
-        MatrixQuatIndices:
-            mov eax, dword ptr NextAxis[edx * 4]
-            mov esi, dword ptr NextAxis[eax * 4]
-            mov ebx, esi
-            shl ebx, 4
-            fld dword ptr [ecx + ebx]
-            mov ebx, eax
-            shl ebx, 4
-            fadd dword ptr [ecx + ebx]
-            mov ebx, edx
-            shl ebx, 4
-            fsubr dword ptr [ecx + ebx]
-            fadd One
-            fsqrt
-            fld Half
-            fmul st(0), st(1)
-            fstp dword ptr [edi + edx * 4 + 4]
-            fdivr Half
-            lea ebx, [esi + esi * 2]
-            add ebx, eax
-            fld dword ptr [ecx + ebx * 4]
-            lea ebx, [eax + eax * 2]
-            add ebx, esi
-            fsub dword ptr [ecx + ebx * 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edi]
-            lea ebx, [edx + edx * 2]
-            add ebx, eax
-            fld dword ptr [ecx + ebx * 4]
-            lea ebx, [eax + eax * 2]
-            add ebx, edx
-            fadd dword ptr [ecx + ebx * 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edi + eax * 4 + 4]
-            lea ebx, [edx + edx * 2]
-            add ebx, esi
-            fld dword ptr [ecx + ebx * 4]
-            lea ebx, [esi + esi * 2]
-            add ebx, edx
-            fadd dword ptr [ecx + ebx * 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edi + esi * 4 + 4]
-            fstp st(0)
-        MatrixQuatDone:
-        }
+        X86QuaternionMath::FromMatrix(Dst, Source);
         return GR_OK;
     }
 
     GENRESULT DACOM_API QuaternionToMatrix(FMatrix& Dst, const FQuaternion& Quat) override
     {
-        // 723c0..724c4: retain S/Xs and selected products on x87; the
-        // asymmetric float scratch stores are part of the arithmetic contract.
-        float Scratch[5];
-        float Zs;
-        const float One = 1.0f;
-        const float Two = 2.0f;
-        __asm
-        {
-            mov eax, Quat
-            lea edx, Scratch
-            fld dword ptr [eax + 0ch]
-            fld dword ptr [eax + 8]
-            fld dword ptr [eax + 4]
-            fld dword ptr [eax]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fld st(4)
-            fmul st(0), st(5)
-            faddp st(1), st(0)
-            fdivr Two
-            fstp st(4)
-            fstp st(0)
-            fstp st(0)
-            fstp st(0)
-            fld st(0)
-            fmul dword ptr [eax + 4]
-            fld st(1)
-            fmul dword ptr [eax + 8]
-            fstp dword ptr [edx]
-            fxch st(1)
-            fmul dword ptr [eax + 0ch]
-            fstp Zs
-            fld st(0)
-            fmul dword ptr [eax]
-            fstp dword ptr [edx + 0ch]
-            fld dword ptr [edx]
-            fmul dword ptr [eax]
-            fstp dword ptr [edx + 8]
-            fld Zs
-            fmul dword ptr [eax]
-            fstp dword ptr [edx + 4]
-            fmul dword ptr [eax + 4]
-            fld dword ptr [edx]
-            fmul dword ptr [eax + 4]
-            fld Zs
-            fmul dword ptr [eax + 4]
-            fld dword ptr [edx]
-            fmul dword ptr [eax + 8]
-            fstp dword ptr [edx + 10h]
-            fld Zs
-            fmul dword ptr [eax + 8]
-            fstp dword ptr [edx]
-            fld Zs
-            fmul dword ptr [eax + 0ch]
-            fld dword ptr [edx + 10h]
-            // Every quaternion input read precedes the first output write.
-            mov eax, Dst
-            fadd st(0), st(1)
-            fsubr One
-            fstp dword ptr [eax]
-            fld st(2)
-            fsub dword ptr [edx + 4]
-            fstp dword ptr [eax + 4]
-            fld st(1)
-            fadd dword ptr [edx + 8]
-            fstp dword ptr [eax + 8]
-            fxch st(2)
-            fadd dword ptr [edx + 4]
-            fstp dword ptr [eax + 0ch]
-            fxch st(1)
-            fadd st(0), st(2)
-            fsubr One
-            fstp dword ptr [eax + 10h]
-            fld dword ptr [edx]
-            fsub dword ptr [edx + 0ch]
-            fstp dword ptr [eax + 14h]
-            fsub dword ptr [edx + 8]
-            fstp dword ptr [eax + 18h]
-            fld dword ptr [edx]
-            fadd dword ptr [edx + 0ch]
-            fstp dword ptr [eax + 1ch]
-            fld dword ptr [edx + 10h]
-            fadd st(0), st(1)
-            fsubr One
-            fstp dword ptr [eax + 20h]
-            fstp st(0)
-        }
+        X86QuaternionMath::ToMatrix(Dst, Quat);
         return GR_OK;
     }
 
-    GENRESULT DACOM_API QuatSlerp(FQuaternion& Dst, const FQuaternion& A, const FQuaternion& B, float T) override
+    GENRESULT DACOM_API QuatNlerp(FQuaternion& Dst, const FQuaternion& A, const FQuaternion& B, float T) override
     {
-        return QuatSlerpValue(Dst, A, B, &T);
+        return QuatNlerpValue(Dst, A, B, &T);
     }
 
-    GENRESULT DACOM_API QuatSlerpValue(FQuaternion& Dst, const FQuaternion& A, const FQuaternion& B, const float* T) override
+    GENRESULT DACOM_API QuatNlerpValue(FQuaternion& Dst, const FQuaternion& A, const FQuaternion& B, const float* T) override
     {
-        // 724d0..725cb: normalized linear interpolation, literal x87 terms,
-        // component store order and NaN hemisphere selection. Inputs may alias Dst.
-        static const float Zero = 0.0f;
-        static const float One = 1.0f;
-        __asm
-        {
-            mov esi, T
-            mov ecx, A
-            mov edx, B
-            fld dword ptr [ecx + 8]
-            fmul dword ptr [edx + 8]
-            fld dword ptr [ecx + 4]
-            fmul dword ptr [edx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 0ch]
-            fmul dword ptr [ecx + 0ch]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            faddp st(1), st(0)
-            fcomp Zero
-            fnstsw ax
-            test ah, 05h
-            mov eax, Dst
-            // Less=01h (odd parity) falls through. Nonnegative=00h and
-            // unordered=05h (even parity) take the forward branch.
-            jp QuatForwardHemisphere
-            fld dword ptr [ecx]
-            fadd dword ptr [edx]
-            fmul dword ptr [esi]
-            fsubr dword ptr [ecx]
-            fstp dword ptr [eax]
-            fld dword ptr [ecx + 4]
-            fadd dword ptr [edx + 4]
-            fmul dword ptr [esi]
-            fsubr dword ptr [ecx + 4]
-            fstp dword ptr [eax + 4]
-            fld dword ptr [ecx + 8]
-            fadd dword ptr [edx + 8]
-            fmul dword ptr [esi]
-            fsubr dword ptr [ecx + 8]
-            fstp dword ptr [eax + 8]
-            fld dword ptr [edx + 0ch]
-            fadd dword ptr [ecx + 0ch]
-            fmul dword ptr [esi]
-            fsubr dword ptr [ecx + 0ch]
-            jmp QuatNormalize
-        QuatForwardHemisphere:
-            fld dword ptr [edx]
-            fsub dword ptr [ecx]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx]
-            fstp dword ptr [eax]
-            fld dword ptr [edx + 4]
-            fsub dword ptr [ecx + 4]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx + 4]
-            fstp dword ptr [eax + 4]
-            fld dword ptr [edx + 8]
-            fsub dword ptr [ecx + 8]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx + 8]
-            fstp dword ptr [eax + 8]
-            fld dword ptr [edx + 0ch]
-            fsub dword ptr [ecx + 0ch]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx + 0ch]
-        QuatNormalize:
-            fstp dword ptr [eax + 0ch]
-            fld dword ptr [eax + 0ch]
-            fld dword ptr [eax + 8]
-            fld dword ptr [eax + 4]
-            fld dword ptr [eax]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fld st(4)
-            fmul st(0), st(5)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(4)
-            fstp st(0)
-            fstp st(0)
-            fstp st(0)
-            fdivr One
-            fld st(0)
-            fmul dword ptr [eax]
-            fstp dword ptr [eax]
-            fld st(0)
-            fmul dword ptr [eax + 4]
-            fstp dword ptr [eax + 4]
-            fld st(0)
-            fmul dword ptr [eax + 8]
-            fstp dword ptr [eax + 8]
-            fmul dword ptr [eax + 0ch]
-            fstp dword ptr [eax + 0ch]
-        }
+        X86QuaternionMath::Nlerp(Dst, A, B, T);
         return GR_OK;
     }
 
@@ -1454,13 +278,13 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
 
     GENRESULT DACOM_API InvSqrt(float& Dst, float X) override
     {
-        Dst = TableInvSqrt(X);
+        Dst = X86ScalarMath::InvSqrt(X);
         return GR_OK;
     }
 
     GENRESULT DACOM_API Sqrt(float& Dst, float X) override
     {
-        Dst = TableInvSqrt(X) * X;
+        Dst = X86ScalarMath::Sqrt(X);
         return GR_OK;
     }
 };
@@ -1474,7 +298,7 @@ BOOL WINAPI DllMain(HINSTANCE Module, DWORD Reason, LPVOID /*Reserved*/)
     if (Reason == DLL_PROCESS_ATTACH)
     {
         DisableThreadLibraryCalls(Module);
-        // FUN_06f71090: PUSH 8 / operator_new. Null → DAT=0, RET TRUE, no InvSqrt table.
+        // FUN_06f71090: PUSH 8 / operator_new. Null returns TRUE without registration.
         void* Memory = ::operator new(8, std::nothrow);
         if (Memory == nullptr)
         {
@@ -1482,7 +306,6 @@ BOOL WINAPI DllMain(HINSTANCE Module, DWORD Reason, LPVOID /*Reserved*/)
             return TRUE;
         }
         G_Engine = new (Memory) FMathEngine();
-        BuildInvSqrtTable();
         // 06f71107: DACOM_Acquire; JZ 06f71145 skips registration silently (no log in retail).
         ICOManager* Dacom = DACOM_Acquire();
         if (Dacom != nullptr)

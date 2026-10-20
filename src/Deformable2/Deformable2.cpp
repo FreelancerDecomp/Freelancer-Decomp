@@ -3760,7 +3760,7 @@ static int PlayInstanceAnimChain(FDeformInstance* Instance, void* Name, void* Ex
         Archetype->Sample(Time, &KeyA, &KeyB, &Alpha);
         Archetype->Release();
         FQuaternion Quat;
-        AcquireMathEngine()->QuatSlerp(Quat, *(const FQuaternion*)KeyA,
+        AcquireMathEngine()->QuatNlerp(Quat, *(const FQuaternion*)KeyA,
                                        *(const FQuaternion*)KeyB, Alpha);
         ChainQuats.push_back(Quat);
         Cursor = Parent;
@@ -3789,7 +3789,7 @@ static int PlayInstanceAnimChain(FDeformInstance* Instance, void* Name, void* Ex
     WriteVec3(Accum, Tail[0] + PosA[0], Tail[1] + PosA[1], Tail[2] + PosA[2]);
 
     FQuaternion RootQuat;
-    AcquireMathEngine()->QuatSlerp(RootQuat, *(const FQuaternion*)(RootA + 0xC),
+    AcquireMathEngine()->QuatNlerp(RootQuat, *(const FQuaternion*)(RootA + 0xC),
                                    *(const FQuaternion*)(RootB + 0xC), RootAlpha);
     RootArchetype->Release();
 

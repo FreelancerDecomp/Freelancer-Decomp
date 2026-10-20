@@ -11,8 +11,6 @@
 #include "ivp_anomaly_manager.h"
 #include "ivp_ov_element.h"
 
-#include "x87_trig.h"
-
 #include <cmath>
 #include <cstdint>
 
@@ -401,8 +399,8 @@ void IVP_Calc_Next_PSI_Solver::calc_rotation_matrix(float DeltaTime, IVP_U_Quat*
         Wheel.k[3] = Other.k[3];
         // FSIN; FST dword (one rounding of the 80-bit sine); the value stays on the stack.
         const double SineArg = (double)(AxisSpeed) * DeltaTime * GIvpHalf;
-        const double Sine = X87Sin(SineArg);
-        Wheel.k[Axis] = X87SinF(SineArg);
+        const double Sine = std::sin(static_cast<double>(SineArg));
+        Wheel.k[Axis] = static_cast<float>(std::sin(static_cast<double>(SineArg)));
         const double Cosine = std::sqrt(GIvpOne - Sine * Sine);
 
         // :06351985-:06351a21 -- QCoreFCore = Rotation * {Wheel.xyz, Cosine}.

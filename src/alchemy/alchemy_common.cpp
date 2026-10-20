@@ -773,7 +773,7 @@ namespace AlchemyImpl
 
     // ALC-1 2026-09-26: MultiplyQuatWxyz / SlerpQuatWxyz / ApplySmoothRotationSlerp /
     // WriteVelOrientQuat were removed with IntegratePool's particle branch. They were a
-    // lookalike of FUN_0622ff00 (nlerp for the engine's QuatSlerp, acos(N.y) on the
+    // lookalike of FUN_0622ff00 (nlerp for the engine's QuatNlerp, acos(N.y) on the
     // |N.y| >= 0.99 side where retail takes acos(N.x), an invented zero-length guard);
     // the listing port is FxParticleAppearance::IntegrateRecord (alchemy_appearances.cpp).
 
@@ -1485,19 +1485,8 @@ namespace AlchemyImpl
 
     static void ComputeSinCosFpu(float AngleRadians, float* Output)
     {
-        // FUN_0623f6b0: libm reduces angles that x87 deliberately leaves
-        // unchanged when |AngleRadians| >= 2^63 (C2 set). Preserve the
-        // instruction semantics and both float stores; no calls in asm.
-        __asm
-        {
-            fld AngleRadians
-            fcos
-            mov eax, Output
-            fstp dword ptr [eax]
-            fld AngleRadians
-            fsin
-            fstp dword ptr [eax + 4]
-        }
+        Output[0] = std::cos(AngleRadians);
+        Output[1] = std::sin(AngleRadians);
     }
 
     FnAlchemySinCos G_AlchemySinCos = ComputeSinCosFpu; // PTR_FUN_062572a0

@@ -55,6 +55,17 @@
     <ClInclude Include="ThornScene.h" />
     <ClInclude Include="ThornControlCalls.h" />
     <ClInclude Include="SplineMath.h" />
+    <ClInclude Include="SceneGeometryMath.h" />
+    <ClInclude Include="SceneInterpolationMath.h" />
+    <ClInclude Include="CompactLightMath.h" />
+    <ClInclude Include="ExtendedProgressCodec.h" />
+    <ClInclude Include="ParamCurveMath.h" />
+    <ClInclude Include="CurvePolynomialMath.h" />
+    <ClInclude Include="SplineQuaternionMath.h" />
+    <ClInclude Include="SplineSamplingMath.h" />
+    <ClInclude Include="LuaPropertyMath.h" />
+    <ClInclude Include="lua32\src\PortableNumberMath.h" />
+    <ClInclude Include="lua32\src\lib\PortableMath.h" />
     <ClInclude Include="..\include\dacom.h" />
     <ClInclude Include="lua32\include\lua.h" />
     <ClInclude Include="lua32\include\lualib.h" />

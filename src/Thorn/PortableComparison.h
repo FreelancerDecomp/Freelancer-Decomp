@@ -1,0 +1,69 @@
+#pragma once
+
+#include <cfenv>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+
+namespace ThornPortableComparison
+{
+    inline bool Nonzero(const double* value)
+    {
+        static_assert(sizeof(double) == 8 && std::numeric_limits<double>::is_iec559,
+                      "IEEE binary64 required");
+        const volatile double loaded = *value;
+        std::uint64_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & UINT64_C(0x7fffffffffffffff)) > UINT64_C(0x7ff0000000000000))
+        {
+            std::feraiseexcept(FE_INVALID);
+            return true;
+        }
+        return loaded != 0.0;
+    }
+
+    inline bool AtLeastOne(const float* value)
+    {
+        const volatile double promoted = static_cast<double>(*value);
+        std::uint32_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & 0x7fffffffu) > 0x7f800000u)
+        {
+            std::feraiseexcept(FE_INVALID);
+            return false;
+        }
+        return promoted >= 1.0;
+    }
+
+    inline bool Nonzero(const float* value)
+    {
+        const volatile double promoted = static_cast<double>(*value);
+        std::uint32_t bits;
+        std::memcpy(&bits, value, sizeof(bits));
+        if ((bits & 0x7fffffffu) > 0x7f800000u)
+        {
+            std::feraiseexcept(FE_INVALID);
+            return true;
+        }
+        return promoted != 0.0;
+    }
+
+    inline bool StrictLess(const float* left, const float* right)
+    {
+        static_assert(sizeof(float) == 4 && std::numeric_limits<float>::is_iec559,
+                      "IEEE binary32 required");
+        // The original loads the left operand before comparing. Preserve its
+        // subnormal/signaling-NaN load effects even if the right operand is NaN.
+        const volatile double promoted = static_cast<double>(*left);
+        std::uint32_t a, b;
+        std::memcpy(&a, left, sizeof(a));
+        std::memcpy(&b, right, sizeof(b));
+        if ((a & 0x7fffffffu) > 0x7f800000u || (b & 0x7fffffffu) > 0x7f800000u)
+        {
+            // FCOMP is signaling for quiet NaNs too; ordinary C++ < need not be.
+            std::feraiseexcept(FE_INVALID);
+            return false;
+        }
+        return promoted < *right;
+    }
+}

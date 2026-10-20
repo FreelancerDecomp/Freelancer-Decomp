@@ -88,7 +88,8 @@ struct I3DMathEngine : IDAComponent
                                                      const FVector* Source, int Count) = 0;      // +0x4C
     virtual GENRESULT DACOM_API MatrixToQuaternion(FQuaternion& Dst, const FMatrix& Source) = 0; // +0x50
     virtual GENRESULT DACOM_API QuaternionToMatrix(FMatrix& Dst, const FQuaternion& Quat) = 0;   // +0x54
-    virtual GENRESULT DACOM_API QuatSlerp(FQuaternion& Dst, const FQuaternion& A,
+    // Sign-adjusted normalized linear interpolation (retail name: QuatSlerp).
+    virtual GENRESULT DACOM_API QuatNlerp(FQuaternion& Dst, const FQuaternion& A,
                                           const FQuaternion& B, float T) = 0;                    // +0x58
     virtual GENRESULT DACOM_API GeneralInverse(FTransform& Dst, float& W,
                                                const FTransform& Source) = 0;                    // +0x5C
@@ -96,7 +97,7 @@ struct I3DMathEngine : IDAComponent
     virtual GENRESULT DACOM_API Sqrt(float& Dst, float X) = 0;                                   // +0x64
 
     // Modern port-only raw-F32 transport; original retail slots 0..25 are unchanged.
-    // The input word is consumed at the kernel FMUL, after the quaternion dot test.
-    virtual GENRESULT DACOM_API QuatSlerpValue(FQuaternion& Dst, const FQuaternion& A,
+    // The blend factor is read per component after the quaternion dot test.
+    virtual GENRESULT DACOM_API QuatNlerpValue(FQuaternion& Dst, const FQuaternion& A,
                                               const FQuaternion& B, const float* T) = 0;          // +0x68
 };

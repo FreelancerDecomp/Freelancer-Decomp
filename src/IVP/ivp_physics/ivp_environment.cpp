@@ -1346,9 +1346,8 @@ void IVP_Sim_Unit_Manager::env_set_current_time(IVP_Environment* Environment, fl
 // FSTCW / OR 0x300 / FLDCW (x87 precision control = 64-bit mantissa) and
 // restores the control word afterwards. Named gap: the port's arithmetic is
 // SSE2 with x87 temporaries modelled as double, so the step's 64-bit-significand
-// temporaries are not reproduced (MSVC long double == double); the only x87
-// instructions the port runs (x87_trig.h FSIN/FCOS/FPTAN/FPATAN) ignore the
-// precision control anyway.
+// temporaries are not reproduced (MSVC long double == double). Trigonometry
+// uses standard C++ math; its rounding can differ from retail instructions.
 // Clamp: `FCOMP [063a5654]; TEST AH,0x1; JZ` -- C0 set (below 0.005f, or
 // unordered: a NaN is clamped too) -> 0x3ba3d70a (0.005f); else
 // `FCOMP [063a5464]; TEST AH,0x41; JNZ` -- not greater than 0.1f keeps it,

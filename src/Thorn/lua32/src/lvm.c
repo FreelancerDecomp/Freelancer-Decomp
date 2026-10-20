@@ -25,6 +25,7 @@
 #include "ltm.h"
 #include "luadebug.h"
 #include "lvm.h"
+#include "PortableNumberMath.h"
 
 extern int ThornModernNormalizeVarargCount (int requested_count);
 extern char *ThornModernGetArithmeticDiagnostic (void);
@@ -505,17 +506,7 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
         if (tonumber(r) || tonumber(l))
           call_arith(IM_SUB);
         else {
-            const real *RightNumber = &nvalue(r);
-            real *LeftNumber = &nvalue(l);
-            /* Retail loads right before FSUBR. Optimized C loads/quietens left
-               first and changes NaN payloads and unmasked invalid state. */
-            __asm {
-              mov eax, RightNumber
-              mov ecx, LeftNumber
-              fld qword ptr [eax]
-              fsubr qword ptr [ecx]
-              fstp qword ptr [ecx]
-            }
+          ThornLuaBinaryNumber(&nvalue(l), &nvalue(r), 0);
           --S->top;
         }
         break;
@@ -539,17 +530,7 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
         if (tonumber(r) || tonumber(l))
           call_arith(IM_DIV);
         else {
-            const real *RightNumber = &nvalue(r);
-            real *LeftNumber = &nvalue(l);
-            /* Same right-load requirement as retail 06f4db47; C/volatile C
-               retain the demonstrated optimized operand-order mismatch. */
-            __asm {
-              mov eax, RightNumber
-              mov ecx, LeftNumber
-              fld qword ptr [eax]
-              fdivr qword ptr [ecx]
-              fstp qword ptr [ecx]
-            }
+          ThornLuaBinaryNumber(&nvalue(l), &nvalue(r), 1);
           --S->top;
         }
         break;

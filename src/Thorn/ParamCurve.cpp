@@ -6,6 +6,12 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#include "ExtendedProgressCodec.h"
+#include "ParamCurveMath.h"
+#include "CurvePolynomialMath.h"
+#include "HermiteRecord.h"
+#include "ExtendedFloatStorage.h"
+#include "PortableComparison.h"
 
 #include <cmath>
 #include <cstring>
@@ -56,32 +62,14 @@ namespace
 
     void StoreParamFloat(FThornExtendedProgress* Output, const float* Value)
     {
-        __asm
-        {
-            mov ecx, Value
-            fld dword ptr [ecx]
-            mov ecx, Output
-            fstp tbyte ptr [ecx]
-        }
+        ThornPortableMath::StoreFloatToExtended80(Output->Bytes, Value);
     }
 
     typedef std::list<FParamKey> FParamEvaluationList;
 
     bool ParamStrictLess(const float* Left, const float* Right)
     {
-        // FLD/FCOMP; TEST AH,05; JP takes equal/greater/unordered.
-        unsigned char bLess;
-        __asm
-        {
-            mov ecx, Left
-            fld dword ptr [ecx]
-            mov ecx, Right
-            fcomp dword ptr [ecx]
-            fnstsw ax
-            test ah, 05h
-            setnp bLess
-        }
-        return bLess != 0;
+        return ThornPortableComparison::StrictLess(Left, Right);
     }
 
     void MergeEvaluationLists(FParamEvaluationList& Destination, FParamEvaluationList& Source)
@@ -150,13 +138,8 @@ namespace
         }
     }
 
-    struct FHermiteKnot
-    {
-        float Value;
-        float T;
-        float MIn;
-        float MOut;
-    };
+    using ThornCurveDetail::FHermiteKnot;
+    using ThornCurveDetail::AssignHermiteRecord;
 
     struct FCurveSpec
     {
@@ -185,89 +168,15 @@ namespace
     // 2f2f0: preserve the complete extended x87 value in typed output, including
     // the caller-supplied nullable outside values. A C++ float polynomial
     // would round U²/U³ and the intermediate sums before the retail stores.
-    __declspec(naked) void __cdecl CatmullRom1D(const float* P0, const float* P1,
+    void __cdecl CatmullRom1D(const float* P0, const float* P1,
                                                const float* P2, const float* P3, float U, FThornExtendedProgress* Output)
     {
-        __asm
-        {
-            fld dword ptr [esp + 14h]
-            mov eax, dword ptr [esp + 4]
-            test eax, eax
-            fmul dword ptr [esp + 14h]
-            fld dword ptr [esp + 14h]
-            push esi
-            mov esi, dword ptr [esp + 0ch]
-            fmul st(0), st(1)
-            jnz ScalarLeftPresent
-            mov eax, esi
-        ScalarLeftPresent:
-            mov edx, dword ptr [esp + 14h]
-            test edx, edx
-            mov ecx, dword ptr [esp + 10h]
-            jnz ScalarRightPresent
-            mov edx, ecx
-        ScalarRightPresent:
-            fld dword ptr [eax]
-            fadd st(0), st(0)
-            fld dword ptr [esi]
-            fmul G_ScalarFive
-            fsubp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul G_ScalarFour
-            faddp st(1), st(0)
-            fsub dword ptr [edx]
-            fmulp st(2), st(0)
-            fld dword ptr [esi]
-            fmul G_ScalarThree
-            fsub dword ptr [eax]
-            fld dword ptr [ecx]
-            fmul G_ScalarThree
-            fsubp st(1), st(0)
-            fadd dword ptr [edx]
-            fmul st(0), st(1)
-            faddp st(2), st(0)
-            fld dword ptr [ecx]
-            fsub dword ptr [eax]
-            fmul dword ptr [esp + 18h]
-            faddp st(2), st(0)
-            fld dword ptr [esi]
-            pop esi
-            fadd st(0), st(0)
-            faddp st(2), st(0)
-            fxch st(1)
-            fmul G_ScalarHalf
-            fstp st(1)
-            mov eax, dword ptr [esp + 18h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Catmull(P0, P1, P2, P3, U));
     }
 
-    __declspec(naked) void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
+    void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
     {
-        // 2f948..2f961: extended subtraction/divide/product/add to 80-bit output.
-        __asm
-        {
-            // Copy input bits into private argument scratch, without an FP load.
-            mov eax, dword ptr [esp + 0ch]
-            mov eax, dword ptr [eax]
-            mov dword ptr [esp + 0ch], eax
-            mov eax, dword ptr [esp + 4]
-            mov ecx, dword ptr [esp + 8]
-            fld dword ptr [eax + 4]
-            fld dword ptr [esp + 0ch]
-            fsub dword ptr [eax]
-            fld dword ptr [ecx]
-            fsub dword ptr [eax]
-            fdivp st(1), st(0)
-            fld dword ptr [ecx + 4]
-            fsub st(0), st(2)
-            fmulp st(1), st(0)
-            faddp st(1), st(0)
-            mov eax, dword ptr [esp + 10h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Lerp(*Left, *Right, T));
     }
 
     // FUN_06f21000: shared exact x87 arithmetic including helper float stores.
@@ -288,370 +197,24 @@ namespace
 
     // FUN_06f33df0: construction copies Value/T raw, but tangent values pass
     // through FLD/FSTP in reverse load order. Assignment is a different path.
-    __declspec(naked) void __cdecl ConstructHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
-    {
-        __asm
-        {
-            mov eax, dword ptr [esp + 4]
-            test eax, eax
-            jz ConstructionDone
-            mov ecx, dword ptr [esp + 8]
-            mov edx, dword ptr [ecx]
-            mov dword ptr [eax], edx
-            mov edx, dword ptr [ecx + 4]
-            mov dword ptr [eax + 4], edx
-            fld dword ptr [ecx + 0ch]
-            fld dword ptr [ecx + 8]
-            fstp dword ptr [eax + 8]
-            fstp dword ptr [eax + 0ch]
-        ConstructionDone:
-            ret
-        }
-    }
-
-    // 33160/331b0 assign four DWORDs, without loading tangent floats.
-    void AssignHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
-    {
-        __asm
-        {
-            mov eax, Destination
-            mov ecx, Source
-            mov edx, dword ptr [ecx]
-            mov dword ptr [eax], edx
-            mov edx, dword ptr [ecx + 4]
-            mov dword ptr [eax + 4], edx
-            mov edx, dword ptr [ecx + 8]
-            mov dword ptr [eax + 8], edx
-            mov edx, dword ptr [ecx + 0ch]
-            mov dword ptr [eax + 0ch], edx
-        }
-    }
+    using ThornCurveDetail::ConstructHermiteRecord;
 
     // FUN_06f30480: all 60 instructions; only normalized S is stored as float.
-    __declspec(naked) void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
+    void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
     {
-        __asm
-        {
-            // Copy input bits into private argument scratch, without an FP load.
-            mov eax, dword ptr [esp + 0ch]
-            mov eax, dword ptr [eax]
-            mov dword ptr [esp + 0ch], eax
-            mov ecx, dword ptr [esp + 4]
-            fld dword ptr [ecx + 4]
-            fcomp dword ptr [esp + 0ch]
-            fnstsw ax
-            test ah, 44h
-            jp CompareRight
-            fld dword ptr [ecx]
-            jmp HermiteStoreOutput
-        CompareRight:
-            mov edx, dword ptr [esp + 8]
-            fld dword ptr [edx + 4]
-            fcomp dword ptr [esp + 0ch]
-            fnstsw ax
-            test ah, 44h
-            jp NormalizeTime
-            fld dword ptr [edx]
-            jmp HermiteStoreOutput
-        NormalizeTime:
-            fld dword ptr [edx + 4]
-            mov eax, dword ptr [ecx + 0ch]
-            cmp eax, -1
-            fsub dword ptr [ecx + 4]
-            fld dword ptr [esp + 0ch]
-            fsub dword ptr [ecx + 4]
-            fdiv st(0), st(1)
-            fstp dword ptr [esp + 0ch]
-            jnz EvaluatePolynomial
-            fstp st(0)
-            fld dword ptr [ecx]
-            jmp HermiteStoreOutput
-        EvaluatePolynomial:
-            fld dword ptr [esp + 0ch]
-            fmul dword ptr [esp + 0ch]
-            fld dword ptr [esp + 0ch]
-            fmul st(0), st(1)
-            fld st(0)
-            fadd st(0), st(1)
-            fld st(2)
-            fmul G_ScalarThree
-            fld st(3)
-            fadd st(0), st(0)
-            fsubr st(0), st(3)
-            fadd dword ptr [esp + 0ch]
-            fmul dword ptr [ecx + 0ch]
-            fmul st(0), st(5)
-            fxch st(3)
-            fsub st(0), st(4)
-            fmul dword ptr [edx + 8]
-            fmul st(0), st(5)
-            faddp st(3), st(0)
-            fld st(1)
-            fsub st(0), st(1)
-            fadd G_ScalarOne
-            fmul dword ptr [ecx]
-            faddp st(3), st(0)
-            fsub st(0), st(1)
-            fmul dword ptr [edx]
-            faddp st(2), st(0)
-            fxch st(1)
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-        HermiteStoreOutput:
-            mov eax, dword ptr [esp + 10h]
-            fstp tbyte ptr [eax]
-            ret
-        }
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::Hermite(A, B, T));
     }
 
     // FUN_06f30520: exact endpoint/seed/walk arithmetic, followed by an
     // ordinary typed kernel call. No C++ function is invoked inside asm.
-    void HermiteEvaluate(const FHermiteKnot* Begin, int Count, const float* T, FThornExtendedProgress* Output)
+    __declspec(noinline) void HermiteEvaluate(const FHermiteKnot* Begin, int Count, const float* T, FThornExtendedProgress* Output)
     {
-        const FHermiteKnot* Left;
-        const FHermiteKnot* Right;
-        int LastIndex;
-        float FirstTime;
-        float LastTime;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Seed;
-        unsigned char bEndpoint = 0;
-        __asm
-        {
-            mov esi, Begin
-            test esi, esi
-            jnz HermiteReadCount
-            xor eax, eax
-            jmp HermiteCountReady
-        HermiteReadCount:
-            mov eax, Count
-        HermiteCountReady:
-            cmp eax, 1
-            jne HermiteCheckEndpoints
-            fld dword ptr [esi]
-            jmp HermiteEndpointOutput
-        HermiteCheckEndpoints:
-            mov edx, T
-            fld dword ptr [edx]
-            dec eax
-            mov LastIndex, eax
-            shl eax, 4
-            add eax, esi
-            mov edi, eax
-            mov eax, dword ptr [esi + 4]
-            mov ecx, dword ptr [edi + 4]
-            mov FirstTime, eax
-            fcomp FirstTime
-            mov LastTime, ecx
-            fnstsw ax
-            test ah, 05h
-            jp HermiteCheckLastEndpoint
-            fld dword ptr [esi]
-            jmp HermiteEndpointOutput
-        HermiteCheckLastEndpoint:
-            mov edx, T
-            fld dword ptr [edx]
-            fcomp LastTime
-            fnstsw ax
-            test ah, 41h
-            jnz HermiteSeedSegment
-            fld dword ptr [edi]
-            jmp HermiteEndpointOutput
-        HermiteSeedSegment:
-            mov edx, T
-            fld dword ptr [edx]
-            fsub FirstTime
-            fld LastTime
-            fsub FirstTime
-            fdivp st(1), st(0)
-            fimul LastIndex
-            fstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ah, 0ch
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Seed
-            fldcw OldControl
-            mov eax, dword ptr Seed
-            mov ecx, eax
-            shl ecx, 4
-            fld dword ptr [ecx + esi + 4]
-            add ecx, esi
-            mov edx, T
-            fcomp dword ptr [edx]
-            fnstsw ax
-            test ah, 41h
-            jnz HermiteWalkForwardStart
-            cmp ecx, esi
-            jbe HermiteBackwardPair
-        HermiteWalkBackward:
-            fld dword ptr [ecx + 4]
-            mov edx, T
-            fcomp dword ptr [edx]
-            fnstsw ax
-            test ah, 05h
-            jnp HermiteBackwardPair
-            sub ecx, 10h
-            cmp ecx, esi
-            ja HermiteWalkBackward
-        HermiteBackwardPair:
-            lea eax, [ecx + 10h]
-            jmp HermiteSelectedPair
-        HermiteWalkForwardStart:
-            cmp ecx, edi
-            ja HermiteForwardPair
-        HermiteWalkForward:
-            fld dword ptr [ecx + 4]
-            mov edx, T
-            fcomp dword ptr [edx]
-            fnstsw ax
-            test ah, 41h
-            jz HermiteForwardPair
-            add ecx, 10h
-            cmp ecx, edi
-            jbe HermiteWalkForward
-        HermiteForwardPair:
-            mov eax, ecx
-            add ecx, -10h
-        HermiteSelectedPair:
-            mov Left, ecx
-            mov Right, eax
-            jmp HermitePhaseDone
-        HermiteEndpointOutput:
-            mov ecx, Output
-            fstp tbyte ptr [ecx]
-            mov bEndpoint, 1
-        HermitePhaseDone:
-        }
-        if (!bEndpoint)
-            Hermite1D(*Left, *Right, T, Output);
+        ThornExtendedProgress::StoreDouble(Output->Bytes, ThornCurvePolynomial::EvaluateHermite(Begin, Count, T));
     }
 
     void ApplyHermiteTangents(FHermiteKnot* Knots, int Count, int TangentMode)
     {
-        if (Count == 0 || Count == 1)
-            return;
-
-        for (int Index = 0; Index < Count - 1; ++Index)
-        {
-            FHermiteKnot* Current = &Knots[Index];
-            FHermiteKnot* Next = &Knots[Index + 1];
-            float DeltaT;
-            float DeltaV;
-            // 300e5..30110: both differences are stored before the clamp,
-            // even for a mode whose branch does not calculate a slope.
-            __asm
-            {
-                mov edx, Next
-                mov ecx, Current
-                fld dword ptr [edx + 4]
-                fsub dword ptr [ecx + 4]
-                fstp DeltaT
-                fld dword ptr [edx]
-                fsub dword ptr [ecx]
-                fstp DeltaV
-                fld DeltaT
-                fcomp G_MinDeltaT
-                fnstsw ax
-                test ah, 05h
-                jp TangentDispatch
-                mov dword ptr DeltaT, 38d1b717h
-            TangentDispatch:
-            }
-            switch (TangentMode)
-            {
-            case 0:
-                __asm
-                {
-                    mov ecx, Current
-                    mov dword ptr [ecx + 0ch], 0ffffffffh
-                }
-                break;
-            case 1:
-                __asm
-                {
-                    mov edx, Next
-                    mov ecx, Current
-                    fld DeltaV
-                    fdiv DeltaT
-                    fst dword ptr [edx + 8]
-                    fstp dword ptr [ecx + 0ch]
-                }
-                break;
-            case 4:
-                __asm
-                {
-                    mov ecx, Current
-                    mov edx, Next
-                    mov dword ptr [ecx + 0ch], 0
-                    mov dword ptr [edx + 8], 0
-                }
-                break;
-            case 5:
-                // TEST AH,41/JNZ takes not-greater, including unordered.
-                // FNSTSW follows the half-product exactly as in retail.
-                __asm
-                {
-                    mov ecx, Current
-                    mov edx, Next
-                    fld dword ptr [ecx]
-                    fcomp dword ptr [edx]
-                    fld DeltaT
-                    fmul G_ScalarHalfFloat
-                    fnstsw ax
-                    fdivr DeltaV
-                    test ah, 41h
-                    jnz StoreOutgoing
-                    mov dword ptr [ecx + 0ch], 0
-                    fstp dword ptr [edx + 8]
-                    jmp TangentDone
-                StoreOutgoing:
-                    fstp dword ptr [ecx + 0ch]
-                    mov dword ptr [edx + 8], 0
-                TangentDone:
-                }
-                break;
-            case 2:
-            case 3:
-            case 6:
-                // Mode6 TEST AH,05/JP selects mode3 on equal, greater or
-                // unordered; the strictly-less fall-through selects mode2.
-                __asm
-                {
-                    mov ecx, Current
-                    mov edx, Next
-                    cmp TangentMode, 2
-                    je IncomingTangent
-                    cmp TangentMode, 3
-                    je OutgoingTangent
-                    fld dword ptr [ecx]
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 05h
-                    jp OutgoingTangent
-                IncomingTangent:
-                    fld DeltaT
-                    mov dword ptr [ecx + 0ch], 0
-                    fmul G_ScalarHalfFloat
-                    fdivr DeltaV
-                    fstp dword ptr [edx + 8]
-                    jmp TangentPairDone
-                OutgoingTangent:
-                    fld DeltaT
-                    fmul G_ScalarHalfFloat
-                    fdivr DeltaV
-                    fstp dword ptr [ecx + 0ch]
-                    mov dword ptr [edx + 8], 0
-                TangentPairDone:
-                }
-                break;
-            default:
-                break;
-            }
-        }
+        ThornParamMath::ApplyTangents(Knots, Count, TangentMode);
     }
 
     const FCurveSpec* SpecFor(const char* FactoryName, bool bDeadSecondLinear)
@@ -775,10 +338,8 @@ namespace
         float DACOM_API Evaluate(float T) override
         {
             FThornExtendedProgress Result;
-            // The typed worker preserves its result in 80-bit output storage.
-            // Pass the original argument address: no FP load before worker comparisons.
             EvaluateExtended(&T, &Result);
-            __asm { fld tbyte ptr Result }
+            return ThornExtendedProgress::LoadFloat(Result.Bytes);
         }
 #pragma warning(pop)
 
@@ -791,19 +352,7 @@ namespace
 
         void DACOM_API WrapEvaluateToExtended(int A, int B, FThornExtendedProgress* Output) override
         {
-            int Remainder;
-            float Normalized;
-            // Same 2f810 signed division and mandatory argument rounding.
-            __asm
-            {
-                mov eax, A
-                cdq
-                idiv B
-                mov Remainder, edx
-                fild Remainder
-                fidiv B
-                fstp dword ptr Normalized
-            }
+            const float Normalized = ThornParamMath::WrappedRatio(A, B);
             EvaluateToExtended(&Normalized, Output);
         }
 
@@ -815,63 +364,7 @@ namespace
             if (Key == nullptr)
                 return 0;
             float TargetT;
-            unsigned char bAccepted;
-            const float Zero = 0.0f;
-            const float One = 1.0f;
-            const double EndpointZero = 0.0;
-            const double EndpointOne = 1.0;
-            // Match the parity branches, including unordered. TEST AH,05/JP
-            // retains unordered; TEST AH,44/JP bypasses the endpoint-ID gate
-            // on unequal OR unordered. A NaN time is not rejected here.
-            __asm
-            {
-                mov ecx, Id
-                test ecx, ecx
-                jz ReplaceTimeZero
-                cmp ecx, 1
-                jne ReplaceClampTime
-                fld One
-                jmp ReplaceEndpointZero
-            ReplaceClampTime:
-                fld F0
-                fcom One
-                fnstsw ax
-                test ah, 41h
-                jnz ReplaceLowerBound
-                fstp st(0)
-                fld One
-                jmp ReplaceEndpointZero
-            ReplaceLowerBound:
-                fcom Zero
-                fnstsw ax
-                test ah, 05h
-                jp ReplaceEndpointZero
-                fstp st(0)
-            ReplaceTimeZero:
-                fld Zero
-            ReplaceEndpointZero:
-                fcom EndpointZero
-                fnstsw ax
-                test ah, 44h
-                jp ReplaceEndpointOne
-                test ecx, ecx
-                jnz ReplaceRejected
-            ReplaceEndpointOne:
-                fcom EndpointOne
-                fnstsw ax
-                test ah, 44h
-                jp ReplaceAccepted
-                cmp ecx, 1
-                jne ReplaceRejected
-            ReplaceAccepted:
-                fstp TargetT
-                mov bAccepted, 1
-                jmp ReplaceTimeDone
-            ReplaceRejected:
-                fstp st(0)
-                mov bAccepted, 0
-            ReplaceTimeDone:
-            }
+            const bool bAccepted = ThornParamMath::ReplacementTime(Id, F0, &TargetT);
             if (!bAccepted)
                 return 0;
             Key->T = TargetT;
@@ -903,45 +396,7 @@ namespace
 
         int DACOM_API AddKey(float F0, float F1, float F2, float F3) override
         {
-            const float Zero = 0.0f;
-            const float One = 1.0f;
-            int TimeClass;
-            // 2f560..2f5f0: reject strictly outside, select only ordered
-            // endpoint equality; unordered reaches new-key construction.
-            __asm
-            {
-                fld F0
-                fcomp Zero
-                fnstsw ax
-                test ah, 05h
-                jnp AddTimeRejected
-                fld F0
-                fcomp One
-                fnstsw ax
-                test ah, 41h
-                jz AddTimeRejected
-                fld F0
-                fcomp Zero
-                fnstsw ax
-                test ah, 44h
-                jnp AddTimeZero
-                fld F0
-                fcomp One
-                fnstsw ax
-                test ah, 44h
-                jnp AddTimeOne
-                mov TimeClass, 3
-                jmp AddTimeDone
-            AddTimeRejected:
-                mov TimeClass, -1
-                jmp AddTimeDone
-            AddTimeZero:
-                mov TimeClass, 0
-                jmp AddTimeDone
-            AddTimeOne:
-                mov TimeClass, 1
-            AddTimeDone:
-            }
+            const int TimeClass = ThornParamMath::ClassifyTime(F0);
             if (TimeClass < 0)
                 return -1;
 
@@ -1031,20 +486,7 @@ namespace
 #pragma warning(disable: 4716) // Virtual evaluator returns extended ST(0).
         float DACOM_API Slot12WrapEvaluate(int A, int B) override
         {
-            int Remainder;
-            float Normalized;
-            // 2f810: signed IDIV (including both hardware fault cases), then
-            // integer x87 normalization and ONE float store before slot3.
-            __asm
-            {
-                mov eax, A
-                cdq
-                idiv B
-                mov Remainder, edx
-                fild Remainder
-                fidiv B
-                fstp dword ptr Normalized
-            }
+            const float Normalized = ThornParamMath::WrappedRatio(A, B);
             return Evaluate(Normalized);
         }
 #pragma warning(pop)
@@ -1113,16 +555,7 @@ namespace
                 unsigned char bInsertBefore;
                 // TEST AH,41/JNP breaks on less/equal. Greater/unordered
                 // have even parity and advance; no C++ float comparison.
-                __asm
-                {
-                    mov ecx, NewTime
-                    mov edx, ExistingTime
-                    fld dword ptr [ecx]
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 41h
-                    setnp bInsertBefore
-                }
+                bInsertBefore = ThornParamMath::LessEqual(NewTime, ExistingTime);
                 if (bInsertBefore)
                     break;
                 InsertAt = InsertAt + 1;
@@ -1243,16 +676,7 @@ namespace
                 const float* KeyTime = &Key->T;
                 unsigned char bGreater;
                 unsigned char bEqual;
-                __asm
-                {
-                    mov ecx, KeyTime
-                    fld dword ptr [ecx]
-                    mov edx, T
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 41h
-                    setz bGreater
-                }
+                bGreater = ThornParamMath::Greater(KeyTime, T);
                 if (bGreater)
                 {
                     if (Previous == EvaluationKeys_.end())
@@ -1260,16 +684,7 @@ namespace
                     EvaluateCatmull(Previous, Key, T, Output);
                     return;
                 }
-                __asm
-                {
-                    mov ecx, KeyTime
-                    fld dword ptr [ecx]
-                    mov edx, T
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 44h
-                    setnp bEqual
-                }
+                bEqual = ThornParamMath::Equal(KeyTime, T);
                 if (bEqual)
                 {
                     StoreParamFloat(Output, &Key->Value);
@@ -1292,16 +707,7 @@ namespace
             {
                 const float* KeyTime = &Key->T;
                 unsigned char bGreater;
-                __asm
-                {
-                    mov ecx, KeyTime
-                    fld dword ptr [ecx]
-                    mov edx, T
-                    fcomp dword ptr [edx]
-                    fnstsw ax
-                    test ah, 41h
-                    setz bGreater
-                }
+                bGreater = ThornParamMath::Greater(KeyTime, T);
                 if (bGreater)
                 {
                     if (Previous == EvaluationKeys_.end())
@@ -1324,20 +730,7 @@ namespace
         {
             const float* T0 = &Left->T;
             const float* T1 = &Right->T;
-            float U;
-            // 2f266..2f285: extended subtracts/divide, then one FSTP DWORD.
-            __asm
-            {
-                mov eax, T0
-                mov ecx, T1
-                mov edx, T
-                fld dword ptr [edx]
-                fsub dword ptr [eax]
-                fld dword ptr [ecx]
-                fsub dword ptr [eax]
-                fdivp st(1), st(0)
-                fstp U
-            }
+            const float U = ThornParamMath::NormalizeTime(T, T0, T1);
             const float* P0 = nullptr;
             const float* P3 = nullptr;
             FParamEvaluationList::const_iterator Outside = Left;
