@@ -763,63 +763,7 @@ namespace
             if (Key == nullptr)
                 return 0;
             float TargetT;
-            unsigned char bAccepted;
-            const float Zero = 0.0f;
-            const float One = 1.0f;
-            const double EndpointZero = 0.0;
-            const double EndpointOne = 1.0;
-            // Match the parity branches, including unordered. TEST AH,05/JP
-            // retains unordered; TEST AH,44/JP bypasses the endpoint-ID gate
-            // on unequal OR unordered. A NaN time is not rejected here.
-            __asm
-            {
-                mov ecx, Id
-                test ecx, ecx
-                jz ReplaceTimeZero
-                cmp ecx, 1
-                jne ReplaceClampTime
-                fld One
-                jmp ReplaceEndpointZero
-            ReplaceClampTime:
-                fld F0
-                fcom One
-                fnstsw ax
-                test ah, 41h
-                jnz ReplaceLowerBound
-                fstp st(0)
-                fld One
-                jmp ReplaceEndpointZero
-            ReplaceLowerBound:
-                fcom Zero
-                fnstsw ax
-                test ah, 05h
-                jp ReplaceEndpointZero
-                fstp st(0)
-            ReplaceTimeZero:
-                fld Zero
-            ReplaceEndpointZero:
-                fcom EndpointZero
-                fnstsw ax
-                test ah, 44h
-                jp ReplaceEndpointOne
-                test ecx, ecx
-                jnz ReplaceRejected
-            ReplaceEndpointOne:
-                fcom EndpointOne
-                fnstsw ax
-                test ah, 44h
-                jp ReplaceAccepted
-                cmp ecx, 1
-                jne ReplaceRejected
-            ReplaceAccepted:
-                fstp TargetT
-                mov bAccepted, 1
-                jmp ReplaceTimeDone
-            ReplaceRejected:
-                fstp st(0)
-                mov bAccepted, 0
-            ReplaceTimeDone:
-            }
+            const bool bAccepted = ThornParamMath::ReplacementTime(Id, F0, &TargetT);
             if (!bAccepted)
                 return 0;
             Key->T = TargetT;
