@@ -751,19 +751,7 @@ namespace
 
         void DACOM_API WrapEvaluateToExtended(int A, int B, FThornExtendedProgress* Output) override
         {
-            int Remainder;
-            float Normalized;
-            // Same 2f810 signed division and mandatory argument rounding.
-            __asm
-            {
-                mov eax, A
-                cdq
-                idiv B
-                mov Remainder, edx
-                fild Remainder
-                fidiv B
-                fstp dword ptr Normalized
-            }
+            const float Normalized = ThornParamMath::WrappedRatio(A, B);
             EvaluateToExtended(&Normalized, Output);
         }
 
