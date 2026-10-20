@@ -1255,49 +1255,7 @@ namespace
     // before publishing X; the third conversion consumes the retained Z.
     void StoreSceneAmbientIntegers(const float* Source, void* Output)
     {
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
-        __asm {
-            mov ecx, Source
-            fld dword ptr [ecx + 8]
-            fld dword ptr [ecx]
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            fld dword ptr [ecx + 4]
-            mov eax, dword ptr Result
-            mov edx, Output
-            mov dword ptr [edx], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 4], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 8], eax
-        }
+        PortableIntegerConversion::StoreFloatTriplet(Source, Output, true);
     }
 
     void LoadSceneEntityDesc(lua_Object Table, FThornEntitySnap* Descriptor)
