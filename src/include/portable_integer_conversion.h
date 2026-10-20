@@ -43,4 +43,31 @@ namespace PortableIntegerConversion
         }
         return negative ? UINT64_C(0) - magnitude : magnitude;
     }
+
+    inline void StoreFloatTriplet(const float* input, void* output, bool snapshotZFirst)
+    {
+        const auto load = [input](unsigned index) {
+            float raw;
+            std::memcpy(&raw, input + index, sizeof(raw));
+            const volatile double promoted = static_cast<double>(raw);
+            return static_cast<double>(promoted);
+        };
+        const auto store = [output](unsigned index, std::uint64_t value) {
+            const auto word = static_cast<std::uint32_t>(value);
+            std::memcpy(static_cast<unsigned char*>(output) + index * sizeof(word),
+                        &word, sizeof(word));
+        };
+        // LIGHT loads one input ahead of each publication; ambient keeps Z
+        // from the beginning. Preserve both orders when buffers overlap.
+        double z = 0.0;
+        if (snapshotZFirst) z = load(2);
+        const double x = load(0);
+        const auto ix = ToInt64Bits(&x);
+        const double y = load(1);
+        store(0, ix);
+        const auto iy = ToInt64Bits(&y);
+        if (!snapshotZFirst) z = load(2);
+        store(1, iy);
+        store(2, ToInt64Bits(&z));
+    }
 }
