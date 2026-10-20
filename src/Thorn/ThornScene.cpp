@@ -10,6 +10,7 @@
 #include "ThornControlCalls.h"
 #include "X87Return.h"
 #include "PortableSplineMath.h"
+#include "portable_vector_load.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -501,18 +502,7 @@ namespace
     // FUN_06f2ed00/20/40: column getters convert via x87, Z/Y/X load order.
     void ReadColumn(const float* M9, int Col, float* V)
     {
-        const float* Source = M9 + Col;
-        __asm
-        {
-            mov ecx, Source
-            fld dword ptr [ecx+24]
-            mov eax, V
-            fld dword ptr [ecx+12]
-            fld dword ptr [ecx]
-            fstp dword ptr [eax]
-            fstp dword ptr [eax+4]
-            fstp dword ptr [eax+8]
-        }
+        PortableVectorLoad::Copy(V, M9 + Col, 3);
     }
 
     // FUN_06f3b670: load all eight FP words before output; word3 is raw.
