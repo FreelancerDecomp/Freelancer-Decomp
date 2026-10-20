@@ -6,6 +6,7 @@
 
 
 #include <stdio.h>
+#include "portable_comparison_c.h"
 #include <string.h>
 
 #include "lauxlib.h"
@@ -274,17 +275,8 @@ static int real_constant (FuncState *fs, const real *Number) {
   while (--c >= lim) {
     if (ttype(&cnt[c]) == LUA_T_NUMBER) {
       const real *ExistingNumber = &nvalue(&cnt[c]);
-      unsigned short ComparisonStatus;
-      /* Retail 06f53ff1 returns on C3 after one signaling FCOMP.
-         Two C comparisons add a waiting FLD before this return. */
-      __asm {
-        mov eax, ExistingNumber
-        fld qword ptr [eax]
-        mov eax, Number
-        fcomp qword ptr [eax]
-        fnstsw ComparisonStatus
-      }
-      if (ComparisonStatus & 0x4000)
+      /* C3 selects equality or unordered; retain signaling NaN exceptions. */
+      if (PortableDoubleEqualOrUnordered(ExistingNumber, Number))
         return c;
     }
   }
