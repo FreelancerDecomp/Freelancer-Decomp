@@ -4191,19 +4191,7 @@ unsigned char FThornEvent::StartAttachEntity(FThornScene* Scene)
     const float* PositionSource = TransformedPosition;
     float* PositionResult = NegativePosition;
     // 47b63..47b84: each Z/Y/X word is rounded immediately after FCHS.
-    __asm {
-        mov ecx, PositionSource
-        mov eax, PositionResult
-        fld dword ptr [ecx+8]
-        fchs
-        fstp dword ptr [eax+8]
-        fld dword ptr [ecx+4]
-        fchs
-        fstp dword ptr [eax+4]
-        fld dword ptr [ecx]
-        fchs
-        fstp dword ptr [eax]
-    }
+    ThornPortableSplineMath::NegateStored(PositionResult, PositionSource);
     // 47b8c..47bc0/428b0 pass raw DWORDs in transpose order. In contrast to
     // FUN_3b670, this path has no x87 load/store of the nine matrix words.
     float InverseChild[12];
