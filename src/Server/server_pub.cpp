@@ -3160,7 +3160,7 @@ SERVER_API int __cdecl GetAtmosphereRange(const unsigned int& obj_id, float& out
 }
 
 // SpaceObj::GetScannerRange — gets scanner ranges from equipped scanner
-// Retail: finds scanner equip (type 0x80000), checks active, reads radar/cargo scan ranges
+// Retail: finds scanner equip (type 0x80000), refuses a destroyed one, reads radar/cargo scan ranges
 SERVER_API int __cdecl GetScannerRange(unsigned int obj_id, int& radar_range, int& cargo_scan_range) {
     if ((obj_id & 0x3fffffff) == 0) return -4;
     GameObject* obj = Server_LookupGameObject(obj_id);
@@ -3177,9 +3177,11 @@ SERVER_API int __cdecl GetScannerRange(unsigned int obj_id, int& radar_range, in
         cargo_scan_range = 0;
         return -3;
     }
-    // Retail gates -3 on the scanner's own vtable +0x08 predicate (CEquip slot 2,
-    // IsFunctioning) being TRUE -- yes, TRUE means refuse.
-    if (Scanner->IsFunctioning()) {
+    // .text:06cf92bf .. 06cf92c8: -3 when the scanner's vtable +0x08 returns TRUE. In
+    // ??_7CEScanner@@6BCInternalEquip@@@ (common.dll 0x0639ca9c) +0x00 is the destructor,
+    // +0x04 CEquip::IsActive, +0x08 CEquip::IsDestroyed (0x06287170) and +0x0c
+    // CEquip::IsFunctioning (0x06287180): only a destroyed scanner refuses.
+    if (Scanner->IsDestroyed()) {
         radar_range = 0;
         cargo_scan_range = 0;
         return -3;
