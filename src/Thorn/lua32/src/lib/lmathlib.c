@@ -12,6 +12,7 @@
 #include "lauxlib.h"
 #include "lua.h"
 #include "lualib.h"
+#include "PortableMath.h"
 
 
 #undef PI
@@ -39,53 +40,17 @@ static void math_abs (void) {
 
 static void math_sin (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* 56540: the compiled C/intrinsic candidates reduce huge inputs, while
-     retail FSIN leaves out-of-range operands unchanged (C2). */
-  __asm {
-    fld Input
-    fmul Scale
-    fsin
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaSin(Input));
 }
 
 static void math_cos (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* 56560: native C/intrinsic FCOS policy differs on finite and C2 inputs. */
-  __asm {
-    fld Input
-    fmul Scale
-    fcos
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaCos(Input));
 }
 
-/* 56580: FPTAN's unconditional extra pop also owns the C2 failure path.
-** Native C/intrinsic candidates were proved different on finite inputs. */
 static void math_tan (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x3f91df46a2529d39ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  __asm {
-    fld Input
-    fmul Scale
-    fptan
-    fstp st(0)
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaTan(Input));
 }
 
 static void math_asin (void) {
@@ -106,39 +71,14 @@ static void math_acos (void) {
 ** FPATAN with FLD1 is atan(argument), then converted from radians. */
 static void math_atan (void) {
   const double Input = luaL_check_number(1);
-  const unsigned long long ScaleBits = 0x404ca5dc1a63c1f8ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  /* Native C/intrinsic atan differs from this owned FPATAN at PC24. */
-  __asm {
-    fld Input
-    fld1
-    fpatan
-    fmul Scale
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaAtan(Input));
 }
 
-/* LAB_06f56600 checks argument 1 before argument 2, then FPATAN and
-** FMUL by the literal degree scale. Both compiled ordinary C candidates
-** differed from this kernel in the native precision/rounding probe. */
+/* Check argument 1 before argument 2; the API returns degrees. */
 static void math_atan2 (void) {
   const double First = luaL_check_number(1);
   const double Second = luaL_check_number(2);
-  const unsigned long long ScaleBits = 0x404ca5dc1a63c1f8ULL;
-  double Scale;
-  double Result;
-  memcpy(&Scale, &ScaleBits, sizeof(Scale));
-  __asm {
-    fld First
-    fld Second
-    fpatan
-    fmul Scale
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaAtan2(First, Second));
 }
 
 static void math_ceil (void) {
@@ -160,14 +100,7 @@ static void math_mod (void) {
 /* Retail address binding: LAB_06f566a0 -> math_sqrt. */
 static void math_sqrt (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  /* Current compiled sqrt/intrinsic differs from owned FSQRT under RC_DOWN. */
-  __asm {
-    fld Input
-    fsqrt
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaSqrt(Input));
 }
 
 static void math_pow (void) {
@@ -176,57 +109,22 @@ static void math_pow (void) {
   lua_pushnumber(pow(First, Second));
 }
 
-/* Retail address binding: LAB_06f566c0 -> math_log.
-** Compiled log/intrinsic gave different bits under the current RC. */
+/* Retail address binding: LAB_06f566c0 -> math_log. */
 static void math_log (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  __asm {
-    fld Input
-    fldln2
-    fxch st(1)
-    fyl2x
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaLog(Input));
 }
 
-/* Retail address binding: LAB_06f566e0 -> math_log10.
-** The native log10/intrinsic candidates differ from this owned sequence. */
+/* Retail address binding: LAB_06f566e0 -> math_log10. */
 static void math_log10 (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  __asm {
-    fld Input
-    fldlg2
-    fxch st(1)
-    fyl2x
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaLog10(Input));
 }
 
-/* Retail address binding: LAB_06f56700 -> math_exp.
-** Ordinary C/intrinsic exp differs from the owned sequence at PC24. */
+/* Retail address binding: LAB_06f56700 -> math_exp. */
 static void math_exp (void) {
   const double Input = luaL_check_number(1);
-  double Result;
-  __asm {
-    fld Input
-    fldl2e
-    fmulp st(1), st(0)
-    fld st(0)
-    frndint
-    fxch st(1)
-    fsub st(0), st(1)
-    f2xm1
-    fld1
-    faddp st(1), st(0)
-    fscale
-    fstp st(1)
-    fstp Result
-  }
-  lua_pushnumber(Result);
+  lua_pushnumber(ThornLuaExp(Input));
 }
 
 static void math_deg (void) {

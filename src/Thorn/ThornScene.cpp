@@ -8,6 +8,15 @@
 #include "readfile.h"
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
+#include "ExtendedProgressCodec.h"
+#include "PortableSplineMath.h"
+#include "PortableSceneMath.h"
+#include "SceneInterpolationMath.h"
+#include "SceneIntegerMath.h"
+#include "CompactLightMath.h"
+#include "PortableComparison.h"
+#include "SceneGeometryMath.h"
+#include "portable_vector_load.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -381,87 +390,22 @@ namespace
         Copy3(Pos3, &Xform12[9]);
     }
 
-    // FUN_06f2ecc0: keep Z/Y/X differences on x87 until every input is read.
+    // FUN_06f2ecc0: snapshot the cross product before publishing X/Y/Z.
     void Cross3(float* Result, const float* A, const float* B)
     {
-        __asm
-        {
-            mov ecx, A
-            mov eax, B
-            fld dword ptr [ecx]
-            fmul dword ptr [eax+4]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [eax]
-            fsubp st(1), st(0)
-            fld dword ptr [ecx+8]
-            fmul dword ptr [eax]
-            fld dword ptr [eax+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fld dword ptr [ecx+4]
-            fmul dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [eax+4]
-            mov eax, Result
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fstp dword ptr [eax+4]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneGeometry::Cross(Result, A, B);
     }
 
-    // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then extended reciprocal.
+    // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then reciprocal length.
     void Normalize3(float* V)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            mov ecx, V
-            fld dword ptr [ecx+8]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            fdivr dword ptr One
-            mov eax, V
-            fld st(0)
-            fmul dword ptr [eax]
-            fstp dword ptr [eax]
-            fld st(0)
-            fmul dword ptr [eax+4]
-            fstp dword ptr [eax+4]
-            fmul dword ptr [eax+8]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneGeometry::Normalize(V[0], V[1], V[2]);
     }
 
     // FUN_06f23090: separate input/output, all FLD/FCHS before stores.
     void NegateVector3(float* Result, const float* Source)
     {
-        __asm
-        {
-            mov ecx, Source
-            fld dword ptr [ecx+8]
-            mov eax, Result
-            fchs
-            fld dword ptr [ecx+4]
-            fchs
-            fld dword ptr [ecx]
-            fchs
-            fstp dword ptr [eax]
-            fstp dword ptr [eax+4]
-            fstp dword ptr [eax+8]
-        }
+        ThornPortableSplineMath::NegateVector(Result, Source);
     }
 
     char* DupHeapString(const char* Src)
@@ -512,50 +456,14 @@ namespace
     // FUN_06f2ed00/20/40: column getters convert via x87, Z/Y/X load order.
     void ReadColumn(const float* M9, int Col, float* V)
     {
-        const float* Source = M9 + Col;
-        __asm
-        {
-            mov ecx, Source
-            fld dword ptr [ecx+24]
-            mov eax, V
-            fld dword ptr [ecx+12]
-            fld dword ptr [ecx]
-            fstp dword ptr [eax]
-            fstp dword ptr [eax+4]
-            fstp dword ptr [eax+8]
-        }
+        PortableVectorLoad::Copy(V, M9 + Col, 3);
     }
 
     // FUN_06f3b670: load all eight FP words before output; word3 is raw.
     // Preserve x87 sNaN conversion and input/output overlap ordering.
     void Transpose9(float* Out9, const float* In9)
     {
-        unsigned int RawWord;
-        __asm
-        {
-            mov ecx, In9
-            fld dword ptr [ecx+20h]
-            mov eax, dword ptr [ecx+0ch]
-            fld dword ptr [ecx+14h]
-            mov RawWord, eax
-            fld dword ptr [ecx+8]
-            mov eax, Out9
-            fld dword ptr [ecx+1ch]
-            fld dword ptr [ecx+10h]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx+18h]
-            fld dword ptr [ecx]
-            mov ecx, RawWord
-            fstp dword ptr [eax]
-            mov dword ptr [eax+4], ecx
-            fstp dword ptr [eax+8]
-            fstp dword ptr [eax+0ch]
-            fstp dword ptr [eax+10h]
-            fstp dword ptr [eax+14h]
-            fstp dword ptr [eax+18h]
-            fstp dword ptr [eax+1ch]
-            fstp dword ptr [eax+20h]
-        }
+        ThornPortableSceneMath::Transpose9(Out9, In9);
     }
 
     // FUN_06f3b9a0: math +0x38 transpose_transform(out, csys.orient, csys.pos).
@@ -787,133 +695,28 @@ namespace
         Copy9(Orient, WorldOrient);
     }
 
-    // 2e5b2 and each inlined axis normalization multiply FLD(component)
-    // by the still-extended reciprocal, then discard the reciprocal last.
+    // 2e5b2 and the inlined axis normalizations use the same sum order.
     void NormalizeAxis3(float* V)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            mov ecx, V
-            fld dword ptr [ecx+8]
-            fld dword ptr [ecx+4]
-            fld dword ptr [ecx]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            fdivr dword ptr One
-            mov eax, V
-            fld dword ptr [eax]
-            fmul st(0), st(1)
-            fstp dword ptr [eax]
-            fld dword ptr [eax+4]
-            fmul st(0), st(1)
-            fstp dword ptr [eax+4]
-            fld dword ptr [eax+8]
-            fmul st(0), st(1)
-            fstp dword ptr [eax+8]
-            fstp st(0)
-        }
+        ThornSceneGeometry::Normalize(V[0], V[1], V[2]);
     }
 
     // Inlined 2e53d/2e7c7/2e737: Up cross Front, Z/Y/X float stores.
     // Initial basis differs only in the operand order of the final product.
     void CrossAxisSide3(float* Result, const float* Up, const float* Front, bool bInitial)
     {
-        const float* LastLeft = bInitial ? Front + 1 : Up + 2;
-        const float* LastRight = bInitial ? Up + 2 : Front + 1;
-        __asm
-        {
-            mov ecx, Up
-            mov edx, Front
-            mov eax, Result
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx+4]
-            mov ecx, LastLeft
-            mov edx, LastRight
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-        }
+        ThornSceneGeometry::CrossSide(Result, Up, Front, bInitial);
     }
 
     // Inlined 2e687/2e85f: Dir cross Side, Z/Y/X float stores.
     void CrossAxisUp3(float* Result, const float* Dir, const float* Side)
     {
-        __asm
-        {
-            mov ecx, Dir
-            mov edx, Side
-            mov eax, Result
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+8]
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fmul dword ptr [ecx+4]
-            fld dword ptr [edx+4]
-            fmul dword ptr [ecx+8]
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-        }
+        ThornSceneGeometry::CrossUp(Result, Dir, Side);
     }
 
     bool AxisDotNotGreater(const float* Up, const float* Dir)
     {
-        // Raw DAT_06f5a248 = 3fefae147ae147ae (double 0.99).
-        const double Threshold = 0.99;
-        unsigned char bNotGreater;
-        __asm
-        {
-            mov ecx, Up
-            mov edx, Dir
-            fld dword ptr [ecx+8]
-            fmul dword ptr [edx+8]
-            fld dword ptr [ecx+4]
-            fmul dword ptr [edx+4]
-            faddp st(1), st(0)
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            faddp st(1), st(0)
-            fabs
-            fcomp qword ptr Threshold
-            fnstsw ax
-            test ah, 41h
-            setnz bNotGreater
-        }
-        // TEST AH41/JNZ selects not-greater, including unordered; greater
-        // falls through to the near-parallel fallback in the retail listing.
-        return bNotGreater != 0;
+        return ThornSceneGeometry::AxisDotNotGreater(Up, Dir);
     }
 
     // FUN_06f2e440 РІР‚вЂќ look-at frame from direction + Lua up/front axis IDs (0..5).
@@ -1062,111 +865,34 @@ namespace
 
     float Lerp1(float A, float B, float T) { return A + (B - A) * T; }
 
-    // AUDIO 4745e..47588: the private caller keeps one owned progress below
-    // capture/result. Ordinary C++ changed FADDP/store and final-pop stages.
-    void AudioLerpFloat(const float* From, const float* To, float* Output)
+    void AudioLerpFloat(const float* From, const float* To, float* Output, double Progress)
     {
-        __asm
-        {
-            mov eax, From
-            fld dword ptr [eax]
-            mov eax, To
-            fld dword ptr [eax]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            mov eax, Output
-            fstp dword ptr [eax]
-            fstp st(0)
-        }
+        ThornSceneInterpolation::Audio(Output, From, To, Progress);
     }
 
-    // 47500/47534: wrapped32 SUB zero-extends into FILD qword;
-    // FIADD reads signed capture. The normal caller performs the modern cast.
-#pragma warning(push)
-#pragma warning(disable: 4716) // The x86 double result is left in ST(0).
-    __declspec(noinline) double ComputeAudioLerpInteger(int From, int To)
+    // Audio's wrapped difference is unsigned; capture remains signed.
+    int ComputeAudioLerpInteger(int From, int To, double Progress)
     {
-        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
-                                            static_cast<unsigned int>(From);
-        const unsigned long long Difference = DifferenceBits;
-        __asm
-        {
-            fild qword ptr Difference
-            fmul st(0), st(1)
-            fiadd dword ptr From
-        }
+        return ThornSceneInteger::Audio(From, To, Progress);
     }
-#pragma warning(pop)
 
-    // 45ce4/45d10/45d35: signed low32 difference, FMUL float U, FIADD From.
-    // Actual C++ Debug/Release spilled these operands to double. Only the
-    // arithmetic is explicit; the ordinary caller performs the modern cast.
-#pragma warning(push)
-#pragma warning(disable: 4716) // The x86 double result is left in ST(0).
-    __declspec(noinline) double ComputeLightColor(int From, int To, const float* U)
+    // Signed wrapping difference and a final truncation to the low integer word.
+    int ComputeLightColor(int From, int To, const float* U)
     {
-        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
-                                            static_cast<unsigned int>(From);
-        const int Difference = static_cast<int>(DifferenceBits);
-        __asm
-        {
-            fild dword ptr Difference
-            mov eax, U
-            fmul dword ptr [eax]
-            fiadd dword ptr From
-        }
+        return ThornSceneInteger::Color(From, To, U);
     }
-#pragma warning(pop)
 
-    // FOG 48eb3..48f0c retains both inputs on x87 before FSUB/FMUL/FADD.
-    // Normal C++ pointer expressions reload From for FSUB/FADD; float locals
-    // add early FSTP32 stores. Native wave68 proved both differ for SNaN/load
-    // ordering. Keep this existing arithmetic-only kernel; it has no calls.
+    // FOG 48eb3..48f0c: snapshot both scalar endpoints before publication.
     void FogLerpFloat(const float* From, const float* To, const float* U, float* ResultValue)
     {
-        __asm
-        {
-            mov eax, From
-            fld dword ptr [eax]
-            mov eax, To
-            fld dword ptr [eax]
-            fsub st(0), st(1)
-            mov eax, U
-            fmul dword ptr [eax]
-            fadd st(0), st(1)
-            mov eax, ResultValue
-            fstp dword ptr [eax]
-            fstp st(0)
-        }
+        ThornSceneInterpolation::Lerp(From, To, U, ResultValue);
     }
 
     // FOG 48f17..48f98 wraps SUB as an int32, FILDs that value, then
     // FMUL/FIADD and _ftol's chop-to-qword with low32 return. No float store.
     int FogLerpInteger(int From, int To, const float* U)
     {
-        int Difference;
-        long long Result;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        __asm
-        {
-            mov eax, To
-            sub eax, From
-            mov Difference, eax
-            fild Difference
-            mov eax, U
-            fmul dword ptr [eax]
-            fiadd From
-            fstcw OldControl
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornSceneInteger::Color(From, To, U);
     }
 
     void CopyLightProps(FThornLightProps* Dst, const FThornLightProps* Src)
@@ -1213,122 +939,7 @@ namespace
     // separate from this raw-layout implementation.
     void ConvertCompactLightRetail(const unsigned char* Source, unsigned char* Target)
     {
-        // Full98 retail instructions: selective writes and literal x87 branches.
-        // TEST AH,05h + JP takes equal/greater/unordered; strict less falls through.
-        const unsigned int Constant_6f5a1d4 = 0x0u;
-        const unsigned int Constant_6f5a230 = 0x3c8efa35u;
-        const unsigned long long Constant_6f5a270 = 0x400921fb60000000ull;
-        const unsigned int Constant_6f5a26c = 0x3f8ccccdu;
-        const unsigned int Constant_6f5a268 = 0x40490fdbu;
-        const unsigned int Constant_6f5a1e8 = 0x3b808081u;
-        const unsigned long long Constant_6f5a260 = 0x3f1a36e2eb1c432dull;
-        const unsigned long long Constant_6f5a258 = 0x47efffffe0000000ull;
-        const unsigned int Constant_6f5a250 = 0x3e800000u;
-        const unsigned int Constant_6f5a1b8 = 0x3f800000u;
-        float Scratch[4];
-        __asm
-        {
-            mov edx, Source
-            mov ecx, Target
-            lea ebx, Scratch
-            mov eax, dword ptr [edx + 024h]
-            test eax, eax
-            je Compact_6f2eb3a
-            mov dword ptr [ecx], 3
-            jmp Compact_6f2eba2
-            Compact_6f2eb3a:
-            fld dword ptr [edx + 01ch]
-            fcomp dword ptr Constant_6f5a1d4
-            fnstsw ax
-            test ah, 5
-            jp Compact_6f2eb5d
-            mov eax, 040490fdbh
-            mov dword ptr [ecx], 1
-            mov dword ptr [ecx + 060h], eax
-            mov dword ptr [ecx + 064h], eax
-            jmp Compact_6f2eba2
-            Compact_6f2eb5d:
-            mov dword ptr [ecx], 2
-            fld dword ptr [edx + 01ch]
-            fmul dword ptr Constant_6f5a230
-            fcom qword ptr Constant_6f5a270
-            fnstsw ax
-            test ah, 5
-            jnp Compact_6f2eb81
-            fstp st(0)
-            fld qword ptr Constant_6f5a270
-            Compact_6f2eb81:
-            fst dword ptr [ecx + 060h]
-            fmul dword ptr Constant_6f5a26c
-            fcom dword ptr Constant_6f5a268
-            fnstsw ax
-            test ah, 5
-            jnp Compact_6f2eb9f
-            fstp st(0)
-            fld dword ptr Constant_6f5a268
-            Compact_6f2eb9f:
-            fstp dword ptr [ecx + 064h]
-            Compact_6f2eba2:
-            fild dword ptr [edx]
-            lea eax, [ecx + 4]
-            mov dword ptr [ebx + 0ch], 03f800000h
-            fmul dword ptr Constant_6f5a1e8
-            fstp dword ptr [ebx]
-            mov esi, dword ptr [ebx]
-            fild dword ptr [edx + 4]
-            fmul dword ptr Constant_6f5a1e8
-            fstp dword ptr [ebx + 4]
-            fild dword ptr [edx + 8]
-            mov dword ptr [eax], esi
-            mov esi, dword ptr [ebx + 4]
-            mov dword ptr [eax + 4], esi
-            fmul dword ptr Constant_6f5a1e8
-            fstp dword ptr [ebx + 8]
-            mov esi, dword ptr [ebx + 8]
-            mov dword ptr [eax + 8], esi
-            mov esi, dword ptr [ebx + 0ch]
-            mov dword ptr [eax + 0ch], esi
-            xor eax, eax
-            lea esi, [ecx + 014h]
-            mov dword ptr [esi], eax
-            mov dword ptr [esi + 4], eax
-            mov dword ptr [esi + 8], eax
-            mov dword ptr [esi + 0ch], eax
-            lea esi, [ecx + 024h]
-            mov dword ptr [esi], eax
-            mov dword ptr [esi + 4], eax
-            mov dword ptr [esi + 8], eax
-            mov dword ptr [esi + 0ch], eax
-            mov esi, 03f800000h
-            mov dword ptr [ecx + 050h], esi
-            fld dword ptr [edx + 018h]
-            fcomp qword ptr Constant_6f5a260
-            fnstsw ax
-            test ah, 5
-            jp Compact_6f2ec4a
-            fld qword ptr Constant_6f5a258
-            mov dword ptr [ecx + 058h], 038d1b717h
-            fsqrt
-            mov dword ptr [ecx + 054h], 0
-            mov dword ptr [ecx + 05ch], 0
-            fstp dword ptr [ecx + 04ch]
-            jmp CompactDone
-            Compact_6f2ec4a:
-            mov dword ptr [ecx + 054h], esi
-            mov dword ptr [ecx + 058h], 0
-            fld dword ptr [edx + 018h]
-            fld st(0)
-            fmul st(0), st(1)
-            fmul dword ptr Constant_6f5a250
-            fdivr dword ptr Constant_6f5a1b8
-            fstp dword ptr [ecx + 05ch]
-            fstp st(0)
-            fld dword ptr [edx + 018h]
-            fadd st(0), st(0)
-            fstp dword ptr [ecx + 04ch]
-            jmp CompactDone
-        CompactDone:
-        }
+        ThornCompactLight::Convert(Source, Target);
     }
 
     void ConvertCompactLight(FThornLightProps* Blob)
@@ -1423,68 +1034,13 @@ namespace
     // C++ reverses the operands or changes the waiting instruction boundary.
     bool IsLightInterpolationComplete(const float* U)
     {
-        static const float One = 1.0f;
-        unsigned short Status;
-        __asm
-        {
-            mov eax, U
-            fld dword ptr [eax]
-            fcomp dword ptr One
-            fnstsw Status
-        }
-        // TEST AH,01 + JNZ skips for less/unordered; equal/greater continue.
-        return (Status & 0x0100u) == 0;
+        return ThornPortableComparison::AtLeastOne(U);
     }
 
-    // 45d81..45e0e retains X/Y differences, rounds Z's difference and X's
-    // product, then publishes each raw result before the next final FSTP.
-    // Both native C++ configurations changed these FP lifetimes/publications.
+    // 45d81..45e0e: preserve the float Z difference and X product boundaries.
     void InterpolateLightDirection(float* Out, const float* From, const float* To, const float* U)
     {
-        float Capture[3];
-        float DifferenceZ;
-        float DeltaX;
-        float Result[3];
-        __asm
-        {
-            mov eax, To
-            fld dword ptr [eax]
-            mov edx, From
-            mov ecx, dword ptr [edx]
-            mov dword ptr Capture, ecx
-            fsub dword ptr Capture
-            mov ecx, dword ptr [edx + 4]
-            fld dword ptr [eax + 4]
-            mov edx, dword ptr [edx + 8]
-            mov dword ptr Capture[4], ecx
-            fsub dword ptr Capture[4]
-            fld dword ptr [eax + 8]
-            mov dword ptr Capture[8], edx
-            fsub dword ptr Capture[8]
-            fstp dword ptr DifferenceZ
-            fxch st(1)
-            mov eax, U
-            fmul dword ptr [eax]
-            fstp dword ptr DeltaX
-            fmul dword ptr [eax]
-            fld dword ptr DifferenceZ
-            fmul dword ptr [eax]
-            fld dword ptr DeltaX
-            fadd dword ptr Capture
-            fstp dword ptr Result
-            mov eax, dword ptr Result
-            fxch st(1)
-            fadd dword ptr Capture[4]
-            mov ecx, Out
-            mov dword ptr [ecx], eax
-            fstp dword ptr Result[4]
-            mov eax, dword ptr Result[4]
-            fadd dword ptr Capture[8]
-            mov dword ptr [ecx + 4], eax
-            fstp dword ptr Result[8]
-            mov eax, dword ptr Result[8]
-            mov dword ptr [ecx + 8], eax
-        }
+        ThornSceneInterpolation::LightDirection(Out, From, To, U);
     }
 
     // LAB_06f45890 FPU mask loop. Out starts as live primary; To is target (or secondary live).
@@ -1603,7 +1159,7 @@ namespace
         SceneQuatToMatrix(Math, Out9, Quat);
     }
 
-    void SlerpQuat4(float* Out4, const FQuaternion& From4, const FQuaternion& To4, const float* U)
+    void NlerpQuat4(float* Out4, const FQuaternion& From4, const FQuaternion& To4, const float* U)
     {
         I3DMathEngine* Math = AcquireSceneEventMathEngine();
         FQuaternion FromQuat;
@@ -1613,55 +1169,20 @@ namespace
         // The sole kernel is pure; U stays a pointer for its actual load stage.
         std::memcpy(&FromQuat, &From4, sizeof(FromQuat));
         std::memcpy(&ToQuat, &To4, sizeof(ToQuat));
-        Math->QuatSlerpValue(ResultQuat, FromQuat, ToQuat, U);
+        Math->QuatNlerpValue(ResultQuat, FromQuat, ToQuat, U);
         std::memcpy(Out4, &ResultQuat, sizeof(ResultQuat));
     }
 
-    // 46d5a..46db5 retains each subtraction/product on x87 until its
-    // final float store; the inputs are current event-owned positions.
+    // 46d5a..46db5: publish one component before rereading the next inputs.
     void LerpSpatialPosition(float* ResultPosition, const float* From, const float* To, const float* Scale)
     {
-        __asm
-        {
-            mov eax, ResultPosition
-            mov ecx, From
-            mov edx, To
-            mov esi, Scale
-            fld dword ptr [edx]
-            fsub dword ptr [ecx]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx]
-            fstp dword ptr [eax]
-            fld dword ptr [edx+4]
-            fsub dword ptr [ecx+4]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx+4]
-            fstp dword ptr [eax+4]
-            fld dword ptr [edx+8]
-            fsub dword ptr [ecx+8]
-            fmul dword ptr [esi]
-            fadd dword ptr [ecx+8]
-            fstp dword ptr [eax+8]
-        }
+        ThornSceneInterpolation::SpatialPosition(ResultPosition, From, To, Scale);
     }
 
-    // 46e6d..46ed8 stores the delta as float, but adds old Applied to the
-    // still-extended delta before storing the new accumulator.
+    // 46e6d..46ed8: publish float Delta, then reread Applied using the unrounded change.
     void AccumulateAxisDelta(const float* AnimT, const float* Angle, float* Applied, float* Delta)
     {
-        __asm
-        {
-            mov eax, Applied
-            mov ecx, AnimT
-            mov edx, Angle
-            fld dword ptr [ecx]
-            fmul dword ptr [edx]
-            fsub dword ptr [eax]
-            mov ecx, Delta
-            fst dword ptr [ecx]
-            fadd dword ptr [eax]
-            fstp dword ptr [eax]
-        }
+        ThornSceneInterpolation::AxisDelta(AnimT, Angle, Applied, Delta);
     }
 
     // 46eef..46fd7: FCOS is stored to float, FSIN remains on x87 through
@@ -1671,98 +1192,9 @@ namespace
 
     void ApplyAxisRotFpu(float* Orient9, const FQuaternion& BaseQuat4, int AxisId, const float* DeltaDeg)
     {
-        const unsigned int PiOver180Bits = 0x3c8efa35u;
         const unsigned int Kind = static_cast<unsigned int>(AxisId);
         float Rot[9];
-        InitializeEventFrameWords(Rot);
-        if (Kind <= 5u)
-        {
-            float CosValue;
-            __asm
-            {
-                mov eax, DeltaDeg
-                fld dword ptr [eax]
-                fmul dword ptr PiOver180Bits
-                fld st(0)
-                fcos
-                fstp dword ptr CosValue
-                fsin
-                mov edx, Kind
-                cmp edx, 0
-                je AxisXColumns
-                cmp edx, 3
-                je AxisXColumns
-                cmp edx, 1
-                je AxisYColumns
-                cmp edx, 4
-                je AxisYColumns
-                lea eax, Rot
-                add eax, 12
-                mov ecx, 3
-            AxisZLoop:
-                fld dword ptr [eax-12]
-                add eax, 4
-                dec ecx
-                fld dword ptr CosValue
-                fmul st(0), st(1)
-                fld st(2)
-                fmul dword ptr [eax-4]
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-16]
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                fxch st(1)
-                fmul st(0), st(2)
-                faddp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisZLoop
-                jmp AxisColumnsDone
-            AxisXColumns:
-                lea eax, Rot
-                add eax, 24
-                mov ecx, 3
-            AxisXLoop:
-                fld dword ptr [eax-12]
-                add eax, 4
-                dec ecx
-                fld dword ptr CosValue
-                fmul st(0), st(1)
-                fld st(2)
-                fmul dword ptr [eax-4]
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-16]
-                fmul st(0), st(1)
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                faddp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisXLoop
-                jmp AxisColumnsDone
-            AxisYColumns:
-                lea eax, Rot
-                add eax, 24
-                mov ecx, 3
-            AxisYLoop:
-                fld dword ptr [eax-24]
-                add eax, 4
-                dec ecx
-                fld st(1)
-                fmul dword ptr [eax-4]
-                fld st(1)
-                fmul dword ptr CosValue
-                faddp st(1), st(0)
-                fstp dword ptr [eax-28]
-                fld dword ptr CosValue
-                fmul dword ptr [eax-4]
-                fxch st(1)
-                fmul st(0), st(2)
-                fsubp st(1), st(0)
-                fstp dword ptr [eax-4]
-                jnz AxisYLoop
-            AxisColumnsDone:
-                fstp st(0)
-            }
-        }
+        ThornSceneInterpolation::AxisRotation(Rot, AxisId, DeltaDeg);
 
         I3DMathEngine* Math = AcquireSceneEventMathEngine();
         FQuaternion BaseQuaternion;
@@ -2150,43 +1582,10 @@ namespace
         }
     }
 
-    // 47f9a..47fdf: squared-direction test retains Y/Z subtraction on x87.
-    // TEST AH,44h + JNP exits on zero; fall-through invokes the look-at helper.
+    // 47f9a..47fdf: rounded X and retained Y/Z differences form the zero-direction test.
     bool BuildAttachLookDirection(float* DirectionOut, const float* Target, const float* Origin)
     {
-        unsigned char bUseDirection;
-        const float Zero = 0.0f;
-        __asm
-        {
-            mov ecx, Target
-            mov edx, Origin
-            mov eax, DirectionOut
-            fld dword ptr [ecx+8]
-            fsub dword ptr [edx+8]
-            fld dword ptr [ecx+4]
-            fsub dword ptr [edx+4]
-            fld dword ptr [ecx]
-            fsub dword ptr [edx]
-            fstp dword ptr [eax]
-            fst dword ptr [eax+4]
-            fld st(1)
-            fstp dword ptr [eax+8]
-            fld dword ptr [eax]
-            fmul dword ptr [eax]
-            fld st(1)
-            fmul st(0), st(2)
-            faddp st(1), st(0)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fcomp dword ptr Zero
-            fnstsw ax
-            fstp st(0)
-            test ah, 44h
-            fstp st(0)
-            setp bUseDirection
-        }
-        return bUseDirection != 0;
+        return ThornSceneInterpolation::AttachDirection(DirectionOut, Target, Origin);
     }
 
     // These local frames are raw retail MOVs, even with a pending x87 trap.
@@ -2357,165 +1756,26 @@ namespace
     // FUN_06f43560: descriptor+c8 is untouched; +d0 is runtime state.
     void ApplyPsysSparam(FThornEntity* Entity, const float* Value)
     {
-        float Argument;
-        float* Runtime = &Entity->PsysRuntimeSparam;
-        __asm {
-            mov eax, Value
-            fld dword ptr [eax]
-            fst dword ptr Argument
-            mov edx, Runtime
-            fstp dword ptr [edx]
-        }
-        // The pointer is read only after the runtime float has been published.
+        const float Argument = ThornSceneInterpolation::PublishParticle(&Entity->PsysRuntimeSparam, Value);
         IPSysControl* Control = Entity->PsysControl;
         if (Control != nullptr)
-        {
-            // Typed public slot6; the argument was already rounded above.
             Control->SetSparam(Argument);
-        }
     }
 
-    // LAB_06f46a6b..46aee: store Tfloat but retain original slot6 ST value
-    // for the first subtraction. Later comparisons reload the stored Tfloat.
+    // Spatial wrapping compares rounded progress; floor wrapping compares the wide value.
     void SpatialWrapScale(float* Last, const FThornExtendedProgress* Progress, float* RoundedProgress, float* ResultScale)
     {
-        static const float Zero = 0.0f;
-        static const float One = 1.0f;
-        static const double OneDouble = 1.0;
-        float T;
-        float Delta;
-        float Scale;
-        __asm
-        {
-            mov ecx, Last
-            mov edx, Progress
-            fld tbyte ptr [edx]
-            fst T
-            fsub dword ptr [ecx]
-            fst Delta
-            fcomp Zero
-            fnstsw ax
-            test ah, 44h
-            // Equal: AH&44h=40h, odd parity -> JNP. Unordered=44h
-            // has even parity and continues to the T comparison.
-            jnp SpatialScaleZero
-            fld T
-            fcomp OneDouble
-            fnstsw ax
-            test ah, 05h
-            // Greater/equal=00h and unordered=05h have even parity.
-            // Less=01h has odd parity and enters the remainder branch.
-            jp SpatialScaleOne
-            fld One
-            fsub dword ptr [ecx]
-            fcom Zero
-            fnstsw ax
-            test ah, 44h
-            // Equal=40h (odd) falls through; nonzero/unordered (even)
-            // keeps the unrounded remainder on ST1 for FDIV.
-            jp SpatialScaleDivide
-            mov edx, T
-            fstp st(0)
-            mov Scale, 3f800000h
-            mov dword ptr [ecx], edx
-            jmp SpatialScaleDone
-        SpatialScaleDivide:
-            fld Delta
-            mov edx, T
-            fdiv st(0), st(1)
-            mov dword ptr [ecx], edx
-            fstp Scale
-            fstp st(0)
-            jmp SpatialScaleDone
-        SpatialScaleOne:
-            mov Scale, 3f800000h
-            jmp SpatialScaleDone
-        SpatialScaleZero:
-            mov Scale, 0
-        SpatialScaleDone:
-        }
-        // Retail retains exactly the initial FST dword for the later axis pass.
-        std::memcpy(RoundedProgress, &T, sizeof(T));
-        std::memcpy(ResultScale, &Scale, sizeof(Scale));
+        ThornSceneInterpolation::SpatialWrap(Last, Progress->Bytes, RoundedProgress, ResultScale);
     }
 
-    // LAB_06f498ad..49918 retains original extended T below Delta/Remain;
-    // T is not stored as float until the conditional final Last update.
     void FloorWrapScale(FThornEvent* Event, const FThornExtendedProgress* Progress, float* ScaleOutput)
     {
-        float* Last = &Event->FloorWrapLast;
-        const float Zero = 0.0f;
-        const float One = 1.0f;
-        const double OneDouble = 1.0;
-        float Delta;
-        float Scale;
-        __asm
-        {
-            mov ecx, Last
-            mov edx, Progress
-            fld tbyte ptr [edx]
-            fld st(0)
-            fsub dword ptr [ecx]
-            fst Delta
-            fcomp Zero
-            fnstsw ax
-            test ah, 44h
-            // Equality=40h, odd parity -> JNP; unordered=44h continues.
-            jnp FloorScaleZero
-            fcom OneDouble
-            fnstsw ax
-            test ah, 05h
-            // Greater/equal=00h and unordered=05h -> even parity JP.
-            jp FloorScaleOne
-            fld One
-            fsub dword ptr [ecx]
-            fcom Zero
-            fnstsw ax
-            test ah, 44h
-            // Nonzero/unordered has even parity -> divide; zero falls through.
-            jp FloorScaleDivide
-            fstp st(0)
-            mov Scale, 3f800000h
-            fstp dword ptr [ecx]
-            jmp FloorScaleDone
-        FloorScaleDivide:
-            fld Delta
-            fdiv st(0), st(1)
-            fstp Scale
-            fstp st(0)
-            fstp dword ptr [ecx]
-            jmp FloorScaleDone
-        FloorScaleOne:
-            mov Scale, 3f800000h
-            jmp FloorScalePopT
-        FloorScaleZero:
-            mov Scale, 0
-        FloorScalePopT:
-            fstp st(0)
-        FloorScaleDone:
-        }
-        // Transport the stored DWORD without an early x87 denormal load.
-        std::memcpy(ScaleOutput, &Scale, sizeof(Scale));
+        ThornSceneInterpolation::FloorWrap(&Event->FloorWrapLast, Progress->Bytes, ScaleOutput);
     }
 
     void InterpolateFloorHeight(const float* Capture, const float* Target, const float* ScaleSource, float* HeightOutput)
     {
-        // 49b31..49b4a: Capture remains below the unrounded difference/product.
-        float Height;
-        __asm
-        {
-            mov ecx, Capture
-            fld dword ptr [ecx]
-            mov edx, Target
-            fld dword ptr [edx]
-            fsub st(0), st(1)
-            mov ecx, ScaleSource
-            fmul dword ptr [ecx]
-            fadd st(0), st(1)
-            fstp Height
-            fstp st(0)
-        }
-        std::memcpy(HeightOutput, &Height, sizeof(Height));
+        ThornSceneInterpolation::Lerp(Capture, Target, ScaleSource, HeightOutput);
     }
 
     int EventElapsedTime(int TimeMs, int StartTimeMs)
@@ -2537,13 +1797,8 @@ namespace
     // Write the final float directly; returning it would add a reload/store.
     void StoreAnimTValue(const FThornExtendedProgress* Progress, float* Output)
     {
-        __asm
-        {
-            mov ecx, Progress
-            fld tbyte ptr [ecx]
-            mov ecx, Output
-            fstp dword ptr [ecx]
-        }
+        const float Value = ThornExtendedProgress::LoadFloat(Progress->Bytes);
+        std::memcpy(Output, &Value, sizeof(Value));
     }
 
     float StoreAnimT(const FThornExtendedProgress* Progress)
@@ -2588,58 +1843,8 @@ namespace
                                 const float* CapturedValues,
                                 const FThornExtendedProgress* Progress, int Mask)
     {
-        // 46318..46374: preserve one extended curve result under each pair
-        // of loads. Only the final interpolated field receives a float store.
-        __asm
-        {
-            mov ecx, Progress
-            fld tbyte ptr [ecx]
-            mov ecx, CapturedValues
-            mov edx, TargetValues
-            mov edi, ResultValues
-            mov eax, Mask
-            test al, 1
-            jz CameraInterpolationAspect
-            fld dword ptr [ecx]
-            fld dword ptr [edx]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            fstp dword ptr [edi]
-            fstp st(0)
-        CameraInterpolationAspect:
-            test al, 8
-            jz CameraInterpolationNear
-            fld dword ptr [ecx + 0ch]
-            fld dword ptr [edx + 0ch]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            fstp dword ptr [edi + 0ch]
-            fstp st(0)
-        CameraInterpolationNear:
-            test al, 2
-            jz CameraInterpolationFar
-            fld dword ptr [ecx + 4]
-            fld dword ptr [edx + 4]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            fstp dword ptr [edi + 4]
-            fstp st(0)
-        CameraInterpolationFar:
-            test al, 4
-            jz CameraInterpolationDone
-            fld dword ptr [ecx + 8]
-            fld dword ptr [edx + 8]
-            fsub st(0), st(1)
-            fmul st(0), st(2)
-            fadd st(0), st(1)
-            fstp dword ptr [edi + 8]
-            fstp st(0)
-        CameraInterpolationDone:
-            fstp st(0)
-        }
+        const double value = ThornExtendedProgress::LoadDouble(Progress->Bytes);
+        ThornSceneInterpolation::Camera(ResultValues, TargetValues, CapturedValues, value, Mask);
     }
 
     void CaptureCameraProps(FThornEntity* Entity, float* Out4)
@@ -4101,68 +3306,27 @@ void FThornEvent::ReleaseMotionOwnedState()
     MotionAnimationStorage.Reset();
 }
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // Preserve the retail extended ST(0) return.
-#pragma float_control(precise, off, push) // Keep the complete curve FMUL/FADD result in ST(0).
 float FThornEvent::EvaluateControlBackedCurve(float Scale, int TimeMs)
 {
-    // Full454f0..4556f: TEST AH,44h / JNP takes only ordered equality.
-    // Equal gives 40h (odd parity); unordered gives 44h (even parity).
-    const float Zero = 0.0f;
-    const float One = 1.0f;
-    bool bScaleZero;
-    __asm
+    if (Scale == 0.0f) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    const int Duration = Desc.DurationMs;
+    IParamCurve* Curve = ParamCurve;
+    const double Quotient = ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration);
+    const float Ratio = static_cast<float>(Quotient);
+    double Value = Quotient;
+    if (Curve != nullptr)
     {
-        fld Scale
-        fcomp Zero
-        fnstsw ax
-        test ah, 44h
-        setnp al
-        mov bScaleZero, al
+        const int Period = PcurvePeriod;
+        int SignedElapsed;
+        std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+        const float CurveValue = Period > 0 ? Curve->Slot12WrapEvaluate(SignedElapsed, Period) : Curve->Evaluate(Ratio);
+        Value = CurveValue;
     }
-    if (bScaleZero)
-    {
-        __asm { fld One }
-    }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                         static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        const int Duration = Desc.DurationMs;
-        IParamCurve* Curve = ParamCurve;
-        float Ratio;
-        // 4551b..45527 always computes/stores the ratio, even before Slot12.
-        // FST does not pop: the unbound arithmetic consumes extended ST(0).
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            fst Ratio
-        }
-        if (Curve != nullptr)
-        {
-            const int Period = PcurvePeriod;
-            __asm { fstp st(0) }
-            // Ordinary typed expression: retain the curve return through both
-            // operations, and read StartPercent only after the callback.
-            if (Period > 0)
-                return Curve->Slot12WrapEvaluate(static_cast<int>(ElapsedBits), Period) * Scale + StartPercent;
-            return Curve->Evaluate(Ratio) * Scale + StartPercent;
-        }
-        // Scale is the incoming argument; StartPercent is read AFTER curve
-        // callbacks. The unbound quotient stays extended through both operations.
-        const float* StartPercentValue = &StartPercent;
-        __asm
-        {
-            fmul Scale
-            mov edx, StartPercentValue
-            fadd dword ptr [edx]
-        }
-    }
+    // StartPercent is read only after the curve callback has returned.
+    const double Product = ThornSceneInterpolation::WrapIntermediate(Value * static_cast<double>(Scale));
+    return static_cast<float>(ThornSceneInterpolation::WrapIntermediate(Product + static_cast<double>(StartPercent)));
 }
-#pragma float_control(pop)
-#pragma warning(pop)
 
 namespace
 {
@@ -4403,96 +3567,32 @@ void FThornEvent::PackMotionDesc()
     MotionDesc.Field50 = Field_0x50;
 }
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // The retail result is returned explicitly in ST(0).
 float FThornEvent::EvaluateProgress(int TimeMs) const
 {
-    // 06f4a450: USER_EVENT's fixed progress slot returns +0.
-    if (bUserDescriptorOwner)
-        return 0.0f;
-    // 06f4a490: SET MONITOR's fixed progress slot returns +0 without a curve call.
-    if (&Desc == &SetCameraDesc)
-        return 0.0f;
-    // Full 49b90..49c1c: unbound quotient remains extended; bound calls
-    // return directly through ordinary typed C++ virtual dispatch.
+    if (bUserDescriptorOwner || &Desc == &SetCameraDesc) return 0.0f;
     const int Duration = Desc.DurationMs;
-    const float One = 1.0f;
-    if (Duration == 0)
+    if (Duration == 0) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    IParamCurve* Curve = ParamCurve;
+    if (Curve != nullptr && PcurvePeriod > 0)
     {
-        __asm { fld One }
+        int SignedElapsed;
+        std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+        return Curve->Slot12WrapEvaluate(SignedElapsed, PcurvePeriod);
     }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                          static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        IParamCurve* Curve = ParamCurve;
-        if (Curve != nullptr)
-        {
-            const int Period = PcurvePeriod;
-            if (Period > 0)
-            {
-                return Curve->Slot12WrapEvaluate(static_cast<int>(ElapsedBits), Period);
-            }
-            else
-            {
-                float Ratio;
-                __asm {
-                    fild qword ptr ExtendedElapsed
-                    fidiv Duration
-                    fstp Ratio
-                }
-                return Curve->Evaluate(Ratio);
-            }
-        }
-        else
-        {
-            __asm
-            {
-                fild qword ptr ExtendedElapsed
-                fidiv Duration
-            }
-        }
-    }
+    const float Ratio = static_cast<float>(ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration));
+    return Curve != nullptr ? Curve->Evaluate(Ratio) : Ratio;
 }
-#pragma warning(pop)
 
-#pragma warning(push)
-#pragma warning(disable: 4716) // Return the reloaded ratio or curve's original ST(0).
 float FThornEvent::EvaluateProgressNoPeriodWrap(int TimeMs) const
 {
-    // Full493e0..49437: this copy ALWAYS stores the quotient as float,
-    // including the unbound path. Bound output returns directly from typed call.
     const int Duration = Desc.DurationMs;
-    const float One = 1.0f;
-    if (Duration == 0)
-    {
-        __asm { fld One }
-    }
-    else
-    {
-        const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                          static_cast<unsigned int>(Desc.StartMs);
-        const long long ExtendedElapsed = ElapsedBits;
-        IParamCurve* Curve = ParamCurve;
-        float Ratio;
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            fstp Ratio
-        }
-        if (Curve != nullptr)
-        {
-            return Curve->Evaluate(Ratio);
-        }
-        else
-        {
-            __asm { fld Ratio }
-        }
-    }
+    if (Duration == 0) return 1.0f;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
+    IParamCurve* Curve = ParamCurve;
+    const float Ratio = static_cast<float>(ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration));
+    return Curve != nullptr ? Curve->Evaluate(Ratio) : Ratio;
 }
-#pragma warning(pop)
 
 void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* Result,
                                            bool bNoPeriodWrap) const
@@ -4500,63 +3600,31 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
     const int Duration = Desc.DurationMs;
     if (Duration == 0)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            fld One
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
+        ThornExtendedProgress::StoreDouble(Result->Bytes, 1.0);
         return;
     }
     IParamCurve* Curve = ParamCurve;
-    const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
-                                      static_cast<unsigned int>(Desc.StartMs);
-    const long long ExtendedElapsed = ElapsedBits;
+    const unsigned Elapsed = static_cast<unsigned>(TimeMs) - static_cast<unsigned>(Desc.StartMs);
     if (!bNoPeriodWrap && Curve != nullptr)
     {
         const int Period = PcurvePeriod;
         if (Period > 0)
         {
-            // Modern internal method retains the exact Slot12 result in output80.
-            Curve->WrapEvaluateToExtended(static_cast<int>(ElapsedBits), Period, Result);
+            int SignedElapsed;
+            std::memcpy(&SignedElapsed, &Elapsed, sizeof(SignedElapsed));
+            Curve->WrapEvaluateToExtended(SignedElapsed, Period, Result);
             return;
         }
     }
+    const double Quotient = ThornSceneInterpolation::WrapIntermediate(static_cast<double>(Elapsed) / Duration);
     if (!bNoPeriodWrap && Curve == nullptr)
     {
-        __asm
-        {
-            fild qword ptr ExtendedElapsed
-            fidiv Duration
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
+        ThornExtendedProgress::StoreDouble(Result->Bytes, Quotient);
         return;
     }
-    // Both ordinary Evaluate branches require one float argument store.
-    // NoPeriodWrap also requires that store in the unbound path (493e0).
-    float Ratio;
-    __asm
-    {
-        fild qword ptr ExtendedElapsed
-        fidiv Duration
-        fstp Ratio
-    }
-    if (Curve != nullptr)
-    {
-        // No return-value capture: the typed worker publishes its original80.
-        Curve->EvaluateToExtended(&Ratio, Result);
-    }
-    else
-    {
-        __asm
-        {
-            fld Ratio
-            mov edx, Result
-            fstp tbyte ptr [edx]
-        }
-    }
+    const float Ratio = static_cast<float>(Quotient);
+    if (Curve != nullptr) Curve->EvaluateToExtended(&Ratio, Result);
+    else ThornExtendedProgress::StoreDouble(Result->Bytes, static_cast<double>(Ratio));
 }
 
 const char* FThornEvent::TypeName() const
@@ -4744,19 +3812,7 @@ unsigned char FThornEvent::StartAttachEntity(FThornScene* Scene)
     const float* PositionSource = TransformedPosition;
     float* PositionResult = NegativePosition;
     // 47b63..47b84: each Z/Y/X word is rounded immediately after FCHS.
-    __asm {
-        mov ecx, PositionSource
-        mov eax, PositionResult
-        fld dword ptr [ecx+8]
-        fchs
-        fstp dword ptr [eax+8]
-        fld dword ptr [ecx+4]
-        fchs
-        fstp dword ptr [eax+4]
-        fld dword ptr [ecx]
-        fchs
-        fstp dword ptr [eax]
-    }
+    ThornPortableSplineMath::NegateStored(PositionResult, PositionSource);
     // 47b8c..47bc0/428b0 pass raw DWORDs in transpose order. In contrast to
     // FUN_3b670, this path has no x87 load/store of the nine matrix words.
     float InverseChild[12];
@@ -4963,43 +4019,33 @@ unsigned char FThornEvent::TickAudioPropAnim(int TimeMs, FThornScene* Scene)
         {
             FThornExtendedProgress Progress;
             EvaluateProgressExtended(TimeMs, &Progress, false);
-            // Retain the existing typed80 result through baseline and every selected term.
-            const FThornExtendedProgress* ProgressValue = &Progress;
-            __asm
-            {
-                mov eax, ProgressValue
-                fld tbyte ptr [eax]
-            }
+            const double ProgressValue = ThornExtendedProgress::LoadDouble(Progress.Bytes);
             // 47438..47448 selects the current payload AFTER the curve callback.
             FThornEntity* Primary = *PrimaryEntry;
             const int Mask = AudioMask;
             FThornAudio8 Out;
             std::memcpy(&Out, Primary->Audio, sizeof(Out));
             if ((Mask & 1) != 0)
-                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation, ProgressValue);
             if ((Mask & 2) != 0)
-                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan);
+                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan, ProgressValue);
             // 4748d..474b9 repeats these two stores, including exceptional FP effects.
             if ((Mask & 1) != 0)
-                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+                AudioLerpFloat(&AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation, ProgressValue);
             if ((Mask & 2) != 0)
-                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan);
+                AudioLerpFloat(&AudioCapture.Pan, &To.Pan, &Out.Pan, ProgressValue);
             if ((Mask & 4) != 0)
-                AudioLerpFloat(&AudioCapture.Dmin, &To.Dmin, &Out.Dmin);
+                AudioLerpFloat(&AudioCapture.Dmin, &To.Dmin, &Out.Dmin, ProgressValue);
             if ((Mask & 8) != 0)
-                AudioLerpFloat(&AudioCapture.Dmax, &To.Dmax, &Out.Dmax);
+                AudioLerpFloat(&AudioCapture.Dmax, &To.Dmax, &Out.Dmax, ProgressValue);
             if ((Mask & 0x10) != 0)
-                Out.Ain = static_cast<int>(static_cast<unsigned int>(static_cast<__int64>(
-                    ComputeAudioLerpInteger(AudioCapture.Ain, To.Ain))));
+                Out.Ain = ComputeAudioLerpInteger(AudioCapture.Ain, To.Ain, ProgressValue);
             if ((Mask & 0x20) != 0)
-                Out.Aout = static_cast<int>(static_cast<unsigned int>(static_cast<__int64>(
-                    ComputeAudioLerpInteger(AudioCapture.Aout, To.Aout))));
+                Out.Aout = ComputeAudioLerpInteger(AudioCapture.Aout, To.Aout, ProgressValue);
             if ((Mask & 0x40) != 0)
-                AudioLerpFloat(&AudioCapture.Atout, &To.Atout, &Out.Atout);
+                AudioLerpFloat(&AudioCapture.Atout, &To.Atout, &Out.Atout, ProgressValue);
             if ((Mask & 0x80) != 0)
-                AudioLerpFloat(&AudioCapture.Rmix, &To.Rmix, &Out.Rmix);
-            // 47592 waits and discards progress before the output callback.
-            __asm { fstp st(0) }
+                AudioLerpFloat(&AudioCapture.Rmix, &To.Rmix, &Out.Rmix, ProgressValue);
             float OutWords[8];
             std::memcpy(OutWords, &Out, sizeof(Out));
             ApplyAudioProps(Primary, OutWords);
@@ -5442,16 +4488,7 @@ unsigned char FThornEvent::TickPsysPropAnim(int TimeMs, FThornScene* Scene)
                 if ((PsysMask & 1) != 0)
                 {
                     const float* Capture = &SparamCapture;
-                    __asm {
-                        mov edx, Capture
-                        fld dword ptr [edx]
-                        fld dword ptr Target
-                        fsub st(0), st(1)
-                        fmul dword ptr Scale
-                        fadd st(0), st(1)
-                        fstp dword ptr Result
-                        fstp st(0)
-                    }
+                    ThornSceneInterpolation::Lerp(Capture, &Target, &Scale, &Result);
                 }
                 ApplyPsysSparam(Primary, &Result);
             }
@@ -5618,7 +4655,7 @@ unsigned char FThornEvent::TickSpatialPropAnim(int TimeMs, FThornScene* Scene)
         {
             float Quat[4];
             float Orient[9];
-            SlerpQuat4(Quat, CaptureQuat, TargetQuat, &Scale);
+            NlerpQuat4(Quat, CaptureQuat, TargetQuat, &Scale);
             Quat4ToMat9(Orient, Quat);
             (*PrimaryEntry)->InnerSetOrient(Orient);
         }
@@ -8236,19 +7273,7 @@ namespace
 
     bool ShouldSaveNonzeroFloat(const float* Value)
     {
-        const float Zero = 0.0f;
-        unsigned char Emit;
-        __asm {
-            mov edx, Value
-            fld dword ptr [edx]
-            fcomp dword ptr Zero
-            fnstsw ax
-            test ah, 44h
-            setp al
-            mov Emit, al
-        }
-        // TEST AH,44h / JNP skips equality; unordered and nonzero emit.
-        return Emit != 0;
+        return ThornPortableComparison::Nonzero(Value);
     }
 
     int SaveBufAppendPromotedFloatAsInteger(FThornSaveBuf* Buf, const char* Format, const float* Value)

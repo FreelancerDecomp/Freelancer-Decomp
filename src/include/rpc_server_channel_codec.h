@@ -23,16 +23,10 @@ int RpcRegisterRemoteServerServerPackets(FPacketSerializer* Serializer);
 // ===== shared SERVER helpers =====
 struct FmtStr;
 
-// A float moved through the x87 stack (FLD dword / FSTP dword), as retail SERVER
-// senders, encoders and receivers do for float fields: bit-exact except that a
-// signaling NaN is quietened.
+// Preserve the retail SERVER float-field load/store behavior in portable C++:
+// bit-exact except that a signaling NaN is quietened.
 inline void RpcServerX87CopyFloat(float* Destination, const float* Source) {
-    __asm {
-        mov eax, Source
-        mov edx, Destination
-        fld dword ptr [eax]
-        fstp dword ptr [edx]
-    }
+    PortableFloatLoad::Copy(Destination, Source);
 }
 
 // The length-prefixed block decoder (RC 06b4eb30 / RS 06bec240) and the FmtStr flattened

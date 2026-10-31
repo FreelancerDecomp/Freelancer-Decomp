@@ -17,7 +17,6 @@
 #include "common_misc.h"    // DamageList, DamageEntry
 
 #include "DALib.h"
-#include "x87_trig.h"       // retail's inline FSIN / FCOS (CEqObj::launch_pos)
 
 #include <cmath>
 #include <list>
@@ -988,9 +987,9 @@ bool CEqObj::launch_pos(Vector& OutPos, Matrix& OutOrient, int HardpointIndex) c
         // float argument of FUN_06288830 (Vector * float). No zero-length test.
         double const kSpreadAngle = 1.5707963705062866;
         Vector const Col1{ OutOrient.E[0][1], OutOrient.E[1][1], OutOrient.E[2][1] };
-        float const W = X87CosF(kSpreadAngle);
+        float const W = static_cast<float>(std::cos(static_cast<double>(kSpreadAngle)));
         double const Len = sqrt(((double)Col1.z * Col1.z + (double)Col1.x * Col1.x) + (double)Col1.y * Col1.y);
-        float const Scale = (float)(X87Sin(kSpreadAngle) / Len);
+        float const Scale = (float)(std::sin(static_cast<double>(kSpreadAngle)) / Len);
         struct FQuat
         {
             float W, X, Y, Z;
@@ -1017,8 +1016,8 @@ bool CEqObj::launch_pos(Vector& OutPos, Matrix& OutOrient, int HardpointIndex) c
     OutOrient = this->Orientation;
 
     double const kFallbackAngle = 3.1415927410125732;
-    double const CosA = X87Cos(kFallbackAngle);
-    double const SinA = X87Sin(kFallbackAngle);
+    double const CosA = std::cos(static_cast<double>(kFallbackAngle));
+    double const SinA = std::sin(static_cast<double>(kFallbackAngle));
     for (int Col = 0; Col < 3; ++Col)
     {
         double const Row0 = OutOrient.E[0][Col];

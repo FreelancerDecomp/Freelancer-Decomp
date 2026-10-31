@@ -7,6 +7,7 @@
 // CEGun, CEGun::JointChannel and the turret helpers (retail CEGun.cpp) -- split out of common_cequip.cpp (CMN-B2).
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
+#include <cmath>
 #include "common_cequip.h"
 #include "x86math.h"
 
@@ -24,7 +25,6 @@
 #include "common_universe.h"
 #include "DALib.h"
 #include "dacom.h"
-#include "x87_trig.h"        // retail's inline FCOS / FPTAN / FPATAN
 #include "../IVP/ivp_physics/ivp_real_object.h"
 #include "../IVP/ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
 
@@ -129,10 +129,10 @@ namespace
         // 062983bb. FPATAN's pitch operands are y / sqrt(z*z + x*x) and 1, including
         // its zero-direction NaN. Values retained on the x87 stack use double here.
         // FPATAN, FCHS, FSTP dword: one rounding of the 80-bit angle (negation is exact).
-        OutYaw = -X87Atan2F((double)(Local.x), -(double)(Local.z));
+        OutYaw = -static_cast<float>(std::atan2(static_cast<double>(Local.x), -(double)(Local.z)));
         double const Horiz = sqrt((double)(Local.z) * Local.z +
                                   (double)(Local.x) * Local.x);
-        OutPitch = X87AtanF((double)(Local.y) / Horiz);
+        OutPitch = static_cast<float>(std::atan((double)(Local.y) / Horiz));
     }
 }
 
@@ -374,7 +374,7 @@ FireResult CEGun::CanFire(Vector const& Target) const
     // unordered; fall-through only when cos < dot.
     double const Dot = (double)(Norm.z) * Dir.z + (double)(Norm.y) * Dir.y +
                        (double)(Norm.x) * Dir.x;
-    double const ConeCos = X87Cos((double)(ConeAngle));
+    double const ConeCos = std::cos(static_cast<double>(ConeAngle));
     if (ConeCos < Dot)
     {
         if (Owner != nullptr &&
@@ -437,7 +437,7 @@ void CEGun::ComputeLaunchInfo_OneBarrel(ProjLaunchInfo& Out, int Barrel,
         // 062979bb..062979f9: FILD rand() * 2^-15 (DAT_063997d0) * Spread, FPTAN, * Speed, divided
         // by sqrt((pz*pz + py*py) + px*px); all on the FPU stack, no zero-length guard.
         int const RandValue = rand();
-        double const Lean = X87Tan((double)(RandValue) * (1.0 / 32768.0) * Spread) * Speed;
+        double const Lean = std::tan((double)(RandValue) * (1.0 / 32768.0) * Spread) * Speed;
         double const Scale = Lean / sqrt(((double)(Perp.z) * Perp.z +
                                           (double)(Perp.y) * Perp.y) +
                                          (double)(Perp.x) * Perp.x);
@@ -781,9 +781,9 @@ void CEGun::DecomposeJointMotion(Vector const& Dir, float& OutYaw, float& OutPit
                           (FMatrix const&)(Inv),
                           (FVector const&)(Dir)); // +0x2C
 
-    OutYaw = X87Atan2F((double)(Local.x), -(double)(Local.z));
+    OutYaw = static_cast<float>(std::atan2(static_cast<double>(Local.x), -(double)(Local.z)));
     double Horiz = sqrt((double)(Local.z) * Local.z + (double)(Local.x) * Local.x);
-    OutPitch = X87AtanF((double)(Local.y) / Horiz);
+    OutPitch = static_cast<float>(std::atan((double)(Local.y) / Horiz));
 }
 
 void CEGun::LocateJoints()
@@ -890,7 +890,7 @@ bool CEGun::CanSeeTargetPoint(Vector const& Point, float Angle) const
     Vector Dir = GetBarrelDirWS(0);
     double const Dot = (double)(Dir.z) * Nz + (double)(Dir.y) * Ny +
                        (double)(Nx) * Dir.x;
-    double const ConeCos = X87Cos((double)(Angle));
+    double const ConeCos = std::cos(static_cast<double>(Angle));
     return ConeCos < Dot;
 }
 

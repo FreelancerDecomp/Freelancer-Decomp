@@ -63,6 +63,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\portable_rpc_update_fields.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="RemoteServer_main.cpp" />
     <ClCompile Include="rpc_server_channel_receive.cpp" />
     <ClCompile Include="IServerImpl.cpp" />

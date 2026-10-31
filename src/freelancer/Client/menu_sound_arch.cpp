@@ -29,15 +29,13 @@
 #include "game_options.h"   // GetGameOption (FUN_005792b0)
 #include "sound_archetype.h"
 
-#include <cstdint>
 #include <float.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <io.h>
+#include <cmath>
 #include <map>
 #include <new>
 #include <utility>
@@ -336,38 +334,21 @@ namespace
         {
             if (Source3dId != -1)
             {
-                float* const Position = Spatial;
-                float ZStep;
-                float X;
-                float Y;
-                float Z;
-                // Only the Z product is rounded to float before adding the old position.
-                __asm
-                {
-                    mov eax, Position
-                    fld DeltaSeconds
-                    fmul dword ptr [eax + 24]
-                    fld DeltaSeconds
-                    fmul dword ptr [eax + 28]
-                    fld DeltaSeconds
-                    fmul dword ptr [eax + 32]
-                    fstp ZStep
-                    fxch st(1)
-                    fadd dword ptr [eax]
-                    fstp X
-                    fadd dword ptr [eax + 4]
-                    fstp Y
-                    fld ZStep
-                    fadd dword ptr [eax + 8]
-                    fstp Z
-                }
-                Spatial[0] = X;
-                Spatial[1] = Y;
-                Spatial[2] = Z;
+                const float x = Spatial[0] + DeltaSeconds * Spatial[6];
+                const float y = Spatial[1] + DeltaSeconds * Spatial[7];
+
+                const float zStep = DeltaSeconds * Spatial[8];
+                const float z = Spatial[2] + zStep;
+
+                Spatial[0] = x;
+                Spatial[1] = y;
+                Spatial[2] = z;
             }
+
             ComputeMixerScore(Listener);
             return IsFinished() == 0 ? 1u : 0u;
         }
+
 
         float Spatial[12]; // +0x30..+0x5c: pos [0..2], cone direction [3..5] (1.0 at [5]),
                            // velocity [6..8], cone inner [9], outer [10] (360), outside volume [11]
@@ -1321,19 +1302,15 @@ namespace
     {
         if (Arch != nullptr)
         {
-            int const ArchDb = Arch->GetAttenuation();
-            float SourceDb = AttenuationDb;
-            float CombinedDb;
-            // Retail rounds this sum to float, but keeps the following category sum in x87.
-            __asm
-            {
-                fild ArchDb
-                fadd SourceDb
-                fstp CombinedDb
-            }
+            const int ArchDb = Arch->GetAttenuation();
+            const float SourceDb = AttenuationDb;
+            const float CombinedDb =
+                static_cast<float>(ArchDb) + SourceDb;
+
             float Base = 0.f;
             float ModeDb = 0.f;
             bool bDuck = false;
+
             switch (Type)
             {
             case 0:
@@ -1364,21 +1341,18 @@ namespace
                 bDuck = true;
                 break;
             }
-            unsigned char bSilent;
-            __asm
-            {
-                fld Base
-                cmp bDuck, 0
-                je AddMode
-                fadd G_DuckCurrentDb
-            AddMode:
-                fadd ModeDb
-                fadd CombinedDb
-                fcomp kSilenceDb
-                fnstsw ax
-                test ah, 41h
-                setnp bSilent
-            }
+            float TotalDb = Base;
+
+            if (bDuck)
+                TotalDb += G_DuckCurrentDb;
+
+            TotalDb += ModeDb;
+            TotalDb += CombinedDb;
+
+            // Original x87 comparison: silent if <= threshold
+            // or unordered (NaN).
+            const bool bSilent = !(TotalDb > kSilenceDb);
+
             if (bSilent != 0)
             {
                 MixerScale = kMixerNoScore;
@@ -1392,86 +1366,40 @@ namespace
             return;
         }
 
-        FVec3 Pos;
-        GetPosition(&Pos);
-        float DistSq;
-        // No intermediate float stores: retail adds Z squared, Y squared, then X squared.
-        __asm
-        {
-            mov eax, Listener
-            lea ecx, Pos
-            fld dword ptr [eax]
-            fsub dword ptr [ecx]
-            fld dword ptr [eax + 4]
-            fsub dword ptr [ecx + 4]
-            fld dword ptr [eax + 8]
-            fsub dword ptr [ecx + 8]
-            fld st(0)
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fstp DistSq
-            fstp st(0)
-            fstp st(0)
-            fstp st(0)
-        }
+        FVec3 pos;
+        GetPosition(&pos);
 
-        float MaxRange;
-        if (GetMaxDistance(&MaxRange) == GR_OK)
+        const float dx = Listener[0] - pos.X;
+        const float dy = Listener[1] - pos.Y;
+        const float dz = Listener[2] - pos.Z;
+
+        const float distSq = (dz * dz + dy * dy) + dx * dx;
+
+        float maxRange;
+        if (GetMaxDistance(&maxRange) == GR_OK)
         {
-            unsigned char bOutside;
-            __asm
-            {
-                fld MaxRange
-                fmul MaxRange
-                fcomp DistSq
-                fnstsw ax
-                test ah, 5
-                setnp bOutside
-            }
-            if (bOutside != 0)
+            const float maxRangeSq = maxRange * maxRange;
+
+            // Preserve original assembly comparison.
+            if (!(maxRangeSq < distSq))
             {
                 MixerScale = kMixerNoScore;
                 return;
             }
         }
 
-        float MinRange;
-        if (GetMinDistance(&MinRange) != GR_OK)
-            MinRange = 1.f;
-        unsigned Bits;
-        memcpy(&Bits, &DistSq, sizeof(Bits));
-        Bits = 0x5f3759dfu - ((Bits >> 1) | (Bits & 0x80000000u));
-        float Guess;
-        memcpy(&Guess, &Bits, sizeof(Guess));
-        float const Half = 0.5f;
-        float const ThreeHalves = 1.5f;
-        double const Ten = 10.0;
-        float Score;
-        // A float inverse-sqrt intermediate or libm log10 changes retail's final rounding.
-        __asm
-        {
-            fld MinRange
-            fld Guess
-            fmul Guess
-            fmul DistSq
-            fmul Half
-            fsubr ThreeHalves
-            fmul Guess
-            fmul st(0), st(1)
-            fldlg2
-            fxch st(1)
-            fyl2x
-            fmul Ten
-            fstp st(1)
-            fstp Score
-        }
-        MixerScale = Score;
+        float minRange;
+        if (GetMinDistance(&minRange) != GR_OK)
+            minRange = 1.0f;
+
+        const float distance = std::sqrt(distSq);
+        const float ratio = minRange / distance;
+
+        MixerScale = static_cast<float>(
+            10.0 * std::log10(static_cast<double>(ratio))
+        );
     }
+
 
     // FUN_0042a420 (thiscall, no arguments) -- push a streamed source's volume to its stream.
     // Nothing while +0x30 is 0 (only 0 is tested here) or the archetype is null. The sum is
