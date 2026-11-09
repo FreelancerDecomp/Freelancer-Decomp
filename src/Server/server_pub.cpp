@@ -3169,23 +3169,16 @@ SERVER_API int __cdecl GetScannerRange(unsigned int obj_id, int& radar_range, in
     ::Ship* ShipRw = dynamic_cast< ::Ship*>(obj);
     CShip* Cs = (ShipRw != nullptr) ? ShipRw->cship() : nullptr;
     if (Cs == nullptr) return -1;
-    // Retail: CEquipManager::FindFirst(cobj + 0xe4, 0x80000).
+    // Retail: CEquipManager::FindFirst(cobj + 0xe4, 0x80000). No scanner shares the -2
+    // path with the failed lookup (JZ .text:06cf97ad -> LAB_06cf97f3, out params untouched).
     CEquip const* Found = Cs->EquipManager.FindFirst(EQUIP_TYPE_SCANNER);
     CEScanner const* Scanner = dynamic_cast<CEScanner const*>(Found);
-    if (Scanner == nullptr) {
-        radar_range = 0;
-        cargo_scan_range = 0;
-        return -3;
-    }
-    // .text:06cf92bf .. 06cf92c8: -3 when the scanner's vtable +0x08 returns TRUE. In
-    // ??_7CEScanner@@6BCInternalEquip@@@ (common.dll 0x0639ca9c) +0x00 is the destructor,
-    // +0x04 CEquip::IsActive, +0x08 CEquip::IsDestroyed (0x06287170) and +0x0c
-    // CEquip::IsFunctioning (0x06287180): only a destroyed scanner refuses.
-    if (Scanner->IsDestroyed()) {
-        radar_range = 0;
-        cargo_scan_range = 0;
-        return -3;
-    }
+    if (Scanner == nullptr) return -2;
+    // .text:06cf97af .. 06cf97b8: -3 when the scanner's vtable +0x08 returns TRUE, out
+    // params untouched. In ??_7CEScanner@@6BCInternalEquip@@@ (Common.dll 0x0639cacc) +0x00
+    // is the destructor, +0x04 CEquip::IsActive, +0x08 CEquip::IsDestroyed (0x06286d10) and
+    // +0x0c CEquip::IsFunctioning (0x06286d20): only a destroyed scanner refuses.
+    if (Scanner->IsDestroyed()) return -3;
     radar_range = (int)(long)Scanner->GetRadarRange();
     cargo_scan_range = (int)(long)Scanner->GetCargoScanRange();
     return 0;
