@@ -5504,7 +5504,7 @@ namespace AlchemyImpl
     //     w = cos, xyz = axis * sin / FUN_06230690(axis) -> +0x58.
     //   0x06230239: +0x68 = 0. [propset+0xa0] & 2 (SmoothRotation): Speed < 0.5f -> +0x58 =
     //     identity and Blend = (Dt + [+0x68]) + 0.01f, else Blend = Speed * Dt; Blend > 1 ->
-    //     1; +0x3c = QuatSlerp(+0x3c, +0x58, Blend) (+0x58) and the matrix from +0x3c,
+    //     1; +0x3c = QuatNlerp(+0x3c, +0x58, Blend) (+0x58) and the matrix from +0x3c,
     //     otherwise the matrix from +0x58 (QuaternionToMatrix +0x54) -> M's rotation.
     //   0x06230345: life effect (+0x6c) IFxEffect slot 3 (1, &M), no null test.
 #pragma float_control(except, on, push)
@@ -5609,11 +5609,11 @@ namespace AlchemyImpl
                 // 062302af: capture the raw interpolation word before lazy creation.
                 float SlerpWeight;
                 std::memcpy(&SlerpWeight, &R->Blend, sizeof(SlerpWeight));
-                FQuaternion Slerped;
-                ParticleMath()->QuatSlerpValue(Slerped,
+                FQuaternion Nlerped;
+                ParticleMath()->QuatNlerpValue(Nlerped,
                     *reinterpret_cast<const FQuaternion*>(R->BlendQuat),
                     *reinterpret_cast<const FQuaternion*>(R->VelQuat), &SlerpWeight);
-                std::memcpy(R->BlendQuat, &Slerped, sizeof(Slerped));
+                std::memcpy(R->BlendQuat, &Nlerped, sizeof(Nlerped));
                 ParticleMath()->QuaternionToMatrix(Rotation,
                     *reinterpret_cast<const FQuaternion*>(R->BlendQuat)); // +0x54
             }

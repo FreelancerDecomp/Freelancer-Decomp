@@ -7,6 +7,7 @@
 #pragma once
 
 #include "rpc_packet.h"
+#include "portable_float_load.h"
 #include "rpc_equipment_codec.h" // One shared owning equipment handle and packet base.
 #include "common_archetype.h" // Canonical CollisionGroupDesc.
 #include "common_ini.h" // Vector; packet fields use native C++ containers.
@@ -145,12 +146,7 @@ public:
         const float* Source = &Value;
         const unsigned int Cached = Packet.MarshalPtr;
         float* Destination = reinterpret_cast<float*>(Cached);
-        __asm {
-            mov eax, Source
-            mov edx, Destination
-            fld dword ptr [eax]
-            fstp dword ptr [edx]
-        }
+        PortableFloatLoad::Copy(Destination, Source);
         Packet.MarshalPtr = Cached + 4u;
         return true;
     }

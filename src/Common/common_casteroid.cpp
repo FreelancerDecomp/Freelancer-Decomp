@@ -14,7 +14,6 @@
 #include "common_universe.h" // Universe::ISystem (CmnAsteroid::Update)
 #include "common_csys.h"     // Acquire3DMathEngine (CAsteroidCube::init)
 #include "x86math.h"         // I3DMathEngine::TransformMatrix / MulMatrix
-#include "x87_trig.h"        // retail's inline FSIN / FCOS (compute_cube_orientation)
 
 #include <cmath>
 #include <cstdlib>
@@ -141,8 +140,8 @@ bool __cdecl compute_cube_orientation(unsigned long Seed, Matrix* InOutOrient, A
     // the sign pattern (sub-then-add vs add-then-sub) alternates per axis exactly like
     // retail's asm (loop1/loop3 share one sign order, loop2 the other).
     // FCOS is stored to a float; FSIN remains on the x87 stack until the row loop ends.
-    double C = X87CosF((double)Angle0);
-    double S = X87Sin((double)Angle0);
+    double C = static_cast<float>(std::cos(static_cast<double>(Angle0)));
+    double S = std::sin(static_cast<double>(Angle0));
     for (int Col = 0; Col < 3; ++Col)
     {
         float const A = InOutOrient->E[1][Col];
@@ -151,8 +150,8 @@ bool __cdecl compute_cube_orientation(unsigned long Seed, Matrix* InOutOrient, A
         InOutOrient->E[2][Col] = (float)(B * C + A * S);
     }
 
-    C = X87CosF((double)Angle1);
-    S = X87Sin((double)Angle1);
+    C = static_cast<float>(std::cos(static_cast<double>(Angle1)));
+    S = std::sin(static_cast<double>(Angle1));
     for (int Col = 0; Col < 3; ++Col)
     {
         float const A = InOutOrient->E[0][Col];
@@ -161,8 +160,8 @@ bool __cdecl compute_cube_orientation(unsigned long Seed, Matrix* InOutOrient, A
         InOutOrient->E[2][Col] = (float)(B * C - A * S);
     }
 
-    C = X87CosF((double)Angle2);
-    S = X87Sin((double)Angle2);
+    C = static_cast<float>(std::cos(static_cast<double>(Angle2)));
+    S = std::sin(static_cast<double>(Angle2));
     for (int Col = 0; Col < 3; ++Col)
     {
         float const A = InOutOrient->E[0][Col];

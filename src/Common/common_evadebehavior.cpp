@@ -17,7 +17,6 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include "x87_trig.h" // X87CosF (Slot3, 062c8431 FCOS; FCHS; FSTP float)
 
 // EvadeBehavior -- see common_evadebehavior.h. Every method re-ported from
 // EXE/Disasm/Common.dll.txt 2026-10-08 (claude-code:cmn-ai4).
@@ -204,7 +203,7 @@ void EvadeBehavior::Slot3()
     {
         // 062c842b-062c8435: FLD double [.rdata:0639f8e0] (1.0471975803375244); FCOS;
         // FCHS; FSTP float [+0x2b8].
-        ConeCos2b8 = -X87CosF(1.0471975803375244);
+        ConeCos2b8 = -static_cast<float>(std::cos(static_cast<double>(1.0471975803375244)));
     }
 
     // 062c843b-062c84a7: the break-away fate. The sum is FLD F2C; FADD F28; FADD F30 into a

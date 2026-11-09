@@ -6,6 +6,9 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#include "SplineQuaternionMath.h"
+#include "SplineSamplingMath.h"
+#include "SceneGeometryMath.h"
 
 #include <cmath>
 #include <cstdio>
@@ -72,7 +75,7 @@ namespace
         std::memcpy(&Dst, &Product, sizeof(Dst));
     }
 
-    void CoreQuatSlerpWithMath(I3DMathEngine* Math, FQuat& Dst,
+    void CoreQuatNlerpWithMath(I3DMathEngine* Math, FQuat& Dst,
         const FQuat& A, const FQuat& B, const float* T)
     {
         FQuaternion InputA;
@@ -80,178 +83,32 @@ namespace
         FQuaternion Result;
         std::memcpy(&InputA, &A, sizeof(InputA));
         std::memcpy(&InputB, &B, sizeof(InputB));
-        Math->QuatSlerpValue(Result, InputA, InputB, T);
+        Math->QuatNlerpValue(Result, InputA, InputB, T);
         std::memcpy(&Dst, &Result, sizeof(Dst));
     }
 
-    void CoreQuatSlerp(FQuat& Dst, const FQuat& A, const FQuat& B, const float* T)
+    void CoreQuatNlerp(FQuat& Dst, const FQuat& A, const FQuat& B, const float* T)
     {
         I3DMathEngine* Math = AcquireSplineCoreMathEngine();
-        CoreQuatSlerpWithMath(Math, Dst, A, B, T);
+        CoreQuatNlerpWithMath(Math, Dst, A, B, T);
     }
 
-    // Inlined FUN_06f21770 inverse: vector dot kept on x87, then W^2,
-    // unconditional reciprocal, and one float store before quat scaling.
-    // Debug C++ reads signalling Z before adding X^2+Y^2; at PC53 that
-    // changes the first unmasked exception from precision to invalid.
+    // Inlined FUN_06f21770: inverse squared norm, narrowed once to float.
     void QuatInverseScaleRetail(const FQuat& Q, float& Scale)
     {
-        const float One = 1.0f;
-        __asm
-        {
-            mov ecx, Scale
-            mov edx, Q
-            fld dword ptr [edx + 4]
-            fmul st(0), st(0)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fdivr One
-            fstp dword ptr [ecx]
-        }
+        Scale = ThornSplineQuaternion::InverseScale(Q);
     }
 
-    // Debug C++ rounds Product to double before doubling: actual PC64
-    // probes differ in the final float and denormal-operand status.
+    // Squad blend weight: 2*t*(1-t), with a final float result.
     float SquadBlendRetail(const float* T)
     {
-        const float One = 1.0f;
-        float Blend;
-        __asm
-        {
-            mov ecx, T
-            fld One
-            fsub dword ptr [ecx]
-            fmul dword ptr [ecx]
-            fadd st(0), st(0)
-            fstp Blend
-        }
-        return Blend;
+        return ThornSplineQuaternion::SquadBlend(*T);
     }
 
-    // LAB_06f34420, 06f34440..345e8. The ordinary C++ candidate differs
-    // at PC24/round-down: tangent {-0, min-subnormal, -min-subnormal}
-    // produces matrix X 0x3f7fffff instead of 0x3f800000 in Release.
-    // Debug also adds denormal-operand status through extra reloads.
+    // LAB_06f34420: tangent basis with explicit float normalization boundaries.
     void BuildSlot5MatrixRetail(const FVec3& Tangent, float* Mat9)
     {
-        float Scratch[27];
-        std::memcpy(Scratch + 3, &Tangent, sizeof(Tangent));
-        const float One = 1.0f;
-        const float Zero = 0.0f;
-        __asm
-        {
-            lea edx, Scratch
-            fld dword ptr [edx + 14h]
-            fmul dword ptr [edx + 14h]
-            fld dword ptr [edx + 10h]
-            fmul dword ptr [edx + 10h]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 0ch]
-            fmul dword ptr [edx + 0ch]
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fld dword ptr [edx + 0ch]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 0ch]
-            fld dword ptr [edx + 10h]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 10h]
-            fld dword ptr [edx + 14h]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 14h]
-            fstp st(0)
-            fld dword ptr [edx + 0ch]
-            fchs
-            fstp dword ptr [edx + 0ch]
-            fld dword ptr [edx + 10h]
-            fchs
-            fstp dword ptr [edx + 10h]
-            fld dword ptr [edx + 14h]
-            fchs
-            fstp dword ptr [edx + 14h]
-            fld dword ptr [edx + 10h]
-            fmul Zero
-            fld dword ptr [edx + 14h]
-            fsub st(0), st(1)
-            fstp dword ptr [edx + 18h]
-            fld dword ptr [edx + 0ch]
-            fmul Zero
-            fld dword ptr [edx + 14h]
-            fmul Zero
-            fsubp st(1), st(0)
-            fstp dword ptr [edx + 1ch]
-            fsub dword ptr [edx + 0ch]
-            fst dword ptr [edx + 20h]
-            fmul dword ptr [edx + 20h]
-            fld dword ptr [edx + 1ch]
-            fmul dword ptr [edx + 1ch]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 18h]
-            fmul dword ptr [edx + 18h]
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fstp dword ptr [edx + 68h]
-            fld dword ptr [edx + 18h]
-            fmul dword ptr [edx + 68h]
-            fld dword ptr [edx + 1ch]
-            fmul dword ptr [edx + 68h]
-            fld dword ptr [edx + 20h]
-            fmul dword ptr [edx + 68h]
-            fstp dword ptr [edx + 20h]
-            fld dword ptr [edx + 10h]
-            fmul dword ptr [edx + 20h]
-            fld dword ptr [edx + 14h]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fld dword ptr [edx + 14h]
-            fmul st(0), st(3)
-            fld dword ptr [edx + 0ch]
-            fmul dword ptr [edx + 20h]
-            fsubp st(1), st(0)
-            fstp dword ptr [edx + 28h]
-            fld dword ptr [edx + 0ch]
-            fmul st(0), st(2)
-            fld dword ptr [edx + 10h]
-            fmul st(0), st(4)
-            fsubp st(1), st(0)
-            fst dword ptr [edx + 2ch]
-            fmul dword ptr [edx + 2ch]
-            fld dword ptr [edx + 28h]
-            fmul dword ptr [edx + 28h]
-            faddp st(1), st(0)
-            fld st(1)
-            fmul st(0), st(2)
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fstp dword ptr [edx + 68h]
-            fmul dword ptr [edx + 68h]
-            fld dword ptr [edx + 28h]
-            fmul dword ptr [edx + 68h]
-            fld dword ptr [edx + 2ch]
-            fmul dword ptr [edx + 68h]
-            fstp dword ptr [edx + 5ch]
-            fxch st(1)
-            fstp dword ptr [edx + 44h]
-            fstp dword ptr [edx + 50h]
-            fxch st(1)
-            fstp dword ptr [edx + 40h]
-            fstp dword ptr [edx + 4ch]
-        }
-        std::memcpy(Scratch + 18, Scratch + 3, sizeof(float));
-        std::memcpy(Scratch + 21, Scratch + 4, sizeof(float));
-        std::memcpy(Scratch + 24, Scratch + 5, sizeof(float));
-        std::memcpy(Scratch + 22, Scratch + 8, sizeof(float));
-        std::memcpy(Mat9, Scratch + 16, 9 * sizeof(float));
+        ThornSplineSampling::BuildPositionMatrix(Tangent, Mat9);
     }
 
     void CatmullRomVec3(const FVec3& P0, const FVec3& P1, const FVec3& P2, const FVec3& P3, float U,
@@ -402,49 +259,12 @@ namespace
         return true;
     }
 
-    // FUN_06f22030 22122..22176 keeps chord differences/norm extended.
-    // C++ double spills and sqrt calls gave actual Debug/Release differences.
-    // Publish the row directly: reloading a returned subnormal float adds DE.
+    // FUN_06f22030: publish cumulative length before reading the global offset.
     void AccumulateSegmentSampleRetail(FVec3& Prev, const FVec3& Cur,
                                        const float& GlobalOffset, float& SegmentLength,
                                        float& SampleTime)
     {
-        __asm
-        {
-            mov edx, Cur
-            mov ecx, Prev
-            fld dword ptr [edx]
-            fsub dword ptr [ecx]
-            mov eax, dword ptr [edx]
-            fld dword ptr [edx + 4]
-            mov ebx, dword ptr [edx + 8]
-            fsub dword ptr [ecx + 4]
-            mov edi, dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            mov dword ptr [ecx], eax
-            fsub dword ptr [ecx + 8]
-            fld st(0)
-            mov dword ptr [ecx + 8], ebx
-            fmul st(0), st(1)
-            fld st(2)
-            fmul st(0), st(3)
-            mov dword ptr [ecx + 4], edi
-            faddp st(1), st(0)
-            fld st(3)
-            fmul st(0), st(4)
-            faddp st(1), st(0)
-            fsqrt
-            fstp st(3)
-            fstp st(0)
-            fstp st(0)
-            mov eax, SegmentLength
-            fadd dword ptr [eax]
-            fst dword ptr [eax]
-            mov eax, GlobalOffset
-            fadd dword ptr [eax]
-            mov edx, SampleTime
-            fstp dword ptr [edx]
-        }
+        ThornSplineSampling::Accumulate(Prev, Cur, GlobalOffset, SegmentLength, SampleTime);
     }
 
     // Observe pending exceptions after Total is stored and before Time is published.
@@ -453,28 +273,10 @@ namespace
         return Total;
     }
 
-    // FUN_06f222d0 22360..22397: one extended reciprocal, 17 float
-    // products/stores. C++ FMUL swaps the retained reciprocal with the
-    // loaded element; actual Debug/Release probes differ in NaN payload/DE.
+    // FUN_06f222d0: one reciprocal shared by 17 float sample stores.
     void NormalizeSegmentSamplesRetail(float* Table, float Total)
     {
-        const float One = 1.0f;
-        const int Count = G_SamplesPerSegment;
-        __asm
-        {
-            mov edx, Table
-            mov ecx, Count
-            fld One
-            fdiv Total
-        NormalizeSample:
-            fld st(0)
-            fmul dword ptr [edx]
-            fstp dword ptr [edx]
-            add edx, 4
-            dec ecx
-            jnz NormalizeSample
-            fstp st(0)
-        }
+        ThornSplineSampling::NormalizeSamples(Table, Total, G_SamplesPerSegment);
     }
 
     void LerpVec3(const FVec3& A, const FVec3& B, float F, FVec3& Out)
@@ -495,244 +297,27 @@ namespace
     // The two input columns are read before rotational output publication.
     void NormalizeLookAtVector(FVec3& Vector)
     {
-        const float One = 1.0f;
-        // The intrinsic C++ candidate changes PC24/RC_DOWN output bits and
-        // spills Inverse to qword in Debug. 341cc..34215 retains it through
-        // all three float stores; 342b5..342f7 uses the same arithmetic.
-        __asm
-        {
-            mov edx, Vector
-            fld dword ptr [edx + 8]
-            fmul dword ptr [edx + 8]
-            fld dword ptr [edx + 4]
-            fmul dword ptr [edx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [edx]
-            fmul dword ptr [edx]
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fld dword ptr [edx]
-            fmul st(0), st(1)
-            fstp dword ptr [edx]
-            fld dword ptr [edx + 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 8]
-            fstp st(0)
-        }
+        ThornSceneGeometry::Normalize(Vector.X, Vector.Y, Vector.Z, true);
     }
 
     void CrossLookAtVector(FVec3& Result, const FVec3& A, const FVec3& B, bool bReverseOrder)
     {
-        // Retain the old matrix column before products. First cross computes
-        // X/Y/Z; the second computes Z/Y/X. The ordinary Release candidate
-        // changes operand stages and output before an unmasked exception.
-        // A direct output reference also avoids Release NRVO losing the
-        // local aggregate written through an asm LEA.
-        __asm
-        {
-            mov edx, A
-            mov ecx, B
-            mov eax, Result
-            fld dword ptr [ecx]
-            fld dword ptr [ecx + 4]
-            fld dword ptr [ecx + 8]
-            cmp bReverseOrder, 0
-            jne LookAtReverseCross
-            fld dword ptr [edx + 8]
-            fmul st(0), st(2)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fld dword ptr [edx]
-            fmul st(0), st(1)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(4)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 4]
-            fstp st(0)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(2)
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 8]
-            fstp st(0)
-            fstp st(0)
-            jmp LookAtCrossDone
-        LookAtReverseCross:
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fld dword ptr [edx + 4]
-            fmul st(0), st(4)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 8]
-            fld dword ptr [edx + 8]
-            fmul st(0), st(3)
-            fld dword ptr [edx]
-            fmul st(0), st(2)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax + 4]
-            fld dword ptr [edx + 4]
-            fmul st(0), st(1)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(3)
-            fsubp st(1), st(0)
-            fstp dword ptr [eax]
-            fstp st(0)
-            fstp st(0)
-            fstp st(0)
-        LookAtCrossDone:
-        }
+        ThornSceneGeometry::LookAtCross(Result, A, B, bReverseOrder);
     }
 
     void BuildLookAtFromTangent(const FVec3& Tangent, float* OutXform)
     {
-        FVec3 Forward;
-        std::memcpy(&Forward, &Tangent, sizeof(Forward));
-        NormalizeLookAtVector(Forward);
-        Forward.Z = -Forward.Z;
-        Forward.Y = -Forward.Y;
-        Forward.X = -Forward.X;
-
-        FVec3 UpRef;
-        std::memcpy(&UpRef.X, OutXform + 1, sizeof(float));
-        std::memcpy(&UpRef.Y, OutXform + 4, sizeof(float));
-        std::memcpy(&UpRef.Z, OutXform + 7, sizeof(float));
-
-        FVec3 AxisYRaw;
-        CrossLookAtVector(AxisYRaw, Forward, UpRef, false);
-        FVec3 AxisY;
-        std::memcpy(&AxisY, &AxisYRaw, sizeof(AxisY));
-        NormalizeLookAtVector(AxisY);
-
-        // 342f9..34333 reads the old X column, and uses the unnormalized
-        // first cross retained in the other local vector.
-        FVec3 ExistingX;
-        std::memcpy(&ExistingX.X, OutXform, sizeof(float));
-        std::memcpy(&ExistingX.Y, OutXform + 3, sizeof(float));
-        std::memcpy(&ExistingX.Z, OutXform + 6, sizeof(float));
-        FVec3 AxisZ;
-        CrossLookAtVector(AxisZ, AxisYRaw, ExistingX, true);
-        const float One = 1.0f;
-        // 3435d..343d2: the Z product precedes the first caller store, its
-        // float store follows it. Ordinary Release publishes output before
-        // its unmasked invalid exception; retain this arithmetic/store span.
-        __asm
-        {
-            lea edx, AxisZ
-            fld dword ptr [edx]
-            fmul dword ptr [edx]
-            fld dword ptr [edx + 4]
-            fmul dword ptr [edx + 4]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 8]
-            fmul dword ptr [edx + 8]
-            faddp st(1), st(0)
-            fsqrt
-            fdivr One
-            fld dword ptr [edx]
-            fmul st(0), st(1)
-            fstp dword ptr [edx]
-            fld dword ptr [edx + 4]
-            fmul st(0), st(1)
-            fstp dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            fmul st(0), st(1)
-            mov ecx, OutXform
-            mov eax, Forward.X
-            mov dword ptr [ecx], eax
-            fstp dword ptr [edx + 8]
-            mov eax, AxisY.X
-            mov dword ptr [ecx + 4], eax
-            fstp st(0)
-            mov eax, Forward.Y
-            mov dword ptr [ecx + 12], eax
-            mov eax, Forward.Z
-            mov dword ptr [ecx + 24], eax
-            mov eax, AxisY.Y
-            mov dword ptr [ecx + 16], eax
-            mov eax, AxisY.Z
-            mov dword ptr [ecx + 28], eax
-            fld dword ptr [edx + 8]
-            fchs
-            fld dword ptr [edx + 4]
-            fchs
-            fld dword ptr [edx]
-            fchs
-            fstp dword ptr [edx]
-            fstp dword ptr [edx + 4]
-            fstp dword ptr [edx + 8]
-            mov eax, dword ptr [edx + 4]
-            mov dword ptr [ecx + 20], eax
-            mov eax, dword ptr [edx]
-            mov dword ptr [ecx + 8], eax
-            mov eax, dword ptr [edx + 8]
-            mov dword ptr [ecx + 32], eax
-        }
+        ThornSceneGeometry::BuildLookAtFrame(Tangent, OutXform);
     }
 
     void QuatAdd(FQuat& Dst, const FQuat& A, const FQuat& B)
     {
-        // Ordinary double temporaries spill to qword in Debug. At PC64,
-        // 1 + 2^-60 then traps on that spill before the retail W publication.
-        __asm
-        {
-            mov edx, A
-            mov ecx, B
-            fld dword ptr [edx + 12]
-            fadd dword ptr [ecx + 12]
-            fld dword ptr [edx + 8]
-            fadd dword ptr [ecx + 8]
-            fld dword ptr [edx + 4]
-            fadd dword ptr [ecx + 4]
-            fld dword ptr [edx]
-            fadd dword ptr [ecx]
-            mov edx, Dst
-            fstp dword ptr [edx]
-            fstp dword ptr [edx + 4]
-            fstp dword ptr [edx + 8]
-            fstp dword ptr [edx + 12]
-        }
+        ThornSplineQuaternion::Add(Dst, A, B);
     }
 
     void QuatScale(FQuat& Dst, const FQuat& Q, float S)
     {
-        float W;
-        float X;
-        float Y;
-        float Z;
-        // Release C++ retained S and reversed the first three FMUL operands:
-        // the differential probe found NaN payload and denormal flag changes.
-        __asm
-        {
-            mov edx, Q
-            fld S
-            fmul dword ptr [edx]
-            fstp W
-            fld S
-            fmul dword ptr [edx + 4]
-            fstp X
-            fld S
-            fmul dword ptr [edx + 8]
-            fstp Y
-            fld S
-            fmul dword ptr [edx + 12]
-            mov edx, Dst
-            mov eax, W
-            mov dword ptr [edx], eax
-            mov eax, X
-            mov dword ptr [edx + 4], eax
-            fstp Z
-            mov eax, Y
-            mov dword ptr [edx + 8], eax
-            mov eax, Z
-            mov dword ptr [edx + 12], eax
-        }
+        ThornSplineQuaternion::Scale(Dst, Q, S);
     }
 
     // FUN_06f24070 is conjugation, with a raw retained W and negated XYZ.
@@ -750,103 +335,10 @@ namespace
         std::memcpy(&Dst.Z, &StoredZ, sizeof(float));
     }
 
-    // Standalone FUN_06f24190 keeps the ratio extended; the three
-    // inline FUN_06f21770 log paths store it as float before scaling.
-#pragma intrinsic(acos)
-    __declspec(noinline) bool IsQuatLogAccepted(const float& W)
-    {
-        // An inline gate lets Release retain W for acos and pop it on the
-        // fallback. That waiting pop precedes the retail raw W/XYZ stores.
-        return std::fabs(static_cast<double>(W)) < 1.0;
-    }
-
+    // Standalone log retains a double scale; control variants narrow it to float.
     void QuatLogRetail(FQuat& Dst, const FQuat& Q, bool bRoundScale)
     {
-        if (!IsQuatLogAccepted(Q.W))
-        {
-            const unsigned int Zero = 0;
-            std::memcpy(&Dst.W, &Zero, sizeof(Zero));
-            std::memcpy(&Dst.X, &Q.X, sizeof(float));
-            std::memcpy(&Dst.Y, &Q.Y, sizeof(float));
-            std::memcpy(&Dst.Z, &Q.Z, sizeof(float));
-            return;
-        }
-
-        // The mandatory modern std::acos call publishes a double result.
-        // That published double is the input to the owned arithmetic below.
-        const double Angle = std::acos(static_cast<double>(Q.W));
-        const float Epsilon = G_QuatSinEps;
-        float Scale;
-        float X;
-        float Y;
-        float Z;
-        bool bFallback = false;
-        // The intrinsic candidate spills Z before publishing X/Y: with a
-        // denormal Z and unmasked DE, both builds trap before those stores.
-        // 241ce..241f0 publishes X/Y between the Z product and its float store.
-        __asm
-        {
-            fld Angle
-            fld st(0)
-            fsin
-            fcom Epsilon
-            fnstsw ax
-            test ah, 1
-            jnz LogCopyInput
-            fxch st(1)
-            fdiv st(0), st(1)
-            cmp bRoundScale, 0
-            je LogRetainedProducts
-            // 218e9 stores Scale before discarding the retained sine.
-            fstp Scale
-            fstp st(0)
-            jmp LogArithmeticDone
-        LogRetainedProducts:
-            fxch st(1)
-            fstp st(0)
-            mov edx, Q
-            fld st(0)
-            fmul dword ptr [edx + 4]
-            fstp X
-            fld st(0)
-            fmul dword ptr [edx + 8]
-            fstp Y
-            fmul dword ptr [edx + 12]
-            mov ecx, Dst
-            mov eax, X
-            mov dword ptr [ecx + 4], eax
-            mov eax, Y
-            mov dword ptr [ecx + 8], eax
-            fstp Z
-            mov dword ptr [ecx], 0
-            mov eax, Z
-            mov dword ptr [ecx + 12], eax
-            jmp LogArithmeticDone
-        LogCopyInput:
-            fstp st(0)
-            fstp st(0)
-            mov bFallback, 1
-        LogArithmeticDone:
-        }
-        if (bFallback)
-        {
-            const unsigned int Zero = 0;
-            std::memcpy(&Dst.W, &Zero, sizeof(Zero));
-            std::memcpy(&Dst.X, &Q.X, sizeof(float));
-            std::memcpy(&Dst.Y, &Q.Y, sizeof(float));
-            std::memcpy(&Dst.Z, &Q.Z, sizeof(float));
-            return;
-        }
-        if (bRoundScale)
-        {
-            FVec3 Scaled;
-            ThornSplineMath::Scale(&Scaled.X, &Q.X, Scale);
-            const unsigned int Zero = 0;
-            std::memcpy(&Dst.W, &Zero, sizeof(Zero));
-            std::memcpy(&Dst.X, &Scaled.X, sizeof(float));
-            std::memcpy(&Dst.Y, &Scaled.Y, sizeof(float));
-            std::memcpy(&Dst.Z, &Scaled.Z, sizeof(float));
-        }
+        ThornSplineQuaternion::Log(Dst, Q, bRoundScale, G_QuatSinEps);
     }
 
     void QuatLog(FQuat& Dst, const FQuat& Q)
@@ -858,55 +350,7 @@ namespace
     // retain norm for FSIN, but publish a float scale before Scale3D.
     void QuatFirstControlExp(FQuat& Dst, const FQuat& Q)
     {
-        const float Epsilon = G_QuatSinEps;
-        float Norm;
-        float Scale;
-        bool bScaleVector = false;
-        // Intrinsic C++ changes FSIN/FCOS results and drops the float scale
-        // boundary in Release; the root PC/RC probe confirms numeric cases.
-        __asm
-        {
-            mov edx, Q
-            fld dword ptr [edx + 4]
-            fmul dword ptr [edx + 4]
-            fld dword ptr [edx + 8]
-            fmul dword ptr [edx + 8]
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul dword ptr [edx + 12]
-            faddp st(1), st(0)
-            fsqrt
-            fst Norm
-            fsin
-            fcom Epsilon
-            fnstsw ax
-            test ah, 1
-            jnz FirstExpCopyVector
-            fdiv Norm
-            fstp Scale
-            mov bScaleVector, 1
-            jmp FirstExpVectorReady
-        FirstExpCopyVector:
-            fstp st(0)
-        FirstExpVectorReady:
-        }
-        FQuat Result;
-        if (bScaleVector)
-            ThornSplineMath::Scale(&Result.X, &Q.X, Scale);
-        else
-        {
-            std::memcpy(&Result.X, &Q.X, sizeof(float));
-            std::memcpy(&Result.Y, &Q.Y, sizeof(float));
-            std::memcpy(&Result.Z, &Q.Z, sizeof(float));
-        }
-        // FCOS follows Scale3D, and consumes its explicit float norm.
-        __asm
-        {
-            fld Norm
-            fcos
-            fstp Result.W
-        }
-        std::memcpy(&Dst, &Result, sizeof(Result));
+        ThornSplineQuaternion::Exp(Dst, Q, true, true, G_QuatSinEps);
     }
 
     // FUN_06f24670 rounds the norm before FSIN. The first inline exp
@@ -914,71 +358,7 @@ namespace
     // still use its explicit float copy in both paths.
     void QuatExpRetail(FQuat& Dst, const FQuat& Q, bool bKeepNormForSin)
     {
-        const float Epsilon = G_QuatSinEps;
-        float Norm;
-        FQuat Result;
-        Result.X = Q.X;
-        Result.Y = Q.Y;
-        Result.Z = Q.Z;
-        __asm
-        {
-            mov edx, Q
-            fld dword ptr [edx + 4]
-            fmul st(0), st(0)
-            fld dword ptr [edx + 8]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fld dword ptr [edx + 12]
-            fmul st(0), st(0)
-            faddp st(1), st(0)
-            fsqrt
-            fst Norm
-            cmp bKeepNormForSin, 0
-            jne ExpSin
-            fstp st(0)
-            fld Norm
-        ExpSin:
-            fsin
-            fcom Epsilon
-            fnstsw ax
-            test ah, 01h
-            jnz ExpPopSin
-            fdiv Norm
-            lea ecx, Result
-            fld st(0)
-            fmul dword ptr [edx + 4]
-            fstp dword ptr [ecx + 4]
-            fld st(0)
-            fmul dword ptr [edx + 8]
-            fstp dword ptr [ecx + 8]
-            fmul dword ptr [edx + 12]
-            fstp dword ptr [ecx + 12]
-            jmp ExpCos
-        ExpPopSin:
-            fstp st(0)
-            // Standalone fallback copies via FLD/FSTP; the inline first
-            // control copies raw words. Preserve even signaling NaN handling.
-            cmp bKeepNormForSin, 0
-            jne ExpCos
-            lea ecx, Result
-            fld dword ptr [edx + 12]
-            fld dword ptr [edx + 8]
-            fld dword ptr [edx + 4]
-            fld Norm
-            fcos
-            fstp dword ptr [ecx]
-            fstp dword ptr [ecx + 4]
-            fstp dword ptr [ecx + 8]
-            fstp dword ptr [ecx + 12]
-            jmp ExpDone
-        ExpCos:
-            lea ecx, Result
-            fld Norm
-            fcos
-            fstp dword ptr [ecx]
-        ExpDone:
-        }
-        Dst = Result;
+        ThornSplineQuaternion::Exp(Dst, Q, bKeepNormForSin, false, G_QuatSinEps);
     }
 
     void QuatExp(FQuat& Dst, const FQuat& Q)
@@ -1044,27 +424,27 @@ namespace
         CoreQuatMul(Dst, Center, ExpQ);
     }
 
-    // FUN_06f248c0: squad(q1,a,b,q2,t) = slerp(slerp(q1,q2,t), slerp(a,b,t), 2t(1-t))
+    // FUN_06f248c0: squad(q1,a,b,q2,t) = nlerp(nlerp(q1,q2,t), nlerp(a,b,t), 2t(1-t))
     // Retail (thorn.dll.txt:10393-10488) calls I3DMathEngine vtbl+0x58 three
     // times and never tests any of the three GENRESULTs -- the blend and
-    // final slerp always consume whatever the previous call wrote, and the
+    // final nlerp always consume whatever the previous call wrote, and the
     // four output dwords are always stored.
     void QuatSquad(FQuat& Dst, const FQuat& Q1, const FQuat& A, const FQuat& B,
                    const FQuat& Q2, const float* T)
     {
-        FQuat SlerpAb;
-        FQuat SlerpQ;
-        CoreQuatSlerp(SlerpAb, A, B, T);
-        CoreQuatSlerp(SlerpQ, Q1, Q2, T);
+        FQuat NlerpAb;
+        FQuat NlerpQ;
+        CoreQuatNlerp(NlerpAb, A, B, T);
+        CoreQuatNlerp(NlerpQ, Q1, Q2, T);
         // 24952..24969 acquires the third cache BEFORE reading T for Blend.
         I3DMathEngine* Math = AcquireSplineCoreMathEngine();
         const float Blend = SquadBlendRetail(T);
-        CoreQuatSlerpWithMath(Math, Dst, SlerpQ, SlerpAb, &Blend);
+        CoreQuatNlerpWithMath(Math, Dst, NlerpQ, NlerpAb, &Blend);
     }
 
     // FUN_06f21770: Catmull-Rom quaternion on Q0..Q3 at U. Retail
     // (thorn.dll.txt:4396-4754) never tests the GENRESULT of any inner
-    // QuatMul/QuatSlerp vtbl call and unconditionally stores the result;
+    // QuatMul/QuatNlerp vtbl call and unconditionally stores the result;
     // it always falls through to `XOR EAX,EAX / RET`, i.e. forced success.
     bool EvalCrOrientation(const FQuat& Q0, const FQuat& Q1, const FQuat& Q2,
                            const FQuat& Q3, float U, FQuat& Out)
@@ -1934,26 +1314,10 @@ namespace
             return GR_OK;
         }
 
-        // 21f45/21f5b call 23570: retain Z/Y/X, then float-publish X/Y/Z.
-        // Debug C++ spills Z to double first: at PC64, 1-2^-60 traps precision
-        // before a signalling Y; retail instead reaches Y and traps invalid.
+        // 21f45/21f5b: snapshot differences before publishing the ghost vector.
         static void SubtractGhostVector(FVec3& OutputVector, const FVec3& A, const FVec3& B)
         {
-            __asm
-            {
-                mov eax, A
-                mov ecx, B
-                mov edx, OutputVector
-                fld dword ptr [eax + 8]
-                fsub dword ptr [ecx + 8]
-                fld dword ptr [eax + 4]
-                fsub dword ptr [ecx + 4]
-                fld dword ptr [eax]
-                fsub dword ptr [ecx]
-                fstp dword ptr [edx]
-                fstp dword ptr [edx + 4]
-                fstp dword ptr [edx + 8]
-            }
+            ThornSplineSampling::SubtractGhost(OutputVector, A, B);
         }
 
         // OPEN construction uses CR at 0.1/0.9, with different endpoint staging.
@@ -1974,39 +1338,7 @@ namespace
                            Points_[LiveCount_], 0.9f, Points_[EndGhost]);
             const FVec3* LastPoint = &Points_[LiveCount_];
             FVec3* GhostPoint = &Points_[EndGhost];
-            float DifferenceZ;
-            float X;
-            float Y;
-            float Z;
-            // Release reassociates the ordinary C++ additions and selects
-            // different NaN payloads (58 concrete probe mismatches).
-            // Keep only this arithmetic/publication sequence bounded here.
-            __asm
-            {
-                mov ecx, LastPoint
-                mov edx, GhostPoint
-                fld dword ptr [ecx]
-                fsub dword ptr [edx]
-                fld dword ptr [ecx + 4]
-                fsub dword ptr [edx + 4]
-                fld dword ptr [ecx + 8]
-                fsub dword ptr [edx + 8]
-                fstp DifferenceZ
-                fxch st(1)
-                fadd dword ptr [ecx]
-                fstp X
-                fadd dword ptr [ecx + 4]
-                fstp Y
-                fld DifferenceZ
-                fadd dword ptr [ecx + 8]
-                mov eax, X
-                mov dword ptr [edx], eax
-                mov eax, Y
-                mov dword ptr [edx + 4], eax
-                fstp Z
-                mov eax, Z
-                mov dword ptr [edx + 8], eax
-            }
+            ThornSplineSampling::ExtendEndGhost(*LastPoint, *GhostPoint);
         }
 
         void ApplyLoadedQuats(const FQuat* Quats, int Count)
@@ -2242,7 +1574,7 @@ namespace
             EvalCrOrientation(Q0, Q1, Q2, Q3, U0, SampleA);
             EvalCrOrientation(Q0, Q1, Q2, Q3, U1, SampleB);
             FQuat Result;
-            CoreQuatSlerp(Result, SampleA, SampleB, &Fraction);
+            CoreQuatNlerp(Result, SampleA, SampleB, &Fraction);
             std::memcpy(Out, &Result.W, sizeof(float));
             std::memcpy(Out + 1, &Result.X, sizeof(float));
             std::memcpy(Out + 2, &Result.Y, sizeof(float));
@@ -2379,11 +1711,11 @@ GENRESULT ThornQuatMul(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQ
                          reinterpret_cast<const FQuaternion&>(B));
 }
 
-GENRESULT ThornQuatSlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T)
+GENRESULT ThornQuatNlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T)
 {
     if (Math == nullptr)
         return GR_GENERIC;
-    return Math->QuatSlerp(reinterpret_cast<FQuaternion&>(Dst), // +0x58
+    return Math->QuatNlerp(reinterpret_cast<FQuaternion&>(Dst), // +0x58
                            reinterpret_cast<const FQuaternion&>(A),
                            reinterpret_cast<const FQuaternion&>(B), T);
 }

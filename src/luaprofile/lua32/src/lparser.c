@@ -6,6 +6,8 @@
 
 
 #include <stdio.h>
+#include "portable_comparison_c.h"
+#include "portable_lua_number.h"
 #include <string.h>
 
 #include "lauxlib.h"
@@ -274,17 +276,8 @@ static int real_constant (FuncState *fs, const real *Number) {
   while (--c >= lim) {
     if (ttype(&cnt[c]) == LUA_T_NUMBER) {
       const real *ExistingNumber = &nvalue(&cnt[c]);
-      unsigned short ComparisonStatus;
-      /* Retail 06f53ff1 returns on C3 after one signaling FCOMP.
-         Two C comparisons add a waiting FLD before this return. */
-      __asm {
-        mov eax, ExistingNumber
-        fld qword ptr [eax]
-        mov eax, Number
-        fcomp qword ptr [eax]
-        fnstsw ComparisonStatus
-      }
-      if (ComparisonStatus & 0x4000)
+      /* C3 selects equality or unordered; retain signaling NaN exceptions. */
+      if (PortableDoubleEqualOrUnordered(ExistingNumber, Number))
         return c;
     }
   }
@@ -297,67 +290,13 @@ static int real_constant (FuncState *fs, const real *Number) {
 }
 
 
-/* Actual Debug/Release ordinary C candidates changed the recovered waiting
-   reload and collapsed the equality stages. These three owned x87 regions
-   preserve 53f11..59; every compiler/CRT/parser call remains ordinary C. */
+/* Preserve integer/unordered opcode selection and fractional conversion flags. */
 static void code_number (LexState *ls, const real *Number) {
-  static const real Zero = 0;
-  static const real Maximum = (real)MAX_WORD;
-  real Absolute;
-  int bInBounds;
-  unsigned short ComparisonStatus;
-  __asm {
-    mov eax, Number
-    fld qword ptr [eax]
-    fcomp qword ptr Zero
-    fld qword ptr [eax]
-    fnstsw ax
-    test ah, 1
-    jz NumberAbsoluteReady
-    fchs
-  NumberAbsoluteReady:
-    fld qword ptr Zero
-    fcomp st(1)
-    fnstsw ax
-    test ah, 41h
-    jz NumberBoundsRejected
-    fcom qword ptr Maximum
-    fnstsw ax
-    test ah, 41h
-    jz NumberBoundsRejected
-    /* Exact decoded-double/FCHS transport, retaining the original ST0. */
-    fst qword ptr Absolute
-    mov bInBounds, 1
-    jmp NumberBoundsFinished
-  NumberBoundsRejected:
-    fstp st(0)
-    mov bInBounds, 0
-  NumberBoundsFinished:
-  }
-  if (bInBounds) {
-    /* Modern signed-64 truncation consumes a duplicate; the native listing
-       must retain the owned absolute below it. This is not a CRT clone. */
-    const __int64 Integral = (__int64)Absolute;
-    const int Converted = (int)(unsigned int)Integral;
-    __asm {
-      fild dword ptr Converted
-      fcomp st(1)
-      fnstsw ComparisonStatus
-      fstp st(0)
-    }
-    /* AH40/JZ rejects unequal only; unordered has C3 and is accepted. */
-    if (ComparisonStatus & 0x4000) {
-      __asm {
-        mov eax, Number
-        fld qword ptr [eax]
-        fcomp qword ptr Zero
-        fnstsw ComparisonStatus
-      }
-      /* AH01/JNZ selects negative or unordered opcode9, else opcode7. */
-      code_oparg(ls, (ComparisonStatus & 0x0100) ? PUSHNUMBERNEG : PUSHNUMBER,
-                 Converted, 1);
-      return;
-    }
+  unsigned int Converted;
+  int Negative;
+  if (PortableLuaClassifyNumber(Number, MAX_WORD, &Converted, &Negative)) {
+    code_oparg(ls, Negative ? PUSHNUMBERNEG : PUSHNUMBER, (int)Converted, 1);
+    return;
   }
   code_constant(ls, real_constant(ls->fs, Number));
 }

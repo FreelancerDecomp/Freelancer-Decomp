@@ -4,12 +4,12 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include <cmath>
 #include "common_csys.h"
 #include "x86math.h" // I3DMathEngine
 
 #include "DALib.h"   // DALib::Engine, for DALib_Engine_get_csys
 #include "dacom.h"   // DACOM_Acquire, AGGDESC
-#include "x87_trig.h" // retail's inline FSIN / FCOS (EulerMatrix, RotateMatrix)
 
 #include <math.h>
 #include <stdlib.h>  // abs(int) -- retail truncates the dot product through it
@@ -363,12 +363,12 @@ Matrix __cdecl EulerMatrix(Vector const& AnglesDegrees)
     const float Yaw = AnglesDegrees.y * kDegToRad;
     const float Roll = AnglesDegrees.z * kDegToRad;
 
-    const double SinP = X87Sin((double)Pitch);
-    const double CosP = X87Cos((double)Pitch);
-    const double SinY = X87Sin((double)Yaw);
-    const double CosY = X87Cos((double)Yaw);
-    const double SinR = X87Sin((double)Roll);
-    const double CosR = X87Cos((double)Roll);
+    const double SinP = std::sin(static_cast<double>(Pitch));
+    const double CosP = std::cos(static_cast<double>(Pitch));
+    const double SinY = std::sin(static_cast<double>(Yaw));
+    const double CosY = std::cos(static_cast<double>(Yaw));
+    const double SinR = std::sin(static_cast<double>(Roll));
+    const double CosR = std::cos(static_cast<double>(Roll));
 
     const double SinYSinP = SinY * SinP;
     const double SinRCosP = (float)(SinR * CosP);
@@ -415,8 +415,8 @@ Matrix __cdecl RotateMatrix(Vector const& AnglesDegrees)
     if (fabs((double)(AnglesDegrees.y)) > kAngleEpsilon)
     {
         const float Angle = AnglesDegrees.y * kDegToRad;
-        const float Cos = X87CosF((double)(Angle));
-        const float Sin = X87SinF((double)(Angle));
+        const float Cos = static_cast<float>(std::cos(static_cast<double>(Angle)));
+        const float Sin = static_cast<float>(std::sin(static_cast<double>(Angle)));
         Matrix Rot;
         Rot.E[0][0] = Cos;  Rot.E[0][1] = 0.0f; Rot.E[0][2] = Sin;
         Rot.E[1][0] = 0.0f; Rot.E[1][1] = 1.0f; Rot.E[1][2] = 0.0f;
@@ -429,8 +429,8 @@ Matrix __cdecl RotateMatrix(Vector const& AnglesDegrees)
     {
         const double AngleExact = (double)(AnglesDegrees.x) * kDegToRad;
         const float AngleRounded = (float)(AngleExact);
-        const float Cos = X87CosF(AngleExact);
-        const float Sin = X87SinF((double)(AngleRounded));
+        const float Cos = static_cast<float>(std::cos(static_cast<double>(AngleExact)));
+        const float Sin = static_cast<float>(std::sin(static_cast<double>(AngleRounded)));
         Matrix Rot;
         Rot.E[0][0] = 1.0f; Rot.E[0][1] = 0.0f; Rot.E[0][2] = 0.0f;
         Rot.E[1][0] = 0.0f; Rot.E[1][1] = Cos;  Rot.E[1][2] = -Sin;
@@ -442,8 +442,8 @@ Matrix __cdecl RotateMatrix(Vector const& AnglesDegrees)
     if (fabs((double)(AnglesDegrees.z)) > kAngleEpsilon)
     {
         const float Angle = AnglesDegrees.z * kDegToRad;
-        const float Cos = X87CosF((double)(Angle));
-        const float Sin = X87SinF((double)(Angle));
+        const float Cos = static_cast<float>(std::cos(static_cast<double>(Angle)));
+        const float Sin = static_cast<float>(std::sin(static_cast<double>(Angle)));
         Matrix Rot;
         Rot.E[0][0] = Cos;  Rot.E[0][1] = -Sin; Rot.E[0][2] = 0.0f;
         Rot.E[1][0] = Sin;  Rot.E[1][1] = Cos;  Rot.E[1][2] = 0.0f;
@@ -673,7 +673,7 @@ float __cdecl Csys_error(Csys const& A, Csys const& B)
 // FUN_06391cf0 == Acquire3DMathEngine before every call):
 //   +0x50 MatrixToQuaternion(qB, B.Orient)        .text:06307bf5
 //   +0x50 MatrixToQuaternion(qA, A.Orient)        .text:06307c1b
-//   +0x58 QuatSlerp(qOut, qA, qB, T)              .text:06307c4b
+//   +0x58 QuatNlerp(qOut, qA, qB, T)              .text:06307c4b
 //   qOut copied to a temporary                     .text:06307c4e-06307c71
 //   +0x54 QuaternionToMatrix(M, qTmp)             .text:06307c90
 // Return codes are ignored by retail. Result = {Pos, M} copied through the hidden pointer.
@@ -696,7 +696,7 @@ Csys __cdecl Csys_interpolate(Csys A, Csys B, float T)
     FQuaternion QuatOut;
     Acquire3DMathEngine()->MatrixToQuaternion(QuatB, (FMatrix const&)B.Orient);
     Acquire3DMathEngine()->MatrixToQuaternion(QuatA, (FMatrix const&)A.Orient);
-    Acquire3DMathEngine()->QuatSlerp(QuatOut, QuatA, QuatB, T);
+    Acquire3DMathEngine()->QuatNlerp(QuatOut, QuatA, QuatB, T);
     FQuaternion const QuatTmp = QuatOut;
     Acquire3DMathEngine()->QuaternionToMatrix((FMatrix&)Result.Orient, QuatTmp);
     return Result;

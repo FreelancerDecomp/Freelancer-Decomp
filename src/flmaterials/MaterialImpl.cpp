@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_color_quantization.h"
 #include "flmaterials.h"
 #include "engine/engbase.h" // IEngine
 #include "readfile.h"
@@ -133,22 +134,7 @@ namespace
     const double GFlmWireColorScale = 255.0;
     unsigned char FlmWireColorByte(float Component)
     {
-        unsigned short SavedControl;
-        unsigned short TruncateControl;
-        long long Converted;
-        __asm
-        {
-            fnstcw SavedControl
-            mov ax, SavedControl
-            or ax, 0x0c00
-            mov TruncateControl, ax
-            fldcw TruncateControl
-            fld Component
-            fmul GFlmWireColorScale
-            fistp Converted
-            fldcw SavedControl
-        }
-        return (unsigned char)(Converted);
+        return static_cast<unsigned char>(PortableColorQuantization::ToInt64Bits(&Component));
     }
 
 

@@ -4,10 +4,15 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_integer_conversion.h"
+#include "portable_vector_load.h"
 #include "Thorn.h"
 #include "readfile.h"
 #include "ThornScene.h"
 #include "ThornModernAdapters.h"
+#include "LuaTableProbe.h"
+#include "PortableComparison.h"
+#include "LuaPropertyMath.h"
 
 #include <cstdio>
 #include <cstring>
@@ -91,26 +96,11 @@ namespace
         return static_cast<int>(static_cast<unsigned int>(static_cast<long long>(Value)));
     }
 
-    // Keep the FMUL result on x87 through the retail chop-to-qword conversion.
+    // Scale and truncate without an intermediate binary64 product store.
     int LuaMillisecondsToRetailInt(lua_Object Object)
     {
-        const double Scale = 1000.0;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fmul qword ptr Scale
-            fnstcw OldControl
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornLuaPropertyMath::Milliseconds(Number);
     }
 
     // Retail per-type constructor tails use a 32-bit ADD. Preserve its bits
@@ -126,23 +116,8 @@ namespace
 
     int LuaNumberToRetailInt(lua_Object Object)
     {
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return static_cast<int>(static_cast<unsigned int>(PortableIntegerConversion::ToInt64Bits(&Number)));
     }
 
     // The inline LIGHT vectors use three float locals, then integer copies.
@@ -154,49 +129,7 @@ namespace
     // 2819c..281bf loads the next float before publishing the preceding int.
     void StoreLightColorIntegers(const float* Source, int* Output)
     {
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
-        __asm {
-            mov ecx, Source
-            fld dword ptr [ecx]
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            fld dword ptr [ecx + 4]
-            mov eax, dword ptr Result
-            mov edx, Output
-            mov dword ptr [edx], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            fld dword ptr [ecx + 8]
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 4], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 8], eax
-        }
+        PortableIntegerConversion::StoreFloatTriplet(Source, Output, false);
     }
 
     void ScaleLightAngle(const float* Source, float* Destination)
@@ -676,23 +609,8 @@ namespace
     // Unordered/nonzero is true, with the original x87 comparison effects.
     unsigned char ReadFogByte(lua_Object Object)
     {
-        const unsigned long long ZeroBits = 0;
-        unsigned char Result;
         const double Number = lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fcomp qword ptr ZeroBits
-            fnstsw ax
-            test ah, 44h
-            jnp FogByteEqual
-            mov al, 1
-            jmp FogByteStore
-        FogByteEqual:
-            xor al, al
-        FogByteStore:
-            mov Result, al
-        }
-        return Result;
+        return static_cast<unsigned char>(ThornPortableComparison::Nonzero(&Number));
     }
 
     void LoadFogKeys(lua_Object Fog, FThornFog8* Target, int* Mask)
@@ -768,43 +686,21 @@ namespace
     // after the table predicate and lua_pushobject callback.
     lua_Object GetLightDoubleProbe(lua_Object Table, unsigned int Index)
     {
-        if (lua_istable(Table) == 0)
-            return G_ThornLuaNil;
-        lua_pushobject(Table);
-        const unsigned long long IntegerIndex = Index;
-        double Number;
-        __asm {
-            fild qword ptr IntegerIndex
-            fstp qword ptr Number
-        }
-        lua_pushnumber(Number);
-        return lua_gettable();
+        return ThornLuaDetail::GetLightDoubleProbe(Table, Index, G_ThornLuaNil);
     }
 
     // FUN_06f27c10, shared by traced LIGHT/entity consumers. A pointer keeps the float
     // argument's bits intact until the retail FLD after lua_pushobject.
     lua_Object GetLightFloatIndex(lua_Object Table, const float* Index)
     {
-        if (lua_istable(Table) == 0)
-            return G_ThornLuaNil;
-        lua_pushobject(Table);
-        // 27c28..27c30: widen the pointed float only after pushobject.
-        // Every current caller supplies an unexposed local float index.
-        lua_pushnumber(static_cast<double>(*Index));
-        return lua_gettable();
+        return ThornLuaDetail::GetLightFloatIndex(Table, Index, G_ThornLuaNil);
     }
 
     // Specular/ambient/direction convert their loop index before 27c10's
     // table predicate, even when that predicate selects the cached nil.
     lua_Object GetLightFloatProbe(lua_Object Table, unsigned int Index)
     {
-        const unsigned long long IntegerIndex = Index;
-        float FloatIndex;
-        __asm {
-            fild qword ptr IntegerIndex
-            fstp dword ptr FloatIndex
-        }
-        return GetLightFloatIndex(Table, &FloatIndex);
+        return ThornLuaDetail::GetLightFloatProbe(Table, Index, G_ThornLuaNil);
     }
 
     // FUN_06f28750: X/Y are float locals; Z remains ST0 until publication.
@@ -824,15 +720,7 @@ namespace
         StoreLuaNumberFloat(GetIndexOrNil(Table, 2.0), &Coordinates[1]);
         const lua_Object Z = GetIndexOrNil(Table, 3.0);
         const double Number = lua_getnumber(Z);
-        __asm {
-            fld qword ptr Number
-            fld dword ptr Coordinates[0]
-            mov edx, Output
-            mov ecx, dword ptr Coordinates[4]
-            fstp dword ptr [edx]
-            fstp dword ptr [edx + 8]
-            mov dword ptr [edx + 4], ecx
-        }
+        PortableVectorLoad::CopyMixed(Output, Coordinates, &Number);
         return true;
     }
 
@@ -1109,79 +997,8 @@ namespace
     // FUN_06f24b40 — event type 4 only (after FUN_06f27fe0).
     void ApplyLightEventPost(FThornLightProps* Props, int* Mask)
     {
-        const int EntryMask = *Mask;
-        if ((EntryMask & kThornLightBitColor) != 0)
-        {
-            const unsigned int ColorScaleBits = 0x3b808081u;
-            const int* Colors = Props->Color;
-            float* Diffuse = Props->Diffuse;
-            unsigned int ColorBits[4];
-            // Actual C++ Debug/Release publishes R/G before FILD blue and
-            // B/alpha before mask800. Retail24b80..95 instead publishes R/G
-            // after FILD blue, then mask800 before its waiting FSTP32.
-            __asm
-            {
-                mov ecx, Colors
-                mov edx, Diffuse
-                lea ebx, ColorBits
-                mov eax, EntryMask
-                fild dword ptr [ecx]
-                mov dword ptr [ebx + 0ch], 03f800000h
-                or eax, 0800h
-                fmul dword ptr ColorScaleBits
-                fstp dword ptr [ebx]
-                mov esi, dword ptr [ebx]
-                fild dword ptr [ecx + 4]
-                fmul dword ptr ColorScaleBits
-                fstp dword ptr [ebx + 4]
-                fild dword ptr [ecx + 8]
-                mov dword ptr [edx], esi
-                mov esi, dword ptr [ebx + 4]
-                mov dword ptr [edx + 4], esi
-                fmul dword ptr ColorScaleBits
-                mov ecx, Mask
-                mov dword ptr [ecx], eax
-                fstp dword ptr [ebx + 8]
-                mov esi, dword ptr [ebx + 8]
-                mov dword ptr [edx + 8], esi
-                mov esi, dword ptr [ebx + 0ch]
-                mov dword ptr [edx + 0ch], esi
-            }
-        }
-        const int InfiniteMask = *Mask;
-        if ((InfiniteMask & kThornLightBitInfinite) != 0)
-        {
-            Props->Type = (Props->Infinite == 0) ? 2 : 3;
-            *Mask = (InfiniteMask & ~kThornLightBitInfinite) | kThornLightBitType;
-        }
-        // FCOMP +0.0, TEST AH,05, JP skips greater/equal/unordered.
-        // Only ordered less (C0=1,C2=0, odd parity) falls through here.
-        const int CutoffMask = *Mask;
-        if ((CutoffMask & kThornLightBitCutoff) != 0)
-        {
-            const unsigned int ZeroBits = 0;
-            const float* Cutoff = &Props->Cutoff;
-            unsigned char bOrderedNegative;
-            // Actual optimized C++ compares zero to cutoff and executes a
-            // waiting FSTP on the unordered return path. Retail24be4..c10
-            // has no waiting instruction after FNSTSW/TEST AH,05/JP.
-            __asm
-            {
-                mov ecx, Cutoff
-                fld dword ptr [ecx]
-                fcomp dword ptr ZeroBits
-                fnstsw ax
-                test ah, 05h
-                setnp bOrderedNegative
-            }
-            if (bOrderedNegative != 0)
-            {
-                Props->Type = 1;
-                std::memcpy(&Props->Cutoff, &ZeroBits, sizeof(ZeroBits));
-                std::memcpy(&Props->Theta, &ZeroBits, sizeof(ZeroBits));
-                *Mask = CutoffMask | kThornLightBitType;
-            }
-        }
+        ThornLuaPropertyMath::ApplyLight(*Props, *Mask, kThornLightBitColor,
+            kThornLightBitInfinite, kThornLightBitCutoff, kThornLightBitType, kThornLightBitDiffuse);
     }
 
     // FUN_06f28880 full117 instructions: keep mask local through callbacks,
@@ -1221,20 +1038,7 @@ namespace
     bool IsIkLuaNumberNonzero(lua_Object Object)
     {
         const double Number = lua_getnumber(Object);
-        const double Zero = 0.0;
-        unsigned char bResult;
-        // Actual Debug emits FUCOMPP for C++ !=, even with local /fp:except:
-        // that omits retail's invalid flag for quiet NaN. Only this ordered
-        // comparison is explicit; the Lua function call remains ordinary C++.
-        __asm
-        {
-            fld qword ptr Number
-            fcomp qword ptr Zero
-            fnstsw ax
-            test ah, 44h
-            setp bResult
-        }
-        return bResult != 0;
+        return ThornPortableComparison::Nonzero(&Number);
     }
 
     // FUN_06f2a5b0: mutate the live packet in the order of the Lua callbacks.
@@ -1334,74 +1138,15 @@ namespace
     int ReadSceneStartMilliseconds(lua_Object Object)
     {
         const int bNil = lua_isnil(Object);
-        const unsigned int ScaleBits = 0x447a0000u;
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
         const double Number = bNil != 0 ? 0.0 : lua_getnumber(Object);
-        __asm {
-            fld qword ptr Number
-            fmul dword ptr ScaleBits
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-        }
-        return static_cast<int>(static_cast<unsigned int>(Result));
+        return ThornLuaPropertyMath::Milliseconds(Number);
     }
 
     // 2964b..2966c retains Z below the X/Y ftol operations. Y is loaded
     // before publishing X; the third conversion consumes the retained Z.
     void StoreSceneAmbientIntegers(const float* Source, void* Output)
     {
-        unsigned short OldControl;
-        unsigned short ChopControl;
-        long long Result;
-        __asm {
-            mov ecx, Source
-            fld dword ptr [ecx + 8]
-            fld dword ptr [ecx]
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            fld dword ptr [ecx + 4]
-            mov eax, dword ptr Result
-            mov edx, Output
-            mov dword ptr [edx], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 4], eax
-            fwait
-            fnstcw OldControl
-            fwait
-            mov ax, OldControl
-            or ax, 0c00h
-            mov ChopControl, ax
-            fldcw ChopControl
-            fistp qword ptr Result
-            fldcw OldControl
-            mov eax, dword ptr Result
-            mov dword ptr [edx + 8], eax
-        }
+        PortableIntegerConversion::StoreFloatTriplet(Source, Output, true);
     }
 
     void LoadSceneEntityDesc(lua_Object Table, FThornEntitySnap* Descriptor)

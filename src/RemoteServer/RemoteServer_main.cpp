@@ -20,6 +20,7 @@
 #include "../include/rpc_packet_codec.h"
 #include "../include/rpc_server_channel_codec.h" // Canonical hardpoint dictionary builder.
 #include "../include/msvcrt_compat.h"
+#include "../include/portable_rpc_update_fields.h"
 #include "rpc_server_channel_receive_private.h"
 
 #include <list>
@@ -276,26 +277,8 @@ void HandlePacket(unsigned int ClientId, CDAPacket* Packet)
                 Info.ObjectId = Wire->ObjectId;
                 Info.Orientation = Wire->Orientation;
                 Info.Position = Wire->Position;
-                const float* TimeSource = &Wire->UpdateTime;
-                const float* FieldSource = &Wire->Field_0x28;
-                float TimeRounded;
-                float FieldRounded;
-                float* TimeDestination = &Info.Field_0x20;
-                float* FieldDestination = &Info.Field_0x24;
-                // 06bd3b9a..3bca retains the two intermediate FST operations.
-                __asm {
-                    mov eax, TimeSource
-                    fld dword ptr [eax]
-                    fst dword ptr TimeRounded
-                    mov eax, FieldSource
-                    fld dword ptr [eax]
-                    fst dword ptr FieldRounded
-                    fxch st(1)
-                    mov eax, TimeDestination
-                    fstp dword ptr [eax]
-                    mov eax, FieldDestination
-                    fstp dword ptr [eax]
-                }
+                PortableRpcUpdateFields::CopyReceived(&Info.Field_0x20, &Info.Field_0x24,
+                    &Wire->UpdateTime, &Wire->Field_0x28);
                 Info.Field_0x28 = Wire->Field_0x00;
                 Client->SendCommonUpdateObject(1, Info);
                 break;

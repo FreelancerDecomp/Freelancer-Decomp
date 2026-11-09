@@ -24,7 +24,6 @@
 // AnimDB::Update uses at .text:0627e162 to fill its own cache DAT_063fc018.
 #include "common_csys.h"   // Transform / Matrix / Acquire3DMathEngine
 #include "x86math.h"       // I3DMathEngine::TransposeTransform, FVector, FMatrix
-#include "x87_trig.h"      // retail's inline FSIN / FCOS (RotateBasisRowsXZ)
 #include "common_ini.h"    // VecNormalize3 (FUN_062e1680) -- StartLaunchSequence
 #include "common_aisteer.h" // ClampedDot3 (FUN_062e1630), GetObjectTypeOrZero (FUN_062e6200)
 #include "common_cobjdb.h"  // IObjDB::GetZoneDb -- FetchSystemId
@@ -42,8 +41,8 @@
 // DAT_0639e2d0 (== the float pi 0x40490fdb widened), so they share this body.
 static void RotateBasisRowsXZ(Vector* Rows, double Angle)
 {
-    double const Cos = X87Cos(Angle);
-    double const Sin = X87Sin(Angle);
+    double const Cos = std::cos(static_cast<double>(Angle));
+    double const Sin = std::sin(static_cast<double>(Angle));
     for (int Row = 0; Row < 3; ++Row)
     {
         double const X = Rows[Row].x;

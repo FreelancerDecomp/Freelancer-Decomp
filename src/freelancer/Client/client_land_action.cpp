@@ -281,7 +281,7 @@ void Action_JumpOut::do_simulation_controller(IVP_Event_Sim* EventSim,
         Eased = kJumpOutMaxFraction;
 
     // 0x0054320f..0x0054326e: a gate type with bit 0x800 keeps the start orientation;
-    // otherwise QuatSlerp (vt+0x58) from +0x28 to +0x44 by the eased fraction.
+    // otherwise QuatNlerp (vt+0x58) from +0x28 to +0x44 by the eased fraction.
     FQuaternion Rotation;
     if ((GateType & 0x800u) != 0)
     {
@@ -289,9 +289,9 @@ void Action_JumpOut::do_simulation_controller(IVP_Event_Sim* EventSim,
     }
     else
     {
-        FQuaternion Slerped;
-        ShipMath()->QuatSlerp(Slerped, StartRotation, EndRotation, Eased);
-        Rotation = Slerped;
+        FQuaternion Nlerped;
+        ShipMath()->QuatNlerp(Nlerped, StartRotation, EndRotation, Eased);
+        Rotation = Nlerped;
     }
 
     // 0x00543272..0x005432b9: position = start + (end - start) * eased, per axis.

@@ -30,32 +30,24 @@ static void DispatchClientPacket(unsigned int ClientId, CDAPacket* Packet)
         switch (Opcode) {
         case 0x01: // FLPACKET_COMMON_UPDATEOBJECT
         {
-            const FRpcUpdateObjectPacket* Wire = static_cast<const FRpcUpdateObjectPacket*>(reinterpret_cast<const FPacketBase*>(Packet));
+            const FRpcUpdateObjectPacket* Wire =
+            static_cast<const FRpcUpdateObjectPacket*>(
+            reinterpret_cast<const FPacketBase*>(Packet));
+
             SSPObjUpdateInfo Info;
             Info.ObjectId = Wire->ObjectId;
             Info.Orientation = Wire->Orientation;
             Info.Position = Wire->Position;
             Info.Field_0x2c = Wire->Field_0x00;
-            const float* TimeSource = &Wire->UpdateTime;
-            const float* FieldSource = &Wire->Field_0x28;
-            double* TimeDestination = &Info.Timestamp;
-            unsigned int* FieldDestination = &Info.Field_0x28;
-            float StoredTime;
-            float StoredField;
-            // Preserve both FST float intermediates and the native x87 order.
-            __asm {
-                mov eax, TimeSource
-                fld dword ptr [eax]
-                fst dword ptr StoredTime
-                mov eax, FieldSource
-                fld dword ptr [eax]
-                fst dword ptr StoredField
-                fxch st(1)
-                mov eax, TimeDestination
-                fstp qword ptr [eax]
-                mov eax, FieldDestination
-                fstp dword ptr [eax]
-            }
+
+            // Original x87 conversions.
+            Info.Timestamp = static_cast<double>(Wire->UpdateTime);
+
+            float field = Wire->Field_0x28;
+            static_assert(sizeof(float) == sizeof(unsigned int));
+
+            std::memcpy(&Info.Field_0x28, &field, sizeof(field));
+
             Server->SPObjUpdate(Info, ClientId);
             break;
         }

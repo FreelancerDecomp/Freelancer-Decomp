@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_rpc_quantization.h"
 #include "rpc_packet_codec.h"
 #include "common_misc.h" // SinglePlayer selects retail's two FIREWEAPON formats.
 #include "common_net.h" // PLAYER_TRADE counts its trailer by IsMPServer direction.
@@ -1344,112 +1345,26 @@ const double GUpdateInverseScale = 1.0 / 127.0;   // PE 06c0df48: 08040281402080
 // plus its width (RC06b64d58/06b64d5b, 06b64e3d/06b64e3e); it never rereads Ptr.
 unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommit,
     unsigned int CommittedPointer) {
-    const float* Source = &Value;
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Source
-        fld dword ptr [ecx]
-        fmul qword ptr GFireSmallScale
-        mov ecx, PointerToCommit
-        test ecx, ecx
-        jz UpdateConversion
-        mov eax, CommittedPointer
-        mov dword ptr [ecx], eax
-    UpdateConversion:
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeUpdate(
+        &Value, PointerToCommit, CommittedPointer));
 }
 
 void RpcUpdateExpand(signed char Encoded, float& Value) {
     const int Quantized = Encoded;
     float* Destination = &Value;
-    __asm {
-        mov ecx, Destination
-        fild dword ptr Quantized
-        fmul qword ptr GUpdateInverseScale
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Quantized, GUpdateInverseScale, Destination);
 }
 
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
 // selects the strictly-less tier. Z has only the small comparison in retail.
 unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
-    const float* Source = &Value;
-    unsigned char Tier;
-    if (bHasMediumTier) {
-        __asm {
-            mov ecx, Source
-            xor edx, edx
-            fld dword ptr [ecx]
-            fabs
-            fcom qword ptr GFireSmallLimit
-            fnstsw ax
-            test ah, 5
-            jp FireTryMedium
-            fstp st(0)
-            mov dl, 1
-            jmp FireTierDone
-        FireTryMedium:
-            fcomp qword ptr GFireMediumLimit
-            fnstsw ax
-            test ah, 5
-            jp FireTierDone
-            mov dl, 2
-        FireTierDone:
-            mov Tier, dl
-        }
-    } else {
-        __asm {
-            mov ecx, Source
-            xor edx, edx
-            fld dword ptr [ecx]
-            fabs
-            fcomp qword ptr GFireSmallLimit
-            fnstsw ax
-            test ah, 5
-            jp FireSmallDone
-            mov dl, 1
-        FireSmallDone:
-            mov Tier, dl
-        }
-    }
-    return Tier;
+    return PortableRpcQuantization::PickFireTier(&Value, bHasMediumTier);
 }
 
 // Native FMUL float followed by FMUL double, then _ftol's truncating signed
 // integer conversion. Tier selection bounds the finite result to +/-32767.
 unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
-    const float* Source = &Value;
-    const float* PreScale = bMedium ? &GFireMediumPreScale : &GFireSmallPreScale;
-    const double* Scale = bMedium ? &GFireMediumScale : &GFireSmallScale;
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Source
-        mov eax, PreScale
-        mov edx, Scale
-        fld dword ptr [ecx]
-        fmul dword ptr [eax]
-        fmul qword ptr [edx]
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned int>(Quantized);
+    return static_cast<unsigned int>(PortableRpcQuantization::QuantizeFire(&Value, bMedium));
 }
 
 bool RpcFirePutComponent(FRpcWireStream& Stream, const float& Value,
@@ -1492,13 +1407,7 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
     }
     if (bCommitBefore) Stream.CommitReadPointer(Width);
     float* Destination = &Value;
-    __asm {
-        mov eax, Scale
-        mov ecx, Destination
-        fild dword ptr Quantized
-        fmul qword ptr [eax]
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Quantized, *Scale, Destination);
     if (!bCommitBefore) Stream.CommitReadPointer(Width);
     return true;
 }

@@ -20,7 +20,6 @@
 #include "common_pathfind.h"  // PathfindManager (IBehaviorManager::Pathfind)
 #include "common_systemmanager.h" // SystemManager / ThrustManager (BaseIdea::Handle)
 #include "x86math.h"          // I3DMathEngine::TransformMatrix
-#include "x87_trig.h"         // retail's inline FSIN / FCOS
 
 #include <cmath>
 #include <cstdlib>
@@ -237,33 +236,33 @@ int DodgeIdea::Update(float DeltaTime)
                 switch (GenericWeightedPick(&Picker.LastDirection))
                 {
                 case 1:   // 062d7f5f: XZ by Angle1, then YZ by Angle2
-                    RotateFrameXZ(WorkingFrame, X87Cos(static_cast<double>(Angle1)),
-                                  X87Sin(static_cast<double>(Angle1)));
-                    RotateFrameYZ(WorkingFrame, X87Cos(static_cast<double>(Angle2)),
-                                  X87Sin(static_cast<double>(Angle2)));
+                    RotateFrameXZ(WorkingFrame, std::cos(static_cast<double>(Angle1)),
+                                  std::sin(static_cast<double>(Angle1)));
+                    RotateFrameYZ(WorkingFrame, std::cos(static_cast<double>(Angle2)),
+                                  std::sin(static_cast<double>(Angle2)));
                     break;
                 case 2:   // 062d7fde: XZ by -Angle1 with its cosine FSTP'd to float
                 {
                     double const Neg = -static_cast<double>(Angle1);
-                    float const CosNeg = X87CosF(Neg);
-                    RotateFrameXZ(WorkingFrame, CosNeg, X87Sin(Neg));
-                    RotateFrameYZ(WorkingFrame, X87Cos(static_cast<double>(Angle2)),
-                                  X87Sin(static_cast<double>(Angle2)));
+                    float const CosNeg = static_cast<float>(std::cos(static_cast<double>(Neg)));
+                    RotateFrameXZ(WorkingFrame, CosNeg, std::sin(static_cast<double>(Neg)));
+                    RotateFrameYZ(WorkingFrame, std::cos(static_cast<double>(Angle2)),
+                                  std::sin(static_cast<double>(Angle2)));
                     break;
                 }
                 case 3:   // 062d8063: YZ by Angle1, then XZ by Angle2
-                    RotateFrameYZ(WorkingFrame, X87Cos(static_cast<double>(Angle1)),
-                                  X87Sin(static_cast<double>(Angle1)));
-                    RotateFrameXZ(WorkingFrame, X87Cos(static_cast<double>(Angle2)),
-                                  X87Sin(static_cast<double>(Angle2)));
+                    RotateFrameYZ(WorkingFrame, std::cos(static_cast<double>(Angle1)),
+                                  std::sin(static_cast<double>(Angle1)));
+                    RotateFrameXZ(WorkingFrame, std::cos(static_cast<double>(Angle2)),
+                                  std::sin(static_cast<double>(Angle2)));
                     break;
                 case 4:   // 062d80e0: YZ by -Angle1 with its cosine FSTP'd to float
                 {
                     double const Neg = -static_cast<double>(Angle1);
-                    float const CosNeg = X87CosF(Neg);
-                    RotateFrameYZ(WorkingFrame, CosNeg, X87Sin(Neg));
-                    RotateFrameXZ(WorkingFrame, X87Cos(static_cast<double>(Angle2)),
-                                  X87Sin(static_cast<double>(Angle2)));
+                    float const CosNeg = static_cast<float>(std::cos(static_cast<double>(Neg)));
+                    RotateFrameYZ(WorkingFrame, CosNeg, std::sin(static_cast<double>(Neg)));
+                    RotateFrameXZ(WorkingFrame, std::cos(static_cast<double>(Angle2)),
+                                  std::sin(static_cast<double>(Angle2)));
                     break;
                 }
                 default:

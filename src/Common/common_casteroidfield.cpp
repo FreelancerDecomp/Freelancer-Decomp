@@ -14,7 +14,6 @@
 #include "common_iface.h" // IObjInspect
 #include "common_cobjdb.h"   // IObjDB::GetNext / GetZoneDb
 #include "common_universe.h" // Universe::ISystem (CmnAsteroid::Update)
-#include "x87_trig.h"        // retail's inline FSIN / FCOS (CAsteroidField::load)
 
 #include <cmath>
 #include <cstdlib>
@@ -194,8 +193,8 @@ void CAsteroidField::load(INI_Reader& Reader, int CubeSizeParm)
                         {
                             // Rows 1 and 2 by AngleX (062a4d14..062a4d39).
                             double const R = (double)AngleX * kDegToRad;
-                            double const C = X87CosF(R);
-                            double const S = X87Sin(R);
+                            double const C = static_cast<float>(std::cos(static_cast<double>(R)));
+                            double const S = std::sin(static_cast<double>(R));
                             for (int Col = 0; Col < 3; ++Col)
                             {
                                 double const A = EntryOrient.E[1][Col];
@@ -207,8 +206,8 @@ void CAsteroidField::load(INI_Reader& Reader, int CubeSizeParm)
                         {
                             // Rows 0 and 2 by AngleY (062a4d60..062a4d87).
                             double const R = (double)AngleY * kDegToRad;
-                            double const C = X87CosF(R);
-                            double const S = X87Sin(R);
+                            double const C = static_cast<float>(std::cos(static_cast<double>(R)));
+                            double const S = std::sin(static_cast<double>(R));
                             for (int Col = 0; Col < 3; ++Col)
                             {
                                 double const A = EntryOrient.E[0][Col];
@@ -220,8 +219,8 @@ void CAsteroidField::load(INI_Reader& Reader, int CubeSizeParm)
                         {
                             // Rows 0 and 1 by AngleZ (062a4da7..062a4dcc).
                             double const R = (double)AngleZ * kDegToRad;
-                            double const C = X87CosF(R);
-                            double const S = X87Sin(R);
+                            double const C = static_cast<float>(std::cos(static_cast<double>(R)));
+                            double const S = std::sin(static_cast<double>(R));
                             for (int Col = 0; Col < 3; ++Col)
                             {
                                 double const A = EntryOrient.E[0][Col];

@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_float_load.h"
 #include "Material.h"
 #include "MaterialAnimation.h"
 #include "MaterialLibrary.h"
@@ -1241,12 +1242,7 @@ namespace
         {
             if (bFloat)
             {
-                __asm
-                {
-                    fld dword ptr ReadValue
-                    mov eax, Output
-                    fstp dword ptr [eax]
-                }
+                PortableFloatLoad::Copy(Output, &ReadValue);
             }
             else
                 *Output = ReadValue;

@@ -26,7 +26,6 @@
 #include "common_cobjdb.h"        // IObjDB::GetZoneDb
 #include "common_universe.h"      // Universe::ISystem
 #include "common_iustategraph.h"  // BuildAiTargetList (HasTargetInForwardArc)
-#include "x87_trig.h"             // X87Tan (062eabf0 FPTAN)
 
 #include <cmath>
 #include <cstdlib>
@@ -468,7 +467,7 @@ void SystemManagerGunGroupManager::ComputeLeadFirePosition(Vector* OutPos, IObjR
     // stack (FSQRT, FPTAN, FMULP).
     double const DirLength = std::sqrt(((double)DirVec.z * DirVec.z + (double)DirVec.y * DirVec.y) +
                                        (double)DirVec.x * DirVec.x);
-    double const Dist = DirLength * X87Tan((double)Spread);
+    double const Dist = DirLength * std::tan(static_cast<double>(Spread));
 
     // 062eabf6-062eac43: x keeps Normal.x * Dist unrounded before adding LeadPos.x; y and z
     // FSTP their product to float first.

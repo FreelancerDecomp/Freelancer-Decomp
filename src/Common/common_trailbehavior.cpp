@@ -19,7 +19,6 @@
 #include <cmath>
 #include <cstring>
 
-#include "x87_trig.h" // X87CosF (ctor 062ca3c7, Slot3 062ca73b FCOS; FSTP float)
 
 // TrailBehavior -- see common_trailbehavior.h. Every method re-ported from
 // EXE/Disasm/Common.dll.txt 2026-10-08 (claude-code:cmn-ai5).
@@ -107,7 +106,7 @@ TrailBehavior::TrailBehavior(int InTypeId)
     , TrailDistance1e8(50.0f)       // 062ca3d5 0x42480000
     , bLagging1ec(0)                // not written by retail's ctor; Slot3 clears it
     , Pad1ed{}
-    , FacingCos1f0(X87CosF(0.5235987901687622))   // 062ca3c1 FCOS, 062ca454 FSTP
+    , FacingCos1f0(static_cast<float>(std::cos(static_cast<double>(0.5235987901687622))))   // 062ca3c1 FCOS, 062ca454 FSTP
     , LagTimer1f4(0.0f)             // not written by retail's ctor; Slot3 clears it
     , AxisTimer1f8(0.0f)            // not written by retail's ctor; Slot3 clears it
     , LagTime1fc(2.5f)              // 062ca415 0x40200000
@@ -213,7 +212,7 @@ void TrailBehavior::Slot3()
 
     // 062ca732-062ca79a: the personality's TrailUseStruct (Sys+0x16ac).
     pub::AI::Personality::TrailUseStruct const& P = TrailParamsOf(NavHelper);
-    FacingCos1f0 = X87CosF(static_cast<double>(P.TrailLockConeAngle));   // FLD; FCOS; FSTP
+    FacingCos1f0 = static_cast<float>(std::cos(static_cast<double>(P.TrailLockConeAngle)));   // FLD; FCOS; FSTP
     LagTime1fc = P.TrailBreakTime;
     AxisTime204 = P.TrailMinNoLockTime;
     AxisZ208 = P.TrailBreakRollThrottle;

@@ -4,6 +4,10 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "portable_rpc_quantization.h"
+#include "portable_rpc_server_quantization.h"
+#include "portable_double_load.h"
+#include "portable_vector_load.h"
 #include "rpc_server_channel_codec.h"
 #include "common_goods.h" // RS-P2: EquipDesc, EquipDescVector, StringAlloc (0x24/0x25)
 
@@ -18,32 +22,12 @@ static const double GRpcServerScale127 = 127.0;
 static const double GRpcServerInverse127 = 1.0 / 127.0;
 
 unsigned char RpcServerQuantize127(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul qword ptr GRpcServerScale127
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeByte(Value, GRpcServerScale127));
 }
 
 void RpcServerExpand127(unsigned char Encoded, float* Value) {
     const int Quantized = static_cast<signed char>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Quantized
-        fmul qword ptr GRpcServerInverse127
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Quantized, GRpcServerInverse127, Value);
 }
 
 // --- create-object block: 0x04 CREATESHIP and 0x42 CREATESOLAR (RS-P10) ---
@@ -61,34 +45,14 @@ static const double GRpcServerInverse255 = 1.0 / 255.0;
 // FLD float, FMUL double 255.0, MSVCRT _ftol (truncating 64-bit), low byte
 // (06c08bb8..06c08bc1 equipment health, 06c08e01..06c08e0a collision health).
 static unsigned char RpcServerQuantize255(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul qword ptr GRpcServerScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcQuantization::QuantizeByte(Value, GRpcServerScale255));
 }
 
 // The byte ZERO-extended, FILD dword, FMUL double 1/255, FSTP float (06c09446..06c09460,
 // 06c09724..06c09743).
 static void RpcServerExpand255(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerInverse255
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Widened, GRpcServerInverse255, Value);
 }
 
 // 06c089bc..06c089e6, the hull byte: FILD the int hit points, FSTP to a float local
@@ -96,52 +60,16 @@ static void RpcServerExpand255(unsigned char Encoded, float* Value) {
 // 255.0, _ftol, low byte. A zero maximum divides to an infinity whose _ftol result
 // (0x8000000000000000) has a low byte of 0, as in retail.
 static unsigned char RpcServerQuantizeHull(int HitPts, unsigned int ArchetypeId) {
-    float Points;
-    __asm {
-        fild dword ptr HitPts
-        fstp dword ptr Points
-    }
+    const float Points = PortableRpcServerQuantization::PrepareHull(HitPts);
     const int MaxHitPts = Archetype::GetArchMaxHitPts(ArchetypeId);
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        fild dword ptr MaxHitPts
-        fdivr dword ptr Points
-        fmul qword ptr GRpcServerScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return PortableRpcServerQuantization::QuantizeHull(Points, MaxHitPts);
 }
 
 // 06c0928a..06c092b4, the inverse: GetArchMaxHitPts, FILD it, FILD the zero-extended
 // byte, FMUL 1/255, FMULP, _ftol; the low dword is stored.
 static int RpcServerExpandHull(unsigned char Encoded, unsigned int ArchetypeId) {
     const int MaxHitPts = Archetype::GetArchMaxHitPts(ArchetypeId);
-    const int Widened = static_cast<int>(Encoded);
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Result;
-    __asm {
-        fild dword ptr MaxHitPts
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerInverse255
-        fmulp st(1), st
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Result
-        fldcw OldControl
-    }
-    return static_cast<int>(Result);
+    return PortableRpcServerQuantization::ExpandHull(Encoded, MaxHitPts);
 }
 
 // The hardpoint dictionary. Names: RC .data:06b73708, RS .data:06c13700 (42 entries,
@@ -634,16 +562,7 @@ void RpcServerCreateObjectRead(const FRpcServerCreateObjectFields* Fields,
     // 06bd531c..06bd532b: FLD z, y, x, then FSTP x, y, z.
     const float* PositionIn = &Fields->Position.x;
     float* PositionOut = &Info->Position.x;
-    __asm {
-        mov eax, PositionIn
-        mov edx, PositionOut
-        fld dword ptr [eax + 8]
-        fld dword ptr [eax + 4]
-        fld dword ptr [eax]
-        fstp dword ptr [edx]
-        fstp dword ptr [edx + 4]
-        fstp dword ptr [edx + 8]
-    }
+    PortableVectorLoad::Copy(PositionOut, PositionIn);
     // 06bd532e..06bd533b: an identity quaternion is built in place, then 06bd533e..
     // 06bd5353 overwrite it with integer moves.
     Info->Orientation.w = 1.0f;
@@ -1127,12 +1046,7 @@ unsigned int FRpcServerCharSelectVerifiedPacket::Encode(unsigned char** BufferHo
     const double* Source = &Time;
     const unsigned int Cached = MarshalPtr;                            // 06b5ff75
     double* Destination = reinterpret_cast<double*>(Cached);
-    __asm {
-        mov eax, Source
-        mov edx, Destination
-        fld qword ptr [eax]
-        fstp qword ptr [edx]
-    }
+    PortableDoubleLoad::Copy(Destination, Source);
     MarshalPtr = Cached + 8u;                                          // 06b5ff87
     return Stream.FinishEncodeSuccess(OutLength);                      // 06b5ff89
 }
@@ -3305,38 +3219,15 @@ unsigned int FRpcServerSetCollisionGroupsPacket::Decode(const unsigned char* Buf
 // FMUL double 255.0 (RC 06b6e390 / RS 06c0e270), MSVCRT _ftol (truncating 64-bit FISTP),
 // low byte. Its inverse: the byte zero-extended, FILD dword, FMUL double 2/51 (RC 06b6e948 /
 // RS 06c0e280, 3fa41414'14141414), FSTP float.
-static const float GRpcServerSendCommTenth = 0.1f;
-static const double GRpcServerSendCommScale255 = 255.0;
 static const double GRpcServerSendCommExpand = 2.0 / 51.0;
 
 static unsigned char RpcServerSendCommQuantize(const float* Value) {
-    unsigned short OldControl;
-    unsigned short TruncateControl;
-    __int64 Quantized;
-    __asm {
-        mov ecx, Value
-        fld dword ptr [ecx]
-        fmul dword ptr GRpcServerSendCommTenth
-        fmul qword ptr GRpcServerSendCommScale255
-        fnstcw OldControl
-        mov ax, OldControl
-        or ax, 0c00h
-        mov TruncateControl, ax
-        fldcw TruncateControl
-        fistp qword ptr Quantized
-        fldcw OldControl
-    }
-    return static_cast<unsigned char>(Quantized);
+    return static_cast<unsigned char>(PortableRpcServerQuantization::QuantizeComm(Value));
 }
 
 static void RpcServerSendCommExpand(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
-    __asm {
-        mov ecx, Value
-        fild dword ptr Widened
-        fmul qword ptr GRpcServerSendCommExpand
-        fstp dword ptr [ecx]
-    }
+    PortableRpcQuantization::ExpandInteger(Widened, GRpcServerSendCommExpand, Value);
 }
 
 // RC 06b4cd10 / RS 06be7910.

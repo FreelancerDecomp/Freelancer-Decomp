@@ -80,6 +80,7 @@
 // Single-player: in SP a packet is queued by pointer and neither slot is ever called.
 // Nothing in this file touches the SP path.
 
+#include "portable_double_load.h"
 #include "rpc_containers.h"
 #include "rpc_payloads.h"
 
@@ -1127,17 +1128,12 @@ unsigned int RpcEncodeServerCharSelectVerified(FPacketBase& Packet,
     }
     // 06dabe95..06dabe9a: `MOV EAX,[EBX]`, `FLD double ptr [EDI+0x28]`, `FSTP double ptr
     // [EAX]` -- MSVC's eight-byte block copy through the x87 stack. It is bit-exact for
-    // every value except a signalling NaN, which FLD quiets on the way through; moving
-    // the bytes through the same two instructions keeps that case too. (The decoder,
+    // every value except a signalling NaN, which FLD quiets on the way through; the portable
+    // numerical copy retains that conversion too. (The decoder,
     // 06dabfa0 / 06dabfa6, reads the window back as two plain dwords.)
     const void* DoubleSource = &Wire->Field_0x08;
     void* DoubleDest = reinterpret_cast<void*>(Packet.MarshalPtr);
-    __asm {
-        mov eax, DoubleSource
-        fld qword ptr [eax]
-        mov eax, DoubleDest
-        fstp qword ptr [eax]
-    }
+    PortableDoubleLoad::Copy(DoubleDest, DoubleSource);
     Packet.MarshalPtr += 8u;
     *OutLength = Stream.Length();
     RpcRecordEncodedPacket(Packet.PacketId, Stream.Length());

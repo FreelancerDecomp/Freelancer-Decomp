@@ -125,7 +125,7 @@ void ThornLogStub(const char* What);
 bool ThornNameEqual(const char* Left, const char* Right);
 I3DMathEngine* ThornAcquire3DMathEngine();
 GENRESULT ThornQuatMul(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B);
-GENRESULT ThornQuatSlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T);
+GENRESULT ThornQuatNlerp(I3DMathEngine* Math, FQuat& Dst, const FQuat& A, const FQuat& B, float T);
 GENRESULT ThornQuatToMatrix(I3DMathEngine* Math, float* Dst9, const FQuat& Quat);
 GENRESULT ThornMatrixToQuat(I3DMathEngine* Math, FQuat& Dst, const float* Src9);
 GENRESULT ThornMathTransform(I3DMathEngine* Math, float* OutVec3, const float* Xform12,

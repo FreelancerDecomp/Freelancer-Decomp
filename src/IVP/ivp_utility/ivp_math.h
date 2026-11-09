@@ -9,8 +9,6 @@
 #include <cmath>
 #include <cstring>
 
-#include "x87_trig.h"
-
 struct IVP_U_Matrix3;
 struct IVP_U_Matrix;
 
@@ -18,6 +16,8 @@ struct IVP_U_Matrix;
 // x87 stack is `double` here, a value retail spills with FSTP dword is `float`. Sums are
 // written in retail's evaluation order (it changes the rounding). Every function below
 // names the retail address it ports.
+// Trigonometry uses standard C++ math. Instruction comments describe retail;
+// extended-precision trigonometric rounding is no longer reproduced.
 
 // 16-byte 3D point/vector (4th float used for hesse distance or padding)
 struct IVP_U_Point
@@ -620,8 +620,8 @@ inline void IVP_U_Quat::set_interpolate_quat(const IVP_U_Quat *q0, const IVP_U_Q
     {
         const double Omega = acos((double)(DotF));
         const float InvSin = (float)(1.0 / sqrt(1.0 - (double)(DotF) * DotF));
-        const float Scale0 = (float)(X87Sin((1.0 - (double)(alpha)) * Omega) * InvSin);
-        const double Scale1 = (X87Sin(Omega * alpha) * InvSin) * Sign;
+        const float Scale0 = (float)(std::sin((1.0 - (double)(alpha)) * Omega) * InvSin);
+        const double Scale1 = (std::sin(static_cast<double>(Omega * alpha)) * InvSin) * Sign;
 
         x = (float)((double)(Scale0) * q0->x + Scale1 * q1->x);
         y = (float)((double)(Scale0) * q0->y + Scale1 * q1->y);
@@ -873,11 +873,11 @@ inline void IVP_U_Quat::set_fast_rot_vector(const IVP_U_Point *v, float dt)
 inline void IVP_U_Quat::set_rot_vector(const IVP_U_Point *v, float dt)
 {
     const double Half = (double)(dt) * 0.5;
-    x = X87SinF(Half * v->k[0]);
-    y = X87SinF(Half * v->k[1]);
+    x = static_cast<float>(std::sin(static_cast<double>(Half * v->k[0])));
+    y = static_cast<float>(std::sin(static_cast<double>(Half * v->k[1])));
     // FSIN; FST dword (one rounding of the 80-bit result) and the value kept on the stack.
-    const double Sz = X87Sin(Half * v->k[2]);
-    z = X87SinF(Half * v->k[2]);
+    const double Sz = std::sin(static_cast<double>(Half * v->k[2]));
+    z = static_cast<float>(std::sin(static_cast<double>(Half * v->k[2])));
 
     double LenSq = ((double)(x) * x + (double)(y) * y) + Sz * Sz;
     if (LenSq > 1.0)
@@ -903,7 +903,8 @@ static_assert(sizeof(IVP_U_Quat) == 0x10, "IVP_U_Quat size mismatch");
 // out = float(a + a) with a = _CIasin(in) (FADD ST0,ST0 on the unrounded result), stored
 // x, y, z, each before the next input component is read.
 // CRT asin is the retail result: system msvcrt _CIasin and ucrtbase asin dispatch to the
-// same SSE2 core under default MXCSR / masked x87 exceptions (see x87_trig.h).
+// same SSE2 core on the reference Windows system under default MXCSR / masked
+// x87 exceptions. Other platforms use their own standard math implementations.
 inline void IVP_DoubleAsinVector(const IVP_U_Point *In, IVP_U_Point *Out)
 {
     double A = asin((double)(In->k[0]));

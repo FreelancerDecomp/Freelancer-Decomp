@@ -24,7 +24,6 @@
 #include "x86math.h"
 #include "common_csys.h"          // Acquire3DMathEngine, Matrix
 #include "common_systemmanager.h" // SystemManager::ExternalIface
-#include "x87_trig.h"             // retail's inline FSIN / FCOS
 
 #include <cmath>
 #include <cstdlib>
@@ -324,11 +323,11 @@ Matrix* BuildRandomSpreadFrame(Matrix& Out, Matrix const& Reference,
     Vector const RandomAxis = RandomVector(1.0f);
     double const HalfAngle = (double)(SpreadAngle) * 0.5f;
     FQuaternion Quat1;
-    Quat1.W = X87CosF(HalfAngle);
+    Quat1.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
     double const AxisLen = std::sqrt(((double)(RandomAxis.y) * RandomAxis.y +
                                       (double)(RandomAxis.z) * RandomAxis.z) +
                                      (double)(RandomAxis.x) * RandomAxis.x);
-    float const AxisScale = (float)(X87Sin(HalfAngle) / AxisLen);
+    float const AxisScale = (float)(std::sin(static_cast<double>(HalfAngle)) / AxisLen);
     Quat1.X = RandomAxis.x * AxisScale;
     Quat1.Y = RandomAxis.y * AxisScale;
     Quat1.Z = RandomAxis.z * AxisScale;
@@ -403,8 +402,8 @@ Matrix* BuildRandomSpreadFrame(Matrix& Out, Matrix const& Reference,
 
         // 062e2818-062e2857: cos FSTP float (S+0xc), sin stays on the FPU; per row
         // new0 = sin*old1 + old0*cos_f, new1 = cos_f*old1 - old0*sin, each FSTP float.
-        float const CosRoll = X87CosF(RollAngle);
-        double const SinRoll = X87Sin(RollAngle);
+        float const CosRoll = static_cast<float>(std::cos(static_cast<double>(RollAngle)));
+        double const SinRoll = std::sin(static_cast<double>(RollAngle));
         for (int Row = 0; Row < 3; ++Row)
         {
             double const Col0 = Working.E[Row][0];
@@ -881,7 +880,7 @@ bool ComputeBankedSteeringFrame(FAiTarget* Elem, Vector const& TargetDir, Matrix
         }
 
         // 062e3c37-062e3c47: FCOS of |BankAngle|, FSTP float S+0x60.
-        float const CosAbsBank = X87CosF(std::fabs((double)(BankAngle)));
+        float const CosAbsBank = static_cast<float>(std::cos(std::fabs((double)(BankAngle))));
 
         // 062e3c4b-062e3c9d: |(F.z*T.z + F.y*T.y) + F.x*T.x| of a fresh iface column 2
         // FCOMP double 0.9999f (DAT_063a04e0) + TEST AH,0x5 + JP, then the double |RollScale|
@@ -947,8 +946,8 @@ bool ComputeBankedSteeringFrame(FAiTarget* Elem, Vector const& TargetDir, Matrix
             // 062e3f3e-062e3f94: FCOS / FSIN of BankAngle stay on the FPU; every row's columns
             // 0 and 1 are rotated, new0 = old0*cos + sin*old1, new1 = cos*old1 - old0*sin,
             // each FSTP float (old1 is read before column 1 is stored).
-            double const CosBank = X87Cos((double)(BankAngle));
-            double const SinBank = X87Sin((double)(BankAngle));
+            double const CosBank = std::cos(static_cast<double>(BankAngle));
+            double const SinBank = std::sin(static_cast<double>(BankAngle));
             for (int Row = 0; Row < 3; ++Row)
             {
                 double const Old0 = NewFrame.E[Row][0];

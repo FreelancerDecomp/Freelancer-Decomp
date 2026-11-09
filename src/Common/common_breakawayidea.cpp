@@ -19,7 +19,6 @@
 #include "common_pathfind.h"  // PathfindManager (IBehaviorManager::Pathfind)
 #include "common_systemmanager.h" // SystemManager / ThrustManager (BaseIdea::Handle)
 #include "x86math.h"          // I3DMathEngine::TransformMatrix
-#include "x87_trig.h"         // retail's inline FSIN / FCOS
 
 #include <cmath>
 #include <cstring>
@@ -54,8 +53,8 @@ namespace
     // caseD_1 / caseD_2: x' = x*Cos - Sin*z, z' = Cos*z + x*Sin.
     void RotateFrameRowsXZ(Matrix& M, double Angle)
     {
-        double const Cos = X87Cos(Angle);   // FCOS, ST2 in the loop
-        double const Sin = X87Sin(Angle);   // FSIN, ST1 in the loop
+        double const Cos = std::cos(static_cast<double>(Angle));   // FCOS, ST2 in the loop
+        double const Sin = std::sin(static_cast<double>(Angle));   // FSIN, ST1 in the loop
         for (int Row = 0; Row < 3; ++Row)
         {
             double const X = M.E[Row][0];
@@ -68,8 +67,8 @@ namespace
     // caseD_3 / caseD_4: y' = y*Cos + Sin*z, z' = Cos*z - y*Sin.
     void RotateFrameRowsYZ(Matrix& M, double Angle)
     {
-        double const Cos = X87Cos(Angle);
-        double const Sin = X87Sin(Angle);
+        double const Cos = std::cos(static_cast<double>(Angle));
+        double const Sin = std::sin(static_cast<double>(Angle));
         for (int Row = 0; Row < 3; ++Row)
         {
             double const Y = M.E[Row][1];

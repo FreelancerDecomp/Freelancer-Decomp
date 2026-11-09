@@ -10,7 +10,6 @@
 #include "readfile.h"      // IFileSystem, FFileSystemDesc (DAEngine_create_filesystem)
 #include "DALib.h"         // DALib::Data for filesystem ops
 #include "dacom.h"         // FDUMP
-#include "x87_trig.h"      // retail's inline FSIN / FCOS / FPTAN / FPATAN (random_*, get_projected_bounding_sphere)
 
 #include <cstdarg>
 #include <cstdio>
@@ -519,12 +518,12 @@ Vector __cdecl random_on_unit_sphere()
 
     double const Theta = acos((double)(CosTheta));
     double const Phi = (double)(U2) * GRandTwoPi;
-    double const SinTheta = X87Sin(Theta);
+    double const SinTheta = std::sin(static_cast<double>(Theta));
 
     Vector Result;
-    Result.x = (float)(X87Sin(Phi) * SinTheta);
-    Result.y = X87CosF(Theta);
-    Result.z = (float)(X87Cos(Phi) * SinTheta);
+    Result.x = (float)(std::sin(static_cast<double>(Phi)) * SinTheta);
+    Result.y = static_cast<float>(std::cos(static_cast<double>(Theta)));
+    Result.z = (float)(std::cos(static_cast<double>(Phi)) * SinTheta);
     return Result;
 }
 
@@ -537,14 +536,14 @@ Vector __cdecl random_inside_sphere(float Radius)
 
     double const CosRaw = RandUnit() * 2.0 - 1.0;
     float const CosTheta = (float)(CosRaw);
-    float const SinScaled = (float)(X87Sin(acos(CosRaw)) * Scaled);
+    float const SinScaled = (float)(std::sin(static_cast<double>(acos(CosRaw))) * Scaled);
 
     double const Phi = RandUnit() * GRandTwoPi;
 
     Vector Result;
-    Result.x = (float)(X87Sin(Phi) * SinScaled);
+    Result.x = (float)(std::sin(static_cast<double>(Phi)) * SinScaled);
     Result.y = (float)((double)(CosTheta) * Scaled);
-    Result.z = (float)(X87Cos(Phi) * SinScaled);
+    Result.z = (float)(std::cos(static_cast<double>(Phi)) * SinScaled);
     return Result;
 }
 
@@ -574,9 +573,9 @@ Vector __cdecl random_inside_cylinder(float Radius, float HalfHeight)
     double const Phi = RandUnit() * GRandTwoPi;
 
     Vector Result;
-    Result.x = (float)(X87Sin(Phi) * Scaled);
+    Result.x = (float)(std::sin(static_cast<double>(Phi)) * Scaled);
     Result.y = (float)(((double)(HalfHeight) - NegHalfHeight) * T + NegHalfHeight);
-    Result.z = (float)(X87Cos(Phi) * Scaled);
+    Result.z = (float)(std::cos(static_cast<double>(Phi)) * Scaled);
     return Result;
 }
 
@@ -591,14 +590,14 @@ Vector __cdecl random_inside_ellipsoid(float A, float B, float C)
 
     double const CosRaw = RandUnit() * 2.0 - 1.0;
     float const CosTheta = (float)(CosRaw);
-    float const SinTheta = X87SinF(acos(CosRaw));
+    float const SinTheta = static_cast<float>(std::sin(static_cast<double>(acos(CosRaw))));
 
     double const Phi = RandUnit() * GRandTwoPi;
 
     Vector Result;
-    Result.x = (float)(X87Sin(Phi) * ((double)(SinTheta) * ScaledA));
+    Result.x = (float)(std::sin(static_cast<double>(Phi)) * ((double)(SinTheta) * ScaledA));
     Result.y = (float)((double)(CosTheta) * ScaledB);
-    Result.z = (float)(X87Cos(Phi) * ((double)(SinTheta) * ScaledC));
+    Result.z = (float)(std::cos(static_cast<double>(Phi)) * ((double)(SinTheta) * ScaledC));
     return Result;
 }
 
@@ -612,9 +611,9 @@ Vector __cdecl random_inside_ring(float Outer, float Inner, float HalfHeight)
     double const Phi = RandUnit() * GRandTwoPi;
 
     Vector Result;
-    Result.x = (float)(X87Sin(Phi) * Scaled);
+    Result.x = (float)(std::sin(static_cast<double>(Phi)) * Scaled);
     Result.y = (float)(((double)(HalfHeight) - NegHalfHeight) * T + NegHalfHeight);
-    Result.z = (float)(X87Cos(Phi) * Scaled);
+    Result.z = (float)(std::cos(static_cast<double>(Phi)) * Scaled);
     return Result;
 }
 
@@ -639,8 +638,8 @@ Vector __cdecl random_sphere_constrained(Vector const& Dir, float Angle)
 
     double const HalfAngle = acos((double)(ZeroY) + ZeroX + Dir.z) * GRandHalf;
     FQuaternion Rotation;
-    Rotation.W = X87CosF(HalfAngle);
-    float const AxisScale = (float)(X87Sin(HalfAngle) /
+    Rotation.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
+    float const AxisScale = (float)(std::sin(static_cast<double>(HalfAngle)) /
         sqrt((double)(AxisZ) * AxisZ + (double)(AxisY) * AxisY +
              (double)(AxisX) * AxisX));
     // FUN_06288830 (Vector operator*(Vector const&, float)): each product rounded to float.
@@ -649,14 +648,14 @@ Vector __cdecl random_sphere_constrained(Vector const& Dir, float Angle)
     Rotation.Z = AxisScale * AxisZ;
 
     // FSIN; FCHS; FSTP dword: one rounding (negation is exact).
-    float const NegSinAngle = -X87SinF((double)(Angle));
+    float const NegSinAngle = -static_cast<float>(std::sin(static_cast<double>(Angle)));
     float const Height = (float)(RandUnit() * ((double)(GRandOne) - NegSinAngle) + NegSinAngle);
     float const Phi = (float)(RandUnit() * GRandTwoPi);
-    double const Ring = X87Cos(asin((double)(Height)));
+    double const Ring = std::cos(asin((double)(Height)));
 
     FVector Point;
-    Point.X = (float)(X87Cos((double)(Phi)) * Ring);
-    Point.Y = (float)(X87Sin((double)(Phi)) * Ring);
+    Point.X = (float)(std::cos(static_cast<double>(Phi)) * Ring);
+    Point.Y = (float)(std::sin(static_cast<double>(Phi)) * Ring);
     Point.Z = Height;
 
     FMatrix Frame;
@@ -686,16 +685,16 @@ Vector __cdecl random_sphere_constrained_2(Vector const& Dir, float MinAngle, fl
     //    TransposeTransform(Out, M, V').
     double const AngleValue = RandUnit() * ((double)(MaxAngle) - MinAngle) + MinAngle;
     FVector Cone;
-    Cone.X = X87SinF(AngleValue);
+    Cone.X = static_cast<float>(std::sin(static_cast<double>(AngleValue)));
     Cone.Y = 0.0f;
-    Cone.Z = X87CosF(AngleValue);
+    Cone.Z = static_cast<float>(std::cos(static_cast<double>(AngleValue)));
 
     // 0631e0e1-0631e0fb: FCOS / FSIN results go to the float matrix straight from the
     // register (FLD ST1 / FCHS / FSTP dword), one rounding each.
     double const PhiRaw = RandUnit() * GRandTwoPi;
     float const PhiStored = (float)(PhiRaw);
-    float const CosPhi = X87CosF(PhiRaw);
-    float const SinPhi = X87SinF((double)(PhiStored));
+    float const CosPhi = static_cast<float>(std::cos(static_cast<double>(PhiRaw)));
+    float const SinPhi = static_cast<float>(std::sin(static_cast<double>(PhiStored)));
     FMatrix Spin;
     Spin.D[0][0] = CosPhi;
     Spin.D[0][1] = -SinPhi;
@@ -730,12 +729,12 @@ Vector __cdecl random_sphere_constrained_2(Vector const& Dir, float MinAngle, fl
     float const AxisZ = (float)(ZeroX - ZeroY);
 
     double const HalfAngle = acos((double)(DotStored)) * GRandHalf;
-    double const AxisScale = X87Sin(HalfAngle) /
+    double const AxisScale = std::sin(static_cast<double>(HalfAngle)) /
         sqrt((double)(AxisZ) * AxisZ + (double)(AxisY) * AxisY +
              (double)(AxisX) * AxisX);
 
     FQuaternion Rotation;
-    Rotation.W = X87CosF(HalfAngle);
+    Rotation.W = static_cast<float>(std::cos(static_cast<double>(HalfAngle)));
     Rotation.X = (float)((double)(AxisX) * AxisScale);
     Rotation.Y = (float)((double)(AxisY) * AxisScale);
     Rotation.Z = (float)((double)(AxisZ) * AxisScale);
@@ -1198,11 +1197,11 @@ long __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center
     // 0x06304629..0x06304659: A = atan(|x / z|) (FLD1 / FPATAN), S = asin(Radius / Dist)
     // (_CIasin), tan(A - S) (FPTAN, the 1.0 popped); Delta = |x / z| - tan(A - S), FSTP float.
     float const AbsXOverZ = (float)(std::fabs((double)(XOverZ)));
-    double const Angle = X87Atan((double)(AbsXOverZ));
+    double const Angle = std::atan(static_cast<double>(AbsXOverZ));
     double const HalfAngle =
         std::asin((double)(Radius) / (double)(Dist));
     float const Delta =
-        (float)((double)(AbsXOverZ) - X87Tan(Angle - HalfAngle));
+        (float)((double)(AbsXOverZ) - std::tan(static_cast<double>(Angle - HalfAngle)));
 
     // 0x0630465d..0x06304679: slot 11 (unrounded) * Delta, FSTP float; slot 8 times that: the
     // projected radius, stored, and kept on the stack.

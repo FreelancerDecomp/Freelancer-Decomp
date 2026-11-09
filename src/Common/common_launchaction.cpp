@@ -7,6 +7,7 @@
 // LaunchAction, JumpInAction, LaunchActionVars -- split out of common_cequip.cpp (CMN-B2).
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
+#include <cmath>
 #include "common_cequip.h"
 #include "x86math.h"
 
@@ -24,7 +25,6 @@
 #include "common_universe.h"
 #include "DALib.h"
 #include "dacom.h"
-#include "x87_trig.h"        // retail's inline FSIN / FCOS (LaunchAction::update)
 #include "../IVP/ivp_physics/ivp_real_object.h"
 #include "../IVP/ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
 
@@ -346,8 +346,8 @@ bool LaunchAction::update(float /*Dt*/)
 
             double Angle = (double)((float)rand() * 3.0517578125e-05f) *
                            0.78539818525314331 - 0.39269909262657166;
-            float Cos = X87CosF(Angle);
-            double Sin = X87Sin(Angle);
+            float Cos = static_cast<float>(std::cos(static_cast<double>(Angle)));
+            double Sin = std::sin(static_cast<double>(Angle));
             unsigned Row = 0;
             for (; Row < 3; ++Row)
             {
@@ -361,8 +361,8 @@ bool LaunchAction::update(float /*Dt*/)
 
             Angle = (double)((float)rand() * 3.0517578125e-05f) *
                     0.78539818525314331 - 0.39269909262657166;
-            Cos = X87CosF(Angle);
-            Sin = X87Sin(Angle);
+            Cos = static_cast<float>(std::cos(static_cast<double>(Angle)));
+            Sin = std::sin(static_cast<double>(Angle));
             for (Row = 0; Row < 3; ++Row)
             {
                 float Y = Orient.E[Row][1];

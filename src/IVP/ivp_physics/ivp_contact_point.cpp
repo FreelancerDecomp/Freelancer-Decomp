@@ -14,7 +14,6 @@
 #include "../ivp_collision/ivp_compact_ledge_solver.h" // give_world_coords_AT (FUN_0635bda0), IVP_CalcCrossProduct (06359d10)
 #include "../ivp_collision/ivp_listmanager_topology.h" // IVP_ResolvePairRecordSideMaterialSlots (FUN_06358bb0)
 #include "../ivp_utility/ivp_vector_math.h"
-#include "x87_trig.h"
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -1871,7 +1870,7 @@ namespace
             {
                 Scaled = GImpactRotSpeedClamp;
             }
-            Sum += ((GImpactOne - X87Cos(std::sqrt(Scaled))) * Core->UpperLimitRadius) *
+            Sum += ((GImpactOne - std::cos(static_cast<double>(std::sqrt(Scaled)))) * Core->UpperLimitRadius) *
                    Core->Environment->inv_delta_time;
         }
         return Sum;
