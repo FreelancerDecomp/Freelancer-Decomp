@@ -301,7 +301,7 @@ namespace AlchemyImpl
                                   kDefaultPoolSize,
                                   kDefaultPoolSize,
                                   kDefaultPoolSize,
-                                  static_cast<unsigned char>(kDefaultUseMaterialBatcher)};
+                                  0}; // retail: off; SpaceEffectsDrawFrame sets it from BATCH_PARTICLES
 
     FAppearancePool G_PoolBasic = {};
     FAppearancePool G_PoolParticle = {};
