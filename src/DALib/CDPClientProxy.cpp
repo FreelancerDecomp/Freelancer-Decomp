@@ -89,10 +89,58 @@ bool CDPClientProxy::SendMsgs()
     {
         if (BatchSize + Msg->Size > sizeof(Batch))
         {
-            if (!Flush())
-                break;
+            if (BatchSize != 0)
+            {
+                if (!Flush())
+                    break;
+                continue;
+            }
+
+            // retail: a message too big for the batch goes out alone, after the empty batch
+            // (compressed if that is smaller; raw from 0x7fff bytes, the receiver's limit)
+            QueuedBytes -= (int)(Msg->Size);
+            QueuedCount--;
+
+            if (Msg->Size >= 0x7fff)
+            {
+                bConnected = Owner->SendTo(this, Msg->Data, Msg->Size);
+            }
+            else
+            {
+                unsigned long const Capacity = (unsigned long)(Msg->Size) * 101 / 100 + 13;
+                unsigned char* const Big = (unsigned char*)malloc(Capacity);
+
+                // the empty batch first
+                if (Codec.Compress(Batch, 0, Compressed, sizeof(Compressed)) && Codec.GetLastCompressedSize() == 0)
+                    bConnected = Owner->SendTo(this, Compressed, 0);
+                else
+                    bConnected = Owner->SendTo(this, Batch, 0);
+
+                if (Big != nullptr)
+                {
+                    if (Codec.Compress(Msg->Data, (unsigned int)(Msg->Size), Big, Capacity) &&
+                        Codec.GetLastCompressedSize() <= Msg->Size)
+                    {
+                        bConnected = Owner->SendTo(this, Big, Codec.GetLastCompressedSize());
+                    }
+                    else
+                    {
+                        bConnected = Owner->SendTo(this, Msg->Data, Msg->Size);
+                    }
+                    free(Big);
+                }
+                else
+                {
+                    bConnected = Owner->SendTo(this, Msg->Data, Msg->Size);
+                }
+            }
+
+            SendQueue.GetNextMsg();
+            free(Msg->Data);
+            delete Msg;
             continue;
         }
+
         memcpy(Batch + BatchSize, Msg->Data, Msg->Size);
         BatchSize += (unsigned int)(Msg->Size);
         QueuedBytes -= (int)(Msg->Size);
