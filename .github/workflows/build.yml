@@ -237,3 +237,85 @@ jobs:
               throw "FLRegress output differs from the base commit. If the change is intended, add the label 'regress: expected change'."
             }
           }
+
+  codecs:
+    name: Packet codecs (RpcCodecTest)
+    needs: [build]
+    runs-on: windows-2022
+    timeout-minutes: 15
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-win32
+          path: bin
+
+      - name: Download base binaries
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-base-win32
+          path: base
+
+      - name: Run twice and compare
+        shell: pwsh
+        working-directory: bin
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($run in 'a', 'b') {
+            & .\RpcCodecTest.exe --out "codecs_$run.txt"
+            if ($LASTEXITCODE -ne 0) { throw "RpcCodecTest run $run failed with exit code $LASTEXITCODE" }
+          }
+          $a = (Get-FileHash -Algorithm SHA256 codecs_a.txt).Hash
+          $b = (Get-FileHash -Algorithm SHA256 codecs_b.txt).Hash
+          Write-Host "run a: $a ($((Get-Item codecs_a.txt).Length) bytes)"
+          Write-Host "run b: $b"
+          Select-String -Path codecs_a.txt -Pattern '^summary ' | ForEach-Object { Write-Host $_.Line }
+          if ($a -ne $b) {
+            Compare-Object (Get-Content codecs_a.txt) (Get-Content codecs_b.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+            throw 'RpcCodecTest is not deterministic: the two runs differ'
+          }
+
+      # The output holds no game data, so it is kept for review.
+      - name: Upload codec results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpc-codecs
+          path: bin/codecs_a.txt
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # A pull request must not change the wire format. A PR that changes it on purpose (a
+      # retail-fidelity fix) carries the label 'codecs: expected change'; the difference is
+      # then reported but does not fail the job.
+      - name: Compare with the base commit
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        env:
+          EXPECTED_CHANGE: "${{ contains(github.event.pull_request.labels.*.name, 'codecs: expected change') }}"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path base/RpcCodecTest.exe)) {
+            Write-Host '::notice::The base commit has no RpcCodecTest; nothing to compare against.'
+            exit 0
+          }
+          Push-Location base
+          & .\RpcCodecTest.exe --out codecs_base.txt
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "RpcCodecTest on the base commit failed with exit code $code" }
+
+          $pr = (Get-FileHash -Algorithm SHA256 bin/codecs_a.txt).Hash
+          $base = (Get-FileHash -Algorithm SHA256 base/codecs_base.txt).Hash
+          Write-Host "base: $base"
+          Write-Host "pr:   $pr"
+          if ($pr -ne $base) {
+            Compare-Object (Get-Content base/codecs_base.txt) (Get-Content bin/codecs_a.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+            if ($env:EXPECTED_CHANGE -eq 'true') {
+              Write-Host "::warning::RpcCodecTest output differs from the base commit (label 'codecs: expected change' is set)."
+            } else {
+              throw "RpcCodecTest output differs from the base commit. If the change is intended, add the label 'codecs: expected change'."
+            }
+          }
