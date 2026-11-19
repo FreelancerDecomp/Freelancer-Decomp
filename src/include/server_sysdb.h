@@ -127,8 +127,29 @@ struct FServerCreateLootRequest;  // server_createinfo.h, CREATELOOT's 0x14-byte
 // MetaList::free() then free_heap() -- MetaList<T>'s own destructor.
 // ---------------------------------------------------------------------------
 struct ObjectList : public MetaList<GameObject> {
-    ObjectList() : MetaList<GameObject>(true) {}
-    ObjectList(ObjectList const& Other) : MetaList<GameObject>(false) { (void)Other; }
+    ObjectList() : MetaList<GameObject>(true) { invalidate_index(); }
+    ObjectList(ObjectList const& Other) : MetaList<GameObject>(false) { (void)Other; invalidate_index(); }
+    // Port-only: drops this list's id index (find_by_id below). Retail has no
+    // destructor body of its own; MetaList<T>'s runs after this one as before.
+    ~ObjectList() { drop_index(); }
+
+    // Port-only: every structural edit of a block goes through these, which
+    // forward to MetaList<T> unchanged and then mark the id index stale. No
+    // edit of the list itself differs from retail.
+    void prepend(GameObject* Item) { MetaList<GameObject>::prepend(Item); invalidate_index(); }
+    void append(GameObject* Item) { MetaList<GameObject>::append(Item); invalidate_index(); }
+    void insert_after(MetaNode<GameObject>* After, GameObject* Item)
+    {
+        MetaList<GameObject>::insert_after(After, Item);
+        invalidate_index();
+    }
+    void remove(MetaNode<GameObject>*& Node) { MetaList<GameObject>::remove(Node); invalidate_index(); }
+    void free() { MetaList<GameObject>::free(); invalidate_index(); }
+
+    // Port-only: marks the id index stale. Code that rewrites Head/Tail or the
+    // nodes by hand (StarSystem_DeleteBlock) calls it itself.
+    void invalidate_index() const;
+    void drop_index() const;
 
     // StarSystem reads and writes the list's fields directly throughout
     // (e.g. .text:06d08794 `[EBP+0x38]`, .text:06d0bfe4 `[EBX+0xd8]`).
@@ -140,6 +161,7 @@ struct ObjectList : public MetaList<GameObject> {
 
     // FUN_06cf4f00 (.text:06cf4f00, `RET 0x4`): the first node whose object's
     // IObjInspect::get_id (vtable +0x20, .text:06cf4f24) equals Id, or null.
+    // The port answers it from a side index of the same walk (server_classes.cpp).
     MetaNode<GameObject>* find_by_id(unsigned int Id) const;
 
     // FUN_06cf5130 (.text:06cf5130, `RET 0x4`): how many nodes' objects answer
