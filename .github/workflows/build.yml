@@ -140,3 +140,45 @@ jobs:
             bin/*.fl
           if-no-files-found: error
           retention-days: 14
+
+  regress:
+    name: Regression (FLRegress)
+    needs: [build, data]
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore game data
+        uses: actions/cache/restore@v4
+        with:
+          path: DATA
+          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          fail-on-cache-miss: true
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-win32
+          path: bin
+
+      # The dump holds values read from the game data, so it is compared here and never
+      # uploaded; only its SHA-256 is printed.
+      - name: Run twice and compare
+        shell: pwsh
+        working-directory: bin
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($run in 'a', 'b') {
+            & .\FLRegress.exe --out "regress_$run.txt"
+            if ($LASTEXITCODE -ne 0) { throw "FLRegress run $run failed with exit code $LASTEXITCODE" }
+          }
+          $a = (Get-FileHash -Algorithm SHA256 regress_a.txt).Hash
+          $b = (Get-FileHash -Algorithm SHA256 regress_b.txt).Hash
+          Write-Host "run a: $a ($((Get-Item regress_a.txt).Length) bytes)"
+          Write-Host "run b: $b"
+          Get-Content regress_a.txt -TotalCount 3
+          if ($a -ne $b) {
+            Compare-Object (Get-Content regress_a.txt) (Get-Content regress_b.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+            throw 'FLRegress is not deterministic: the two runs differ'
+          }
