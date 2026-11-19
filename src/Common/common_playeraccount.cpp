@@ -18,6 +18,7 @@
 #include <windows.h>
 #include <mmsystem.h> // timeGetTime -- SeedMachineHash
 #include <rpc.h>      // UUID / UuidCreate for SeedMachineHash's fallback
+#include "platform.h"
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -90,7 +91,7 @@ namespace
         char UserName[0x104];
         DWORD UserNameSize = 0x101;
         if (!GetUserNameA(UserName, &UserNameSize))
-            sprintf(UserName, "%u", timeGetTime());
+            sprintf(UserName, "%u", Platform::TimerMs());
         Hash.AddData(UserName, (unsigned long)strlen(UserName));
         return true;
     }

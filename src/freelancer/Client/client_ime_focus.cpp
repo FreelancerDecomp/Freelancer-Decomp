@@ -16,6 +16,7 @@
 
 #include "DALib.h"
 #include "dacom.h"
+#include "platform.h"
 #include "render/IRenderPipeline.h"
 
 #include <cstring>
@@ -276,7 +277,7 @@ IMEFocus* EnsureClientIMEFocus()
     // FUN_00564060 -- listing 00564060..00564141. Caller: the pre-init tail 0x005b1f5f, once.
     // 0x00564076..0x00564083: LoadLibraryA("ImeUi.dll"); on failure the current DAT_0067a4a4
     // is returned (0x0056412e). The handle is never freed (the exe also imports the DLL).
-    if (LoadLibraryA("ImeUi.dll") == nullptr)
+    if (Platform::ModuleLoad("ImeUi.dll") == nullptr)
         return G_ClientImeFocus;
 
     // 0x0056408a..0x005640f2: operator_new(0x1c), IMEFocus::IMEFocus(DAT_0067eca0), the

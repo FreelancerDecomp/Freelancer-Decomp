@@ -18,6 +18,7 @@
 #include "ids_strings.h"   // RegisterIdsResourceModule (FUN_0057d800)
 #include "menu_fonts_load.h"
 #include "menu_sound_arch.h"
+#include "platform.h"
 #include "sound_config.h"  // LoadClientSoundCfgIni (FUN_00427a70)
 #include "texture_shapes.h"
 #include "vis_effect_arch.h"
@@ -213,7 +214,7 @@ bool LoadClientIniData(char const* IniPath)
                     {
                         if (Reader.is_value("DLL"))
                         {
-                            HMODULE const Module = LoadLibraryA(Reader.get_value_string());
+                            HMODULE const Module = Platform::ModuleLoad(Reader.get_value_string());
                             if (Module == nullptr)
                             {
                                 char const* const Name = Reader.get_value_string();

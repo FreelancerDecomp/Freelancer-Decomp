@@ -29,6 +29,8 @@
 #include <map>
 #include <windows.h>
 
+#include "platform.h"
+
 namespace Archetype
 {
     struct FCliMaterialEntry
@@ -768,10 +770,10 @@ namespace Archetype
         // lazy "initialised yet?" latch in retail -- every user just enters the lock.
         struct FMaterialCacheLock
         {
-            CRITICAL_SECTION Cs;
+            Platform::CriticalSection Cs;
 
-            FMaterialCacheLock() { InitializeCriticalSection(&Cs); }
-            ~FMaterialCacheLock() { DeleteCriticalSection(&Cs); }
+            FMaterialCacheLock() { Platform::LockInit(&Cs); }
+            ~FMaterialCacheLock() { Platform::LockDelete(&Cs); }
 
             FMaterialCacheLock(FMaterialCacheLock const&) = delete;
             FMaterialCacheLock& operator=(FMaterialCacheLock const&) = delete;
@@ -805,13 +807,13 @@ namespace Archetype
         // (0x0041aa34 INC [ECX+0x14]) -- after the lock has been released, as retail does it.
         bool FindOrInsertMaterialEntry(char const* Path, FCliMaterialEntry** Out)
         {
-            EnterCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockEnter(&GMaterialCacheLock.Cs);
             FCliMaterialEntry Candidate;
             InitMaterialEntry(&Candidate, Path);
             std::pair<std::map<unsigned long, FCliMaterialEntry>::iterator, bool> const Result =
                 GMaterialCacheByCrc.insert(std::pair<unsigned long const, FCliMaterialEntry>(
                     Candidate.PathCrc, Candidate));
-            LeaveCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockLeave(&GMaterialCacheLock.Cs);
 
             FCliMaterialEntry* const Entry = &Result.first->second;
             *Out = Entry;
@@ -960,9 +962,9 @@ namespace Archetype
                         Entry->MatAnimHandle == nullptr)
                     {
                         unsigned long const Key = Entry->PathCrc;   // the node dies with the erase
-                        EnterCriticalSection(&GMaterialCacheLock.Cs);
+                        Platform::LockEnter(&GMaterialCacheLock.Cs);
                         GMaterialCacheByCrc.erase(Key);
-                        LeaveCriticalSection(&GMaterialCacheLock.Cs);
+                        Platform::LockLeave(&GMaterialCacheLock.Cs);
                         Entry = nullptr;
                     }
                 }
@@ -1021,9 +1023,9 @@ namespace Archetype
                 Entry->MatAnimHandle == nullptr)
             {
                 unsigned long const Key = Entry->PathCrc;       // the node dies with the erase
-                EnterCriticalSection(&GMaterialCacheLock.Cs);
+                Platform::LockEnter(&GMaterialCacheLock.Cs);
                 GMaterialCacheByCrc.erase(Key);
-                LeaveCriticalSection(&GMaterialCacheLock.Cs);
+                Platform::LockLeave(&GMaterialCacheLock.Cs);
                 return nullptr;
             }
         }
@@ -1075,14 +1077,14 @@ namespace Archetype
             if (Entry == nullptr)
                 return -1;
 
-            EnterCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockEnter(&GMaterialCacheLock.Cs);
             if (Entry->MaterialId != -1)
             {
                 DALib::MaterialLib->ApplyVerifyGroup(
                     Entry->MaterialId, nullptr, reinterpret_cast<void*>(0x3f800000u));
                 DALib::MaterialLib->ResolveTexturesGroup(Entry->MaterialId, 0.0f);
             }
-            LeaveCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockLeave(&GMaterialCacheLock.Cs);
             return 0;
         }
 
@@ -1093,7 +1095,7 @@ namespace Archetype
         int Remaining = -1;
         if (*Slot != nullptr)
         {
-            EnterCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockEnter(&GMaterialCacheLock.Cs);
             FCliMaterialEntry* Entry = *Slot;
             if (Entry != nullptr)
             {
@@ -1109,7 +1111,7 @@ namespace Archetype
                     GMaterialCacheByCrc.erase(Key);
                 }
             }
-            LeaveCriticalSection(&GMaterialCacheLock.Cs);
+            Platform::LockLeave(&GMaterialCacheLock.Cs);
         }
         *Slot = nullptr;
         return Remaining;
@@ -1119,7 +1121,7 @@ namespace Archetype
     {
         // FUN_0041b150 (cdecl, no arguments), called once from the client shutdown at 0x005b22f6.
         // 0x0041b156: under the cache lock, and with no library null tests anywhere.
-        EnterCriticalSection(&GMaterialCacheLock.Cs);
+        Platform::LockEnter(&GMaterialCacheLock.Cs);
 
         // 0x0041b178 .. 0x0041b20c: an in-order walk over every node; each one is counted and has
         // its four handles given back and reset in this order -- TextureLib +0x1c on +0x04 (-1),
@@ -1139,7 +1141,7 @@ namespace Archetype
         // every entry is freed with its node.
         GMaterialCacheByCrc.clear();
 
-        LeaveCriticalSection(&GMaterialCacheLock.Cs);
+        Platform::LockLeave(&GMaterialCacheLock.Cs);
 
         // EBP: the number of entries flushed.
         return Count;

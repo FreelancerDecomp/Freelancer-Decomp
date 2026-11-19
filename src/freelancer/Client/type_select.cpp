@@ -11,6 +11,7 @@
 #include "login_mgr.h"
 #include "menu_ui_init.h"
 #include "nn_prompt.h"    // FUN_004740f0 / FUN_00474260
+#include "platform.h"
 
 #include "common_errorhandler.h" // ErrorHandler::log_last_error, SeverityWarning
 #include "common_text.h"  // RenderDisplayList
@@ -176,7 +177,7 @@ TypeSelect::~TypeSelect()
     // FUN_005661b0.
     if (SensApi != nullptr)
     {
-        if (!FreeLibrary(SensApi))
+        if (!Platform::ModuleFree(SensApi))
             ErrorHandler::log_last_error(kIntroSourceFile, 0x17ed, SeverityWarning,
                                          G_IntroLastErrorFormat, GetLastError());
         SensApi = nullptr;
@@ -219,12 +220,12 @@ bool TypeSelect::Create(Win3D* NewParent, void* /*Data*/)
         {
             Major = 0;
             Minor = 0;
-            HMODULE const ShDocVw = LoadLibraryA("shdocvw.dll");
+            HMODULE const ShDocVw = Platform::ModuleLoad("shdocvw.dll");
             if (ShDocVw != nullptr)
             {
                 HRESULT Result;
                 FDllGetVersionFn const GetVersion = reinterpret_cast<FDllGetVersionFn>(
-                    GetProcAddress(ShDocVw, "DllGetVersion"));
+                    Platform::ModuleSymbol(ShDocVw, "DllGetVersion"));
                 if (GetVersion != nullptr)
                 {
                     FDllVersionInfo Info;
@@ -244,7 +245,7 @@ bool TypeSelect::Create(Win3D* NewParent, void* /*Data*/)
                 {
                     Result = static_cast<HRESULT>(0x80004005L); // E_FAIL
                 }
-                FreeLibrary(ShDocVw);
+                Platform::ModuleFree(ShDocVw);
                 // 0x005669d5: only E_FAIL itself skips the version test.
                 bHaveVersion = Result != static_cast<HRESULT>(0x80004005L);
             }
@@ -261,14 +262,14 @@ bool TypeSelect::Create(Win3D* NewParent, void* /*Data*/)
         // 0x005669df: version 5 or later -> sensapi.dll!IsNetworkAlive.
         if (bHaveVersion && Major >= 5)
         {
-            SensApi = LoadLibraryA("sensapi.dll");
+            SensApi = Platform::ModuleLoad("sensapi.dll");
             if (SensApi != nullptr)
             {
                 IsNetworkAlive = reinterpret_cast<FIsNetworkAliveFn>(
-                    GetProcAddress(SensApi, "IsNetworkAlive"));
+                    Platform::ModuleSymbol(SensApi, "IsNetworkAlive"));
                 if (IsNetworkAlive == nullptr)
                 {
-                    if (!FreeLibrary(SensApi))
+                    if (!Platform::ModuleFree(SensApi))
                         ErrorHandler::log_last_error(kIntroSourceFile, 0x17d9, SeverityWarning,
                                                      G_IntroLastErrorFormat, GetLastError());
                     IsNetworkAlive = nullptr;
@@ -292,7 +293,7 @@ bool TypeSelect::Create(Win3D* NewParent, void* /*Data*/)
     // 0x00566a4f..0x00566aa7.
     Buttons[2].bUsePalette = ProbeMultiplayerAvailable(); // +0x34a
     PollIntervalMs = 1000;
-    LastPollMs = timeGetTime();
+    LastPollMs = Platform::TimerMs();
     return true;
 }
 
@@ -302,7 +303,7 @@ void TypeSelect::Destroy()
     UnregisterAllEvents(); // FUN_00576190 on +0x7c
     if (SensApi != nullptr)
     {
-        if (!FreeLibrary(SensApi))
+        if (!Platform::ModuleFree(SensApi))
             ErrorHandler::log_last_error(kIntroSourceFile, 0x17ed, SeverityWarning,
                                          G_IntroLastErrorFormat, GetLastError());
         SensApi = nullptr;
@@ -345,7 +346,7 @@ void TypeSelect::Update()
     // FUN_00566510.
     Win3D::Update(); // FUN_005a17b0 inlined, 0x0056651e..0x00566548
 
-    unsigned const Now = timeGetTime();
+    unsigned const Now = Platform::TimerMs();
     if (Now - LastPollMs > PollIntervalMs)
     {
         Buttons[2].bUsePalette = ProbeMultiplayerAvailable(); // +0x34a

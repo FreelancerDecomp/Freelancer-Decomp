@@ -36,6 +36,7 @@
 #include "rpc_iclient_args.h"
 #include "common_server_types.h"
 #include "common_reputation.h"  // Costume, by value in SendServerSendComm
+#include "platform.h"
 
 #include <cstdint>
 #include <cstring>
@@ -286,13 +287,13 @@ public:
         typedef IClient* (__cdecl *GetClientInterfaceFn)();
         typedef IChatClient* (__cdecl *GetChatClientInterfaceFn)();
 
-        GRealClientModule = LoadLibraryA(GCallerModulePath);
+        GRealClientModule = Platform::ModuleLoad(GCallerModulePath);
         if (GRealClientModule != nullptr) {
             GetClientInterfaceFn GetClient =
-                (GetClientInterfaceFn)GetProcAddress(GRealClientModule, "GetClientInterface");
+                (GetClientInterfaceFn)Platform::ModuleSymbol(GRealClientModule, "GetClientInterface");
             GCachedRealClient = GetClient();
             GetChatClientInterfaceFn GetChat =
-                (GetChatClientInterfaceFn)GetProcAddress(GRealClientModule, "GetChatClientInterface");
+                (GetChatClientInterfaceFn)Platform::ModuleSymbol(GRealClientModule, "GetChatClientInterface");
             GCachedRealChatClient = GetChat();
         }
         if (GCachedRealClient == nullptr) {
@@ -354,7 +355,7 @@ public:
     void Shutdown() override {
         GCachedRealClient->Shutdown();
         if (GRealClientModule != nullptr) {
-            FreeLibrary(GRealClientModule);
+            Platform::ModuleFree(GRealClientModule);
             GRealClientModule = nullptr;
             GCachedRealChatClient = nullptr;
         }

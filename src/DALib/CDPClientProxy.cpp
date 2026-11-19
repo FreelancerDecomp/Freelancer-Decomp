@@ -5,12 +5,13 @@
 // Author: Giperion.
 
 #include "dalib_net.h"
+#include "platform.h"
 #include "CDPNetCodec.h"
 
 // Retail DALib.dll.c CDPClientProxy::CDPClientProxy(void) @ 0x36b0.
 CDPClientProxy::CDPClientProxy()
 {
-    LastActivityTime = timeGetTime();
+    LastActivityTime = Platform::TimerMs();
     LastHistoryUpdateTime = LastActivityTime;
 }
 
@@ -61,7 +62,7 @@ bool CDPClientProxy::SendMsgs()
         return true;
     }
 
-    LastActivityTime = timeGetTime();
+    LastActivityTime = Platform::TimerMs();
 
     unsigned char Batch[0x400];
     unsigned char Compressed[0x800];
@@ -189,7 +190,7 @@ void CDPClientProxy::OnMsgSent(unsigned long SendTime)
 // LinkSaturation = average(history) / 3 * 0.0005.
 void CDPClientProxy::UpdateQueueHistory()
 {
-    const DWORD Now = timeGetTime();
+    const DWORD Now = Platform::TimerMs();
     if (Now - LastHistoryUpdateTime <= 1000)
         return;
     LastHistoryUpdateTime = Now;

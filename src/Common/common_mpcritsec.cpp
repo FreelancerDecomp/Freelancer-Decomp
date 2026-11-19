@@ -13,6 +13,8 @@
 #include <windows.h>
 #include <cstring>
 
+#include "platform.h"
+
 // ===========================================================================
 // MPCritSec
 // ===========================================================================
@@ -31,7 +33,7 @@ MPCritSec::~MPCritSec()
     if (bInitialized)
     {
         bInitialized = false;
-        DeleteCriticalSection(&CriticalSection);
+        Platform::LockDelete(&CriticalSection);
     }
 }
 
@@ -52,10 +54,10 @@ void MPCritSec::lock()
         return;
     if (!bInitialized)
     {
-        InitializeCriticalSection(&CriticalSection);
+        Platform::LockInit(&CriticalSection);
         bInitialized = true;
     }
-    EnterCriticalSection(&CriticalSection);
+    Platform::LockEnter(&CriticalSection);
 }
 
 void MPCritSec::unlock()
@@ -63,5 +65,5 @@ void MPCritSec::unlock()
     // 0x063047b0: single-player -> return; otherwise Leave (no bInitialized check).
     if (GbSinglePlayer)
         return;
-    LeaveCriticalSection(&CriticalSection);
+    Platform::LockLeave(&CriticalSection);
 }

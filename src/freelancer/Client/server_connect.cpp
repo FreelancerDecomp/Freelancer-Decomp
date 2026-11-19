@@ -21,6 +21,8 @@
 #include <string.h>
 #include <windows.h>
 
+#include "platform.h"
+
 IServer* G_Server = nullptr;        // DAT_0067ecd0
 void* G_ChatServer = nullptr;       // DAT_0067ecd4
 
@@ -47,7 +49,7 @@ namespace
 // FUN_005b6f40 (cdecl). Neither GetProcAddress result is tested.
 IServer* LoadServerModule(char const* DllName)
 {
-    G_ServerModule = LoadLibraryA(DllName);
+    G_ServerModule = Platform::ModuleLoad(DllName);
     if (G_ServerModule == nullptr)
     {
         FDUMP(0x100001, "%s(%d) : *** ERROR: Connect - failed to LoadLibrary(%s)\n",
@@ -55,9 +57,9 @@ IServer* LoadServerModule(char const* DllName)
         return G_LoadedServer;
     }
     G_LoadedServer = reinterpret_cast<FGetServerInterface>(
-        GetProcAddress(G_ServerModule, "GetServerInterface"))();
+        Platform::ModuleSymbol(G_ServerModule, "GetServerInterface"))();
     G_LoadedChatServer = reinterpret_cast<FGetChatServerInterface>(
-        GetProcAddress(G_ServerModule, "GetChatServerInterface"))();
+        Platform::ModuleSymbol(G_ServerModule, "GetChatServerInterface"))();
     return G_LoadedServer;
 }
 
@@ -78,7 +80,7 @@ void FreeServerModule()
 {
     if (G_ServerModule != nullptr)
     {
-        FreeLibrary(G_ServerModule);
+        Platform::ModuleFree(G_ServerModule);
         G_ServerModule = nullptr;
         G_LoadedChatServer = nullptr;
         G_LoadedServer = nullptr;
@@ -137,7 +139,7 @@ bool StartServer(char const* IniPath)
     SStartupInfo Info;
     memset(&Info, 0, sizeof(Info));
     // DAT_0067eca4 is the exe's own module handle; nullptr names the same module.
-    GetModuleFileNameA(nullptr, Info.ModulePath, 0x104);
+    Platform::ModulePath(nullptr, Info.ModulePath, 0x104);
     strcpy(Info.IniPath, IniPath);      // .text:005a8183 byte-copy loop
     Info.MaxPlayers = 1;
     Info.Port = 0x36d9;

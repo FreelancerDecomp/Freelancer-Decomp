@@ -57,6 +57,8 @@
 #include <vector>
 #include <windows.h>
 
+#include "platform.h"
+
 // Read-only access to the nebula's exclusion zone list (befriended by
 // Exclusion::NebulaExclusionZoneMgr in common_net.h).
 struct FNebulaVolumeExclusionAccess
@@ -1118,7 +1120,7 @@ namespace
         {
             if (GbNoiseFailed)
                 return false;
-            const DWORD Start = GetTickCount();
+            const DWORD Start = Platform::TickCountMs();
             GenerateNoise(&GNoiseTexels, GBaseHistogram);
             GbBaseHistogramValid = true;
             const GENRESULT VolumeResult =
@@ -1126,7 +1128,7 @@ namespace
                                           &GNoiseTexels[0], &GNoiseVolume);
             FDUMP(0x100003, "%s(%d) : NOTICE:General:nebula noise volume %lu^3 generated in %lu ms",
                   kNebulaVolumeSource, __LINE__, kNoiseSize,
-                  (unsigned long)(GetTickCount() - Start));
+                  (unsigned long)(Platform::TickCountMs() - Start));
             if (VolumeResult != GR_OK || GNoiseVolume == nullptr)
             {
                 GbNoiseFailed = true;
@@ -1322,14 +1324,14 @@ namespace
     {
         if (GTimeFrequency.QuadPart == 0)
         {
-            QueryPerformanceFrequency(&GTimeFrequency);
-            QueryPerformanceCounter(&GTimeOrigin);
+            Platform::PerfFrequency(&GTimeFrequency.QuadPart);
+            Platform::PerfCounter(&GTimeOrigin.QuadPart);
         }
-        LARGE_INTEGER Now;
-        QueryPerformanceCounter(&Now);
+        int64_t Now;
+        Platform::PerfCounter(&Now);
         if (GTimeFrequency.QuadPart == 0)
             return 0.0;
-        return (double)(Now.QuadPart - GTimeOrigin.QuadPart) / (double)(GTimeFrequency.QuadPart);
+        return (double)(Now - GTimeOrigin.QuadPart) / (double)(GTimeFrequency.QuadPart);
     }
 
     // The two extinctions and the march cap of a nebula with a settings set.
@@ -1697,9 +1699,9 @@ namespace
     {
         if (GRandomState == 0)
         {
-            LARGE_INTEGER Counter;
-            QueryPerformanceCounter(&Counter);
-            GRandomState = (unsigned int)(Counter.LowPart) | 1u;
+            int64_t Counter;
+            Platform::PerfCounter(&Counter);
+            GRandomState = (unsigned int)(Counter) | 1u;
         }
         GRandomState ^= GRandomState << 13;
         GRandomState ^= GRandomState >> 17;

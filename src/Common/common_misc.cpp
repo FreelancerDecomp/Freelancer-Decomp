@@ -25,6 +25,7 @@
 #endif
 #include <windows.h>
 #include <shlobj.h>          // SHGetFolderPathA (GetUserLocalDataPath / GetUserDataPath / GetScreenShotPath)
+#include "platform_folders.h"
 #include "common_csys.h"
 #include "common_universe.h"
 #include "common_id.h"       // ID_String -- the four globals below are really ID_String
@@ -119,9 +120,9 @@ namespace
     // table slot 063ea544, LAB_0631d990 via 063ea548): CreateEventA(NULL, TRUE, TRUE, name) --
     // manual reset, initially signalled. Nothing closes them (no atexit registration).
     HANDLE GRunPermissionClientEvent =                       // DAT_06401810
-        CreateEventA(nullptr, TRUE, TRUE, "MicrosoftFreelancerClientCanRunEvent");
+        Platform::EventCreate(true, true, "MicrosoftFreelancerClientCanRunEvent");
     HANDLE GRunPermissionServerEvent =                       // DAT_0640180c
-        CreateEventA(nullptr, TRUE, TRUE, "MicrosoftFreelancerServerCanRunEvent");
+        Platform::EventCreate(true, true, "MicrosoftFreelancerServerCanRunEvent");
 
     unsigned long const kClientRunTimeoutMs = 0x1388;   // 5000, 0631d9c2
     unsigned long const kServerRunTimeoutMs = 0x1f4;    // 500,  0631da02
@@ -131,29 +132,29 @@ void __cdecl WaitForClientRunPermission()
 {
     // 0631d9b0: ResetEvent(server); WaitForSingleObject(client, 5000) == WAIT_TIMEOUT (0x102)
     // -> SetEvent(client).
-    ResetEvent(GRunPermissionServerEvent);
-    if (WaitForSingleObject(GRunPermissionClientEvent, kClientRunTimeoutMs) == WAIT_TIMEOUT)
-        SetEvent(GRunPermissionClientEvent);
+    Platform::EventReset(GRunPermissionServerEvent);
+    if (Platform::WaitOne(GRunPermissionClientEvent, kClientRunTimeoutMs) == Platform::kWaitTimeout)
+        Platform::EventSet(GRunPermissionClientEvent);
 }
 
 void __cdecl WaitForServerRunPermission()
 {
     // 0631d9f0: the mirror image, with the shorter budget.
-    ResetEvent(GRunPermissionClientEvent);
-    if (WaitForSingleObject(GRunPermissionServerEvent, kServerRunTimeoutMs) == WAIT_TIMEOUT)
-        SetEvent(GRunPermissionServerEvent);
+    Platform::EventReset(GRunPermissionClientEvent);
+    if (Platform::WaitOne(GRunPermissionServerEvent, kServerRunTimeoutMs) == Platform::kWaitTimeout)
+        Platform::EventSet(GRunPermissionServerEvent);
 }
 
 void __cdecl GiveClientRunPermission()
 {
     // 0631da30: SetEvent(client).
-    SetEvent(GRunPermissionClientEvent);
+    Platform::EventSet(GRunPermissionClientEvent);
 }
 
 void __cdecl GiveServerRunPermission()
 {
     // 0631da40: SetEvent(server).
-    SetEvent(GRunPermissionServerEvent);
+    Platform::EventSet(GRunPermissionServerEvent);
 }
 
 unsigned long __cdecl SafeWaitForSingleObject(HANDLE Handle, unsigned long Timeout)
@@ -892,7 +893,7 @@ namespace
     // 06302fbd / 063030ca and their JNZ to the "Dest[0] = 0; return false" tail).
     bool FillSpecialFolder(char* const Dest, int CsIdl)
     {
-        if (SHGetFolderPathA(nullptr, CsIdl, nullptr, 0, Dest) != 0)
+        if (Platform::UserFolder(CsIdl, Dest) != 0)
         {
             *Dest = '\0';
             return false;
@@ -998,7 +999,7 @@ char const* __cdecl GetFullFilename(char const* RelOrAbs)
 bool __cdecl GetUserLocalDataPath(char* const Dest)
 {
     // listing 06302f10 — CSIDL 0x801c, subdir "Freelancer"
-    if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CSIDL_LOCAL_APPDATA))
+    if (!FillSpecialFolder(Dest, Platform::kFolderCreate | Platform::kFolderLocalAppData))
         return false;
     return AppendAndEnsureDir(Dest, "Freelancer");
 }
@@ -1006,7 +1007,7 @@ bool __cdecl GetUserLocalDataPath(char* const Dest)
 bool __cdecl GetUserDataPath(char* const Dest)
 {
     // listing 06302fa0 — CSIDL 0x8005, "My Games" then "Freelancer"
-    if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CSIDL_PERSONAL))
+    if (!FillSpecialFolder(Dest, Platform::kFolderCreate | Platform::kFolderDocuments))
         return false;
     if (!AppendAndEnsureDir(Dest, "My Games"))
         return false;
@@ -1016,7 +1017,7 @@ bool __cdecl GetUserDataPath(char* const Dest)
 bool __cdecl GetScreenShotPath(char* const Dest)
 {
     // listing 063030b0 — CSIDL 0x8027, subdir "FreelancerShots"
-    if (!FillSpecialFolder(Dest, CSIDL_FLAG_CREATE | CSIDL_MYPICTURES))
+    if (!FillSpecialFolder(Dest, Platform::kFolderCreate | Platform::kFolderPictures))
         return false;
     return AppendAndEnsureDir(Dest, "FreelancerShots");
 }

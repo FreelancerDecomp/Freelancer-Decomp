@@ -5,13 +5,14 @@
 // Author: Giperion.
 
 #include "dalib_net.h"
+#include "platform.h"
 
 #include <list>
 
 CDPServer* CDPServer::m_pServer = nullptr;
 // .data:065ca254 is seeded at DLL load by the static initializer LAB_065c4630 (__xc table entry
 // .data:065ca008): CALL timeGetTime; MOV [065ca254],EAX.
-unsigned long CDPServer::m_dwLastMsgReceivedTime = timeGetTime();
+unsigned long CDPServer::m_dwLastMsgReceivedTime = Platform::TimerMs();
 
 namespace
 {
@@ -31,8 +32,8 @@ namespace
     CRITICAL_SECTION g_ClientProxiesCs;
     struct FClientProxyRegistryInit
     {
-        FClientProxyRegistryInit() { InitializeCriticalSection(&g_ClientProxiesCs); }
-        ~FClientProxyRegistryInit() { DeleteCriticalSection(&g_ClientProxiesCs); }
+        FClientProxyRegistryInit() { Platform::LockInit(&g_ClientProxiesCs); }
+        ~FClientProxyRegistryInit() { Platform::LockDelete(&g_ClientProxiesCs); }
     } g_ClientProxyRegistryInit;
 }
 
@@ -380,9 +381,9 @@ long __stdcall CDPServer::HandleDPServerMsg(void* UserContext, unsigned long Mes
         Proxy->Owner = Self;
         Msg->pvPlayerContext = Proxy;
 
-        EnterCriticalSection(&g_ClientProxiesCs);
+        Platform::LockEnter(&g_ClientProxiesCs);
         g_ClientProxies.push_back(Proxy);
-        LeaveCriticalSection(&g_ClientProxiesCs);
+        Platform::LockLeave(&g_ClientProxiesCs);
         break;
     }
     case DPN_MSGID_INDICATED_CONNECT_ABORTED:
@@ -419,7 +420,7 @@ long __stdcall CDPServer::HandleDPServerMsg(void* UserContext, unsigned long Mes
             Message->Owner = Msg->pvPlayerContext;
             Self->IncomingMsgs.Add(Message);
             Result = DPNSUCCESS_PENDING;
-            Self->m_dwLastMsgReceivedTime = timeGetTime();
+            Self->m_dwLastMsgReceivedTime = Platform::TimerMs();
         }
         break;
     }
@@ -471,9 +472,9 @@ void CDPServer::DispatchMsgs()
             break;
         case kMsgConnectAborted:
         {
-            EnterCriticalSection(&g_ClientProxiesCs);
+            Platform::LockEnter(&g_ClientProxiesCs);
             g_ClientProxies.remove(Proxy);
-            LeaveCriticalSection(&g_ClientProxiesCs);
+            Platform::LockLeave(&g_ClientProxiesCs);
             delete Proxy;
             break;
         }
@@ -481,9 +482,9 @@ void CDPServer::DispatchMsgs()
         {
             if (Proxy != nullptr)
                 Proxy->OnDisconnect();
-            EnterCriticalSection(&g_ClientProxiesCs);
+            Platform::LockEnter(&g_ClientProxiesCs);
             g_ClientProxies.remove(Proxy);
-            LeaveCriticalSection(&g_ClientProxiesCs);
+            Platform::LockLeave(&g_ClientProxiesCs);
             delete Proxy;
             break;
         }
@@ -494,8 +495,8 @@ void CDPServer::DispatchMsgs()
     }
     Working.Unlock();
 
-    EnterCriticalSection(&g_ClientProxiesCs);
+    Platform::LockEnter(&g_ClientProxiesCs);
     for (std::list<CDPClientProxy*>::iterator It = g_ClientProxies.begin(); It != g_ClientProxies.end(); ++It)
         (*It)->UpdateQueueHistory();
-    LeaveCriticalSection(&g_ClientProxiesCs);
+    Platform::LockLeave(&g_ClientProxiesCs);
 }

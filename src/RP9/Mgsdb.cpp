@@ -10,6 +10,8 @@
 #include <windows.h>
 #include <winver.h>
 
+#include "platform.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -237,18 +239,18 @@ bool FMgsdbDatabase::Load(const char* Path, const FRp9Identifier8* Ident,
         }
     }
 
-    const HANDLE File = CreateFileA(Path, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
-                                    0, nullptr);
-    if (File == INVALID_HANDLE_VALUE)
+    const Platform::Handle File = Platform::FileOpen(Path, Platform::kAccessRead, Platform::kShareRead,
+                                                     Platform::kOpenExisting, 0);
+    if (File == Platform::InvalidHandle())
     {
         Error_ = "Cannot find file";
         return false;
     }
-    const DWORD Size = GetFileSize(File, nullptr);
+    const DWORD Size = Platform::FileGetSize(File);
     Buffer_ = new char[Size + 0x10];
     DWORD Read = 0;
-    ReadFile(File, Buffer_, Size, &Read, nullptr);
-    CloseHandle(File);
+    Platform::FileRead(File, Buffer_, Size, &Read);
+    Platform::CloseHandle(File);
     Buffer_[Size] = '\r';
     Cursor_ = Buffer_;
     LineStart_ = Cursor_;

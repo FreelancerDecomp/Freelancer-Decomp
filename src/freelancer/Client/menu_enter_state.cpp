@@ -61,6 +61,8 @@
 #include <wchar.h>
 #include <windows.h>
 
+#include "platform.h"
+
 #include <list>
 
 namespace
@@ -933,7 +935,7 @@ int MenuStateDriverUpdate(FMenuNavState* Nav, float DeltaSeconds)
         // 0x005742f2..0x00574306: FUN_0042d730 clear -> FUN_00412430(FUN_00438c90()).
         if (!IsClientServerTickPaused())
             DrawFade(static_cast<ICamera*>(GetClientRoomCamera()));
-        Sleep(0);                                               // 0x0057430b
+        Platform::SleepMs(0);                                   // 0x0057430b
         EndClientRenderScene();                                 // FUN_00425080
         PresentClientRenderFrame();                             // FUN_00425140
     }

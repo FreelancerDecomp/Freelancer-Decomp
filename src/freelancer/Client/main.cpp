@@ -63,6 +63,8 @@
 #include <wchar.h>
 #include <windows.h>
 
+#include "platform.h"
+
 // DAT_0067ecc0 -- "+G"/"-G" (FUN_005b2cb0); read by CLoginMgr::Login (FUN_005aa510), hence
 // outside the anonymous namespace (declared in login_mgr.h).
 bool G_bCommandLineG = false;
@@ -411,27 +413,30 @@ namespace
     bool RunEulaGate()
     {
         // 0x005b2d6c..0x005b2d8e: "..\EBUEula.dll", then "EBUEula.dll"; neither -> fatal box.
-        HMODULE Eula = LoadLibraryA("..\\EBUEula.dll");
+        Platform::Module Eula = Platform::ModuleLoad("..\\EBUEula.dll");
         if (Eula == nullptr)
         {
-            Eula = LoadLibraryA("EBUEula.dll");
+            Eula = Platform::ModuleLoad("EBUEula.dll");
             if (Eula == nullptr)
                 EulaLoadFailureExit();
         }
 
         // 0x005b2e41..0x005b2e58: GetProcAddress(module, "EBUEula"); a miss frees the module
         // first, then the same fatal box.
-        FEBUEulaFn const EulaFn = reinterpret_cast<FEBUEulaFn>(GetProcAddress(Eula, "EBUEula"));
+        FEBUEulaFn const EulaFn =
+            reinterpret_cast<FEBUEulaFn>(Platform::ModuleSymbol(Eula, "EBUEula"));
         if (EulaFn == nullptr)
         {
-            FreeLibrary(Eula);
+            Platform::ModuleFree(Eula);
             EulaLoadFailureExit();
         }
 
         // 0x005b2f0f..0x005b2f26: GetFileAttributesA("..\Warranty.rtf"); INC / NEG / SBB / AND
         // -> the path when the attributes are not INVALID_FILE_ATTRIBUTES, else null.
         char* const Warranty =
-            (GetFileAttributesA(G_WarrantyFile) != INVALID_FILE_ATTRIBUTES) ? G_WarrantyFile : nullptr;
+            (Platform::PathAttributes(G_WarrantyFile) != Platform::kInvalidAttributes)
+                ? G_WarrantyFile
+                : nullptr;
 
         // 0x005b2f1f..0x005b2f31: EBUEula(.rdata:005e1f64 registry key, "..\EULA.rtf",
         // warranty-or-null, 1).
@@ -439,7 +444,7 @@ namespace
             EulaFn("Software\\Microsoft\\Microsoft Games\\Freelancer\\1.0", G_EulaFile, Warranty, 1);
 
         // 0x005b2f36..0x005b2f44: FreeLibrary, then SETNZ on the result.
-        FreeLibrary(Eula);
+        Platform::ModuleFree(Eula);
         return Result != 0;
     }
 
@@ -579,7 +584,7 @@ namespace
         DALib::CloseData();
         DALib::Shutdown(g_client.window);
         G_LoginMgr.Cleanup(); // CDPClient::Cleanup on DAT_0067e7bc
-        FreeLibrary(g_client.resources);
+        Platform::ModuleFree(g_client.resources);
         g_client.resources = nullptr;
         ErrorHandler::deactivate();
         CFLIDMaker::Shutdown();
@@ -696,22 +701,22 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
         // guard behind FL_SINGLE_INSTANCE"): compiled only with FL_SINGLE_INSTANCE defined, so the
         // owner can run several clients on one machine for multiplayer tests.
 #if defined(FL_SINGLE_INSTANCE)
-        HANDLE mutex = CreateMutexA(nullptr, FALSE, "FreelancerClient");
+        Platform::Handle mutex = Platform::MutexCreate("FreelancerClient");
         if (mutex == nullptr || GetLastError() == ERROR_ALREADY_EXISTS)
         {
-            CloseHandle(mutex);
+            Platform::CloseHandle(mutex);
             return 1;
         }
 #endif
 
         char ModulePath[MAX_PATH];
-        GetModuleFileNameA(nullptr, ModulePath, MAX_PATH);
+        Platform::ModulePath(nullptr, ModulePath, MAX_PATH);
         char Drive[_MAX_DRIVE];
         char Dir[_MAX_DIR];
         _splitpath(ModulePath, Drive, Dir, nullptr, nullptr);
         char Folder[MAX_PATH];
         _makepath(Folder, Drive, Dir, nullptr, nullptr);
-        SetCurrentDirectoryA(Folder);
+        Platform::ChangeDirectory(Folder);
 
         // Retail probes ..\DATA after the chdir above (DebugASan runs from binasan\, a sibling of bin\).
         if (_access("..\\DATA\\CHARACTERS\\ANIMATIONS\\FACIALMALE.ANM", 0) != 0)
@@ -724,8 +729,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
             if (CreateProcessA("FLServer.exe", nullptr, nullptr, nullptr, FALSE, 0x20, nullptr,
                                nullptr, &StartupInfo, &ProcessInfo))
             {
-                CloseHandle(ProcessInfo.hProcess);
-                CloseHandle(ProcessInfo.hThread);
+                Platform::CloseHandle(ProcessInfo.hProcess);
+                Platform::CloseHandle(ProcessInfo.hThread);
             }
             return 1;
         }
@@ -742,7 +747,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
         CoInitialize(nullptr);
         atexit(ClientAtExitTeardown);
         g_client.instance = instance;
-        g_client.resources = LoadLibraryA("resources.dll");
+        g_client.resources = Platform::ModuleLoad("resources.dll");
         RegisterIdsResourceModule(g_client.resources); // FUN_0057d800
 
         unsigned int Major;

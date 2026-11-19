@@ -7,6 +7,7 @@
 // GUN COM wrapper; worker threads release references and Shutdown joins them.
 
 #include "dalib_net.h"
+#include "platform.h"
 
 #include <list>
 #include <stdlib.h>
@@ -50,7 +51,7 @@ namespace
     // when the module no longer exports DllGetClassObject; the block is emptied either way.
     void ReleaseGunContext(FGunReleaseContext* Context)
     {
-        if (GetProcAddress(Context->Module, "DllGetClassObject") != nullptr)
+        if (Platform::ModuleSymbol(Context->Module, "DllGetClassObject") != nullptr)
         {
             if (Context->Host != nullptr)
             {
@@ -68,7 +69,7 @@ namespace
                 Context->Connection->Release();
                 Context->Connection = nullptr;
             }
-            FreeLibrary(Context->Module);
+            Platform::ModuleFree(Context->Module);
         }
         Context->Module = nullptr;
         Context->Connection = nullptr;
@@ -109,11 +110,11 @@ CGunWrapper::CGunWrapper(const char* DllPath, GUID& Guid, const char* ServerName
     Status = (IGunConnection::ConnectStatus)0;
     RetryTime = 0;
 
-    Module = LoadLibraryA(DllPath);
+    Module = Platform::ModuleLoad(DllPath);
     if (Module == nullptr)
         return;
     FDllGetClassObject GetClassObject =
-        (FDllGetClassObject)(GetProcAddress(Module, "DllGetClassObject"));
+        (FDllGetClassObject)(Platform::ModuleSymbol(Module, "DllGetClassObject"));
     if (GetClassObject == nullptr)
         return;
 
@@ -162,7 +163,7 @@ CGunWrapper::~CGunWrapper()
     Browser = nullptr;
 
     DWORD ThreadId = 0;
-    const HANDLE Thread = CreateThread(nullptr, 0, &GunReleaseThread, Context, CREATE_SUSPENDED, &ThreadId);
+    const HANDLE Thread = Platform::ThreadCreate(&GunReleaseThread, Context, 0, true, &ThreadId);
     if (Thread == nullptr)
     {
         if (!Context->bEmpty)
@@ -172,7 +173,7 @@ CGunWrapper::~CGunWrapper()
     else
     {
         GGunThreads.push_back(Thread);
-        ResumeThread(Thread);
+        Platform::ThreadResume(Thread);
     }
 
     if (ServerName != nullptr)
@@ -213,13 +214,13 @@ void CGunWrapper::Update()
     if (CurrentValue < 2 || CurrentValue > 4)
         return;
     // Unsigned compare (.text:065c5ba3 JBE).
-    if (timeGetTime() <= RetryTime)
+    if (Platform::TimerMs() <= RetryTime)
         return;
 
     Connection->Connect(ServerName, (unsigned short)Port);
     Connection->GetConnectionStatus(&Current);
     if ((int)Current == 4)
-        RetryTime = timeGetTime() + 10000;
+        RetryTime = Platform::TimerMs() + 10000;
     else
         RetryTime = 0;
 }
@@ -230,8 +231,8 @@ void CGunWrapper::Shutdown()
     for (std::list<HANDLE>::iterator It = GGunThreads.begin(); It != GGunThreads.end(); ++It)
     {
         const HANDLE Thread = *It;
-        WaitForSingleObject(Thread, INFINITE);
-        CloseHandle(Thread);
+        Platform::WaitOne(Thread, Platform::kWaitForever);
+        Platform::CloseHandle(Thread);
     }
     GGunThreads.clear();
 }

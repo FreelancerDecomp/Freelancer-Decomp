@@ -7,6 +7,7 @@
 #include "dacom.h"
 #include "luaprofile.h"
 #include "msvcrt_compat.h"
+#include "platform.h"
 
 #include <cctype>
 #include <cstdarg>
@@ -1314,7 +1315,7 @@ namespace
         _splitpath(FoundPath, nullptr, nullptr, FileName, nullptr);
         std::strcpy(CurrentLibrary, FileName);
 
-        HMODULE Module = LoadLibraryA(FoundPath);
+        HMODULE Module = Platform::ModuleLoad(FoundPath);
         if (Module == nullptr)
         {
             FDUMP(DumpError, GErrorFormat, GDacomSourceFile, 0x264,
@@ -1350,7 +1351,7 @@ namespace
             if (_stricmp(It->Name, FileName) != 0)
                 continue;
             UnregisterLibraryComponents(It->Name);
-            FreeLibrary(It->Module);
+            Platform::ModuleFree(It->Module);
             FreeString(It->Name);
             It->Name = nullptr;
             Libraries.erase(It);
@@ -1410,7 +1411,7 @@ namespace
         while (!Libraries.empty())
         {
             FLibraryRecord& Record = Libraries.front();
-            FreeLibrary(Record.Module);
+            Platform::ModuleFree(Record.Module);
             FreeString(Record.Name);
             Record.Name = nullptr;
             Libraries.pop_front();
@@ -1484,7 +1485,7 @@ namespace
         {
             if (Parser->GetString(Section, "DllPath", Value, 0x400) != 0)
             {
-                GetModuleFileNameA(nullptr, ModulePath, 0x104);
+                Platform::ModulePath(nullptr, ModulePath, 0x104);
                 _splitpath(ModulePath, Drive, Directory, nullptr, nullptr);
                 _makepath(BasePath, Drive, Directory, nullptr, nullptr);
 
@@ -2797,12 +2798,12 @@ extern "C" GENRESULT __cdecl DACOM_GetDllVersion(const char* Module, unsigned in
     *Minor = 0;
     *Build = 0;
 
-    HMODULE ModuleHandle = GetModuleHandleA(Module);
+    HMODULE ModuleHandle = Platform::ModuleFind(Module);
     if (ModuleHandle == nullptr)
         return GR_GENERIC;
 
     char Path[0x104];
-    if (GetModuleFileNameA(ModuleHandle, Path, 0x104) == 0)
+    if (Platform::ModulePath(ModuleHandle, Path, 0x104) == 0)
         return GR_GENERIC;
 
     DWORD Handle = 0;

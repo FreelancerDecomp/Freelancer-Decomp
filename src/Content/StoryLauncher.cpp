@@ -13,6 +13,7 @@
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_server_controller.h"
+#include "platform.h"
 
 #include <new>
 #include <utility>
@@ -76,7 +77,7 @@ namespace
         pub::Controller::FStoryCreateParms StoryParms;
         StoryParms.PlayerId = *static_cast<unsigned int const*>(MessageParms);
         char ModulePath[0x104];
-        GetModuleFileNameA(G_ContentModule, ModulePath, 0x104);
+        Platform::ModulePath(G_ContentModule, ModulePath, 0x104);
         pub::Controller::Create(ModulePath, "Story", &StoryParms, pub::Controller::NORMAL);
     }
 }

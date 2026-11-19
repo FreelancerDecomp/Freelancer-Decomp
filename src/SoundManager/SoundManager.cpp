@@ -7,6 +7,7 @@
 #include "SoundManagerInternal.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "readfile.h"
+#include "platform.h"
 
 #include <cctype>
 #include <cstdarg>
@@ -929,7 +930,7 @@ namespace
         for (;;)
         {
             // 06ee18f0..1945: operator new((count + 1) * 4), zero it, collect node+0x14 events.
-            EnterCriticalSection(&G_InstanceLock);
+            Platform::LockEnter(&G_InstanceLock);
             const unsigned long AllocBytes = G_InstanceCount * 4u + 4u;
             Handles = static_cast<HANDLE*>(operator new(AllocBytes));
             memset(Handles, 0, AllocBytes);
@@ -944,20 +945,20 @@ namespace
                 }
                 Node = Node->Next;
             }
-            LeaveCriticalSection(&G_InstanceLock);
+            Platform::LockLeave(&G_InstanceLock);
             Handles[Count] = G_MixerEvent;
             ++Count;
-            const DWORD Wait = WaitForMultipleObjects(Count, Handles, FALSE, INFINITE);
-            if (Wait == WAIT_FAILED)
+            const DWORD Wait = Platform::WaitMany(Count, Handles, false, Platform::kWaitForever);
+            if (Wait == Platform::kWaitFailed)
                 break;
             HANDLE Signaled = Handles[Wait];
             if (Signaled == G_MixerEvent)
             {
-                ResetEvent(G_MixerEvent); // 06ee197d
+                Platform::EventReset(G_MixerEvent); // 06ee197d
             }
             else
             {
-                EnterCriticalSection(&G_InstanceLock);
+                Platform::LockEnter(&G_InstanceLock);
                 Node = G_InstanceSentinel.Next;
                 while (Node != &G_InstanceSentinel)
                 {
@@ -970,17 +971,17 @@ namespace
                             Node->Buffer->GetCurrentPosition(&PlayPos, nullptr);
                             if (PlayPos > Node->FeatureFlags)
                                 Node->Buffer->SetCurrentPosition(Node->Pad18);
-                            ResetEvent(Signaled);
+                            Platform::EventReset(Signaled);
                         }
                         else
                         {
-                            CloseHandle(Node->NotifyEvent);
+                            Platform::CloseHandle(Node->NotifyEvent);
                             Node->NotifyEvent = nullptr;
                         }
                     }
                     Node = Node->Next;
                 }
-                LeaveCriticalSection(&G_InstanceLock);
+                Platform::LockLeave(&G_InstanceLock);
             }
             operator delete(Handles);
             Handles = nullptr;
@@ -1403,7 +1404,7 @@ FSoundManager::FSoundManager()
     InstanceSentinel->Next = InstanceSentinel;
     InstanceSentinel->Prev = InstanceSentinel;
     InstanceEmbeddedCount = 0;
-    InitializeCriticalSection(&G_InstanceLock);
+    Platform::LockInit(&G_InstanceLock);
     memset(DeviceIdString, 0, sizeof(DeviceIdString));
     Front.X = 0.0f;
     Front.Y = 0.0f;
@@ -1428,7 +1429,7 @@ FSoundManager::FSoundManager()
     Pad139[2] = 0;
     Inner.Self = this;
     Controlling = &Inner;
-    G_MixerEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr); // 06ee1dc2 -> DAT_06eeaf70
+    G_MixerEvent = Platform::EventCreate(false, false); // 06ee1dc2 -> DAT_06eeaf70
 }
 
 FSoundManager::~FSoundManager()
@@ -1438,8 +1439,8 @@ FSoundManager::~FSoundManager()
     // member containers: +0x118 list (FUN_06ee7590/7d10), +0x10C list (FUN_06ee7580/7510), +0xF8 map
     // (FUN_06ee7ad0/7cd0) - ReleaseCom.
     ShutdownDevice();
-    DeleteCriticalSection(&G_InstanceLock);
-    CloseHandle(G_MixerEvent);
+    Platform::LockDelete(&G_InstanceLock);
+    Platform::CloseHandle(G_MixerEvent);
     if (Parser != nullptr)
     {
         Parser->Release();
@@ -2087,10 +2088,10 @@ void FSoundManager::StopInstancesForArch(int ArchId)
         FSoundInstanceNode* Next = Node->Next;
         if (Node->PlayKey->GetArchId() == ArchId)
         {
-            EnterCriticalSection(&G_InstanceLock);
+            Platform::LockEnter(&G_InstanceLock);
             UnlinkInstance(Node);
-            SetEvent(G_MixerEvent);
-            LeaveCriticalSection(&G_InstanceLock);
+            Platform::EventSet(G_MixerEvent);
+            Platform::LockLeave(&G_InstanceLock);
         }
         Node = Next;
     }
@@ -2900,10 +2901,10 @@ GENRESULT DACOM_API FSoundManager::DetachPlayKey(ISoundSource* PlayKey)
     FSoundInstanceNode* Inst = FindInstanceByKey(PlayKey);
     if (Inst != nullptr)
     {
-        EnterCriticalSection(&G_InstanceLock);
+        Platform::LockEnter(&G_InstanceLock);
         UnlinkInstance(Inst);
-        SetEvent(G_MixerEvent);
-        LeaveCriticalSection(&G_InstanceLock);
+        Platform::EventSet(G_MixerEvent);
+        Platform::LockLeave(&G_InstanceLock);
     }
     // 06ee3571..35f1: EVERY attached node whose key matches is released (vtbl+8), unlinked, freed,
     // +0x114--; the walk continues past each removal.
@@ -2937,7 +2938,7 @@ GENRESULT DACOM_API FSoundManager::ReplaceAttachedList(void** Keys, unsigned lon
     ClearAttached();
     if (Count == 0)
     {
-        EnterCriticalSection(&G_InstanceLock);
+        Platform::LockEnter(&G_InstanceLock);
         FSoundInstanceNode* Node = G_InstanceSentinel.Next;
         while (Node != &G_InstanceSentinel)
         {
@@ -2945,8 +2946,8 @@ GENRESULT DACOM_API FSoundManager::ReplaceAttachedList(void** Keys, unsigned lon
             UnlinkInstance(Node);
             Node = Next;
         }
-        SetEvent(G_MixerEvent);
-        LeaveCriticalSection(&G_InstanceLock);
+        Platform::EventSet(G_MixerEvent);
+        Platform::LockLeave(&G_InstanceLock);
         return GR_OK;
     }
     for (unsigned long Index = 0; Index < Count; ++Index)
@@ -3511,7 +3512,7 @@ unsigned char FSoundManager::SetupInstanceNotify(FSoundInstanceNode* Node)
     if (G_NotifyThread == nullptr)
     {
         unsigned long Tid = 0;
-        G_NotifyThread = CreateThread(nullptr, 0, NotifyThreadProc, nullptr, 0, &Tid);
+        G_NotifyThread = Platform::ThreadCreate(NotifyThreadProc, nullptr, 0, false, &Tid);
         if (G_NotifyThread == nullptr)
         {
             Fdump(kFdumpError, 0x347, "SoundManager: couldn't create thread for looping sounds.\n"); // 06eea1b0
@@ -3520,16 +3521,16 @@ unsigned char FSoundManager::SetupInstanceNotify(FSoundInstanceNode* Node)
     }
     if (Node->NotifyEvent != nullptr)
     {
-        CloseHandle(Node->NotifyEvent);
+        Platform::CloseHandle(Node->NotifyEvent);
         Node->NotifyEvent = nullptr;
     }
-    Node->NotifyEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
+    Node->NotifyEvent = Platform::EventCreate(false, false);
     if (Node->NotifyEvent == nullptr)
         return 0;
     IDirectSoundNotify* Notify = nullptr;
     if (Node->Buffer->QueryInterface(kIidDirectSoundNotify, reinterpret_cast<void**>(&Notify)) < 0)
     {
-        CloseHandle(Node->NotifyEvent);
+        Platform::CloseHandle(Node->NotifyEvent);
         Node->NotifyEvent = nullptr;
         return 0;
     }
@@ -3552,7 +3553,7 @@ GENRESULT DACOM_API FSoundManager::ShutdownDevice()
     if (G_NotifyThread != nullptr)
     {
         G_MixerStopFlag = 1;
-        CloseHandle(G_NotifyThread);
+        Platform::CloseHandle(G_NotifyThread);
         G_NotifyThread = nullptr;
     }
     // 06ee4927..498d: drain the global list DAT_06eeaf00 without taking DAT_06eeaf0c - unlink,
@@ -3626,7 +3627,7 @@ GENRESULT DACOM_API FSoundManager::GetDirectSound(IDirectSound** Out)
 
 unsigned long DACOM_API FSoundManager::GetTickCountSlot()
 {
-    return GetTickCount();
+    return Platform::TickCountMs();
 }
 
 GENRESULT FSoundManager::GetDeviceSnapshot(void* Out)
@@ -3654,7 +3655,7 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
     // LAB_06ee4b50 stdcall RET 8. Listing-complete: 6e20, prune, is_active/start-tick/
     // 6070, pose+range cull, 1040/60e0/5f00/7c00 pending, 7c70 splice, 64c0, Play+6b70.
     unsigned char bDirty = 0;
-    Field4C = GetTickCount();
+    Field4C = Platform::TickCountMs();
     if (ListenerPose != nullptr)
         ApplyListenerFromSource(ListenerPose);
 
@@ -3664,10 +3665,10 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
         FSoundInstanceNode* Next = Node->Next;
         if (FindAttached(Node->PlayKey) == nullptr)
         {
-            EnterCriticalSection(&G_InstanceLock);
+            Platform::LockEnter(&G_InstanceLock);
             UnlinkInstance(Node);
             bDirty = 1;
-            LeaveCriticalSection(&G_InstanceLock);
+            Platform::LockLeave(&G_InstanceLock);
         }
         Node = Next;
     }
@@ -3696,7 +3697,7 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
                 if (Existing != nullptr)
                 {
                     // 06ee505e..5153: the notice is emitted before LeaveCriticalSection.
-                    EnterCriticalSection(&G_InstanceLock);
+                    Platform::LockEnter(&G_InstanceLock);
                     UnlinkInstance(Existing);
                     bDirty = 1;
                     if (Created >= MaxChannels)
@@ -3707,7 +3708,7 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
                         NoticeArch(0x97C,
                                    "Had to stop instance of arch %d because it is no longer playing.\n",
                                    PlayKey);
-                    LeaveCriticalSection(&G_InstanceLock);
+                    Platform::LockLeave(&G_InstanceLock);
                 }
                 else if (Created >= MaxChannels)
                     NoticeArch(0x98C,
@@ -3729,10 +3730,10 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
                     if (PlayKey->Is3d() != 0 && (Existing->DsCapsFlags & 0x20000) != 0 &&
                         !(Existing->DistSq < Existing->MaxDistSq))
                     {
-                        EnterCriticalSection(&G_InstanceLock);
+                        Platform::LockEnter(&G_InstanceLock);
                         UnlinkInstance(Existing);
                         bDirty = 1;
-                        LeaveCriticalSection(&G_InstanceLock);
+                        Platform::LockLeave(&G_InstanceLock);
                     }
                     else
                     {
@@ -3767,11 +3768,11 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
     // 06ee51ba: pending count -> lock, dirty = 1 (before the re-check), splice if still non-zero.
     if (InstanceEmbeddedCount != 0)
     {
-        EnterCriticalSection(&G_InstanceLock);
+        Platform::LockEnter(&G_InstanceLock);
         bDirty = 1;
         if (InstanceEmbeddedCount != 0)
             SplicePendingInstances();
-        LeaveCriticalSection(&G_InstanceLock);
+        Platform::LockLeave(&G_InstanceLock);
     }
 
     Node = G_InstanceSentinel.Next;
@@ -3860,7 +3861,7 @@ GENRESULT DACOM_API FSoundManager::MixerTick(ISoundListenerPose* ListenerPose)
     }
 
     if (bDirty != 0)
-        SetEvent(G_MixerEvent); // 06ee54c9..54d1
+        Platform::EventSet(G_MixerEvent); // 06ee54c9..54d1
 
     return GR_OK;
 }

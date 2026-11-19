@@ -13,6 +13,7 @@
 #include "rpc_payloads.h"
 #include "rpc_containers.h"
 #include "common_server_types.h"
+#include "platform.h"
 
 #include <new>
 #include <ostream>
@@ -778,7 +779,7 @@ unsigned int FRpcConnection::Start(unsigned int InMode) {
 
     // 06d85db2..06d85dc9: InitializeCriticalSection(conn+0x18), started = 1,
     // conn+0x10 = the mode, return 0.
-    InitializeCriticalSection(&Lock);
+    Platform::LockInit(&Lock);
     bStarted = true;
     Mode = InMode;
     return kStartOk;
@@ -802,7 +803,7 @@ void FRpcConnection::DestroyQueue(FPacketQueue* Queue) {
 // (06d85852), +0x08 (06d858ed), +0x00 (06d85988), then RET (06d85ab7). It touches no
 // other field.
 FRpcConnection::~FRpcConnection() {
-    DeleteCriticalSection(&Lock);
+    Platform::LockDelete(&Lock);
     DestroyQueue(ClientBoundWrite);
     DestroyQueue(ServerBoundWrite);
     DestroyQueue(ClientBoundRead);

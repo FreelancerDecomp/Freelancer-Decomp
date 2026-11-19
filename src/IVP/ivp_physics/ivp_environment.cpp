@@ -37,6 +37,7 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include "platform.h"
 
 
 // ============================================================================
@@ -1744,8 +1745,8 @@ void IVP_PerformanceCounter_Simple::Slot01(int32_t Element)
 
     LARGE_INTEGER Counter;
     LARGE_INTEGER Frequency;
-    QueryPerformanceCounter(&Counter);                                       // :063602f4-:063602f9
-    QueryPerformanceFrequency(&Frequency);                                   // :063602ff-:06360304
+    Platform::PerfCounter(&Counter.QuadPart);                                // :063602f4-:063602f9
+    Platform::PerfFrequency(&Frequency.QuadPart);                            // :063602ff-:06360304
 
     // :0636030a-:06360319 -- the 32-bit low-dword difference, FILD as a signed dword.
     const int32_t Delta = static_cast<int32_t>(static_cast<uint32_t>(Counter.LowPart) - LastCounterLow);

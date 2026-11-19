@@ -53,6 +53,8 @@
 #include <stdio.h>
 #include <windows.h>
 
+#include "platform.h"
+
 namespace
 {
     // DAT_0061085c / DAT_00610860 are RenderMgr.cpp globals: G_bRenderDither (the DitherControl
@@ -104,7 +106,7 @@ namespace
         {
             // 0x00424fbf..0x00424fdb: Sleep(1000), then FUN_004249c0(DAT_006679f4, options,
             // options).
-            Sleep(1000);
+            Platform::SleepMs(1000);
             if (RenderMgrCreateBuffers(G_RenderMgrWindow, &g_display, &g_display))
             {
                 // 0x00424fe7..0x00425020: Clear(3, 0) +0x3c, SwapBuffers +0x40; only a

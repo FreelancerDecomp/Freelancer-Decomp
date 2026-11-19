@@ -36,6 +36,7 @@
 #include "../include/server_savegame.h"   // pub::Save -> PlayerData_AutoSave / PlayerData_MissionSave
 #include "../include/common_casteroid.h"
 #include <windows.h>
+#include "../include/platform.h"
 #include <cstdint>
 #include <new>
 #include <cmath>
@@ -558,7 +559,7 @@ SERVER_API HINSTANCE __cdecl DLL_LoadLibrary(const char* DllPath) {
         _makepath(Joined, nullptr, GDllPath, DllPath, nullptr);
         _fullpath(FullPath, Joined, 0x104);
     }
-    HMODULE Module = LoadLibraryA(FullPath);
+    HMODULE Module = Platform::ModuleLoad(FullPath);
     if (Module == nullptr) {
         FDUMP(0x100002, "%s(%d) : *** WARNING: failed to load mission DLL '%s'\n",
               "E:\\FL\\Scratch\\Source\\Server\\dlls.cpp", 0x1de, FullPath);
@@ -1316,7 +1317,7 @@ bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName
     {
         SYSTEMTIME SysTime;
         FILETIME FileTime;
-        GetLocalTime(&SysTime);
+        Platform::LocalTime(&SysTime);
         SystemTimeToFileTime(&SysTime, &FileTime);
         char TstampBuf[64];
         sprintf_s(TstampBuf, "%u,%u", FileTime.dwHighDateTime, FileTime.dwLowDateTime);
