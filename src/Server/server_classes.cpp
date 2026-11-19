@@ -4,33 +4,33 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "../include/common_server.h"
-#include "../include/common_net.h"
-#include "../include/common_physys.h"
-#include "../include/common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
-#include "../include/common_cequip.h" // TractorArm
-#include "../include/common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
-#include "../include/common_id.h"
-#include "../include/common_server_playerdb.h"
-#include "../include/server_savegame.h" // PlayerData_CreateNewCharacter (retail FUN_06d4b790)
-#include "../include/server_savefile.h" // Server_AccountDirName / Server_GetAccountsRoot (FUN_06d49f60)
-#include "../include/common_ini.h"
-#include "../include/common_misc.h"
-#include "../include/x86math.h" // I3DMathEngine
-#include "../include/common_universe.h"
-#include "../include/common_reputation.h"
-#include "../include/server_sysdb.h"
-#include "../include/server_gameobject.h" // GameObject's +0x154..+0x160 slots (StarSystem::remove_player/unload)
-#include "../include/common_cobjdb.h"  // IObjDB::GetZoneDb (SrvAsteroid_UpdateSystem, FUN_06d03480)
-#include "../include/DALib.h"          // DALib::Data (SrvAsteroid's GetFileSysPath calls)
-#include "../include/readfile.h"       // IFileSystem::GetFileSysPath (+0x84), create_restart_file
-#include "../include/server_createinfo.h"
-#include "../include/server_characterset.h" // CCharacterSet (FUN_06d499c0)
-#include "../include/common_goods.h"    // AmbientScriptProperties (server_basedb.h uses it by value)
-#include "../include/server_basedb.h"
-#include "../include/rpc_iclient.h"
-#include "../include/rpc_iclient_args.h" // FServerSetReputationInfo / FPayloadServerActivateObject (add_player MP walk)
-#include "../include/md5hash.h"      // MD5HASH_API: Server exports its implicit members like retail
+#include "common_server.h"
+#include "common_net.h"
+#include "common_physys.h"
+#include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
+#include "common_cequip.h" // TractorArm
+#include "common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
+#include "common_id.h"
+#include "common_server_playerdb.h"
+#include "server_savegame.h" // PlayerData_CreateNewCharacter (retail FUN_06d4b790)
+#include "server_savefile.h" // Server_AccountDirName / Server_GetAccountsRoot (FUN_06d49f60)
+#include "common_ini.h"
+#include "common_misc.h"
+#include "x86math.h" // I3DMathEngine
+#include "common_universe.h"
+#include "common_reputation.h"
+#include "server_sysdb.h"
+#include "server_gameobject.h" // GameObject's +0x154..+0x160 slots (StarSystem::remove_player/unload)
+#include "common_cobjdb.h"  // IObjDB::GetZoneDb (SrvAsteroid_UpdateSystem, FUN_06d03480)
+#include "DALib.h"          // DALib::Data (SrvAsteroid's GetFileSysPath calls)
+#include "readfile.h"       // IFileSystem::GetFileSysPath (+0x84), create_restart_file
+#include "server_createinfo.h"
+#include "server_characterset.h" // CCharacterSet (FUN_06d499c0)
+#include "common_goods.h"    // AmbientScriptProperties (server_basedb.h uses it by value)
+#include "server_basedb.h"
+#include "rpc_iclient.h"
+#include "rpc_iclient_args.h" // FServerSetReputationInfo / FPayloadServerActivateObject (add_player MP walk)
+#include "md5hash.h"      // MD5HASH_API: Server exports its implicit members like retail
 #include <windows.h>
 #include <mmsystem.h>
 #include "../include/platform.h"

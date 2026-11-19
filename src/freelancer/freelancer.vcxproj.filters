@@ -1,0 +1,1436 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Solution Explorer folders only; MSBuild ignores this file. -->
+  <ItemGroup>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{81BBDF39-CB3E-5430-8FC3-EF19A73559A9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Client objects">
+      <UniqueIdentifier>{4C346C1C-14DF-5FE2-8450-A3F5EF6A1275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{461EACF9-AFC0-559E-B384-4694407E8127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameflow and bases">
+      <UniqueIdentifier>{5CA2DC82-A531-5B03-9E34-D819135594E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HUD">
+      <UniqueIdentifier>{4DA32B54-A1A6-5A4B-84E2-1AC51D516C8F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{8A369196-8015-58A9-938C-E48BCAC48E20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering and effects">
+      <UniqueIdentifier>{BFF5ADF0-C6B1-5B53-AA5E-CFCE7E62A679}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{CA71E272-6E9F-5C5B-9762-8D42EF3872C3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Space">
+      <UniqueIdentifier>{71075980-9C6F-57B4-8648-3E0DC47DD12A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Space\Cameras">
+      <UniqueIdentifier>{BC980030-69EA-52CB-BF53-906702174A74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{B119484E-EF5C-53A4-BF0C-AB3791B45CB9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Chat">
+      <UniqueIdentifier>{E1EAC0FF-4F71-59B6-80E0-368C3819589C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Menus and pages">
+      <UniqueIdentifier>{78B9229E-6A40-5144-9AAE-5700572E0F65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Screens (nn_)">
+      <UniqueIdentifier>{2AD62003-AC03-58EE-A746-598C69F514DC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Widgets">
+      <UniqueIdentifier>{BC4E33E0-6743-5B44-989D-8F34898D83BC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Client\menu_sound_arch.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\sound_config.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\voice_profiles.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_projectile_fx.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_tractor_beam.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_base_market.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_cliobj.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_debris.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_equip_fx.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_explosion.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_exports.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_frame_tick.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_fuse.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_gameobj.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_iclient.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_iclient_space.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_ime_focus.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_land_action.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_mesh_load.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_objdb.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_state.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_tick_profile.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\client_timing.cpp">
+      <Filter>Client objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\game_options.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ids_rdl.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ids_strings.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\input_manager.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\main.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\main_command_handler.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\message_pump.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\misc_util.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\reg_key_stack.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\startup_config.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\anim_script_set.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\base_walk.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\character_info.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\character_select_equip.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\engine_character.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gameflow.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_character_object.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_hotspot.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_object_ship.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_script.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_script_object.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_script_spawn.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_camera.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_component.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_compound.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_deformable.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_light.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_marker.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_psys.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_scene.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gf_thorn_sound.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\lights_camera.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\mission_created_solars.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\object_prop.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\player_behavior.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\player_spawn.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\room_camera.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\room_control.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\room_control_hotspot.cpp">
+      <Filter>Gameflow and bases</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_button.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_comm.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_command_dispatch.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_contact_list.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_cruise_progress.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_damage_indicator.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_element_list.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_maneuvers.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_status_core.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_target.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_target_panel.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_targetable_objects.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_waypoint.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_weapon_groups.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\hud_widescreen.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nav_bar.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\wire_controls.cpp">
+      <Filter>HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\connect_flow.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\connect_handshake.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\connect_lists.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\login_mgr.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\server_connect.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\server_filter.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\server_filter_dialog.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\alchemy_float_forward.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\beam_effect.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cockpit_load.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\effect_base.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\effect_type_info.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\effect_type_list.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\effect_vertex_batch.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\engine_init.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\engine_light.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\equip_visual_set.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\fl_fx_mesh.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\flash_light.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\part_cache.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\particle_effect.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\perf_options.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\pixel_format.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\render_ex.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\scene_render_registry.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\screen_quad_state.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\swapped_material.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\vis_effect_arch.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win3d.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win3d_engine_submit.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win3d_immediate.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win3d_render.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win3d_renderables.cpp">
+      <Filter>Rendering and effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\asteroid_billboard.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\best_path.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_asteroid.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_asteroid_dynamic.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_asteroid_med.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cli_nebula.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\gate_tunnel.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\jump_effect.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\knowledge_map.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nebula_volume.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_dust.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_letterbox.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_scene_draw.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_scene_load.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_scene_obj_draw.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_solar_world.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_state.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\star_sphere.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\star_sys.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\tradelane_fx.cpp">
+      <Filter>Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ship_camera_params.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_death.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_docking.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_first.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_game.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_rear.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_script.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_static.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_third.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\space_camera_turret.cpp">
+      <Filter>Space\Cameras</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\chat_control.cpp">
+      <Filter>UI\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\chat_init.cpp">
+      <Filter>UI\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\chat_text_input.cpp">
+      <Filter>UI\Chat</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\dataconfig_progress.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\fade_to_black.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\intro_connect.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\intro_page_util.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\loading_screen.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_enter_state.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_fonts_load.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_keymap.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_mp_session.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_ui_draw.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_ui_init.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_ui_widgets.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\menu_universe_base.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\mission_briefing.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_account_select.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_character_create.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_character_select.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_character_select_single.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_options.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\page_server_select.cpp">
+      <Filter>UI\Menus and pages</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_blocking_dialog.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_button_control.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_confirm.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_dealer.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_error.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_exit.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_group_control.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_help.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_inventory.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_load_save.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_main_button.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_messaging.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_mission_message.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_mission_vendor.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_modal.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_montage_draw.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_build.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_draw.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_input.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_panels.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_update.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_navmap_view.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_network_operation.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_news.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_offer_dialog.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_pause.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_player_info.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_preferences.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_prompt.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_repair.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_rollover.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_scanner.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_ship_trader.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_static_control.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_story_star.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_text_control.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_text_scratch.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_tooltip.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_trade.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\nn_ui_pulse.cpp">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\button_mover.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\cargo_bar_control.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\commodity_by_base.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\dealer_equip_stats.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\fl_ime_input_box.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\font_atlas.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\font_imp.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\font_string.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\graph_library.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\image.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\infocard_map.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\list_box.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\rich_text_win.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\scroll_control.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ship_view_control.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\text_win.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\texture_panels.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\texture_shapes.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\trade_equip_list.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\type_select.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_fast_table.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_list_box.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_page.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_page_desc.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_rich_text_win.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_scroll.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_ship_view_control.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_static_text.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_table.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_text_edit.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_text_msg_button.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_win_deform.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\ui_win_object.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win_factory.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\win_object.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\wincontrol_base.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\wincontrol_children.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Client\window.cpp">
+      <Filter>UI\Widgets</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Client\menu_sound_arch.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\sound_archetype.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\sound_config.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\voice_profiles.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cli_projectile_fx.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cli_tractor_beam.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_base_market.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_cliobj.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_debris.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_environment.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_explosion.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_frame_tick.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_land_action.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_mesh_load.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_state.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\client_tick_profile.h">
+      <Filter>Client objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\event_handler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\game_options.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ids_strings.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\input_manager.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\main_command_handler.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\misc_util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\reg_key_stack.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\vc6_sort.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\anim_script_set.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\base_walk.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\base_walk_math.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\character_info.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\character_select_equip.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\engine_character.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gameflow.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_character_object.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_hotspot.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_object_ship.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_script.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_script_object.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_camera.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_component.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_compound.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_deformable.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_light.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_marker.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_psys.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_scene.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gf_thorn_sound.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\lights_camera.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\mission_created_solars.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\object_prop.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\player_behavior.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\player_spawn.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\room_camera.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\room_control.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\room_control_hotspot.h">
+      <Filter>Gameflow and bases</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_button.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_comm.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_command_dispatch.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_contact_list.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_cruise_progress.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_damage_indicator.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_element_list.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_maneuvers.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_status_core.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_target.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_targetable_objects.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_waypoint.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_weapon_groups.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\hud_widescreen.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nav_bar.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\widescreen.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\wire_controls.h">
+      <Filter>HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\connect_flow.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\connect_handshake.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\connect_lists.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\login_mgr.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\server_connect.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\server_filter.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\server_filter_dialog.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\alchemy_float_forward.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\beam_effect.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cockpit_load.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\effect_base.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\effect_type_info.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\effect_type_list.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\effect_vertex_batch.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\engine_light.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\equip_visual_set.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\fl_fx_mesh.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\flash_light.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\mirror_property_bucket.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\part_cache.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\particle_effect.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\perf_options.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\pixel_format.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\render_ex.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\scene_render_registry.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\screen_quad_state.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\swapped_material.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\vis_effect_arch.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\win3d.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\win3d_render.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\win3d_renderables.h">
+      <Filter>Rendering and effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\asteroid_billboard.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\best_path.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cli_asteroid.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cli_asteroid_dynamic.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cli_asteroid_med.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\gate_tunnel.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\jump_effect.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\knowledge_map.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nebula_volume.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ship_space_supt_fx.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_client_objects_fx.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_dust.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_env_fx.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_scene_draw.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_scene_load.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_scene_obj_draw.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\space_state.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\star_sphere.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\star_sys.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\tradelane_fx.h">
+      <Filter>Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\chat_control.h">
+      <Filter>UI\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\chat_text_input.h">
+      <Filter>UI\Chat</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\intro_connect.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\intro_page_util.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\loading_screen.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_enter_state.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_fonts_load.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_keymap_config.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_pilot_select.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_ui_draw.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_ui_init.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_ui_widgets.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_universe_base.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\menu_wincontrol_base.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\mission_briefing.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_account_select.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_character_create.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_character_select.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_character_select_single.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_options.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\page_server_select.h">
+      <Filter>UI\Menus and pages</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_blocking_dialog.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_button_control.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_confirm.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_dealer.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_error.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_exit.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_help.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_inventory.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_load_save.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_main_button.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_messaging.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_mission_message.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_mission_vendor.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_modal.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_montage_draw.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_navmap.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_network_operation.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_news.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_offer_dialog.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_pause.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_player_info.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_preferences.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_prompt.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_repair.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_scanner.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_ship_trader.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_static_control.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_story_star.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_text_control.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_text_scratch.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_trade.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\nn_ui_pulse.h">
+      <Filter>UI\Screens (nn_)</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\button_mover.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\cargo_bar_control.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\commodity_by_base.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\dealer_equip_stats.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\fl_ime_input_box.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\font_atlas.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\font_imp.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\font_string.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\graph_library.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\image.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\infocard_map.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\list_box.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\rich_text_win.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\scroll_control.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ship_view_control.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\text_win.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\texture_panels.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\texture_shapes.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\tooltip_hover.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\trade_equip_list.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\type_select.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_fast_table.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_list_box.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_page.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_page_desc.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_rich_text_win.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_scroll.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_ship_view_control.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_static_text.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_table.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_text_edit.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_text_msg_button.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_win_deform.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\ui_win_object.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\win_factory.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\win_object.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Client\wincontrol_base.h">
+      <Filter>UI\Widgets</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\freelancer.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\ICON103_1.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

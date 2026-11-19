@@ -14,15 +14,15 @@
 // .rdata:06d664a4), then +0x74..+0x7f. The spawner (StarSystem FUN_06d09640) allocates 0x80.
 // Bullet has no field of its own (operator new(0x60) in FUN_06d099e0).
 
-#include "../include/server_gameobject.h"
-#include "../include/server_sysdb.h"       // StarSystem::explode / munition_collision / find_object
-#include "../include/server_createinfo.h"  // Server_Acquire3DMathEngine (FUN_06d5ff70)
-#include "../include/x86math.h"            // I3DMathEngine::TransformMatrix
-#include "../include/common_misc.h"        // SUBOBJ_ID_ROOT, DamageList
-#include "../include/common_id.h"          // ID_String::IsEmpty
-#include "../include/common_csys.h"        // Matrix, Transform (get_transform)
-#include "../include/DALib.h"              // DALib::Engine (create, IEngine +0x6c)
-#include "../include/common_ivp_controller.h" // IVP_Event_Sim::delta_time
+#include "server_gameobject.h"
+#include "server_sysdb.h"       // StarSystem::explode / munition_collision / find_object
+#include "server_createinfo.h"  // Server_Acquire3DMathEngine (FUN_06d5ff70)
+#include "x86math.h"            // I3DMathEngine::TransformMatrix
+#include "common_misc.h"        // SUBOBJ_ID_ROOT, DamageList
+#include "common_id.h"          // ID_String::IsEmpty
+#include "common_csys.h"        // Matrix, Transform (get_transform)
+#include "DALib.h"              // DALib::Engine (create, IEngine +0x6c)
+#include "common_ivp_controller.h" // IVP_Event_Sim::delta_time
 
 #include <cmath>
 #include <cstdio>

@@ -9,12 +9,12 @@
 // src/include/server_gameobject.h; its constructor, find, get_type_bits and cloot live in
 // server_gameobject.cpp.
 
-#include "../include/server_gameobject.h"
-#include "../include/server_sysdb.h"   // StarSystem::explode / find_object, StarSystem_DamageObject
-#include "../include/common_misc.h"    // LOOT_UNSEEN_*, SUBOBJ_ID_ROOT / SUBOBJ_ID_POWER
-#include "../include/common_id.h"      // ID_String::IsEmpty / get_string
-#include "../include/dacom.h"          // FDUMP
-#include "../include/DALib.h"          // DALib::Engine (Loot::create, IEngine +0x6c)
+#include "server_gameobject.h"
+#include "server_sysdb.h"   // StarSystem::explode / find_object, StarSystem_DamageObject
+#include "common_misc.h"    // LOOT_UNSEEN_*, SUBOBJ_ID_ROOT / SUBOBJ_ID_POWER
+#include "common_id.h"      // ID_String::IsEmpty / get_string
+#include "dacom.h"          // FDUMP
+#include "DALib.h"          // DALib::Engine (Loot::create, IEngine +0x6c)
 
 #include <cstdlib>
 #include <list>

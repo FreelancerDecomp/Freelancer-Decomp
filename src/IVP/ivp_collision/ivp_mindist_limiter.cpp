@@ -38,7 +38,7 @@
 #include "../ivp_utility/ivp_vector_math.h"
 #include "../ivp_utility/ivp_core_trap.h" // IVP_CoreTrap (retail's `MOV dword ptr [0],0`)
 #include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte (insert_exact_mindist)
-#include "../../include/common_physys.h"
+#include "common_physys.h"
 #include "ivp_ledge_sweep_solver.h" // the collision-time estimator dispatch layer (items 3380-3384) and its eight drivers
 #include "ivp_mindist_create.h" // IVP_Create_Exact_Mindists (FUN_0634e0b0), called by SpawnOrDeferChild (06362c70)
 #include "../ivp_physics/ivp_phantom.h" // IVP_Controller_Phantom (06350310 / 06350350), cmn-ivp3d

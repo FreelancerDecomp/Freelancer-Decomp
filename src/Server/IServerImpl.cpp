@@ -4,35 +4,35 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "../include/common_server.h"
-#include "../include/server_iserverimpl.h"   // IServerImpl, Server
-#include "../include/server_cobject.h"
-#include "../include/server_gameobject.h"
-#include "../include/common_dataconfig.h" // DataConfig::startup / shutdown
-#include "../include/common_timing.h" // Timing::Delta
-#include "../include/common_tradeoffer.h" // CPlayerTradeOffer
-#include "../include/common_id.h"
-#include "../include/common_ini.h"
-#include "../include/common_goods.h"
-#include "../include/common_universe.h"
-#include "../include/common_server_playerdb.h"
-#include "../include/server_savegame.h"
-#include "../include/server_characterset.h" // CCharacterSet (CharacterInfoReq)
-#include "../include/common_misc.h"      // safe_strcpy (CharacterSelect key)
-#include "../include/common_server_controller.h"
-#include "../include/content.h"   // IDLL, CreateInstance / DestroyInstance (controller DLL entry points)
-#include "../include/server_sysdb.h"
-#include "../include/server_basedb.h"
-#include "../include/server_fuse.h"     // ServerFuseDB (FUN_06cfd4b0 / FUN_06cfd3a0)
-#include "../include/rpc_iclient.h"
-#include "../include/rpc_iclient_args.h" // FServerSetReputationInfo / FServerCharSelectVerifiedInfo
-#include "../include/DALib.h"           // DALib::Data (FUN_06d44ca0)
-#include "../include/readfile.h"        // IFileSystem::GetFileSysPath (+0x84)
-#include "../include/common_physys.h"
-#include "../include/common_casteroid.h"   // CmnAsteroid::Update (.text:06d0c136)
-#include "../include/common_animdb.h"     // AnimDB::Update (FUN_06d10320)
-#include "../include/server_createinfo.h" // FShipCreateRequest, Server_Acquire3DMathEngine (PlayerLaunch)
-#include "../include/x86math.h"           // I3DMathEngine (PlayerLaunch)
+#include "common_server.h"
+#include "server_iserverimpl.h"   // IServerImpl, Server
+#include "server_cobject.h"
+#include "server_gameobject.h"
+#include "common_dataconfig.h" // DataConfig::startup / shutdown
+#include "common_timing.h" // Timing::Delta
+#include "common_tradeoffer.h" // CPlayerTradeOffer
+#include "common_id.h"
+#include "common_ini.h"
+#include "common_goods.h"
+#include "common_universe.h"
+#include "common_server_playerdb.h"
+#include "server_savegame.h"
+#include "server_characterset.h" // CCharacterSet (CharacterInfoReq)
+#include "common_misc.h"      // safe_strcpy (CharacterSelect key)
+#include "common_server_controller.h"
+#include "content.h"   // IDLL, CreateInstance / DestroyInstance (controller DLL entry points)
+#include "server_sysdb.h"
+#include "server_basedb.h"
+#include "server_fuse.h"     // ServerFuseDB (FUN_06cfd4b0 / FUN_06cfd3a0)
+#include "rpc_iclient.h"
+#include "rpc_iclient_args.h" // FServerSetReputationInfo / FServerCharSelectVerifiedInfo
+#include "DALib.h"           // DALib::Data (FUN_06d44ca0)
+#include "readfile.h"        // IFileSystem::GetFileSysPath (+0x84)
+#include "common_physys.h"
+#include "common_casteroid.h"   // CmnAsteroid::Update (.text:06d0c136)
+#include "common_animdb.h"     // AnimDB::Update (FUN_06d10320)
+#include "server_createinfo.h" // FShipCreateRequest, Server_Acquire3DMathEngine (PlayerLaunch)
+#include "x86math.h"           // I3DMathEngine (PlayerLaunch)
 #include <windows.h>
 #include <mmsystem.h>
 #include "../include/platform.h"

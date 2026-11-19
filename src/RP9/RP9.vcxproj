@@ -61,7 +61,6 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- Selects the Direct3D 9 branch of render/d3d8_min.h (the public render interfaces seen
            through D3D9 types). -->
       <PreprocessorDefinitions>RP_DIRECT3D9;%(PreprocessorDefinitions)</PreprocessorDefinitions>

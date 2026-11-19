@@ -10,4 +10,4 @@
 // built on it and Server.dll dynamic_casts IVP_Controller*): its single declaration is
 // src/include/common_ivp_controller.h. This path stays only so the existing src/IVP and
 // src/Common includers keep resolving.
-#include "../../include/common_ivp_controller.h"
+#include "common_ivp_controller.h"

@@ -7,8 +7,10 @@ Freelancer Decomp is a from-source reimplementation of the **Freelancer** game c
 that is checked against the retail disassembly. The goal is a working client whose behaviour
 matches the original, with documented internals that can be modified. See [MISSION.md](MISSION.md).
 
-The project contains **no game assets and no retail binaries**. To build and run it you need
-your own installation of Freelancer (see [Local layout](#local-layout)).
+The project contains **no game assets**, and the only retail binaries in it are two third-party
+components loaded unchanged: `EBUEula.dll` and `EXE\gundll.dll` (see the
+[root README](../README.md#repository-layout)). To build and run it you need your own
+installation of Freelancer (see [Local layout](#local-layout)).
 
 ## Where to start
 
@@ -41,14 +43,16 @@ Freelancer\
   src\        Visual Studio solution (Freelancer.sln) — all project source code
   bin\        Release output + the dev *.ini files (source of truth for the INI files)
   bin_debug\  Debug output       binasan\  DebugASan output
-  EXE\        retail binaries and Ghidra listings (not in git; reference only, never loaded)
+  EXE\        gundll.dll (in git, loaded); your retail binaries and Ghidra listings (not in git;
+              reference only, never loaded)
   DATA\       retail game data (not in git)
   DATA_EXTRA\ the port's own data next to DATA (RP9 shaders, volumetric.ini; in git)
   docs\       this documentation
 ```
 
-`EXE\` and `DATA\` come from your own Freelancer 1.1 installation. No retail DLL is loaded at
-runtime: `bin\DACOM.INI` points every `[Libraries]` entry into `bin\`.
+`DATA\` and the reference binaries in `EXE\` come from your own Freelancer 1.1 installation.
+`bin\DACOM.INI` points every `[Libraries]` entry into `bin\`, so no retail engine DLL is
+loaded; the only retail DLLs loaded at runtime are `EBUEula.dll` and `EXE\gundll.dll`.
 
 ## Building
 

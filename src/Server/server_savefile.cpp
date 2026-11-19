@@ -9,7 +9,7 @@
 // ADDED 2026-09-17 (wave 18). See src/include/server_savefile.h for the vtable
 // and layout evidence; this file carries the evidence for the behaviour.
 
-#include "../include/server_savefile.h"
+#include "server_savefile.h"
 
 #include <windows.h>
 #include <cstring>
