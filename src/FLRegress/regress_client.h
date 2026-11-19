@@ -29,10 +29,11 @@ public:
     {
         bool bLoginResponse = false;
         unsigned char LoginStatus = 0;
-        bool bHaveRestart = false;          // Restart.fl was in the character list
-        CHARACTER_ID RestartId;
-        unsigned int RestartSystemId = 0;
-        unsigned int RestartBaseId = 0;
+        unsigned int CharacterCount = 0;    // in the last character list
+        bool bHaveCharacter = false;        // the list's first character, below
+        CHARACTER_ID CharacterId;
+        unsigned int CharacterSystemId = 0;
+        unsigned int CharacterBaseId = 0;
         bool bCreateShipResponse = false;
         bool bCreateShipOk = false;
         unsigned int CreatedShipId = 0;

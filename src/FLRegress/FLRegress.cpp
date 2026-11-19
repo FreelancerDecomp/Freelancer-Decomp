@@ -1,13 +1,14 @@
 // Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
 //
-// Starts Server.dll the way the single-player client does, with no window, renderer, sound or
-// network, and writes the resulting game state to a text file. Two runs of the same build must
-// give identical files, and a change that keeps retail behaviour must not change them.
+// Starts Server.dll as a multiplayer server, as FLServer.exe does, but with FLRegress itself as
+// the client module instead of RemoteClient.dll: no window, renderer, sound or network. It
+// writes the resulting game state to a text file. Two runs of the same build must give
+// identical files, and a change that keeps retail behaviour must not change them.
 //
-// Stage A dumps the universe right after startup. Stage B then plays a scripted single-player
-// new game (log in, select Restart.fl, enter and leave the start base, launch into space) and
-// runs the server for --frames fixed 1/30 s frames on a virtual clock (regress_hooks.h), then
-// dumps every game object and the calls the server made to the client. See docs/flregress.md.
+// Stage A dumps the universe right after startup. Stage B then plays a scripted player (a new
+// account and character, enter and leave the start base, launch into space), runs the server
+// for --frames fixed 1/30 s frames on a virtual clock (regress_hooks.h), then dumps every game
+// object and the calls the server made to the client. See docs/flregress.md.
 //
 // Usage (from bin\, next to the game DLLs):
 //     FLRegress.exe [--out <file>] [--timeout <seconds>] [--frames <count>]
@@ -31,8 +32,10 @@
 #include <utility>
 
 #include "common_ini.h"           // INI_Reader
-#include "common_misc.h"          // SinglePlayer, SetMultiPlayer
-#include "common_server_types.h"  // SStartupInfo, SLoginInfo
+#include "common_misc.h"          // SinglePlayer
+#include "common_net.h"           // SetIsMPServer
+#include "common_newchar.h"       // NewChar::TheDB, FNewCharFaction
+#include "common_server_types.h"  // SStartupInfo, SLoginInfo, SCreateCharacterInfo
 #include "common_timing.h"        // Timing::UpdateGlobalTime
 #include "dacom.h"                // FDUMP
 #include "dalib_core.h"           // DALib::Startup / OpenData / CloseData / Shutdown
@@ -234,11 +237,39 @@ namespace
         }
     }
 
-    // Stage B's scripted player: the IServer calls the single-player client makes for a new game
-    // (CLoginMgr::Login, RequestCharacterInfo and character select; the base menu's BaseEnter /
-    // BaseExit; the space state's RequestCreateShip; the ship's PlayerLaunch and LaunchComplete).
-    // Each step records what the server answered; a missing answer ends the script there, and
-    // the frames and the dump still run so the file shows how far it got.
+    // The new character's choices: the first faction of the new-character database
+    // (DATA\characters\newcharacter.ini, ascending nickname id) with its first base, package
+    // and pilot -- what a multiplayer client offers when nothing is picked.
+    struct FNewCharacterChoice
+    {
+        bool bFound = false;
+        unsigned int Faction = 0;
+        unsigned int Base = 0;
+        unsigned int Package = 0;
+        unsigned int Pilot = 0;
+    };
+
+    bool __cdecl PickFirstFaction(unsigned int NicknameId, const FNewCharFaction* Faction, void* Context)
+    {
+        FNewCharacterChoice& Choice = *static_cast<FNewCharacterChoice*>(Context);
+        if (Faction == nullptr || Faction->Bases.empty() || Faction->Packages.empty() || Faction->Pilots.empty())
+        {
+            return true;   // keep looking
+        }
+        Choice.bFound = true;
+        Choice.Faction = NicknameId;
+        Choice.Base = *Faction->Bases.begin();
+        Choice.Package = *Faction->Packages.begin();
+        Choice.Pilot = *Faction->Pilots.begin();
+        return false;      // stop
+    }
+
+    // Stage B's scripted player: the IServer calls a multiplayer client makes for a new account
+    // (login with account creation, the character list, a new character, character select; the
+    // base menu's BaseEnter / BaseExit; the space state's RequestCreateShip; the ship's
+    // PlayerLaunch and LaunchComplete). Each step records what the server answered; a missing
+    // answer ends the script there, and the frames and the dump still run so the file shows how
+    // far it got.
     bool PlayScript(FRegressWriter& Out, unsigned int& Frame)
     {
         FRegressClient& Client = GetRegressClient();
@@ -248,11 +279,10 @@ namespace
         Server.OnConnect(SessionId);
         SLoginInfo Login;
         memset(&Login, 0, sizeof(Login));
-        wcsncpy(Login.AccountName, L"SinglePlayer", 0x28);
+        wcsncpy(Login.AccountName, L"FLRegress", 0x28);
         Login.AccountName[0x27] = L'\0';
-        // CLoginMgr::Login's bCreateAccount: the sandbox starts without the account folder,
-        // and PlayerDB::load_user_data answers 2 for a missing folder unless creation is asked
-        // for (create_account then builds it and Restart.fl).
+        // The sandbox starts without accounts: PlayerDB::load_user_data answers 2 for a missing
+        // account folder unless the login asks for the account to be created.
         Login.CreateFlag = 1;
         Server.Login(Login, SessionId);
         Out.Line("player login answered=%d status=%u", Player.bLoginResponse ? 1 : 0,
@@ -262,23 +292,43 @@ namespace
             return false;
         }
 
-        // The single-player login's difficulty request (CLoginMgr::Login), at the neutral 1.0.
-        Server.ReqDifficultyScale(1.0f, SessionId);
-
-        Phase("stage B: select character");
+        Phase("stage B: new character");
         Server.CharacterInfoReq(SessionId, false);
-        Out.Line("player restart found=%d id=%s system=%08x base=%08x", Player.bHaveRestart ? 1 : 0,
-            Player.bHaveRestart ? Player.RestartId.Buffer : "", Player.RestartSystemId, Player.RestartBaseId);
-        if (!Player.bHaveRestart)
+        FNewCharacterChoice Choice;
+        if (NewChar::TheDB != nullptr)
+        {
+            NewChar::TheDB->ForEachFaction(&PickFirstFaction, &Choice);
+        }
+        Out.Line("player new_character found=%d faction=%08x base=%08x package=%08x pilot=%08x",
+            Choice.bFound ? 1 : 0, Choice.Faction, Choice.Base, Choice.Package, Choice.Pilot);
+        if (!Choice.bFound)
         {
             return false;
         }
-        Server.CharacterSelect(Player.RestartId, SessionId);
+        SCreateCharacterInfo Create;
+        memset(&Create, 0, sizeof(Create));
+        wcsncpy(Create.Name, L"FLRegress", 23);
+        Create.Field_0x30 = Choice.Faction;
+        Create.Field_0x34 = Choice.Base;
+        Create.Field_0x38 = Choice.Package;
+        Create.Field_0x3c = Choice.Pilot;
+        // On success the server answers with the new character list (CharacterInfoReq).
+        Server.CreateNewCharacter(Create, SessionId);
+        Out.Line("player characters=%u first=%s system=%08x base=%08x", Player.CharacterCount,
+            Player.bHaveCharacter ? Player.CharacterId.Buffer : "", Player.CharacterSystemId,
+            Player.CharacterBaseId);
+        if (!Player.bHaveCharacter)
+        {
+            return false;
+        }
+
+        Phase("stage B: select character");
+        Server.CharacterSelect(Player.CharacterId, SessionId);
 
         Phase("stage B: base");
-        Server.BaseEnter(Player.RestartBaseId, SessionId);
+        Server.BaseEnter(Player.CharacterBaseId, SessionId);
         RunFrames(Out, BaseFrames, Frame);
-        Server.BaseExit(Player.RestartBaseId, SessionId);
+        Server.BaseExit(Player.CharacterBaseId, SessionId);
 
         Phase("stage B: launch");
         Server.RequestCreateShip(SessionId);
@@ -303,8 +353,7 @@ namespace
     {
         // Content.dll and the other modules Startup loaded get their imports patched too.
         RegressHooks::Install();
-        RegressHooks::EnableVirtualClock();
-        // Server::Startup seeds rand from the wall clock; every module shares the CRT's state.
+        // A fixed seed for the simulation; every module shares the CRT's rand state.
         srand(1);
         GetRegressClient().ClearTrace();
 
@@ -374,8 +423,11 @@ namespace
         // FLServer's server-thread FPU setup with exceptions masked (SetupServerFpu).
         _control87(0x9001f, 0xfffff);
 
-        // Single player: the default of Common's flag, set explicitly so the mode is visible.
-        SetMultiPlayer(false);
+        // A multiplayer server, as FLServer.exe and FLDedicated.exe start it. In single player the
+        // server takes each system's solars from the client sharing its process
+        // (StarSystem::load_solars), so a run without a client could not launch a ship; the
+        // multiplayer server builds them from the system files itself.
+        SetIsMPServer(true);
 
         Phase("DALib::Startup");
         if (!DALib::Startup(nullptr, "DACOMsrv.ini"))
@@ -395,7 +447,8 @@ namespace
         }
 
         // The fields the single-player client fills (server_connect.cpp StartServer). The
-        // server loads its client from ModulePath, which is this executable.
+        // server loads its client from ModulePath, which is this executable (FLServer names
+        // RemoteClient.dll there).
         SStartupInfo Info;
         memset(&Info, 0, sizeof(Info));
         strcpy(Info.ModulePath, ModulePath);
@@ -405,8 +458,11 @@ namespace
         Info.bAllowPvp = 1;
         Info.bAllowNewPlayers = 1;
 
-        // DALib::Startup loaded the DACOM libraries since the first patch.
+        // DALib::Startup loaded the DACOM libraries since the first patch. From here on the game
+        // modules run on the virtual clock: Startup seeds rand and creates the server's account
+        // id from it, which then repeat as well.
         RegressHooks::Install();
+        RegressHooks::EnableVirtualClock();
 
         Phase("Server::Startup");
         if (!Server.Startup(Info))

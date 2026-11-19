@@ -41,24 +41,29 @@ void FRegressClient::OnSendServerLoginResponse(unsigned int ClientId, const unsi
     Player.LoginStatus = Status;
 }
 
-// The single-player new game selects the character the server made from NewPlayer.fl:
-// Restart.fl, flagged bIsRestart in the list.
+// The scripted player's account holds only the character it created, so the list's first
+// entry is the one to select.
 void FRegressClient::OnSendServerCharacterInfo(unsigned int ClientId, const CCharacterSet& Characters)
 {
     (void)ClientId;
+    Player.CharacterCount = 0;
+    Player.bHaveCharacter = false;
     for (const MetaNode<CCharacterSet::CharacterInfo>* Node = Characters.Characters.get_head(); Node != nullptr;
          Node = Node->Next)
     {
         const CCharacterSet::CharacterInfo* Info = Node->Data;
-        if (Info == nullptr || Info->bIsRestart == 0)
+        if (Info == nullptr)
         {
             continue;
         }
-        Player.bHaveRestart = true;
-        Player.RestartId = Info->Id;
-        Player.RestartSystemId = Info->SystemId;
-        Player.RestartBaseId = Info->BaseId;
-        return;
+        ++Player.CharacterCount;
+        if (!Player.bHaveCharacter)
+        {
+            Player.bHaveCharacter = true;
+            Player.CharacterId = Info->Id;
+            Player.CharacterSystemId = Info->SystemId;
+            Player.CharacterBaseId = Info->BaseId;
+        }
     }
 }
 
