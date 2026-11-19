@@ -8,8 +8,10 @@ Freelancer Decomp — это переписанный с нуля по исхо�
 поведение которого совпадает с оригиналом, с задокументированными внутренностями, которые можно
 изменять. См. [MISSION.md](MISSION.md).
 
-Проект **не содержит игровых ресурсов и retail-бинарников**. Чтобы собрать и запустить его,
-нужна собственная установка Freelancer (см. [Локальная раскладка](#локальная-раскладка)).
+Проект **не содержит игровых ресурсов**, а из retail-бинарников в нём только два сторонних
+компонента, которые грузятся без изменений: `EBUEula.dll` и `EXE\gundll.dll` (см.
+[корневой README](../../README.ru.md)). Чтобы собрать и запустить его, нужна собственная
+установка Freelancer (см. [Локальная раскладка](#локальная-раскладка)).
 
 ## С чего начать
 
@@ -42,14 +44,17 @@ Freelancer\
   src\        Visual Studio solution (Freelancer.sln) — all project source code
   bin\        Release output + the dev *.ini files (source of truth for the INI files)
   bin_debug\  Debug output       binasan\  DebugASan output
-  EXE\        retail binaries and Ghidra listings (not in git; reference only, never loaded)
+  EXE\        gundll.dll (in git, loaded); your retail binaries and Ghidra listings (not in git;
+              reference only, never loaded)
   DATA\       retail game data (not in git)
   DATA_EXTRA\ the port's own data next to DATA (RP9 shaders, volumetric.ini; in git)
   docs\       this documentation
 ```
 
-`EXE\` и `DATA\` берутся из вашей собственной установки Freelancer 1.1. Ни одна retail DLL не
-загружается во время работы: `bin\DACOM.INI` направляет каждую запись `[Libraries]` в `bin\`.
+`DATA\` и справочные бинарники в `EXE\` берутся из вашей собственной установки Freelancer 1.1.
+`bin\DACOM.INI` направляет каждую запись `[Libraries]` в `bin\`, поэтому ни одна retail DLL
+движка не загружается; во время работы грузятся только retail DLL `EBUEula.dll` и
+`EXE\gundll.dll`.
 
 ## Сборка
 
