@@ -91,6 +91,9 @@
     <ProjectReference Include="..\DALib\DALib.vcxproj">
       <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
