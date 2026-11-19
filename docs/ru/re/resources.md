@@ -8,7 +8,7 @@
 
 Ghidra dump: `EXE/Disasm/DecompiledResources/<module>/<module>.rc` (+ sidecar HTML/ICO/BMP). Корневые `.rc` в той папке **игнорировать** (дамп перезаписывал одноимённые файлы).
 
-Импорт в `src/`: `src/Resources/import_decompiled_rc.py` — конвертирует Resource Hacker VERSIONINFO в `rc.exe`, копирует sidecar.
+Импорт в `src/`: `src/Resources/import_decompiled_rc.py` — конвертирует Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) VERSIONINFO в `rc.exe`, копирует sidecar.
 
 ## Кодировка
 
@@ -17,7 +17,7 @@ UTF-8. `ResourceDll.props` задаёт `rc.exe /c65001` для всех рес�
 конфигураций. Генерируемые скрипты также содержат `#pragma code_page(65001)`,
 поскольку кодные проекты не подключают эту property sheet.
 
-Не-ASCII escape-последовательности Resource Hacker обозначают значения символов:
+Не-ASCII escape-последовательности Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) обозначают значения символов:
 например, `\xFC` в названии Saarbrücken — U+00FC. Импортёр записывает такие
 символы непосредственно в UTF-8, а не заменяет их однобайтовыми octal escapes:
 `rc.exe` декодирует последние через кодовую страницу, что при UTF-8 даёт U+FFFD.

@@ -8,7 +8,7 @@ Client IDS live in separate code-free DLLs: `LoadLibrary("resources.dll")` from 
 
 Ghidra dump: `EXE/Disasm/DecompiledResources/<module>/<module>.rc` (+ sidecar HTML/ICO/BMP). **Ignore** the root `.rc` files in that folder (the dump overwrote same-named files).
 
-Import into `src/`: `src/Resources/import_decompiled_rc.py` converts Resource Hacker VERSIONINFO to `rc.exe` form and copies the sidecars.
+Import into `src/`: `src/Resources/import_decompiled_rc.py` converts Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) VERSIONINFO to `rc.exe` form and copies the sidecars.
 
 ## Encoding
 
@@ -17,7 +17,7 @@ UTF-8. `ResourceDll.props` sets `rc.exe /c65001` for all resource DLLs and all
 configurations. The generated scripts also contain `#pragma code_page(65001)`,
 because the code projects do not include this property sheet.
 
-Non-ASCII Resource Hacker escape sequences denote character values:
+Non-ASCII Resource Hacker or [Resource Cracker](https://www.pelock.com/products/resource-cracker) escape sequences denote character values:
 for example, `\xFC` in the name Saarbrücken is U+00FC. The importer writes such
 characters directly in UTF-8 instead of replacing them with single-byte octal escapes:
 `rc.exe` decodes the latter through the code page, which under UTF-8 gives U+FFFD.
