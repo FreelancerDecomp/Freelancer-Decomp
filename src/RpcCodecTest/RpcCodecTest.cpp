@@ -99,6 +99,35 @@ namespace
     const char* GCurrentCase = "";
     unsigned int GCurrentType = 0;
 
+    // Cases that corrupt the heap in the codec itself, as they do in retail RemoteClient.dll.
+    // The process cannot survive them (the CRT ends it on heap corruption), so they are listed
+    // in the output and skipped. Each one is a retail bug a remote peer can trigger.
+    struct FKnownOverflow
+    {
+        unsigned int PacketId;
+        const char* Input;
+        const char* Reason;
+    };
+
+    const FKnownOverflow KnownOverflows[] = {
+        // FRpcCommonBufferPacketBase::Decode: size 0xffffffff passes the bounds preflight
+        // (4 + size wraps to 3), the terminator byte makes the allocation size wrap to 0, and
+        // the payload copy of 0xffffffff bytes then overruns the heap.
+        { 0x10011u, "ones", "retail heap overflow: size 0xffffffff wraps the bounds check and the allocation" },
+    };
+
+    const FKnownOverflow* FindKnownOverflow(unsigned int PacketId, const char* Input)
+    {
+        for (const FKnownOverflow& Entry : KnownOverflows)
+        {
+            if (Entry.PacketId == PacketId && strcmp(Entry.Input, Input) == 0)
+            {
+                return &Entry;
+            }
+        }
+        return nullptr;
+    }
+
     struct FInput
     {
         const char* Name;
@@ -275,6 +304,7 @@ namespace
         unsigned int RoundTrips = 0;
         unsigned int Unstable = 0;
         unsigned int Exceptions = 0;
+        unsigned int Skipped = 0;
     };
 
     // Encodes Packet into a fresh zeroed buffer. Out receives the encoded bytes on success.
@@ -304,10 +334,17 @@ namespace
     // One input: Decode, then Encode the decoded packet, then check the round trip (does the
     // payload equal the bytes Decode consumed?) and stability (does decoding and re-encoding
     // the output give the same bytes again?).
-    void RunInput(FILE* Out, const FPacketTypeInfo& Info, const FInput& Input, FCounts& Counts)
+    void RunInput(FILE* Out, unsigned int PacketId, const FPacketTypeInfo& Info, const FInput& Input,
+        FCounts& Counts)
     {
         ++Counts.Cases;
         GCurrentCase = Input.Name;
+        if (const FKnownOverflow* Overflow = FindKnownOverflow(PacketId, Input.Name))
+        {
+            ++Counts.Skipped;
+            fprintf(Out, "  %-10s skipped: %s\n", Input.Name, Overflow->Reason);
+            return;
+        }
         FCodecResult Allocation;
         FPacketBase* Packet = NewPacket(Info, Allocation);
         if (Packet == nullptr)
@@ -424,7 +461,7 @@ namespace
 
         for (const FInput& Input : Inputs)
         {
-            RunInput(Out, Info, Input, Counts);
+            RunInput(Out, PacketId, Info, Input, Counts);
         }
 
         // Decode of every prefix of the "small" input: where each codec stops and which error
@@ -502,12 +539,13 @@ namespace
         {
             RunType(Out, Entry.first, *Entry.second, Inputs, Counts);
         }
-        fprintf(Out, "summary %s cases=%u decoded=%u encoded=%u round_trips=%u unstable=%u exceptions=%u\n",
+        fprintf(Out, "summary %s cases=%u decoded=%u encoded=%u round_trips=%u unstable=%u exceptions=%u skipped=%u\n",
             Name, Counts.Cases, Counts.Decoded, Counts.Encoded, Counts.RoundTrips, Counts.Unstable,
-            Counts.Exceptions);
+            Counts.Exceptions, Counts.Skipped);
         printf("RpcCodecTest: %s: %u types, %u cases, %u decoded, %u encoded, %u round trips, "
-            "%u unstable, %u exceptions\n", Name, (unsigned int)Serializer.GetTypes().size(), Counts.Cases,
-            Counts.Decoded, Counts.Encoded, Counts.RoundTrips, Counts.Unstable, Counts.Exceptions);
+            "%u unstable, %u exceptions, %u skipped\n", Name, (unsigned int)Serializer.GetTypes().size(),
+            Counts.Cases, Counts.Decoded, Counts.Encoded, Counts.RoundTrips, Counts.Unstable,
+            Counts.Exceptions, Counts.Skipped);
     }
 }
 

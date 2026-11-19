@@ -49,6 +49,15 @@ allocator that refuses requests above 64 MiB. Packets are never destroyed, becau
 would free pointers that a failed Decode never set. A codec that faults is recorded as
 `exception:<code>` and the test carries on.
 
+**Known retail overflows.** Some inputs corrupt the heap inside the codec, exactly as they
+would in retail `RemoteClient.dll`. The CRT then ends the process, so the test cannot survive
+them. They are listed in `KnownOverflows` and appear in the output as `skipped:` with the reason.
+Each is a retail bug a remote client can trigger, and is kept for fidelity:
+
+- `SET_WEAPON_GROUP` (0x10011) with size `0xffffffff`. The bounds preflight computes
+  `4 + size`, which wraps to 3 and passes. The allocation size `size + 1` (for the terminator)
+  wraps to 0. The payload copy of `0xffffffff` bytes then overruns the heap.
+
 Run it from `bin\`:
 
 ```
