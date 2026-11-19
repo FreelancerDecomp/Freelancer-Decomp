@@ -250,6 +250,10 @@ namespace
         memset(&Login, 0, sizeof(Login));
         wcsncpy(Login.AccountName, L"SinglePlayer", 0x28);
         Login.AccountName[0x27] = L'\0';
+        // CLoginMgr::Login's bCreateAccount: the sandbox starts without the account folder,
+        // and PlayerDB::load_user_data answers 2 for a missing folder unless creation is asked
+        // for (create_account then builds it and Restart.fl).
+        Login.CreateFlag = 1;
         Server.Login(Login, SessionId);
         Out.Line("player login answered=%d status=%u", Player.bLoginResponse ? 1 : 0,
             (unsigned int)Player.LoginStatus);
