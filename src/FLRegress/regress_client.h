@@ -3,7 +3,8 @@
 // FRegressClient stands in for the game client. Server.dll loads the module named in
 // SStartupInfo::ModulePath (FLRegress.exe itself) and takes its IClient / IChatClient from the
 // exported GetClientInterface / GetChatClientInterface, as it does with freelancer.exe in
-// single player. Every slot only records the call, so the trace shows what the server sent.
+// single player. Every slot records the call, so the trace shows what the server sent. A few
+// slots also keep their arguments in Player, for the scripted player of stage B.
 
 #pragma once
 
@@ -23,8 +24,27 @@ public:
         const char* Name;
     };
 
+    // What the server told the scripted player (session 1), from the hooked slots.
+    struct FPlayerState
+    {
+        bool bLoginResponse = false;
+        unsigned char LoginStatus = 0;
+        bool bHaveRestart = false;          // Restart.fl was in the character list
+        CHARACTER_ID RestartId;
+        unsigned int RestartSystemId = 0;
+        unsigned int RestartBaseId = 0;
+        bool bCreateShipResponse = false;
+        bool bCreateShipOk = false;
+        unsigned int CreatedShipId = 0;
+        bool bLaunched = false;
+        unsigned int LaunchShipId = 0;
+        unsigned int LaunchObjectId = 0;
+        unsigned int LaunchKind = 0;
+    };
+
     const std::vector<FCall>& GetTrace() const { return Trace; }
     void ClearTrace() { Trace.clear(); }
+    const FPlayerState& GetPlayer() const { return Player; }
 
 #include "regress_client_slots.inl"
 
@@ -36,7 +56,14 @@ public:
 private:
     void Record(int Slot, const char* Name) { Trace.push_back(FCall{ Slot, Name }); }
 
+    // Called by the generated slots in gen_regress_client.py's HOOKS (regress_client.cpp).
+    void OnSendServerLoginResponse(unsigned int ClientId, const unsigned char& Status);
+    void OnSendServerCharacterInfo(unsigned int ClientId, const CCharacterSet& Characters);
+    void OnSendServerRequestCreateShipResp(unsigned int ClientId, bool bSuccess, unsigned int ShipId);
+    void OnSendServerLaunch(unsigned int ClientId, const FServerLaunchInfo& Info);
+
     std::vector<FCall> Trace;
+    FPlayerState Player;
 };
 
 FRegressClient& GetRegressClient();

@@ -4,8 +4,13 @@
 // network, and writes the resulting game state to a text file. Two runs of the same build must
 // give identical files, and a change that keeps retail behaviour must not change them.
 //
+// Stage A dumps the universe right after startup. Stage B then plays a scripted single-player
+// new game (log in, select Restart.fl, enter and leave the start base, launch into space) and
+// runs the server for --frames fixed 1/30 s frames on a virtual clock (regress_hooks.h), then
+// dumps every game object and the calls the server made to the client. See docs/flregress.md.
+//
 // Usage (from bin\, next to the game DLLs):
-//     FLRegress.exe [--out <file>] [--timeout <seconds>]
+//     FLRegress.exe [--out <file>] [--timeout <seconds>] [--frames <count>]
 // Exit code: 0 on success, 1 on a startup failure, 2 on bad arguments, 3 on a timeout.
 //
 // Nobody can answer a dialog on a build machine, so engine messages (FDUMP) go to stderr
@@ -21,14 +26,19 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cwchar>
+#include <map>
+#include <utility>
 
 #include "common_ini.h"           // INI_Reader
 #include "common_misc.h"          // SinglePlayer, SetMultiPlayer
-#include "common_server_types.h"  // SStartupInfo
+#include "common_server_types.h"  // SStartupInfo, SLoginInfo
+#include "common_timing.h"        // Timing::UpdateGlobalTime
 #include "dacom.h"                // FDUMP
 #include "dalib_core.h"           // DALib::Startup / OpenData / CloseData / Shutdown
 #include "regress_client.h"
 #include "regress_dump.h"
+#include "regress_hooks.h"
 #include "server_iserverimpl.h"   // Server
 
 namespace
@@ -37,7 +47,17 @@ namespace
     {
         const char* OutPath = "regress_state.txt";
         unsigned int TimeoutSeconds = 300;
+        unsigned int Frames = 900;    // stage B: 30 s of game time after the launch
     };
+
+    // The scripted player's session (the single-player client's connection id).
+    const unsigned int SessionId = 1;
+    // FLServer's frame period (ServerThreadProc), as a fixed step.
+    const double FrameSeconds = 1.0 / 30.0;
+    // Frames run docked, between BaseEnter and BaseExit.
+    const unsigned int BaseFrames = 30;
+    // The sandbox user folder beside the executable (regress_hooks.h), emptied at every start.
+    const char* const SandboxFolderName = "FLRegressUser";
 
     volatile const char* GPhase = "init";
 
@@ -111,6 +131,10 @@ namespace
             {
                 Options.TimeoutSeconds = (unsigned int)strtoul(Argv[++i], nullptr, 10);
             }
+            else if (strcmp(Argv[i], "--frames") == 0 && i + 1 < Argc)
+            {
+                Options.Frames = (unsigned int)strtoul(Argv[++i], nullptr, 10);
+            }
             else
             {
                 fprintf(stderr, "FLRegress: unknown argument '%s'\n", Argv[i]);
@@ -136,6 +160,166 @@ namespace
         }
         *Slash = '\0';
         return SetCurrentDirectoryA(Directory) != 0;
+    }
+
+    // Deletes Path and everything under it. Only ever called on the sandbox folder.
+    void DeleteTree(const char* Path)
+    {
+        char Pattern[MAX_PATH];
+        snprintf(Pattern, sizeof(Pattern), "%s\\*", Path);
+        WIN32_FIND_DATAA Found;
+        HANDLE Find = FindFirstFileA(Pattern, &Found);
+        if (Find != INVALID_HANDLE_VALUE)
+        {
+            do
+            {
+                if (strcmp(Found.cFileName, ".") == 0 || strcmp(Found.cFileName, "..") == 0)
+                {
+                    continue;
+                }
+                char Child[MAX_PATH];
+                snprintf(Child, sizeof(Child), "%s\\%s", Path, Found.cFileName);
+                if ((Found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+                {
+                    DeleteTree(Child);
+                }
+                else
+                {
+                    SetFileAttributesA(Child, FILE_ATTRIBUTE_NORMAL);
+                    DeleteFileA(Child);
+                }
+            } while (FindNextFileA(Find, &Found));
+            FindClose(Find);
+        }
+        RemoveDirectoryA(Path);
+    }
+
+    // One server frame as FLServer's server thread runs it (Update, then the global time and
+    // ElapseTime with the frame's elapsed time), on the virtual clock and without the run-
+    // permission handshake: nothing else runs in this process.
+    void RunFrame()
+    {
+        RegressHooks::Advance(FrameSeconds);
+        Server.Update();
+        Timing::UpdateGlobalTime(FrameSeconds);
+        Server.ElapseTime((float)FrameSeconds);
+    }
+
+    void RunFrames(FRegressWriter& Out, unsigned int Count, unsigned int& Frame)
+    {
+        for (unsigned int i = 0; i < Count; ++i)
+        {
+            RunFrame();
+            ++Frame;
+            if (Frame % 30 == 0)
+            {
+                DumpObjectCounts(Out, Frame);
+            }
+        }
+    }
+
+    // How often the server called each IClient slot, by slot.
+    void DumpCallCounts(FRegressWriter& Out)
+    {
+        std::map<int, std::pair<const char*, unsigned int>> Counts;
+        for (const FRegressClient::FCall& Call : GetRegressClient().GetTrace())
+        {
+            std::pair<const char*, unsigned int>& Entry = Counts[Call.Slot];
+            Entry.first = Call.Name;
+            ++Entry.second;
+        }
+        for (const auto& Entry : Counts)
+        {
+            Out.Line("client_calls slot=%d name=%s count=%u", Entry.first, Entry.second.first, Entry.second.second);
+        }
+    }
+
+    // Stage B's scripted player: the IServer calls the single-player client makes for a new game
+    // (CLoginMgr::Login, RequestCharacterInfo and character select; the base menu's BaseEnter /
+    // BaseExit; the space state's RequestCreateShip; the ship's PlayerLaunch and LaunchComplete).
+    // Each step records what the server answered; a missing answer ends the script there, and
+    // the frames and the dump still run so the file shows how far it got.
+    bool PlayScript(FRegressWriter& Out, unsigned int& Frame)
+    {
+        FRegressClient& Client = GetRegressClient();
+        const FRegressClient::FPlayerState& Player = Client.GetPlayer();
+
+        Phase("stage B: login");
+        Server.OnConnect(SessionId);
+        SLoginInfo Login;
+        memset(&Login, 0, sizeof(Login));
+        wcsncpy(Login.AccountName, L"SinglePlayer", 0x28);
+        Login.AccountName[0x27] = L'\0';
+        Server.Login(Login, SessionId);
+        Out.Line("player login answered=%d status=%u", Player.bLoginResponse ? 1 : 0,
+            (unsigned int)Player.LoginStatus);
+        if (!Player.bLoginResponse || Player.LoginStatus != 3)
+        {
+            return false;
+        }
+
+        // The single-player login's difficulty request (CLoginMgr::Login), at the neutral 1.0.
+        Server.ReqDifficultyScale(1.0f, SessionId);
+
+        Phase("stage B: select character");
+        Server.CharacterInfoReq(SessionId, false);
+        Out.Line("player restart found=%d id=%s system=%08x base=%08x", Player.bHaveRestart ? 1 : 0,
+            Player.bHaveRestart ? Player.RestartId.Buffer : "", Player.RestartSystemId, Player.RestartBaseId);
+        if (!Player.bHaveRestart)
+        {
+            return false;
+        }
+        Server.CharacterSelect(Player.RestartId, SessionId);
+
+        Phase("stage B: base");
+        Server.BaseEnter(Player.RestartBaseId, SessionId);
+        RunFrames(Out, BaseFrames, Frame);
+        Server.BaseExit(Player.RestartBaseId, SessionId);
+
+        Phase("stage B: launch");
+        Server.RequestCreateShip(SessionId);
+        Out.Line("player create_ship answered=%d ok=%d ship=%08x", Player.bCreateShipResponse ? 1 : 0,
+            Player.bCreateShipOk ? 1 : 0, Player.CreatedShipId);
+        if (!Player.bCreateShipOk)
+        {
+            return false;
+        }
+        Server.PlayerLaunch(Player.CreatedShipId, SessionId);
+        Out.Line("player launch answered=%d ship=%08x launch_object=%08x launch_kind=%d",
+            Player.bLaunched ? 1 : 0, Player.LaunchShipId, Player.LaunchObjectId, (int)Player.LaunchKind);
+        if (!Player.bLaunched)
+        {
+            return false;
+        }
+        Server.LaunchComplete(Player.LaunchObjectId, Player.CreatedShipId);
+        return true;
+    }
+
+    void RunStageB(FRegressWriter& Out, unsigned int Frames)
+    {
+        // Content.dll and the other modules Startup loaded get their imports patched too.
+        RegressHooks::Install();
+        RegressHooks::EnableVirtualClock();
+        // Server::Startup seeds rand from the wall clock; every module shares the CRT's state.
+        srand(1);
+        GetRegressClient().ClearTrace();
+
+        Out.Line("stage_b frames=%u base_frames=%u frame_seconds=1/30", Frames, BaseFrames);
+        unsigned int Frame = 0;
+        const bool bInSpace = PlayScript(Out, Frame);
+        if (!bInSpace)
+        {
+            fprintf(stderr, "FLRegress: the scripted player did not reach space (see the dump)\n");
+        }
+        Out.Line("player in_space=%d", bInSpace ? 1 : 0);
+
+        Phase("stage B: frames");
+        RunFrames(Out, Frames, Frame);
+
+        Phase("stage B: dump");
+        Out.Line("stage_b_end frame=%u", Frame);
+        DumpCallCounts(Out);
+        DumpObjects(Out);
     }
 
     // [Freelancer] "data path" in freelancer.ini, as FLServer's ReadFreelancerIni reads it.
@@ -174,6 +358,15 @@ namespace
             return 1;
         }
 
+        // A fresh, private user folder for accounts and saves (regress_hooks.h), and the
+        // import patches of the modules loaded with the executable.
+        char Sandbox[MAX_PATH];
+        GetFullPathNameA(SandboxFolderName, MAX_PATH, Sandbox, nullptr);
+        DeleteTree(Sandbox);
+        CreateDirectoryA(Sandbox, nullptr);
+        RegressHooks::SetDocumentsFolder(Sandbox);
+        RegressHooks::Install();
+
         // FLServer's server-thread FPU setup with exceptions masked (SetupServerFpu).
         _control87(0x9001f, 0xfffff);
 
@@ -208,6 +401,9 @@ namespace
         Info.bAllowPvp = 1;
         Info.bAllowNewPlayers = 1;
 
+        // DALib::Startup loaded the DACOM libraries since the first patch.
+        RegressHooks::Install();
+
         Phase("Server::Startup");
         if (!Server.Startup(Info))
         {
@@ -228,13 +424,16 @@ namespace
         else
         {
             FRegressWriter Out(File);
-            Out.Line("flregress 1");
+            Out.Line("flregress 2");
             Out.Line("startup single_player=%d", SinglePlayer() ? 1 : 0);
             for (const FRegressClient::FCall& Call : GetRegressClient().GetTrace())
             {
                 Out.Line("client_call slot=%d name=%s", Call.Slot, Call.Name);
             }
             DumpUniverse(Out);
+            fflush(File);
+
+            RunStageB(Out, Options.Frames);
             fclose(File);
             printf("FLRegress: wrote %s\n", Options.OutPath);
         }

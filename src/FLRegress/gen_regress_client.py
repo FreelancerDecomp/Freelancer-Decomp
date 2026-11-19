@@ -12,6 +12,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 HEADER = os.path.join(HERE, "..", "include", "rpc_iclient.h")
 OUTPUT = os.path.join(HERE, "regress_client_slots.inl")
 
+# Slots whose arguments the scripted player of stage B needs. Each also calls
+# FRegressClient::On<Name>(same arguments), declared in regress_client.h.
+HOOKS = {
+    "SendServerLoginResponse",
+    "SendServerCharacterInfo",
+    "SendServerRequestCreateShipResp",
+    "SendServerLaunch",
+}
+
 # Neutral results. Startup (slot 10) must succeed or Server::Startup refuses to start.
 RETURNS = {
     "Startup": "true",
@@ -44,7 +53,11 @@ def main() -> int:
             return 1
         ret, name, params = match.group(1).strip(), match.group(2), match.group(3)
         result = "" if ret == "void" else f" return {RETURNS[name]};"
-        lines.append(f"{ret} {name}({params}) override {{ Record({slot}, \"{name}\");{result} }}")
+        hook = ""
+        if name in HOOKS:
+            args = [re.findall(r"\w+", p)[-1] for p in params.split(",") if p.strip()]
+            hook = f" On{name}({', '.join(args)});"
+        lines.append(f"{ret} {name}({params}) override {{ Record({slot}, \"{name}\");{hook}{result} }}")
     lines.append("")
 
     with open(OUTPUT, "w", encoding="utf-8", newline="\n") as out:

@@ -13,8 +13,8 @@ void SendCommonJettisonCargo(unsigned int ClientId, const XJettisonCargo& Info) 
 void PushToClient(unsigned int ClientId, CDAPacket* Packet) override { Record(9, "PushToClient"); }
 bool Startup(unsigned int MaxPlayers, unsigned int Port) override { Record(10, "Startup"); return true; }
 void OnConnect(unsigned int ClientId) override { Record(11, "OnConnect"); }
-void SendServerLoginResponse(unsigned int ClientId, const unsigned char& Status) override { Record(12, "SendServerLoginResponse"); }
-void SendServerCharacterInfo(unsigned int ClientId, const CCharacterSet& Characters) override { Record(13, "SendServerCharacterInfo"); }
+void SendServerLoginResponse(unsigned int ClientId, const unsigned char& Status) override { Record(12, "SendServerLoginResponse"); OnSendServerLoginResponse(ClientId, Status); }
+void SendServerCharacterInfo(unsigned int ClientId, const CCharacterSet& Characters) override { Record(13, "SendServerCharacterInfo"); OnSendServerCharacterInfo(ClientId, Characters); }
 void SendServerCharSelectVerified(unsigned int ClientId, const FServerCharSelectVerifiedInfo& Info) override { Record(14, "SendServerCharSelectVerified"); }
 void Shutdown() override { Record(15, "Shutdown"); }
 int Update() override { Record(16, "Update"); return 0; }
@@ -61,8 +61,8 @@ void SendServerActivateObject(unsigned int ClientId, const FPayloadServerActivat
 void SendServerSystemSwitchOut(unsigned int ClientId, const FServerSystemSwitchOutInfo& Info) override { Record(57, "SendServerSystemSwitchOut"); }
 void SendServerSystemSwitchIn(unsigned int ClientId, const FPayloadServerSystemSwitchIn& Info) override { Record(58, "SendServerSystemSwitchIn"); }
 void SendServerLand(unsigned int ClientId, const FServerLandInfo& Info) override { Record(59, "SendServerLand"); }
-void SendServerLaunch(unsigned int ClientId, const FServerLaunchInfo& Info) override { Record(60, "SendServerLaunch"); }
-void SendServerRequestCreateShipResp(unsigned int ClientId, bool bSuccess, unsigned int ShipId) override { Record(61, "SendServerRequestCreateShipResp"); }
+void SendServerLaunch(unsigned int ClientId, const FServerLaunchInfo& Info) override { Record(60, "SendServerLaunch"); OnSendServerLaunch(ClientId, Info); }
+void SendServerRequestCreateShipResp(unsigned int ClientId, bool bSuccess, unsigned int ShipId) override { Record(61, "SendServerRequestCreateShipResp"); OnSendServerRequestCreateShipResp(ClientId, bSuccess, ShipId); }
 void SendServerRequestSpaceScript(unsigned int ClientId, const FServerRequestSpaceScriptInfo& Info) override { Record(62, "SendServerRequestSpaceScript"); }
 void SendServerDamageObject(unsigned int ClientId, unsigned int ObjectId, const DamageList& Damage) override { Record(63, "SendServerDamageObject"); }
 void SendServerItemTractored(unsigned int ClientId, const FPayloadServerItemTractored& Info) override { Record(64, "SendServerItemTractored"); }
