@@ -48,6 +48,7 @@
 #include "../include/msvcrt_compat.h"          // MsvcrtAtoi (retail MSVCRT.DLL atoi wraps)
 
 #include <windows.h>
+#include "../include/platform.h"
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -711,7 +712,7 @@ bool __cdecl PlayerData_SaveGame(PlayerData& Slot, char const* Name,
             sprintf(Candidate, "Save%04x", static_cast<int>(static_cast<short>(Seed))); // MOVSX
             char Probe[0x104];
             _makepath(Probe, nullptr, AccountDir, Candidate, "fl");
-            if (GetFileAttributesA(Probe) == INVALID_FILE_ATTRIBUTES &&
+            if (Platform::PathAttributes(Probe) == Platform::kInvalidAttributes &&
                 GetLastError() == ERROR_FILE_NOT_FOUND) {
                 FileName.assign(Candidate, strlen(Candidate));
                 break;
@@ -753,7 +754,7 @@ bool __cdecl PlayerData_MissionSave(PlayerData& Slot, unsigned int DescripStrId)
 
     // .text:06d4c7e9 -- CopyFileA(last written path, dest, FALSE); its BOOL is
     // what AL carries out.
-    return CopyFileA(GServerLastSavePath, Destination, FALSE) != 0;
+    return Platform::FileCopy(GServerLastSavePath, Destination, false);
 }
 
 // ===========================================================================
@@ -1130,7 +1131,7 @@ bool __cdecl PlayerData_CreateNewCharacter(PlayerData& Slot, SCreateCharacterInf
         if (Writer.Open(Path)) {
             // .text:06d4ba0b .. .text:06d4ba5d -- the template beside the exe.
             char ModulePath[0x104];
-            GetModuleFileNameA(nullptr, ModulePath, 0x104);
+            Platform::ModulePath(nullptr, ModulePath, 0x104);
             char Drive[_MAX_DRIVE];
             char Dir[0x104];
             _splitpath(ModulePath, Drive, Dir, nullptr, nullptr);

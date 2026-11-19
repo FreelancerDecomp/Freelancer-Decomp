@@ -33,6 +33,7 @@
 #include "../include/md5hash.h"      // MD5HASH_API: Server exports its implicit members like retail
 #include <windows.h>
 #include <mmsystem.h>
+#include "../include/platform.h"
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -411,7 +412,7 @@ static void InitServerAccount(CPlayerAccount& ServerAccount, unsigned int& OutSe
             if (fopen_s(&File, CfgPath, "wb") != 0 || File == nullptr) {
                 return;
             }
-            srand(timeGetTime());
+            srand(Platform::TimerMs());
             unsigned int Salt = ((unsigned int)rand() << 16) | ((unsigned int)rand() & 0xffff);
             unsigned int IdA = ((unsigned int)rand() << 16) | ((unsigned int)rand() & 0xffff);
             unsigned int IdB = ((unsigned int)rand() << 16) | ((unsigned int)rand() & 0xffff);
@@ -490,7 +491,7 @@ static void LoadCheatMessage() {
     }
 
     char ModulePath[260];
-    GetModuleFileNameA(nullptr, ModulePath, sizeof(ModulePath));
+    Platform::ModulePath(nullptr, ModulePath, sizeof(ModulePath));
 
     char Drive[4], Dir[260];
     _splitpath(ModulePath, Drive, Dir, nullptr, nullptr);
@@ -715,7 +716,7 @@ void PlayerData_ReportCheat(PlayerData& Slot, int Reason) {
     FILE* Log = fopen(LogPath, "a+");
     if (Log != nullptr) {
         SYSTEMTIME Now;
-        GetLocalTime(&Now);
+        Platform::LocalTime(&Now);
         fprintf(Log, "%d/%d/%d %.2d:%.2d:%.2d Possible cheating detected (",
                 (unsigned int)Now.wMonth, (unsigned int)Now.wDay, (unsigned int)Now.wYear,
                 (unsigned int)Now.wHour, (unsigned int)Now.wMinute, (unsigned int)Now.wSecond);
@@ -3506,7 +3507,7 @@ bool PlayerDB::create_restart_file(const char* AccountDir) {
     }
 
     char TemplatePath[0x104];
-    GetModuleFileNameA(nullptr, TemplatePath, 0x104);                       // .text:06d537b2
+    Platform::ModulePath(nullptr, TemplatePath, 0x104);                     // .text:06d537b2
     char Drive[4];
     char Dir[0x100];
     _splitpath(TemplatePath, Drive, Dir, nullptr, nullptr);                 // .text:06d537ce

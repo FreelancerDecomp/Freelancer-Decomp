@@ -35,6 +35,7 @@
 #include "../include/x86math.h"           // I3DMathEngine (PlayerLaunch)
 #include <windows.h>
 #include <mmsystem.h>
+#include "../include/platform.h"
 #include <cmath>
 #include <cstdio>
 #include <cstdarg>
@@ -208,7 +209,7 @@ static void PlayerData_SendClientNullPacket(PlayerData& Slot) {
 bool IServerImpl::Startup(const SStartupInfo& info) {
         GServerTimeBase = 0.0;             // .text:06d44b76/.text:06d44b80 -- the BASE; DAT_06d8fb28 is not reset
         g_TimingDelta.start();             // .text:06d44b8a, this = DAT_06d8f970
-        srand(timeGetTime());              // .text:06d44b90 .. .text:06d44b97
+        srand(Platform::TimerMs());        // .text:06d44b90 .. .text:06d44b97
         RefreshLoadingProgress();          // .text:06d44ba3
         if (CreateID("Freelancer") == 0)   // .text:06d44baa .. .text:06d44bb5
             return false;                  // .text:06d44bb7 XOR AL,AL
@@ -2787,13 +2788,13 @@ void IServerImpl::GetServerStats(ServerStats& OutStats) {
 // the live pair DAT_06d8fb14/DAT_06d8fb18. The function returns DAT_06d8f620
 // (.text:06d43380, reached on both paths); Startup ignores it.
 static IClient* Server_LoadClientDll(const char* module_path) {
-    g_hClientDll = LoadLibraryA(module_path);
+    g_hClientDll = Platform::ModuleLoad(module_path);
     if (g_hClientDll) {
         typedef IClient* (__cdecl *GetClientInterfaceFn)();
         typedef IChatClient* (__cdecl *GetChatClientInterfaceFn)();
-        GetClientInterfaceFn pfn = (GetClientInterfaceFn)GetProcAddress(g_hClientDll, "GetClientInterface");
+        GetClientInterfaceFn pfn = (GetClientInterfaceFn)Platform::ModuleSymbol(g_hClientDll, "GetClientInterface");
         GLoadedClientInterface = pfn();
-        GetChatClientInterfaceFn pfn2 = (GetChatClientInterfaceFn)GetProcAddress(g_hClientDll, "GetChatClientInterface");
+        GetChatClientInterfaceFn pfn2 = (GetChatClientInterfaceFn)Platform::ModuleSymbol(g_hClientDll, "GetChatClientInterface");
         GLoadedChatClientInterface = pfn2();
     }
     return GLoadedClientInterface;
@@ -2808,7 +2809,7 @@ static IClient* Server_LoadClientDll(const char* module_path) {
 // but the body never reads a stack argument, so the port takes none.
 static void Server_FreeClientDll() {
     if (g_hClientDll) {
-        FreeLibrary(g_hClientDll);
+        Platform::ModuleFree(g_hClientDll);
         g_hClientDll = nullptr;
         GLoadedClientInterface = nullptr;
         GLoadedChatClientInterface = nullptr;
@@ -3269,17 +3270,17 @@ unsigned int Server_ControllerCreate(const char* dll_path, const char* instance_
 
     RefreshLoadingProgress();
     char ModuleName[0x104];
-    GetModuleFileNameA(node->ModuleHandle, ModuleName, 0x104);
+    Platform::ModulePath(node->ModuleHandle, ModuleName, 0x104);
     FControllerCreateInstanceFn CreateInstance =
-        (FControllerCreateInstanceFn)GetProcAddress(node->ModuleHandle, "CreateInstance");
+        (FControllerCreateInstanceFn)Platform::ModuleSymbol(node->ModuleHandle, "CreateInstance");
     node->InterfacePtr = CreateInstance(flid, instance_name, parms);
     if (node->InterfacePtr != nullptr) return flid;
 
     FControllerDestroyInstanceFn DestroyInstance =
-        (FControllerDestroyInstanceFn)GetProcAddress(node->ModuleHandle, "DestroyInstance");
+        (FControllerDestroyInstanceFn)Platform::ModuleSymbol(node->ModuleHandle, "DestroyInstance");
     DestroyInstance(node->InterfacePtr);
-    GetModuleFileNameA(node->ModuleHandle, ModuleName, 0x104);
-    FreeLibrary(node->ModuleHandle);
+    Platform::ModulePath(node->ModuleHandle, ModuleName, 0x104);
+    Platform::ModuleFree(node->ModuleHandle);
     ListRemove(node);
     if (bDeferred) g_DeferredCount--;
     else g_ControllerCount--;
@@ -4212,11 +4213,11 @@ static void Server_TimerTick(float dt) {
          It != g_DestroyPending.end(); ++It) {
         FControllerNode* Node = *It;
         FControllerDestroyInstanceFn DestroyInstance =
-            (FControllerDestroyInstanceFn)GetProcAddress(Node->ModuleHandle, "DestroyInstance");
+            (FControllerDestroyInstanceFn)Platform::ModuleSymbol(Node->ModuleHandle, "DestroyInstance");
         DestroyInstance(Node->InterfacePtr);
         char ModuleName[0x104];
-        GetModuleFileNameA(Node->ModuleHandle, ModuleName, 0x104);
-        FreeLibrary(Node->ModuleHandle);
+        Platform::ModulePath(Node->ModuleHandle, ModuleName, 0x104);
+        Platform::ModuleFree(Node->ModuleHandle);
         ListRemove(Node);
         free(Node);
         g_ControllerCount--;

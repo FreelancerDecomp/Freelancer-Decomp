@@ -55,6 +55,7 @@
 #include <vector>
 
 #include <mmsystem.h>  // timeGetTime (PhysicalSystem::Update, .text:0628ca84); winmm is linked by common_playeraccount.cpp
+#include "platform.h"
 
 
 // Win32 macro conflict: PhySys::GetCurrentTime vs windows.h GetCurrentTime()
@@ -350,7 +351,7 @@ void PhysicalSystem::AddRef()
 void PhysicalSystem::Update(float Dt)
 {
     // .text:0628ca84: the result is never used (EAX is overwritten at 0628ca8a).
-    timeGetTime();
+    Platform::TimerMs();
 
     // .text:0628ca8a..0628ca95: erase(_First, _Last) (FUN_0628f000).
     Collisions.clear();

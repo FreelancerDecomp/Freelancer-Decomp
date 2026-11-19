@@ -27,6 +27,8 @@
 #include <cstring>
 #include <windows.h>
 
+#include "platform.h"
+
 namespace
 {
     const char kRenderExSource[] = "render_ex.cpp";
@@ -178,9 +180,9 @@ namespace
             return 0;
         unsigned long long Newest = 0;
         unsigned long long Count = 0;
-        WIN32_FIND_DATAA Found;
-        HANDLE const Find = FindFirstFileA(GShaderPattern, &Found);
-        if (Find != INVALID_HANDLE_VALUE)
+        Platform::FindData Found;
+        Platform::Handle const Find = Platform::FindFirst(GShaderPattern, &Found);
+        if (Find != Platform::InvalidHandle())
         {
             do
             {
@@ -188,8 +190,8 @@ namespace
                 if (Written > Newest)
                     Newest = Written;
                 ++Count;
-            } while (FindNextFileA(Find, &Found));
-            FindClose(Find);
+            } while (Platform::FindNext(Find, &Found));
+            Platform::FindClose(Find);
         }
         return Newest ^ (Count << 56);
     }
@@ -199,7 +201,7 @@ namespace
     // recompiled (RP9 keeps the old code of one that fails and logs the compiler errors).
     void PollHotReload()
     {
-        const DWORD Now = GetTickCount();
+        const DWORD Now = Platform::TickCountMs();
         if (Now - GLastPollTick < kHotReloadPollMs)
             return;
         GLastPollTick = Now;
@@ -338,10 +340,10 @@ void RenderEx::Startup()
     // extensions with, so they stay off and every retail path runs.
     char ExtraPath[MAX_PATH] = {};
     BuildExtraDataPath(ExtraPath, sizeof(ExtraPath));
-    const DWORD ExtraAttributes = GetFileAttributesA(ExtraPath);
+    const DWORD ExtraAttributes = Platform::PathAttributes(ExtraPath);
     IFileSystem* const ExtraData =
-        (ExtraAttributes != INVALID_FILE_ATTRIBUTES &&
-         (ExtraAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+        (ExtraAttributes != Platform::kInvalidAttributes &&
+         (ExtraAttributes & Platform::kAttributeDirectory) != 0)
             ? OpenExtraData(ExtraPath)
             : nullptr;
     if (ExtraData == nullptr)
@@ -357,7 +359,7 @@ void RenderEx::Startup()
     GDrawEx = DrawEx;
     LoadSettings();
     ResolveHotReloadPaths();
-    GLastPollTick = GetTickCount();
+    GLastPollTick = Platform::TickCountMs();
     GIniStamp = ComputeIniStamp();
     GShaderStamp = ComputeShaderStamp();
     FDUMP(0x100003, "%s(%d) : NOTICE:General:Direct3D 9 extensions available "

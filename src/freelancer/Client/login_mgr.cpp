@@ -15,6 +15,7 @@
 #include "globals.h"       // g_client.packed_version (DAT_0067ecb8)
 #include "perf_options.h"  // GetPerfOptionSlot (FUN_005b3510)
 #include "player_spawn.h"  // DAT_00673344
+#include "platform.h"
 #include "server_filter.h" // ServerFilter::Match (GetFilteredServers)
 #include "reg_key_stack.h" // FRegKeyStack (login history)
 #include "vc6_sort.h"      // Vc6Sort::Sort (GetFilteredServers' inlined VC6 std::sort)
@@ -554,7 +555,7 @@ void CLoginMgr::OnAddHost(_DPNMSG_ENUM_HOSTS_RESPONSE* Response)
     }
     Info.MaxPlayers = static_cast<int>(Desc->dwMaxPlayers - 1);        // 005ace30..005ace34
     Info.Field_0x98 = 2;                                               // 005ace3b
-    Info.LastResponseTime = static_cast<int>(timeGetTime());                 // 005ace46
+    Info.LastResponseTime = static_cast<int>(Platform::TimerMs());                 // 005ace46
     Info.Version = 0;                                                  // 005ace53
     if (Response->pvUserContext == nullptr)                            // 005ace50
     {
@@ -1123,7 +1124,7 @@ void CLoginMgr::PingServers()
     if (G_bEnumerateLanHosts != 0 && PendingConnectHandle == 0)
         EnumerateHosts();
 
-    DWORD const Now = timeGetTime();
+    DWORD const Now = Platform::TimerMs();
     // 0x005ac300..0x005ac3b4: an entry that answered the list (+0x3e) and has been silent for
     // more than 5 s shows no ping; past 30 s it is dropped (erase, the next one moves up).
     size_t Index = 0;
@@ -1223,7 +1224,7 @@ void CLoginMgr::PingServers()
             ++Field_0x25c;
             Entry.Field_0x3d = 1;
         }
-        Entry.LastResponseTime = static_cast<int>(timeGetTime());
+        Entry.LastResponseTime = static_cast<int>(Platform::TimerMs());
         ++Entry.Field_0x34;
         if (Field_0x25c >= 5)
             return;
@@ -1244,11 +1245,11 @@ bool CLoginMgr::PumpServerList()
     // DAT_0067ea58 -- the last time the page was told to refresh.
     static DWORD LastRefreshTime = 0;
     bool bRefresh = false;
-    if (Field_0x238 != 0 && timeGetTime() - LastRefreshTime >= 1000)
+    if (Field_0x238 != 0 && Platform::TimerMs() - LastRefreshTime >= 1000)
     {
         bRefresh = true;
         Field_0x238 = 0;
-        LastRefreshTime = timeGetTime();
+        LastRefreshTime = Platform::TimerMs();
     }
     return bRefresh;
 }

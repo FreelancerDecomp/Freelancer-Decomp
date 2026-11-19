@@ -24,6 +24,8 @@
 #include <wchar.h>
 #include <windows.h>
 
+#include "platform.h"
+
 // Retail DAT_0066db44 -- WINFACTORY<NN_Prompt> static (LAB_004729d0 -> FUN_004749c0; Create
 // FUN_00474a30; atexit LAB_004729f0 -> FUN_00579380).
 WINFACTORY<NnPrompt> G_NnPromptFactory("NN_Prompt");
@@ -415,7 +417,7 @@ namespace
             return true;
         do
         {
-            Sleep(10);
+            Platform::SleepMs(10);
             UpdateClientTiming(); // FUN_005b2360
             if (!PumpMessages(&ExitCode))
                 return false;

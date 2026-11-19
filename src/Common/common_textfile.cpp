@@ -14,8 +14,10 @@
 #include <string.h>
 #include <windows.h>
 
+#include "platform.h"
+
 FileMap::FileMap()
-    : FileHandle(INVALID_HANDLE_VALUE)
+    : FileHandle(Platform::InvalidHandle())
     , MappingHandle(nullptr)
     , View(nullptr)
     , Size(0)
@@ -58,7 +60,7 @@ void FileMap::close()
 {
     // .text:06262630.
     FileName.clear();
-    if (FileHandle != INVALID_HANDLE_VALUE)
+    if (FileHandle != Platform::InvalidHandle())
     {
         if (MappingHandle != nullptr)
         {
@@ -68,11 +70,11 @@ void FileMap::close()
                 View = nullptr;
                 Size = 0;
             }
-            CloseHandle(MappingHandle);
+            Platform::CloseHandle(MappingHandle);
             MappingHandle = nullptr;
         }
-        CloseHandle(FileHandle);
-        FileHandle = INVALID_HANDLE_VALUE;
+        Platform::CloseHandle(FileHandle);
+        FileHandle = Platform::InvalidHandle();
     }
     if (View != nullptr)
     {
@@ -89,13 +91,14 @@ bool FileMap::open(char const* Path)
     close();
     FileName = Path;
 
-    FileHandle = CreateFileA(Path, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-    if (FileHandle != INVALID_HANDLE_VALUE)
+    FileHandle = Platform::FileOpen(Path, Platform::kAccessRead, Platform::kShareRead,
+                                    Platform::kOpenExisting, 0);
+    if (FileHandle != Platform::InvalidHandle())
     {
         MappingHandle = CreateFileMappingA(FileHandle, nullptr, PAGE_READONLY, 0, 0, nullptr);
         if (MappingHandle != nullptr)
         {
-            Size = GetFileSize(FileHandle, nullptr);
+            Size = Platform::FileGetSize(FileHandle);
             View = (char*)MapViewOfFile(MappingHandle, FILE_MAP_READ, 0, 0, Size);
             if (View != nullptr)
             {
@@ -242,7 +245,7 @@ void FileMap::handoff_to(FileMap& Other)
 
     View = nullptr;
     MappingHandle = nullptr;
-    FileHandle = INVALID_HANDLE_VALUE;
+    FileHandle = Platform::InvalidHandle();
 }
 
 // ---------------------------------------------------------------------------------------------

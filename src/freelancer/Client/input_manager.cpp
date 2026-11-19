@@ -38,6 +38,8 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
+#include "platform.h"
+
 #include <list>
 #include <math.h>
 #include <stdarg.h>
@@ -309,7 +311,7 @@ namespace
     void CreateDevice(bool bBuffered)
     {
         G_Mouse.DoubleClickTime = GetDoubleClickTime();
-        DirectInput8Create(GetModuleHandleA(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8A,
+        DirectInput8Create(Platform::ModuleFind(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8A,
                            reinterpret_cast<void**>(&G_Mouse.DirectInput), nullptr);
         G_Mouse.DirectInput->CreateDevice(GUID_SysMouse, &G_Mouse.Device, nullptr);
         G_Mouse.Device->SetDataFormat(&c_dfDIMouse2);

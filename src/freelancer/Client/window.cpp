@@ -17,6 +17,8 @@
 
 #include <windows.h>
 
+#include "platform.h"
+
 DisplaySettings g_display = {};
 ClientGlobals g_client = {};
 
@@ -34,7 +36,7 @@ bool G_bRenderFrameBegun = false;          // DAT_006679f8 (.data, no initialise
 // window handle is also stored in RenderMgr's DAT_006679f4 (0x00424788).
 HWND CreateGameWindow(const char* class_name, DisplaySettings* display, const char* title)
 {
-    const HINSTANCE instance = GetModuleHandleA(nullptr);
+    const HINSTANCE instance = Platform::ModuleFind(nullptr);
     int width = display->width;
     if (width == 0)
         width = 0x280;

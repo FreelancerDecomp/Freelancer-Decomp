@@ -6,6 +6,7 @@
 
 #include "SoundStreamerInternal.h"
 #include "readfile.h"
+#include "platform.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -1034,8 +1035,8 @@ FSoundStreamer::FSoundStreamer()
     Pad1D[0] = 0;
     Pad1D[1] = 0;
     Pad1D[2] = 0;
-    InitializeCriticalSection(&Lock);
-    WakeEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
+    Platform::LockInit(&Lock);
+    WakeEvent = Platform::EventCreate(false, false);
     Inner.Self = this;
     Controlling = &Inner;
 }
@@ -1045,7 +1046,7 @@ FSoundStreamer::~FSoundStreamer()
     // FUN_06ef2b50: ShutdownDevice, CloseHandle(+0x68) unconditional, free pending/active
     // storage, DeleteCriticalSection(+0x20). DAT_06f010a4 is left to ShutdownDevice.
     ShutdownDevice();
-    CloseHandle(WakeEvent);
+    Platform::CloseHandle(WakeEvent);
     free(PendingBegin);
     PendingBegin = nullptr;
     PendingEnd = nullptr;
@@ -1054,7 +1055,7 @@ FSoundStreamer::~FSoundStreamer()
     ActiveBegin = nullptr;
     ActiveEnd = nullptr;
     ActiveCap = nullptr;
-    DeleteCriticalSection(&Lock);
+    Platform::LockDelete(&Lock);
 }
 
 void FSoundStreamer::BindOuter(FStreamerAggDesc* Desc)
@@ -1162,7 +1163,7 @@ int DACOM_API FSoundStreamer::InitializeDevice(FStreamerInitDesc* Desc)
         Gain = 1.0f;
 
     DWORD ThreadId = 0;
-    WorkerThread = CreateThread(nullptr, 0x1000, WorkerThreadProc, this, 0, &ThreadId);
+    WorkerThread = Platform::ThreadCreate(WorkerThreadProc, this, 0x1000, false, &ThreadId);
     if (WorkerThread == nullptr)
     {
         FdumpStreamer(kFdumpError, 0x21A, "SoundStreamer - failed to Create thread."); // 06efe278
@@ -1173,18 +1174,18 @@ int DACOM_API FSoundStreamer::InitializeDevice(FStreamerInitDesc* Desc)
         }
         return 0;
     }
-    SetThreadPriority(WorkerThread, THREAD_PRIORITY_HIGHEST);
+    Platform::ThreadSetPriority(WorkerThread, Platform::kPriorityHighest);
 
     int Wait = 500;
     while ((ThreadFlags & 3) == 0)
     {
-        Sleep(10);
+        Platform::SleepMs(10);
         --Wait;
         if (Wait == 0)
         {
             FdumpStreamer(kFdumpError, 0x20F, "SoundStreamer - failed to Activate thread."); // 06efe2a4
             // 06ef2fd7..2fde: the handle is closed but +0x60 keeps the stale value.
-            CloseHandle(WorkerThread);
+            Platform::CloseHandle(WorkerThread);
             if (DirectSound != nullptr)
             {
                 DirectSound->Release();
@@ -1202,24 +1203,24 @@ void FSoundStreamer::ShutdownDevice()
         return;
     G_Streamer = nullptr;
 
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     FStreamingSound** Scan = ActiveBegin;
     while (Scan != ActiveEnd)
     {
         StopHandle(*Scan);
         ++Scan;
     }
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
 
     if (WorkerThread != nullptr)
     {
         ThreadFlags |= 0x80;
-        WaitForSingleObject(WorkerThread, 2000);
-        CloseHandle(WorkerThread);
+        Platform::WaitOne(WorkerThread, 2000);
+        Platform::CloseHandle(WorkerThread);
         WorkerThread = nullptr;
     }
 
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     Scan = ActiveBegin;
     while (Scan != ActiveEnd)
     {
@@ -1244,7 +1245,7 @@ void FSoundStreamer::ShutdownDevice()
         ++Scan;
     }
     PendingEnd = PendingBegin;
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
 
     if (DirectSound != nullptr)
     {
@@ -1369,7 +1370,7 @@ void FSoundStreamer::MovePendingActive()
     // FUN_06ef3790: no null-handle checks (state +0x80 is read straight off each entry); an entry
     // leaving a vector is erased at its own position (tail shifted down one slot, end -= 4) and
     // appended to the other vector with FUN_06ef3960 (insert 1 at end).
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     FStreamingSound** Scan = ActiveBegin;
     while (Scan != ActiveEnd)
     {
@@ -1396,7 +1397,7 @@ void FSoundStreamer::MovePendingActive()
         --PendingEnd;
         PtrListPush(&ActiveBegin, &ActiveEnd, &ActiveCap, Stream);
     }
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
 }
 
 unsigned long FSoundStreamer::PumpStreams()
@@ -1409,7 +1410,7 @@ unsigned long FSoundStreamer::PumpStreams()
             // 06ef35ed..374d. The port is x87 (/arch:IA32): double locals are exact widenings of
             // retail's register values, the float locals are retail's FSTP float points (rate,
             // threshold, best), and each FMUL/FDIV/FIMUL is the same single rounding step.
-            EnterCriticalSection(&Lock);
+            Platform::LockEnter(&Lock);
             FStreamingSound* Emptiest = nullptr;
             float BestBuffered = 60.0f; // 0x42700000
             const float Threshold = 3.0f * 0.04f; // DAT_06efc16c * DAT_06efc1e0, FSTP float
@@ -1466,10 +1467,10 @@ unsigned long FSoundStreamer::PumpStreams()
                 }
                 FillStreamBlock(Emptiest, Want);
             }
-            LeaveCriticalSection(&Lock);
+            Platform::LockLeave(&Lock);
         }
         MovePendingActive();
-        Sleep(0x28);
+        Platform::SleepMs(0x28);
     }
     ThreadFlags |= 2;
     return 1;
@@ -1695,9 +1696,9 @@ void* DACOM_API FSoundStreamer::CreateStream(const char* Path, IDAComponent* Fil
         StartHandle(Stream);
 
     // 06ef3223..3241: push_back into the +0x48 vector under +0x20.
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     PtrListPush(&PendingBegin, &PendingEnd, &PendingCap, Stream);
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
 
     if (OwnedFs != nullptr)
         OwnedFs->Release();
@@ -1714,7 +1715,7 @@ GENRESULT DACOM_API FSoundStreamer::DestroyStream(void* Handle)
     // vector - each erased at its position. A handle in neither vector is left alone (retail
     // leaks it).
     StopStream(Stream);
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     FStreamingSound** Scan = ActiveBegin;
     while (Scan != ActiveEnd && *Scan != Stream)
         ++Scan;
@@ -1741,7 +1742,7 @@ GENRESULT DACOM_API FSoundStreamer::DestroyStream(void* Handle)
         memmove(Scan, Scan + 1, static_cast<size_t>(PendingEnd - (Scan + 1)) * sizeof(*Scan));
         --PendingEnd;
     }
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
     return static_cast<GENRESULT>(1);
 }
 
@@ -1760,9 +1761,9 @@ GENRESULT DACOM_API FSoundStreamer::StartStream(void* Handle)
     if (Stream == nullptr || WorkerThread == nullptr)
         return static_cast<GENRESULT>(0);
     StartHandle(Stream);
-    EnterCriticalSection(&Lock);
+    Platform::LockEnter(&Lock);
     PumpOneStream(Stream);
-    LeaveCriticalSection(&Lock);
+    Platform::LockLeave(&Lock);
     return static_cast<GENRESULT>(1);
 }
 

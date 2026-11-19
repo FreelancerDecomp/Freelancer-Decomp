@@ -29,7 +29,6 @@
 
 #include <windows.h>
 #include <mmsystem.h> // timeGetTime; WIN32_LEAN_AND_MEAN leaves it out of windows.h
-#include <shlobj.h>   // SHGetFolderPathA
 
 #include <cstdint>
 
@@ -321,16 +320,5 @@ namespace Platform
     // GetTempPathA: the length written (with the trailing backslash).
     inline unsigned long TempDirectory(char* Path, unsigned long Size) { return ::GetTempPathA(Size, Path); }
 
-    // Per-user folders (CSIDL_*). kFolderCreate is a flag: or it in to create the folder.
-    constexpr int kFolderDocuments = CSIDL_PERSONAL;
-    constexpr int kFolderLocalAppData = CSIDL_LOCAL_APPDATA;
-    constexpr int kFolderPictures = CSIDL_MYPICTURES;
-    constexpr int kFolderCreate = CSIDL_FLAG_CREATE;
-
-    // SHGetFolderPathA(0, Folder, 0, SHGFP_TYPE_CURRENT, Path). Path holds MAX_PATH chars.
-    // Returns the HRESULT: 0 (S_OK) on success.
-    inline long UserFolder(int Folder, char* Path)
-    {
-        return ::SHGetFolderPathA(nullptr, Folder, nullptr, SHGFP_TYPE_CURRENT, Path);
-    }
+    // Per-user folders (UserFolder) are in platform_folders.h: it needs the shell headers.
 } // namespace Platform

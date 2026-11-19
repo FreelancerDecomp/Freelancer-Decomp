@@ -16,6 +16,8 @@
 #if FREELANCER_ENABLE_TICK_PROFILE
 #include <charconv>
 #include <windows.h>
+
+#include "platform.h"
 #endif
 
 namespace
@@ -31,9 +33,9 @@ namespace
 
     int64_t ReadProfileTicks()
     {
-        LARGE_INTEGER Ticks;
-        QueryPerformanceCounter(&Ticks);
-        return Ticks.QuadPart;
+        int64_t Ticks;
+        Platform::PerfCounter(&Ticks);
+        return Ticks;
     }
 #endif
 
@@ -108,9 +110,9 @@ FClientTickProfileFrame::FClientTickProfileFrame()
         return;
     if (G_ProfileFrequency == 0)
     {
-        LARGE_INTEGER Frequency;
-        QueryPerformanceFrequency(&Frequency);
-        G_ProfileFrequency = Frequency.QuadPart;
+        int64_t Frequency;
+        Platform::PerfFrequency(&Frequency);
+        G_ProfileFrequency = Frequency;
     }
     for (int Index = 0; Index < G_SectionCount; ++Index)
         G_SectionTicks[Index] = 0;

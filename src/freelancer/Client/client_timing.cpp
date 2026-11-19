@@ -12,6 +12,8 @@
 
 #include <windows.h>
 
+#include "platform.h"
+
 namespace
 {
     // Retail freelancer.exe frame-timer BSS. FUN_0042d770 is the tick, 0042d650..0042d6e0 the
@@ -30,7 +32,7 @@ namespace
     unsigned G_FpsWindowFrames = 0; // DAT_00667d6c
     // DAT_00667d20 — timeGetTime() of the current frame; seeded at load by the XC entry
     // LAB_0042d650 (0x0060f188: CALL timeGetTime / MOV [0x667d20],EAX).
-    unsigned long G_LastTickMs = timeGetTime();
+    unsigned long G_LastTickMs = Platform::TimerMs();
     bool G_bNetworkStalled = false; // DAT_00667d58
     int G_PauseDepth = 0;         // DAT_00667d68 — frame-time getters (0042d680/6a0)
     int G_ServerTickPauseDepth = 0; // DAT_00667d54 — FUN_0042d740 skips IServer::Update
@@ -56,7 +58,7 @@ namespace
             Dt = G_FrameDelta.calc_dt();
             if (Dt >= MinFrameSeconds)
                 break;
-            Sleep(1);
+            Platform::SleepMs(1);
         }
         G_FrameDelta.swap();
 
@@ -79,7 +81,7 @@ namespace
             G_FpsWindow = 0.0;
         }
 
-        G_LastTickMs = timeGetTime();
+        G_LastTickMs = Platform::TimerMs();
         G_bNetworkStalled = false;
         // 0042d885..0042d8a4: in multiplayer the flag is set when no DirectPlay message has
         // arrived for more than a second -- (DAT_00667d20 - CDPClient::GetLastMsgTimestamp())

@@ -62,6 +62,8 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#include "platform.h"
+
 #pragma comment(lib, "winmm.lib")
 
 // RenderMgr.cpp .data (declared in globals.h).
@@ -273,7 +275,7 @@ namespace
     // skips the movies instead of failing to start the process.
     bool PlayStartupMovies()
     {
-        HMODULE MovieDll = LoadLibraryA("movie.dll");
+        HMODULE MovieDll = Platform::ModuleLoad("movie.dll");
         if (MovieDll == nullptr)
         {
             return true;
@@ -287,22 +289,22 @@ namespace
         using FnShutdown = void(__cdecl*)();
 
         FnSetApproach SetApproach = reinterpret_cast<FnSetApproach>(
-            GetProcAddress(MovieDll, "?SetApproach@MediaPlayer@@YAXW4Approach@1@@Z"));
+            Platform::ModuleSymbol(MovieDll, "?SetApproach@MediaPlayer@@YAXW4Approach@1@@Z"));
         FnStartup Startup = reinterpret_cast<FnStartup>(
-            GetProcAddress(MovieDll, "?Startup@MediaPlayer@@YAXXZ"));
+            Platform::ModuleSymbol(MovieDll, "?Startup@MediaPlayer@@YAXXZ"));
         FnPlayMovie PlayMovie = reinterpret_cast<FnPlayMovie>(
-            GetProcAddress(MovieDll, "?PlayMovie@MediaPlayer@@YAJPAUHWND__@@_NPBD@Z"));
+            Platform::ModuleSymbol(MovieDll, "?PlayMovie@MediaPlayer@@YAJPAUHWND__@@_NPBD@Z"));
         FnUpdateMovie UpdateMovie = reinterpret_cast<FnUpdateMovie>(
-            GetProcAddress(MovieDll, "?UpdateMovie@MediaPlayer@@YA_NXZ"));
+            Platform::ModuleSymbol(MovieDll, "?UpdateMovie@MediaPlayer@@YA_NXZ"));
         FnStopMovie StopMovie = reinterpret_cast<FnStopMovie>(
-            GetProcAddress(MovieDll, "?StopMovie@MediaPlayer@@YAXXZ"));
+            Platform::ModuleSymbol(MovieDll, "?StopMovie@MediaPlayer@@YAXXZ"));
         FnShutdown Shutdown = reinterpret_cast<FnShutdown>(
-            GetProcAddress(MovieDll, "?Shutdown@MediaPlayer@@YAXXZ"));
+            Platform::ModuleSymbol(MovieDll, "?Shutdown@MediaPlayer@@YAXXZ"));
 
         if (SetApproach == nullptr || Startup == nullptr || PlayMovie == nullptr ||
             UpdateMovie == nullptr || StopMovie == nullptr || Shutdown == nullptr)
         {
-            FreeLibrary(MovieDll);
+            Platform::ModuleFree(MovieDll);
             return true;
         }
 
@@ -877,7 +879,7 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
     if (!PumpInitMessages())
         return false;
     RefreshLoadingProgress();
-    srand(timeGetTime());
+    srand(Platform::TimerMs());
     if (CreateID("Freelancer") == 0)
     {
         FDUMP(0x100001, "%s(%d) : *** ERROR: %s", kMainCppPath, 0x3d1,

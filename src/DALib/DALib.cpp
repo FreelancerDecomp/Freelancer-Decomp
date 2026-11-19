@@ -10,6 +10,7 @@
 #include "soundmanager.h"
 #include "soundstreamer.h"
 #include "system.h"
+#include "platform.h"
 
 #include <io.h>
 #include <stdarg.h>
@@ -125,7 +126,7 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
         char Drive[0x44];
         char Dir[0x100];
         char IniFile[0x100];
-        GetModuleFileNameA(GModule, ModulePath, 0x104);
+        Platform::ModulePath(GModule, ModulePath, 0x104);
         _splitpath(ModulePath, Drive, Dir, nullptr, nullptr);
         _makepath(IniFile, Drive, Dir, "DACOM.INI", nullptr);
         IniResult = Dacom->SetINIConfig(IniFile, 0);

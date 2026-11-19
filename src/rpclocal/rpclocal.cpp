@@ -30,6 +30,7 @@
 #include "rpc_iserver.h"        // IServerImpl, Server, Get*Interface -- the exported ABI
 #include "common_misc.h"       // GiveServerRunPermission / WaitForClientRunPermission
 #include <windows.h>
+#include "platform.h"
 #include <cstring>
 #include <cstdio>
 #include <new>
@@ -391,16 +392,16 @@ bool IServerImpl::Startup(const SStartupInfo& info) {
 
     // 06d8f209 PUSH "server.dll" (.rdata:06db3c48) / 06d8f20e LoadLibraryA /
     // 06d8f216 MOV [.data:DAT_06dbbd64],EAX / 06d8f21b JZ 06d8f248.
-    g_hServerDll = LoadLibraryA("server.dll");
+    g_hServerDll = Platform::ModuleLoad("server.dll");
     if (g_hServerDll != nullptr) {
         // 06d8f223 GetProcAddress("GetServerInterface") / 06d8f22b CALL EAX /
         // 06d8f22d -> DAT_06dbbd5c; 06d8f237 GetProcAddress("GetChatServerInterface") /
         // 06d8f23f CALL EAX / 06d8f241 -> DAT_06dbbd60. Neither address is tested.
         GetServerInterfaceFn GetServer =
-            (GetServerInterfaceFn)GetProcAddress(g_hServerDll, "GetServerInterface");
+            (GetServerInterfaceFn)Platform::ModuleSymbol(g_hServerDll, "GetServerInterface");
         g_pServerInterface = GetServer();
         GetChatServerInterfaceFn GetChat =
-            (GetChatServerInterfaceFn)GetProcAddress(g_hServerDll, "GetChatServerInterface");
+            (GetChatServerInterfaceFn)Platform::ModuleSymbol(g_hServerDll, "GetChatServerInterface");
         g_pChatServerInterface = GetChat();
     } else {
         // 06d8f248..06d8f265: DACOM's FDUMP through the import slot .rdata:06db311c,
@@ -421,7 +422,7 @@ bool IServerImpl::Startup(const SStartupInfo& info) {
     // GetModuleFileNameA(DAT_06dbbccc /* rpclocal itself */, copy, 0x104). Server.dll is
     // told that rpclocal.dll is the loading module; IniPath (+0x104) passes through.
     SStartupInfo Forwarded = info;
-    GetModuleFileNameA(g_hSelfModule, Forwarded.ModulePath, 0x104u);
+    Platform::ModulePath(g_hSelfModule, Forwarded.ModulePath, 0x104u);
 
     // 06d8f2a1 CALL [EDX+0x24] (IServer::Startup) / 06d8f2a4 MOV BL,AL /
     // 06d8f2a6 TEST BL,BL / 06d8f2a8 JZ 06d8f2ed. A refusal is returned as is -- the
@@ -485,7 +486,7 @@ void IServerImpl::Shutdown() {
 
     // 06d8f31a..06d8f330
     if (g_hServerDll != nullptr) {
-        FreeLibrary(g_hServerDll);
+        Platform::ModuleFree(g_hServerDll);
         g_hServerDll = nullptr;
         g_pChatServerInterface = nullptr;
     }

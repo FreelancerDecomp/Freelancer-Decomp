@@ -23,6 +23,8 @@
 #include <stdlib.h>
 #include <windows.h>
 
+#include "platform.h"
+
 // Retail DAT_0066db70 -- WINFACTORY<NN_Error> static (LAB_004724d0 -> FUN_00474880; Create
 // FUN_004748f0; atexit LAB_004724f0 -> FUN_00579380).
 WINFACTORY<NnError> G_NnErrorFactory("NN_Error");
@@ -233,7 +235,7 @@ void NnErrorRunModal(unsigned Ids, bool bUpdateServer, Win3D* Parent)
         return;
     do
     {
-        Sleep(10);
+        Platform::SleepMs(10);
         if (!PumpMessages(&ExitCode))
             return;
         if (bUpdateServer)
@@ -283,7 +285,7 @@ bool NnErrorRunModalMessage(char const* Message)
 
     // 00473ecb..00473f57.
     int ExitCode = 0; // local_81c
-    Sleep(10);
+    Platform::SleepMs(10);
     if (PumpMessages(&ExitCode))
     {
         do
@@ -300,7 +302,7 @@ bool NnErrorRunModalMessage(char const* Message)
                 MouseFrameUpdate();            // FUN_0041f150
                 EndClientRenderFrame();        // FUN_00425080 + FUN_00425140
             }
-            Sleep(10);
+            Platform::SleepMs(10);
         } while (PumpMessages(&ExitCode));
     }
 

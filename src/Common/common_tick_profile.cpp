@@ -6,7 +6,7 @@
 
 #include "physics_tick_profile.h"
 #if FREELANCER_ENABLE_TICK_PROFILE
-#include <windows.h>
+#include "platform.h"
 
 namespace
 {
@@ -14,9 +14,9 @@ namespace
 
     int64_t ReadPhysicsProfileTicks()
     {
-        LARGE_INTEGER Ticks;
-        QueryPerformanceCounter(&Ticks);
-        return Ticks.QuadPart;
+        int64_t Ticks;
+        Platform::PerfCounter(&Ticks);
+        return Ticks;
     }
 }
 

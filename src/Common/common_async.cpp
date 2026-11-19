@@ -9,7 +9,8 @@
 #include "common_async.h"
 
 #include <cstdlib>
-#include <windows.h>
+
+#include "platform.h"
 
 namespace
 {
@@ -47,7 +48,7 @@ namespace Async
     {
         // 0x062fd540
         if (hEvent != nullptr)
-            CloseHandle(hEvent);
+            Platform::CloseHandle(hEvent);
     }
 
     void* Action::operator new(size_t Size)
@@ -66,7 +67,7 @@ namespace Async
     {
         // 0x062fd580
         if (!Work->bDeleteWhenDone)
-            Work->hEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
+            Work->hEvent = Platform::EventCreate(false, false);
 
         Work->Run();
 
@@ -77,7 +78,7 @@ namespace Async
             return true;
         }
 
-        SetEvent(Work->hEvent);
+        Platform::EventSet(Work->hEvent);
         return true;
     }
 

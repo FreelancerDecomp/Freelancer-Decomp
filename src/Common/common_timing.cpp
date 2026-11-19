@@ -13,6 +13,8 @@
 #include <intrin.h>
 #include <windows.h>
 
+#include "platform.h"
+
 namespace
 {
     const char kTimingSource[] = "E:\\FL\\Scratch\\Source\\Common\\CTiming.cpp";
@@ -26,21 +28,21 @@ namespace
 
     long long ReadPerformanceCounterOrZero()
     {
-        LARGE_INTEGER Counter;
-        if (!QueryPerformanceCounter(&Counter))
+        int64_t Counter;
+        if (!Platform::PerfCounter(&Counter))
         {
             FDUMP(0x100001, "%s(%d) : *** ERROR: %s", kTimingSource, 0x56,
                   "QueryPerformanceCounter returned false");
             return 0;
         }
-        return Counter.QuadPart;
+        return Counter;
     }
 
     void CaptureStart(Timing::Delta* Self)
     {
         Timing::init();
         Self->StartTicks = ReadPerformanceCounterOrZero();
-        Self->StartTickCount = GetTickCount();
+        Self->StartTickCount = Platform::TickCountMs();
         Self->bStarted = true;
         Self->bStopped = false;
     }
@@ -49,7 +51,7 @@ namespace
     {
         Timing::init();
         Self->StopTicks = ReadPerformanceCounterOrZero();
-        Self->StopTickCount = GetTickCount();
+        Self->StopTickCount = Platform::TickCountMs();
         Self->bStopped = true;
     }
 
@@ -99,7 +101,7 @@ namespace
                 do
                 {
                     Start = (long long)__rdtsc();
-                    Sleep(0x14);
+                    Platform::SleepMs(0x14);
                     End = (long long)__rdtsc();
                 } while (End < Start);
                 Samples[i] = (double)(End - Start);
@@ -156,8 +158,8 @@ namespace Timing
         if (g_timing_frequency != 0.0)
             return;
 
-        LARGE_INTEGER Freq;
-        if (!QueryPerformanceFrequency(&Freq))
+        int64_t Freq;
+        if (!Platform::PerfFrequency(&Freq))
         {
             FDUMP(0x100001,
                   "%s(%d) : *** ERROR: QueryPerformanceFrequence failed. GetLastError returned %u",
@@ -169,7 +171,7 @@ namespace Timing
 
         // FILD dword HighPart (signed) * 2^32 + FILD qword {LowPart, 0}: the signed
         // 64-bit count.
-        g_timing_frequency = (double)Freq.QuadPart;
+        g_timing_frequency = (double)Freq;
         g_timing_period = 1.0 / g_timing_frequency;
     }
 

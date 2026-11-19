@@ -5,13 +5,14 @@
 // Author: Giperion.
 
 #include "dalib_net.h"
+#include "platform.h"
 
 // Retail DALib.dll.c CDPMsgList::CDPMsgList(void) @ 0x41f0: InitializeCriticalSection +
 // CreateEventA(manual-reset, initially non-signaled).
 CDPMsgList::CDPMsgList()
 {
-    InitializeCriticalSection(&Cs);
-    EmptyEvent = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    Platform::LockInit(&Cs);
+    EmptyEvent = Platform::EventCreate(true, false);
 }
 
 // Copy ctor @ 0x2c70 / operator= @ 0x2d20 are the compiler's memberwise members (list copy,
@@ -21,58 +22,58 @@ CDPMsgList::CDPMsgList()
 // Retail DALib.dll.c CDPMsgList::~CDPMsgList(void) @ 0x4240.
 CDPMsgList::~CDPMsgList()
 {
-    DeleteCriticalSection(&Cs);
-    CloseHandle(EmptyEvent);
+    Platform::LockDelete(&Cs);
+    Platform::CloseHandle(EmptyEvent);
     Messages.clear();
 }
 
 // Retail .text:065c4300: ADD ECX,0x10; PUSH ECX; CALL EnterCriticalSection.
 void CDPMsgList::Lock()
 {
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Cs);
 }
 
 // Retail .text:065c4310: ADD ECX,0x10; PUSH ECX; CALL LeaveCriticalSection.
 void CDPMsgList::Unlock()
 {
-    LeaveCriticalSection(&Cs);
+    Platform::LockLeave(&Cs);
 }
 
 // Retail .text:065c45a0: WaitForSingleObject([this+0x28], TimeoutMs); RET 4.
 void CDPMsgList::WaitForMsg(unsigned long TimeoutMs)
 {
-    WaitForSingleObject(EmptyEvent, TimeoutMs);
+    Platform::WaitOne(EmptyEvent, TimeoutMs);
 }
 
 // Retail .text:065c45c0: SetEvent([this+0x28]).
 void CDPMsgList::SetEmptyEvent()
 {
-    SetEvent(EmptyEvent);
+    Platform::EventSet(EmptyEvent);
 }
 
 // Retail DALib.dll.c CDPMsgList::Add(CDPMessage*) @ 0x4320.
 void CDPMsgList::Add(CDPMessage* Message)
 {
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Cs);
     if (Messages.empty())
-        SetEvent(EmptyEvent);
+        Platform::EventSet(EmptyEvent);
     Messages.push_back(Message);
-    LeaveCriticalSection(&Cs);
+    Platform::LockLeave(&Cs);
 }
 
 // Retail DALib.dll.c CDPMsgList::GetNextMsg(void) @ 0x4390.
 CDPMessage* CDPMsgList::GetNextMsg()
 {
     CDPMessage* Result = nullptr;
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Cs);
     if (!Messages.empty())
     {
         Result = Messages.front();
         Messages.pop_front();
         if (Messages.empty())
-            ResetEvent(EmptyEvent);
+            Platform::EventReset(EmptyEvent);
     }
-    LeaveCriticalSection(&Cs);
+    Platform::LockLeave(&Cs);
     return Result;
 }
 
@@ -80,24 +81,24 @@ CDPMessage* CDPMsgList::GetNextMsg()
 CDPMessage* CDPMsgList::PeekNextMsg()
 {
     CDPMessage* Result = nullptr;
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Cs);
     if (!Messages.empty())
         Result = Messages.front();
-    LeaveCriticalSection(&Cs);
+    Platform::LockLeave(&Cs);
     return Result;
 }
 
 // Lock Dest before this; extraction does not reset the source list event.
 void CDPMsgList::ExtractMsgs(unsigned long Id, CDPMsgList& Dest)
 {
-    EnterCriticalSection(&Dest.Cs);
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Dest.Cs);
+    Platform::LockEnter(&Cs);
     for (std::list<CDPMessage*>::iterator It = Messages.begin(); It != Messages.end();)
     {
         if ((*It)->SenderId == Id)
         {
             if (Dest.Messages.empty())
-                SetEvent(Dest.EmptyEvent);
+                Platform::EventSet(Dest.EmptyEvent);
             Dest.Messages.push_back(*It);
             It = Messages.erase(It);
         }
@@ -106,8 +107,8 @@ void CDPMsgList::ExtractMsgs(unsigned long Id, CDPMsgList& Dest)
             ++It;
         }
     }
-    LeaveCriticalSection(&Cs);
-    LeaveCriticalSection(&Dest.Cs);
+    Platform::LockLeave(&Cs);
+    Platform::LockLeave(&Dest.Cs);
 }
 
 // Retail DALib.dll.c CDPMsgList::CopyList(CDPMsgList&) @ 0x44e0: despite the name, this moves
@@ -115,17 +116,17 @@ void CDPMsgList::ExtractMsgs(unsigned long Id, CDPMsgList& Dest)
 // Retail locks Other first then this.
 void CDPMsgList::CopyList(CDPMsgList& Other)
 {
-    EnterCriticalSection(&Other.Cs);
-    EnterCriticalSection(&Cs);
+    Platform::LockEnter(&Other.Cs);
+    Platform::LockEnter(&Cs);
     for (std::list<CDPMessage*>::iterator It = Other.Messages.begin(); It != Other.Messages.end(); ++It)
     {
         CDPMessage* Message = *It;
         if (Messages.empty())
-            SetEvent(EmptyEvent);
+            Platform::EventSet(EmptyEvent);
         Messages.push_back(Message);
     }
     Other.Messages.clear();
-    ResetEvent(Other.EmptyEvent);
-    LeaveCriticalSection(&Cs);
-    LeaveCriticalSection(&Other.Cs);
+    Platform::EventReset(Other.EmptyEvent);
+    Platform::LockLeave(&Cs);
+    Platform::LockLeave(&Other.Cs);
 }

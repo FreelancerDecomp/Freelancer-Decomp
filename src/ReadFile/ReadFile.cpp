@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "readfile.h"
+#include "platform.h"
 
 #include <cctype>
 #include <cstdarg>
@@ -37,9 +38,9 @@ namespace
         // FUN_06b76410: lock DAT_06b7a224+0x154, stdcall Callback(Arg0, Arg1)
         // unconditionally, unlock, return its result.
         typedef int(__stdcall* FLockedCall)(unsigned long, unsigned long);
-        EnterCriticalSection(G_DosRootLock);
+        Platform::LockEnter(G_DosRootLock);
         const int Result = ((FLockedCall)(Callback))(Arg0, Arg1);
-        LeaveCriticalSection(G_DosRootLock);
+        Platform::LockLeave(G_DosRootLock);
         return Result;
     }
 
@@ -316,7 +317,7 @@ namespace
                 Map->View = nullptr;
                 Map->Size = 0;
             }
-            CloseHandle(Map->Mapping);
+            Platform::CloseHandle(Map->Mapping);
             Map->Mapping = nullptr;
             return;
         }
@@ -967,13 +968,13 @@ namespace
             LastError = 0;
             AccessFlags = 0;
             bFileInstance = 0;
-            InitializeCriticalSection(&Lock);
+            Platform::LockInit(&Lock);
         }
 
         virtual ~FFileSystemBase()
         {
             CloseMappedFile();
-            DeleteCriticalSection(&Lock);
+            Platform::LockDelete(&Lock);
         }
 
         void AttachNestedChild(IFileSystem* Child)
@@ -1096,7 +1097,7 @@ namespace
             else
             {
                 DWORD ReadCount = Size;
-                if (ReadFile(Open->File, Buffer, Size, &ReadCount, nullptr) != 0)
+                if (Platform::FileRead(Open->File, Buffer, Size, &ReadCount))
                     Got = ReadCount;
             }
             *BytesRead = Got;
@@ -1380,8 +1381,8 @@ namespace
                 LastError = 0xa1;
                 return 0;
             }
-            const DWORD Attr = GetFileAttributesA(Resolved);
-            if (Attr == INVALID_FILE_ATTRIBUTES || (Attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+            const DWORD Attr = Platform::PathAttributes(Resolved);
+            if (Attr == Platform::kInvalidAttributes || (Attr & Platform::kAttributeDirectory) == 0)
             {
                 LastError = 0xa1;
                 return 0;
@@ -1434,8 +1435,8 @@ namespace
                 LastError = 0xa1;
                 return 0;
             }
-            const DWORD Attr = GetFileAttributesA(Resolved);
-            if (Attr == INVALID_FILE_ATTRIBUTES)
+            const DWORD Attr = Platform::PathAttributes(Resolved);
+            if (Attr == Platform::kInvalidAttributes)
                 CopyNestedLastError();
             return (int)(Attr);
         }
@@ -1467,8 +1468,8 @@ namespace
                 LastError = 2;
                 return -1;
             }
-            const DWORD Attr = GetFileAttributesA(Resolved);
-            if (Attr == INVALID_FILE_ATTRIBUTES || (Attr & FILE_ATTRIBUTE_DIRECTORY) != 0)
+            const DWORD Attr = Platform::PathAttributes(Resolved);
+            if (Attr == Platform::kInvalidAttributes || (Attr & Platform::kAttributeDirectory) != 0)
             {
                 LastError = 2;
                 return -1;
@@ -1559,9 +1560,9 @@ namespace
             if (NestedChild != nullptr)
                 return NestedChild->InvokeLockedCallback(Arg0, Callback, Arg1);
             typedef int(__stdcall* FLockedCall)(unsigned long, unsigned long);
-            EnterCriticalSection(&Lock);
+            Platform::LockEnter(&Lock);
             const int Result = ((FLockedCall)(Callback))(Arg0, Arg1);
-            LeaveCriticalSection(&Lock);
+            Platform::LockLeave(&Lock);
             return Result;
         }
         // formerly SlotA4
@@ -1620,7 +1621,7 @@ namespace
                 Open->Mapping = CreateFileMappingA(File, nullptr, PAGE_READONLY, 0, 0, nullptr);
                 if (Open->Mapping != nullptr)
                 {
-                    Open->Size = GetFileSize(File, nullptr);
+                    Open->Size = Platform::FileGetSize(File);
                     Open->View = MapViewOfFile(Open->Mapping, FILE_MAP_READ, 0, 0, Open->Size);
                     Open->Pos = 0;
                 }
@@ -1703,12 +1704,12 @@ namespace
             Open->Pos = 0;
             if (Open->Mapping != nullptr)
             {
-                CloseHandle(Open->Mapping);
+                Platform::CloseHandle(Open->Mapping);
                 Open->Mapping = nullptr;
             }
             if (Open->File != INVALID_HANDLE_VALUE)
             {
-                CloseHandle(Open->File);
+                Platform::CloseHandle(Open->File);
                 Open->File = INVALID_HANDLE_VALUE;
             }
             delete Open;
@@ -1835,10 +1836,10 @@ namespace
                 return GR_OK;
             }
 
-            const DWORD Attributes = GetFileAttributesA(FsDesc->Path);
-            if (Attributes != INVALID_FILE_ATTRIBUTES)
+            const DWORD Attributes = Platform::PathAttributes(FsDesc->Path);
+            if (Attributes != Platform::kInvalidAttributes)
             {
-                if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+                if ((Attributes & Platform::kAttributeDirectory) != 0)
                 {
                     Child->AccessFlags = FsDesc->Access;
                     Child->AdoptDirectoryRoot(FsDesc->Path);
@@ -1869,11 +1870,11 @@ namespace
             if (JoinRoot(RootPath, FsDesc->Path, Resolved, 0x104) == 0)
                 return GR_GENERIC;
 
-            const DWORD Attributes = GetFileAttributesA(Resolved);
-            if (Attributes == INVALID_FILE_ATTRIBUTES)
+            const DWORD Attributes = Platform::PathAttributes(Resolved);
+            if (Attributes == Platform::kInvalidAttributes)
                 return GR_GENERIC;
 
-            if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+            if ((Attributes & Platform::kAttributeDirectory) != 0)
             {
                 FDosFileSystem* Child = new (std::nothrow) FDosFileSystem();
                 if (Child == nullptr)
@@ -1928,7 +1929,7 @@ namespace
                 return -1;
             }
             const HANDLE Found =
-                FindFirstFileA(Resolved, FindData);
+                Platform::FindFirst(Resolved, FindData);
             if (Found == nullptr)
             {
                 CopyNestedLastError();
@@ -1940,8 +1941,8 @@ namespace
         // formerly Slot4C
         int DACOM_API FindNext(unsigned long Handle, WIN32_FIND_DATAA* FindData) override
         {
-            const BOOL Result = FindNextFileA((HANDLE)(Handle),
-                                              FindData);
+            const BOOL Result = Platform::FindNext((HANDLE)(Handle),
+                                                   FindData) ? TRUE : FALSE;
             if (Result == 0)
                 CopyNestedLastError();
             return Result;
@@ -1950,7 +1951,7 @@ namespace
         // formerly Slot50
         int DACOM_API FindClose(unsigned long Handle) override
         {
-            const BOOL Result = ::FindClose((HANDLE)(Handle));
+            const BOOL Result = Platform::FindClose((HANDLE)(Handle)) ? TRUE : FALSE;
             if (Result == 0)
                 CopyNestedLastError();
             return Result;
@@ -2000,7 +2001,7 @@ namespace
                     MappedView = nullptr;
                     MappedSize = 0;
                 }
-                CloseHandle(MappingHandle);
+                Platform::CloseHandle(MappingHandle);
                 MappingHandle = nullptr;
             }
             else
@@ -2010,7 +2011,7 @@ namespace
             }
             if (FileHandle != INVALID_HANDLE_VALUE)
             {
-                CloseHandle(FileHandle);
+                Platform::CloseHandle(FileHandle);
                 FileHandle = INVALID_HANDLE_VALUE;
             }
             MapTokens.clear();
@@ -2156,7 +2157,7 @@ namespace
                             CreateFileMappingA(Map.File, nullptr, PAGE_READONLY, 0, 0, nullptr);
                         if (Map.Mapping != nullptr)
                         {
-                            Map.Size = GetFileSize(Map.File, nullptr);
+                            Map.Size = Platform::FileGetSize(Map.File);
                             Map.View = MapViewOfFile(Map.Mapping, FILE_MAP_READ, 0, 0, Map.Size);
                             Map.Pos = 0;
                         }
@@ -2167,7 +2168,7 @@ namespace
             ReleaseArchiveMapping(&Map);
             if (Map.File != INVALID_HANDLE_VALUE)
             {
-                CloseHandle(Map.File);
+                Platform::CloseHandle(Map.File);
                 Map.File = INVALID_HANDLE_VALUE;
             }
             ReleaseArchiveMapping(&Map);
@@ -2192,7 +2193,7 @@ namespace
             else
             {
                 DWORD Read = 0;
-                if (ReadFile(Map->File, &Header, kUtfHeaderSize, &Read, nullptr) == 0)
+                if (!Platform::FileRead(Map->File, &Header, kUtfHeaderSize, &Read))
                     return (GENRESULT)(0xFFFFFFFA);
                 Got = Read;
             }

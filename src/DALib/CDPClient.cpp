@@ -9,11 +9,12 @@
 #define INITGUID
 
 #include "dalib_net.h"
+#include "platform.h"
 #include "CDPNetCodec.h"
 
 // .data:065ca120 is seeded at DLL load by the static initializer LAB_065c19c0 (__xc table entry
 // .data:065ca004): CALL timeGetTime; MOV [065ca120],EAX.
-unsigned long CDPClient::m_dwLastMsgReceivedTime = timeGetTime();
+unsigned long CDPClient::m_dwLastMsgReceivedTime = Platform::TimerMs();
 unsigned long CDPClient::m_dwPingSendTime = 0;
 unsigned long CDPClient::m_dwPingReceiveTime = 0;
 unsigned long CDPClient::m_dwPingSendCount = 0;
@@ -134,7 +135,7 @@ bool CDPClient::ProcessConnectAttempt()
 // Host is a full DirectPlay URL; Port is retained for the API and is unused here.
 bool CDPClient::ConnectToServer(const wchar_t* Host, const wchar_t* /*Port*/)
 {
-    m_dwPingSendTime = timeGetTime();
+    m_dwPingSendTime = Platform::TimerMs();
     m_dwPingReceiveTime = 0;
     m_dwPingSendCount = 0;
     m_dwPingReceiveCount = 0;
@@ -328,7 +329,7 @@ unsigned long CDPClient::GetPingDelay()
         m_dwPingLastTime = m_dwPingReceiveTime - m_dwPingSendTime;
         return m_dwPingReceiveTime - m_dwPingSendTime;
     }
-    const DWORD Now = timeGetTime();
+    const DWORD Now = Platform::TimerMs();
     unsigned long Elapsed = Now - m_dwPingSendTime;
     if (Elapsed <= m_dwPingLastTime)
         Elapsed = m_dwPingLastTime;
@@ -372,7 +373,7 @@ long __stdcall CDPClient::HandleClientMsg(void* UserContext, unsigned long Messa
         // .text:065c1acd
         if (Self == nullptr)
             break;
-        m_dwLastMsgReceivedTime = timeGetTime();
+        m_dwLastMsgReceivedTime = Platform::TimerMs();
         const DPNMSG_CONNECT_COMPLETE* const Msg = (DPNMSG_CONNECT_COMPLETE*)MsgData;
         CDPMessage* const Message = new CDPMessage();
         Message->Owner = Self;
@@ -459,7 +460,7 @@ long __stdcall CDPClient::HandleClientMsg(void* UserContext, unsigned long Messa
         DPN_CONNECTION_INFO ConnInfo;
         ConnInfo.dwSize = sizeof(DPN_CONNECTION_INFO);
         Self->Client->GetConnectionInfo(&ConnInfo, 0);
-        const DWORD Now = timeGetTime();
+        const DWORD Now = Platform::TimerMs();
         m_dwLastMsgReceivedTime = Now;
 
         const DPNMSG_RECEIVE* const Msg = (DPNMSG_RECEIVE*)MsgData;
@@ -489,7 +490,7 @@ long __stdcall CDPClient::HandleClientMsg(void* UserContext, unsigned long Messa
         // .text:065c1b5a
         if (Self == nullptr)
             break;
-        m_dwLastMsgReceivedTime = timeGetTime();
+        m_dwLastMsgReceivedTime = Platform::TimerMs();
         CDPMessage* const Message = new CDPMessage();
         Message->Owner = Self;
         Message->Type = kMsgDisconnected;
@@ -509,10 +510,10 @@ void CDPClient::DispatchMsgs(unsigned long TimeoutMs)
 
     if (bConnected && m_dwPingSendCount == m_dwPingReceiveCount)
     {
-        const DWORD Now = timeGetTime();
+        const DWORD Now = Platform::TimerMs();
         if (Now - m_dwPingSendTime > 999)
         {
-            m_dwPingSendTime = timeGetTime();
+            m_dwPingSendTime = Platform::TimerMs();
             m_dwPingSendCount++;
             if (bConnected)
             {
@@ -566,7 +567,7 @@ void CDPClient::DispatchMsgs(unsigned long TimeoutMs)
         }
         case kMsgDisconnected:
             // .text:065c1fc8
-            m_dwPingSendTime = timeGetTime();
+            m_dwPingSendTime = Platform::TimerMs();
             m_dwPingReceiveTime = 0;
             m_dwPingSendCount = 0;
             m_dwPingReceiveCount = 0;
