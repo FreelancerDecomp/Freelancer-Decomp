@@ -4,6 +4,8 @@ on:
   push:
     branches: [master]
   pull_request:
+    # labeled/unlabeled re-run the checks when the expected-change label below is set.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 concurrency:
@@ -72,12 +74,20 @@ jobs:
           if ($digest -ne $env:FL_DATA_DIGEST) { throw "DATA digest mismatch, expected $env:FL_DATA_DIGEST" }
 
   build:
-    name: Release|Win32
+    # On a pull request the PR's base commit is built alongside it, so the regression job can
+    # compare the PR's dump with the dump of the code it would change.
+    name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || 'Release|Win32' }}
     # Visual Studio 2022 (v143) with the ATL/MFC component FLServer needs.
     runs-on: windows-2022
+    strategy:
+      matrix:
+        side: ${{ github.event_name == 'pull_request' && fromJSON('["pr", "base"]') || fromJSON('["pr"]') }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Empty: the event's own commit (for a pull request, its merge commit).
+          ref: ${{ matrix.side == 'base' && github.event.pull_request.base.sha || '' }}
 
       - name: Cache DirectX 8.1 SDK
         id: dx8-cache
@@ -124,14 +134,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: msbuild-binlog
+          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || 'msbuild-binlog' }}
           path: msbuild.binlog
           retention-days: 7
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: freelancer-release-win32
+          name: ${{ matrix.side == 'base' && 'freelancer-base-win32' || 'freelancer-release-win32' }}
           path: |
             bin/*.exe
             bin/*.dll
@@ -164,8 +174,15 @@ jobs:
           name: freelancer-release-win32
           path: bin
 
+      - name: Download base binaries
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-base-win32
+          path: base
+
       # The dump holds values read from the game data, so it is compared here and never
-      # uploaded; only its SHA-256 is printed.
+      # uploaded; only its SHA-256 and, on a mismatch, the first differing lines are printed.
       - name: Run twice and compare
         shell: pwsh
         working-directory: bin
@@ -183,4 +200,40 @@ jobs:
           if ($a -ne $b) {
             Compare-Object (Get-Content regress_a.txt) (Get-Content regress_b.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
             throw 'FLRegress is not deterministic: the two runs differ'
+          }
+
+      # A pull request must not change the dump: the port stays faithful to retail. A PR that
+      # changes it on purpose (a retail-fidelity fix) carries the label 'regress: expected
+      # change'; the difference is then reported but does not fail the job.
+      - name: Compare with the base commit
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        env:
+          EXPECTED_CHANGE: "${{ contains(github.event.pull_request.labels.*.name, 'regress: expected change') }}"
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path base/FLRegress.exe)) {
+            Write-Host '::notice::The base commit has no FLRegress; nothing to compare against.'
+            exit 0
+          }
+          # The game resolves DATA and EXE as siblings of its own folder; base\ sits beside
+          # bin\ at the repository root, so both builds read the same data. (EXE\ comes from
+          # the PR's checkout: a PR that edits EXE\*.ini is compared on its own INI files.)
+          Push-Location base
+          & .\FLRegress.exe --out regress_base.txt --timeout 300
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { throw "FLRegress on the base commit failed with exit code $code" }
+
+          $pr = (Get-FileHash -Algorithm SHA256 bin/regress_a.txt).Hash
+          $base = (Get-FileHash -Algorithm SHA256 base/regress_base.txt).Hash
+          Write-Host "base: $base"
+          Write-Host "pr:   $pr"
+          if ($pr -ne $base) {
+            Compare-Object (Get-Content base/regress_base.txt) (Get-Content bin/regress_a.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+            if ($env:EXPECTED_CHANGE -eq 'true') {
+              Write-Host "::warning::FLRegress output differs from the base commit (label 'regress: expected change' is set)."
+            } else {
+              throw "FLRegress output differs from the base commit. If the change is intended, add the label 'regress: expected change'."
+            }
           }
