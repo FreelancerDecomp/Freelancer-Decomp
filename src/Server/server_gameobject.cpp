@@ -10,29 +10,29 @@
 // hierarchy and for the list of things this port does NOT model yet.
 // ===========================================================================
 
-#include "../include/server_gameobject.h"
-#include "../include/common_timing.h"  // Timing::read
-#include "../include/server_sysdb.h"   // StarSystem::on_object_destroyed (GameObject::destroy)
-#include "../include/common_misc.h"    // SUBOBJ_ID_NONE (Ship::allocate_equip_id)
-#include "../include/common_cequip.h"  // CEquipTraverser / CEquip (get_damage_list)
-#include "../include/dacom.h"          // FDUMP (Ship::allocate_equip_id)
-#include "../include/common_goods.h"   // FindHardpoint / JETTISONED_CARGO_VELOCITY / EquipDesc (Ship::tick_jettison)
-#include "../include/common_id.h"      // CFLIDMaker (Ship::tick_jettison)
-#include "../include/server_createinfo.h" // Server_Acquire3DMathEngine (DAT_06d8d71c)
-#include "../include/x86math.h"          // I3DMathEngine::MatrixToQuaternion
-#include "../include/common_physys.h"   // PhySys::RCBegin/RCEnd, Collision::CalcCollisionDamage
-#include "../include/common_universe.h" // Universe::IZone (CSimple::ZoneAtA4)
+#include "server_gameobject.h"
+#include "common_timing.h"  // Timing::read
+#include "server_sysdb.h"   // StarSystem::on_object_destroyed (GameObject::destroy)
+#include "common_misc.h"    // SUBOBJ_ID_NONE (Ship::allocate_equip_id)
+#include "common_cequip.h"  // CEquipTraverser / CEquip (get_damage_list)
+#include "dacom.h"          // FDUMP (Ship::allocate_equip_id)
+#include "common_goods.h"   // FindHardpoint / JETTISONED_CARGO_VELOCITY / EquipDesc (Ship::tick_jettison)
+#include "common_id.h"      // CFLIDMaker (Ship::tick_jettison)
+#include "server_createinfo.h" // Server_Acquire3DMathEngine (DAT_06d8d71c)
+#include "x86math.h"          // I3DMathEngine::MatrixToQuaternion
+#include "common_physys.h"   // PhySys::RCBegin/RCEnd, Collision::CalcCollisionDamage
+#include "common_universe.h" // Universe::IZone (CSimple::ZoneAtA4)
 #include <cmath>
 #include <windows.h>
 #include <cstdio>
 #include <cstdlib>   // rand (Ship::tick_jettison / compute_jettison_launch)
-#include "../include/rpc_iclient.h"   // IClient (Ship::request_returned / set_formation_*)
-#include "../include/DALib.h"         // DALib::Engine (Ship::create / Solar::create, IEngine +0x6c)
-#include "../include/common_ini.h"              // StringAlloc (EqObj::*_by_name / dump_cargo)
-#include "../include/common_server.h"           // Players, Server_BroadcastGroupControl (EqObj::destroy)
-#include "../include/common_server_playerdb.h"  // PlayerData_ShouldQueueVisit / PlayerData_QueueVisit
-#include "../include/common_server_types.h"     // ServerStats (EqObj::destroy)
-#include "../include/rpc_iclient_args.h"        // FServerBurnFuseInfo (EqObj::light_fuse)
+#include "rpc_iclient.h"   // IClient (Ship::request_returned / set_formation_*)
+#include "DALib.h"         // DALib::Engine (Ship::create / Solar::create, IEngine +0x6c)
+#include "common_ini.h"              // StringAlloc (EqObj::*_by_name / dump_cargo)
+#include "common_server.h"           // Players, Server_BroadcastGroupControl (EqObj::destroy)
+#include "common_server_playerdb.h"  // PlayerData_ShouldQueueVisit / PlayerData_QueueVisit
+#include "common_server_types.h"     // ServerStats (EqObj::destroy)
+#include "rpc_iclient_args.h"        // FServerBurnFuseInfo (EqObj::light_fuse)
 #include <map>                                  // ServerFuseDB::Get (EqObj::light_fuse)
 #include <cstring>                              // memcpy (EqObj::build_equip_loot)
 

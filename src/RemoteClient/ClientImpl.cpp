@@ -6,13 +6,13 @@
 
 #include <windows.h>
 #include "ClientImpl.h"
-#include "../include/common_server_types.h"
+#include "common_server_types.h"
 #include "common_text.h"
 #include "common_goods.h"
 #include "rpc_iclient_args.h"
 #include <windows.h>
 
-#include "../include/rpc_packet.h"
+#include "rpc_packet.h"
 #include "dalib_net.h"
 #include "rpc_packet_codec.h"
 

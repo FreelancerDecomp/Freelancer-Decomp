@@ -8,16 +8,16 @@
 // See src/include/server_basedb.h for the object model and the RTTI evidence.
 // Every function below names the retail address it was traced from.
 
-#include "../include/server_basedb.h"
-#include "../include/common_server.h"          // Players, PlayerDB
-#include "../include/common_server_playerdb.h" // PlayerData
-#include "../include/common_reputation.h"      // Reputation::Vibe::GetName
-#include "../include/common_misc.h"            // malloc_strcpy, malloc_wstrcpy
-#include "../include/common_net.h"             // MarshalBuffer
-#include "../include/common_id.h"              // CreateID
-#include "../include/common_text.h"            // FmtStr
-#include "../include/rpc_iclient.h"            // IClient
-#include "../include/dacom.h"                  // FDUMP
+#include "server_basedb.h"
+#include "common_server.h"          // Players, PlayerDB
+#include "common_server_playerdb.h" // PlayerData
+#include "common_reputation.h"      // Reputation::Vibe::GetName
+#include "common_misc.h"            // malloc_strcpy, malloc_wstrcpy
+#include "common_net.h"             // MarshalBuffer
+#include "common_id.h"              // CreateID
+#include "common_text.h"            // FmtStr
+#include "rpc_iclient.h"            // IClient
+#include "dacom.h"                  // FDUMP
 #include <cstring>
 #include <stdexcept>
 

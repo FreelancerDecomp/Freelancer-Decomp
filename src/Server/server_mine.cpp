@@ -12,14 +12,14 @@
 // (vtable .rdata:06d6622c), PhySys::CObjectCB +0x70 (vtable .rdata:06d65fd8), then the
 // Mine's own fields +0x74..+0x9f. The spawner (StarSystem FUN_06d08ef0) allocates 0xa0.
 
-#include "../include/server_gameobject.h"
-#include "../include/server_sysdb.h"   // StarSystem::explode
-#include "../include/common_misc.h"    // SUBOBJ_ID_*, DamageList
-#include "../include/common_id.h"      // ID_String::IsEmpty
-#include "../include/DALib.h"          // DALib::Engine (Mine::create, IEngine +0x6c)
+#include "server_gameobject.h"
+#include "server_sysdb.h"   // StarSystem::explode
+#include "common_misc.h"    // SUBOBJ_ID_*, DamageList
+#include "common_id.h"      // ID_String::IsEmpty
+#include "DALib.h"          // DALib::Engine (Mine::create, IEngine +0x6c)
 #include "../IVP/ivp_physics/ivp_core.h"        // IVP_Core::Speed (+0xa4)
-#include "../include/common_ivp_real_object.h" // IVP_Real_Object::core (+0x98)
-#include "../include/common_ivp_controller.h"  // IVP_Event_Sim::delta_time
+#include "common_ivp_real_object.h" // IVP_Real_Object::core (+0x98)
+#include "common_ivp_controller.h"  // IVP_Event_Sim::delta_time
 
 #include <cfloat>
 #include <cmath>

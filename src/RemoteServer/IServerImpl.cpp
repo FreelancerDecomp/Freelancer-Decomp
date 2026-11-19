@@ -6,16 +6,16 @@
 
 #define RPCLOCAL_EXPORTS
 #include <windows.h>
-#include "../include/rpc_iserver.h"
+#include "rpc_iserver.h"
 #define GetChatClientInterface __NetworkGetChatClientInterface
 #define GetChatServerInterface __NetworkGetChatServerInterface
-#include "../include/network.h"
+#include "network.h"
 #undef GetChatClientInterface
 #undef GetChatServerInterface
-#include "../include/rpc_packet.h"
-#include "../include/rpc_packet_codec.h"
-#include "../include/rpc_server_channel_codec.h"
-#include "../include/common_goods.h"
+#include "rpc_packet.h"
+#include "rpc_packet_codec.h"
+#include "rpc_server_channel_codec.h"
+#include "common_goods.h"
 #include <string.h>
 #include <cwchar>
 #include <new>

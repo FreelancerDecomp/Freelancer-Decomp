@@ -38,7 +38,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;_USRDLL;SERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <!-- /sdl makes the compiler give every dllexport class an exported
            __autoclassinit2 member. Retail Server.dll exports none, and the

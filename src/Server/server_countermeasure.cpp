@@ -11,12 +11,12 @@
 // Layout (retail offsets): Projectile/GameObject +0x00..+0x5f and nothing else; the
 // spawner (StarSystem FUN_06d092c0) allocates 0x60.
 
-#include "../include/server_gameobject.h"
-#include "../include/server_sysdb.h"   // StarSystem::explode / find_object
-#include "../include/common_misc.h"    // SUBOBJ_ID_NONE, DamageList
-#include "../include/common_id.h"      // ID_String::IsEmpty
-#include "../include/common_physys.h"  // PhySys::FindSphereCollisions
-#include "../include/DALib.h"          // DALib::Engine (CounterMeasure::create, IEngine +0x6c)
+#include "server_gameobject.h"
+#include "server_sysdb.h"   // StarSystem::explode / find_object
+#include "common_misc.h"    // SUBOBJ_ID_NONE, DamageList
+#include "common_id.h"      // ID_String::IsEmpty
+#include "common_physys.h"  // PhySys::FindSphereCollisions
+#include "DALib.h"          // DALib::Engine (CounterMeasure::create, IEngine +0x6c)
 
 #include <cstdlib>   // rand
 

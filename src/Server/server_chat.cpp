@@ -22,13 +22,13 @@
 //   4. prefixes "<sender name>: " as rich text, appends the original payload (or
 //      a red "<message too big>"), re-encodes;
 //   5. routes on the target CHAT_ID: private, universe, system, local, group.
-#include "../include/common_server.h"
-#include "../include/common_server_playerdb.h"
-#include "../include/common_text.h"
-#include "../include/common_reputation.h"   // Reputation::Vibe::GetName
-#include "../include/common_net.h"          // IsMPServer
-#include "../include/server_sysdb.h"
-#include "../include/rpc_iclient.h"
+#include "common_server.h"
+#include "common_server_playerdb.h"
+#include "common_text.h"
+#include "common_reputation.h"   // Reputation::Vibe::GetName
+#include "common_net.h"          // IsMPServer
+#include "server_sysdb.h"
+#include "rpc_iclient.h"
 #include <windows.h>
 #include <cstring>
 #include <cwchar>

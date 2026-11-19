@@ -13,7 +13,7 @@
 #include "ivp_calc_next_psi_solver.h" // cmn-phy6 block: set_transformation / calc_next_PSI_matrix
 #include "ivp_simulation_unit.h"      // cmn-phy6 block: disable_simulation
 #include "ivp_controller.h"           // cmn-phy6 block: IVP_Event_Sim
-#include "../../include/common_physys.h" // cmn-phy6 block: PhySys::BeamBodyToWorldPose (06343cc0)
+#include "common_physys.h" // cmn-phy6 block: PhySys::BeamBodyToWorldPose (06343cc0)
 #include "ivp_cluster_manager.h"  // IVP_Cluster_Manager (add_object / remove_object / fire_event_*)
 #include <new>
 #include <cstring>

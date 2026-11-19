@@ -7,15 +7,15 @@
 // Server.dll fuse database and fuse-action classes -- retail .text:06cfc650-06cffc97.
 // See src/include/server_fuse.h for what is and is not ported.
 
-#include "../include/server_fuse.h"
+#include "server_fuse.h"
 
-#include "../include/common_ini.h"
-#include "../include/common_cequip.h"      // CEquipTraverser, CExternalEquip (DestroyHardpoint)
-#include "../include/common_goods.h"       // FindHardpoint_PS / HardpointToWorld (ImpulseAction)
-#include "../include/server_gameobject.h"  // EqObj / GameObject slots every Trigger calls
-#include "../include/server_sysdb.h"       // StarSystem::find_object (FUN_06d0c8d0)
-#include "../include/server_createinfo.h"  // Server_Acquire3DMathEngine (FUN_06d5ff70)
-#include "../include/x86math.h"            // I3DMathEngine::Rotate (TumbleAction)
+#include "common_ini.h"
+#include "common_cequip.h"      // CEquipTraverser, CExternalEquip (DestroyHardpoint)
+#include "common_goods.h"       // FindHardpoint_PS / HardpointToWorld (ImpulseAction)
+#include "server_gameobject.h"  // EqObj / GameObject slots every Trigger calls
+#include "server_sysdb.h"       // StarSystem::find_object (FUN_06d0c8d0)
+#include "server_createinfo.h"  // Server_Acquire3DMathEngine (FUN_06d5ff70)
+#include "x86math.h"            // I3DMathEngine::Rotate (TumbleAction)
 
 #include <cstdlib> // rand (retail: MSVCRT.DLL::rand)
 #include <cstring> // _stricmp (retail: DACOM.DLL::stricmp)

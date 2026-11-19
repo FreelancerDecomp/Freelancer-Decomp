@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\Content;$(ProjectDir)..\imeui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Content;$(ProjectDir)..\imeui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FREELANCER_EXPORTS selects the declarations freelancer.exe exports itself
            (retail FreeLancer.exe carries a 69-name export table, no .def): see the
            export macros in src/include/rpc_iclient.h and src/include/common_exports.h. -->

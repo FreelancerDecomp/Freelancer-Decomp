@@ -25,16 +25,16 @@
 // bytes from the receiving side.
 // ---------------------------------------------------------------------------
 
-#include "../include/server_createinfo.h"
+#include "server_createinfo.h"
 
-#include "../include/common_archetype.h"
-#include "../include/common_cequip.h"
-#include "../include/common_csys.h"       // Matrix
-#include "../include/dacom.h"             // DACOM_Acquire, ICOManager, AGGDESC (FUN_06d5ff70)
-#include "../include/common_iface.h"      // IObjRW
-#include "../include/common_misc.h"       // DamageList, SUBOBJ_ID_NONE
-#include "../include/common_reputation.h" // Reputation::Vibe::GetRank
-#include "../include/x86math.h"           // I3DMathEngine::MatrixToQuaternion
+#include "common_archetype.h"
+#include "common_cequip.h"
+#include "common_csys.h"       // Matrix
+#include "dacom.h"             // DACOM_Acquire, ICOManager, AGGDESC (FUN_06d5ff70)
+#include "common_iface.h"      // IObjRW
+#include "common_misc.h"       // DamageList, SUBOBJ_ID_NONE
+#include "common_reputation.h" // Reputation::Vibe::GetRank
+#include "x86math.h"           // I3DMathEngine::MatrixToQuaternion
 
 // ===========================================================================
 // FUN_06d5ff70 -- see the declaration in server_createinfo.h.

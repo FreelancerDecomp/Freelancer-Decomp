@@ -21,21 +21,21 @@
 // UPDATEOBJECT phase below.
 // ---------------------------------------------------------------------------
 
-#include "../include/common_server.h"
-#include "../include/common_server_playerdb.h"
-#include "../include/common_misc.h"       // DamageList / DamageEntry, SUBOBJ_ID_NONE
-#include "../include/common_physys.h"     // Quaternion
-#include "../include/common_csys.h"       // Matrix
-#include "../include/x86math.h"           // I3DMathEngine::MatrixToQuaternion
-#include "../include/common_cobject.h"
-#include "../include/common_cequip.h"
-#include "../include/common_archetype.h"
-#include "../include/server_createinfo.h"
-#include "../include/server_gameobject.h"
-#include "../include/server_sysdb.h"
-#include "../include/rpc_iclient.h"
-#include "../include/rpc_iclient_args.h"
-#include "../include/common_server_types.h"   // XSetTarget (IClient::SendCommonSetTarget)
+#include "common_server.h"
+#include "common_server_playerdb.h"
+#include "common_misc.h"       // DamageList / DamageEntry, SUBOBJ_ID_NONE
+#include "common_physys.h"     // Quaternion
+#include "common_csys.h"       // Matrix
+#include "x86math.h"           // I3DMathEngine::MatrixToQuaternion
+#include "common_cobject.h"
+#include "common_cequip.h"
+#include "common_archetype.h"
+#include "server_createinfo.h"
+#include "server_gameobject.h"
+#include "server_sysdb.h"
+#include "rpc_iclient.h"
+#include "rpc_iclient_args.h"
+#include "common_server_types.h"   // XSetTarget (IClient::SendCommonSetTarget)
 
 #include <cstdlib>
 #include <list>

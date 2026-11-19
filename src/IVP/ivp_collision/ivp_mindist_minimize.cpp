@@ -21,7 +21,7 @@
 #include "../ivp_compact_builder/ivp_compact_ledge.h"
 #include "../ivp_physics/ivp_mindist.h"
 #include "../ivp_physics/ivp_real_object.h"
-#include "../../include/common_ini.h" // Vector (IVP_Ledge_Mindist::SeparatingNormal)
+#include "common_ini.h" // Vector (IVP_Ledge_Mindist::SeparatingNormal)
 #include "../ivp_utility/ivp_core_trap.h" // IVP_CoreTrap: retail's `MOV dword ptr [0],0`
 
 IVP_MRC_TYPE (*IVP_Mindist_Minimize_Solver::mms_function_table[4][4])(IVP_Mindist_Minimize_Solver* Solver) = {};

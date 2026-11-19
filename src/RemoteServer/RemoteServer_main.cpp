@@ -7,19 +7,19 @@
 #include <windows.h>
 #define RPCLOCAL_EXPORTS
 #define REMOTESERVER_INSTANCE_DEFINITION
-#include "../include/rpc_iserver.h"
+#include "rpc_iserver.h"
 #undef REMOTESERVER_INSTANCE_DEFINITION
-#include "../include/common_server.h"
-#include "../include/rpc_iclient.h"
-#include "../include/freelancer_client.h"
-#include "../include/common_misc.h" // SinglePlayer
+#include "common_server.h"
+#include "rpc_iclient.h"
+#include "freelancer_client.h"
+#include "common_misc.h" // SinglePlayer
 // CollisionGroupDesc's complete definition (ch2 0x48, IClient::SendServerSetCollisionGroups).
-#include "../include/common_archetype.h"
-#include "../include/dalib_net.h"
-#include "../include/rpc_packet.h"
-#include "../include/rpc_packet_codec.h"
-#include "../include/rpc_server_channel_codec.h" // Canonical hardpoint dictionary builder.
-#include "../include/msvcrt_compat.h"
+#include "common_archetype.h"
+#include "dalib_net.h"
+#include "rpc_packet.h"
+#include "rpc_packet_codec.h"
+#include "rpc_server_channel_codec.h" // Canonical hardpoint dictionary builder.
+#include "msvcrt_compat.h"
 #include "rpc_server_channel_receive_private.h"
 
 #include <list>
@@ -27,7 +27,7 @@
 #include <cstdlib>
 #include <cwchar>
 
-#include "../include/rpc_iclient_args.h"
+#include "rpc_iclient_args.h"
 
 namespace
 {

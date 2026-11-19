@@ -6,19 +6,19 @@
 
 #define RPCLOCAL_EXPORTS
 #include <windows.h>
-#include "../include/rpc_iserver.h"
-#include "../include/common_server.h"
-#include "../include/rpc_iclient.h"
-#include "../include/common_goods.h"        // CostumeHint (0x4d LOADHINT), EquipDescVector
-#include "../include/server_createinfo.h"   // CShipCreateInfo / CSolarCreateInfo / loot / guided
-#include "../include/server_characterset.h" // CCharacterSet::CharacterInfo (0x03)
-#include "../include/common_misc.h"
-#include "../include/common_archetype.h"
-#include "../include/rpc_packet.h"
-#include "../include/rpc_iclient_args.h"
-#include "../include/server_sysdb.h" // FMineExplosion (0x31)
+#include "rpc_iserver.h"
+#include "common_server.h"
+#include "rpc_iclient.h"
+#include "common_goods.h"        // CostumeHint (0x4d LOADHINT), EquipDescVector
+#include "server_createinfo.h"   // CShipCreateInfo / CSolarCreateInfo / loot / guided
+#include "server_characterset.h" // CCharacterSet::CharacterInfo (0x03)
+#include "common_misc.h"
+#include "common_archetype.h"
+#include "rpc_packet.h"
+#include "rpc_iclient_args.h"
+#include "server_sysdb.h" // FMineExplosion (0x31)
 #include "rpc_server_channel_receive_private.h"
-#include "../include/rpc_server_channel_codec.h"
+#include "rpc_server_channel_codec.h"
 
 #include <list>
 #include <new>

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "../include/rpc_iclient.h"
+#include "rpc_iclient.h"
 
 class CClientImpl : public IClient, public IChatClient {
 public:
