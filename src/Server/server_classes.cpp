@@ -49,6 +49,7 @@
 #include <wchar.h>
 #include <stdarg.h>
 #include <algorithm>
+#include <unordered_map> // port-only id index of the ObjectList blocks (ObjectList::find_by_id)
 
 #pragma comment(lib, "winmm.lib")
 
@@ -6762,17 +6763,123 @@ unsigned int ObjectList::collect_in_sphere(unsigned int* OutIds, unsigned int Ma
 //   .text:06cf4f1f .. 06cf4f24  CALL [Data->vtable + 0x20]   ; get_id()
 //   .text:06cf4f27  CMP EAX,EDI / JNZ -- the first match ends the walk
 //   .text:06cf4f2c  return node (null when nothing matched)
-MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
+//
+// Port-only id index (no retail counterpart). StarSystem::find_object runs this
+// walk on up to seven blocks per lookup, so a station costs a get_id call on
+// every ship, projectile and loot crate first. The index below remembers, per
+// block, the FIRST node of each id in list order -- exactly the node the walk
+// stops at -- and is rebuilt from that same walk after any structural edit
+// (the ObjectList forwards in server_sysdb.h and StarSystem_DeleteBlock mark it
+// stale). The list stays the source of every order; the index only answers ids.
+//
+// Why the answer is the walk's answer:
+//   - Duplicate ids keep their first node (insert does not overwrite), and the
+//     cross-block order is find_object's own, which is unchanged.
+//   - An object's id cannot change while its node is linked and the list is
+//     not edited: get_id is IObjInspectImpl's `InspectSimple(Object)->Id`; the
+//     wrapper holds a reference on its CObject until its destructor
+//     (GameObject::~GameObject), CSimple::Id is only written by CSimple::init,
+//     and every create path sets Object and runs init before the append. The
+//     one exception, ListC0's create_med_asteroid / create_med_mine, appends
+//     first and finds the CObject right after with no lookup in between; the
+//     append already marked the index stale, so the next build reads the id.
+//   - The build stops at the first node whose get_id would fault (null Data,
+//     null Object, or not a CSimple: the walk would crash there). Lookups the
+//     index cannot answer continue the original walk from that node, so they
+//     return, or fault, exactly where the retail walk does.
+//   - While the index is stale, lookups use the plain walk; it is rebuilt only
+//     after a few of them, so a list edited between every lookup never costs
+//     more than about one extra walk per edit.
+// Lookups were already not read-only in retail (Server_FindObject updates its
+// one-entry cache), so the index needs no locking beyond what the lists need.
+namespace {
+
+struct FObjectListIdIndex {
+    std::unordered_map<unsigned int, MetaNode<GameObject>*> FirstById;
+    MetaNode<GameObject>* WalkFrom;   // first node the build could not read; null = whole list
+    unsigned int StaleLookups;        // lookups answered by the plain walk since the last edit
+    bool bValid;
+
+    FObjectListIdIndex() : WalkFrom(nullptr), StaleLookups(0), bValid(false) {}
+};
+
+typedef std::unordered_map<ObjectList const*, FObjectListIdIndex> FObjectListIdIndexTable;
+
+// Created on the first lookup and never freed: the blocks of SysDB::SysMap's
+// systems are destroyed during static teardown and still call drop_index.
+FObjectListIdIndexTable* GObjectListIdIndexes = nullptr;
+
+// Stale lookups answered by the plain walk before the index is rebuilt.
+unsigned int const ObjectListIdIndexRebuildAfter = 4;
+
+// The walk below, recorded: every node up to the first one the walk could not
+// call get_id on.
+void ObjectList_BuildIdIndex(ObjectList const& List, FObjectListIdIndex& Index)
 {
-    MetaNode<GameObject>* Node = nullptr;
-    for (;;) {
-        Node = (Node == nullptr) ? Head : Node->Next;
-        if (Node == nullptr)
+    Index.FirstById.clear();
+    Index.WalkFrom = nullptr;
+    for (MetaNode<GameObject>* Node = List.Head; Node != nullptr; Node = Node->Next) {
+        GameObject* const Data = Node->Data;
+        CObject* const Raw = (Data != nullptr) ? Data->Object : nullptr;
+        if (Raw == nullptr || (static_cast<unsigned int>(Raw->ObjectClass) & 3u) != 3u) {
+            Index.WalkFrom = Node;
             break;
+        }
+        Index.FirstById.insert(std::make_pair(static_cast<unsigned int>(Data->get_id()), Node));
+    }
+    Index.bValid = true;
+    Index.StaleLookups = 0;
+}
+
+// The retail walk (.text:06cf4f10 .. 06cf4f2c), starting at Node; null finds nothing.
+MetaNode<GameObject>* ObjectList_WalkById(MetaNode<GameObject>* Node, unsigned int Id)
+{
+    for (; Node != nullptr; Node = Node->Next) {
         if (Node->Data->get_id() == Id)
             break;
     }
     return Node;
+}
+
+} // namespace
+
+void ObjectList::invalidate_index() const
+{
+    if (GObjectListIdIndexes == nullptr)
+        return;
+    FObjectListIdIndexTable::iterator const It = GObjectListIdIndexes->find(this);
+    if (It != GObjectListIdIndexes->end()) {
+        It->second.bValid = false;
+        It->second.StaleLookups = 0;
+    }
+}
+
+void ObjectList::drop_index() const
+{
+    if (GObjectListIdIndexes != nullptr)
+        GObjectListIdIndexes->erase(this);
+}
+
+// FUN_06cf4f00 -- see the walk and the index above.
+MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
+{
+    if (GObjectListIdIndexes == nullptr)
+        GObjectListIdIndexes = new FObjectListIdIndexTable;
+    FObjectListIdIndex& Index = (*GObjectListIdIndexes)[this];
+    if (!Index.bValid) {
+        if (Index.StaleLookups < ObjectListIdIndexRebuildAfter) {
+            ++Index.StaleLookups;
+            return ObjectList_WalkById(Head, Id);
+        }
+        ObjectList_BuildIdIndex(*this, Index);
+    }
+
+    std::unordered_map<unsigned int, MetaNode<GameObject>*>::const_iterator const Hit =
+        Index.FirstById.find(Id);
+    if (Hit != Index.FirstById.end())
+        return Hit->second;
+    // Every node before WalkFrom has another id; the walk goes on from there.
+    return ObjectList_WalkById(Index.WalkFrom, Id);
 }
 
 // ===========================================================================
@@ -11107,6 +11214,7 @@ static void StarSystem_DeleteBlock(ObjectList& List)
     }
     List.Tail = nullptr;
     List.Head = nullptr;
+    List.invalidate_index(); // port-only: the id index (ObjectList::find_by_id)
 }
 
 void StarSystem::unload()
