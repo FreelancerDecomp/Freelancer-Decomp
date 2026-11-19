@@ -145,6 +145,8 @@ jobs:
     name: Regression (FLRegress)
     needs: [build, data]
     runs-on: windows-2022
+    # Stage A takes seconds; FLRegress's own watchdog ends a stuck run after 5 minutes.
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -170,7 +172,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           foreach ($run in 'a', 'b') {
-            & .\FLRegress.exe --out "regress_$run.txt"
+            & .\FLRegress.exe --out "regress_$run.txt" --timeout 300
             if ($LASTEXITCODE -ne 0) { throw "FLRegress run $run failed with exit code $LASTEXITCODE" }
           }
           $a = (Get-FileHash -Algorithm SHA256 regress_a.txt).Hash
