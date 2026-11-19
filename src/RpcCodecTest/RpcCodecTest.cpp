@@ -95,6 +95,10 @@ namespace
     const unsigned int NoException = 0;
     const unsigned int ResultException = 0xffffffffu;
 
+    // The case in progress, printed if the process is ending abnormally.
+    const char* GCurrentCase = "";
+    unsigned int GCurrentType = 0;
+
     struct FInput
     {
         const char* Name;
@@ -303,6 +307,7 @@ namespace
     void RunInput(FILE* Out, const FPacketTypeInfo& Info, const FInput& Input, FCounts& Counts)
     {
         ++Counts.Cases;
+        GCurrentCase = Input.Name;
         FCodecResult Allocation;
         FPacketBase* Packet = NewPacket(Info, Allocation);
         if (Packet == nullptr)
@@ -384,6 +389,8 @@ namespace
         const std::vector<FInput>& Inputs, FCounts& Counts)
     {
         fprintf(Out, "type %05x %s\n", PacketId, Info.Name.c_str());
+        GCurrentType = PacketId;
+        GCurrentCase = "fresh";
 
         // A freshly constructed packet, encoded as is.
         {
@@ -422,6 +429,7 @@ namespace
 
         // Decode of every prefix of the "small" input: where each codec stops and which error
         // it reports for a short packet.
+        GCurrentCase = "prefixes";
         const std::vector<unsigned char> Small = SmallDwords(MaxTruncatedLength);
         std::string Line;
         for (unsigned int Length = 0; Length <= MaxTruncatedLength; ++Length)
@@ -455,6 +463,14 @@ namespace
             }
         }
         fprintf(Out, "  %-10s %s\n", "prefixes", Line.c_str());
+    }
+
+    LONG WINAPI ReportUnhandledException(EXCEPTION_POINTERS* Info)
+    {
+        fprintf(stderr, "RpcCodecTest: unhandled exception %08lx in type %05x, case %s\n",
+            Info->ExceptionRecord->ExceptionCode, GCurrentType, GCurrentCase);
+        fflush(stderr);
+        return EXCEPTION_EXECUTE_HANDLER;
     }
 
     // RemoteClient_transport.cpp's registration, in its order.
@@ -512,6 +528,7 @@ int main(int Argc, char** Argv)
     }
 
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    SetUnhandledExceptionFilter(ReportUnhandledException);
     // The server thread's FPU setup (FLServer SetupServerFpu): 53-bit precision, all masked.
     _control87(0x9001f, 0xfffff);
 
@@ -530,6 +547,9 @@ int main(int Argc, char** Argv)
         fprintf(stderr, "RpcCodecTest: cannot write %s\n", OutPath);
         return 1;
     }
+    // Unbuffered: if a codec ends the process (a CRT fast-fail is not a catchable exception),
+    // the file still shows the last case that completed.
+    setvbuf(Out, nullptr, _IONBF, 0);
     const std::vector<FInput> Inputs = MakeInputs();
     fprintf(Out, "rpccodectest 1 module=RemoteClient types=%u\n", (unsigned int)Serializer->GetTypes().size());
     RunMode(Out, "multiplayer", true, *Serializer, Inputs);

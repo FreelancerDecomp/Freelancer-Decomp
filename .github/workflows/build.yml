@@ -265,7 +265,10 @@ jobs:
           $ErrorActionPreference = 'Stop'
           foreach ($run in 'a', 'b') {
             & .\RpcCodecTest.exe --out "codecs_$run.txt"
-            if ($LASTEXITCODE -ne 0) { throw "RpcCodecTest run $run failed with exit code $LASTEXITCODE" }
+            if ($LASTEXITCODE -ne 0) {
+              if (Test-Path "codecs_$run.txt") { Get-Content "codecs_$run.txt" -Tail 12 | Write-Host }
+              throw ("RpcCodecTest run $run failed with exit code 0x{0:x8}" -f $LASTEXITCODE)
+            }
           }
           $a = (Get-FileHash -Algorithm SHA256 codecs_a.txt).Hash
           $b = (Get-FileHash -Algorithm SHA256 codecs_b.txt).Hash
