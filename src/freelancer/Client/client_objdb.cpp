@@ -27,7 +27,9 @@
 #include <cstdio>
 #include <cstring>
 #include <list>
+#include <map>     // port-only id index (G_IdIndex)
 #include <new>
+#include <utility> // std::pair
 #include <vector>
 #include <windows.h>
 
@@ -83,11 +85,71 @@ namespace
         return Sum;
     }
 
+    // Port-only id index (no retail counterpart): FUN_005416c0 walks a bucket's ListNext chain
+    // calling get_id on every Gameobj until one matches. This side table holds, per (list, id),
+    // the Gameobjs linked into that list under that id in link order, so a lookup returns the
+    // same Gameobj as the walk without visiting the chain. It is kept by LinkGameobj /
+    // UnlinkGameobj, the only places the chains change, so an entry exists exactly while its
+    // Gameobj is linked (a finished Gameobj stays findable until the reap unlinks it, as in
+    // retail). LinkGameobj only ever appends at the tail, so the front of each vector is the
+    // first match the walk would meet; duplicates are kept and the next one takes over when
+    // the front is unlinked. get_id is the Id (+0xb0) of the CObject at +0x10: every caller of
+    // FUN_00540c30 creates / finds that object and runs CSimple::init before registering, and
+    // neither the pointer nor the Id is written again while the Gameobj is linked, so the id
+    // read at link time is the id the walk would read. The lists stay the source of every
+    // iteration order; the index only answers the id lookups.
+    typedef std::pair<FGameobjList const*, unsigned> FIdIndexKey;
+    std::map<FIdIndexKey, std::vector<FClientGameobj*> > G_IdIndex;
+    // The key each linked Gameobj was indexed under, so the unlink removes exactly that entry.
+    std::map<FClientGameobj const*, unsigned> G_IdIndexKeyOf;
+
+    void IdIndexAdd(FGameobjList const* List, FClientGameobj* Go)
+    {
+        unsigned const Id = Go->get_id();
+        G_IdIndex[FIdIndexKey(List, Id)].push_back(Go);
+        G_IdIndexKeyOf[Go] = Id;
+    }
+
+    void IdIndexRemove(FGameobjList const* List, FClientGameobj* Go)
+    {
+        std::map<FClientGameobj const*, unsigned>::iterator const KeyIt = G_IdIndexKeyOf.find(Go);
+        if (KeyIt == G_IdIndexKeyOf.end())
+            return;
+        std::map<FIdIndexKey, std::vector<FClientGameobj*> >::iterator const Bucket =
+            G_IdIndex.find(FIdIndexKey(List, KeyIt->second));
+        G_IdIndexKeyOf.erase(KeyIt);
+        if (Bucket == G_IdIndex.end())
+            return;
+        std::vector<FClientGameobj*>& Linked = Bucket->second;
+        for (std::vector<FClientGameobj*>::iterator It = Linked.begin(); It != Linked.end(); ++It)
+        {
+            if (*It == Go)
+            {
+                Linked.erase(It);
+                break;
+            }
+        }
+        if (Linked.empty())
+            G_IdIndex.erase(Bucket);
+    }
+
+    // The first Gameobj the ListNext walk of List would find with get_id() == Id, or null.
+    FClientGameobj* IdIndexFind(FGameobjList const* List, unsigned Id)
+    {
+        std::map<FIdIndexKey, std::vector<FClientGameobj*> >::const_iterator const Bucket =
+            G_IdIndex.find(FIdIndexKey(List, Id));
+        if (Bucket == G_IdIndex.end() || Bucket->second.empty())
+            return nullptr;
+        return Bucket->second.front();
+    }
+
     // FUN_00542350 (ECX = list, RET 4): append at the tail. A null Gameobj is a no-op.
     void LinkGameobj(FGameobjList* List, FClientGameobj* Go)
     {
         if (Go == nullptr)
             return;
+
+        IdIndexAdd(List, Go); // port-only, see G_IdIndex
 
         Go->ListPrev = List->Last;
         if (List->Last != nullptr)
@@ -112,6 +174,7 @@ namespace
     {
         if (Go != nullptr)
         {
+            IdIndexRemove(List, Go); // port-only, see G_IdIndex
             FClientGameobj* const Prev = Go->ListPrev;
             FClientGameobj* const Next = Go->ListNext;
             if (Prev == nullptr)
@@ -939,16 +1002,16 @@ void ClientObjDb_UpdateRemotePhysics(float Dt)
 namespace
 {
     // The loop FUN_005416c0 repeats once per bucket: walk the bucket's Gameobj chain through
-    // ListNext (+0x14) until get_id (vt+0x20) equals ObjectId.
+    // ListNext (+0x14) until get_id (vt+0x20) equals ObjectId. The port answers it from the
+    // id index (G_IdIndex): the same Gameobj the walk returns -- the first linked match, null
+    // for none, null for a kind outside 1..10 as FUN_00540fc0 gives -- without visiting the
+    // chain. The walk has no side effects (get_id only reads), so skipping it is invisible.
     FClientGameobj* FindObjectInKind(int Kind, unsigned ObjectId)
     {
-        FClientGameobj* Go = ClientObjDb_GetKindHead(&Kind);
-        for (; Go != nullptr; Go = Go->ListNext)
-        {
-            if (Go->get_id() == ObjectId)
-                return Go;
-        }
-        return nullptr;
+        FGameobjList const* const List = KindList(Kind);
+        if (List == nullptr)
+            return nullptr;
+        return IdIndexFind(List, ObjectId);
     }
 
     // The loop FUN_00541890 runs over buckets 1 and 2: cobject (vt+0x150), narrowed to a
