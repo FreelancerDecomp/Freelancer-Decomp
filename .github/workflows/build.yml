@@ -108,10 +108,25 @@ jobs:
 
       - uses: microsoft/setup-msbuild@v2
 
+      # MultiToolTask runs each source file as its own compiler process, and
+      # EnforceProcessCountAcrossBuilds caps those processes across all projects at the core
+      # count. Idle cores then pick up files from any project, so the projects on the critical
+      # path (Common, freelancer) are not stuck behind small single-threaded libraries.
+      # Neither changes the compiler or linker options.
       - name: Build
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
           -p:Configuration=Release -p:Platform=Win32
+          -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
+          -clp:PerformanceSummary -bl:msbuild.binlog
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: msbuild-binlog
+          path: msbuild.binlog
+          retention-days: 7
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
