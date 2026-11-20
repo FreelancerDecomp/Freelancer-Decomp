@@ -601,11 +601,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Report-only until the x64 server runs (docs/x64.md: Thorn is not built for x64 yet).
+      # The x64 server hosts through DPNet (docs/dpnet.md); DPNetCheck joins it with Microsoft's
+      # DirectPlay 8 client, as a retail Freelancer client does.
       - name: FLDedicated x64 (DPNet), start, join with Microsoft's client, run and stop
         id: dedicated_x64
         if: always()
-        continue-on-error: true
         shell: pwsh
         working-directory: bin_x64
         run: |
@@ -631,12 +631,14 @@ jobs:
             throw 'FLDedicated did not stop within 5 minutes'
           }
           Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
-          if ($proc.ExitCode -ne 0) { throw ("FLDedicated exited with code 0x{0:x8}" -f $proc.ExitCode) }
+          # Required: the server comes up and a retail client's DirectPlay joins it. Reported
+          # only: a clean shutdown (docs/x64.md: engine handles held in 32-bit fields).
           $log = Get-Content -Raw dedicated_out.txt
-          foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
-            if (-not $log.Contains($line)) { throw "missing from the log: $line" }
-          }
+          if (-not $log.Contains('Server running, ready for log in.')) { throw 'the x64 server did not come up' }
           if ($check -ne 0) { throw "DPNetCheck failed (exit code $check)" }
+          if ($proc.ExitCode -ne 0 -or -not $log.Contains('Server stopped.')) {
+            Write-Host ("::warning::x64 FLDedicated did not shut down cleanly (exit code 0x{0:x8})" -f $proc.ExitCode)
+          }
 
       # The game-state dump: x64 floating point (SSE2) rounds some results differently from
       # Win32's x87, so the two are compared but a difference is reported, not failed. The

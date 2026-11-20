@@ -38,8 +38,36 @@ The specifications are at
 The code is portable C++20 with no operating-system headers. It has no sockets, clocks or
 threads of its own. The owner feeds in each received datagram with its sender's address, calls
 `Tick` every 10–20 ms with a millisecond clock, and sends what comes out through `ITransport`.
-That keeps the protocol deterministic and testable. The owner (the coming IDirectPlay8 adapter)
-supplies the UDP socket, the clock and the thread.
+That keeps the protocol deterministic and testable.
+
+## The adapter: DPNet behind IDirectPlay8Server
+
+`src/DALib/DPNetAdapter.cpp` puts `FServer` behind the COM interfaces DALib's `CDPServer` calls:
+`IDirectPlay8Server` and `IDirectPlay8Address`. `CDPServer` takes its objects from
+`DPNetAdapter::CreateServer` / `CreateAddress` instead of `CoCreateInstance` when
+`FREELANCER_DPNET` is defined, and calls them exactly as it calls Microsoft's. The x64 build
+defines it (only x64 DALib compiles the DPNet sources); the Win32 build keeps Microsoft's
+`dpnet.dll`, as retail.
+
+- **Socket and thread:** one UDP socket bound like DirectPlay's TCP/IP service provider (all
+  interfaces; the given port, else the first free one of 2302–2400), and a network thread that
+  feeds received datagrams to `FServer` and calls `Tick` every 10 ms. `GetTickCount` is the clock.
+- **Messages:** the seven `DPN_MSGID_` messages `CDPServer` handles (create and destroy player,
+  enumeration query, indicate connect, indicated connect aborted, receive, send complete), plus
+  `RETURN_BUFFER` for reply data. The handler runs with the adapter's lock held, on the network
+  thread or on the caller of `SendTo`, `DestroyClient` or `Close`; `CDPServer`'s handler only
+  queues messages under its own locks.
+- **Receive buffers** stay valid until `ReturnBuffer` (the handler returns `DPNSUCCESS_PENDING`).
+- **`Close`** waits up to 5 s for the players to be told and gone.
+- **`GetConnectionInfo`** fills the round-trip time, the guaranteed bytes and packets each way,
+  retries, drops and message counts; the throughput fields are 0.
+- Methods `CDPServer` never calls return `DPNERR_UNSUPPORTED`.
+
+`DPNetCheck.exe` (`src/DPNetCheck/`, Win32 only) joins a running server through Microsoft's
+DirectPlay 8 client, as a retail client does: enumeration, connect, and one guaranteed message
+each way (`CDPServer` answers a 1-byte message with a 1-byte link-quality reply, through the
+server's game loop). CI runs it against FLDedicated on Microsoft's DirectPlay (Win32) and on
+DPNet (x64); both must pass, and both report the same session, player count and reply data.
 
 ## What is implemented
 
@@ -145,17 +173,9 @@ AddressSanitizer and UndefinedBehaviorSanitizer) and on Windows (MSVC, Win32 and
 
 ## Next steps
 
-1. **The adapter.** A UDP socket, a network thread, and COM objects that implement
-   `IDirectPlay8Server`, `IDirectPlay8Client` and `IDirectPlay8Address` on top of FServer and
-   FClient. DALib keeps calling the same interfaces, so its code stays as it is; only where the
-   object comes from changes. Microsoft's on Win32, DPNet's in the port builds (the x64
-   FLDedicated first). `IDirectPlay8Server::Close` blocks until every player is gone, while
-   `FServer::Close` finishes over later `Tick`s, so the adapter waits for `IsIdle()` (with a
-   time limit) before returning.
-2. **Reference captures.** Retail FLServer and a retail client on Windows, recorded, to settle
+1. **Reference captures.** Retail FLServer and a retail client on Windows, recorded, to settle
    the choices above.
-3. **Interoperability in CI, on Windows.** The DPNet server with a Microsoft DirectPlay client,
-   and a Microsoft DirectPlay server with the DPNet client, both through FLRegress's scripted
-   player.
-4. **Other platforms.** With the adapter's socket code ported, the server no longer needs
+2. **A full login through DPNet:** the x64 server with a retail client logging in and flying,
+   once the x64 server runs past the base entry (docs/x64.md).
+3. **Other platforms.** With the adapter's socket code ported, the server no longer needs
    DirectPlay from the operating system.
