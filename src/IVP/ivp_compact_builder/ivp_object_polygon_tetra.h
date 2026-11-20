@@ -37,7 +37,7 @@ public:
     IVP_Object_Polygon_Tetra* l_tetras; // +0x10
     int32_t compact_index;              // +0x14
 };
-static_assert(sizeof(IVP_Poly_Point) == 0x18, "IVP_Poly_Point is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Poly_Point) == 0x18, "IVP_Poly_Point is 0x18 bytes");
 
 // 0x24 bytes, three of them inline in every IVP_Triangle.
 class IVP_Tri_Edge
@@ -57,7 +57,7 @@ public:
     // edge's start point, or null.
     IVP_Tri_Edge* other_side();
 };
-static_assert(sizeof(IVP_Tri_Edge) == 0x24, "IVP_Tri_Edge is 0x24 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Tri_Edge) == 0x24, "IVP_Tri_Edge is 0x24 bytes");
 
 // 0xc bytes, calloc'd as an array by the tetra ctor (06379a38).
 class IVP_Poly_Surface
@@ -71,7 +71,7 @@ public:
     // argument is not read.
     void set(IVP_Template_Surface* TemplSurface, IVP_Object_Polygon_Tetra* Tetra);
 };
-static_assert(sizeof(IVP_Poly_Surface) == 0xc, "IVP_Poly_Surface is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Poly_Surface) == 0xc, "IVP_Poly_Surface is 0xc bytes");
 
 // 0x9c bytes, vtable .rdata:063a5998 (one slot: the scalar deleting
 // destructor 0637a110; the destructor 0637a130 only restores the vtable).
@@ -98,9 +98,9 @@ public:
     // 06378a10: hesse = plane(e0.start, e0.prev.start, e0.next.start), normized.
     void calc_hesse();
 };
-static_assert(offsetof(IVP_Triangle, three_edges) == 0x1c, "IVP_Triangle edges at +0x1c");
-static_assert(offsetof(IVP_Triangle, tmp_hesse) == 0x88, "IVP_Triangle hesse at +0x88");
-static_assert(sizeof(IVP_Triangle) == 0x9c, "IVP_Triangle is 0x9c bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Triangle, three_edges) == 0x1c, "IVP_Triangle edges at +0x1c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Triangle, tmp_hesse) == 0x88, "IVP_Triangle hesse at +0x88");
+FL_LAYOUT_ASSERT(sizeof(IVP_Triangle) == 0x9c, "IVP_Triangle is 0x9c bytes");
 
 // 0x1c bytes: a 2D point of one template surface (x, y in the projection
 // plane, z always 0).
@@ -114,7 +114,7 @@ public:
     int32_t chain_mark;    // +0x14 set to 1 by mark_point_chain (063793d0), which also stops on it
     P_Sur_2D_Line* line;   // +0x18 the line that starts here (06379378)
 };
-static_assert(sizeof(P_Sur_2D_Point) == 0x1c, "P_Sur_2D_Point is 0x1c bytes");
+FL_LAYOUT_ASSERT(sizeof(P_Sur_2D_Point) == 0x1c, "P_Sur_2D_Point is 0x1c bytes");
 
 // 0x18 bytes: a directed 2D line of the surface outline.
 class P_Sur_2D_Line
@@ -147,7 +147,7 @@ public:
     // 06378ea0: the lines cross (or overlap when parallel and collinear).
     int32_t is_crossing_line(const P_Sur_2D_Line* Other) const;
 };
-static_assert(sizeof(P_Sur_2D_Line) == 0x18, "P_Sur_2D_Line is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(P_Sur_2D_Line) == 0x18, "P_Sur_2D_Line is 0x18 bytes");
 
 // 0x14 bytes: one triangle of the triangulated surface, as point numbers.
 class P_Sur_2D_Triangle
@@ -160,7 +160,7 @@ public:
     P_Sur_2D_Triangle* prev;     // +0x04
     int32_t point_nums[3];       // +0x08
 };
-static_assert(sizeof(P_Sur_2D_Triangle) == 0x14, "P_Sur_2D_Triangle is 0x14 bytes");
+FL_LAYOUT_ASSERT(sizeof(P_Sur_2D_Triangle) == 0x14, "P_Sur_2D_Triangle is 0x14 bytes");
 
 // 0x20 bytes: the 2D projection of one template surface.
 class P_Sur_2D
@@ -192,7 +192,7 @@ private:
     // 06379400 (cdecl): |P2 - P0|^2 + |P2 - P1|^2.
     static double sum_quad_dists(const IVP_U_Point* P0, const IVP_U_Point* P1, const IVP_U_Point* P2);
 };
-static_assert(sizeof(P_Sur_2D) == 0x20, "P_Sur_2D is 0x20 bytes");
+FL_LAYOUT_ASSERT(sizeof(P_Sur_2D) == 0x20, "P_Sur_2D is 0x20 bytes");
 
 // 0x50 bytes (operator new at 0636da86).
 class IVP_Object_Polygon_Tetra
@@ -236,7 +236,7 @@ private:
     // 0637a090 (thiscall, RET 4): registers Edge in edge_hash under its point pair.
     void add_edge_to_hash(IVP_Tri_Edge* Edge);
 };
-static_assert(offsetof(IVP_Object_Polygon_Tetra, edge_hash) == 0x18, "tetra edge_hash at +0x18");
-static_assert(offsetof(IVP_Object_Polygon_Tetra, triangles) == 0x30, "tetra triangles at +0x30");
-static_assert(offsetof(IVP_Object_Polygon_Tetra, Field_0x48) == 0x48, "tetra Field_0x48 at +0x48");
-static_assert(sizeof(IVP_Object_Polygon_Tetra) == 0x50, "IVP_Object_Polygon_Tetra is 0x50 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Object_Polygon_Tetra, edge_hash) == 0x18, "tetra edge_hash at +0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_Object_Polygon_Tetra, triangles) == 0x30, "tetra triangles at +0x30");
+FL_LAYOUT_ASSERT(offsetof(IVP_Object_Polygon_Tetra, Field_0x48) == 0x48, "tetra Field_0x48 at +0x48");
+FL_LAYOUT_ASSERT(sizeof(IVP_Object_Polygon_Tetra) == 0x50, "IVP_Object_Polygon_Tetra is 0x50 bytes");

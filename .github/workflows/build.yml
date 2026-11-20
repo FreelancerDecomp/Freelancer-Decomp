@@ -81,12 +81,19 @@ jobs:
   build:
     # On a pull request the PR's base commit is built alongside it, so the regression job can
     # compare the PR's dump with the dump of the code it would change.
-    name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || 'Release|Win32' }}
+    name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || format('Release|{0}', matrix.platform) }}
     # Visual Studio 2022 (v143) with the ATL/MFC component FLServer needs.
     runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
         side: ${{ github.event_name == 'pull_request' && fromJSON('["pr", "base"]') || fromJSON('["pr"]') }}
+        platform: [Win32]
+        # The port-only x64 build of the server modules (docs/x64.md). Only the PR side: x64
+        # output is compared with the Win32 output of the same commit, not with the base.
+        include:
+          - side: pr
+            platform: x64
 
     steps:
       - uses: actions/checkout@v4
@@ -131,7 +138,7 @@ jobs:
       - name: Build
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
-          -p:Configuration=Release -p:Platform=Win32
+          -p:Configuration=Release -p:Platform=${{ matrix.platform }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
           -clp:PerformanceSummary -bl:msbuild.binlog
 
@@ -139,11 +146,24 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || 'msbuild-binlog' }}
+          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || (matrix.platform == 'x64' && 'msbuild-binlog-x64' || 'msbuild-binlog') }}
           path: msbuild.binlog
           retention-days: 7
 
+      - name: Upload x64 binaries
+        if: matrix.platform == 'x64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: freelancer-release-x64
+          path: |
+            bin_x64/*.exe
+            bin_x64/*.dll
+            bin_x64/*.pdb
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Upload binaries
+        if: matrix.platform == 'Win32'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.side == 'base' && 'freelancer-base-win32' || 'freelancer-release-win32' }}
@@ -486,3 +506,153 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build/dpnet --build-config Debug --output-on-failure
+
+  # The port-only x64 server build (docs/x64.md) against the Win32 build of the same commit.
+  x64:
+    name: x64 server
+    needs: [build, data]
+    runs-on: windows-2022
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore game data
+        uses: actions/cache/restore@v4
+        with:
+          path: DATA
+          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          fail-on-cache-miss: true
+
+      - name: Download Win32 binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-win32
+          path: bin
+
+      - name: Download x64 binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-x64
+          path: bin_x64
+
+      # The development ini and character files the server reads live only in bin\.
+      - name: Copy the server's ini files
+        shell: pwsh
+        run: Copy-Item bin/*.ini, bin/*.txt, bin/*.fl bin_x64/
+
+      - name: Enable DirectPlay
+        shell: pwsh
+        run: |
+          $feature = Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue
+          if ($feature -and -not $feature.Installed) {
+            Install-WindowsFeature -Name Direct-Play | Format-List | Out-String | Write-Host
+          } elseif (-not $feature) {
+            Enable-WindowsOptionalFeature -Online -FeatureName DirectPlay -All -NoRestart | Out-Null
+          }
+
+      # The wire format must not depend on the platform: x64 must encode and decode every
+      # packet exactly as Win32 does.
+      - name: Packet codecs, x64 against Win32
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($side in 'bin', 'bin_x64') {
+            Push-Location $side
+            & .\RpcCodecTest.exe --out codecs.txt
+            $code = $LASTEXITCODE
+            Pop-Location
+            if ($code -ne 0) {
+              if (Test-Path "$side/codecs.txt") { Get-Content "$side/codecs.txt" -Tail 12 | Write-Host }
+              throw ("RpcCodecTest in $side failed with exit code 0x{0:x8}" -f $code)
+            }
+          }
+          $a = (Get-FileHash -Algorithm SHA256 bin/codecs.txt).Hash
+          $b = (Get-FileHash -Algorithm SHA256 bin_x64/codecs.txt).Hash
+          Write-Host "win32: $a"
+          Write-Host "x64:   $b"
+          Select-String -Path bin_x64/codecs.txt -Pattern '^summary ' | ForEach-Object { Write-Host $_.Line }
+          if ($a -ne $b) {
+            Compare-Object (Get-Content bin/codecs.txt) (Get-Content bin_x64/codecs.txt) | Select-Object -First 40 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+            throw 'The x64 packet codecs differ from Win32'
+          }
+
+      - name: Upload x64 codec results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpc-codecs-x64
+          path: |
+            bin/codecs.txt
+            bin_x64/codecs.txt
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Report-only until the x64 server runs (docs/x64.md: Thorn is not built for x64 yet).
+      - name: FLDedicated x64, start, run and stop
+        id: dedicated_x64
+        if: always()
+        continue-on-error: true
+        shell: pwsh
+        working-directory: bin_x64
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $proc = Start-Process -FilePath .\FLDedicated.exe -PassThru -NoNewWindow `
+            -ArgumentList '--name', 'CI', '--max-players', '4', '--run-for', '20' `
+            -RedirectStandardOutput dedicated_out.txt -RedirectStandardError dedicated_err.txt
+          $null = $proc.Handle
+          if (-not $proc.WaitForExit(300000)) {
+            $proc.Kill()
+            Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
+            throw 'FLDedicated did not stop within 5 minutes'
+          }
+          Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
+          if ($proc.ExitCode -ne 0) { throw ("FLDedicated exited with code 0x{0:x8}" -f $proc.ExitCode) }
+          $log = Get-Content -Raw dedicated_out.txt
+          foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
+            if (-not $log.Contains($line)) { throw "missing from the log: $line" }
+          }
+
+      # The game-state dump: x64 floating point (SSE2) rounds some results differently from
+      # Win32's x87, so the two are compared but a difference is reported, not failed. The
+      # dumps hold game data and are not uploaded. Report-only, as above.
+      - name: FLRegress, x64 against Win32
+        id: regress_x64
+        if: always()
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($side in 'bin', 'bin_x64') {
+            Push-Location $side
+            & .\FLRegress.exe --out regress.txt --timeout 300
+            $code = $LASTEXITCODE
+            Pop-Location
+            if ($code -ne 0) {
+              if (Test-Path "$side/regress.txt") { Get-Content "$side/regress.txt" -Tail 12 | Write-Host }
+              throw ("FLRegress in $side failed with exit code 0x{0:x8}" -f $code)
+            }
+          }
+          $a = Get-Content bin/regress.txt
+          $b = Get-Content bin_x64/regress.txt
+          Write-Host "lines: win32 $($a.Count), x64 $($b.Count)"
+          $diff = Compare-Object $a $b
+          Write-Host "differing lines: $(@($diff).Count)"
+          $diff | Select-Object -First 40 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+
+      # When an x64 run crashes, run it again under the console debugger for the stack.
+      - name: x64 crash stacks
+        if: always() && (steps.dedicated_x64.outcome == 'failure' || steps.regress_x64.outcome == 'failure')
+        shell: pwsh
+        working-directory: bin_x64
+        run: |
+          $cdb = 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe'
+          if (-not (Test-Path $cdb)) { Write-Host 'cdb not found'; exit 0 }
+          $env:_NT_SYMBOL_PATH = (Get-Location).Path
+          foreach ($run in @(@('FLRegress.exe', '--out', 'regress_cdb.txt', '--timeout', '120'),
+                             @('FLDedicated.exe', '--name', 'CI', '--run-for', '10'))) {
+            Write-Host "=== $($run -join ' ')"
+            & $cdb -lines -G -c 'sxd -c2 ".ecxr;kn 40;q" av; g; q' @run 2>&1 |
+              Select-String -Pattern '^\s*[0-9a-f]{2} |Access violation|ExceptionAddress|^\w+!|\.(cpp|h)' |
+              Select-Object -First 80 | ForEach-Object { Write-Host $_.Line }
+          }

@@ -894,10 +894,10 @@ inline void IVP_U_Quat::set_rot_vector(const IVP_U_Point *v, float dt)
     w = (float)(sqrt(1.0 - LenSq));
 }
 
-static_assert(sizeof(IVP_U_Point) == 0x10, "IVP_U_Point size mismatch");
-static_assert(sizeof(IVP_U_Matrix3) == 0x30, "IVP_U_Matrix3 size mismatch");
-static_assert(sizeof(IVP_U_Matrix) == 0x40, "IVP_U_Matrix size mismatch");
-static_assert(sizeof(IVP_U_Quat) == 0x10, "IVP_U_Quat size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Point) == 0x10, "IVP_U_Point size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Matrix3) == 0x30, "IVP_U_Matrix3 size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Matrix) == 0x40, "IVP_U_Matrix size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Quat) == 0x10, "IVP_U_Quat size mismatch");
 
 // FUN_06350a60 (.text:06350a60-06350a8f), thiscall (this = In, out), RET 4: per component
 // out = float(a + a) with a = _CIasin(in) (FADD ST0,ST0 on the unrounded result), stored

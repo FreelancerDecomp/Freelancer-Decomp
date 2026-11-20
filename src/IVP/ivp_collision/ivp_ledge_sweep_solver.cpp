@@ -845,7 +845,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d5b0(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_PointPlane_Evaluator) == 0x44,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_PointPlane_Evaluator) == 0x44,
                   "evaluator must be retail's 0x44-byte frame local");
 
     // ------------------------------------------------------------------------
@@ -871,7 +871,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635da20(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_EdgeNormal_Evaluator) == 0x34,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_EdgeNormal_Evaluator) == 0x34,
                   "evaluator must be retail's 0x34-byte frame local");
 
     // ------------------------------------------------------------------------
@@ -926,7 +926,7 @@ namespace
     // 0x14-byte base and IVP_U_Point's 0x10 stride -- offsetof is not used here
     // because these evaluators are polymorphic and offsetof on a non-standard-
     // layout type is only conditionally supported.
-    static_assert(sizeof(IVP_Sweep_EdgeEdge_Evaluator) == 0x58,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_EdgeEdge_Evaluator) == 0x58,
                   "evaluator must be retail's 0x58-byte frame local");
 
     // Evaluator 2, frame+0xf8. vfptr stored at :0635e576; its slot is
@@ -951,7 +951,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635e160(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_EdgeParallel_Evaluator) == 0x34,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_EdgeParallel_Evaluator) == 0x34,
                   "evaluator must be retail's 0x34-byte frame local");
 
     // Evaluator 3, frame+0xc4. vfptr stored at :0635e67e; its slot is
@@ -976,7 +976,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d6d0(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_EdgeFace_Evaluator) == 0x34,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_EdgeFace_Evaluator) == 0x34,
                   "evaluator must be retail's 0x34-byte frame local");
 
     // ------------------------------------------------------------------------
@@ -1026,7 +1026,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d950(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_VertexEdgeMoment_Evaluator) == 0x58,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_VertexEdgeMoment_Evaluator) == 0x58,
                   "evaluator must be retail's 0x58-byte frame local");
 
     // Pass 3's evaluator, frame+0x34, vfptr PTR_LAB_0635d830 (item 3366).
@@ -1050,7 +1050,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d830(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_EdgeFanEdge_Evaluator) == 0x54,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_EdgeFanEdge_Evaluator) == 0x54,
                   "evaluator must be retail's 0x54-byte frame local");
 
     // ------------------------------------------------------------------------
@@ -1103,7 +1103,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d720(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_CenterDistance_Evaluator) == 0x44,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_CenterDistance_Evaluator) == 0x44,
                   "evaluator must be retail's 0x44-byte frame local");
 
     // ------------------------------------------------------------------------
@@ -1143,7 +1143,7 @@ namespace
             return IVP_LedgeSweepEvaluatorsDeferred::Evaluate_0635d7b0(this, FrameA, FrameB);
         }
     };
-    static_assert(sizeof(IVP_Sweep_VertexFanEdge_Evaluator) == 0x44,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_VertexFanEdge_Evaluator) == 0x44,
                   "evaluator must be retail's 0x44-byte frame local");
 }
 
@@ -3360,7 +3360,7 @@ namespace
         int16_t Field_0x18;              // +0x18 -- unread here
         int16_t ShapeType;               // +0x1a
     };
-    static_assert(sizeof(FIVP_Sweep_Mindist_Side) == 0x1c,
+    FL_LAYOUT_ASSERT(sizeof(FIVP_Sweep_Mindist_Side) == 0x1c,
                   "mindist side slot must be retail's 0x1c-byte stride");
 
     FIVP_Sweep_Mindist_Side *SweepMindistSide(IVP_Ledge_Mindist *Mindist, uint32_t Index)

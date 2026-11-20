@@ -79,7 +79,7 @@ protected:
     // NewSize slots and re-insert every stored element.
     void Rehash(int NewSize);
 };
-static_assert(sizeof(IVP_VHash) == 0x10, "IVP_VHash is 0x10 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_VHash) == 0x10, "IVP_VHash is 0x10 bytes");
 
 // FUN_0635d4d0 (formerly extern "C" FUN_0635d4d0, thiscall RET 4 with an
 // unused receiver): CRC-32 (DAT_063edcdc) over the four bytes of Key, OR
@@ -157,4 +157,4 @@ private:
     // entries and re-insert every occupied one.
     void Rehash(int NewSize);
 };
-static_assert(sizeof(IVP_VHash_Store) == 0x14, "IVP_VHash_Store is 0x14 bytes (operator new(0x14), 06344710 :063447c1)");
+FL_LAYOUT_ASSERT(sizeof(IVP_VHash_Store) == 0x14, "IVP_VHash_Store is 0x14 bytes (operator new(0x14), 06344710 :063447c1)");

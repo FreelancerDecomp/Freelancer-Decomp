@@ -46,7 +46,7 @@ struct FServerSetReputationInfo {
     FmtStr NameB;                           // +0x30  Get out-param 7
     wchar_t DisplayName[24];                // +0x48  Get out-param 8, wcscpy'd in by the caller
 };
-static_assert(sizeof(FServerSetReputationInfo) == 0x78,
+FL_LAYOUT_ASSERT(sizeof(FServerSetReputationInfo) == 0x78,
               "SETREPUTATION argument struct 0x78");
 
 // ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ struct FServerCharSelectVerifiedInfo {
     unsigned int Unused_0x04;               // +0x04  not written by the sender's caller
     double ServerTime;                      // +0x08
 };
-static_assert(sizeof(FServerCharSelectVerifiedInfo) == 0x10,
+FL_LAYOUT_ASSERT(sizeof(FServerCharSelectVerifiedInfo) == 0x10,
               "CHARSELECTVERIFIED argument struct 0x10");
 
 // ---------------------------------------------------------------------------
@@ -89,7 +89,7 @@ struct FPayloadServerActivateObject {
     unsigned char Pad_0x05[3];
     unsigned int Field_0x08;    // +0x08  index into CObject::get_activate_state's vector
 };
-static_assert(sizeof(FPayloadServerActivateObject) == 0x0c, "ACTIVATEOBJECT payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerActivateObject) == 0x0c, "ACTIVATEOBJECT payload 0x0c");
 
 // ---------------------------------------------------------------------------
 // IClient slot 58 (+0x0e8), ch2 op 0x22 FLPACKET_SERVER_SYSTEM_SWITCH_IN. Registry
@@ -114,7 +114,7 @@ struct FPayloadServerSystemSwitchIn {
     Vector Position;             // +0x08  -> 0x06dbb924/928/92c
     Quaternion Orientation;      // +0x14  -> 0x06dbb930/934/938/93c
 };
-static_assert(sizeof(FPayloadServerSystemSwitchIn) == 0x24, "SYSTEM_SWITCH_IN payload 0x24");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSystemSwitchIn) == 0x24, "SYSTEM_SWITCH_IN payload 0x24");
 
 // ---------------------------------------------------------------------------
 // IClient slot 64 (+0x100), ch2 op 0x38 FLPACKET_SERVER_ITEMTRACTORED. Registry
@@ -134,7 +134,7 @@ struct FPayloadServerItemTractored {
     unsigned short Field_0x08;   // +0x08  tractor equipment id
     unsigned short Field_0x0a;   // +0x0a  units taken
 };
-static_assert(sizeof(FPayloadServerItemTractored) == 0x0c, "ITEMTRACTORED payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerItemTractored) == 0x0c, "ITEMTRACTORED payload 0x0c");
 
 // ---------------------------------------------------------------------------
 // IClient slot 65 (+0x104), ch2 op 0x51 FLPACKET_SERVER_USE_ITEM. Registry size
@@ -151,7 +151,7 @@ struct FPayloadServerUseItem {
     unsigned short Field_0x04;   // +0x04  equipment id
     unsigned short Field_0x06;   // +0x06  count
 };
-static_assert(sizeof(FPayloadServerUseItem) == 0x08, "USE_ITEM payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerUseItem) == 0x08, "USE_ITEM payload 0x08");
 
 // ---------------------------------------------------------------------------
 // IClient slot 60 (+0x0f0), ch2 op 0x07 FLPACKET_SERVER_LAUNCH -- the argument
@@ -174,7 +174,7 @@ struct FServerLaunchInfo {
     Quaternion Orientation;     // +0x0c
     Vector Position;            // +0x1c
 };
-static_assert(sizeof(FServerLaunchInfo) == 0x28, "LAUNCH arg struct 0x28");
+FL_LAYOUT_ASSERT(sizeof(FServerLaunchInfo) == 0x28, "LAUNCH arg struct 0x28");
 
 // ---------------------------------------------------------------------------
 // IClient slot 54 (+0x0d8), ch1 op 0x01 FLPACKET_COMMON_UPDATEOBJECT. The argument
@@ -200,7 +200,7 @@ struct FCommonUpdateObjectInfo {
     unsigned char Field_0x28;    // +0x28  SSPObjUpdateInfo::Field_0x2c
     unsigned char Pad_0x29[3];
 };
-static_assert(sizeof(FCommonUpdateObjectInfo) == 0x2c, "UPDATEOBJECT arg struct 0x2c");
+FL_LAYOUT_ASSERT(sizeof(FCommonUpdateObjectInfo) == 0x2c, "UPDATEOBJECT arg struct 0x2c");
 
 // ---------------------------------------------------------------------------
 // IClient slot 100 (+0x190), ch2 op 0x4e FLPACKET_SERVER_SETDIRECTIVE. Registry size
@@ -237,7 +237,7 @@ struct FRpcDirectiveBlock {
     unsigned int Field_0x04;        // +0x04
     unsigned int Field_0x08;        // +0x08
 };
-static_assert(sizeof(FRpcDirectiveBlock) == 0x0c, "FUN_06d8f510 moves exactly three dwords");
+FL_LAYOUT_ASSERT(sizeof(FRpcDirectiveBlock) == 0x0c, "FUN_06d8f510 moves exactly three dwords");
 
 struct FPayloadServerSetDirective {
     unsigned int Field_0x00;        // +0x00  directive kind 0..5 (see above); never seeded
@@ -271,11 +271,11 @@ struct FPayloadServerSetDirective {
     unsigned char Field_0x90;       // +0x90  goto op+0x6c
     unsigned char Pad_0x91[3];      // +0x91  swept up by the receiver's REP MOVSD
 };
-static_assert(offsetof(FPayloadServerSetDirective, Field_0x30) == 0x30, "SETDIRECTIVE +0x30");
-static_assert(offsetof(FPayloadServerSetDirective, Field_0x44) == 0x44, "SETDIRECTIVE +0x44");
-static_assert(offsetof(FPayloadServerSetDirective, Block_0x78) == 0x78, "SETDIRECTIVE +0x78");
-static_assert(offsetof(FPayloadServerSetDirective, Field_0x90) == 0x90, "SETDIRECTIVE +0x90");
-static_assert(sizeof(FPayloadServerSetDirective) == 0x94, "SETDIRECTIVE payload 0x94");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetDirective, Field_0x30) == 0x30, "SETDIRECTIVE +0x30");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetDirective, Field_0x44) == 0x44, "SETDIRECTIVE +0x44");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetDirective, Block_0x78) == 0x78, "SETDIRECTIVE +0x78");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetDirective, Field_0x90) == 0x90, "SETDIRECTIVE +0x90");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetDirective) == 0x94, "SETDIRECTIVE payload 0x94");
 
 // ---------------------------------------------------------------------------
 // IClient slot 70 (+0x118), ch2 op 0x45 FLPACKET_SERVER_SET_MISSION_MESSAGE.
@@ -295,7 +295,7 @@ struct CSetMissionMessage {
     FmtStr Text;                    // +0x00
     unsigned int Type;              // +0x18  MissionMessageType
 };
-static_assert(sizeof(CSetMissionMessage) == 0x1c, "SET_MISSION_MESSAGE argument struct 0x1c");
+FL_LAYOUT_ASSERT(sizeof(CSetMissionMessage) == 0x1c, "SET_MISSION_MESSAGE argument struct 0x1c");
 typedef CSetMissionMessage FServerSetMissionMessageInfo;
 
 // ---------------------------------------------------------------------------
@@ -316,7 +316,7 @@ struct FServerReplaceMissionObjectiveInfo {
     unsigned char State;            // +0x20  ReplaceMissionObjective's third argument, as a byte
     unsigned char Pad_0x21[3];      // +0x21
 };
-static_assert(sizeof(FServerReplaceMissionObjectiveInfo) == 0x24,
+FL_LAYOUT_ASSERT(sizeof(FServerReplaceMissionObjectiveInfo) == 0x24,
               "REPLACEMISSIONOBJECTIVE argument struct 0x24");
 
 // ---------------------------------------------------------------------------
@@ -335,7 +335,7 @@ struct FServerMissionObjectiveStateInfo {
     unsigned char Pad_0x05[3];
     unsigned int Field_0x08;    // +0x08  the fourth argument; receiver zero-extends the word
 };
-static_assert(sizeof(FServerMissionObjectiveStateInfo) == 0x0c, "SETMISSIONOBJECTIVESTATE arg struct 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FServerMissionObjectiveStateInfo) == 0x0c, "SETMISSIONOBJECTIVESTATE arg struct 0x0c");
 
 // ---------------------------------------------------------------------------
 // IClient slot 87 (+0x15c), ch2 op 0x41 FLPACKET_SERVER_BURNFUSE.
@@ -361,7 +361,7 @@ struct FServerBurnFuseInfo {
     unsigned char bLit;         // +0x18
     unsigned char Pad_0x19[3];
 };
-static_assert(sizeof(FServerBurnFuseInfo) == 0x1c, "BURNFUSE argument struct 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FServerBurnFuseInfo) == 0x1c, "BURNFUSE argument struct 0x1c");
 
 // ---------------------------------------------------------------------------
 // IClient slot 72 (+0x120), ch2 op 0x35 FLPACKET_SERVER_SETMISSIONOBJECTIVES.
@@ -383,7 +383,7 @@ struct FServerMissionObjectiveEntry {
     FmtStr Text;                    // +0x00
     unsigned int State;             // +0x18  a BYTE on the wire, MOVZX'd to a dword here
 };
-static_assert(sizeof(FServerMissionObjectiveEntry) == 0x1c,
+FL_LAYOUT_ASSERT(sizeof(FServerMissionObjectiveEntry) == 0x1c,
               "objective entry is 0x1c: FmtStr plus one dword");
 
 struct FServerSetMissionObjectivesInfo {
@@ -395,7 +395,7 @@ struct FServerSetMissionObjectivesInfo {
     unsigned char Field_0x3c;               // +0x3c
     unsigned char Pad_0x3d[3];              // +0x3d
 };
-static_assert(sizeof(FServerSetMissionObjectivesInfo) == 0x40,
+FL_LAYOUT_ASSERT(sizeof(FServerSetMissionObjectivesInfo) == 0x40,
               "SETMISSIONOBJECTIVES argument struct 0x40");
 
 // ---------------------------------------------------------------------------
@@ -422,7 +422,7 @@ struct FServerRequestSpaceScriptInfo {
     unsigned int Field_0x110;                       // +0x110  position z (float bits)
     unsigned int Field_0x114;                       // +0x114  1 or 2; see rpc_payloads.h remap
 };
-static_assert(sizeof(FServerRequestSpaceScriptInfo) == 0x118, "REQUESTSPACESCRIPT argument struct 0x118");
+FL_LAYOUT_ASSERT(sizeof(FServerRequestSpaceScriptInfo) == 0x118, "REQUESTSPACESCRIPT argument struct 0x118");
 
 // ---------------------------------------------------------------------------
 // IClient slot 82 (+0x148), ch2 op 0x2b FLPACKET_SERVER_SETGROUPFEELINGS.
@@ -442,7 +442,7 @@ struct FServerSetGroupFeelingsInfo {
     unsigned char RelationCount;            // +0x14
     unsigned char Pad_0x15[3];              // +0x15
 };
-static_assert(sizeof(FServerSetGroupFeelingsInfo) == 0x18,
+FL_LAYOUT_ASSERT(sizeof(FServerSetGroupFeelingsInfo) == 0x18,
               "SETGROUPFEELINGS argument struct 0x18");
 
 // ---------------------------------------------------------------------------
@@ -463,7 +463,7 @@ struct FServerSystemSwitchOutInfo {
     unsigned int ShipId;        // +0x00
     unsigned int GateId;        // +0x04  the jump object the ship leaves through
 };
-static_assert(sizeof(FServerSystemSwitchOutInfo) == 0x08, "SYSTEM_SWITCH_OUT argument struct 0x08");
+FL_LAYOUT_ASSERT(sizeof(FServerSystemSwitchOutInfo) == 0x08, "SYSTEM_SWITCH_OUT argument struct 0x08");
 
 // ---------------------------------------------------------------------------
 // IClient::SendServerLand (slot 59, +0x0ec), ch2 op 0x0b FLPACKET_SERVER_LAND.
@@ -483,7 +483,7 @@ struct FServerLandInfo {
     unsigned int DockId;        // +0x04  the object docked with
     unsigned int BaseId;        // +0x08
 };
-static_assert(sizeof(FServerLandInfo) == 0x0c, "LAND argument struct 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FServerLandInfo) == 0x0c, "LAND argument struct 0x0c");
 
 // ===========================================================================
 // The five argument structs below were private to src/rpclocal/rpc_payloads.h until
@@ -505,7 +505,7 @@ struct FServerDestroyObjectInfo {
     unsigned char Field_0x04;   // +0x04  TODO: semantics unproven
     unsigned char Pad_0x05[3];
 };
-static_assert(sizeof(FServerDestroyObjectInfo) == 0x08, "DESTROYOBJECT arg struct 0x08");
+FL_LAYOUT_ASSERT(sizeof(FServerDestroyObjectInfo) == 0x08, "DESTROYOBJECT arg struct 0x08");
 
 // ---------------------------------------------------------------------------
 // IClient::SendServerRepairObject (slot 84, +0x150), ch2 op 0x3c
@@ -519,7 +519,7 @@ struct FServerRepairObjectInfo {
     unsigned short Pad_0x06;    // the receiver never writes this half
     unsigned int Field_0x08;
 };
-static_assert(sizeof(FServerRepairObjectInfo) == 0x0c, "REPAIROBJECT arg struct 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FServerRepairObjectInfo) == 0x0c, "REPAIROBJECT arg struct 0x0c");
 
 // ---------------------------------------------------------------------------
 // IClient::SendServerCfgInterfaceNotification (slot 76, +0x130), ch2 op 0x47
@@ -536,7 +536,7 @@ struct FPayloadServerCfgInterfaceNotification {
     unsigned char Field_0x08;
     unsigned char Pad_0x09[3];
 };
-static_assert(sizeof(FPayloadServerCfgInterfaceNotification) == 0x0c, "CFGINTERFACENOTIFICATION payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCfgInterfaceNotification) == 0x0c, "CFGINTERFACENOTIFICATION payload 0x0c");
 
 // ---------------------------------------------------------------------------
 // IClient::SendServerSetCamera (slot 88, +0x160), ch2 op 0x4b FLPACKET_SERVER_SET_CAMERA,
@@ -553,9 +553,9 @@ struct FPayloadServerSetCamera {
     float Fov;                  // +0x1c
     float Aspect;               // +0x20
 };
-static_assert(offsetof(FPayloadServerSetCamera, Orient) == 0x0c, "SET_CAMERA +0x0c");
-static_assert(offsetof(FPayloadServerSetCamera, Fov) == 0x1c, "SET_CAMERA +0x1c");
-static_assert(sizeof(FPayloadServerSetCamera) == 0x24, "SET_CAMERA payload 0x24");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetCamera, Orient) == 0x0c, "SET_CAMERA +0x0c");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerSetCamera, Fov) == 0x1c, "SET_CAMERA +0x1c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetCamera) == 0x24, "SET_CAMERA payload 0x24");
 
 // ---------------------------------------------------------------------------
 // IClient::SendServerAdjustAttitude (slot 67, +0x10c), ch2 op 0x2a
@@ -567,7 +567,7 @@ struct FPayloadServerAdjustAttitude {
     unsigned int Field_0x00;    // +0x00
     float Field_0x04;           // +0x04
 };
-static_assert(sizeof(FPayloadServerAdjustAttitude) == 0x08, "ADJUSTATTITUDE payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerAdjustAttitude) == 0x08, "ADJUSTATTITUDE payload 0x08");
 
 // ---------------------------------------------------------------------------
 // ch2 0x52 FLPACKET_SERVER_PLAYERLIST: one opcode for IClient slots 110..112, told apart

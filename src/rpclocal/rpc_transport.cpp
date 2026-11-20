@@ -180,7 +180,7 @@ FRpcMarshalStream::FRpcMarshalStream(FPacketBase& InPacket, void* InBuffer,
     : Packet(InPacket) {
     Packet.MarshalCursor = 0;
     Packet.MarshalLimit = InCapacity;
-    Packet.MarshalPtr = reinterpret_cast<unsigned int>(InBuffer);
+    Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(InBuffer);
     Packet.MarshalError = 0;
 }
 
@@ -239,7 +239,7 @@ bool FRpcMarshalStream::PutWideString(const wchar_t* Text) {
     if (Bytes != 0 && Text != nullptr) {
         memcpy(Local, Text, Bytes);                                    // 06da1557
     }
-    Packet.MarshalPtr = reinterpret_cast<unsigned int>(Local + Bytes); // 06da1565/06da1569
+    Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(Local + Bytes); // 06da1565/06da1569
     return true;
 }
 
@@ -268,7 +268,7 @@ bool FRpcMarshalStream::GetWideString(wchar_t*& OutText) {
     memcpy(Block, After, Bytes);                                       // 06da15f8
     Block[Count] = 0;                                                  // 06da1607
     OutText = Block;
-    Packet.MarshalPtr = reinterpret_cast<unsigned int>(After + Bytes); // 06da1610/06da1612
+    Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(After + Bytes); // 06da1610/06da1612
     return true;
 }
 

@@ -522,7 +522,7 @@ namespace
     // retail copies it with REP MOVSD 0xc from / to +0x08 (06285175, 062851f8, 062852a3).
     FTransform& PhySys_ObjectTransform(CObject* Object)
     {
-        static_assert(offsetof(CObject, WorldPosition) == offsetof(CObject, Orientation) + sizeof(FMatrix),
+        FL_LAYOUT_ASSERT(offsetof(CObject, WorldPosition) == offsetof(CObject, Orientation) + sizeof(FMatrix),
                       "CObject: Orientation and WorldPosition are one FTransform");
         return *(FTransform*)&Object->Orientation;
     }

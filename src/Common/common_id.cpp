@@ -32,7 +32,7 @@ struct FFlidCrcState
     unsigned int RunningCrc;
 };
 
-static_assert(sizeof(FFlidCrcState) == 0x41c, "CFLIDMaker CRC state must be 0x41c");
+FL_LAYOUT_ASSERT(sizeof(FFlidCrcState) == 0x41c, "CFLIDMaker CRC state must be 0x41c");
 
 CFLIDMaker* CFLIDMaker::m_pTheMaker = nullptr;
 

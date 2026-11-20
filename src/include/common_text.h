@@ -80,7 +80,7 @@ struct COMMON_API Rect
     void get_center(int* OutX, int* OutY) const;
     bool point_is_inside(int X, int Y) const;
 };
-static_assert(sizeof(Rect) == 0x10, "Rect must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(Rect) == 0x10, "Rect must be 0x10");
 
 // RVA 0xBE320 (??8@YA_NABURect@@0@Z). Free-function equality: fields all equal, OR
 // both rects are "null" (Width==0 or Height==0) -- two empty rects with different
@@ -105,7 +105,7 @@ struct ViewRect
     int Right;      // +0x08  inclusive: Left + Width - 1
     int Bottom;     // +0x0C  inclusive: Top + Height - 1
 };
-static_assert(sizeof(ViewRect) == 0x10, "ViewRect must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(ViewRect) == 0x10, "ViewRect must be 0x10");
 
 // Common.dll.txt:0631e5f0 / 0631e620. Extents <-> inclusive edges; both are pure arithmetic.
 COMMON_API ViewRect __cdecl Rect_to_ViewRect(Rect const& In);
@@ -285,11 +285,11 @@ struct FmtStr
     COMMON_API int flatten(void* Dest, unsigned int MaxSize) const;
     COMMON_API int unflatten(void* Src, unsigned int Size);
 };
-static_assert(sizeof(FmtStr) == 0x18, "FmtStr must be 0x18");
-static_assert(sizeof(FmtStr::Val) == 0x0C, "FmtStr::Val must be 0x0C");
-static_assert(sizeof(FmtStr::NavMarker) == 0x14, "FmtStr::NavMarker must be 0x14");
-static_assert(offsetof(FmtStr, MadLibId) == 0x04, "FmtStr mad-lib id at +0x04");
-static_assert(offsetof(FmtStr, ValueIndex) == 0x08, "FmtStr counters at +0x08");
+FL_LAYOUT_ASSERT(sizeof(FmtStr) == 0x18, "FmtStr must be 0x18");
+FL_LAYOUT_ASSERT(sizeof(FmtStr::Val) == 0x0C, "FmtStr::Val must be 0x0C");
+FL_LAYOUT_ASSERT(sizeof(FmtStr::NavMarker) == 0x14, "FmtStr::NavMarker must be 0x14");
+FL_LAYOUT_ASSERT(offsetof(FmtStr, MadLibId) == 0x04, "FmtStr mad-lib id at +0x04");
+FL_LAYOUT_ASSERT(offsetof(FmtStr, ValueIndex) == 0x08, "FmtStr counters at +0x08");
 
 // ============================================================================
 // VisualSize — output struct for text/image measurement. Size 0x10.
@@ -301,7 +301,7 @@ struct VisualSize
     int Ascent;     // +0x08
     int Descent;    // +0x0C
 };
-static_assert(sizeof(VisualSize) == 0x10, "VisualSize must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(VisualSize) == 0x10, "VisualSize must be 0x10");
 
 // ============================================================================
 // TextRenderAttributes — opaque attribute bundle. Retail copies only first dword.
@@ -473,7 +473,7 @@ COMMON_API void __cdecl SetStandardFont(int StyleIndex, TextRenderContext::FontD
 // 0xc65c0. Frees every cached font and clears the initialised flag.
 COMMON_API void __cdecl ShutdownRichText();
 
-static_assert(sizeof(TextRenderContext) == 0x3C, "TextRenderContext must be 0x3C");
+FL_LAYOUT_ASSERT(sizeof(TextRenderContext) == 0x3C, "TextRenderContext must be 0x3C");
 
 // ============================================================================
 // DeviceTRC — concrete TextRenderContext using Win32 GDI. Size 0x50.
@@ -559,7 +559,7 @@ private:
     // returns it; DeviceTRC() zeroes it, DeviceTRC(HDC) leaves it unwritten.
     RECT ClipRect;
 };
-static_assert(sizeof(DeviceTRC) == 0x50, "DeviceTRC must be 0x50");
+FL_LAYOUT_ASSERT(sizeof(DeviceTRC) == 0x50, "DeviceTRC must be 0x50");
 
 // ============================================================================
 // RDLNode hierarchy — Render Display List nodes.
@@ -659,7 +659,7 @@ protected:
     // Note: MSVC implicitly adds vtable pointer at +0x00 (4 bytes).
     // RDLNode has no additional data members beyond the vtable.
 };
-static_assert(sizeof(RDLNode) == 0x04, "RDLNode must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(RDLNode) == 0x04, "RDLNode must be 0x04");
 
 // NullNode — empty/no-op node. Size 0x04.
 class COMMON_API NullNode : public RDLNode
@@ -681,7 +681,7 @@ public:
     virtual operator NullNode*() override;
     virtual operator const NullNode*() const override;
 };
-static_assert(sizeof(NullNode) == 0x04, "NullNode must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(NullNode) == 0x04, "NullNode must be 0x04");
 
 // TRANode — text render attributes node. Size 0x14.
 class COMMON_API TRANode : public RDLNode
@@ -723,7 +723,7 @@ private:
     unsigned int Mask;          // +0x0C  formerly Field0C: get_mask / set_mask (0x0629fb90)
     unsigned int DefaultMask;   // +0x10  formerly Field10: get_default_mask (0x06263a70)
 };
-static_assert(sizeof(TRANode) == 0x14, "TRANode must be 0x14");
+FL_LAYOUT_ASSERT(sizeof(TRANode) == 0x14, "TRANode must be 0x14");
 
 // TextNode — owns a wide string. Retail: vtable + one VC6 basic_string<unsigned short> at +0x04
 // (allocator byte, pointer +0x08, length +0x0C, reserve +0x10) = 0x14 bytes, nothing else. The
@@ -800,7 +800,7 @@ private:
     const wchar_t* TextPtr;        // +0x04
     int TextLen;                   // +0x08  signed: the ctor tests it with JGE (06329334)
 };
-static_assert(sizeof(TextPtrNode) == 0x0C, "TextPtrNode must be 0x0C");
+FL_LAYOUT_ASSERT(sizeof(TextPtrNode) == 0x0C, "TextPtrNode must be 0x0C");
 
 // AttribStackNode — pushes/pops attribute state. Size 0x08.
 class COMMON_API AttribStackNode : public RDLNode
@@ -840,7 +840,7 @@ public:
 private:
     Op Operation;               // +0x04  formerly Field04: get_operation / set_operation
 };
-static_assert(sizeof(AttribStackNode) == 0x08, "AttribStackNode must be 0x08");
+FL_LAYOUT_ASSERT(sizeof(AttribStackNode) == 0x08, "AttribStackNode must be 0x08");
 
 // ImageNode — displays an image. Size 0x08.
 class COMMON_API ImageNode : public RDLNode
@@ -874,7 +874,7 @@ public:
 private:
     TextRenderContext::Image const* Img;  // +0x04
 };
-static_assert(sizeof(ImageNode) == 0x08, "ImageNode must be 0x08");
+FL_LAYOUT_ASSERT(sizeof(ImageNode) == 0x08, "ImageNode must be 0x08");
 
 // PositionNode — sets cursor position. Size 0x10.
 class COMMON_API PositionNode : public RDLNode
@@ -921,7 +921,7 @@ private:
     float PosV;                 // +0x08
     float PosH;                 // +0x0C
 };
-static_assert(sizeof(PositionNode) == 0x10, "PositionNode must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(PositionNode) == 0x10, "PositionNode must be 0x10");
 
 // ParagraphNode — paragraph break. Size 0x04.
 class COMMON_API ParagraphNode : public RDLNode
@@ -943,7 +943,7 @@ public:
     virtual operator ParagraphNode*() override;
     virtual operator const ParagraphNode*() const override;
 };
-static_assert(sizeof(ParagraphNode) == 0x04, "ParagraphNode must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(ParagraphNode) == 0x04, "ParagraphNode must be 0x04");
 
 // JustifyNode — text justification. Size 0x08.
 class COMMON_API JustifyNode : public RDLNode
@@ -979,7 +979,7 @@ public:
 private:
     TextJustify JustifyMode;    // +0x04
 };
-static_assert(sizeof(JustifyNode) == 0x08, "JustifyNode must be 0x08");
+FL_LAYOUT_ASSERT(sizeof(JustifyNode) == 0x08, "JustifyNode must be 0x08");
 
 // ClipNode — clipping rectangle. Size 0x14.
 class COMMON_API ClipNode : public RDLNode
@@ -1015,7 +1015,7 @@ private:
     // One RECT (left/top/right/bottom at +0x04..+0x10): get_rect hands out its address.
     tagRECT ClipRect;           // +0x04
 };
-static_assert(sizeof(ClipNode) == 0x14, "ClipNode must be 0x14");
+FL_LAYOUT_ASSERT(sizeof(ClipNode) == 0x14, "ClipNode must be 0x14");
 
 // StyleNode — references a style by ID. Size 0x08.
 class COMMON_API StyleNode : public RDLNode
@@ -1049,7 +1049,7 @@ private:
     unsigned short StyleId;     // +0x04
     unsigned short Padding;     // +0x06
 };
-static_assert(sizeof(StyleNode) == 0x08, "StyleNode must be 0x08");
+FL_LAYOUT_ASSERT(sizeof(StyleNode) == 0x08, "StyleNode must be 0x08");
 
 // RDLRefNode — references another RenderDisplayList. Size 0x08.
 class COMMON_API RDLRefNode : public RDLNode
@@ -1081,7 +1081,7 @@ public:
 private:
     RenderDisplayList& List;    // +0x04
 };
-static_assert(sizeof(RDLRefNode) == 0x08, "RDLRefNode must be 0x08");
+FL_LAYOUT_ASSERT(sizeof(RDLRefNode) == 0x08, "RDLRefNode must be 0x08");
 
 // ============================================================================
 // RenderDisplayList — ordered list of RDLNode pointers. Size 0x0C.
@@ -1095,7 +1095,7 @@ struct FRdlListNode
     FRdlListNode* Prev;         // +0x04
     RDLNode* Node;              // +0x08
 };
-static_assert(sizeof(FRdlListNode) == 0x0C, "FRdlListNode must be 0x0C");
+FL_LAYOUT_ASSERT(sizeof(FRdlListNode) == 0x0C, "FRdlListNode must be 0x0C");
 
 class COMMON_API RenderDisplayList
 {
@@ -1121,7 +1121,7 @@ public:
     FRdlListNode* NodeList;     // +0x04  head sentinel (Next = first, Prev = last)
     int Count;                  // +0x08  element count
 };
-static_assert(sizeof(RenderDisplayList) == 0x0C, "RenderDisplayList must be 0x0C");
+FL_LAYOUT_ASSERT(sizeof(RenderDisplayList) == 0x0C, "RenderDisplayList must be 0x0C");
 
 // ============================================================================
 // StyleCollection -- static style registry. No instance data (all static members).
@@ -1191,7 +1191,7 @@ public:
     virtual bool extract_text_from_buffer(wchar_t* Dest, unsigned int MaxSize, unsigned int& OutSize,
                                           const char* Buffer, unsigned int Size);
 };
-static_assert(sizeof(BinaryRDLReader) == 0x04, "BinaryRDLReader must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(BinaryRDLReader) == 0x04, "BinaryRDLReader must be 0x04");
 
 class COMMON_API BinaryRDLWriter
 {
@@ -1209,7 +1209,7 @@ public:
     // the shared `XOR AL,AL; RET 8` stub: always false.
     virtual bool write_file(const RenderDisplayList& Rdl, const char* Filename);
 };
-static_assert(sizeof(BinaryRDLWriter) == 0x04, "BinaryRDLWriter must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(BinaryRDLWriter) == 0x04, "BinaryRDLWriter must be 0x04");
 
 // ============================================================================
 // XMLReader / XMLWriter — XML serialization for RDL.
@@ -1243,7 +1243,7 @@ public:
     virtual bool extract_text_from_buffer(wchar_t* Dest, unsigned int MaxSize, unsigned int& OutSize,
                                           const char* Buffer, unsigned int Size);
 };
-static_assert(sizeof(XMLReader) == 0x04, "XMLReader must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(XMLReader) == 0x04, "XMLReader must be 0x04");
 
 class COMMON_API XMLWriter
 {
@@ -1266,6 +1266,6 @@ public:
     // others: retail XMLWriter::write_file is concrete and always fails.
     virtual bool write_file(const RenderDisplayList& Rdl, const char* Filename);
 };
-static_assert(sizeof(XMLWriter) == 0x04, "XMLWriter must be 0x04");
+FL_LAYOUT_ASSERT(sizeof(XMLWriter) == 0x04, "XMLWriter must be 0x04");
 
 // MetaList<GoodDesc> is the real MetaList<T> template (common_metalist.h).

@@ -32,11 +32,11 @@ struct FFileSystemAggDesc
     const char* DataPath;
     unsigned long Field10;
     unsigned long Field14;
-    unsigned long Field18;
-    unsigned long Field1C;
+    void* Field18;              // FFileSystemDesc::Security: the pointer-sized fields are
+    unsigned long Field1C;      // pointers, so the two descriptors agree on x64 as well
     unsigned long Field20;
-    unsigned long Field24;
-    unsigned long Field28;
+    void* Field24;              // FFileSystemDesc::TemplateFile
+    void* Field28;              // FFileSystemDesc::Parent
     unsigned long Field2C;
     unsigned long Field30;
 };

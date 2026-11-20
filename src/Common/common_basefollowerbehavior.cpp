@@ -157,7 +157,7 @@ struct FollowerDirectiveOrder
                                // argument, which Server's Ship body forwards to
                                // CShip::go_tradelane's `float` (.text:06d028c0), so a float.
 };
-static_assert(sizeof(FollowerDirectiveOrder) == 0x10, "FollowerDirectiveOrder must match FUN_062ec610's 0x10-byte output block");
+FL_LAYOUT_ASSERT(sizeof(FollowerDirectiveOrder) == 0x10, "FollowerDirectiveOrder must match FUN_062ec610's 0x10-byte output block");
 
 
 int BaseFollowerBehavior::Slot7()

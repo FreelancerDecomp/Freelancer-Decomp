@@ -376,8 +376,8 @@ namespace
         FUtfFindSlot Slots[4];
     };
 
-    static_assert(sizeof(FUtfFindSlot) == 0x114, "UTF find-slot extent");
-    static_assert(sizeof(FUtfFindBlock) == 0x454, "UTF find-block extent");
+    FL_LAYOUT_ASSERT(sizeof(FUtfFindSlot) == 0x114, "UTF find-slot extent");
+    FL_LAYOUT_ASSERT(sizeof(FUtfFindBlock) == 0x454, "UTF find-block extent");
 
     struct FDosOpenFile
     {

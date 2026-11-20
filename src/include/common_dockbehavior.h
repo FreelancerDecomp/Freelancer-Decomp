@@ -224,15 +224,15 @@ public:
     unsigned char Flag29;        // +0x29. SetModeFromFlags() tests it (nonzero => mode 3).
     unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only
 };
-static_assert(offsetof(DockBehaviorFields, CachedHandle08) == 0x08, "DockBehaviorFields::CachedHandle08 offset");
-static_assert(offsetof(DockBehaviorFields, ModeSelector0xc) == 0x0c, "DockBehaviorFields::ModeSelector0xc offset");
-static_assert(offsetof(DockBehaviorFields, UpdateResult10) == 0x10, "DockBehaviorFields::UpdateResult10 offset");
-static_assert(offsetof(DockBehaviorFields, ThreatSourcePtr14) == 0x14, "DockBehaviorFields::ThreatSourcePtr14 offset");
-static_assert(offsetof(DockBehaviorFields, Field20) == 0x20, "DockBehaviorFields::Field20 offset");
-static_assert(offsetof(DockBehaviorFields, Field24) == 0x24, "DockBehaviorFields::Field24 offset");
-static_assert(offsetof(DockBehaviorFields, Flags28) == 0x28, "DockBehaviorFields::Flags28 offset");
-static_assert(offsetof(DockBehaviorFields, Flag29) == 0x29, "DockBehaviorFields::Flag29 offset");
-static_assert(sizeof(DockBehaviorFields) == 0x2c, "DockBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, CachedHandle08) == 0x08, "DockBehaviorFields::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, ModeSelector0xc) == 0x0c, "DockBehaviorFields::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, UpdateResult10) == 0x10, "DockBehaviorFields::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, ThreatSourcePtr14) == 0x14, "DockBehaviorFields::ThreatSourcePtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Field20) == 0x20, "DockBehaviorFields::Field20 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Field24) == 0x24, "DockBehaviorFields::Field24 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Flags28) == 0x28, "DockBehaviorFields::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Flag29) == 0x29, "DockBehaviorFields::Flag29 offset");
+FL_LAYOUT_ASSERT(sizeof(DockBehaviorFields) == 0x2c, "DockBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
 
 class DockBehavior : public DockBehaviorFields, public IObjAffect::RequestCB
 {
@@ -954,41 +954,41 @@ public:
     float MaxApproachSpeed46c;
 };
 
-static_assert(offsetof(DockBehavior, SubObjectA) == 0x30, "DockBehavior::SubObjectA offset");
-static_assert(offsetof(DockBehavior, SubObjectB) == 0xa8, "DockBehavior::SubObjectB offset");
-static_assert(offsetof(DockBehavior, SubObjectC) == 0x168, "DockBehavior::SubObjectC offset");
-static_assert(offsetof(DockBehavior, GotoDirective) == 0x2dc, "DockBehavior::GotoDirective offset");
-static_assert(sizeof(AfterburnerIdea) == 0x14, "GotoDirectiveHandle::Idea is an AfterburnerIdea (0x14 bytes, ends at NavPilotPtr)");
-static_assert(offsetof(DockBehavior::GotoDirectiveHandle, NavPilotPtr) == 0x14, "GotoDirectiveHandle::NavPilotPtr offset (absolute +0x2f0)");
-static_assert(sizeof(DockBehavior::GotoDirectiveHandle) == 0x18, "GotoDirectiveHandle size");
-static_assert(offsetof(DockBehavior, DockOp) == 0x2f4, "DockBehavior::DockOp offset");
-static_assert(offsetof(DockBehavior, ModeState320) == 0x320, "DockBehavior::ModeState320 offset");
-static_assert(offsetof(DockBehavior, Watcher324) == 0x324, "DockBehavior::Watcher324 offset");
-static_assert(offsetof(DockBehavior, StateFlags32c) == 0x32c, "DockBehavior::StateFlags32c offset");
-static_assert(offsetof(DockBehavior, Field330) == 0x330, "DockBehavior::Field330 offset");
-static_assert(offsetof(DockBehavior, ApproachClearedFlag334) == 0x334, "DockBehavior::ApproachClearedFlag334 offset");
-static_assert(offsetof(DockBehavior, Field33c) == 0x33c, "DockBehavior::Field33c offset");
-static_assert(offsetof(DockBehavior, StateTimer340) == 0x340, "DockBehavior::StateTimer340 offset (Common.dll.txt 062c5019/062c501f/062c5049)");
-static_assert(offsetof(DockBehavior, CombatFlag344) == 0x344, "DockBehavior::CombatFlag344 offset");
-static_assert(offsetof(DockBehavior, Spline) == 0x348, "DockBehavior::Spline offset");
-static_assert(offsetof(DockBehavior, TargetShipPtr388) == 0x388, "DockBehavior::TargetShipPtr388 offset (Common.dll.txt 062c4a2c/062c4c8b/062c4f2e)");
-static_assert(offsetof(DockBehavior, Facing38c) == 0x38c, "DockBehavior::Facing38c offset");
-static_assert(offsetof(DockBehavior, AbortFlag398) == 0x398, "DockBehavior::AbortFlag398 offset");
-static_assert(offsetof(DockBehavior, Flag399) == 0x399, "DockBehavior::Flag399 offset");
-static_assert(offsetof(DockBehavior, Flag39a) == 0x39a, "DockBehavior::Flag39a offset");
-static_assert(offsetof(DockBehavior, Flag39b) == 0x39b, "DockBehavior::Flag39b offset");
-static_assert(offsetof(DockBehavior, InterceptPoint39c) == 0x39c, "DockBehavior::InterceptPoint39c offset (Common.dll.txt 062c4028/062c416a/062c4244)");
-static_assert(offsetof(DockBehavior, DestPoint3cc) == 0x3cc, "DockBehavior::DestPoint3cc offset (Common.dll.txt 062c4c6f-062c4c88, the 3-dword copy into SavedPosition3fc)");
-static_assert(offsetof(DockBehavior, OrientMatrix3d8) == 0x3d8, "DockBehavior::OrientMatrix3d8 offset");
-static_assert(offsetof(DockBehavior, SavedPosition3fc) == 0x3fc, "DockBehavior::SavedPosition3fc offset (Common.dll.txt 062c4c77/062c4ebb)");
-static_assert(offsetof(DockBehavior, Field408) == 0x408, "DockBehavior::Field408 offset");
-static_assert(offsetof(DockBehavior, Orient3a8) == 0x3a8, "DockBehavior::Orient3a8 offset (.text:062c51d4)");
-static_assert(offsetof(DockBehavior, Orient40c) == 0x40c, "DockBehavior::Orient40c offset (.text:062c5175)");
-static_assert(offsetof(DockBehavior, Field43c) == 0x43c, "DockBehavior::Field43c offset");
-static_assert(offsetof(DockBehavior, SubStateValue440) == 0x440, "DockBehavior::SubStateValue440 offset");
-static_assert(offsetof(DockBehavior, ProxWatcher450) == 0x450, "DockBehavior::ProxWatcher450 offset");
-static_assert(sizeof(DockBehavior::DockProximityWatcher) == 0x1c, "DockProximityWatcher size (0x450..0x46c span confirmed by items 1257/1259/1272)");
-static_assert(offsetof(DockBehavior, MaxApproachSpeed46c) == 0x46c, "DockBehavior::MaxApproachSpeed46c offset (Common.dll.txt 062c3d76/062c4213/062c4270/062c47fc)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, SubObjectA) == 0x30, "DockBehavior::SubObjectA offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, SubObjectB) == 0xa8, "DockBehavior::SubObjectB offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, SubObjectC) == 0x168, "DockBehavior::SubObjectC offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, GotoDirective) == 0x2dc, "DockBehavior::GotoDirective offset");
+FL_LAYOUT_ASSERT(sizeof(AfterburnerIdea) == 0x14, "GotoDirectiveHandle::Idea is an AfterburnerIdea (0x14 bytes, ends at NavPilotPtr)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior::GotoDirectiveHandle, NavPilotPtr) == 0x14, "GotoDirectiveHandle::NavPilotPtr offset (absolute +0x2f0)");
+FL_LAYOUT_ASSERT(sizeof(DockBehavior::GotoDirectiveHandle) == 0x18, "GotoDirectiveHandle size");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, DockOp) == 0x2f4, "DockBehavior::DockOp offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, ModeState320) == 0x320, "DockBehavior::ModeState320 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Watcher324) == 0x324, "DockBehavior::Watcher324 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, StateFlags32c) == 0x32c, "DockBehavior::StateFlags32c offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Field330) == 0x330, "DockBehavior::Field330 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, ApproachClearedFlag334) == 0x334, "DockBehavior::ApproachClearedFlag334 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Field33c) == 0x33c, "DockBehavior::Field33c offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, StateTimer340) == 0x340, "DockBehavior::StateTimer340 offset (Common.dll.txt 062c5019/062c501f/062c5049)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, CombatFlag344) == 0x344, "DockBehavior::CombatFlag344 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Spline) == 0x348, "DockBehavior::Spline offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, TargetShipPtr388) == 0x388, "DockBehavior::TargetShipPtr388 offset (Common.dll.txt 062c4a2c/062c4c8b/062c4f2e)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Facing38c) == 0x38c, "DockBehavior::Facing38c offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, AbortFlag398) == 0x398, "DockBehavior::AbortFlag398 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Flag399) == 0x399, "DockBehavior::Flag399 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Flag39a) == 0x39a, "DockBehavior::Flag39a offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Flag39b) == 0x39b, "DockBehavior::Flag39b offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, InterceptPoint39c) == 0x39c, "DockBehavior::InterceptPoint39c offset (Common.dll.txt 062c4028/062c416a/062c4244)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, DestPoint3cc) == 0x3cc, "DockBehavior::DestPoint3cc offset (Common.dll.txt 062c4c6f-062c4c88, the 3-dword copy into SavedPosition3fc)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, OrientMatrix3d8) == 0x3d8, "DockBehavior::OrientMatrix3d8 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, SavedPosition3fc) == 0x3fc, "DockBehavior::SavedPosition3fc offset (Common.dll.txt 062c4c77/062c4ebb)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Field408) == 0x408, "DockBehavior::Field408 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Orient3a8) == 0x3a8, "DockBehavior::Orient3a8 offset (.text:062c51d4)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Orient40c) == 0x40c, "DockBehavior::Orient40c offset (.text:062c5175)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, Field43c) == 0x43c, "DockBehavior::Field43c offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, SubStateValue440) == 0x440, "DockBehavior::SubStateValue440 offset");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, ProxWatcher450) == 0x450, "DockBehavior::ProxWatcher450 offset");
+FL_LAYOUT_ASSERT(sizeof(DockBehavior::DockProximityWatcher) == 0x1c, "DockProximityWatcher size (0x450..0x46c span confirmed by items 1257/1259/1272)");
+FL_LAYOUT_ASSERT(offsetof(DockBehavior, MaxApproachSpeed46c) == 0x46c, "DockBehavior::MaxApproachSpeed46c offset (Common.dll.txt 062c3d76/062c4213/062c4270/062c47fc)");
 // SIZE TIGHTENED 2026-09-17 (claude:common-dockmove): was `>= 0x470`, justified as "padded
 // 4 bytes past the previously-confirmed 0x46c ... so the shared tail cannot write past the
 // end of the object". Retail settles it outright -- the factory that allocates this class
@@ -996,4 +996,4 @@ static_assert(offsetof(DockBehavior, MaxApproachSpeed46c) == 0x46c, "DockBehavio
 // which is this class's constructor. 0x470 is the exact retail size, and the trailing four
 // bytes are not padding at all: they are MaxApproachSpeed46c, a real float EnterState()
 // writes on every call. So the assert is now exact.
-static_assert(sizeof(DockBehavior) == 0x470, "DockBehavior size == retail operator_new argument at .text:062d1a07");
+FL_LAYOUT_ASSERT(sizeof(DockBehavior) == 0x470, "DockBehavior size == retail operator_new argument at .text:062d1a07");

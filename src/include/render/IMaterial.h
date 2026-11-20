@@ -66,7 +66,7 @@ struct FMaterialAggregateDesc
     const char* ExtraAt10;
 };
 // Material properties retain their contiguous 17-float storage.
-static_assert(sizeof(D3DMATERIAL8) == 17 * sizeof(float), "material render block size");
+FL_LAYOUT_ASSERT(sizeof(D3DMATERIAL8) == 17 * sizeof(float), "material render block size");
 
 inline GENRESULT SetMaterialBlock(IRenderPipeline* Pipeline, const float* Block)
 {
@@ -99,13 +99,13 @@ struct FMaterialSubmitContext
     void* Field20; // Material-specific context; meaning remains unknown.
 };
 
-static_assert(offsetof(FVbListing, BaseVertex) == 8, "listing+8 base vertex");
-static_assert(sizeof(FVbListing) == 0xC, "VB listing 12 bytes");
-static_assert(offsetof(FIbScratch, Bias) == 4, "scratch+4 IRPDraw bias");
-static_assert(sizeof(FIbScratch) == 8, "IB scratch 8 bytes");
-static_assert(offsetof(FMaterialSubmitContext, SourceVertices) == 0x0C, "ctx+0x0C source vertices");
-static_assert(offsetof(FMaterialSubmitContext, Indices) == 0x10, "ctx+0x10 indices");
-static_assert(offsetof(FMaterialSubmitContext, VbListing) == 0x14, "ctx+0x14 listing");
-static_assert(offsetof(FMaterialSubmitContext, IbScratch) == 0x18, "ctx+0x18 IB scratch");
-static_assert(offsetof(FMaterialSubmitContext, ReplacedMaterial) == 0x1C, "ctx+0x1C material");
-static_assert(sizeof(FMaterialSubmitContext) == 0x24, "submit context 0x24");
+FL_LAYOUT_ASSERT(offsetof(FVbListing, BaseVertex) == 8, "listing+8 base vertex");
+FL_LAYOUT_ASSERT(sizeof(FVbListing) == 0xC, "VB listing 12 bytes");
+FL_LAYOUT_ASSERT(offsetof(FIbScratch, Bias) == 4, "scratch+4 IRPDraw bias");
+FL_LAYOUT_ASSERT(sizeof(FIbScratch) == 8, "IB scratch 8 bytes");
+FL_LAYOUT_ASSERT(offsetof(FMaterialSubmitContext, SourceVertices) == 0x0C, "ctx+0x0C source vertices");
+FL_LAYOUT_ASSERT(offsetof(FMaterialSubmitContext, Indices) == 0x10, "ctx+0x10 indices");
+FL_LAYOUT_ASSERT(offsetof(FMaterialSubmitContext, VbListing) == 0x14, "ctx+0x14 listing");
+FL_LAYOUT_ASSERT(offsetof(FMaterialSubmitContext, IbScratch) == 0x18, "ctx+0x18 IB scratch");
+FL_LAYOUT_ASSERT(offsetof(FMaterialSubmitContext, ReplacedMaterial) == 0x1C, "ctx+0x1C material");
+FL_LAYOUT_ASSERT(sizeof(FMaterialSubmitContext) == 0x24, "submit context 0x24");

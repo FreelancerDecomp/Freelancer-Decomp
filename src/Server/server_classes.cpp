@@ -8742,7 +8742,7 @@ void SystemPlayerView_SendComm(Observer* View, unsigned int SenderId,
     bool const bReceiverIsOwnShip =
         ReceiverId == Players[View->PlayerId].ship_object_id;            // .text:06cf6b60
     // The Costume goes by value -- the 13-dword copy is .text:06cf6b97 REP MOVSD.
-    static_assert(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords");
+    FL_LAYOUT_ASSERT(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords");
     g_pClientInterface->SendServerSendComm(View->PlayerId, SenderId, ReceiverId, VoiceId,
                                            Cost, CommType, TextIds, TextCount, Mood, Duration,
                                            bReceiverIsOwnShip);         // .text:06cf6ba7

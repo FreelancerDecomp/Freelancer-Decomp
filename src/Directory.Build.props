@@ -20,9 +20,15 @@
     <FlBinDirName>bin</FlBinDirName>
     <FlBinDirName Condition="'$(Configuration)'=='Debug'">bin_debug</FlBinDirName>
     <FlBinDirName Condition="'$(Configuration)'=='DebugASan'">binasan</FlBinDirName>
+    <!-- Port-only x64 build of the server modules (docs/x64.md), in parallel with Win32, which
+         stays the retail reference: Release -> bin_x64, Debug -> bin_x64_debug. -->
+    <FlBinDirName Condition="'$(Platform)'=='x64'">bin_x64</FlBinDirName>
+    <FlBinDirName Condition="'$(Platform)'=='x64' and '$(Configuration)'=='Debug'">bin_x64_debug</FlBinDirName>
     <OutDir>$(MSBuildThisFileDirectory)..\$(FlBinDirName)\</OutDir>
     <IntDir>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Platform)'=='x64'">$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\$(Configuration)_x64\</IntDir>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
+    <PreferredToolArchitecture Condition="'$(Platform)'=='x64'">x64</PreferredToolArchitecture>
     <!-- DirectX 8.1 SDK (repo-root dx8/, gitignored). Headers via IncludePath append
          (old basetsd.h must not precede the Windows 10 SDK). Override: /p:Dx8SdkDir=... -->
     <Dx8SdkDir Condition="'$(Dx8SdkDir)'==''">$(MSBuildThisFileDirectory)..\dx8</Dx8SdkDir>
@@ -37,6 +43,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- FL_LAYOUT_ASSERT: the retail struct size and offset checks (Win32 only). -->
+      <ForcedIncludeFiles>fl_layout.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='DebugASan'">MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -47,8 +55,9 @@
            FPU_PRESERVE off (EXE\dacom.ini; rp8.dll reads the key at .text:06d06bb4), so
            Direct3D 8 CreateDevice drops the main thread's x87 precision control to 24-bit and
            never restores it. x87 code inherits that; SSE2 code ignores the control word and
-           would keep 53-bit doubles where retail has 24-bit. -->
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+           would keep 53-bit doubles where retail has 24-bit. x64 has no x87 code generation:
+           it always uses SSE2 (docs/x64.md). -->
+      <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
       <FloatingPointModel>Precise</FloatingPointModel>
     </ClCompile>
     <Link>

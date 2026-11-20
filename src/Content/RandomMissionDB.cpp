@@ -1855,7 +1855,7 @@ void FRandEncParams::Spawn(bool bForced)
             pub::SpaceObj::IsPosEmpty(SystemId, Point, Radius, bEmpty);
             if (!bEmpty)
             {
-                static_assert(sizeof(Transform) == sizeof(FTransform), "Transform is 0x30");
+                FL_LAYOUT_ASSERT(sizeof(Transform) == sizeof(FTransform), "Transform is 0x30");
                 Transform AroundTransform;
                 std::memcpy(&AroundTransform, &Around, sizeof(Transform));
                 pub::SpaceObj::PosSelectionType const Selection =

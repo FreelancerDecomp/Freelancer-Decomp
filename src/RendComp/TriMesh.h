@@ -71,7 +71,7 @@ struct FTriMeshGroup
     unsigned long Bucket;              // +0x3C hook-up sort key 0..4 (IMaterial flags)
 };
 
-static_assert(sizeof(FTriMeshGroup) == 0x40, "TriMesh face group is 0x40 bytes");
+FL_LAYOUT_ASSERT(sizeof(FTriMeshGroup) == 0x40, "TriMesh face group is 0x40 bytes");
 
 // The UV0 animation block at archetype +0x8C (seven dwords, zeroed by the ctor and the reset).
 struct FTriMeshUvAnim
@@ -85,7 +85,7 @@ struct FTriMeshUvAnim
     float Period;               // +0x18 (+0xA4) (FrameCount - 1) / Fps
 };
 
-static_assert(sizeof(FTriMeshUvAnim) == 0x1C, "TriMesh UV0 animation block is 0x1C bytes");
+FL_LAYOUT_ASSERT(sizeof(FTriMeshUvAnim) == 0x1C, "TriMesh UV0 animation block is 0x1C bytes");
 
 
 // Group-level helpers (cdecl / thiscall in retail).

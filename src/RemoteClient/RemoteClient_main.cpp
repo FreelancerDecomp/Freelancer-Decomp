@@ -12,6 +12,8 @@
 #include "common_server_types.h"
 #include "common_server.h"
 #include "common_goods.h"
+#include "x87_portable.h"
+#include <cstring>
 
 static SLoginInfo GStaticLoginInfo = {};
 static SCreateCharacterInfo GStaticCreateCharacterInfo = {};
@@ -43,6 +45,7 @@ static void DispatchClientPacket(unsigned int ClientId, CDAPacket* Packet)
             float StoredTime;
             float StoredField;
             // Preserve both FST float intermediates and the native x87 order.
+#if defined(_M_IX86)
             __asm {
                 mov eax, TimeSource
                 fld dword ptr [eax]
@@ -56,6 +59,13 @@ static void DispatchClientPacket(unsigned int ClientId, CDAPacket* Packet)
                 mov eax, FieldDestination
                 fstp dword ptr [eax]
             }
+#else
+            // FLD dword then FSTP qword widens exactly; the quieted NaN widens as FLD leaves it.
+            X87CopyFloat(&StoredTime, TimeSource);
+            X87CopyFloat(&StoredField, FieldSource);
+            *TimeDestination = static_cast<double>(StoredTime);
+            std::memcpy(FieldDestination, &StoredField, 4);
+#endif
             Server->SPObjUpdate(Info, ClientId);
             break;
         }

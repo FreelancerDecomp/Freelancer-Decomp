@@ -16,7 +16,7 @@
 
 #include <cstdlib>
 
-static_assert(sizeof(IVP_SurfaceManager_OutList) == 0xc, "the inline buffer starts right after the 12-byte header");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceManager_OutList) == 0xc, "the inline buffer starts right after the 12-byte header");
 
 // Common.dll.txt 0635d3e0-0635d43d (XREF 0634aadb, 0634ab2e, 0634e357,
 // 06350597, 0635abd2, 06362445, 0636247c), thiscall on the vector. Mallocs a

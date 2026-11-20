@@ -37,8 +37,8 @@ struct FFileSystemDesc
 
 // Callers fill `Size` (0x30 / 0x34 for DOS and UTF, 0x40 for MEM) and the callee reads
 // only that much, so the DOS-sized prefix layout is the invariant that matters.
-static_assert(offsetof(FFileSystemDesc, Field30) == 0x30, "DOS/UTF desc prefix is 0x34");
-static_assert(sizeof(FFileSystemDesc) == 0x40, "MEM tail extends the desc to 0x40");
+FL_LAYOUT_ASSERT(offsetof(FFileSystemDesc, Field30) == 0x30, "DOS/UTF desc prefix is 0x34");
+FL_LAYOUT_ASSERT(sizeof(FFileSystemDesc) == 0x40, "MEM tail extends the desc to 0x40");
 
 // File-system instances also expose their component factory.
 struct IFileSystem : IComponentFactory

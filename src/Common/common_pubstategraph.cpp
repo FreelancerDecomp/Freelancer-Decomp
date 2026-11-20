@@ -43,7 +43,7 @@ namespace
     };
     FStateGraphStorageTeardown GStateGraphStorageTeardown;
 
-    static_assert(sizeof(IStateGraph) == kStateGraphStride, "IStateGraph stride 0x72c");
+    FL_LAYOUT_ASSERT(sizeof(IStateGraph) == kStateGraphStride, "IStateGraph stride 0x72c");
 }
 
 int CallDacomStricmp(const char* Left, const char* Right);

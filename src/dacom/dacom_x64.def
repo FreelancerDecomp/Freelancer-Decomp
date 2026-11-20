@@ -1,0 +1,26 @@
+; Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
+; faithful to the behaviour of the original game.
+; This file was reconstructed by reverse engineering the binaries of Freelancer 1.1,
+; developed by Digital Anvil.
+; Author: Giperion.
+;
+; x64 build (docs/x64.md): dacom.def with the C++ names decorated for x64, where a pointer
+; argument carries the __ptr64 marker (PBD, const char*, becomes PEBD). Keep the two in step.
+
+LIBRARY dacom
+EXPORTS
+    DACOM_Acquire
+    DACOM_GetDllVersion
+    DACOM_GetVersion
+    FDUMP DATA
+    ?GetCRC32@DACOM_CRC@@YAKPEBD@Z
+    ?GetCRC32@DACOM_CRC@@YAKPEBD0@Z
+    ?GetContinuedCRC32@DACOM_CRC@@YAKKPEBD@Z
+    ?GetContinuedCRC32@DACOM_CRC@@YAKKD@Z
+    ?CompareStringsI@DACOM_CRC@@YAHPEBD0@Z
+    ?Startup@LogStream@@YA_NPEBD@Z
+    ?FlushToDisk@LogStream@@YAXXZ
+    ?LogEvent@LogStream@@YAXPEBDMK@Z
+    ?LogNamedEvent@LogStream@@YAXPEBD0K@Z
+    ?Update@LogStream@@YAXM@Z
+    stricmp = DacomStricmp

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "dacom.h"
+#include "facet_offset.h"
 #include "luaprofile.h"
 #include "system.h"
 
@@ -118,14 +119,14 @@ public:
     unsigned long bLoaded;
 };
 
-static_assert(offsetof(FSystemContainer, Head) == 0x08, "Head at +8");
-static_assert(offsetof(FSystemContainer, Tail) == 0x0C, "Tail at +0xC");
-static_assert(offsetof(FSystemContainer, Inner) == 0x10, "Inner at +0x10");
-static_assert(offsetof(FSystemContainer, Controlling) == 0x1C, "Controlling at +0x1C");
-static_assert(offsetof(FSystemContainer, bAggregated) == 0x20, "bAggregated at +0x20");
-static_assert(offsetof(FSystemContainer, bLoaded) == 0x24, "bLoaded at +0x24");
-static_assert(sizeof(FSystemContainer) == 0x28, "calloc(0x28, 1) @06f118f6");
-static_assert(sizeof(FComponentNode) == 0x14, "FComponentNode is 0x14");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, Head) == 0x08, "Head at +8");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, Tail) == 0x0C, "Tail at +0xC");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, Inner) == 0x10, "Inner at +0x10");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, Controlling) == 0x1C, "Controlling at +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, bAggregated) == 0x20, "bAggregated at +0x20");
+FL_LAYOUT_ASSERT(offsetof(FSystemContainer, bLoaded) == 0x24, "bLoaded at +0x24");
+FL_LAYOUT_ASSERT(sizeof(FSystemContainer) == 0x28, "calloc(0x28, 1) @06f118f6");
+FL_LAYOUT_ASSERT(sizeof(FComponentNode) == 0x14, "FComponentNode is 0x14");
 
 class FSystemContainerFactory final : public IComponentFactory
 {
@@ -141,7 +142,7 @@ public:
     const char* Name;
 };
 
-static_assert(sizeof(FSystemContainerFactory) == 0x0C, "factory is 0xC");
+FL_LAYOUT_ASSERT(sizeof(FSystemContainerFactory) == 0x0C, "factory is 0xC");
 
 ICOManager* GDacom = nullptr; // DAT_06f13194
 HMODULE GModule = nullptr;    // DAT_06f13198
@@ -196,7 +197,8 @@ GENRESULT DACOM_API FInnerUnknown::QueryInterface(const char* Iid, void** Out)
         {Iids::SystemContainer, 0},            // 06f1205c / 06f12060
         {Iids::AggregateComponent, 0},         // 06f12064 / 06f12068
         {Iids::SystemComponent, 0},            // 06f1206c / 06f12070
-        {Iids::DAConnectionPointContainer, 4}, // 06f12074 / 06f12078
+        {Iids::DAConnectionPointContainer,     // 06f12074 / 06f12078
+         static_cast<unsigned long>(FL_FACET_OFFSET(4, FSystemContainer, IDAConnectionPointContainer))},
         {nullptr, 0},                          // 06f1207c
     };
 

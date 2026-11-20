@@ -48,7 +48,7 @@ namespace
     }
 
     // Both pointer pairs below are hashed as 8-byte keys (IVP_Hash key size 8).
-    static_assert(sizeof(uintptr_t) * 2 == 8, "edge keys are two 4-byte pointers");
+    FL_LAYOUT_ASSERT(sizeof(uintptr_t) * 2 == 8, "edge keys are two 4-byte pointers");
 }
 
 // ---------------------------------------------------------------------------

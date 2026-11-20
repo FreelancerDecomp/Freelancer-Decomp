@@ -82,6 +82,7 @@
 
 #include "rpc_containers.h"
 #include "rpc_payloads.h"
+#include "x87_portable.h"
 
 // ===========================================================================
 // dword, word, dword -- LAB_06dae620 / LAB_06da78d0.
@@ -1132,12 +1133,16 @@ unsigned int RpcEncodeServerCharSelectVerified(FPacketBase& Packet,
     // 06dabfa0 / 06dabfa6, reads the window back as two plain dwords.)
     const void* DoubleSource = &Wire->Field_0x08;
     void* DoubleDest = reinterpret_cast<void*>(Packet.MarshalPtr);
+#if defined(_M_IX86)
     __asm {
         mov eax, DoubleSource
         fld qword ptr [eax]
         mov eax, DoubleDest
         fstp qword ptr [eax]
     }
+#else
+    X87CopyDouble(DoubleDest, DoubleSource);
+#endif
     Packet.MarshalPtr += 8u;
     *OutLength = Stream.Length();
     RpcRecordEncodedPacket(Packet.PacketId, Stream.Length());

@@ -52,7 +52,7 @@ public:
     COMMON_API char const* get_string() const;
 };
 
-static_assert(sizeof(ID_String) == 4, "ID_String is a single uint");
+FL_LAYOUT_ASSERT(sizeof(ID_String) == 4, "ID_String is a single uint");
 
 COMMON_API unsigned int __cdecl MakeLocationID(unsigned int BaseId, char const* Name);
 COMMON_API unsigned short __cdecl MakeId(char const* Name);

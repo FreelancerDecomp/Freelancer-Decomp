@@ -372,15 +372,15 @@ public:
 // 7 -> +0x10c, 8/9 -> +0x1c8). GetType 5 is shared by GotoVec, Guide and GuideShip (all
 // three vtables' slot +0x14 are 06ee99a0), so the +0x17c read also lands on the Guide ops'
 // GotoParams.Field_64. These asserts pin the offsets that read depends on.
-static_assert(offsetof(FObjListGotoShip, Field_0x17c) == 0x17c, "GotoShip +0x17c");
-static_assert(offsetof(FObjListGotoSpline, Field_0x17c) == 0x17c, "GotoSpline +0x17c");
-static_assert(offsetof(FObjListGotoVec, Field_0x17c) == 0x17c, "GotoVec +0x17c");
-static_assert(offsetof(FObjListFollow, Field_0x10c) == 0x10c, "Follow +0x10c");
-static_assert(offsetof(FObjListGuide, Op) + offsetof(pub::AI::DirectiveGuideOp, GotoParams) +
+FL_LAYOUT_ASSERT(offsetof(FObjListGotoShip, Field_0x17c) == 0x17c, "GotoShip +0x17c");
+FL_LAYOUT_ASSERT(offsetof(FObjListGotoSpline, Field_0x17c) == 0x17c, "GotoSpline +0x17c");
+FL_LAYOUT_ASSERT(offsetof(FObjListGotoVec, Field_0x17c) == 0x17c, "GotoVec +0x17c");
+FL_LAYOUT_ASSERT(offsetof(FObjListFollow, Field_0x10c) == 0x10c, "Follow +0x10c");
+FL_LAYOUT_ASSERT(offsetof(FObjListGuide, Op) + offsetof(pub::AI::DirectiveGuideOp, GotoParams) +
                   offsetof(pub::AI::DirectiveGotoOp, Field_64) == 0x17c,
               "Guide +0x17c is GotoParams.Field_64");
-static_assert(offsetof(FObjListGuideShip, Op) + offsetof(pub::AI::DirectiveGuideOp, GotoParams) +
+FL_LAYOUT_ASSERT(offsetof(FObjListGuideShip, Op) + offsetof(pub::AI::DirectiveGuideOp, GotoParams) +
                   offsetof(pub::AI::DirectiveGotoOp, Field_64) == 0x17c,
               "GuideShip +0x17c is GotoParams.Field_64");
-static_assert(offsetof(FObjListGuide, Field_0x1c8) == 0x1c8, "Guide +0x1c8");
-static_assert(offsetof(FObjListGuideShip, Field_0x1c8) == 0x1c8, "GuideShip +0x1c8");
+FL_LAYOUT_ASSERT(offsetof(FObjListGuide, Field_0x1c8) == 0x1c8, "Guide +0x1c8");
+FL_LAYOUT_ASSERT(offsetof(FObjListGuideShip, Field_0x1c8) == 0x1c8, "GuideShip +0x1c8");

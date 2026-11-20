@@ -21,6 +21,7 @@ unsigned char RpcServerQuantize127(const float* Value) {
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fld dword ptr [ecx]
@@ -33,17 +34,26 @@ unsigned char RpcServerQuantize127(const float* Value) {
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    Quantized = X87TruncateToInt64(static_cast<double>(*Value) * GRpcServerScale127);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
 void RpcServerExpand127(unsigned char Encoded, float* Value) {
     const int Quantized = static_cast<signed char>(Encoded);
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fild dword ptr Quantized
         fmul qword ptr GRpcServerInverse127
         fstp dword ptr [ecx]
     }
+#else
+    *Value = static_cast<float>(static_cast<double>(Quantized) * GRpcServerInverse127);
+#endif
 }
 
 // --- create-object block: 0x04 CREATESHIP and 0x42 CREATESOLAR (RS-P10) ---
@@ -64,6 +74,7 @@ static unsigned char RpcServerQuantize255(const float* Value) {
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fld dword ptr [ecx]
@@ -76,6 +87,11 @@ static unsigned char RpcServerQuantize255(const float* Value) {
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    Quantized = X87TruncateToInt64(static_cast<double>(*Value) * GRpcServerScale255);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
@@ -83,12 +99,16 @@ static unsigned char RpcServerQuantize255(const float* Value) {
 // 06c09724..06c09743).
 static void RpcServerExpand255(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fild dword ptr Widened
         fmul qword ptr GRpcServerInverse255
         fstp dword ptr [ecx]
     }
+#else
+    *Value = static_cast<float>(static_cast<double>(Widened) * GRpcServerInverse255);
+#endif
 }
 
 // 06c089bc..06c089e6, the hull byte: FILD the int hit points, FSTP to a float local
@@ -97,14 +117,19 @@ static void RpcServerExpand255(unsigned char Encoded, float* Value) {
 // (0x8000000000000000) has a low byte of 0, as in retail.
 static unsigned char RpcServerQuantizeHull(int HitPts, unsigned int ArchetypeId) {
     float Points;
+#if defined(_M_IX86)
     __asm {
         fild dword ptr HitPts
         fstp dword ptr Points
     }
+#else
+    Points = static_cast<float>(HitPts);
+#endif
     const int MaxHitPts = Archetype::GetArchMaxHitPts(ArchetypeId);
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         fild dword ptr MaxHitPts
         fdivr dword ptr Points
@@ -117,6 +142,11 @@ static unsigned char RpcServerQuantizeHull(int HitPts, unsigned int ArchetypeId)
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    Quantized = X87TruncateToInt64(static_cast<double>(Points) / static_cast<double>(MaxHitPts) * GRpcServerScale255);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
@@ -128,6 +158,7 @@ static int RpcServerExpandHull(unsigned char Encoded, unsigned int ArchetypeId) 
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Result;
+#if defined(_M_IX86)
     __asm {
         fild dword ptr MaxHitPts
         fild dword ptr Widened
@@ -141,6 +172,11 @@ static int RpcServerExpandHull(unsigned char Encoded, unsigned int ArchetypeId) 
         fistp qword ptr Result
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    Result = X87TruncateToInt64(static_cast<double>(MaxHitPts) * (static_cast<double>(Widened) * GRpcServerInverse255));
+#endif
     return static_cast<int>(Result);
 }
 
@@ -634,6 +670,7 @@ void RpcServerCreateObjectRead(const FRpcServerCreateObjectFields* Fields,
     // 06bd531c..06bd532b: FLD z, y, x, then FSTP x, y, z.
     const float* PositionIn = &Fields->Position.x;
     float* PositionOut = &Info->Position.x;
+#if defined(_M_IX86)
     __asm {
         mov eax, PositionIn
         mov edx, PositionOut
@@ -644,6 +681,11 @@ void RpcServerCreateObjectRead(const FRpcServerCreateObjectFields* Fields,
         fstp dword ptr [edx + 4]
         fstp dword ptr [edx + 8]
     }
+#else
+    X87CopyFloat(PositionOut, PositionIn);
+    X87CopyFloat(PositionOut + 1, PositionIn + 1);
+    X87CopyFloat(PositionOut + 2, PositionIn + 2);
+#endif
     // 06bd532e..06bd533b: an identity quaternion is built in place, then 06bd533e..
     // 06bd5353 overwrite it with integer moves.
     Info->Orientation.w = 1.0f;
@@ -1125,14 +1167,18 @@ unsigned int FRpcServerCharSelectVerifiedPacket::Encode(unsigned char** BufferHo
     if (!Stream.Put(&RepInstance, 4u)) return 0x16u;                   // 06b5ff45
     if (!Stream.Reserve(8u, 0x16u)) return 0x16u;                      // 06b5ff4c..06b5ff6c
     const double* Source = &Time;
-    const unsigned int Cached = MarshalPtr;                            // 06b5ff75
+    const std::uintptr_t Cached = MarshalPtr;                            // 06b5ff75
     double* Destination = reinterpret_cast<double*>(Cached);
+#if defined(_M_IX86)
     __asm {
         mov eax, Source
         mov edx, Destination
         fld qword ptr [eax]
         fstp qword ptr [edx]
     }
+#else
+    X87CopyDouble(Destination, Source);
+#endif
     MarshalPtr = Cached + 8u;                                          // 06b5ff87
     return Stream.FinishEncodeSuccess(OutLength);                      // 06b5ff89
 }
@@ -1669,7 +1715,7 @@ unsigned int FRpcServerAdjustAttitudePacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x2d CREATECOUNTER ---
-static_assert(sizeof(FRpcServerCreateCounterPacket) == 0x68, "CREATECOUNTER is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateCounterPacket) == 0x68, "CREATECOUNTER is operator new(0x68)");
 
 // RC 06b4aab0 / RS 06be55d0.
 FRpcServerCreateCounterPacket::FRpcServerCreateCounterPacket() : FPacketBase(0x2002du) {
@@ -1729,7 +1775,7 @@ unsigned int FRpcServerCreateCounterPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x37 CREATEGUIDED ---
-static_assert(sizeof(FRpcServerCreateGuidedPacket) == 0x58, "CREATEGUIDED is operator new(0x58)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateGuidedPacket) == 0x58, "CREATEGUIDED is operator new(0x58)");
 
 // RC 06b4a460 / RS 06be4f60: only Position and Orientation are written.
 FRpcServerCreateGuidedPacket::FRpcServerCreateGuidedPacket() : FPacketBase(0x20037u) {
@@ -1801,7 +1847,7 @@ unsigned int FRpcServerCreateGuidedPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x22 SYSTEM_SWITCH_IN ---
-static_assert(sizeof(FRpcServerSystemSwitchInPacket) == 0x44, "SYSTEM_SWITCH_IN is operator new(0x44)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSystemSwitchInPacket) == 0x44, "SYSTEM_SWITCH_IN is operator new(0x44)");
 
 // RC 06b4a790 / RS 06be5290.
 FRpcServerSystemSwitchInPacket::FRpcServerSystemSwitchInPacket() : FPacketBase(0x20022u) {
@@ -1840,7 +1886,7 @@ unsigned int FRpcServerSystemSwitchInPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x31 EXPLODEASTEROIDMINE ---
-static_assert(sizeof(FRpcServerExplodeAsteroidMinePacket) == 0x30,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerExplodeAsteroidMinePacket) == 0x30,
     "EXPLODEASTEROIDMINE is operator new(0x30)");
 
 // RC 06b4ab90 / RS 06be56b0: +0x20..+0x2c = 0 as dwords.
@@ -1871,7 +1917,7 @@ unsigned int FRpcServerExplodeAsteroidMinePacket::Decode(const unsigned char* Bu
 }
 
 // --- 0x38 ITEMTRACTORED ---
-static_assert(sizeof(FRpcServerItemTractoredPacket) == 0x2c, "ITEMTRACTORED is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerItemTractoredPacket) == 0x2c, "ITEMTRACTORED is operator new(0x2c)");
 
 // RC 06b4a510 / RS 06be5010.
 FRpcServerItemTractoredPacket::FRpcServerItemTractoredPacket() : FPacketBase(0x20038u) {
@@ -1905,7 +1951,7 @@ unsigned int FRpcServerItemTractoredPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x2e SETADDITEM ---
-static_assert(sizeof(FRpcServerSetAddItemPacket) == 0x40, "SETADDITEM is operator new(0x40)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSetAddItemPacket) == 0x40, "SETADDITEM is operator new(0x40)");
 
 // RC 06b49e60 / RS 06be4920.
 FRpcServerSetAddItemPacket::FRpcServerSetAddItemPacket() : FPacketBase(0x2002eu) {
@@ -1981,7 +2027,7 @@ unsigned int FRpcServerSetAddItemPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x32 REQUESTSPACESCRIPT ---
-static_assert(sizeof(FRpcServerRequestSpaceScriptPacket) == 0x3c,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerRequestSpaceScriptPacket) == 0x3c,
     "REQUESTSPACESCRIPT is operator new(0x3c)");
 
 // RC 06b4b990 / RS 06be64b0.
@@ -2047,7 +2093,7 @@ unsigned int FRpcServerRequestSpaceScriptPacket::Decode(const unsigned char* Buf
 }
 
 // --- 0x33 SETMISSIONOBJECTIVESTATE ---
-static_assert(sizeof(FRpcServerSetMissionObjectiveStatePacket) == 0x2c,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSetMissionObjectiveStatePacket) == 0x2c,
     "SETMISSIONOBJECTIVESTATE is operator new(0x2c)");
 
 // RC 06b5ebc0 / RS 06bf3410: every failure returns literal 0x16; trailer 06b5ecb0.
@@ -2072,7 +2118,7 @@ unsigned int FRpcServerSetMissionObjectiveStatePacket::Decode(const unsigned cha
 }
 
 // --- 0x34 REPLACEMISSIONOBJECTIVE ---
-static_assert(sizeof(FRpcServerReplaceMissionObjectivePacket) == 0x30,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerReplaceMissionObjectivePacket) == 0x30,
     "REPLACEMISSIONOBJECTIVE is operator new(0x30)");
 
 // RC 06b4b5c0 / RS 06be60e0.
@@ -2212,7 +2258,7 @@ unsigned int FRpcServerSetMissionObjectivesPacket::Decode(const unsigned char* B
 }
 
 // --- 0x3c REPAIROBJECT ---
-static_assert(sizeof(FRpcServerRepairObjectPacket) == 0x2c, "REPAIROBJECT is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerRepairObjectPacket) == 0x2c, "REPAIROBJECT is operator new(0x2c)");
 
 // RC 06b4c4d0 / RS 06be70d0.
 FRpcServerRepairObjectPacket::FRpcServerRepairObjectPacket() : FPacketBase(0x2003cu) {
@@ -2642,7 +2688,7 @@ unsigned int FRpcServerSetGroupFeelingsPacket::Decode(const unsigned char* Buffe
 }
 
 // --- 0x2c CREATEMINE ---
-static_assert(sizeof(FRpcServerCreateMinePacket) == 0x68, "CREATEMINE is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateMinePacket) == 0x68, "CREATEMINE is operator new(0x68)");
 
 // RC 06b4a9e0 / RS 06be5500.
 FRpcServerCreateMinePacket::FRpcServerCreateMinePacket() : FPacketBase(0x2002cu) {
@@ -3171,7 +3217,7 @@ unsigned int FRpcServerSetDirectivePacket::Encode(unsigned char** BufferHolder,
     FRpcWireStream Stream(*this, BufferHolder, Capacity);
     Stream.PutHeader();
     if (!Stream.Reserve(0x94u, 0x16u)) return 0x16u;
-    const unsigned int Cached = MarshalPtr;
+    const std::uintptr_t Cached = MarshalPtr;
     RpcServerCopyDirectiveFields(reinterpret_cast<void*>(Cached), &Directive);
     MarshalPtr = Cached + 0x94u;
     return Stream.FinishEncodeSuccess(OutLength);                      // 06b4345e
@@ -3313,6 +3359,7 @@ static unsigned char RpcServerSendCommQuantize(const float* Value) {
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fld dword ptr [ecx]
@@ -3326,17 +3373,26 @@ static unsigned char RpcServerSendCommQuantize(const float* Value) {
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    Quantized = X87TruncateToInt64(static_cast<double>(*Value) * static_cast<double>(GRpcServerSendCommTenth) * GRpcServerSendCommScale255);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
 static void RpcServerSendCommExpand(unsigned char Encoded, float* Value) {
     const int Widened = static_cast<int>(Encoded);
+#if defined(_M_IX86)
     __asm {
         mov ecx, Value
         fild dword ptr Widened
         fmul qword ptr GRpcServerSendCommExpand
         fstp dword ptr [ecx]
     }
+#else
+    *Value = static_cast<float>(static_cast<double>(Widened) * GRpcServerSendCommExpand);
+#endif
 }
 
 // RC 06b4cd10 / RS 06be7910.

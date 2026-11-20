@@ -34,7 +34,7 @@ struct FIVP_Sphere_Query_Record
     float Radius;               // +0x10 (0628d4b2)
     int32_t MaxLedgeTreeDepth;  // +0x14 (0628d4b6: 4)
 };
-static_assert(sizeof(FIVP_Sphere_Query_Record) == 0x18, "the record is six dwords");
+FL_LAYOUT_ASSERT(sizeof(FIVP_Sphere_Query_Record) == 0x18, "the record is six dwords");
 
 class IVP_Sphere_Object_Query
 {
@@ -51,4 +51,4 @@ public:
     // FUN_063507e0 (.text:063507e0-06350a57, thiscall RET 0xc), recursive over the OV tree.
     void collect_objects_in_node(IVP_OV_Node* Node, const IVP_U_Point* HalfSize, const IVP_U_Point* QueryCenter);
 };
-static_assert(sizeof(IVP_Sphere_Object_Query) == 0x224, "0628d450 reserves 0x224 bytes at local_230");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sphere_Object_Query) == 0x224, "0628d450 reserves 0x224 bytes at local_230");

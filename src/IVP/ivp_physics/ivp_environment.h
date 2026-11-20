@@ -37,7 +37,7 @@ class IVP_Controller_Manager
 public:
     IVP_Environment* environment; // +0x00
 };
-static_assert(sizeof(IVP_Controller_Manager) == 4, "IVP_Controller_Manager is 4 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Manager) == 4, "IVP_Controller_Manager is 4 bytes");
 
 // IVP_Environment+0x94: the IVP SDK's IVP_Cache_Object_Manager. A ring of
 // number_of_cache_objects 0x70-byte cache objects (IVP_NarrowPhaseCacheSlot,
@@ -116,7 +116,7 @@ public:
     // LAB_06360ad0 (.text:06360ad0-06360bee, RET 4).
     void simulate_time_event(IVP_Environment* Environment) override;
 };
-static_assert(sizeof(IVP_Time_Event_PSI) == 0x08, "retail operator new(8), :06360915");
+FL_LAYOUT_ASSERT(sizeof(IVP_Time_Event_PSI) == 0x08, "retail operator new(8), :06360915");
 
 // IVP_Event_Manager -- the 8-byte strategy object at IVP_Sim_Unit_Manager+0x04,
 // vtable 063a558c (two slots, no destructor slot: the manager's destructor
@@ -143,7 +143,7 @@ public:
     virtual void simulate_variable_time_step(IVP_Sim_Unit_Manager* TimeManager, IVP_Environment* Environment,
                                              IVP_Time_Event_PSI* PsiEvent, float DeltaTime);
 };
-static_assert(sizeof(IVP_Event_Manager) == 0x08, "retail operator new(8), :063608c7");
+FL_LAYOUT_ASSERT(sizeof(IVP_Event_Manager) == 0x08, "retail operator new(8), :063608c7");
 
 // ============================================================================
 // IVP_Sim_Unit_Manager -- the 0x1C-byte object at IVP_Environment+0x04.
@@ -256,13 +256,13 @@ public:
     // caller does that.
     void DestroyContents();
 };
-static_assert(sizeof(IVP_Sim_Unit_Manager) == 0x1c, "IVP_Sim_Unit_Manager size must be 0x1c -- retail's own 7-dword REP STOSD at Common.dll.txt:063608bc");
-static_assert(offsetof(IVP_Sim_Unit_Manager, EventManager) == 0x04, "IVP_Sim_Unit_Manager+0x04");
-static_assert(offsetof(IVP_Sim_Unit_Manager, EventPool) == 0x08, "IVP_Sim_Unit_Manager+0x08");
-static_assert(offsetof(IVP_Sim_Unit_Manager, PsiEvent) == 0x0c, "IVP_Sim_Unit_Manager+0x0c");
-static_assert(offsetof(IVP_Sim_Unit_Manager, Field_0x10) == 0x10, "IVP_Sim_Unit_Manager+0x10");
-static_assert(offsetof(IVP_Sim_Unit_Manager, TimeBaseHi) == 0x14, "IVP_Sim_Unit_Manager+0x14");
-static_assert(offsetof(IVP_Sim_Unit_Manager, TimeBaseLo) == 0x18, "IVP_Sim_Unit_Manager+0x18");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sim_Unit_Manager) == 0x1c, "IVP_Sim_Unit_Manager size must be 0x1c -- retail's own 7-dword REP STOSD at Common.dll.txt:063608bc");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, EventManager) == 0x04, "IVP_Sim_Unit_Manager+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, EventPool) == 0x08, "IVP_Sim_Unit_Manager+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, PsiEvent) == 0x0c, "IVP_Sim_Unit_Manager+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, Field_0x10) == 0x10, "IVP_Sim_Unit_Manager+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, TimeBaseHi) == 0x14, "IVP_Sim_Unit_Manager+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Manager, TimeBaseLo) == 0x18, "IVP_Sim_Unit_Manager+0x18");
 
 // src/IVP/ivp_physics/ivp_ov_element.h -- the 0x18-byte object at
 // IVP_Environment+0x10 (see `mindist_manager` below). Forward-declared for the
@@ -305,7 +305,7 @@ public:
 
     IVP_U_Point grav_vec; // +0x04 (x, y, z; hesse at +0x10 never written)
 };
-static_assert(sizeof(IVP_Standard_Gravity_Controller) == 0x14, "operator_new(0x14) at .text:0634c1e8");
+FL_LAYOUT_ASSERT(sizeof(IVP_Standard_Gravity_Controller) == 0x14, "operator_new(0x14) at .text:0634c1e8");
 
 // ============================================================================
 // IVP_Range_Manager -- IVP_Environment+0x1c, 0x34 bytes (cmn-phy5, 2026-10-08).
@@ -350,7 +350,7 @@ public:
     float            look_ahead_max_distance_world;   // +0x2c  default 15.0f
     float            look_ahead_min_seconds_world;    // +0x30  default 0.1f
 };
-static_assert(sizeof(IVP_Range_Manager) == 0x34, "operator_new(0x34) at .text:0634c3e0");
+FL_LAYOUT_ASSERT(sizeof(IVP_Range_Manager) == 0x34, "operator_new(0x34) at .text:0634c3e0");
 
 // ============================================================================
 // IVP_PerformanceCounter_Simple -- the default IVP_Environment+0x28 object,
@@ -392,7 +392,7 @@ public:
     FCounter Counters[17];     // +0x18..+0x9f
     IVP_Time TimeOfLastReset;  // +0xa0: Slot04's argument
 };
-static_assert(sizeof(IVP_PerformanceCounter_Simple) == 0xa8, "operator_new(0xa8) at .text:0634c41a");
+FL_LAYOUT_ASSERT(sizeof(IVP_PerformanceCounter_Simple) == 0xa8, "operator_new(0xa8) at .text:0634c41a");
 
 // A node of IVP_Environment::buffer_node_list (+0x13C). Only the two members the
 // teardown reads are known: the next link at +0x00 and a malloc'd buffer at +0x28
@@ -408,7 +408,7 @@ struct IVP_Env_Buffer_Node
 
     ~IVP_Env_Buffer_Node();           // FUN_0634cd00
 };
-static_assert(offsetof(IVP_Env_Buffer_Node, OwnedBuffer) == 0x28, "IVP_Env_Buffer_Node+0x28");
+FL_LAYOUT_ASSERT(offsetof(IVP_Env_Buffer_Node, OwnedBuffer) == 0x28, "IVP_Env_Buffer_Node+0x28");
 
 // IVP_Environment (0x148 / 328 bytes)
 class IVP_Environment
@@ -814,20 +814,20 @@ public:
 
 #pragma pack(pop)
 
-static_assert(sizeof(IVP_Environment) == 0x148, "IVP_Environment size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_Environment) == 0x148, "IVP_Environment size mismatch");
 // Pinned 2026-09-17 (D-ivp-anomaly pass): every offset this pass either
 // retyped or carved out of the old manager_context blob.
-static_assert(offsetof(IVP_Environment, ov_tree_manager) == 0x14, "IVP_Environment+0x14");
-static_assert(offsetof(IVP_Environment, anomaly_manager) == 0x20, "IVP_Environment+0x20");
-static_assert(offsetof(IVP_Environment, anomaly_limits) == 0x24, "IVP_Environment+0x24");
-static_assert(offsetof(IVP_Environment, manager_context_34) == 0x34, "IVP_Environment+0x34");
-static_assert(offsetof(IVP_Environment, counter_4c) == 0x4C, "IVP_Environment+0x4C");
-static_assert(offsetof(IVP_Environment, counter_5c) == 0x5C, "IVP_Environment+0x5C");
-static_assert(offsetof(IVP_Environment, counter_64) == 0x64, "IVP_Environment+0x64");
-static_assert(offsetof(IVP_Environment, counter_7c) == 0x7C, "IVP_Environment+0x7C");
-static_assert(offsetof(IVP_Environment, counter_80) == 0x80, "IVP_Environment+0x80");
-static_assert(offsetof(IVP_Environment, default_friction) == 0x88, "IVP_Environment+0x88");
-static_assert(offsetof(IVP_Environment, inv_delta_time) == 0xB0, "IVP_Environment+0xB0");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, ov_tree_manager) == 0x14, "IVP_Environment+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, anomaly_manager) == 0x20, "IVP_Environment+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, anomaly_limits) == 0x24, "IVP_Environment+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, manager_context_34) == 0x34, "IVP_Environment+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, counter_4c) == 0x4C, "IVP_Environment+0x4C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, counter_5c) == 0x5C, "IVP_Environment+0x5C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, counter_64) == 0x64, "IVP_Environment+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, counter_7c) == 0x7C, "IVP_Environment+0x7C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, counter_80) == 0x80, "IVP_Environment+0x80");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, default_friction) == 0x88, "IVP_Environment+0x88");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment, inv_delta_time) == 0xB0, "IVP_Environment+0xB0");
 
 // FUN_0634bbe0: drains the whole wake/event queue (ivp_environment.cpp).
 void IVP_Environment_Process_Wake_Queue(IVP_Environment* env);
@@ -1037,10 +1037,10 @@ struct IVP_Environment_Create_Parms
         NumberOfCacheObjects = 0x100;
     }
 };
-static_assert(sizeof(IVP_Environment_Create_Parms) == 0x30, "IVP_Environment_Create_Parms size mismatch");
-static_assert(offsetof(IVP_Environment_Create_Parms, MemoryBlockSize) == 0x08, "Create_Parms+0x08");
-static_assert(offsetof(IVP_Environment_Create_Parms, UniverseManager) == 0x14, "Create_Parms+0x14");
-static_assert(offsetof(IVP_Environment_Create_Parms, RangeManager) == 0x2C, "Create_Parms+0x2C");
+FL_LAYOUT_ASSERT(sizeof(IVP_Environment_Create_Parms) == 0x30, "IVP_Environment_Create_Parms size mismatch");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment_Create_Parms, MemoryBlockSize) == 0x08, "Create_Parms+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment_Create_Parms, UniverseManager) == 0x14, "Create_Parms+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Environment_Create_Parms, RangeManager) == 0x2C, "Create_Parms+0x2C");
 
 // FUN_063505f0 (decomp-tracker item 3141, Common.dll.txt:427376-427384, 9
 // insns). Zero-fills the 0x54-byte sub-block embedded at IVP_Environment+0x34
@@ -1184,4 +1184,4 @@ public:
     IVP_Environment* create_environment(IVP_Environment_Create_Parms* Parms,
                                         const char* LicenseName, uint32_t LicenseKey);
 };
-static_assert(sizeof(IVP_Environment_Manager) == 0x10, "IVP_Environment_Manager is the 16-byte DAT_0658aa00");
+FL_LAYOUT_ASSERT(sizeof(IVP_Environment_Manager) == 0x10, "IVP_Environment_Manager is the 16-byte DAT_0658aa00");

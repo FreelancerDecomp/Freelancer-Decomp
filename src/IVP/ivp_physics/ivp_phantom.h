@@ -67,9 +67,9 @@ public:
     {
     }
 };
-static_assert(sizeof(IVP_Template_Phantom) == 0x18, "IVP_Template_Phantom is 0x18 bytes (FUN_06344210 REP STOSD 6)");
-static_assert(offsetof(IVP_Template_Phantom, exit_policy_extra_radius) == 0x0C, "IVP_Template_Phantom+0x0c");
-static_assert(offsetof(IVP_Template_Phantom, client_data) == 0x14, "IVP_Template_Phantom+0x14");
+FL_LAYOUT_ASSERT(sizeof(IVP_Template_Phantom) == 0x18, "IVP_Template_Phantom is 0x18 bytes (FUN_06344210 REP STOSD 6)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Template_Phantom, exit_policy_extra_radius) == 0x0C, "IVP_Template_Phantom+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Template_Phantom, client_data) == 0x14, "IVP_Template_Phantom+0x14");
 
 // ----------------------------------------------------------------------------
 // IVP_Listener_Phantom -- vtable .rdata:0639b874, three _purecall slots and no
@@ -124,10 +124,10 @@ public:
     // FUN_06344260 (RET 4).
     void remove_listener_phantom(IVP_Listener_Phantom* Listener);
 };
-static_assert(sizeof(IVP_U_Set_Active<IVP_Mindist_Base>) == 0x18, "IVP_U_Set_Active is 0x18 bytes");
-static_assert(offsetof(IVP_Controller_Phantom, listeners) == 0x08, "IVP_Controller_Phantom+0x08");
-static_assert(offsetof(IVP_Controller_Phantom, mindist_set) == 0x10, "IVP_Controller_Phantom+0x10");
-static_assert(offsetof(IVP_Controller_Phantom, set_of_objects) == 0x28, "IVP_Controller_Phantom+0x28");
-static_assert(offsetof(IVP_Controller_Phantom, set_of_cores) == 0x34, "IVP_Controller_Phantom+0x34");
-static_assert(offsetof(IVP_Controller_Phantom, client_data) == 0x40, "IVP_Controller_Phantom+0x40");
-static_assert(sizeof(IVP_Controller_Phantom) == 0x44, "IVP_Controller_Phantom is 0x44 bytes (operator new(0x44), 06345f41)");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Set_Active<IVP_Mindist_Base>) == 0x18, "IVP_U_Set_Active is 0x18 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Phantom, listeners) == 0x08, "IVP_Controller_Phantom+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Phantom, mindist_set) == 0x10, "IVP_Controller_Phantom+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Phantom, set_of_objects) == 0x28, "IVP_Controller_Phantom+0x28");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Phantom, set_of_cores) == 0x34, "IVP_Controller_Phantom+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Phantom, client_data) == 0x40, "IVP_Controller_Phantom+0x40");
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Phantom) == 0x44, "IVP_Controller_Phantom is 0x44 bytes (operator new(0x44), 06345f41)");

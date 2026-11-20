@@ -113,9 +113,9 @@ IBehaviorManager::IBehaviorManager(IObjRW* Owner)
     AttackOverridePeriod = 1.0f;
 
     // .text:062d226f-062d2271: the +0xF0 BaseWatcher is zeroed (Watched, Next).
-    static_assert(offsetof(IBehaviorManager, WatchablePtr) == 0xF0, "IBehaviorManager+0xF0 watcher");
-    static_assert(offsetof(IBehaviorManager, OpaqueF4) == 0xF4, "IBehaviorManager+0xF4 watcher link");
-    static_assert(sizeof(BaseWatcher) == 8, "BaseWatcher is Watched + Next");
+    FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, WatchablePtr) == 0xF0, "IBehaviorManager+0xF0 watcher");
+    FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, OpaqueF4) == 0xF4, "IBehaviorManager+0xF4 watcher link");
+    FL_LAYOUT_ASSERT(sizeof(BaseWatcher) == 8, "BaseWatcher is Watched + Next");
     WatchablePtr = nullptr;
     memset(OpaqueF4, 0, sizeof(OpaqueF4));
 

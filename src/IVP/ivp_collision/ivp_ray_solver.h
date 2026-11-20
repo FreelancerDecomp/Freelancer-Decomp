@@ -43,7 +43,7 @@ struct IVP_Ray_Solver_Template
     float       ray_length;             // +0x20
     int32_t     ray_flags;              // +0x24, see IVP_Ray_Solver::ray_flags
 };
-static_assert(sizeof(IVP_Ray_Solver_Template) == 0x28, "IVP_Ray_Solver_Template size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ray_Solver_Template) == 0x28, "IVP_Ray_Solver_Template size");
 
 class IVP_Ray_Hit_Listener
 {
@@ -96,7 +96,7 @@ public:
     // FUN_0634a990 (thiscall, RET 4).
     void check_ray_against_all_objects_in_sim(const IVP_Environment* Environment);
 };
-static_assert(sizeof(IVP_Ray_Solver) == 0x4c, "IVP_Ray_Solver size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ray_Solver) == 0x4c, "IVP_Ray_Solver size");
 
 // One hit recorded by IVP_Ray_Solver_Min_Hash (0x20 bytes, the stride of
 // 06349b40's `(count + 3) << 5` index). Only x/y/z of the normal are written.
@@ -108,7 +108,7 @@ struct IVP_Ray_Hit
     const IVP_Compact_Triangle* hit_compact_triangle;     // +0x18
     float                       hit_distance;             // +0x1c
 };
-static_assert(sizeof(IVP_Ray_Hit) == 0x20, "IVP_Ray_Hit size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ray_Hit) == 0x20, "IVP_Ray_Hit size");
 
 // IVP_Ray_Solver_Min_Hash (cmn-ivp3d 2026-10-08), vtable .rdata:0639c2c4
 // {06349b40 add_hit_object, 06289ed0 scalar deleting dtor}; RTTI TD 063eb218.
@@ -137,9 +137,9 @@ public:
                         const IVP_Compact_Triangle* Triangle, float HitDist,
                         IVP_U_Point* HitSurfaceNormal) override;
 };
-static_assert(offsetof(IVP_Ray_Solver_Min_Hash, min_hash) == 0x4c, "IVP_Ray_Solver_Min_Hash+0x4c");
-static_assert(offsetof(IVP_Ray_Solver_Min_Hash, hits) == 0x60, "IVP_Ray_Solver_Min_Hash+0x60");
-static_assert(sizeof(IVP_Ray_Solver_Min_Hash) == 0x2060, "IVP_Ray_Solver_Min_Hash size");
+FL_LAYOUT_ASSERT(offsetof(IVP_Ray_Solver_Min_Hash, min_hash) == 0x4c, "IVP_Ray_Solver_Min_Hash+0x4c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Ray_Solver_Min_Hash, hits) == 0x60, "IVP_Ray_Solver_Min_Hash+0x60");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ray_Solver_Min_Hash) == 0x2060, "IVP_Ray_Solver_Min_Hash size");
 
 // The ray carried into one object's space. Built on the stack by
 // IVP_SurfaceManager_Polygon::insert_all_ledges_hitting_ray (0634ab60) and by PhySys.
@@ -166,6 +166,6 @@ public:
     // FUN_0634a4e0 (thiscall, RET 4).
     void check_ray_against_compact_surface(const IVP_Compact_Surface* Surface);
 };
-static_assert(sizeof(IVP_Ray_Solver_Os) == 0x50, "IVP_Ray_Solver_Os size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ray_Solver_Os) == 0x50, "IVP_Ray_Solver_Os size");
 
 #pragma pack(pop)

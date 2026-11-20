@@ -416,16 +416,16 @@ namespace Reputation
         // it the same way: put the vector last, assert nothing after it. Harmless: every access
         // to both fields in common_vibe.cpp goes through the named C++ members, never raw
         // offset arithmetic, so the in-memory order carries no behavioral meaning.
-        static_assert(offsetof(VibeValue, Affiliation) == 0x00, "VibeValue::Affiliation at +0x00");
-        static_assert(offsetof(VibeValue, AttitudeTowardsPlayer) == 0x04, "VibeValue::AttitudeTowardsPlayer at +0x04");
-        static_assert(offsetof(VibeValue, ClientID) == 0x08, "VibeValue::ClientID at +0x08");
-        static_assert(offsetof(VibeValue, AffiliationGroup) == 0x0c, "VibeValue::AffiliationGroup at +0x0c");
-        static_assert(offsetof(VibeValue, Name1) == 0x10, "VibeValue::Name1 at +0x10");
-        static_assert(offsetof(VibeValue, Name2) == 0x28, "VibeValue::Name2 at +0x28");
-        static_assert(offsetof(VibeValue, Infocard) == 0x40, "VibeValue::Infocard at +0x40");
-        static_assert(offsetof(VibeValue, DisplayName) == 0x44, "VibeValue::DisplayName at +0x44");
-        static_assert(offsetof(VibeValue, Rank) == 0x74, "VibeValue::Rank at +0x74");
-        static_assert(offsetof(VibeValue, Deltas) == 0x7c, "VibeValue::Deltas");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Affiliation) == 0x00, "VibeValue::Affiliation at +0x00");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, AttitudeTowardsPlayer) == 0x04, "VibeValue::AttitudeTowardsPlayer at +0x04");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, ClientID) == 0x08, "VibeValue::ClientID at +0x08");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, AffiliationGroup) == 0x0c, "VibeValue::AffiliationGroup at +0x0c");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Name1) == 0x10, "VibeValue::Name1 at +0x10");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Name2) == 0x28, "VibeValue::Name2 at +0x28");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Infocard) == 0x40, "VibeValue::Infocard at +0x40");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, DisplayName) == 0x44, "VibeValue::DisplayName at +0x44");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Rank) == 0x74, "VibeValue::Rank at +0x74");
+        FL_LAYOUT_ASSERT(offsetof(VibeValue, Deltas) == 0x7c, "VibeValue::Deltas");
 
         COMMON_API unsigned __cdecl Count();
         COMMON_API bool __cdecl Verify(int GroupId);

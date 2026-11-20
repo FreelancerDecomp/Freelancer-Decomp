@@ -116,8 +116,8 @@ public:
 FRpcCreateObjectPacket::~FRpcCreateObjectPacket() {
 }
 
-static_assert(sizeof(FRpcEquipListPacket) == 0x24u, "equipment-list packets are 0x24 bytes");
-static_assert(sizeof(FRpcCreateObjectPacket) == 0x20u,
+FL_LAYOUT_ASSERT(sizeof(FRpcEquipListPacket) == 0x24u, "equipment-list packets are 0x24 bytes");
+FL_LAYOUT_ASSERT(sizeof(FRpcCreateObjectPacket) == 0x20u,
               "the create-object header is the payload's first member, at +0x20");
 
 // ===========================================================================
@@ -158,7 +158,7 @@ public:
     }
     unsigned char Body[0x20];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_FIREWEAPON) == 0x40u, "FLPACKET_COMMON_FIREWEAPON is operator new(0x40)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_FIREWEAPON) == 0x40u, "FLPACKET_COMMON_FIREWEAPON is operator new(0x40)");
 
 // FLPACKET_COMMON_UPDATEOBJECT -- id 0x10001, registered at 06d9ad03.
 // Factory FUN_06d9aed0: operator new(0x4c) + ctor FUN_06d9af10. Vtable .rdata:06db4378 =
@@ -184,7 +184,7 @@ public:
     }
     unsigned char Body[0x2c];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_UPDATEOBJECT) == 0x4cu, "FLPACKET_COMMON_UPDATEOBJECT is operator new(0x4c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_UPDATEOBJECT) == 0x4cu, "FLPACKET_COMMON_UPDATEOBJECT is operator new(0x4c)");
 
 // FLPACKET_COMMON_CHATMSG -- id 0x10005, registered at 06d9ad19.
 // Factory FUN_06d9b730: operator new(0x30) + ctor FUN_06d9b770. Vtable .rdata:06db4428 =
@@ -213,7 +213,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_CHATMSG) == 0x30u, "FLPACKET_COMMON_CHATMSG is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_CHATMSG) == 0x30u, "FLPACKET_COMMON_CHATMSG is operator new(0x30)");
 
 // FLPACKET_COMMON_ACTIVATEEQUIP -- id 0x10008, registered at 06d9ad2f.
 // Factory FUN_06d9b7f0: operator new(0x28) + ctor FUN_06d9b830. Vtable .rdata:06db4438 =
@@ -233,7 +233,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_ACTIVATEEQUIP) == 0x28u, "FLPACKET_COMMON_ACTIVATEEQUIP is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_ACTIVATEEQUIP) == 0x28u, "FLPACKET_COMMON_ACTIVATEEQUIP is operator new(0x28)");
 
 // FLPACKET_COMMON_SETTARGET -- id 0x10004, registered at 06d9ad45.
 // Factory FUN_06d9ba20: operator new(0x2c) + ctor FUN_06d9ba60. Vtable .rdata:06db4488 =
@@ -254,7 +254,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_SETTARGET) == 0x2cu, "FLPACKET_COMMON_SETTARGET is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_SETTARGET) == 0x2cu, "FLPACKET_COMMON_SETTARGET is operator new(0x2c)");
 
 // FLPACKET_COMMON_ACTIVATECRUISE -- id 0x1000e, registered at 06d9ad5b.
 // Factory FUN_06d9b860: operator new(0x28) + ctor FUN_06d9b8a0. Vtable .rdata:06db4448 =
@@ -273,7 +273,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_ACTIVATECRUISE) == 0x28u, "FLPACKET_COMMON_ACTIVATECRUISE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_ACTIVATECRUISE) == 0x28u, "FLPACKET_COMMON_ACTIVATECRUISE is operator new(0x28)");
 
 // FLPACKET_COMMON_ACTIVATETHRUSTERS -- id 0x10015, registered at 06d9ad71.
 // Factory FUN_06d9b8d0: operator new(0x28) + ctor FUN_06d9b910. Vtable .rdata:06db4458 =
@@ -292,7 +292,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_ACTIVATETHRUSTERS) == 0x28u, "FLPACKET_COMMON_ACTIVATETHRUSTERS is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_ACTIVATETHRUSTERS) == 0x28u, "FLPACKET_COMMON_ACTIVATETHRUSTERS is operator new(0x28)");
 
 // FLPACKET_COMMON_GOTRADELANE -- id 0x1000f, registered at 06d9ad87.
 // Factory FUN_06d9b940: operator new(0x30) + ctor FUN_06d9b980. Vtable .rdata:06db4468 =
@@ -311,7 +311,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_GOTRADELANE) == 0x30u, "FLPACKET_COMMON_GOTRADELANE is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_GOTRADELANE) == 0x30u, "FLPACKET_COMMON_GOTRADELANE is operator new(0x30)");
 
 // FLPACKET_COMMON_STOPTRADELANE -- id 0x10010, registered at 06d9ad9d.
 // Factory FUN_06d9b9b0: operator new(0x2c) + ctor FUN_06d9b9f0. Vtable .rdata:06db4478 =
@@ -333,7 +333,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_STOPTRADELANE) == 0x2cu, "FLPACKET_COMMON_STOPTRADELANE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_STOPTRADELANE) == 0x2cu, "FLPACKET_COMMON_STOPTRADELANE is operator new(0x2c)");
 
 // FLPACKET_COMMON_SET_WEAPON_GROUP -- id 0x10011, registered at 06d9adb3.
 // Factory FUN_06d9b050: operator new(0x2c) + ctor FUN_06d9b090. Vtable .rdata:06db4398 =
@@ -365,7 +365,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_SET_WEAPON_GROUP) == 0x2cu, "FLPACKET_COMMON_SET_WEAPON_GROUP is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_SET_WEAPON_GROUP) == 0x2cu, "FLPACKET_COMMON_SET_WEAPON_GROUP is operator new(0x2c)");
 
 // FLPACKET_COMMON_PLAYER_TRADE -- id 0x10012, registered at 06d9adc9.
 // Factory FUN_06d9ba90: operator new(0x44) + ctor FUN_06d9bad0. Vtable .rdata:06db4498 =
@@ -392,7 +392,7 @@ public:
     }
     unsigned char Body[0x24];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_PLAYER_TRADE) == 0x44u, "FLPACKET_COMMON_PLAYER_TRADE is operator new(0x44)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_PLAYER_TRADE) == 0x44u, "FLPACKET_COMMON_PLAYER_TRADE is operator new(0x44)");
 
 // FLPACKET_COMMON_SET_VISITED_STATE -- id 0x10013, registered at 06d9addf.
 // Factory FUN_06d9b110: operator new(0x2c) + ctor FUN_06d9b150. Vtable .rdata:06db43a8 =
@@ -424,7 +424,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_SET_VISITED_STATE) == 0x2cu, "FLPACKET_COMMON_SET_VISITED_STATE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_SET_VISITED_STATE) == 0x2cu, "FLPACKET_COMMON_SET_VISITED_STATE is operator new(0x2c)");
 
 // FLPACKET_COMMON_JETTISONCARGO -- id 0x10014, registered at 06d9adf5.
 // Factory FUN_06d9bb10: operator new(0x2c) + ctor FUN_06d9bb50. Vtable .rdata:06db44a8 =
@@ -446,7 +446,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_JETTISONCARGO) == 0x2cu, "FLPACKET_COMMON_JETTISONCARGO is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_JETTISONCARGO) == 0x2cu, "FLPACKET_COMMON_JETTISONCARGO is operator new(0x2c)");
 
 // FLPACKET_COMMON_REQUEST_BEST_PATH -- id 0x10016, registered at 06d9ae0b.
 // Factory FUN_06d9b1d0: operator new(0x2c) + ctor FUN_06d9b210. Vtable .rdata:06db43b8 =
@@ -478,7 +478,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_REQUEST_BEST_PATH) == 0x2cu, "FLPACKET_COMMON_REQUEST_BEST_PATH is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_REQUEST_BEST_PATH) == 0x2cu, "FLPACKET_COMMON_REQUEST_BEST_PATH is operator new(0x2c)");
 
 // FLPACKET_COMMON_REQUEST_PLAYER_STATS -- id 0x10018, registered at 06d9ae21.
 // Factory FUN_06d9b290: operator new(0x2c) + ctor FUN_06d9b2d0. Vtable .rdata:06db43c8 =
@@ -510,7 +510,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_REQUEST_PLAYER_STATS) == 0x2cu, "FLPACKET_COMMON_REQUEST_PLAYER_STATS is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_REQUEST_PLAYER_STATS) == 0x2cu, "FLPACKET_COMMON_REQUEST_PLAYER_STATS is operator new(0x2c)");
 
 // FLPACKET_COMMON_POP_UP_DIALOG -- id 0x1001b, registered at 06d9ae37.
 // Factory FUN_06d9b350: operator new(0x34) + ctor FUN_06d9b390. Vtable .rdata:06db43d8 =
@@ -544,7 +544,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_POP_UP_DIALOG) == 0x34u, "FLPACKET_COMMON_POP_UP_DIALOG is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_POP_UP_DIALOG) == 0x34u, "FLPACKET_COMMON_POP_UP_DIALOG is operator new(0x34)");
 
 // FLPACKET_COMMON_REQUEST_GROUP_POSITIONS -- id 0x10017, registered at 06d9ae4d.
 // Factory FUN_06d9b430: operator new(0x2c) + ctor FUN_06d9b470. Vtable .rdata:06db43e8 =
@@ -576,7 +576,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS) == 0x2cu, "FLPACKET_COMMON_REQUEST_GROUP_POSITIONS is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_REQUEST_GROUP_POSITIONS) == 0x2cu, "FLPACKET_COMMON_REQUEST_GROUP_POSITIONS is operator new(0x2c)");
 
 // FLPACKET_COMMON_SET_MISSION_LOG -- id 0x10019, registered at 06d9ae63.
 // Factory FUN_06d9b4f0: operator new(0x2c) + ctor FUN_06d9b530. Vtable .rdata:06db43f8 =
@@ -608,7 +608,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_SET_MISSION_LOG) == 0x2cu, "FLPACKET_COMMON_SET_MISSION_LOG is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_SET_MISSION_LOG) == 0x2cu, "FLPACKET_COMMON_SET_MISSION_LOG is operator new(0x2c)");
 
 // FLPACKET_COMMON_REQUEST_RANK_LEVEL -- id 0x1001a, registered at 06d9ae79.
 // Factory FUN_06d9b670: operator new(0x2c) + ctor FUN_06d9b6b0. Vtable .rdata:06db4418 =
@@ -640,7 +640,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_REQUEST_RANK_LEVEL) == 0x2cu, "FLPACKET_COMMON_REQUEST_RANK_LEVEL is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_REQUEST_RANK_LEVEL) == 0x2cu, "FLPACKET_COMMON_REQUEST_RANK_LEVEL is operator new(0x2c)");
 
 // FLPACKET_COMMON_SET_INTERFACE_STATE -- id 0x1001c, registered at 06d9ae8f.
 // Factory FUN_06d9b5b0: operator new(0x2c) + ctor FUN_06d9b5f0. Vtable .rdata:06db4408 =
@@ -672,7 +672,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_SET_INTERFACE_STATE) == 0x2cu, "FLPACKET_COMMON_SET_INTERFACE_STATE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_SET_INTERFACE_STATE) == 0x2cu, "FLPACKET_COMMON_SET_INTERFACE_STATE is operator new(0x2c)");
 
 // FLPACKET_COMMON_TRACTOROBJECTS -- id 0x1001d, registered at 06d9aea5.
 // Factory FUN_06d9bb80: operator new(0x38) + ctor FUN_06d9bbc0. Vtable .rdata:06db44b8 =
@@ -705,7 +705,7 @@ public:
     }
     unsigned char Body[0x18];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_COMMON_TRACTOROBJECTS) == 0x38u, "FLPACKET_COMMON_TRACTOROBJECTS is operator new(0x38)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_COMMON_TRACTOROBJECTS) == 0x38u, "FLPACKET_COMMON_TRACTOROBJECTS is operator new(0x38)");
 
 // ===========================================================================
 // Channel 2 -- the classes registered by FUN_06d9bc80, in its registration order.
@@ -732,7 +732,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CONNECTRESPONSE) == 0x24u, "FLPACKET_SERVER_CONNECTRESPONSE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CONNECTRESPONSE) == 0x24u, "FLPACKET_SERVER_CONNECTRESPONSE is operator new(0x24)");
 
 // FLPACKET_SERVER_LOGINRESPONSE -- id 0x20002, registered at 06d9bca3.
 // Factory FUN_06d9c820: operator new(0x24) + ctor FUN_06d9c860. Vtable .rdata:06db4ffc =
@@ -755,7 +755,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_LOGINRESPONSE) == 0x24u, "FLPACKET_SERVER_LOGINRESPONSE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_LOGINRESPONSE) == 0x24u, "FLPACKET_SERVER_LOGINRESPONSE is operator new(0x24)");
 
 // FLPACKET_SERVER_DAMAGEOBJECT -- id 0x20005, registered at 06d9bcb9.
 // Factory FUN_06d9c890: operator new(0x40) + ctor FUN_06d9c8d0. Vtable .rdata:06db3cb0 =
@@ -780,7 +780,7 @@ public:
     }
     FPayloadServerDamageObject Wire;   // +0x20; Field_0x00 is left alone, as retail's ctor does
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_DAMAGEOBJECT) == 0x20u + sizeof(FPayloadServerDamageObject),
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_DAMAGEOBJECT) == 0x20u + sizeof(FPayloadServerDamageObject),
               "FLPACKET_SERVER_DAMAGEOBJECT: the payload member starts at +0x20");
 
 // FLPACKET_SERVER_DESTROYOBJECT -- id 0x20006, registered at 06d9bccf.
@@ -802,7 +802,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_DESTROYOBJECT) == 0x28u, "FLPACKET_SERVER_DESTROYOBJECT is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_DESTROYOBJECT) == 0x28u, "FLPACKET_SERVER_DESTROYOBJECT is operator new(0x28)");
 
 // FLPACKET_SERVER_CREATESHIP -- id 0x20004, registered at 06d9bce5.
 // Factory FUN_06d9cc20: operator new(0xec) + ctor FUN_06d9cc60. Vtable .rdata:06db3fc4 =
@@ -860,7 +860,7 @@ public:
     }
     FPayloadServerCreateShip Wire;   // +0x20; retail's class is operator new(0xec)
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATESHIP) == 0x20u + sizeof(FPayloadServerCreateShip),
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATESHIP) == 0x20u + sizeof(FPayloadServerCreateShip),
               "FLPACKET_SERVER_CREATESHIP: the payload member starts at +0x20");
 
 // FLPACKET_SERVER_REQUEST_RETURNED -- id 0x20044, registered at 06d9bcfb.
@@ -880,7 +880,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REQUEST_RETURNED) == 0x28u, "FLPACKET_SERVER_REQUEST_RETURNED is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REQUEST_RETURNED) == 0x28u, "FLPACKET_SERVER_REQUEST_RETURNED is operator new(0x28)");
 
 // FLPACKET_SERVER_CHARACTERINFO -- id 0x20003, registered at 06d9bd11.
 // Factory FUN_06d9d4b0: operator new(0x30) + ctor FUN_06d9d4f0. Vtable .rdata:06db3dc4 =
@@ -911,7 +911,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CHARACTERINFO) == 0x30u, "FLPACKET_SERVER_CHARACTERINFO is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CHARACTERINFO) == 0x30u, "FLPACKET_SERVER_CHARACTERINFO is operator new(0x30)");
 
 // FLPACKET_SERVER_LAUNCH -- id 0x20007, registered at 06d9bd27.
 // Factory FUN_06d9d570: operator new(0x48) + ctor FUN_06d9d5b0. Vtable .rdata:06db50ec =
@@ -940,7 +940,7 @@ public:
     }
     unsigned char Body[0x28];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_LAUNCH) == 0x48u, "FLPACKET_SERVER_LAUNCH is operator new(0x48)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_LAUNCH) == 0x48u, "FLPACKET_SERVER_LAUNCH is operator new(0x48)");
 
 // FLPACKET_SERVER_CHARSELECTVERIFIED -- id 0x20008, registered at 06d9bd3d.
 // Factory FUN_06d9db50: operator new(0x30) + ctor FUN_06d9db90. Vtable .rdata:06db517c =
@@ -962,7 +962,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CHARSELECTVERIFIED) == 0x30u, "FLPACKET_SERVER_CHARSELECTVERIFIED is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CHARSELECTVERIFIED) == 0x30u, "FLPACKET_SERVER_CHARSELECTVERIFIED is operator new(0x30)");
 
 // FLPACKET_SERVER_ACTIVATEOBJECT -- id 0x2000a, registered at 06d9bd53.
 // Factory FUN_06d9ca50: operator new(0x2c) + ctor FUN_06d9ca90. Vtable .rdata:06db502c =
@@ -981,7 +981,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_ACTIVATEOBJECT) == 0x2cu, "FLPACKET_SERVER_ACTIVATEOBJECT is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_ACTIVATEOBJECT) == 0x2cu, "FLPACKET_SERVER_ACTIVATEOBJECT is operator new(0x2c)");
 
 // FLPACKET_SERVER_LAND -- id 0x2000b, registered at 06d9bd69.
 // Factory FUN_06d9d440: operator new(0x2c) + ctor FUN_06d9d480. Vtable .rdata:06db50dc =
@@ -1000,7 +1000,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_LAND) == 0x2cu, "FLPACKET_SERVER_LAND is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_LAND) == 0x2cu, "FLPACKET_SERVER_LAND is operator new(0x2c)");
 
 // FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST -- id 0x2000e, registered at 06d9bd7f.
 // Factory FUN_06d9dd10: operator new(0x24) + ctor FUN_06d9dd50. Vtable .rdata:06db51ac =
@@ -1019,7 +1019,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETENEWSBROADCASTLIST is operator new(0x24)");
 
 // FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST -- id 0x20010, registered at 06d9bd95.
 // Factory FUN_06d9dca0: operator new(0x24) + ctor FUN_06d9dce0. Vtable .rdata:06db519c =
@@ -1038,7 +1038,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETEMISSIONCOMPUTERLIST is operator new(0x24)");
 
 // FLPACKET_SERVER_GFCOMPLETECHARLIST -- id 0x2000f, registered at 06d9bdab.
 // Factory FUN_06d9dc30: operator new(0x24) + ctor FUN_06d9dc70. Vtable .rdata:06db518c =
@@ -1057,7 +1057,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETECHARLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETECHARLIST is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETECHARLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETECHARLIST is operator new(0x24)");
 
 // FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST -- id 0x20011, registered at 06d9bdc1.
 // Factory FUN_06d9dd80: operator new(0x24) + ctor FUN_06d9ddc0. Vtable .rdata:06db51bc =
@@ -1076,7 +1076,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETESCRIPTBEHAVIORLIST is operator new(0x24)");
 
 // FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST -- id 0x20013, registered at 06d9bdd7.
 // Factory FUN_06d9ddf0: operator new(0x24) + ctor FUN_06d9de30. Vtable .rdata:06db51cc =
@@ -1095,7 +1095,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST) == 0x24u, "FLPACKET_SERVER_GFCOMPLETEAMBIENTSCRIPTLIST is operator new(0x24)");
 
 // FLPACKET_SERVER_SYSTEM_SWITCH_OUT -- id 0x20021, registered at 06d9bded.
 // Factory FUN_06d9cb30: operator new(0x28) + ctor FUN_06d9cb70. Vtable .rdata:06db504c =
@@ -1114,7 +1114,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SYSTEM_SWITCH_OUT) == 0x28u, "FLPACKET_SERVER_SYSTEM_SWITCH_OUT is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SYSTEM_SWITCH_OUT) == 0x28u, "FLPACKET_SERVER_SYSTEM_SWITCH_OUT is operator new(0x28)");
 
 // FLPACKET_SERVER_SYSTEM_SWITCH_IN -- id 0x20022, registered at 06d9be03.
 // Factory FUN_06d9cba0: operator new(0x44) + ctor FUN_06d9cbe0. Vtable .rdata:06db505c =
@@ -1140,7 +1140,7 @@ public:
     }
     unsigned char Body[0x24];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SYSTEM_SWITCH_IN) == 0x44u, "FLPACKET_SERVER_SYSTEM_SWITCH_IN is operator new(0x44)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SYSTEM_SWITCH_IN) == 0x44u, "FLPACKET_SERVER_SYSTEM_SWITCH_IN is operator new(0x44)");
 
 // FLPACKET_SERVER_SETSHIPARCH -- id 0x20023, registered at 06d9be19.
 // Factory FUN_06d9c740: operator new(0x24) + ctor FUN_06d9c780. Vtable .rdata:06db4fdc =
@@ -1160,7 +1160,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETSHIPARCH) == 0x24u, "FLPACKET_SERVER_SETSHIPARCH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETSHIPARCH) == 0x24u, "FLPACKET_SERVER_SETSHIPARCH is operator new(0x24)");
 
 // FLPACKET_SERVER_SETEQUIPMENT -- id 0x20024, registered at 06d9be2f.
 // Factory FUN_06d9c660: operator new(0x24) + ctor FUN_06d9c6a0. Vtable .rdata:06db3cf0 =
@@ -1183,7 +1183,7 @@ public:
         return RpcDecodeWireEquipList(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETEQUIPMENT) == 0x24u, "FLPACKET_SERVER_SETEQUIPMENT is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETEQUIPMENT) == 0x24u, "FLPACKET_SERVER_SETEQUIPMENT is operator new(0x24)");
 
 // FLPACKET_SERVER_SETCARGO -- id 0x20025, registered at 06d9be45.
 // Factory FUN_06d9c6d0: operator new(0x24) + ctor FUN_06d9c710. Vtable .rdata:06db3d10 =
@@ -1206,7 +1206,7 @@ public:
         return RpcDecodeWireEquipList(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETCARGO) == 0x24u, "FLPACKET_SERVER_SETCARGO is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETCARGO) == 0x24u, "FLPACKET_SERVER_SETCARGO is operator new(0x24)");
 
 // FLPACKET_SERVER_REQUESTCREATESHIPRESP -- id 0x20027, registered at 06d9be5b.
 // Factory FUN_06d9c5f0: operator new(0x28) + ctor FUN_06d9c630. Vtable .rdata:06db4fcc =
@@ -1225,7 +1225,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REQUESTCREATESHIPRESP) == 0x28u, "FLPACKET_SERVER_REQUESTCREATESHIPRESP is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REQUESTCREATESHIPRESP) == 0x28u, "FLPACKET_SERVER_REQUESTCREATESHIPRESP is operator new(0x28)");
 
 // FLPACKET_SERVER_SETSTARTROOM -- id 0x2000d, registered at 06d9be71.
 // Factory FUN_06d9de60: operator new(0x28) + ctor FUN_06d9dea0. Vtable .rdata:06db51dc =
@@ -1244,7 +1244,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETSTARTROOM) == 0x28u, "FLPACKET_SERVER_SETSTARTROOM is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETSTARTROOM) == 0x28u, "FLPACKET_SERVER_SETSTARTROOM is operator new(0x28)");
 
 // FLPACKET_SERVER_GFDESTROYCHARACTER -- id 0x20015, registered at 06d9be87.
 // Factory FUN_06d9ded0: operator new(0x28) + ctor FUN_06d9df10. Vtable .rdata:06db51ec =
@@ -1263,7 +1263,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYCHARACTER) == 0x28u, "FLPACKET_SERVER_GFDESTROYCHARACTER is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYCHARACTER) == 0x28u, "FLPACKET_SERVER_GFDESTROYCHARACTER is operator new(0x28)");
 
 // FLPACKET_SERVER_GFDESTROYNEWSBROADCAST -- id 0x20014, registered at 06d9be9d.
 // Factory FUN_06d9dfb0: operator new(0x28) + ctor FUN_06d9dff0. Vtable .rdata:06db520c =
@@ -1282,7 +1282,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYNEWSBROADCAST) == 0x28u, "FLPACKET_SERVER_GFDESTROYNEWSBROADCAST is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYNEWSBROADCAST) == 0x28u, "FLPACKET_SERVER_GFDESTROYNEWSBROADCAST is operator new(0x28)");
 
 // FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER -- id 0x20016, registered at 06d9beb3.
 // Factory FUN_06d9df40: operator new(0x28) + ctor FUN_06d9df80. Vtable .rdata:06db51fc =
@@ -1301,7 +1301,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER) == 0x28u, "FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER) == 0x28u, "FLPACKET_SERVER_GFDESTROYMISSIONCOMPUTER is operator new(0x28)");
 
 // FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR -- id 0x20017, registered at 06d9bec9.
 // Factory FUN_06d9e020: operator new(0x28) + ctor FUN_06d9e060. Vtable .rdata:06db521c =
@@ -1320,7 +1320,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR) == 0x28u, "FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR) == 0x28u, "FLPACKET_SERVER_GFDESTROYSCRIPTBEHAVIOR is operator new(0x28)");
 
 // FLPACKET_SERVER_GFDESTROYAMBIENTSCRIPT -- id 0x20019, registered at 06d9bedf.
 // Factory FUN_06d9e090: operator new(0x28) + ctor FUN_06d9e0d0. Vtable .rdata:06db522c =
@@ -1339,7 +1339,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYAMBIENTSCRIPT) == 0x28u, "FLPACKET_SERVER_GFDESTROYAMBIENTSCRIPT is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFDESTROYAMBIENTSCRIPT) == 0x28u, "FLPACKET_SERVER_GFDESTROYAMBIENTSCRIPT is operator new(0x28)");
 
 // FLPACKET_SERVER_GFSCRIPTBEHAVIOR -- id 0x2001a, registered at 06d9bef5.
 // Factory FUN_06d9e100: operator new(0x28) + ctor FUN_06d9e140. Vtable .rdata:06db3f24 =
@@ -1366,7 +1366,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFSCRIPTBEHAVIOR) == 0x28u, "FLPACKET_SERVER_GFSCRIPTBEHAVIOR is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFSCRIPTBEHAVIOR) == 0x28u, "FLPACKET_SERVER_GFSCRIPTBEHAVIOR is operator new(0x28)");
 
 // FLPACKET_SERVER_GFUPDATEAMBIENTSCRIPT -- id 0x2001f, registered at 06d9bf0b.
 // Factory FUN_06d9e250: operator new(0x28) + ctor FUN_06d9e290. Vtable .rdata:06db3f44 =
@@ -1393,7 +1393,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFUPDATEAMBIENTSCRIPT) == 0x28u, "FLPACKET_SERVER_GFUPDATEAMBIENTSCRIPT is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFUPDATEAMBIENTSCRIPT) == 0x28u, "FLPACKET_SERVER_GFUPDATEAMBIENTSCRIPT is operator new(0x28)");
 
 // FLPACKET_SERVER_MISSIONSAVEA -- id 0x2005b, registered at 06d9bf21.
 // Factory FUN_06d9f090: operator new(0x24) + ctor FUN_06d9f0d0. Vtable .rdata:06db536c =
@@ -1412,7 +1412,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_MISSIONSAVEA) == 0x24u, "FLPACKET_SERVER_MISSIONSAVEA is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_MISSIONSAVEA) == 0x24u, "FLPACKET_SERVER_MISSIONSAVEA is operator new(0x24)");
 
 // FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER -- id 0x2001d, registered at 06d9bf37.
 // Factory FUN_06d9e170: operator new(0x28) + ctor FUN_06d9e1b0. Vtable .rdata:06db3f64 =
@@ -1439,7 +1439,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER) == 0x28u, "FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER) == 0x28u, "FLPACKET_SERVER_GFUPDATEMISSIONCOMPUTER is operator new(0x28)");
 
 // FLPACKET_SERVER_GFUPDATENEWSBROADCAST -- id 0x2001e, registered at 06d9bf4d.
 // Factory FUN_06d9e1e0: operator new(0x28) + ctor FUN_06d9e220. Vtable .rdata:06db3f94 =
@@ -1466,7 +1466,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFUPDATENEWSBROADCAST) == 0x28u, "FLPACKET_SERVER_GFUPDATENEWSBROADCAST is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFUPDATENEWSBROADCAST) == 0x28u, "FLPACKET_SERVER_GFUPDATENEWSBROADCAST is operator new(0x28)");
 
 // FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE -- id 0x20020, registered at 06d9bf63.
 // Factory FUN_06d9e2c0: operator new(0x28) + ctor FUN_06d9e300. Vtable .rdata:06db3f74 =
@@ -1493,7 +1493,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE) == 0x28u, "FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE) == 0x28u, "FLPACKET_SERVER_GFMISSIONVENDORACCEPTANCE is operator new(0x28)");
 
 // FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY -- id 0x2005a, registered at 06d9bf79.
 // Factory FUN_06d9e330: operator new(0x24) + ctor FUN_06d9e370. Vtable .rdata:06db523c =
@@ -1512,7 +1512,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY) == 0x24u, "FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY) == 0x24u, "FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY is operator new(0x24)");
 
 // FLPACKET_SERVER_GFUPDATECHAR -- id 0x20026, registered at 06d9bf8f.
 // Factory FUN_06d9dbc0: operator new(0x28) + ctor FUN_06d9dc00. Vtable .rdata:06db3f04 =
@@ -1539,7 +1539,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_GFUPDATECHAR) == 0x28u, "FLPACKET_SERVER_GFUPDATECHAR is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_GFUPDATECHAR) == 0x28u, "FLPACKET_SERVER_GFUPDATECHAR is operator new(0x28)");
 
 // FLPACKET_SERVER_CREATELOOT -- id 0x20028, registered at 06d9bfa5.
 // Factory FUN_06d9d100: operator new(0x34) + ctor FUN_06d9d140. Vtable .rdata:06db50ac =
@@ -1566,7 +1566,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATELOOT) == 0x34u, "FLPACKET_SERVER_CREATELOOT is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATELOOT) == 0x34u, "FLPACKET_SERVER_CREATELOOT is operator new(0x34)");
 
 // FLPACKET_SERVER_SETREPUTATION -- id 0x20029, registered at 06d9bfbb.
 // Factory FUN_06d9d250: operator new(0x68) + ctor FUN_06d9d290. Vtable .rdata:06db3d50 =
@@ -1624,7 +1624,7 @@ public:
     }
     unsigned char Body[0x48];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETREPUTATION) == 0x68u, "FLPACKET_SERVER_SETREPUTATION is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETREPUTATION) == 0x68u, "FLPACKET_SERVER_SETREPUTATION is operator new(0x68)");
 
 // FLPACKET_SERVER_ADJUSTATTITUDE -- id 0x2002a, registered at 06d9bfd1.
 // Factory FUN_06d9d360: operator new(0x28) + ctor FUN_06d9d3a0. Vtable .rdata:06db50bc =
@@ -1643,7 +1643,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_ADJUSTATTITUDE) == 0x28u, "FLPACKET_SERVER_ADJUSTATTITUDE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_ADJUSTATTITUDE) == 0x28u, "FLPACKET_SERVER_ADJUSTATTITUDE is operator new(0x28)");
 
 // FLPACKET_SERVER_SETGROUPFEELINGS -- id 0x2002b, registered at 06d9bfe7.
 // Factory FUN_06d9c500: operator new(0x34) + ctor FUN_06d9c540. Vtable .rdata:06db3d30 =
@@ -1679,7 +1679,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETGROUPFEELINGS) == 0x34u, "FLPACKET_SERVER_SETGROUPFEELINGS is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETGROUPFEELINGS) == 0x34u, "FLPACKET_SERVER_SETGROUPFEELINGS is operator new(0x34)");
 
 // FLPACKET_SERVER_CREATEMINE -- id 0x2002c, registered at 06d9bffd.
 // Factory FUN_06d9cdc0: operator new(0x68) + ctor FUN_06d9ce00. Vtable .rdata:06db506c =
@@ -1716,7 +1716,7 @@ public:
     }
     unsigned char Body[0x48];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATEMINE) == 0x68u, "FLPACKET_SERVER_CREATEMINE is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATEMINE) == 0x68u, "FLPACKET_SERVER_CREATEMINE is operator new(0x68)");
 
 // FLPACKET_SERVER_CREATECOUNTER -- id 0x2002d, registered at 06d9c013.
 // Factory FUN_06d9ce60: operator new(0x68) + ctor FUN_06d9cea0. Vtable .rdata:06db507c =
@@ -1753,7 +1753,7 @@ public:
     }
     unsigned char Body[0x48];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATECOUNTER) == 0x68u, "FLPACKET_SERVER_CREATECOUNTER is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATECOUNTER) == 0x68u, "FLPACKET_SERVER_CREATECOUNTER is operator new(0x68)");
 
 // FLPACKET_SERVER_EXPLODEASTEROIDMINE -- id 0x20031, registered at 06d9c029.
 // Factory FUN_06d9cf10: operator new(0x30) + ctor FUN_06d9cf50. Vtable .rdata:06db508c =
@@ -1776,7 +1776,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_EXPLODEASTEROIDMINE) == 0x30u, "FLPACKET_SERVER_EXPLODEASTEROIDMINE is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_EXPLODEASTEROIDMINE) == 0x30u, "FLPACKET_SERVER_EXPLODEASTEROIDMINE is operator new(0x30)");
 
 // FLPACKET_SERVER_LOADHINT -- id 0x2004d, registered at 06d9c03f.
 // Factory FUN_06d9cf80: operator new(0x2c) + ctor FUN_06d9cfc0. Vtable .rdata:06db3cd0 =
@@ -1805,7 +1805,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_LOADHINT) == 0x2cu, "FLPACKET_SERVER_LOADHINT is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_LOADHINT) == 0x2cu, "FLPACKET_SERVER_LOADHINT is operator new(0x2c)");
 
 // FLPACKET_SERVER_SETDIRECTIVE -- id 0x2004e, registered at 06d9c055.
 // Factory FUN_06d9cff0: operator new(0xb4) + ctor FUN_06d9d030. Vtable .rdata:06db509c =
@@ -1863,7 +1863,7 @@ public:
     }
     unsigned char Body[0x94];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETDIRECTIVE) == 0xb4u, "FLPACKET_SERVER_SETDIRECTIVE is operator new(0xb4)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETDIRECTIVE) == 0xb4u, "FLPACKET_SERVER_SETDIRECTIVE is operator new(0xb4)");
 
 // FLPACKET_SERVER_CREATEGUIDED -- id 0x20037, registered at 06d9c06b.
 // Factory FUN_06d9c960: operator new(0x58) + ctor FUN_06d9c9a0. Vtable .rdata:06db500c =
@@ -1889,7 +1889,7 @@ public:
     }
     unsigned char Body[0x38];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATEGUIDED) == 0x58u, "FLPACKET_SERVER_CREATEGUIDED is operator new(0x58)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATEGUIDED) == 0x58u, "FLPACKET_SERVER_CREATEGUIDED is operator new(0x58)");
 
 // FLPACKET_SERVER_ITEMTRACTORED -- id 0x20038, registered at 06d9c081.
 // Factory FUN_06d9c9e0: operator new(0x2c) + ctor FUN_06d9ca20. Vtable .rdata:06db501c =
@@ -1912,7 +1912,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_ITEMTRACTORED) == 0x2cu, "FLPACKET_SERVER_ITEMTRACTORED is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_ITEMTRACTORED) == 0x2cu, "FLPACKET_SERVER_ITEMTRACTORED is operator new(0x2c)");
 
 // FLPACKET_SERVER_SETREMOVEITEM -- id 0x2002f, registered at 06d9c097.
 // Factory FUN_06d9c470: operator new(0x2c) + ctor FUN_06d9c4b0. Vtable .rdata:06db4fac =
@@ -1938,7 +1938,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETREMOVEITEM) == 0x2cu, "FLPACKET_SERVER_SETREMOVEITEM is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETREMOVEITEM) == 0x2cu, "FLPACKET_SERVER_SETREMOVEITEM is operator new(0x2c)");
 
 // FLPACKET_SERVER_SETADDITEM -- id 0x2002e, registered at 06d9c0ad.
 // Factory FUN_06d9c400: operator new(0x40) + ctor FUN_06d9c440. Vtable .rdata:06db3ee4 =
@@ -1966,7 +1966,7 @@ public:
     }
     unsigned char Body[0x20];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETADDITEM) == 0x40u, "FLPACKET_SERVER_SETADDITEM is operator new(0x40)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETADDITEM) == 0x40u, "FLPACKET_SERVER_SETADDITEM is operator new(0x40)");
 
 // FLPACKET_SERVER_SETCASH -- id 0x20030, registered at 06d9c0c3.
 // Factory FUN_06d9c390: operator new(0x24) + ctor FUN_06d9c3d0. Vtable .rdata:06db4f9c =
@@ -1985,7 +1985,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETCASH) == 0x24u, "FLPACKET_SERVER_SETCASH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETCASH) == 0x24u, "FLPACKET_SERVER_SETCASH is operator new(0x24)");
 
 // FLPACKET_SERVER_REQUESTSPACESCRIPT -- id 0x20032, registered at 06d9c0d9.
 // Factory FUN_06d9dad0: operator new(0x3c) + ctor FUN_06d9db10. Vtable .rdata:06db3ff8 =
@@ -2016,7 +2016,7 @@ public:
     }
     unsigned char Body[0x1c];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REQUESTSPACESCRIPT) == 0x3cu, "FLPACKET_SERVER_REQUESTSPACESCRIPT is operator new(0x3c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REQUESTSPACESCRIPT) == 0x3cu, "FLPACKET_SERVER_REQUESTSPACESCRIPT is operator new(0x3c)");
 
 // FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE -- id 0x20033, registered at 06d9c0ef.
 // Factory FUN_06d9d5f0: operator new(0x2c) + ctor FUN_06d9d630. Vtable .rdata:06db50fc =
@@ -2035,7 +2035,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE) == 0x2cu, "FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE) == 0x2cu, "FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE is operator new(0x2c)");
 
 // FLPACKET_SERVER_CFGINTERFACENOTIFICATION -- id 0x20047, registered at 06d9c105.
 // Factory FUN_06d9d6d0: operator new(0x2c) + ctor FUN_06d9d710. Vtable .rdata:06db511c =
@@ -2054,7 +2054,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CFGINTERFACENOTIFICATION) == 0x2cu, "FLPACKET_SERVER_CFGINTERFACENOTIFICATION is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CFGINTERFACENOTIFICATION) == 0x2cu, "FLPACKET_SERVER_CFGINTERFACENOTIFICATION is operator new(0x2c)");
 
 // FLPACKET_SERVER_MARKOBJ -- id 0x20046, registered at 06d9c11b.
 // Factory FUN_06d9d660: operator new(0x28) + ctor FUN_06d9d6a0. Vtable .rdata:06db510c =
@@ -2073,7 +2073,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_MARKOBJ) == 0x28u, "FLPACKET_SERVER_MARKOBJ is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_MARKOBJ) == 0x28u, "FLPACKET_SERVER_MARKOBJ is operator new(0x28)");
 
 // FLPACKET_SERVER_SETMISSIONOBJECTIVES -- id 0x20035, registered at 06d9c131.
 // Factory FUN_06d9da00: operator new(0x48) + ctor FUN_06d9da40. Vtable .rdata:06db3c90 =
@@ -2120,7 +2120,7 @@ public:
     }
     unsigned char Body[0x28];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONOBJECTIVES) == 0x48u, "FLPACKET_SERVER_SETMISSIONOBJECTIVES is operator new(0x48)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONOBJECTIVES) == 0x48u, "FLPACKET_SERVER_SETMISSIONOBJECTIVES is operator new(0x48)");
 
 // FLPACKET_SERVER_REPLACEMISSIONOBJECTIVE -- id 0x20034, registered at 06d9c147.
 // Factory FUN_06d9d740: operator new(0x30) + ctor FUN_06d9d780. Vtable .rdata:06db512c =
@@ -2147,7 +2147,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REPLACEMISSIONOBJECTIVE) == 0x30u, "FLPACKET_SERVER_REPLACEMISSIONOBJECTIVE is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REPLACEMISSIONOBJECTIVE) == 0x30u, "FLPACKET_SERVER_REPLACEMISSIONOBJECTIVE is operator new(0x30)");
 
 // FLPACKET_SERVER_SET_STORY_CUE -- id 0x20043, registered at 06d9c15d.
 // Factory FUN_06d9d7f0: operator new(0x24) + ctor FUN_06d9d830. Vtable .rdata:06db513c =
@@ -2166,7 +2166,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SET_STORY_CUE) == 0x24u, "FLPACKET_SERVER_SET_STORY_CUE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SET_STORY_CUE) == 0x24u, "FLPACKET_SERVER_SET_STORY_CUE is operator new(0x24)");
 
 // FLPACKET_SERVER_SET_CAMERA -- id 0x2004b, registered at 06d9c173.
 // Factory FUN_06d9d860: operator new(0x44) + ctor FUN_06d9d8a0. Vtable .rdata:06db514c =
@@ -2192,7 +2192,7 @@ public:
     }
     unsigned char Body[0x24];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SET_CAMERA) == 0x44u, "FLPACKET_SERVER_SET_CAMERA is operator new(0x44)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SET_CAMERA) == 0x44u, "FLPACKET_SERVER_SET_CAMERA is operator new(0x44)");
 
 // FLPACKET_SERVER_REVERT_CAMERA -- id 0x2004c, registered at 06d9c189.
 // Factory FUN_06d9d8e0: operator new(0x20) + ctor FUN_06d9d920. Vtable .rdata:06db515c =
@@ -2210,7 +2210,7 @@ public:
         return RpcDecodeWireEmpty(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REVERT_CAMERA) == 0x20u, "FLPACKET_SERVER_REVERT_CAMERA is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REVERT_CAMERA) == 0x20u, "FLPACKET_SERVER_REVERT_CAMERA is operator new(0x20)");
 
 // FLPACKET_SERVER_SET_MISSION_MESSAGE -- id 0x20045, registered at 06d9c19f.
 // Factory FUN_06d9d950: operator new(0x2c) + ctor FUN_06d9d990. Vtable .rdata:06db516c =
@@ -2237,7 +2237,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SET_MISSION_MESSAGE) == 0x2cu, "FLPACKET_SERVER_SET_MISSION_MESSAGE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SET_MISSION_MESSAGE) == 0x2cu, "FLPACKET_SERVER_SET_MISSION_MESSAGE is operator new(0x2c)");
 
 // FLPACKET_SERVER_REPAIROBJECT -- id 0x2003c, registered at 06d9c1b5.
 // Factory FUN_06d9e3a0: operator new(0x2c) + ctor FUN_06d9e3e0. Vtable .rdata:06db524c =
@@ -2262,7 +2262,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REPAIROBJECT) == 0x2cu, "FLPACKET_SERVER_REPAIROBJECT is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REPAIROBJECT) == 0x2cu, "FLPACKET_SERVER_REPAIROBJECT is operator new(0x2c)");
 
 // FLPACKET_SERVER_SETNUMKILLS -- id 0x2003e, registered at 06d9c1cb.
 // Factory FUN_06d9e410: operator new(0x24) + ctor FUN_06d9e450. Vtable .rdata:06db525c =
@@ -2281,7 +2281,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETNUMKILLS) == 0x24u, "FLPACKET_SERVER_SETNUMKILLS is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETNUMKILLS) == 0x24u, "FLPACKET_SERVER_SETNUMKILLS is operator new(0x24)");
 
 // FLPACKET_SERVER_SETMISSIONSUCCESSES -- id 0x2003f, registered at 06d9c1e1.
 // Factory FUN_06d9e480: operator new(0x24) + ctor FUN_06d9e4c0. Vtable .rdata:06db526c =
@@ -2300,7 +2300,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONSUCCESSES) == 0x24u, "FLPACKET_SERVER_SETMISSIONSUCCESSES is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONSUCCESSES) == 0x24u, "FLPACKET_SERVER_SETMISSIONSUCCESSES is operator new(0x24)");
 
 // FLPACKET_SERVER_SETMISSIONFAILURES -- id 0x20040, registered at 06d9c1f7.
 // Factory FUN_06d9e4f0: operator new(0x24) + ctor FUN_06d9e530. Vtable .rdata:06db527c =
@@ -2319,7 +2319,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONFAILURES) == 0x24u, "FLPACKET_SERVER_SETMISSIONFAILURES is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETMISSIONFAILURES) == 0x24u, "FLPACKET_SERVER_SETMISSIONFAILURES is operator new(0x24)");
 
 // FLPACKET_SERVER_BURNFUSE -- id 0x20041, registered at 06d9c20d.
 // Factory FUN_06d9e560: operator new(0x3c) + ctor FUN_06d9e5a0. Vtable .rdata:06db528c =
@@ -2345,7 +2345,7 @@ public:
     }
     unsigned char Body[0x1c];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_BURNFUSE) == 0x3cu, "FLPACKET_SERVER_BURNFUSE is operator new(0x3c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_BURNFUSE) == 0x3cu, "FLPACKET_SERVER_BURNFUSE is operator new(0x3c)");
 
 // FLPACKET_SERVER_CREATESOLAR -- id 0x20042, registered at 06d9c223.
 // Factory FUN_06d9e5f0: operator new(0xb8) + ctor FUN_06d9e630. Vtable .rdata:06db529c =
@@ -2386,7 +2386,7 @@ public:
     }
     FPayloadServerCreateSolar Wire;   // +0x20; retail's class is operator new(0xb8)
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CREATESOLAR) == 0x20u + sizeof(FPayloadServerCreateSolar),
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CREATESOLAR) == 0x20u + sizeof(FPayloadServerCreateSolar),
               "FLPACKET_SERVER_CREATESOLAR: the payload member starts at +0x20");
 
 // FLPACKET_SERVER_SETCOLLISIONGROUPS -- id 0x20048, registered at 06d9c239.
@@ -2413,7 +2413,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETCOLLISIONGROUPS) == 0x2cu, "FLPACKET_SERVER_SETCOLLISIONGROUPS is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETCOLLISIONGROUPS) == 0x2cu, "FLPACKET_SERVER_SETCOLLISIONGROUPS is operator new(0x2c)");
 
 // FLPACKET_SERVER_SETHULLSTATUS -- id 0x20049, registered at 06d9c24f.
 // Factory FUN_06d9e990: operator new(0x24) + ctor FUN_06d9e9d0. Vtable .rdata:06db52bc =
@@ -2433,7 +2433,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETHULLSTATUS) == 0x24u, "FLPACKET_SERVER_SETHULLSTATUS is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETHULLSTATUS) == 0x24u, "FLPACKET_SERVER_SETHULLSTATUS is operator new(0x24)");
 
 // FLPACKET_SERVER_SETGUIDEDTARGET -- id 0x2004a, registered at 06d9c265.
 // Factory FUN_06d9ea00: operator new(0x2c) + ctor FUN_06d9ea40. Vtable .rdata:06db52cc =
@@ -2455,7 +2455,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SETGUIDEDTARGET) == 0x2cu, "FLPACKET_SERVER_SETGUIDEDTARGET is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SETGUIDEDTARGET) == 0x2cu, "FLPACKET_SERVER_SETGUIDEDTARGET is operator new(0x2c)");
 
 // FLPACKET_SERVER_SENDCOMM -- id 0x2004f, registered at 06d9c27b.
 // Factory FUN_06d9ea70: operator new(0x78) + ctor FUN_06d9eab0. Vtable .rdata:06db52dc =
@@ -2488,7 +2488,7 @@ public:
     }
     unsigned char Body[0x58];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SENDCOMM) == 0x78u, "FLPACKET_SERVER_SENDCOMM is operator new(0x78)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SENDCOMM) == 0x78u, "FLPACKET_SERVER_SENDCOMM is operator new(0x78)");
 
 // FLPACKET_SERVER_USE_ITEM -- id 0x20051, registered at 06d9c291.
 // Factory FUN_06d9eb40: operator new(0x28) + ctor FUN_06d9eb80. Vtable .rdata:06db52ec =
@@ -2510,7 +2510,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_USE_ITEM) == 0x28u, "FLPACKET_SERVER_USE_ITEM is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_USE_ITEM) == 0x28u, "FLPACKET_SERVER_USE_ITEM is operator new(0x28)");
 
 // FLPACKET_SERVER_SCANNOTIFY -- id 0x20039, registered at 06d9c2a7.
 // Factory FUN_06d9ebb0: operator new(0x28) + ctor FUN_06d9ebf0. Vtable .rdata:06db52fc =
@@ -2529,7 +2529,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SCANNOTIFY) == 0x28u, "FLPACKET_SERVER_SCANNOTIFY is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SCANNOTIFY) == 0x28u, "FLPACKET_SERVER_SCANNOTIFY is operator new(0x28)");
 
 // FLPACKET_SERVER_PLAYERLIST -- id 0x20052, registered at 06d9c2bd.
 // Factory FUN_06d9ec20: operator new(0x30) + ctor FUN_06d9ec60. Vtable .rdata:06db4038 =
@@ -2560,7 +2560,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_PLAYERLIST) == 0x30u, "FLPACKET_SERVER_PLAYERLIST is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_PLAYERLIST) == 0x30u, "FLPACKET_SERVER_PLAYERLIST is operator new(0x30)");
 
 // FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE -- id 0x2003d, registered at 06d9c2d3.
 // Factory FUN_06d9eca0: operator new(0x2c) + ctor FUN_06d9ece0. Vtable .rdata:06db3c70 =
@@ -2586,7 +2586,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x24
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE) == 0x2cu, "FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE) == 0x2cu, "FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE is operator new(0x2c)");
 
 // FLPACKET_SERVER_MISCOBJUPDATE -- id 0x20054, registered at 06d9c2e9.
 // Factory FUN_06d9ed80: operator new(0x6c) + ctor FUN_06d9edc0. Vtable .rdata:06db4018 =
@@ -2622,7 +2622,7 @@ public:
     }
     FPayloadServerMiscObjUpdate Wire;   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_MISCOBJUPDATE) == 0x20u + sizeof(FPayloadServerMiscObjUpdate),
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_MISCOBJUPDATE) == 0x20u + sizeof(FPayloadServerMiscObjUpdate),
               "FLPACKET_SERVER_MISCOBJUPDATE: the payload member starts at +0x20");
 
 // FLPACKET_SERVER_FORMATION_UPDATE -- id 0x20053, registered at 06d9c2ff.
@@ -2646,7 +2646,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_FORMATION_UPDATE) == 0x30u, "FLPACKET_SERVER_FORMATION_UPDATE is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_FORMATION_UPDATE) == 0x30u, "FLPACKET_SERVER_FORMATION_UPDATE is operator new(0x30)");
 
 // FLPACKET_SERVER_OBJECTCARGOUPDATE -- id 0x20055, registered at 06d9c315.
 // Factory FUN_06d9ee30: operator new(0x34) + ctor FUN_06d9ee70. Vtable .rdata:06db531c =
@@ -2675,7 +2675,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_OBJECTCARGOUPDATE) == 0x34u, "FLPACKET_SERVER_OBJECTCARGOUPDATE is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_OBJECTCARGOUPDATE) == 0x34u, "FLPACKET_SERVER_OBJECTCARGOUPDATE is operator new(0x34)");
 
 // FLPACKET_SERVER_SENDNNMESSAGE -- id 0x20056, registered at 06d9c32b.
 // Factory FUN_06d9eed0: operator new(0x24) + ctor FUN_06d9ef10. Vtable .rdata:06db532c =
@@ -2695,7 +2695,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SENDNNMESSAGE) == 0x24u, "FLPACKET_SERVER_SENDNNMESSAGE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SENDNNMESSAGE) == 0x24u, "FLPACKET_SERVER_SENDNNMESSAGE is operator new(0x24)");
 
 // FLPACKET_SERVER_SET_MUSIC -- id 0x20057, registered at 06d9c341.
 // Factory FUN_06d9ef40: operator new(0x38) + ctor FUN_06d9ef80. Vtable .rdata:06db533c =
@@ -2714,7 +2714,7 @@ public:
     }
     unsigned char Body[0x18];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_SET_MUSIC) == 0x38u, "FLPACKET_SERVER_SET_MUSIC is operator new(0x38)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_SET_MUSIC) == 0x38u, "FLPACKET_SERVER_SET_MUSIC is operator new(0x38)");
 
 // FLPACKET_SERVER_CANCEL_MUSIC -- id 0x20058, registered at 06d9c357.
 // Factory FUN_06d9efb0: operator new(0x20) + ctor FUN_06d9eff0. Vtable .rdata:06db534c =
@@ -2732,7 +2732,7 @@ public:
         return RpcDecodeWireEmpty(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_CANCEL_MUSIC) == 0x20u, "FLPACKET_SERVER_CANCEL_MUSIC is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_CANCEL_MUSIC) == 0x20u, "FLPACKET_SERVER_CANCEL_MUSIC is operator new(0x20)");
 
 // FLPACKET_SERVER_PLAY_SOUND_EFFECT -- id 0x20059, registered at 06d9c36d.
 // Factory FUN_06d9f020: operator new(0x24) + ctor FUN_06d9f060. Vtable .rdata:06db535c =
@@ -2751,7 +2751,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_SERVER_PLAY_SOUND_EFFECT) == 0x24u, "FLPACKET_SERVER_PLAY_SOUND_EFFECT is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_SERVER_PLAY_SOUND_EFFECT) == 0x24u, "FLPACKET_SERVER_PLAY_SOUND_EFFECT is operator new(0x24)");
 
 // ===========================================================================
 // Channel 3 -- the classes registered by FUN_06d9f100, in its registration order.
@@ -2774,7 +2774,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQCHANGECASH) == 0x24u, "FLPACKET_CLIENT_REQCHANGECASH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQCHANGECASH) == 0x24u, "FLPACKET_CLIENT_REQCHANGECASH is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQSETCASH -- id 0x3001b, registered at 06d9f123.
 // Factory FUN_06d9f840: operator new(0x24) + ctor FUN_06da05a0. Vtable .rdata:06db5b04 =
@@ -2793,7 +2793,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQSETCASH) == 0x24u, "FLPACKET_CLIENT_REQSETCASH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQSETCASH) == 0x24u, "FLPACKET_CLIENT_REQSETCASH is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQREMOVEITEM -- id 0x30019, registered at 06d9f139.
 // Factory FUN_06d9f880: operator new(0x28) + ctor FUN_06da05d0. Vtable .rdata:06db5b14 =
@@ -2818,7 +2818,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQREMOVEITEM) == 0x28u, "FLPACKET_CLIENT_REQREMOVEITEM is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQREMOVEITEM) == 0x28u, "FLPACKET_CLIENT_REQREMOVEITEM is operator new(0x28)");
 
 // FLPACKET_CLIENT_REQMODIFYITEM -- id 0x3001a, registered at 06d9f14f.
 // Factory FUN_06d9f900: operator new(0x38) + ctor FUN_06da0660. Vtable .rdata:06db4070 =
@@ -2849,7 +2849,7 @@ public:
     }
     unsigned char Body[0x18];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQMODIFYITEM) == 0x38u, "FLPACKET_CLIENT_REQMODIFYITEM is operator new(0x38)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQMODIFYITEM) == 0x38u, "FLPACKET_CLIENT_REQMODIFYITEM is operator new(0x38)");
 
 // FLPACKET_CLIENT_REQCARGO -- id 0x30017, registered at 06d9f165.
 // Factory FUN_06d9f940: operator new(0x24) + ctor FUN_06da06a0. Vtable .rdata:06db3dfc =
@@ -2872,7 +2872,7 @@ public:
         return RpcDecodeWireEquipList(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQCARGO) == 0x24u, "FLPACKET_CLIENT_REQCARGO is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQCARGO) == 0x24u, "FLPACKET_CLIENT_REQCARGO is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQADDITEM -- id 0x30018, registered at 06d9f17b.
 // Factory FUN_06d9f8c0: operator new(0x38) + ctor FUN_06da0620. Vtable .rdata:06db4054 =
@@ -2903,7 +2903,7 @@ public:
     }
     unsigned char Body[0x18];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQADDITEM) == 0x38u, "FLPACKET_CLIENT_REQADDITEM is operator new(0x38)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQADDITEM) == 0x38u, "FLPACKET_CLIENT_REQADDITEM is operator new(0x38)");
 
 // FLPACKET_CLIENT_REQSHIPARCH -- id 0x30015, registered at 06d9f191.
 // Factory FUN_06d9f9c0: operator new(0x24) + ctor FUN_06da0730. Vtable .rdata:06db5b34 =
@@ -2922,7 +2922,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQSHIPARCH) == 0x24u, "FLPACKET_CLIENT_REQSHIPARCH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQSHIPARCH) == 0x24u, "FLPACKET_CLIENT_REQSHIPARCH is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQEQUIPMENT -- id 0x30016, registered at 06d9f1a7.
 // Factory FUN_06d9f980: operator new(0x24) + ctor FUN_06da0700. Vtable .rdata:06db3de0 =
@@ -2945,7 +2945,7 @@ public:
         return RpcDecodeWireEquipList(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQEQUIPMENT) == 0x24u, "FLPACKET_CLIENT_REQEQUIPMENT is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQEQUIPMENT) == 0x24u, "FLPACKET_CLIENT_REQEQUIPMENT is operator new(0x24)");
 
 // FLPACKET_CLIENT_MUNCOLLISION -- id 0x30003, registered at 06d9f1bd.
 // Factory FUN_06d9fbc0: operator new(0x3c) + ctor FUN_06da0790. Vtable .rdata:06db5b54 =
@@ -2971,7 +2971,7 @@ public:
     }
     unsigned char Body[0x1c];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_MUNCOLLISION) == 0x3cu, "FLPACKET_CLIENT_MUNCOLLISION is operator new(0x3c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_MUNCOLLISION) == 0x3cu, "FLPACKET_CLIENT_MUNCOLLISION is operator new(0x3c)");
 
 // FLPACKET_CLIENT_BADLANDSOBJCOLLISION -- id 0x3003d, registered at 06d9f1d3.
 // Factory FUN_06d9fc00: operator new(0x2c) + ctor FUN_06da07e0. Vtable .rdata:06db5b64 =
@@ -2993,7 +2993,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_BADLANDSOBJCOLLISION) == 0x2cu, "FLPACKET_CLIENT_BADLANDSOBJCOLLISION is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_BADLANDSOBJCOLLISION) == 0x2cu, "FLPACKET_CLIENT_BADLANDSOBJCOLLISION is operator new(0x2c)");
 
 // FLPACKET_CLIENT_OBJCOLLISION -- id 0x3000c, registered at 06d9f1e9.
 // Factory FUN_06d9fc40: operator new(0x34) + ctor FUN_06da0810. Vtable .rdata:06db5b74 =
@@ -3017,7 +3017,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_OBJCOLLISION) == 0x34u, "FLPACKET_CLIENT_OBJCOLLISION is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_OBJCOLLISION) == 0x34u, "FLPACKET_CLIENT_OBJCOLLISION is operator new(0x34)");
 
 // FLPACKET_CLIENT_REQUEST_EVENT -- id 0x30031, registered at 06d9f1ff.
 // Factory FUN_06d9fc80: operator new(0x34) + ctor FUN_06da1050. Vtable .rdata:06db5dd4 =
@@ -3036,7 +3036,7 @@ public:
     }
     unsigned char Body[0x14];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_EVENT) == 0x34u, "FLPACKET_CLIENT_REQUEST_EVENT is operator new(0x34)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_EVENT) == 0x34u, "FLPACKET_CLIENT_REQUEST_EVENT is operator new(0x34)");
 
 // FLPACKET_CLIENT_REQUEST_CANCEL -- id 0x30032, registered at 06d9f215.
 // Factory FUN_06d9fcc0: operator new(0x30) + ctor FUN_06da1080. Vtable .rdata:06db5de4 =
@@ -3055,7 +3055,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_CANCEL) == 0x30u, "FLPACKET_CLIENT_REQUEST_CANCEL is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_CANCEL) == 0x30u, "FLPACKET_CLIENT_REQUEST_CANCEL is operator new(0x30)");
 
 // FLPACKET_CLIENT_CARGOSCAN -- id 0x3002b, registered at 06d9f22b.
 // Factory FUN_06d9fd00: operator new(0x28) + ctor FUN_06da06d0. Vtable .rdata:06db5b24 =
@@ -3074,7 +3074,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_CARGOSCAN) == 0x28u, "FLPACKET_CLIENT_CARGOSCAN is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_CARGOSCAN) == 0x28u, "FLPACKET_CLIENT_CARGOSCAN is operator new(0x28)");
 
 // FLPACKET_CLIENT_REQUESTLAUNCH -- id 0x30004, registered at 06d9f241.
 // Factory FUN_06d9ffc0: operator new(0x24) + ctor FUN_06da0a30. Vtable .rdata:06db5c14 =
@@ -3096,7 +3096,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTLAUNCH) == 0x24u, "FLPACKET_CLIENT_REQUESTLAUNCH is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTLAUNCH) == 0x24u, "FLPACKET_CLIENT_REQUESTLAUNCH is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQUESTCHARINFO -- id 0x30005, registered at 06d9f257.
 // Factory FUN_06da0040: operator new(0x20) + ctor FUN_06da0af0. Vtable .rdata:06db5c44 =
@@ -3106,7 +3106,7 @@ public:
     FPacket_FLPACKET_CLIENT_REQUESTCHARINFO() : FPacketBase(0x30005u) {
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTCHARINFO) == 0x20u, "FLPACKET_CLIENT_REQUESTCHARINFO is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTCHARINFO) == 0x20u, "FLPACKET_CLIENT_REQUESTCHARINFO is operator new(0x20)");
 
 // FLPACKET_CLIENT_SKIP_AUTOSAVE -- id 0x30042, registered at 06d9f26d.
 // Factory FUN_06da0080: operator new(0x20) + ctor FUN_06da0b20. Vtable .rdata:06db5c54 =
@@ -3116,7 +3116,7 @@ public:
     FPacket_FLPACKET_CLIENT_SKIP_AUTOSAVE() : FPacketBase(0x30042u) {
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_SKIP_AUTOSAVE) == 0x20u, "FLPACKET_CLIENT_SKIP_AUTOSAVE is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_SKIP_AUTOSAVE) == 0x20u, "FLPACKET_CLIENT_SKIP_AUTOSAVE is operator new(0x20)");
 
 // FLPACKET_CLIENT_SELECTCHARACTER -- id 0x30006, registered at 06d9f283.
 // Factory FUN_06da00c0: operator new(0x220) + ctor FUN_06da0be0. Vtable .rdata:06db5c94 =
@@ -3139,7 +3139,7 @@ public:
     }
     unsigned char Body[0x200];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_SELECTCHARACTER) == 0x220u, "FLPACKET_CLIENT_SELECTCHARACTER is operator new(0x220)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_SELECTCHARACTER) == 0x220u, "FLPACKET_CLIENT_SELECTCHARACTER is operator new(0x220)");
 
 // FLPACKET_CLIENT_COMMCOMPLETE -- id 0x30037, registered at 06d9f299.
 // Factory FUN_06da0100: operator new(0x30) + ctor FUN_06da0a90. Vtable .rdata:06db5c24 =
@@ -3158,7 +3158,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_COMMCOMPLETE) == 0x30u, "FLPACKET_CLIENT_COMMCOMPLETE is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_COMMCOMPLETE) == 0x30u, "FLPACKET_CLIENT_COMMCOMPLETE is operator new(0x30)");
 
 // FLPACKET_CLIENT_REQUESTNEWCHARINFO -- id 0x30038, registered at 06d9f2af.
 // Factory FUN_06da0140: operator new(0x20) + ctor FUN_06da0b50. Vtable .rdata:06db5c64 =
@@ -3168,7 +3168,7 @@ public:
     FPacket_FLPACKET_CLIENT_REQUESTNEWCHARINFO() : FPacketBase(0x30038u) {
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTNEWCHARINFO) == 0x20u, "FLPACKET_CLIENT_REQUESTNEWCHARINFO is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTNEWCHARINFO) == 0x20u, "FLPACKET_CLIENT_REQUESTNEWCHARINFO is operator new(0x20)");
 
 // FLPACKET_CLIENT_CREATENEWCHAR -- id 0x30039, registered at 06d9f2c5.
 // Factory FUN_06da0180: operator new(0xb0) + ctor FUN_06da0b80. Vtable .rdata:06db5c74 =
@@ -3190,7 +3190,7 @@ public:
     }
     unsigned char Body[0x90];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_CREATENEWCHAR) == 0xb0u, "FLPACKET_CLIENT_CREATENEWCHAR is operator new(0xb0)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_CREATENEWCHAR) == 0xb0u, "FLPACKET_CLIENT_CREATENEWCHAR is operator new(0xb0)");
 
 // FLPACKET_CLIENT_DESTROYCHAR -- id 0x3003a, registered at 06d9f2db.
 // Factory FUN_06da01c0: operator new(0x220) + ctor FUN_06da0bb0. Vtable .rdata:06db5c84 =
@@ -3213,7 +3213,7 @@ public:
     }
     unsigned char Body[0x200];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DESTROYCHAR) == 0x220u, "FLPACKET_CLIENT_DESTROYCHAR is operator new(0x220)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DESTROYCHAR) == 0x220u, "FLPACKET_CLIENT_DESTROYCHAR is operator new(0x220)");
 
 // FLPACKET_CLIENT_LOGIN -- id 0x30001, registered at 06d9f2f1.
 // Factory FUN_06da0200: operator new(0x424) + ctor FUN_06da0c10. Vtable .rdata:06db5ca4 =
@@ -3235,7 +3235,7 @@ public:
     }
     unsigned char Body[0x404];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_LOGIN) == 0x424u, "FLPACKET_CLIENT_LOGIN is operator new(0x424)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_LOGIN) == 0x424u, "FLPACKET_CLIENT_LOGIN is operator new(0x424)");
 
 // FLPACKET_CLIENT_ENTERBASE -- id 0x30007, registered at 06d9f307.
 // Factory FUN_06d9fec0: operator new(0x24) + ctor FUN_06da0970. Vtable .rdata:06db5bd4 =
@@ -3254,7 +3254,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_ENTERBASE) == 0x24u, "FLPACKET_CLIENT_ENTERBASE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_ENTERBASE) == 0x24u, "FLPACKET_CLIENT_ENTERBASE is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQUESTBASEINFO -- id 0x30008, registered at 06d9f31d.
 // Factory FUN_06d9ff40: operator new(0x28) + ctor FUN_06da09d0. Vtable .rdata:06db5bf4 =
@@ -3273,7 +3273,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTBASEINFO) == 0x28u, "FLPACKET_CLIENT_REQUESTBASEINFO is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTBASEINFO) == 0x28u, "FLPACKET_CLIENT_REQUESTBASEINFO is operator new(0x28)");
 
 // FLPACKET_CLIENT_REQUESTLOCATIONINFO -- id 0x30009, registered at 06d9f333.
 // Factory FUN_06d9ff80: operator new(0x28) + ctor FUN_06da0a00. Vtable .rdata:06db5c04 =
@@ -3292,7 +3292,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTLOCATIONINFO) == 0x28u, "FLPACKET_CLIENT_REQUESTLOCATIONINFO is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTLOCATIONINFO) == 0x28u, "FLPACKET_CLIENT_REQUESTLOCATIONINFO is operator new(0x28)");
 
 // FLPACKET_CLIENT_GFREQUESTSHIPINFO -- id 0x3000a, registered at 06d9f349.
 // Factory FUN_06da0240: operator new(0x20) + ctor FUN_06da0c40. Vtable .rdata:06db5cb4 =
@@ -3302,7 +3302,7 @@ public:
     FPacket_FLPACKET_CLIENT_GFREQUESTSHIPINFO() : FPacketBase(0x3000au) {
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_GFREQUESTSHIPINFO) == 0x20u, "FLPACKET_CLIENT_GFREQUESTSHIPINFO is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_GFREQUESTSHIPINFO) == 0x20u, "FLPACKET_CLIENT_GFREQUESTSHIPINFO is operator new(0x20)");
 
 // FLPACKET_CLIENT_SYSTEM_SWITCH_OUT_COMPLETE -- id 0x3000b, registered at 06d9f35f.
 // Factory FUN_06d9fd80: operator new(0x24) + ctor FUN_06da0880. Vtable .rdata:06db5b94 =
@@ -3321,7 +3321,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_SYSTEM_SWITCH_OUT_COMPLETE) == 0x24u, "FLPACKET_CLIENT_SYSTEM_SWITCH_OUT_COMPLETE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_SYSTEM_SWITCH_OUT_COMPLETE) == 0x24u, "FLPACKET_CLIENT_SYSTEM_SWITCH_OUT_COMPLETE is operator new(0x24)");
 
 // FLPACKET_CLIENT_EXITBASE -- id 0x3000d, registered at 06d9f375.
 // Factory FUN_06d9ff00: operator new(0x24) + ctor FUN_06da09a0. Vtable .rdata:06db5be4 =
@@ -3340,7 +3340,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_EXITBASE) == 0x24u, "FLPACKET_CLIENT_EXITBASE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_EXITBASE) == 0x24u, "FLPACKET_CLIENT_EXITBASE is operator new(0x24)");
 
 // FLPACKET_CLIENT_ENTERLOCATION -- id 0x3000e, registered at 06d9f38b.
 // Factory FUN_06d9fe40: operator new(0x24) + ctor FUN_06da0910. Vtable .rdata:06db5bb4 =
@@ -3359,7 +3359,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_ENTERLOCATION) == 0x24u, "FLPACKET_CLIENT_ENTERLOCATION is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_ENTERLOCATION) == 0x24u, "FLPACKET_CLIENT_ENTERLOCATION is operator new(0x24)");
 
 // FLPACKET_CLIENT_EXITLOCATION -- id 0x3000f, registered at 06d9f3a1.
 // Factory FUN_06d9fe80: operator new(0x24) + ctor FUN_06da0940. Vtable .rdata:06db5bc4 =
@@ -3378,7 +3378,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_EXITLOCATION) == 0x24u, "FLPACKET_CLIENT_EXITLOCATION is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_EXITLOCATION) == 0x24u, "FLPACKET_CLIENT_EXITLOCATION is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQUESTCREATESHIP -- id 0x30010, registered at 06d9f3b7.
 // Factory FUN_06d9fa00: operator new(0x20) + ctor FUN_06da0760. Vtable .rdata:06db5b44 =
@@ -3388,7 +3388,7 @@ public:
     FPacket_FLPACKET_CLIENT_REQUESTCREATESHIP() : FPacketBase(0x30010u) {
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUESTCREATESHIP) == 0x20u, "FLPACKET_CLIENT_REQUESTCREATESHIP is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUESTCREATESHIP) == 0x20u, "FLPACKET_CLIENT_REQUESTCREATESHIP is operator new(0x20)");
 
 // FLPACKET_CLIENT_INTERFACEITEMUSED -- id 0x30035, registered at 06d9f3cd.
 // Factory FUN_06d9fa40: operator new(0x24) + ctor FUN_06da0cd0. Vtable .rdata:06db5ce4 =
@@ -3407,7 +3407,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_INTERFACEITEMUSED) == 0x24u, "FLPACKET_CLIENT_INTERFACEITEMUSED is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_INTERFACEITEMUSED) == 0x24u, "FLPACKET_CLIENT_INTERFACEITEMUSED is operator new(0x24)");
 
 // FLPACKET_CLIENT_RTCDONE -- id 0x30047, registered at 06d9f3e3.
 // Factory FUN_06d9fa80: operator new(0x24) + ctor FUN_06da0d00. Vtable .rdata:06db5cf4 =
@@ -3427,7 +3427,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_RTCDONE) == 0x24u, "FLPACKET_CLIENT_RTCDONE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_RTCDONE) == 0x24u, "FLPACKET_CLIENT_RTCDONE is operator new(0x24)");
 
 // FLPACKET_CLIENT_ABORT_MISSION -- id 0x30041, registered at 06d9f3f9.
 // Factory FUN_06d9fac0: operator new(0x24) + ctor FUN_06da0d30. Vtable .rdata:06db5d04 =
@@ -3446,7 +3446,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_ABORT_MISSION) == 0x24u, "FLPACKET_CLIENT_ABORT_MISSION is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_ABORT_MISSION) == 0x24u, "FLPACKET_CLIENT_ABORT_MISSION is operator new(0x24)");
 
 // FLPACKET_CLIENT_LAUNCHCOMPLETE -- id 0x3003e, registered at 06d9f40f.
 // Factory FUN_06d9fb00: operator new(0x28) + ctor FUN_06da0d60. Vtable .rdata:06db5d14 =
@@ -3465,7 +3465,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_LAUNCHCOMPLETE) == 0x28u, "FLPACKET_CLIENT_LAUNCHCOMPLETE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_LAUNCHCOMPLETE) == 0x28u, "FLPACKET_CLIENT_LAUNCHCOMPLETE is operator new(0x28)");
 
 // FLPACKET_CLIENT_JUMPINCOMPLETE -- id 0x30043, registered at 06d9f425.
 // Factory FUN_06d9fb40: operator new(0x28) + ctor FUN_06da0d90. Vtable .rdata:06db5d24 =
@@ -3486,7 +3486,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_JUMPINCOMPLETE) == 0x28u, "FLPACKET_CLIENT_JUMPINCOMPLETE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_JUMPINCOMPLETE) == 0x28u, "FLPACKET_CLIENT_JUMPINCOMPLETE is operator new(0x28)");
 
 // FLPACKET_CLIENT_HAIL -- id 0x3003f, registered at 06d9f43b.
 // Factory FUN_06d9fb80: operator new(0x2c) + ctor FUN_06da1180. Vtable .rdata:06db5e14 =
@@ -3508,7 +3508,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_HAIL) == 0x2cu, "FLPACKET_CLIENT_HAIL is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_HAIL) == 0x2cu, "FLPACKET_CLIENT_HAIL is operator new(0x2c)");
 
 // FLPACKET_CLIENT_GFGOODBUY -- id 0x30012, registered at 06d9f451.
 // Factory FUN_06da0280: operator new(0x30) + ctor FUN_06da0c70. Vtable .rdata:06db5cc4 =
@@ -3527,7 +3527,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_GFGOODBUY) == 0x30u, "FLPACKET_CLIENT_GFGOODBUY is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_GFGOODBUY) == 0x30u, "FLPACKET_CLIENT_GFGOODBUY is operator new(0x30)");
 
 // FLPACKET_CLIENT_GFGOODSELL -- id 0x30011, registered at 06d9f467.
 // Factory FUN_06da02c0: operator new(0x2c) + ctor FUN_06da0ca0. Vtable .rdata:06db5cd4 =
@@ -3546,7 +3546,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_GFGOODSELL) == 0x2cu, "FLPACKET_CLIENT_GFGOODSELL is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_GFGOODSELL) == 0x2cu, "FLPACKET_CLIENT_GFGOODSELL is operator new(0x2c)");
 
 // FLPACKET_CLIENT_GFGOODVAPORIZED -- id 0x3003c, registered at 06d9f47d.
 // Factory FUN_06da0300: operator new(0x2c) + ctor FUN_06da0dc0. Vtable .rdata:06db5d34 =
@@ -3565,7 +3565,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_GFGOODVAPORIZED) == 0x2cu, "FLPACKET_CLIENT_GFGOODVAPORIZED is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_GFGOODVAPORIZED) == 0x2cu, "FLPACKET_CLIENT_GFGOODVAPORIZED is operator new(0x2c)");
 
 // FLPACKET_CLIENT_GFSELECTOBJECT -- id 0x30013, registered at 06d9f493.
 // Factory FUN_06da0340: operator new(0x24) + ctor FUN_06da0df0. Vtable .rdata:06db5d44 =
@@ -3584,7 +3584,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_GFSELECTOBJECT) == 0x24u, "FLPACKET_CLIENT_GFSELECTOBJECT is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_GFSELECTOBJECT) == 0x24u, "FLPACKET_CLIENT_GFSELECTOBJECT is operator new(0x24)");
 
 // FLPACKET_CLIENT_SAVEGAME -- id 0x3001e, registered at 06d9f4a9.
 // Factory FUN_06da0000: operator new(0x228) + ctor FUN_06da0a60. Vtable .rdata:06db40a8 =
@@ -3610,7 +3610,7 @@ public:
     }
     unsigned char Body[0x208];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_SAVEGAME) == 0x228u, "FLPACKET_CLIENT_SAVEGAME is operator new(0x228)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_SAVEGAME) == 0x228u, "FLPACKET_CLIENT_SAVEGAME is operator new(0x228)");
 
 // FLPACKET_CLIENT_MINEASTEROID -- id 0x30020, registered at 06d9f4bf.
 // Factory FUN_06d9fd40: operator new(0x3c) + ctor FUN_06da0850. Vtable .rdata:06db5b84 =
@@ -3632,7 +3632,7 @@ public:
     }
     unsigned char Body[0x1c];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_MINEASTEROID) == 0x3cu, "FLPACKET_CLIENT_MINEASTEROID is operator new(0x3c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_MINEASTEROID) == 0x3cu, "FLPACKET_CLIENT_MINEASTEROID is operator new(0x3c)");
 
 // FLPACKET_CLIENT_MISSIONRESPONSE -- id 0x30014, registered at 06d9f4d5.
 // Factory FUN_06d9fdc0: operator new(0x2c) + ctor FUN_06da08b0. Vtable .rdata:06db5ba4 =
@@ -3651,7 +3651,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_MISSIONRESPONSE) == 0x2cu, "FLPACKET_CLIENT_MISSIONRESPONSE is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_MISSIONRESPONSE) == 0x2cu, "FLPACKET_CLIENT_MISSIONRESPONSE is operator new(0x2c)");
 
 // FLPACKET_CLIENT_TRADERESPONSE -- id 0x30027, registered at 06d9f4eb.
 // Factory FUN_06d9fe00: operator new(0x28) + ctor FUN_06da08e0. Vtable .rdata:06db408c =
@@ -3677,7 +3677,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_TRADERESPONSE) == 0x28u, "FLPACKET_CLIENT_TRADERESPONSE is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_TRADERESPONSE) == 0x28u, "FLPACKET_CLIENT_TRADERESPONSE is operator new(0x28)");
 
 // FLPACKET_CLIENT_DBGCREATESHIP -- id 0x30022, registered at 06d9f501.
 // Factory FUN_06d9f680: operator new(0x90) + ctor FUN_06da0e20. Vtable .rdata:06db5d54 =
@@ -3734,7 +3734,7 @@ public:
     }
     unsigned char Body[0x70];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGCREATESHIP) == 0x90u, "FLPACKET_CLIENT_DBGCREATESHIP is operator new(0x90)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGCREATESHIP) == 0x90u, "FLPACKET_CLIENT_DBGCREATESHIP is operator new(0x90)");
 
 // FLPACKET_CLIENT_DBGLOADSYSTEM -- id 0x30023, registered at 06d9f517.
 // Factory FUN_06d9f6c0: operator new(0x28) + ctor FUN_06da0ec0. Vtable .rdata:06db5d64 =
@@ -3761,7 +3761,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGLOADSYSTEM) == 0x28u, "FLPACKET_CLIENT_DBGLOADSYSTEM is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGLOADSYSTEM) == 0x28u, "FLPACKET_CLIENT_DBGLOADSYSTEM is operator new(0x28)");
 
 // FLPACKET_CLIENT_DBGFREESYSTEM -- id 0x3002e, registered at 06d9f52d.
 // Factory FUN_06d9f700: operator new(0x20) + ctor FUN_06da0f10. Vtable .rdata:06db5d74 =
@@ -3783,7 +3783,7 @@ public:
         return RpcDecodeWireEmpty(*this, Buffer, Size, OutLength);
     }
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGFREESYSTEM) == 0x20u, "FLPACKET_CLIENT_DBGFREESYSTEM is operator new(0x20)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGFREESYSTEM) == 0x20u, "FLPACKET_CLIENT_DBGFREESYSTEM is operator new(0x20)");
 
 // FLPACKET_CLIENT_DOCK -- id 0x30024, registered at 06d9f543.
 // Factory FUN_06d9f740: operator new(0x24) + ctor FUN_06da0f60. Vtable .rdata:06db5d84 =
@@ -3802,7 +3802,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DOCK) == 0x24u, "FLPACKET_CLIENT_DOCK is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DOCK) == 0x24u, "FLPACKET_CLIENT_DOCK is operator new(0x24)");
 
 // FLPACKET_CLIENT_DBGCONSOLE -- id 0x3002d, registered at 06d9f559.
 // Factory FUN_06d9f780: operator new(0xa4) + ctor FUN_06da0ff0. Vtable .rdata:06db5db4 =
@@ -3822,7 +3822,7 @@ public:
     }
     unsigned char Body[0x84];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGCONSOLE) == 0xa4u, "FLPACKET_CLIENT_DBGCONSOLE is operator new(0xa4)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGCONSOLE) == 0xa4u, "FLPACKET_CLIENT_DBGCONSOLE is operator new(0xa4)");
 
 // FLPACKET_CLIENT_DBGDESTROYOBJECT -- id 0x30025, registered at 06d9f56f.
 // Factory FUN_06d9f7c0: operator new(0x28) + ctor FUN_06da0f90. Vtable .rdata:06db5d94 =
@@ -3841,7 +3841,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGDESTROYOBJECT) == 0x28u, "FLPACKET_CLIENT_DBGDESTROYOBJECT is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGDESTROYOBJECT) == 0x28u, "FLPACKET_CLIENT_DBGDESTROYOBJECT is operator new(0x28)");
 
 // FLPACKET_CLIENT_DBGRELOCATE_SHIP -- id 0x30030, registered at 06d9f585.
 // Factory FUN_06d9f800: operator new(0x30) + ctor FUN_06da0fc0. Vtable .rdata:06db5da4 =
@@ -3863,7 +3863,7 @@ public:
     }
     unsigned char Body[0x10];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_DBGRELOCATE_SHIP) == 0x30u, "FLPACKET_CLIENT_DBGRELOCATE_SHIP is operator new(0x30)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_DBGRELOCATE_SHIP) == 0x30u, "FLPACKET_CLIENT_DBGRELOCATE_SHIP is operator new(0x30)");
 
 // FLPACKET_CLIENT_SETMANEUVER -- id 0x3002f, registered at 06d9f59b.
 // Factory FUN_06da0380: operator new(0x2c) + ctor FUN_06da1020. Vtable .rdata:06db5dc4 =
@@ -3885,7 +3885,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_SETMANEUVER) == 0x2cu, "FLPACKET_CLIENT_SETMANEUVER is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_SETMANEUVER) == 0x2cu, "FLPACKET_CLIENT_SETMANEUVER is operator new(0x2c)");
 
 // FLPACKET_CLIENT_REQCOLLISIONGROUPS -- id 0x30036, registered at 06d9f5b1.
 // Factory FUN_06da03c0: operator new(0x2c) + ctor FUN_06da10b0. Vtable .rdata:06db5df4 =
@@ -3911,7 +3911,7 @@ public:
     }
     unsigned char Body[0xc];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQCOLLISIONGROUPS) == 0x2cu, "FLPACKET_CLIENT_REQCOLLISIONGROUPS is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQCOLLISIONGROUPS) == 0x2cu, "FLPACKET_CLIENT_REQCOLLISIONGROUPS is operator new(0x2c)");
 
 // FLPACKET_CLIENT_REQHULLSTATUS -- id 0x3003b, registered at 06d9f5c7.
 // Factory FUN_06da0400: operator new(0x24) + ctor FUN_06da1150. Vtable .rdata:06db5e04 =
@@ -3931,7 +3931,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQHULLSTATUS) == 0x24u, "FLPACKET_CLIENT_REQHULLSTATUS is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQHULLSTATUS) == 0x24u, "FLPACKET_CLIENT_REQHULLSTATUS is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQUEST_USE_ITEM -- id 0x30040, registered at 06d9f5dd.
 // Factory FUN_06da0440: operator new(0x28) + ctor FUN_06da11b0. Vtable .rdata:06db5e24 =
@@ -3953,7 +3953,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_USE_ITEM) == 0x28u, "FLPACKET_CLIENT_REQUEST_USE_ITEM is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQUEST_USE_ITEM) == 0x28u, "FLPACKET_CLIENT_REQUEST_USE_ITEM is operator new(0x28)");
 
 // FLPACKET_CLIENT_REQINVINCIBILITY -- id 0x30044, registered at 06d9f5f3.
 // Factory FUN_06da0480: operator new(0x28) + ctor FUN_06da11f0. Vtable .rdata:06db5e34 =
@@ -3975,7 +3975,7 @@ public:
     }
     unsigned char Body[0x8];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQINVINCIBILITY) == 0x28u, "FLPACKET_CLIENT_REQINVINCIBILITY is operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQINVINCIBILITY) == 0x28u, "FLPACKET_CLIENT_REQINVINCIBILITY is operator new(0x28)");
 
 // FLPACKET_CLIENT_MISSIONSAVEB -- id 0x30045, registered at 06d9f609.
 // Factory FUN_06da04c0: operator new(0x24) + ctor FUN_06da0ac0. Vtable .rdata:06db5c34 =
@@ -3994,7 +3994,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_MISSIONSAVEB) == 0x24u, "FLPACKET_CLIENT_MISSIONSAVEB is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_MISSIONSAVEB) == 0x24u, "FLPACKET_CLIENT_MISSIONSAVEB is operator new(0x24)");
 
 // FLPACKET_CLIENT_REQDIFFICULTYSCALE -- id 0x30046, registered at 06d9f61f.
 // Factory FUN_06da0500: operator new(0x24) + ctor FUN_06da1220. Vtable .rdata:06db5e44 =
@@ -4014,7 +4014,7 @@ public:
     }
     unsigned char Body[0x4];   // +0x20
 };
-static_assert(sizeof(FPacket_FLPACKET_CLIENT_REQDIFFICULTYSCALE) == 0x24u, "FLPACKET_CLIENT_REQDIFFICULTYSCALE is operator new(0x24)");
+FL_LAYOUT_ASSERT(sizeof(FPacket_FLPACKET_CLIENT_REQDIFFICULTYSCALE) == 0x24u, "FLPACKET_CLIENT_REQDIFFICULTYSCALE is operator new(0x24)");
 
 }  // namespace
 

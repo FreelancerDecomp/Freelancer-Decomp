@@ -92,7 +92,7 @@ public:
     IVP_Simulation_Unit* sim_unit;  // +0x0c <- set by FUN_063496a0 (.text:063496b0)
 };
 
-static_assert(sizeof(IVP_Event_Sim) == 0x10, "IVP_Event_Sim sizeof 0x10 (FUN_063499c0 SUB ESP,0x10)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Event_Sim) == 0x10, "IVP_Event_Sim sizeof 0x10 (FUN_063499c0 SUB ESP,0x10)");
 
 // IVP's controller-priority enum, the return type of slot 5 below. Retail spells it in
 // ?get_controller_priority@Controller@PhySys@@MAE?AW4IVP_CONTROLLER_PRIORITY@@XZ, so it is a
@@ -265,7 +265,7 @@ public:
     virtual ~IVP_Controller_Dependent() {}
 };
 
-static_assert(sizeof(IVP_Controller_Dependent) == 0x4,
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Dependent) == 0x4,
               "IVP_Controller_Dependent is vptr-only: PhySys::Controller's first field is at +4");
 
 // ============================================================================
@@ -299,7 +299,7 @@ public:
     virtual IVP_U_Vector<IVP_Core>* get_associated_controlled_cores() override;
 };
 
-static_assert(sizeof(IVP_Controller_Independent) == 0x4,
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Independent) == 0x4,
               "IVP_Controller_Independent is vptr-only: Motion's first field is at +4");
 
 // The first 0x24 bytes of the golem tuning block -- the part IVP_Controller_Motion's
@@ -321,7 +321,7 @@ struct IVP_Controller_Motion_Parms
     float MaxTorque;               // +0x20  default 1e6f
 };
 
-static_assert(sizeof(IVP_Controller_Motion_Parms) == 0x24, "IVP_Controller_Motion_Parms 0x24");
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Motion_Parms) == 0x24, "IVP_Controller_Motion_Parms 0x24");
 
 // ============================================================================
 // IVP_Controller_Motion -- RTTI-CONFIRMED NAME, the direct base of IVP_Controller_Golem.
@@ -377,7 +377,7 @@ public:
     IVP_Core* Core;                     // +0x5c
 };
 
-static_assert(sizeof(IVP_Controller_Motion) == 0x60,
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Motion) == 0x60,
               "IVP_Controller_Motion is 0x60: FUN_06342c80's last field is +0x5c and "
               "FUN_06343050 starts the golem layer at +0x60 (.text:0634306b)");
 
@@ -464,7 +464,7 @@ public:
     float Field_0xcc;                   // +0xcc
 };
 
-static_assert(sizeof(IVP_Controller_Golem) == 0xd0,
+FL_LAYOUT_ASSERT(sizeof(IVP_Controller_Golem) == 0xd0,
               "IVP_Controller_Golem is 0xd0: FLControllerGolem is operator_new(0xd0) "
               "(.text:06288f67) and CRemotePhysicsSimulation sits at +0xd0 of "
               "CRemotePhysicsController (.text:062859ce)");

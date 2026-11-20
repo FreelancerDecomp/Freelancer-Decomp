@@ -139,12 +139,12 @@ public:
     // FUN_0635c310 (item 3338, :0635c310-0635c40e).
     ~IVP_OV_Node();
 };
-static_assert(sizeof(IVP_OV_Node) == 0x28, "IVP_OV_Node size must be 0x28 (operator new(0x28), Common.dll.txt:0635d0cc)");
-static_assert(offsetof(IVP_OV_Node, Level) == 0x0c, "IVP_OV_Node+0x0c");
-static_assert(offsetof(IVP_OV_Node, LevelPlus1) == 0x10, "IVP_OV_Node+0x10");
-static_assert(offsetof(IVP_OV_Node, Parent) == 0x14, "IVP_OV_Node+0x14");
-static_assert(offsetof(IVP_OV_Node, Children) == 0x18, "IVP_OV_Node+0x18");
-static_assert(offsetof(IVP_OV_Node, Elements) == 0x20, "IVP_OV_Node+0x20");
+FL_LAYOUT_ASSERT(sizeof(IVP_OV_Node) == 0x28, "IVP_OV_Node size must be 0x28 (operator new(0x28), Common.dll.txt:0635d0cc)");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Node, Level) == 0x0c, "IVP_OV_Node+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Node, LevelPlus1) == 0x10, "IVP_OV_Node+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Node, Parent) == 0x14, "IVP_OV_Node+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Node, Children) == 0x18, "IVP_OV_Node+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Node, Elements) == 0x20, "IVP_OV_Node+0x20");
 
 // ----------------------------------------------------------------------------
 // IVP_OV_Element -- 0x30 bytes (operator new(0x30), Common.dll.txt:0634f1ae).
@@ -213,14 +213,14 @@ public:
     // here to -1.
     void remove_oo_collision(IVP_Collision* Collision);
 };
-static_assert(sizeof(IVP_OV_Element) == 0x30, "IVP_OV_Element size must be 0x30 (operator new(0x30), Common.dll.txt:0634f1ae)");
-static_assert(offsetof(IVP_OV_Element, HullPoolSlot) == 0x04, "IVP_OV_Element+0x04");
-static_assert(offsetof(IVP_OV_Element, node) == 0x08, "IVP_OV_Element+0x08");
-static_assert(offsetof(IVP_OV_Element, hull_manager) == 0x0c, "IVP_OV_Element+0x0c");
-static_assert(offsetof(IVP_OV_Element, CenterX) == 0x10, "IVP_OV_Element+0x10");
-static_assert(offsetof(IVP_OV_Element, radius) == 0x20, "IVP_OV_Element+0x20");
-static_assert(offsetof(IVP_OV_Element, real_object) == 0x24, "IVP_OV_Element+0x24");
-static_assert(offsetof(IVP_OV_Element, collision_fvector) == 0x28, "IVP_OV_Element+0x28");
+FL_LAYOUT_ASSERT(sizeof(IVP_OV_Element) == 0x30, "IVP_OV_Element size must be 0x30 (operator new(0x30), Common.dll.txt:0634f1ae)");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, HullPoolSlot) == 0x04, "IVP_OV_Element+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, node) == 0x08, "IVP_OV_Element+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, hull_manager) == 0x0c, "IVP_OV_Element+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, CenterX) == 0x10, "IVP_OV_Element+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, radius) == 0x20, "IVP_OV_Element+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, real_object) == 0x24, "IVP_OV_Element+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Element, collision_fvector) == 0x28, "IVP_OV_Element+0x28");
 
 // ----------------------------------------------------------------------------
 // IVP_OV_Tree_Manager -- the 0x17c-byte object at IVP_Environment+0x14
@@ -376,11 +376,11 @@ public:
     // AABB overlap rather than containment.
     static bool cell_overlaps(const IVP_OV_Node* Coarse, const IVP_OV_Node* Fine, int32_t LevelDelta);
 };
-static_assert(offsetof(IVP_OV_Tree_Manager, QueryCell) == 0x144, "IVP_OV_Tree_Manager+0x144");
-static_assert(offsetof(IVP_OV_Tree_Manager, CollectVector) == 0x16c, "IVP_OV_Tree_Manager+0x16c");
-static_assert(offsetof(IVP_OV_Tree_Manager, NodeHash) == 0x170, "IVP_OV_Tree_Manager+0x170");
-static_assert(offsetof(IVP_OV_Tree_Manager, CurrentRoot) == 0x178, "IVP_OV_Tree_Manager+0x178");
-static_assert(sizeof(IVP_OV_Tree_Manager) == 0x17c, "IVP_OV_Tree_Manager size must be 0x17c (IVP_Environment+0x14's documented allocation size)");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Tree_Manager, QueryCell) == 0x144, "IVP_OV_Tree_Manager+0x144");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Tree_Manager, CollectVector) == 0x16c, "IVP_OV_Tree_Manager+0x16c");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Tree_Manager, NodeHash) == 0x170, "IVP_OV_Tree_Manager+0x170");
+FL_LAYOUT_ASSERT(offsetof(IVP_OV_Tree_Manager, CurrentRoot) == 0x178, "IVP_OV_Tree_Manager+0x178");
+FL_LAYOUT_ASSERT(sizeof(IVP_OV_Tree_Manager) == 0x17c, "IVP_OV_Tree_Manager size must be 0x17c (IVP_Environment+0x14's documented allocation size)");
 
 // FUN_06369200 (decomp-tracker item 3594, Common.dll.txt:06369200-0636922f).
 // The tag IVP_OV_Tree_Manager::NodeHash is keyed by: a table-driven CRC32 over
@@ -528,11 +528,11 @@ public:
     // ivp_mindist_limiter.cpp. cmn-phy5 2026-10-08.
     void recalc_all_exact_mindists_events();
 };
-static_assert(offsetof(IVP_Mindist_Manager, environment) == 0x04, "IVP_Mindist_Manager+0x04");
-static_assert(offsetof(IVP_Mindist_Manager, ActiveMindistHead) == 0x08, "IVP_Mindist_Manager+0x08");
-static_assert(offsetof(IVP_Mindist_Manager, ActiveMindists) == 0x0c, "IVP_Mindist_Manager+0x0c");
-static_assert(offsetof(IVP_Mindist_Manager, InvalidMindistHead) == 0x14, "IVP_Mindist_Manager+0x14");
-static_assert(sizeof(IVP_Mindist_Manager) == 0x18, "IVP_Mindist_Manager size must be 0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Manager, environment) == 0x04, "IVP_Mindist_Manager+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Manager, ActiveMindistHead) == 0x08, "IVP_Mindist_Manager+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Manager, ActiveMindists) == 0x0c, "IVP_Mindist_Manager+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Manager, InvalidMindistHead) == 0x14, "IVP_Mindist_Manager+0x14");
+FL_LAYOUT_ASSERT(sizeof(IVP_Mindist_Manager) == 0x18, "IVP_Mindist_Manager size must be 0x18");
 
 // FUN_0634f140 (decomp-tracker item 3112, Common.dll.txt:0634f140-0634f172,
 // 19 insns). Spread hash of a collision's PARTNER object: the record's own two

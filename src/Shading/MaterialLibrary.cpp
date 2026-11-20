@@ -131,7 +131,7 @@ FMaterialLibrary::~FMaterialLibrary()
     CrcMap.clear();
 }
 
-static_assert(offsetof(FMaterialLibrary, Aggregate) == 0x04, "IAggregateComponent at library+4");
+FL_LAYOUT_ASSERT(offsetof(FMaterialLibrary, Aggregate) == 0x04, "IAggregateComponent at library+4");
 
 GENRESULT DACOM_API FMaterialLibrary::QueryInterface(const char* Iid, void** Out)
 {
@@ -722,7 +722,7 @@ struct FGlobalMaterialRecord
     unsigned long Value;
 };
 
-static_assert(sizeof(FGlobalMaterialRecord) == 8, "global material record stride");
+FL_LAYOUT_ASSERT(sizeof(FGlobalMaterialRecord) == 8, "global material record stride");
 
 // Private game record storage, independent of the compiler's vector layout.
 // Byte counts preserve 32-bit shifts/wrap; each record includes uninitialized padding.

@@ -75,4 +75,4 @@ public:
     static void commit_all_hull_managers(IVP_Environment* Environment,
                                          IVP_U_Vector<IVP_Hull_Manager>* ActiveHullManagers);
 };
-static_assert(sizeof(IVP_Calc_Next_PSI_Solver) == 0x04, "IVP_Calc_Next_PSI_Solver is one IVP_Core* slot");
+FL_LAYOUT_ASSERT(sizeof(IVP_Calc_Next_PSI_Solver) == 0x04, "IVP_Calc_Next_PSI_Solver is one IVP_Core* slot");

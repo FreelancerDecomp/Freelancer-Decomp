@@ -110,7 +110,7 @@ struct FRPExCaps
 
 // The size of the first published FRPExCaps (up to Reserved[3]); GetExCaps rejects less.
 const unsigned long RPExCapsSizeV1 = 32;
-static_assert(offsetof(FRPExCaps, MaxVertexShaderSlots) == RPExCapsSizeV1,
+FL_LAYOUT_ASSERT(offsetof(FRPExCaps, MaxVertexShaderSlots) == RPExCapsSizeV1,
               "FRPExCaps version 1 layout changed");
 
 // FRPExRenderTargetDesc: Width/Height 0 -> BackBufferScale * the back buffer size (at least 1

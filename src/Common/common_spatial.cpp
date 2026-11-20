@@ -172,7 +172,7 @@ namespace
         void ComputeInitialSplit(FSpatialEntry const* Entries, int Count);  // FUN_0632f480
         void ComputeCentroidSplit(FSpatialEntry const* Entries, int Count); // FUN_063300e0
     };
-    static_assert(sizeof(FSpatialPlane) == 0x10, "FSpatialPlane size is 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FSpatialPlane) == 0x10, "FSpatialPlane size is 0x10");
 
     // The side test written out in FUN_06330020: ((p.y*n.y + p.x*n.x) + n.z*p.z) - d.
     int ClassifyYXZ(FSpatialPlane const& Plane, FSpatialEntry const& Entry)
@@ -248,7 +248,7 @@ namespace
         unsigned Counts[3];  // +0x00 on, beyond, behind
         FSpatialPlane Plane; // +0x0c
     };
-    static_assert(sizeof(FSpatialSplit) == 0x1c, "FSpatialSplit size is 0x1c");
+    FL_LAYOUT_ASSERT(sizeof(FSpatialSplit) == 0x1c, "FSpatialSplit size is 0x1c");
 
     // FUN_06330020 (thiscall on the split, args plane, entries, count).
     void ClassifyEntries(FSpatialSplit& Out, FSpatialPlane const& Plane, FSpatialEntry const* Entries, int Count)
@@ -515,7 +515,7 @@ namespace
             return nullptr;
         }
     };
-    static_assert(sizeof(FSpatialNode) == 0xbc, "FSpatialNode size is 0xbc");
+    FL_LAYOUT_ASSERT(sizeof(FSpatialNode) == 0xbc, "FSpatialNode size is 0xbc");
 
     // DAT_0658e740 (guard DAT_0658e738): the zeroed node every new node is copied from, built on
     // first use (FUN_063300c0 zeroes 0x2f dwords; the AddObject / AddArray copies of the guard
@@ -555,7 +555,7 @@ namespace
             FListNode* Prev;    // +0x04
             FSpatialNode Value; // +0x08
         };
-        static_assert(sizeof(FListNode) == 0xc4, "FListNode size is 0xc4");
+        FL_LAYOUT_ASSERT(sizeof(FListNode) == 0xc4, "FListNode size is 0xc4");
 
         // The payload of the +0x04 list: one malloc block (FUN_063323b0 frees it).
         struct FBlock

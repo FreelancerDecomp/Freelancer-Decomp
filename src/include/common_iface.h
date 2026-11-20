@@ -531,23 +531,23 @@ public:
     unsigned char Pad6A[2];
 };
 
-static_assert(offsetof(TargetManager, Owner) == 0x04, "TargetManager+0x04 Owner");
-static_assert(offsetof(TargetManager, AttackState) == 0x08, "TargetManager+0x08 AttackState");
-static_assert(offsetof(TargetManager, AggressionRatio) == 0x0C, "TargetManager+0x0C AggressionRatio");
-static_assert(offsetof(TargetManager, SubtargetDistanceSq) == 0x10, "TargetManager+0x10 SubtargetDistanceSq");
-static_assert(offsetof(TargetManager, SubtargetId) == 0x14, "TargetManager+0x14 SubtargetId");
-static_assert(offsetof(TargetManager, NumForcedTargets) == 0x18, "TargetManager+0x18 NumForcedTargets");
-static_assert(offsetof(TargetManager, ForcedTargets) == 0x1C, "TargetManager+0x1C ForcedTargets");
-static_assert(offsetof(TargetManager, AnchorPosition) == 0x3C, "TargetManager+0x3C AnchorPosition");
-static_assert(offsetof(TargetManager, bCommitted) == 0x48, "TargetManager+0x48 bCommitted");
-static_assert(offsetof(TargetManager, CommitTimer) == 0x4C, "TargetManager+0x4C CommitTimer");
-static_assert(offsetof(TargetManager, SelectionPriority) == 0x50, "TargetManager+0x50 SelectionPriority");
-static_assert(offsetof(TargetManager, NumCandidatesA) == 0x54, "TargetManager+0x54");
-static_assert(offsetof(TargetManager, bSelectedIsPlayer) == 0x60, "TargetManager+0x60");
-static_assert(offsetof(TargetManager, TargetedEnemyCount) == 0x64, "TargetManager+0x64");
-static_assert(offsetof(TargetManager, bPlayerOverClampKept) == 0x68, "TargetManager+0x68");
-static_assert(offsetof(TargetManager, bPlayerOverClampDropped) == 0x69, "TargetManager+0x69");
-static_assert(sizeof(TargetManager) == 0x6C, "TargetManager sizeof 0x6C");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, Owner) == 0x04, "TargetManager+0x04 Owner");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, AttackState) == 0x08, "TargetManager+0x08 AttackState");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, AggressionRatio) == 0x0C, "TargetManager+0x0C AggressionRatio");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, SubtargetDistanceSq) == 0x10, "TargetManager+0x10 SubtargetDistanceSq");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, SubtargetId) == 0x14, "TargetManager+0x14 SubtargetId");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, NumForcedTargets) == 0x18, "TargetManager+0x18 NumForcedTargets");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, ForcedTargets) == 0x1C, "TargetManager+0x1C ForcedTargets");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, AnchorPosition) == 0x3C, "TargetManager+0x3C AnchorPosition");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, bCommitted) == 0x48, "TargetManager+0x48 bCommitted");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, CommitTimer) == 0x4C, "TargetManager+0x4C CommitTimer");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, SelectionPriority) == 0x50, "TargetManager+0x50 SelectionPriority");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, NumCandidatesA) == 0x54, "TargetManager+0x54");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, bSelectedIsPlayer) == 0x60, "TargetManager+0x60");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, TargetedEnemyCount) == 0x64, "TargetManager+0x64");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, bPlayerOverClampKept) == 0x68, "TargetManager+0x68");
+FL_LAYOUT_ASSERT(offsetof(TargetManager, bPlayerOverClampDropped) == 0x69, "TargetManager+0x69");
+FL_LAYOUT_ASSERT(sizeof(TargetManager) == 0x6C, "TargetManager sizeof 0x6C");
 
 // Needs IObjInspect and TargetManager complete (SystemManager+0x142C); see the note at the
 // top of this file.
@@ -800,7 +800,7 @@ struct IObjRW : IObjInspect, IObjAffect, Watchable
 {
 };
 
-static_assert(sizeof(IObjRW) == 0x0C, "IObjRW is two vtable pointers plus Watchable");
+FL_LAYOUT_ASSERT(sizeof(IObjRW) == 0x0C, "IObjRW is two vtable pointers plus Watchable");
 
 // ============================================================================
 // IObjInspectImpl — concrete implementation delegating to CObject/CSimple/CShip
@@ -951,7 +951,7 @@ public:
 // The three offsets that used to be asserted here (Field08 at +0x08, Delegate at +0x10) were
 // assertions about hand-rolled members standing in for base classes. They are now the layout
 // the bases produce, so the size is the thing worth pinning.
-static_assert(sizeof(IObjInspectImpl) == 0x14, "IObjInspectImpl sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(IObjInspectImpl) == 0x14, "IObjInspectImpl sizeof 0x14");
 
 // ============================================================================
 // IBehaviorManager — AI behavior control interface
@@ -1068,13 +1068,13 @@ struct NotificationNode
     float Timer;                  // +0x20  countdown; <= 0.0f fires Mode's op and retires the node
 };
 
-static_assert(offsetof(NotificationNode, Prev) == 0x04, "NotificationNode+0x04 Prev");
-static_assert(offsetof(NotificationNode, Mode) == 0x08, "NotificationNode+0x08 Mode");
-static_assert(offsetof(NotificationNode, WatcherA) == 0x0C, "NotificationNode+0x0C WatcherA");
-static_assert(offsetof(NotificationNode, WatcherB) == 0x14, "NotificationNode+0x14 WatcherB");
-static_assert(offsetof(NotificationNode, Field1C) == 0x1C, "NotificationNode+0x1C Field1C");
-static_assert(offsetof(NotificationNode, Timer) == 0x20, "NotificationNode+0x20 Timer");
-static_assert(sizeof(NotificationNode) == 0x24, "NotificationNode sizeof 0x24");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, Prev) == 0x04, "NotificationNode+0x04 Prev");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, Mode) == 0x08, "NotificationNode+0x08 Mode");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, WatcherA) == 0x0C, "NotificationNode+0x0C WatcherA");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, WatcherB) == 0x14, "NotificationNode+0x14 WatcherB");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, Field1C) == 0x1C, "NotificationNode+0x1C Field1C");
+FL_LAYOUT_ASSERT(offsetof(NotificationNode, Timer) == 0x20, "NotificationNode+0x20 Timer");
+FL_LAYOUT_ASSERT(sizeof(NotificationNode) == 0x24, "NotificationNode sizeof 0x24");
 
 // One entry of IBehaviorManager's inline behavior-scoring scratch table (IBehaviorManager+0x10,
 // 21 entries). Recovered 2026-09-17 from UpdateBehaviorTick's own re-evaluation pass
@@ -1089,7 +1089,7 @@ struct BehaviorScore
     float Weight;       // +0x00
     int BehaviorIndex;  // +0x04
 };
-static_assert(sizeof(BehaviorScore) == 0x08, "BehaviorScore sizeof 0x08");
+FL_LAYOUT_ASSERT(sizeof(BehaviorScore) == 0x08, "BehaviorScore sizeof 0x08");
 
 // EXPORTS: member-level. Retail exports exactly the 41 methods marked COMMON_API below and
 // nothing else of this class -- no constructor, destructor, operator= or ??_7 -- so the class
@@ -1128,7 +1128,7 @@ struct FBehaviorTradelaneEvent
     unsigned int EntranceId;    // +0x10
     unsigned int ExitId;        // +0x14
 };
-static_assert(sizeof(FBehaviorTradelaneEvent) == 0x18, "FBehaviorTradelaneEvent size");
+FL_LAYOUT_ASSERT(sizeof(FBehaviorTradelaneEvent) == 0x18, "FBehaviorTradelaneEvent size");
 
 // The case-0 payload of IBehaviorManager::Slot00 ("this object took damage"). Common's
 // case 0 (FUN_062e86d0, AccumulateSystemManagerTimerLevel) reads +0x08 / +0x14 / +0x18.
@@ -1148,7 +1148,7 @@ struct FBehaviorDamageEvent
     float RelativeDamage;             // +0x1c
     float RelativeHealth;             // +0x20
 };
-static_assert(sizeof(FBehaviorDamageEvent) == 0x24, "FBehaviorDamageEvent size");
+FL_LAYOUT_ASSERT(sizeof(FBehaviorDamageEvent) == 0x24, "FBehaviorDamageEvent size");
 
 class IBehaviorManager
 {
@@ -1547,32 +1547,32 @@ public:
 // static_asserts removed — layout not yet fully verified. The notification-queue
 // fields added in this pass (2026-09-11, d294:common-port) are independently
 // hand-verified against IBehaviorManager+0x8 (Sys) staying put, so asserted here:
-static_assert(offsetof(IBehaviorManager, InSightsTargetId) == 0xE8, "IBehaviorManager+0xE8 InSightsTargetId");
-static_assert(offsetof(IBehaviorManager, NotificationQueueHead) == 0x15C,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, InSightsTargetId) == 0xE8, "IBehaviorManager+0xE8 InSightsTargetId");
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, NotificationQueueHead) == 0x15C,
               "IBehaviorManager+0x15C NotificationQueueHead");
-static_assert(offsetof(IBehaviorManager, NotificationCount) == 0x160,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, NotificationCount) == 0x160,
               "IBehaviorManager+0x160 NotificationCount");
-static_assert(offsetof(IBehaviorManager, TickSuppressedFlag) == 0x170,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, TickSuppressedFlag) == 0x170,
               "IBehaviorManager+0x170 TickSuppressedFlag");
 // BehaviorScores / BehaviorDispatchTable extents (2026-09-17, claude:common-tick-lane,
 // item 1553). These four asserts ARE the closed-arithmetic argument quoted in both members'
 // comments: each array is pinned at both ends by an independently confirmed neighbour, so a
 // wrong element count cannot compile.
-static_assert(offsetof(IBehaviorManager, BehaviorScores) == 0x10,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorScores) == 0x10,
               "IBehaviorManager+0x10 BehaviorScores");
-static_assert(offsetof(IBehaviorManager, ManeuverMask) == 0xB8,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, ManeuverMask) == 0xB8,
               "IBehaviorManager+0xB8 ManeuverMask -- pins BehaviorScores[21]'s end");
-static_assert(offsetof(IBehaviorManager, BehaviorDispatchTable) == 0x174,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorDispatchTable) == 0x174,
               "IBehaviorManager+0x174 BehaviorDispatchTable");
-static_assert(offsetof(IBehaviorManager, Flags1c8) == 0x1C8,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, Flags1c8) == 0x1C8,
               "IBehaviorManager+0x1C8 Flags1c8 -- pins BehaviorDispatchTable[21]'s end");
-static_assert(offsetof(IBehaviorManager, Field118) == 0x118,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, Field118) == 0x118,
               "IBehaviorManager+0x118 Field118");
-static_assert(offsetof(IBehaviorManager, Field11c) == 0x11C,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, Field11c) == 0x11C,
               "IBehaviorManager+0x11C Field11c");
-static_assert(offsetof(IBehaviorManager, ObjectDb) == 0xEC,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, ObjectDb) == 0xEC,
               "IBehaviorManager+0xEC ObjectDb");
-static_assert(sizeof(IBehaviorManager) == 0x1CC,
+FL_LAYOUT_ASSERT(sizeof(IBehaviorManager) == 0x1CC,
               "IBehaviorManager sizeof 0x1CC (CEqObj::create_behavior_interface, operator_new(0x1cc))");
 
 // FUN_062d2830 (item 1547), Common.dll.txt 211484-211525, thiscall on the manager, `RET 4`.
@@ -1586,23 +1586,23 @@ static_assert(sizeof(IBehaviorManager) == 0x1CC,
 void ConnectBehaviorManagerObjectDb(IBehaviorManager* Self, IObjDB* ObjectDb);
 // AttackOverrideTimer/Period (2026-09-11, UpdateBehaviorTick real-body pass,
 // item 1553): hand-verified against IBehaviorManager+0x8 (Sys) staying put.
-static_assert(offsetof(IBehaviorManager, AttackOverrideTimer) == 0xE0,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, AttackOverrideTimer) == 0xE0,
               "IBehaviorManager+0xE0 AttackOverrideTimer");
-static_assert(offsetof(IBehaviorManager, AttackOverridePeriod) == 0xE4,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, AttackOverridePeriod) == 0xE4,
               "IBehaviorManager+0xE4 AttackOverridePeriod");
 // BehaviorTimerA/B/C, BehaviorDirty and Field0xF8 (2026-09-11, d309:common-port,
 // UpdateBehaviorTick real-body continuation, item 1553): hand-verified against
 // IBehaviorManager+0xC0 (CurrentBehaviorIndex) and +0xF9 (LevelCameraFlag)
 // staying put.
-static_assert(offsetof(IBehaviorManager, BehaviorTimerA) == 0xD0,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorTimerA) == 0xD0,
               "IBehaviorManager+0xD0 BehaviorTimerA");
-static_assert(offsetof(IBehaviorManager, BehaviorTimerB) == 0xD4,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorTimerB) == 0xD4,
               "IBehaviorManager+0xD4 BehaviorTimerB");
-static_assert(offsetof(IBehaviorManager, BehaviorDirty) == 0xD8,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorDirty) == 0xD8,
               "IBehaviorManager+0xD8 BehaviorDirty");
-static_assert(offsetof(IBehaviorManager, BehaviorTimerC) == 0xDC,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, BehaviorTimerC) == 0xDC,
               "IBehaviorManager+0xDC BehaviorTimerC");
-static_assert(offsetof(IBehaviorManager, Field0xF8) == 0xF8,
+FL_LAYOUT_ASSERT(offsetof(IBehaviorManager, Field0xF8) == 0xF8,
               "IBehaviorManager+0xF8 Field0xF8");
 
 // ============================================================================
@@ -1721,17 +1721,17 @@ public:
                                     // own trailing dword right after DescFmtStr).
 };
 
-static_assert(offsetof(ScriptBehavior, BehaviorId) == 0x00, "ScriptBehavior+0x00 id");
-static_assert(offsetof(ScriptBehavior, IdArray) == 0x18, "ScriptBehavior+0x18 ids");
-static_assert(offsetof(ScriptBehavior, StringArray) == 0x98, "ScriptBehavior+0x98 strings");
-static_assert(offsetof(ScriptBehavior, IdArrayCount) == 0x118, "ScriptBehavior+0x118 count");
-static_assert(offsetof(ScriptBehavior, StringArray2) == 0x11C, "ScriptBehavior+0x11C strings 2");
-static_assert(offsetof(ScriptBehavior, StringArray2Dword) == 0x19C, "ScriptBehavior+0x19C dwords 2");
-static_assert(offsetof(ScriptBehavior, StringArray2Count) == 0x21C, "ScriptBehavior+0x21C count 2");
-static_assert(offsetof(ScriptBehavior, NameFmtStr) == 0x22C, "ScriptBehavior+0x22C NameFmtStr");
-static_assert(offsetof(ScriptBehavior, DescFmtStr) == 0x244, "ScriptBehavior+0x244 DescFmtStr");
-static_assert(offsetof(ScriptBehavior, Field25c) == 0x25C, "ScriptBehavior+0x25C trailing dword");
-static_assert(sizeof(ScriptBehavior) == 0x260, "ScriptBehavior must be 0x260");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, BehaviorId) == 0x00, "ScriptBehavior+0x00 id");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, IdArray) == 0x18, "ScriptBehavior+0x18 ids");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, StringArray) == 0x98, "ScriptBehavior+0x98 strings");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, IdArrayCount) == 0x118, "ScriptBehavior+0x118 count");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, StringArray2) == 0x11C, "ScriptBehavior+0x11C strings 2");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, StringArray2Dword) == 0x19C, "ScriptBehavior+0x19C dwords 2");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, StringArray2Count) == 0x21C, "ScriptBehavior+0x21C count 2");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, NameFmtStr) == 0x22C, "ScriptBehavior+0x22C NameFmtStr");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, DescFmtStr) == 0x244, "ScriptBehavior+0x244 DescFmtStr");
+FL_LAYOUT_ASSERT(offsetof(ScriptBehavior, Field25c) == 0x25C, "ScriptBehavior+0x25C trailing dword");
+FL_LAYOUT_ASSERT(sizeof(ScriptBehavior) == 0x260, "ScriptBehavior must be 0x260");
 
 // ============================================================================
 // BehaviorTypes — static lookup table for behavior IDs/names

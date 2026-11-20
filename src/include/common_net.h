@@ -57,7 +57,7 @@ struct COMMON_API Watchable
     unsigned int unwatch();
 };
 
-static_assert(sizeof(Watchable) == 0x04, "Watchable size");
+FL_LAYOUT_ASSERT(sizeof(Watchable) == 0x04, "Watchable size");
 
 // ---------------------------------------------------------------------------
 // CommReferrable - holder of a voice "msg_id_prefix" (base of Archetype::Ship at +0x94 and
@@ -85,8 +85,8 @@ struct COMMON_API CommReferrable
     TString<64> MsgIdPrefix;    // +0x04
 };
 
-static_assert(sizeof(CommReferrable) == 0x48, "CommReferrable size");
-static_assert(offsetof(CommReferrable, MsgIdPrefix) == 0x04, "CommReferrable+0x04 msg_id_prefix");
+FL_LAYOUT_ASSERT(sizeof(CommReferrable) == 0x48, "CommReferrable size");
+FL_LAYOUT_ASSERT(offsetof(CommReferrable, MsgIdPrefix) == 0x04, "CommReferrable+0x04 msg_id_prefix");
 
 // ---------------------------------------------------------------------------
 // MPCritSec — lazy-initialized CRITICAL_SECTION wrapper
@@ -118,8 +118,8 @@ private:
 };
 
 // The two asserts together pin bInitialized at +0x18 (offsetof cannot name the private field here).
-static_assert(sizeof(CRITICAL_SECTION) == 0x18, "CRITICAL_SECTION is 0x18 bytes on x86");
-static_assert(sizeof(MPCritSec) == 0x1C, "MPCritSec size");
+FL_LAYOUT_ASSERT(sizeof(CRITICAL_SECTION) == 0x18, "CRITICAL_SECTION is 0x18 bytes on x86");
+FL_LAYOUT_ASSERT(sizeof(MPCritSec) == 0x1C, "MPCritSec size");
 
 // ---------------------------------------------------------------------------
 // MarshalBuffer — binary serialization buffer
@@ -224,7 +224,7 @@ private:
     // padding to 0x18
 };
 
-static_assert(sizeof(MarshalBuffer) == 0x18, "MarshalBuffer size");
+FL_LAYOUT_ASSERT(sizeof(MarshalBuffer) == 0x18, "MarshalBuffer size");
 
 // ---------------------------------------------------------------------------
 // STATE_MACHINE_EVENT_TYPE enum
@@ -265,7 +265,7 @@ struct SMEventData
     STATE_MACHINE_EVENT_TYPE EventType;  // +0x04
 };
 
-static_assert(sizeof(SMEventData) == 0x08, "SMEventData size");
+FL_LAYOUT_ASSERT(sizeof(SMEventData) == 0x08, "SMEventData size");
 
 // ---------------------------------------------------------------------------
 // SMControllerEvent — controller-type event (type==4)
@@ -280,7 +280,7 @@ struct SMControllerEvent : SMEventData
     COMMON_API SMControllerEvent(int Id, const void* Data);           // 0x06333180
 };
 
-static_assert(sizeof(SMControllerEvent) == 0x10, "SMControllerEvent size");
+FL_LAYOUT_ASSERT(sizeof(SMControllerEvent) == 0x10, "SMControllerEvent size");
 
 // ---------------------------------------------------------------------------
 // SMMessage — wraps a StateMachineMessage* as an event (type==3)
@@ -296,7 +296,7 @@ struct SMMessage : SMEventData
     COMMON_API SMMessage(StateMachineMessage* Msg);                    // 0x06333160
 };
 
-static_assert(sizeof(SMMessage) == 0x0C, "SMMessage size");
+FL_LAYOUT_ASSERT(sizeof(SMMessage) == 0x0C, "SMMessage size");
 
 // ---------------------------------------------------------------------------
 // SM_MESSAGE_SCOPE enum
@@ -374,7 +374,7 @@ private:
     COMMON_API static unsigned int s_unique_message_type_generator;
 };
 
-static_assert(sizeof(StateMachineMessage) == 0x1C, "StateMachineMessage size");
+FL_LAYOUT_ASSERT(sizeof(StateMachineMessage) == 0x1C, "StateMachineMessage size");
 
 // ---------------------------------------------------------------------------
 // SMMChangeState — change-state message (extends StateMachineMessage)
@@ -391,7 +391,7 @@ public:
     int NewState;   // +0x1C
 };
 
-static_assert(sizeof(SMMChangeState) == 0x20, "SMMChangeState size");
+FL_LAYOUT_ASSERT(sizeof(SMMChangeState) == 0x20, "SMMChangeState size");
 
 // ---------------------------------------------------------------------------
 // IMessageRouter — abstract message routing interface. Nothing of it is exported and nothing
@@ -447,7 +447,7 @@ protected:
     unsigned int    HandlerId;      // +0x08
 };
 
-static_assert(sizeof(MessageHandler) == 0x0C, "MessageHandler size");
+FL_LAYOUT_ASSERT(sizeof(MessageHandler) == 0x0C, "MessageHandler size");
 
 // ---------------------------------------------------------------------------
 // StateMachine — simple two-state FSM
@@ -491,7 +491,7 @@ protected:
     unsigned char bProcessing;      // +0x0D
 };
 
-static_assert(sizeof(StateMachine) == 0x10, "StateMachine size");
+FL_LAYOUT_ASSERT(sizeof(StateMachine) == 0x10, "StateMachine size");
 
 // ---------------------------------------------------------------------------
 // StateMachineMessageHandler — receives messages, extends MessageHandler
@@ -521,7 +521,7 @@ protected:
                                                SM_MESSAGE_SCOPE Scope, int TargetId); // 0x063334b0
 };
 
-static_assert(sizeof(StateMachineMessageHandler) == 0x1C, "StateMachineMessageHandler size");
+FL_LAYOUT_ASSERT(sizeof(StateMachineMessageHandler) == 0x1C, "StateMachineMessageHandler size");
 
 // ---------------------------------------------------------------------------
 // StateMachineGroup — manages multiple StateMachineMessageHandlers
@@ -614,7 +614,7 @@ protected:
     static unsigned long g_dwAccountIndex;
 };
 
-static_assert(sizeof(CPlayerAccount) == 0x0C, "CPlayerAccount size");
+FL_LAYOUT_ASSERT(sizeof(CPlayerAccount) == 0x0C, "CPlayerAccount size");
 
 // ---------------------------------------------------------------------------
 // Exclusion namespace classes
@@ -688,7 +688,7 @@ struct COMMON_API AsteroidExclusionZone
     Universe::IZone const* get_zone();
 };
 
-static_assert(sizeof(AsteroidExclusionZone) == 0x14, "AsteroidExclusionZone size");
+FL_LAYOUT_ASSERT(sizeof(AsteroidExclusionZone) == 0x14, "AsteroidExclusionZone size");
 
 // NebulaExclusionZone -- sizeof 0x10. The ctor (.text:062bcbc0) and the inlined copy in
 // NebulaExclusionZoneMgr::push_back (.text:062bc73b: operator_new(0x10)) write +0x00 = 0,
@@ -729,7 +729,7 @@ struct COMMON_API NebulaExclusionZone
     void set_zone_shell_name(const char* Name);
 };
 
-static_assert(sizeof(NebulaExclusionZone) == 0x10, "NebulaExclusionZone size");
+FL_LAYOUT_ASSERT(sizeof(NebulaExclusionZone) == 0x10, "NebulaExclusionZone size");
 
 // ExclusionZoneMgr -- the abstract base of both managers (RTTI '.?AVExclusionZoneMgr@Exclusion@@',
 // COL .rdata:063a80b4 at vftable [-4]). Its vftable .rdata:0639dcf0 holds three _purecall slots
@@ -807,7 +807,7 @@ private:
     float                   MaxDynDist;           // +0x18 — default 250000.0f (500^2)
 };
 
-static_assert(sizeof(AsteroidExclusionZoneMgr) == 0x1C, "AsteroidExclusionZoneMgr size");
+FL_LAYOUT_ASSERT(sizeof(AsteroidExclusionZoneMgr) == 0x1C, "AsteroidExclusionZoneMgr size");
 
 // NebulaExclusionZoneMgr — same shape as AsteroidExclusionZoneMgr but only
 // ONE distance float (+0x14) — copy ctor 0x42dc0 copies through +0x14 only.
@@ -850,7 +850,7 @@ private:
     float                 MaxDist;                // +0x14
 };
 
-static_assert(sizeof(NebulaExclusionZoneMgr) == 0x18, "NebulaExclusionZoneMgr size");
+FL_LAYOUT_ASSERT(sizeof(NebulaExclusionZoneMgr) == 0x18, "NebulaExclusionZoneMgr size");
 
 #pragma warning(pop)
 

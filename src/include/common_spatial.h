@@ -24,7 +24,7 @@ struct FSpatialEntry
     Vector Position; // +0x04
     float Radius;    // +0x10
 };
-static_assert(sizeof(FSpatialEntry) == 0x14, "FSpatialEntry size is 0x14");
+FL_LAYOUT_ASSERT(sizeof(FSpatialEntry) == 0x14, "FSpatialEntry size is 0x14");
 
 // The result buffer the queries write into. Every retail caller builds it on the stack as
 // {0x800, 0, items} (SYSTEM slots 8-12, Server.dll pub::System::InZones .text:06cfb640/06cfb760).
@@ -44,7 +44,7 @@ struct FSpatialRay
     Vector Direction; // +0x0c
     float Length;     // +0x18
 };
-static_assert(sizeof(FSpatialRay) == 0x1c, "FSpatialRay size is 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FSpatialRay) == 0x1c, "FSpatialRay size is 0x1c");
 
 // RTTI .?AUISpatialPartition@@ -- the base of BspPartition (vftable .rdata:063a4920) and
 // LinearPartition (.rdata:063a48ec). Ten slots; retail has no symbols for them, so the names

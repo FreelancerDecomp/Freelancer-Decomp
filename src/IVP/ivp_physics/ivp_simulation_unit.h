@@ -100,8 +100,8 @@ struct IVP_Sim_Unit_Controller_Bucket
     IVP_Controller* Controller;            // +0x00: bucket key
     IVP_U_Vector_Fixed<IVP_Core, 2> Cores; // +0x04: cores attached via Controller within this IVP_Simulation_Unit (12 bytes: 8-byte header + 2 inline slots)
 };
-static_assert(offsetof(IVP_Sim_Unit_Controller_Bucket, Cores) == 0x04, "IVP_Sim_Unit_Controller_Bucket+0x04");
-static_assert(sizeof(IVP_Sim_Unit_Controller_Bucket) == 0x14, "IVP_Sim_Unit_Controller_Bucket size must be 0x14 (20 bytes)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Unit_Controller_Bucket, Cores) == 0x04, "IVP_Sim_Unit_Controller_Bucket+0x04");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sim_Unit_Controller_Bucket) == 0x14, "IVP_Sim_Unit_Controller_Bucket size must be 0x14 (20 bytes)");
 
 class IVP_Simulation_Unit
 {
@@ -137,11 +137,11 @@ public:
     // observationally identical.
     IVP_Simulation_Unit();
 };
-static_assert(offsetof(IVP_Simulation_Unit, Prev) == 0x04, "IVP_Simulation_Unit+0x04");
-static_assert(offsetof(IVP_Simulation_Unit, Next) == 0x08, "IVP_Simulation_Unit+0x08");
-static_assert(offsetof(IVP_Simulation_Unit, Cores) == 0x0C, "IVP_Simulation_Unit+0x0C");
-static_assert(offsetof(IVP_Simulation_Unit, ControllerBuckets) == 0x1C, "IVP_Simulation_Unit+0x1C");
-static_assert(sizeof(IVP_Simulation_Unit) == 0x24, "IVP_Simulation_Unit size must be 0x24 (36 bytes)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Simulation_Unit, Prev) == 0x04, "IVP_Simulation_Unit+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Simulation_Unit, Next) == 0x08, "IVP_Simulation_Unit+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Simulation_Unit, Cores) == 0x0C, "IVP_Simulation_Unit+0x0C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Simulation_Unit, ControllerBuckets) == 0x1C, "IVP_Simulation_Unit+0x1C");
+FL_LAYOUT_ASSERT(sizeof(IVP_Simulation_Unit) == 0x24, "IVP_Simulation_Unit size must be 0x24 (36 bytes)");
 
 // ============================================================================
 // IVP_Sim_Units_Manager -- IVP_Environment+0x08, 0x1a8 bytes, no vtable
@@ -188,9 +188,9 @@ public:
     // active unit. Defined in ivp_simulation_unit.cpp.
     void simulate_sim_units_psi(IVP_Environment* Environment, IVP_U_Vector<IVP_Core>* CoresWhichNeedCalcNextPsi);
 };
-static_assert(offsetof(IVP_Sim_Units_Manager, sim_units_head) == 0x14, "IVP_Sim_Units_Manager+0x14");
-static_assert(offsetof(IVP_Sim_Units_Manager, still_units_head) == 0x1a4, "IVP_Sim_Units_Manager+0x1a4");
-static_assert(sizeof(IVP_Sim_Units_Manager) == 0x1a8, "IVP_Sim_Units_Manager is 0x1a8 bytes (operator_new(0x1a8), 0634c2cf)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Units_Manager, sim_units_head) == 0x14, "IVP_Sim_Units_Manager+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sim_Units_Manager, still_units_head) == 0x1a4, "IVP_Sim_Units_Manager+0x1a4");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sim_Units_Manager) == 0x1a8, "IVP_Sim_Units_Manager is 0x1a8 bytes (operator_new(0x1a8), 0634c2cf)");
 
 // FUN_06348cb0: IVP_Simulation_Unit::detach_core -- called from
 // IVP_Core::~IVP_Core (FUN_063477e0, Common.dll.txt:411302-411306) whenever a

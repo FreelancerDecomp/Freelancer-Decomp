@@ -34,7 +34,7 @@ namespace
         Words[3] = 0;
     }
 
-    static_assert(sizeof(IVP_Tri_Edge*) == 4, "edge_hash keys are 4-byte edge pointers");
+    FL_LAYOUT_ASSERT(sizeof(IVP_Tri_Edge*) == 4, "edge_hash keys are 4-byte edge pointers");
 }
 
 // FUN_0637a2e0 (.text:0637a2e0-0637a32a): both vectors {0, 0, null}, then

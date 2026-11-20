@@ -355,7 +355,7 @@ private:
         BuildNode* Child0;      // +0x20: first child (0 => this is a leaf node).
         BuildNode* Child1;      // +0x24: second child.
     };
-    static_assert(sizeof(BuildNode) == 0x28,
+    FL_LAYOUT_ASSERT(sizeof(BuildNode) == 0x28,
                   "must match retail size -- FUN_0636a350/FUN_0636a860 both operator_new(0x28) + REP STOSD (ECX=0xa dwords) this struct");
 
     // CompileNode() (FUN_0636b5e0) writes one IVP_Compact_Ledgetree_Node
@@ -385,7 +385,7 @@ private:
         {
         }
     };
-    static_assert(sizeof(FVolumeIntegralAccumulator) == 0x18, "0x18-byte stack object of FUN_0636d6f0 (local_68)");
+    FL_LAYOUT_ASSERT(sizeof(FVolumeIntegralAccumulator) == 0x18, "0x18-byte stack object of FUN_0636d6f0 (local_68)");
 
     // FUN_0636d000(csys) builds it (thiscall, RET 4): {csys, 0, 0, 0}. The
     // accumulator of FUN_0636d580 / FUN_0636d040.
@@ -420,7 +420,7 @@ private:
         int16_t NextIndexOrCount;  // +0x02: next entry's index (0 = end of chain), OR for entry [0] specifically, the current root entry's index.
         BuildNode* Payload;        // +0x04: the BuildNode this entry represents (entries [1..n] only; entry [0]'s payload is never written/read).
     };
-    static_assert(sizeof(BuildTreeScratchEntry) == 0x8,
+    FL_LAYOUT_ASSERT(sizeof(BuildTreeScratchEntry) == 0x8,
                   "must match retail size -- BuildLeafNodes()/CompileTree() both index this array with a fixed *8 stride");
 
     void* m_CompactSurface;                    // +0x00: pointer to the built surface. Set somewhere inside the unported Compile() callee chain; read and cleared (ownership transferred to the caller) at the end of Compile(). Not yet typed as IVP_Compact_Surface* -- that class isn't defined anywhere in this port yet.
@@ -676,5 +676,5 @@ public:
     // ApplyMassPropertyHeader, FreeBuildState, optional shrink-copy.
     void* Compile(const void* options = nullptr);
 };
-static_assert(sizeof(IVP_SurfaceBuilder_Ledge_Soup) == 0x94,
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceBuilder_Ledge_Soup) == 0x94,
               "must match retail object size -- Common.dll+0x6369e70's ctor zeroes exactly 0x94 bytes (REP STOSD, ECX=0x25 dwords)");

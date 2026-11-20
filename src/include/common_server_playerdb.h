@@ -685,7 +685,7 @@ typedef PlayerData PlayerSlot;
 // retail meaning, and PlayerData no longer crosses a DLL boundary (the one table
 // lives in Server.dll's `Players`). The layout is NOT retail's -- see the header
 // comment -- and the retail offset is recorded on each member instead.
-static_assert(sizeof(((PlayerData*)nullptr)->cash) == 4, "PlayerData::cash must stay a 4-byte int");
+FL_LAYOUT_ASSERT(sizeof(((PlayerData*)nullptr)->cash) == 4, "PlayerData::cash must stay a 4-byte int");
 
 // Common.dll exports for Server.dll (C++ linkage to match COMMON_API)
 #ifdef COMMON_EXPORTS

@@ -74,17 +74,17 @@ struct FAiTarget
     // BEFORE the vcall. Most retail call sites inline it.
     void RefreshPos();
 };
-static_assert(sizeof(FAiTarget) == 0x88, "FAiTarget must match retail's 0x88-byte AI-target cache record");
-static_assert(offsetof(FAiTarget, CachedFlags) == 0x08, "FAiTarget+0x08 CachedFlags");
-static_assert(offsetof(FAiTarget, CachedPos) == 0x0C, "FAiTarget+0x0C CachedPos");
-static_assert(offsetof(FAiTarget, CachedRadius) == 0x18, "FAiTarget+0x18 CachedRadius");
-static_assert(offsetof(FAiTarget, CachedCorners) == 0x1C, "FAiTarget+0x1C CachedCorners");
-static_assert(offsetof(FAiTarget, bAttitudeValid) == 0x7C, "FAiTarget+0x7C bAttitudeValid");
-static_assert(offsetof(FAiTarget, bFlagsValid) == 0x7D, "FAiTarget+0x7D bFlagsValid");
-static_assert(offsetof(FAiTarget, bPosValid) == 0x7E, "FAiTarget+0x7E bPosValid");
-static_assert(offsetof(FAiTarget, bCornersValid) == 0x7F, "FAiTarget+0x7F bCornersValid");
-static_assert(offsetof(FAiTarget, AttitudeRefIface) == 0x80, "FAiTarget+0x80 AttitudeRefIface");
-static_assert(offsetof(FAiTarget, Iface) == 0x84, "FAiTarget+0x84 Iface");
+FL_LAYOUT_ASSERT(sizeof(FAiTarget) == 0x88, "FAiTarget must match retail's 0x88-byte AI-target cache record");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, CachedFlags) == 0x08, "FAiTarget+0x08 CachedFlags");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, CachedPos) == 0x0C, "FAiTarget+0x0C CachedPos");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, CachedRadius) == 0x18, "FAiTarget+0x18 CachedRadius");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, CachedCorners) == 0x1C, "FAiTarget+0x1C CachedCorners");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, bAttitudeValid) == 0x7C, "FAiTarget+0x7C bAttitudeValid");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, bFlagsValid) == 0x7D, "FAiTarget+0x7D bFlagsValid");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, bPosValid) == 0x7E, "FAiTarget+0x7E bPosValid");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, bCornersValid) == 0x7F, "FAiTarget+0x7F bCornersValid");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, AttitudeRefIface) == 0x80, "FAiTarget+0x80 AttitudeRefIface");
+FL_LAYOUT_ASSERT(offsetof(FAiTarget, Iface) == 0x84, "FAiTarget+0x84 Iface");
 
 // ============================================================================
 // SystemManager — Common.dll.c FUN_062e6260 (SystemManager::SystemManager),
@@ -404,15 +404,15 @@ private:
     IObjRW* OwnerShip() const;
 };
 
-static_assert(sizeof(ThrustManager) == 0x1C,
+FL_LAYOUT_ASSERT(sizeof(ThrustManager) == 0x1C,
     "ThrustManager occupies SystemManager+0x18..+0x34 exactly (Timers starts at +0x34)");
-static_assert(offsetof(ThrustManager, MaxThrottle) == 0x04, "ThrustManager+0x04 MaxThrottle");
-static_assert(offsetof(ThrustManager, AxisThrottle) == 0x08, "ThrustManager+0x08 AxisThrottle");
-static_assert(offsetof(ThrustManager, bCruiseEngaged) == 0x14, "ThrustManager+0x14 bCruiseEngaged");
-static_assert(offsetof(ThrustManager, bCruiseUnobstructed) == 0x15, "ThrustManager+0x15 bCruiseUnobstructed");
-static_assert(offsetof(ThrustManager, bEngineActive) == 0x16, "ThrustManager+0x16 bEngineActive");
-static_assert(offsetof(ThrustManager, bAutoLevel) == 0x17, "ThrustManager+0x17 bAutoLevel");
-static_assert(offsetof(ThrustManager, bAutoAvoidance) == 0x18, "ThrustManager+0x18 bAutoAvoidance");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, MaxThrottle) == 0x04, "ThrustManager+0x04 MaxThrottle");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, AxisThrottle) == 0x08, "ThrustManager+0x08 AxisThrottle");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, bCruiseEngaged) == 0x14, "ThrustManager+0x14 bCruiseEngaged");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, bCruiseUnobstructed) == 0x15, "ThrustManager+0x15 bCruiseUnobstructed");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, bEngineActive) == 0x16, "ThrustManager+0x16 bEngineActive");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, bAutoLevel) == 0x17, "ThrustManager+0x17 bAutoLevel");
+FL_LAYOUT_ASSERT(offsetof(ThrustManager, bAutoAvoidance) == 0x18, "ThrustManager+0x18 bAutoAvoidance");
 
 // FUN_062e6490's own ThrustManager initialiser block (Common.dll.txt
 // 242201-242214). Kept separate from any constructor because retail runs it
@@ -438,10 +438,10 @@ struct FAiTargetVector
     FAiTarget* End;     // +0x08  _Last  (one past the live range)
     FAiTarget* Cap;     // +0x0C  _End   (one past the allocated range)
 };
-static_assert(sizeof(FAiTargetVector) == 0x10, "FAiTargetVector must be 0x10 bytes");
-static_assert(offsetof(FAiTargetVector, Begin) == 0x04, "FAiTargetVector+0x04 Begin");
-static_assert(offsetof(FAiTargetVector, End) == 0x08, "FAiTargetVector+0x08 End");
-static_assert(offsetof(FAiTargetVector, Cap) == 0x0C, "FAiTargetVector+0x0C Cap");
+FL_LAYOUT_ASSERT(sizeof(FAiTargetVector) == 0x10, "FAiTargetVector must be 0x10 bytes");
+FL_LAYOUT_ASSERT(offsetof(FAiTargetVector, Begin) == 0x04, "FAiTargetVector+0x04 Begin");
+FL_LAYOUT_ASSERT(offsetof(FAiTargetVector, End) == 0x08, "FAiTargetVector+0x08 End");
+FL_LAYOUT_ASSERT(offsetof(FAiTargetVector, Cap) == 0x0C, "FAiTargetVector+0x0C Cap");
 
 // ---------------------------------------------------------------------------
 // SustainedThresholdTimer -- 0x10 bytes; eleven of them sit in SystemManagerTimerTable at
@@ -460,7 +460,7 @@ struct SustainedThresholdTimer
     // which clears the latch and answers false. Definition: common_aifirecontrol.cpp.
     bool Update(float DeltaTime, float Level);
 };
-static_assert(sizeof(SustainedThresholdTimer) == 0x10, "SustainedThresholdTimer must match retail's 16-byte raw layout");
+FL_LAYOUT_ASSERT(sizeof(SustainedThresholdTimer) == 0x10, "SustainedThresholdTimer must match retail's 16-byte raw layout");
 
 // ---------------------------------------------------------------------------
 // SystemManagerTimerTable — SystemManager+0x34. Ctor: Common.dll.c 0x062e6af0
@@ -611,21 +611,21 @@ struct SystemManagerTimerTable
     // Definition: common_obstacleavoidance.cpp.
     bool GetOwnScanList(ScanList const*& OutList, unsigned FilterMask);
 };
-static_assert(sizeof(SystemManagerTimerTable) == 0xF8,
+FL_LAYOUT_ASSERT(sizeof(SystemManagerTimerTable) == 0xF8,
     "SystemManagerTimerTable must match retail's 0xF8-byte sub-object (SystemManager+0x34)");
-static_assert(offsetof(SystemManagerTimerTable, ObjectDb) == 0x00, "SystemManagerTimerTable+0x00 ObjectDb");
-static_assert(offsetof(SystemManagerTimerTable, Owner) == 0x04, "SystemManagerTimerTable+0x04 Owner");
-static_assert(offsetof(SystemManagerTimerTable, ScannerEquipId) == 0x08, "SystemManagerTimerTable+0x08 ScannerEquipId");
-static_assert(offsetof(SystemManagerTimerTable, Targets) == 0x0C, "SystemManagerTimerTable+0x0C Targets (the std::vector<FAiTarget> header)");
-static_assert(offsetof(SystemManagerTimerTable, bBuilt) == 0x1C, "SystemManagerTimerTable+0x1C bBuilt");
-static_assert(offsetof(SystemManagerTimerTable, bKeepCache) == 0x1D, "SystemManagerTimerTable+0x1D bKeepCache");
-static_assert(offsetof(SystemManagerTimerTable, DecayRate) == 0x20, "SystemManagerTimerTable+0x20 DecayRate");
-static_assert(offsetof(SystemManagerTimerTable, Level) == 0x24, "SystemManagerTimerTable+0x24 Level");
-static_assert(offsetof(SystemManagerTimerTable, Timers) == 0x28, "SystemManagerTimerTable+0x28 Timers");
-static_assert(offsetof(SystemManagerTimerTable, ListHeadNode) == 0xE0, "SystemManagerTimerTable+0xE0 ListHeadNode");
-static_assert(offsetof(SystemManagerTimerTable, BestCandidateWatcherBytes) == 0xE8,
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, ObjectDb) == 0x00, "SystemManagerTimerTable+0x00 ObjectDb");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, Owner) == 0x04, "SystemManagerTimerTable+0x04 Owner");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, ScannerEquipId) == 0x08, "SystemManagerTimerTable+0x08 ScannerEquipId");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, Targets) == 0x0C, "SystemManagerTimerTable+0x0C Targets (the std::vector<FAiTarget> header)");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, bBuilt) == 0x1C, "SystemManagerTimerTable+0x1C bBuilt");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, bKeepCache) == 0x1D, "SystemManagerTimerTable+0x1D bKeepCache");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, DecayRate) == 0x20, "SystemManagerTimerTable+0x20 DecayRate");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, Level) == 0x24, "SystemManagerTimerTable+0x24 Level");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, Timers) == 0x28, "SystemManagerTimerTable+0x28 Timers");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, ListHeadNode) == 0xE0, "SystemManagerTimerTable+0xE0 ListHeadNode");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, BestCandidateWatcherBytes) == 0xE8,
     "SystemManagerTimerTable+0xE8 BestCandidateWatcher (a real BaseWatcher)");
-static_assert(offsetof(SystemManagerTimerTable, BestValueSoFar) == 0xF4, "SystemManagerTimerTable+0xF4 BestValueSoFar");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerTimerTable, BestValueSoFar) == 0xF4, "SystemManagerTimerTable+0xF4 BestValueSoFar");
 
 void ConstructSystemManagerTimerTable(SystemManagerTimerTable* Self);
 
@@ -703,16 +703,16 @@ struct FGunGroupSlot
     float Phase;                    // +0x18 >= 0 inside a burst
     unsigned char Field_0x1C;       // +0x1C only the ctor's zero store is known. TODO: meaning
 };
-static_assert(sizeof(FGunGroupSlot) == 0x20, "FGunGroupSlot sizeof 0x20");
-static_assert(offsetof(FGunGroupSlot, bAutoTurret) == 0x02, "FGunGroupSlot+0x02 bAutoTurret");
-static_assert(offsetof(FGunGroupSlot, bSeekerMunition) == 0x03, "FGunGroupSlot+0x03 bSeekerMunition");
-static_assert(offsetof(FGunGroupSlot, bFireTick) == 0x04, "FGunGroupSlot+0x04 bFireTick");
-static_assert(offsetof(FGunGroupSlot, MunitionKind) == 0x08, "FGunGroupSlot+0x08 MunitionKind");
-static_assert(offsetof(FGunGroupSlot, BurstTime) == 0x0C, "FGunGroupSlot+0x0C BurstTime");
-static_assert(offsetof(FGunGroupSlot, NoBurstTime) == 0x10, "FGunGroupSlot+0x10 NoBurstTime");
-static_assert(offsetof(FGunGroupSlot, FireInterval) == 0x14, "FGunGroupSlot+0x14 FireInterval");
-static_assert(offsetof(FGunGroupSlot, Phase) == 0x18, "FGunGroupSlot+0x18 Phase");
-static_assert(offsetof(FGunGroupSlot, Field_0x1C) == 0x1C, "FGunGroupSlot+0x1C");
+FL_LAYOUT_ASSERT(sizeof(FGunGroupSlot) == 0x20, "FGunGroupSlot sizeof 0x20");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, bAutoTurret) == 0x02, "FGunGroupSlot+0x02 bAutoTurret");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, bSeekerMunition) == 0x03, "FGunGroupSlot+0x03 bSeekerMunition");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, bFireTick) == 0x04, "FGunGroupSlot+0x04 bFireTick");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, MunitionKind) == 0x08, "FGunGroupSlot+0x08 MunitionKind");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, BurstTime) == 0x0C, "FGunGroupSlot+0x0C BurstTime");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, NoBurstTime) == 0x10, "FGunGroupSlot+0x10 NoBurstTime");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, FireInterval) == 0x14, "FGunGroupSlot+0x14 FireInterval");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, Phase) == 0x18, "FGunGroupSlot+0x18 Phase");
+FL_LAYOUT_ASSERT(offsetof(FGunGroupSlot, Field_0x1C) == 0x1C, "FGunGroupSlot+0x1C");
 
 // One line-of-fire cache record (GunGroups+0x1098, sixteen of them), 0x18 bytes, natural
 // padding. Keyed by (TargetId, HardpointId); see IsLineOfFireBlocked and UpdateTimers.
@@ -726,13 +726,13 @@ struct FLauncherFireCacheSlot
     unsigned char NeedsRefresh;     // +0x14 stale: the next query recomputes
     unsigned char bBlocked;         // +0x15 the cached answer
 };
-static_assert(sizeof(FLauncherFireCacheSlot) == 0x18, "FLauncherFireCacheSlot sizeof 0x18");
-static_assert(offsetof(FLauncherFireCacheSlot, TargetId) == 0x04, "FLauncherFireCacheSlot+0x04 TargetId");
-static_assert(offsetof(FLauncherFireCacheSlot, HardpointId) == 0x08, "FLauncherFireCacheSlot+0x08 HardpointId");
-static_assert(offsetof(FLauncherFireCacheSlot, Age) == 0x0C, "FLauncherFireCacheSlot+0x0C Age");
-static_assert(offsetof(FLauncherFireCacheSlot, RefreshTimer) == 0x10, "FLauncherFireCacheSlot+0x10 RefreshTimer");
-static_assert(offsetof(FLauncherFireCacheSlot, NeedsRefresh) == 0x14, "FLauncherFireCacheSlot+0x14 NeedsRefresh");
-static_assert(offsetof(FLauncherFireCacheSlot, bBlocked) == 0x15, "FLauncherFireCacheSlot+0x15 bBlocked");
+FL_LAYOUT_ASSERT(sizeof(FLauncherFireCacheSlot) == 0x18, "FLauncherFireCacheSlot sizeof 0x18");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, TargetId) == 0x04, "FLauncherFireCacheSlot+0x04 TargetId");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, HardpointId) == 0x08, "FLauncherFireCacheSlot+0x08 HardpointId");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, Age) == 0x0C, "FLauncherFireCacheSlot+0x0C Age");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, RefreshTimer) == 0x10, "FLauncherFireCacheSlot+0x10 RefreshTimer");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, NeedsRefresh) == 0x14, "FLauncherFireCacheSlot+0x14 NeedsRefresh");
+FL_LAYOUT_ASSERT(offsetof(FLauncherFireCacheSlot, bBlocked) == 0x15, "FLauncherFireCacheSlot+0x15 bBlocked");
 
 // SystemManager+0x1344 (GunGroups+0x1218), 0x20 bytes: switches the ship's countermeasure
 // droppers on and off from Personality CMParams. Methods are thiscall on this block.
@@ -762,11 +762,11 @@ struct FCmDropperWatcher
     // through IObjAffect slot_4c(Id, NewState, -1); then bActive = NewState.
     void SetActive(unsigned char NewState);
 };
-static_assert(sizeof(FCmDropperWatcher) == 0x20, "FCmDropperWatcher sizeof 0x20");
-static_assert(offsetof(FCmDropperWatcher, Timer) == 0x04, "FCmDropperWatcher+0x04 Timer");
-static_assert(offsetof(FCmDropperWatcher, bActive) == 0x08, "FCmDropperWatcher+0x08 bActive");
-static_assert(offsetof(FCmDropperWatcher, Count) == 0x0C, "FCmDropperWatcher+0x0C Count");
-static_assert(offsetof(FCmDropperWatcher, Ids) == 0x10, "FCmDropperWatcher+0x10 Ids");
+FL_LAYOUT_ASSERT(sizeof(FCmDropperWatcher) == 0x20, "FCmDropperWatcher sizeof 0x20");
+FL_LAYOUT_ASSERT(offsetof(FCmDropperWatcher, Timer) == 0x04, "FCmDropperWatcher+0x04 Timer");
+FL_LAYOUT_ASSERT(offsetof(FCmDropperWatcher, bActive) == 0x08, "FCmDropperWatcher+0x08 bActive");
+FL_LAYOUT_ASSERT(offsetof(FCmDropperWatcher, Count) == 0x0C, "FCmDropperWatcher+0x0C Count");
+FL_LAYOUT_ASSERT(offsetof(FCmDropperWatcher, Ids) == 0x10, "FCmDropperWatcher+0x10 Ids");
 
 struct SystemManagerGunGroupManager
 {
@@ -923,30 +923,30 @@ struct SystemManagerGunGroupManager
     // unread). Retarget(Target), then the gun, missile and mine passes.
     bool RunFireControlTick(IObjRW* Target);
 };
-static_assert(sizeof(SystemManagerGunGroupManager) == 0x1238,
+FL_LAYOUT_ASSERT(sizeof(SystemManagerGunGroupManager) == 0x1238,
     "SystemManagerGunGroupManager must match retail's 0x1238-byte sub-object (SystemManager+0x12C)");
-static_assert(offsetof(SystemManagerGunGroupManager, TargetWatcherBytes) == 0x08, "GunGroups+0x08 TargetWatcher");
-static_assert(offsetof(SystemManagerGunGroupManager, Field_0x10) == 0x10, "GunGroups+0x10");
-static_assert(offsetof(SystemManagerGunGroupManager, AimOffset) == 0x14, "GunGroups+0x14 AimOffset");
-static_assert(offsetof(SystemManagerGunGroupManager, AimRefreshTimer) == 0x20, "GunGroups+0x20 AimRefreshTimer");
-static_assert(offsetof(SystemManagerGunGroupManager, CruiseHeldTime) == 0x24, "GunGroups+0x24 CruiseHeldTime");
-static_assert(offsetof(SystemManagerGunGroupManager, ScanTimer) == 0x28, "GunGroups+0x28 ScanTimer");
-static_assert(offsetof(SystemManagerGunGroupManager, ScanPeriod) == 0x2C, "GunGroups+0x2C ScanPeriod");
-static_assert(offsetof(SystemManagerGunGroupManager, Guns) == 0x30, "GunGroups+0x30 Guns");
-static_assert(offsetof(SystemManagerGunGroupManager, GunCount) == 0x830, "GunGroups+0x830 GunCount");
-static_assert(offsetof(SystemManagerGunGroupManager, Field_0x834) == 0x834, "GunGroups+0x834");
-static_assert(offsetof(SystemManagerGunGroupManager, MineDroppers) == 0x838, "GunGroups+0x838 MineDroppers");
-static_assert(offsetof(SystemManagerGunGroupManager, MineDropperCount) == 0x1038, "GunGroups+0x1038 MineDropperCount");
-static_assert(offsetof(SystemManagerGunGroupManager, GunFireIntervalTime) == 0x103C, "GunGroups+0x103C");
-static_assert(offsetof(SystemManagerGunGroupManager, MissileLaunchRange) == 0x106C, "GunGroups+0x106C");
-static_assert(offsetof(SystemManagerGunGroupManager, MineLaunchConeAngle) == 0x1078, "GunGroups+0x1078");
-static_assert(offsetof(SystemManagerGunGroupManager, GunFireAccuracyConeAngle) == 0x1080, "GunGroups+0x1080");
-static_assert(offsetof(SystemManagerGunGroupManager, GunRange) == 0x1084, "GunGroups+0x1084 GunRange");
-static_assert(offsetof(SystemManagerGunGroupManager, bFireAllGuns) == 0x1088, "GunGroups+0x1088 bFireAllGuns");
-static_assert(offsetof(SystemManagerGunGroupManager, WideConeAngle) == 0x1090, "GunGroups+0x1090 WideConeAngle");
-static_assert(offsetof(SystemManagerGunGroupManager, bEnabled) == 0x1094, "GunGroups+0x1094 bEnabled");
-static_assert(offsetof(SystemManagerGunGroupManager, LineOfFireCache) == 0x1098, "GunGroups+0x1098 LineOfFireCache");
-static_assert(offsetof(SystemManagerGunGroupManager, CmDroppers) == 0x1218, "GunGroups+0x1218 CmDroppers");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, TargetWatcherBytes) == 0x08, "GunGroups+0x08 TargetWatcher");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, Field_0x10) == 0x10, "GunGroups+0x10");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, AimOffset) == 0x14, "GunGroups+0x14 AimOffset");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, AimRefreshTimer) == 0x20, "GunGroups+0x20 AimRefreshTimer");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, CruiseHeldTime) == 0x24, "GunGroups+0x24 CruiseHeldTime");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, ScanTimer) == 0x28, "GunGroups+0x28 ScanTimer");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, ScanPeriod) == 0x2C, "GunGroups+0x2C ScanPeriod");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, Guns) == 0x30, "GunGroups+0x30 Guns");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, GunCount) == 0x830, "GunGroups+0x830 GunCount");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, Field_0x834) == 0x834, "GunGroups+0x834");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, MineDroppers) == 0x838, "GunGroups+0x838 MineDroppers");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, MineDropperCount) == 0x1038, "GunGroups+0x1038 MineDropperCount");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, GunFireIntervalTime) == 0x103C, "GunGroups+0x103C");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, MissileLaunchRange) == 0x106C, "GunGroups+0x106C");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, MineLaunchConeAngle) == 0x1078, "GunGroups+0x1078");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, GunFireAccuracyConeAngle) == 0x1080, "GunGroups+0x1080");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, GunRange) == 0x1084, "GunGroups+0x1084 GunRange");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, bFireAllGuns) == 0x1088, "GunGroups+0x1088 bFireAllGuns");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, WideConeAngle) == 0x1090, "GunGroups+0x1090 WideConeAngle");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, bEnabled) == 0x1094, "GunGroups+0x1094 bEnabled");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, LineOfFireCache) == 0x1098, "GunGroups+0x1098 LineOfFireCache");
+FL_LAYOUT_ASSERT(offsetof(SystemManagerGunGroupManager, CmDroppers) == 0x1218, "GunGroups+0x1218 CmDroppers");
 
 // FUN_062e9330 (item 1828): the gun groups' constructor, run by SystemManager's ctor.
 void ConstructSystemManagerGunGroupManager(SystemManagerGunGroupManager* Self);
@@ -1023,15 +1023,15 @@ struct PotionHelper
     float UseAtRatio;           // +0x1C  state 0 -> 1 once GetRatio() <= this
     float Timer;                // +0x20
 };
-static_assert(sizeof(PotionHelper) == 0x24, "PotionHelper sizeof 0x24 (Shield at RepairManager+0x2C)");
-static_assert(offsetof(PotionHelper, State) == 0x04, "PotionHelper+0x04 State");
-static_assert(offsetof(PotionHelper, Type) == 0x08, "PotionHelper+0x08 Type");
-static_assert(offsetof(PotionHelper, EquipId) == 0x0C, "PotionHelper+0x0C EquipId");
-static_assert(offsetof(PotionHelper, Count) == 0x10, "PotionHelper+0x10 Count");
-static_assert(offsetof(PotionHelper, PreUseDelay) == 0x14, "PotionHelper+0x14 PreUseDelay");
-static_assert(offsetof(PotionHelper, PostUseDelay) == 0x18, "PotionHelper+0x18 PostUseDelay");
-static_assert(offsetof(PotionHelper, UseAtRatio) == 0x1C, "PotionHelper+0x1C UseAtRatio");
-static_assert(offsetof(PotionHelper, Timer) == 0x20, "PotionHelper+0x20 Timer");
+FL_LAYOUT_ASSERT(sizeof(PotionHelper) == 0x24, "PotionHelper sizeof 0x24 (Shield at RepairManager+0x2C)");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, State) == 0x04, "PotionHelper+0x04 State");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, Type) == 0x08, "PotionHelper+0x08 Type");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, EquipId) == 0x0C, "PotionHelper+0x0C EquipId");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, Count) == 0x10, "PotionHelper+0x10 Count");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, PreUseDelay) == 0x14, "PotionHelper+0x14 PreUseDelay");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, PostUseDelay) == 0x18, "PotionHelper+0x18 PostUseDelay");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, UseAtRatio) == 0x1C, "PotionHelper+0x1C UseAtRatio");
+FL_LAYOUT_ASSERT(offsetof(PotionHelper, Timer) == 0x20, "PotionHelper+0x20 Timer");
 
 // HullHelper (RTTI .?AUHullHelper@@), vtable 063a07cc.
 struct HullHelper : PotionHelper
@@ -1062,11 +1062,11 @@ struct RepairManager : IObjInspect::CargoEnumerator
     ShieldHelper Shield;        // +0x2C
     float CheckTimer;           // +0x50
 };
-static_assert(sizeof(RepairManager) == 0x54, "RepairManager sizeof 0x54 (SystemManager+0x14A8..+0x14FB)");
-static_assert(offsetof(RepairManager, Owner) == 0x04, "RepairManager+0x04 Owner");
-static_assert(offsetof(RepairManager, Hull) == 0x08, "RepairManager+0x08 Hull");
-static_assert(offsetof(RepairManager, Shield) == 0x2C, "RepairManager+0x2C Shield");
-static_assert(offsetof(RepairManager, CheckTimer) == 0x50, "RepairManager+0x50 CheckTimer");
+FL_LAYOUT_ASSERT(sizeof(RepairManager) == 0x54, "RepairManager sizeof 0x54 (SystemManager+0x14A8..+0x14FB)");
+FL_LAYOUT_ASSERT(offsetof(RepairManager, Owner) == 0x04, "RepairManager+0x04 Owner");
+FL_LAYOUT_ASSERT(offsetof(RepairManager, Hull) == 0x08, "RepairManager+0x08 Hull");
+FL_LAYOUT_ASSERT(offsetof(RepairManager, Shield) == 0x2C, "RepairManager+0x2C Shield");
+FL_LAYOUT_ASSERT(offsetof(RepairManager, CheckTimer) == 0x50, "RepairManager+0x50 CheckTimer");
 
 // FUN_062ecfb0, item 1880. Raw disasm Common.dll.txt 253015-253078 (57 insns), `this` == the
 // RepairManager at both call sites (.text:062e68b6 and .text:062e696c). Re-seeds both helpers'
@@ -1218,17 +1218,17 @@ struct FGunConvergenceStateBlock
     // owner has no watched object or no followers. Definition: common_gotobehavior.cpp.
     bool ComputeFormationFollowerEnvelope(FormationFollowerEnvelope* Out);
 };
-static_assert(sizeof(FGunConvergenceStateBlock) == 0xC8, "FGunConvergenceStateBlock sizeof 0xC8");
-static_assert(offsetof(FGunConvergenceStateBlock, Owner) == 0x08, "FGunConvergenceStateBlock+0x08 Owner");
-static_assert(offsetof(FGunConvergenceStateBlock, FormationLeaderWatcher) == 0x0C, "FGunConvergenceStateBlock+0x0C");
-static_assert(offsetof(FGunConvergenceStateBlock, FollowLeaderWatcher) == 0x14, "FGunConvergenceStateBlock+0x14");
-static_assert(offsetof(FGunConvergenceStateBlock, FollowerScratch) == 0x1C, "FGunConvergenceStateBlock+0x1C");
-static_assert(offsetof(FGunConvergenceStateBlock, FormationNarrowAngle) == 0x9C, "FGunConvergenceStateBlock+0x9C");
-static_assert(offsetof(FGunConvergenceStateBlock, OrderObjectId) == 0xA8, "FGunConvergenceStateBlock+0xA8");
-static_assert(offsetof(FGunConvergenceStateBlock, OrderLaneParam) == 0xB8, "FGunConvergenceStateBlock+0xB8");
-static_assert(offsetof(FGunConvergenceStateBlock, bOrderPending) == 0xBD, "FGunConvergenceStateBlock+0xBD");
-static_assert(offsetof(FGunConvergenceStateBlock, bForceAttackFormation) == 0xC3, "FGunConvergenceStateBlock+0xC3");
-static_assert(offsetof(FGunConvergenceStateBlock, bReleaseRequested) == 0xC6, "FGunConvergenceStateBlock+0xC6");
+FL_LAYOUT_ASSERT(sizeof(FGunConvergenceStateBlock) == 0xC8, "FGunConvergenceStateBlock sizeof 0xC8");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, Owner) == 0x08, "FGunConvergenceStateBlock+0x08 Owner");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, FormationLeaderWatcher) == 0x0C, "FGunConvergenceStateBlock+0x0C");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, FollowLeaderWatcher) == 0x14, "FGunConvergenceStateBlock+0x14");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, FollowerScratch) == 0x1C, "FGunConvergenceStateBlock+0x1C");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, FormationNarrowAngle) == 0x9C, "FGunConvergenceStateBlock+0x9C");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, OrderObjectId) == 0xA8, "FGunConvergenceStateBlock+0xA8");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, OrderLaneParam) == 0xB8, "FGunConvergenceStateBlock+0xB8");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, bOrderPending) == 0xBD, "FGunConvergenceStateBlock+0xBD");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, bForceAttackFormation) == 0xC3, "FGunConvergenceStateBlock+0xC3");
+FL_LAYOUT_ASSERT(offsetof(FGunConvergenceStateBlock, bReleaseRequested) == 0xC6, "FGunConvergenceStateBlock+0xC6");
 
 // ---------------------------------------------------------------------------
 // SystemManager itself.
@@ -1301,22 +1301,22 @@ public:
     pub::AI::Personality PersonalityData;               // +0x1584
 };
 
-static_assert(sizeof(SystemManager) == 0x195C,
+FL_LAYOUT_ASSERT(sizeof(SystemManager) == 0x195C,
     "SystemManager must match retail's 0x195C-byte size (operator_new(0x195c) at the sole call site, FUN_062d2220)");
-static_assert(offsetof(SystemManager, Owner) == 0x04, "SystemManager+0x04 Owner");
-static_assert(offsetof(SystemManager, Watcher) == 0x08, "SystemManager+0x08 Watcher");
-static_assert(offsetof(SystemManager, ObjectDb) == 0x10, "SystemManager+0x10 ObjectDb");
-static_assert(offsetof(SystemManager, Thrust) == 0x18, "SystemManager+0x18 ThrustManager");
-static_assert(offsetof(SystemManager, Timers) == 0x34, "SystemManager+0x34 Timers");
-static_assert(offsetof(SystemManager, GunGroups) == 0x12C, "SystemManager+0x12C GunGroups");
-static_assert(offsetof(SystemManager, GunConvergenceStateBytes) == 0x1364, "SystemManager+0x1364 GunConvergenceStateBytes");
-static_assert(offsetof(SystemManager, Targeting) == 0x142C, "SystemManager+0x142C Targeting");
-static_assert(offsetof(SystemManager, Owner1498) == 0x1498, "SystemManager+0x1498 Owner1498");
-static_assert(offsetof(SystemManager, Watcher149C) == 0x149C, "SystemManager+0x149C Watcher149C");
-static_assert(offsetof(SystemManager, Unknown14A4) == 0x14A4, "SystemManager+0x14A4 Unknown14A4");
-static_assert(offsetof(SystemManager, Repair) == 0x14A8, "SystemManager+0x14A8 RepairManager");
-static_assert(offsetof(SystemManager, SelfTarget) == 0x14FC, "SystemManager+0x14FC SelfTarget");
-static_assert(offsetof(SystemManager, PersonalityData) == 0x1584, "SystemManager+0x1584 PersonalityData");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Owner) == 0x04, "SystemManager+0x04 Owner");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Watcher) == 0x08, "SystemManager+0x08 Watcher");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, ObjectDb) == 0x10, "SystemManager+0x10 ObjectDb");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Thrust) == 0x18, "SystemManager+0x18 ThrustManager");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Timers) == 0x34, "SystemManager+0x34 Timers");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, GunGroups) == 0x12C, "SystemManager+0x12C GunGroups");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, GunConvergenceStateBytes) == 0x1364, "SystemManager+0x1364 GunConvergenceStateBytes");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Targeting) == 0x142C, "SystemManager+0x142C Targeting");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Owner1498) == 0x1498, "SystemManager+0x1498 Owner1498");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Watcher149C) == 0x149C, "SystemManager+0x149C Watcher149C");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Unknown14A4) == 0x14A4, "SystemManager+0x14A4 Unknown14A4");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, Repair) == 0x14A8, "SystemManager+0x14A8 RepairManager");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, SelfTarget) == 0x14FC, "SystemManager+0x14FC SelfTarget");
+FL_LAYOUT_ASSERT(offsetof(SystemManager, PersonalityData) == 0x1584, "SystemManager+0x1584 PersonalityData");
 
 // 2026-09-11 d250:common-port -- SystemManager-scoped functions from the
 // 0x062e6260-0x062ea450 blocked-item pass, ported now that the class layout

@@ -430,14 +430,14 @@ EquipDesc* EquipDescVector::traverse_equipment_type(unsigned Type, EquipDesc con
     return nullptr;
 }
 
-static_assert(offsetof(EquipDesc, Id) == 2, "EquipDesc+2 id");
-static_assert(offsetof(EquipDesc, ArchId) == 4, "EquipDesc+4 arch");
-static_assert(offsetof(EquipDesc, Hardpoint) == 8, "EquipDesc+8 hp");
-static_assert(offsetof(EquipDesc, bEquipped) == 0x0C, "EquipDesc+0xC equipped");
-static_assert(offsetof(EquipDesc, Health) == 0x10, "EquipDesc+0x10 health");
-static_assert(offsetof(EquipDesc, Count) == 0x14, "EquipDesc+0x14 count");
-static_assert(offsetof(EquipDesc, bMission) == 0x18, "EquipDesc+0x18 mission");
-static_assert(offsetof(EquipDesc, Owner) == 0x1C, "EquipDesc+0x1C owner");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, Id) == 2, "EquipDesc+2 id");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, ArchId) == 4, "EquipDesc+4 arch");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, Hardpoint) == 8, "EquipDesc+8 hp");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, bEquipped) == 0x0C, "EquipDesc+0xC equipped");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, Health) == 0x10, "EquipDesc+0x10 health");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, Count) == 0x14, "EquipDesc+0x14 count");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, bMission) == 0x18, "EquipDesc+0x18 mission");
+FL_LAYOUT_ASSERT(offsetof(EquipDesc, Owner) == 0x1C, "EquipDesc+0x1C owner");
 
 // ---------------------------------------------------------------------------
 // EquipDescList — see common_goods.h. Minimal real port of retail Common.dll's

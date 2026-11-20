@@ -65,7 +65,7 @@ struct FSpawnRequest
                   std::vector<FSpacePopExclusionSphere> const* InExclusionSpheres);
 };
 
-static_assert(sizeof(FSpaceObjPlacement) == 0x30, "FSpawnRequest +0x10 block");
+FL_LAYOUT_ASSERT(sizeof(FSpaceObjPlacement) == 0x30, "FSpawnRequest +0x10 block");
 
 // FUN_06eb3390: true when the BasePop instance (DAT_06fcef08) tracks room NPCs for this
 // player. Retail caller: BaseSupport 06eb4dc9.

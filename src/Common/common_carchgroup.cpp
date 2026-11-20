@@ -335,7 +335,7 @@ namespace
         float Radius;
     };
 
-    static_assert(sizeof(FArchGroupChildSphere) == 0x10, "CArchGroup child-sphere element stride 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FArchGroupChildSphere) == 0x10, "CArchGroup child-sphere element stride 0x10");
 }
 
 void CArchGroup::GetBoundingSphere(float& OutRadius, Vector& OutCenter) const

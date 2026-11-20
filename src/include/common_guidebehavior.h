@@ -358,38 +358,38 @@ public:
                                           // Seeded from Flag38 by the GAP'd Engage().
 };
 
-static_assert(offsetof(GuideBehavior, CachedHandle08) == 0x08, "GuideBehavior::CachedHandle08 offset");
-static_assert(offsetof(GuideBehavior, ModeSelector0xc) == 0x0c, "GuideBehavior::ModeSelector0xc offset");
-static_assert(offsetof(GuideBehavior, UpdateResult10) == 0x10, "GuideBehavior::UpdateResult10 offset");
-static_assert(offsetof(GuideBehavior, OwnerContextPtr14) == 0x14, "GuideBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(GuideBehavior, DeltaTime1c) == 0x1c, "GuideBehavior::DeltaTime1c offset");
-static_assert(offsetof(GuideBehavior, BehaviorMgrPtr20) == 0x20, "GuideBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(GuideBehavior, NavHelperPtr24) == 0x24, "GuideBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(GuideBehavior, Flags28) == 0x28, "GuideBehavior::Flags28 offset");
-static_assert(offsetof(GuideBehavior, Flag29) == 0x29, "GuideBehavior::Flag29 offset");
-static_assert(offsetof(GuideBehavior, WatcherA) == 0x2c, "GuideBehavior::WatcherA offset");
-static_assert(offsetof(GuideBehavior, Field34) == 0x34, "GuideBehavior::Field34 offset");
-static_assert(offsetof(GuideBehavior, Flag38) == 0x38, "GuideBehavior::Flag38 offset");
-static_assert(offsetof(GuideBehavior, Field3c) == 0x3c, "GuideBehavior::Field3c offset");
-static_assert(offsetof(GuideBehavior, Field40) == 0x40, "GuideBehavior::Field40 offset");
-static_assert(offsetof(GuideBehavior, Field44) == 0x44, "GuideBehavior::Field44 offset");
-static_assert(offsetof(GuideBehavior, Field48) == 0x48, "GuideBehavior::Field48 offset");
-static_assert(offsetof(GuideBehavior, Field54) == 0x54, "GuideBehavior::Field54 offset");
-static_assert(offsetof(GuideBehavior, Field58) == 0x58, "GuideBehavior::Field58 offset");
-static_assert(offsetof(GuideBehavior, Field5c) == 0x5c, "GuideBehavior::Field5c offset");
-static_assert(offsetof(GuideBehavior, CachedPtr60) == 0x60, "GuideBehavior::CachedPtr60 offset");
-static_assert(offsetof(GuideBehavior, CachedPtr64) == 0x64, "GuideBehavior::CachedPtr64 offset");
-static_assert(offsetof(GuideBehavior, GotoOp) == 0x68, "GuideBehavior::GotoOp offset");
-static_assert(offsetof(GuideBehavior, FollowOp) == 0xd8, "GuideBehavior::FollowOp offset");
-static_assert(offsetof(GuideBehavior, WatcherB) == 0xfc, "GuideBehavior::WatcherB offset");
-static_assert(offsetof(GuideBehavior, Field104) == 0x104, "GuideBehavior::Field104 offset");
-static_assert(offsetof(GuideBehavior, Field108) == 0x108, "GuideBehavior::Field108 offset");
-static_assert(offsetof(GuideBehavior, Field10c) == 0x10c, "GuideBehavior::Field10c offset");
-static_assert(offsetof(GuideBehavior, Field110) == 0x110, "GuideBehavior::Field110 offset");
-static_assert(offsetof(GuideBehavior, FieldLow114) == 0x114, "GuideBehavior::FieldLow114 offset");
-static_assert(offsetof(GuideBehavior, FieldHigh118) == 0x118, "GuideBehavior::FieldHigh118 offset");
-static_assert(offsetof(GuideBehavior, AngleThreshold11c) == 0x11c, "GuideBehavior::AngleThreshold11c offset");
-static_assert(offsetof(GuideBehavior, Flag120) == 0x120, "GuideBehavior::Flag120 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, CachedHandle08) == 0x08, "GuideBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, ModeSelector0xc) == 0x0c, "GuideBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, UpdateResult10) == 0x10, "GuideBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, OwnerContextPtr14) == 0x14, "GuideBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, DeltaTime1c) == 0x1c, "GuideBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, BehaviorMgrPtr20) == 0x20, "GuideBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, NavHelperPtr24) == 0x24, "GuideBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flags28) == 0x28, "GuideBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flag29) == 0x29, "GuideBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, WatcherA) == 0x2c, "GuideBehavior::WatcherA offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field34) == 0x34, "GuideBehavior::Field34 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flag38) == 0x38, "GuideBehavior::Flag38 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field3c) == 0x3c, "GuideBehavior::Field3c offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field40) == 0x40, "GuideBehavior::Field40 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field44) == 0x44, "GuideBehavior::Field44 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field48) == 0x48, "GuideBehavior::Field48 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field54) == 0x54, "GuideBehavior::Field54 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field58) == 0x58, "GuideBehavior::Field58 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field5c) == 0x5c, "GuideBehavior::Field5c offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, CachedPtr60) == 0x60, "GuideBehavior::CachedPtr60 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, CachedPtr64) == 0x64, "GuideBehavior::CachedPtr64 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, GotoOp) == 0x68, "GuideBehavior::GotoOp offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, FollowOp) == 0xd8, "GuideBehavior::FollowOp offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, WatcherB) == 0xfc, "GuideBehavior::WatcherB offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field104) == 0x104, "GuideBehavior::Field104 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field108) == 0x108, "GuideBehavior::Field108 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field10c) == 0x10c, "GuideBehavior::Field10c offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field110) == 0x110, "GuideBehavior::Field110 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, FieldLow114) == 0x114, "GuideBehavior::FieldLow114 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, FieldHigh118) == 0x118, "GuideBehavior::FieldHigh118 offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, AngleThreshold11c) == 0x11c, "GuideBehavior::AngleThreshold11c offset");
+FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flag120) == 0x120, "GuideBehavior::Flag120 offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x124`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -398,5 +398,5 @@ static_assert(offsetof(GuideBehavior, Flag120) == 0x120, "GuideBehavior::Flag120
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(GuideBehavior) == 0x124, "GuideBehavior size == retail operator_new(0x124)");
+FL_LAYOUT_ASSERT(sizeof(GuideBehavior) == 0x124, "GuideBehavior size == retail operator_new(0x124)");
 

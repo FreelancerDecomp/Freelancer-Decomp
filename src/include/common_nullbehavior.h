@@ -178,17 +178,17 @@ public:
     unsigned char Flag29;        // +0x29, zeroed.
     unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only.
 };
-static_assert(offsetof(NullBehavior, TypeId) == 0x04, "NullBehavior::TypeId offset");
-static_assert(offsetof(NullBehavior, CachedHandle08) == 0x08, "NullBehavior::CachedHandle08 offset");
-static_assert(offsetof(NullBehavior, ModeSelector0xc) == 0x0c, "NullBehavior::ModeSelector0xc offset");
-static_assert(offsetof(NullBehavior, UpdateResult10) == 0x10, "NullBehavior::UpdateResult10 offset");
-static_assert(offsetof(NullBehavior, OwnerContext) == 0x14, "NullBehavior::OwnerContext offset");
-static_assert(offsetof(NullBehavior, DeltaTime) == 0x1c, "NullBehavior::DeltaTime offset");
-static_assert(offsetof(NullBehavior, BehaviorMgrPtr) == 0x20, "NullBehavior::BehaviorMgrPtr offset");
-static_assert(offsetof(NullBehavior, NavHelper) == 0x24, "NullBehavior::NavHelper offset");
-static_assert(offsetof(NullBehavior, Flags28) == 0x28, "NullBehavior::Flags28 offset");
-static_assert(offsetof(NullBehavior, Flag29) == 0x29, "NullBehavior::Flag29 offset");
-static_assert(sizeof(NullBehavior) == 0x2c, "NullBehavior size == retail operator_new argument at .text:062d16e8");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, TypeId) == 0x04, "NullBehavior::TypeId offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, CachedHandle08) == 0x08, "NullBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, ModeSelector0xc) == 0x0c, "NullBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, UpdateResult10) == 0x10, "NullBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, OwnerContext) == 0x14, "NullBehavior::OwnerContext offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, DeltaTime) == 0x1c, "NullBehavior::DeltaTime offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, BehaviorMgrPtr) == 0x20, "NullBehavior::BehaviorMgrPtr offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, NavHelper) == 0x24, "NullBehavior::NavHelper offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, Flags28) == 0x28, "NullBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(NullBehavior, Flag29) == 0x29, "NullBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(sizeof(NullBehavior) == 0x2c, "NullBehavior size == retail operator_new argument at .text:062d16e8");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x2c`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -197,4 +197,4 @@ static_assert(sizeof(NullBehavior) == 0x2c, "NullBehavior size == retail operato
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(NullBehavior) <= 0x2c, "NullBehavior must not exceed its retail size 0x2c");
+FL_LAYOUT_ASSERT(sizeof(NullBehavior) <= 0x2c, "NullBehavior must not exceed its retail size 0x2c");

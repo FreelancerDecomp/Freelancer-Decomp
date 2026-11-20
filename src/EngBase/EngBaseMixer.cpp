@@ -15,8 +15,8 @@
 
 namespace
 {
-static_assert(sizeof(FQuaternion) == 4 * sizeof(float), "quaternion transport is four floats");
-static_assert(sizeof(FMatrix) == 9 * sizeof(float), "matrix transport is nine floats");
+FL_LAYOUT_ASSERT(sizeof(FQuaternion) == 4 * sizeof(float), "quaternion transport is four floats");
+FL_LAYOUT_ASSERT(sizeof(FMatrix) == 9 * sizeof(float), "matrix transport is nine floats");
 
 enum EMixerNodeType : unsigned long
 {

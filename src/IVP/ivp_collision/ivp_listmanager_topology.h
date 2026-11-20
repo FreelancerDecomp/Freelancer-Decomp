@@ -204,7 +204,7 @@ struct IVP_PairContactAxisSetup
     IVP_Core*& CoreA() { return *reinterpret_cast<IVP_Core**>(&Field[0x18]); }
     IVP_Core*& CoreB() { return *reinterpret_cast<IVP_Core**>(&Field[0x19]); }
 };
-static_assert(sizeof(IVP_PairContactAxisSetup) == 0x6C, "IVP_PairContactAxisSetup must match retail's 0x6C-byte scratch extent (FUN_063561c0's own SUB ESP,0x6c)");
+FL_LAYOUT_ASSERT(sizeof(IVP_PairContactAxisSetup) == 0x6C, "IVP_PairContactAxisSetup must match retail's 0x6C-byte scratch extent (FUN_063561c0's own SUB ESP,0x6c)");
 
 // FUN_06355d20 (item 3235). Pure scalar math, zero external state:
 // (A - sqrt(|A*A - (D+D)*(B+C)|)) * (1/(B+C)). The result is left on the x87

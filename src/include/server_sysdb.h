@@ -56,7 +56,7 @@ struct FMineExplosion {
     unsigned int MineId;              // +0x00  FUN_06cf6df0 resolves it (.text:06cf6df9)
     Vector Offset;                    // +0x04
 };
-static_assert(sizeof(FMineExplosion) == 0x10, "FMineExplosion is four dwords");
+FL_LAYOUT_ASSERT(sizeof(FMineExplosion) == 0x10, "FMineExplosion is four dwords");
 
 // The record GameObject::on_collision (+0x1a4, .text:06ceeab3 .. 06ceeae6) builds
 // on its stack and StarSystem::collision_damage (FUN_06d0d730) reads: the
@@ -70,7 +70,7 @@ struct FCollisionDamage {
     unsigned short Pad0e;
     float Damage;                     // +0x10  .text:06ceeae2
 };
-static_assert(sizeof(FCollisionDamage) == 0x14, "FCollisionDamage is the 0x14-byte collision record");
+FL_LAYOUT_ASSERT(sizeof(FCollisionDamage) == 0x14, "FCollisionDamage is the 0x14-byte collision record");
 
 // rpc_iclient_args.h -- the IClient +0x15c (BURNFUSE) argument EqObj::light_fuse /
 // unlight_fuse build and StarSystem::broadcast_fuse fans out.
@@ -183,7 +183,7 @@ struct ObjectList : public MetaList<GameObject> {
     ObjectList& operator=(ObjectList const&) = delete;
 };
 
-static_assert(sizeof(ObjectList) == 0x14, "ObjectList is retail's 0x14-byte MetaList");
+FL_LAYOUT_ASSERT(sizeof(ObjectList) == 0x14, "ObjectList is retail's 0x14-byte MetaList");
 
 // The node of an ObjectList. Kept as a name because the per-block walks all
 // over Server.dll spell it this way.
@@ -736,9 +736,9 @@ struct FSystemDockEntry {
     static GameObject* WatchedObject(BaseWatcher const& Watcher);
 };
 
-static_assert(offsetof(FSystemDockEntry, Target) == 0x08, "FSystemDockEntry+0x08 target watcher");
-static_assert(offsetof(FSystemDockEntry, BaseId) == 0x10, "FSystemDockEntry+0x10 base id");
-static_assert(offsetof(FSystemDockEntry, bLand) == 0x14, "FSystemDockEntry+0x14 land flag");
+FL_LAYOUT_ASSERT(offsetof(FSystemDockEntry, Target) == 0x08, "FSystemDockEntry+0x08 target watcher");
+FL_LAYOUT_ASSERT(offsetof(FSystemDockEntry, BaseId) == 0x10, "FSystemDockEntry+0x10 base id");
+FL_LAYOUT_ASSERT(offsetof(FSystemDockEntry, bLand) == 0x14, "FSystemDockEntry+0x14 land flag");
 
 // The list node. The element is embedded, like the player list's
 // (SystemPlayerNode): 0x08 header + 0x18 element = 0x20, which is the size the
@@ -749,7 +749,7 @@ struct SystemDockNode {
     FSystemDockEntry Entry;           // +0x08
 };
 
-static_assert(sizeof(SystemDockNode) == 0x20, "SystemDockNode is retail's 0x20-byte node");
+FL_LAYOUT_ASSERT(sizeof(SystemDockNode) == 0x20, "SystemDockNode is retail's 0x20-byte node");
 
 // StarSystem -- runtime per-system state in Server.dll SysDB, 0x100 bytes.
 // Retail: std::map<unsigned int, StarSystem> SysDB::SysMap.
@@ -1743,9 +1743,9 @@ public:
 
 static constexpr unsigned int STARSYSTEM_SIZE = 0x100;
 
-static_assert(sizeof(StarSystem) == 0x100, "StarSystem is retail's 0x100 bytes");
-static_assert(offsetof(StarSystem, SystemInfo) == 0x04, "StarSystem+0x04 SystemInfo");
-static_assert(offsetof(StarSystem, PlayerListHead) == 0x0C, "StarSystem+0x0C player list head");
+FL_LAYOUT_ASSERT(sizeof(StarSystem) == 0x100, "StarSystem is retail's 0x100 bytes");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, SystemInfo) == 0x04, "StarSystem+0x04 SystemInfo");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, PlayerListHead) == 0x0C, "StarSystem+0x0C player list head");
 
 // FUN_06d0f1c0 (.text:06d0f1c0, thiscall, `RET 0x4`) -- SystemPlayerView_SendGroupChange
 // (FUN_06cf70c0) on every view in the system's player list. Callers
@@ -1757,13 +1757,13 @@ void StarSystem_SendGroupChange(StarSystem& System, unsigned int ObjId);
 // Obj's own CSimple::OwnerPlayer. Only caller: IServerImpl::AcceptTrade
 // (.text:06cf1eed / .text:06cf1ef9), once per trading ship.
 void StarSystem_SendRemoteCargoUpdate(StarSystem& System, GameObject* Obj);
-static_assert(offsetof(StarSystem, ObjectListHead) == 0x18, "StarSystem+0x18 dock queue head");
-static_assert(offsetof(StarSystem, Spatial) == 0x20, "StarSystem+0x20 spatial partition");
-static_assert(offsetof(StarSystem, VectorBegin) == 0x28, "StarSystem+0x28 vector _First");
-static_assert(offsetof(StarSystem, Ships) == 0x34, "StarSystem+0x34 first ObjectList");
-static_assert(offsetof(StarSystem, Solars) == 0x5C, "StarSystem+0x5C solar ObjectList");
-static_assert(offsetof(StarSystem, Deferred) == 0xE8, "StarSystem+0xE8 last ObjectList");
-static_assert(offsetof(StarSystem, bLoaded) == 0xFC, "StarSystem+0xFC loaded flag");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, ObjectListHead) == 0x18, "StarSystem+0x18 dock queue head");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, Spatial) == 0x20, "StarSystem+0x20 spatial partition");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, VectorBegin) == 0x28, "StarSystem+0x28 vector _First");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, Ships) == 0x34, "StarSystem+0x34 first ObjectList");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, Solars) == 0x5C, "StarSystem+0x5C solar ObjectList");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, Deferred) == 0xE8, "StarSystem+0xE8 last ObjectList");
+FL_LAYOUT_ASSERT(offsetof(StarSystem, bLoaded) == 0xFC, "StarSystem+0xFC loaded flag");
 
 // Backward compatibility alias for existing code
 typedef StarSystem FStarSystem;

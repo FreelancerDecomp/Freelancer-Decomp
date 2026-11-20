@@ -144,11 +144,11 @@ namespace
         FMatrix Orient;      // +0x1c
         FVector Axis;        // +0x40
     };
-    static_assert(offsetof(FPhySysJointBlock, ParentPoint) == 0x04, "joint block +0x04");
-    static_assert(offsetof(FPhySysJointBlock, ChildPoint) == 0x10, "joint block +0x10");
-    static_assert(offsetof(FPhySysJointBlock, Orient) == 0x1c, "joint block +0x1c");
-    static_assert(offsetof(FPhySysJointBlock, Axis) == 0x40, "joint block +0x40");
-    static_assert(sizeof(FTransform) == 0x30, "the engine instance transform is 12 floats");
+    FL_LAYOUT_ASSERT(offsetof(FPhySysJointBlock, ParentPoint) == 0x04, "joint block +0x04");
+    FL_LAYOUT_ASSERT(offsetof(FPhySysJointBlock, ChildPoint) == 0x10, "joint block +0x10");
+    FL_LAYOUT_ASSERT(offsetof(FPhySysJointBlock, Orient) == 0x1c, "joint block +0x1c");
+    FL_LAYOUT_ASSERT(offsetof(FPhySysJointBlock, Axis) == 0x40, "joint block +0x40");
+    FL_LAYOUT_ASSERT(sizeof(FTransform) == 0x30, "the engine instance transform is 12 floats");
 
     // FUN_06288860 (thiscall on M, RET 4): M = M * B through the math engine (+0x20), the
     // product copied back (REP MOVSD 9).

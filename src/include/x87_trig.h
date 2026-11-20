@@ -35,8 +35,24 @@
 // C2 and leave the operand unchanged; retail has no fallback either.
 
 #if !defined(_M_IX86)
-#error "x87_trig.h: inline x87 assembly requires 32-bit x86"
-#endif
+
+// Port-only x64 build (docs/x64.md): no inline assembly and no x87 code. The CRT functions
+// round to within an ulp of the x87 instructions but not always to the same last bit, so x64
+// results can differ from Win32 (and retail) in the last bits.
+#include <cmath>
+
+inline double X87Sin(double Angle) { return std::sin(Angle); }
+inline float X87SinF(double Angle) { return static_cast<float>(std::sin(Angle)); }
+inline double X87Cos(double Angle) { return std::cos(Angle); }
+inline float X87CosF(double Angle) { return static_cast<float>(std::cos(Angle)); }
+inline double X87Tan(double Angle) { return std::tan(Angle); }
+inline float X87TanF(double Angle) { return static_cast<float>(std::tan(Angle)); }
+inline double X87Atan(double X) { return std::atan(X); }
+inline float X87AtanF(double X) { return static_cast<float>(std::atan(X)); }
+inline double X87Atan2(double Y, double X) { return std::atan2(Y, X); }
+inline float X87Atan2F(double Y, double X) { return static_cast<float>(std::atan2(Y, X)); }
+
+#else
 
 // FLD; FSIN; FSTP qword.
 inline double X87Sin(double Angle)
@@ -174,3 +190,5 @@ inline float X87Atan2F(double Y, double X)
     }
     return Result;
 }
+
+#endif // _M_IX86

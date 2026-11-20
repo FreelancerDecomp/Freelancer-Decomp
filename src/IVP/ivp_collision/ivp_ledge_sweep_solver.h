@@ -425,8 +425,8 @@ struct FIVP_Sweep_Cache_Source
     int Field_0x18;                     // +0x18 -- never read by Init
     IVP_U_Matrix Frame;                 // +0x1c
 };
-static_assert(offsetof(FIVP_Sweep_Cache_Source, Object) == 0x08, "FIVP_Sweep_Cache_Source::Object");
-static_assert(offsetof(FIVP_Sweep_Cache_Source, Frame) == 0x1c, "FIVP_Sweep_Cache_Source::Frame");
+FL_LAYOUT_ASSERT(offsetof(FIVP_Sweep_Cache_Source, Object) == 0x08, "FIVP_Sweep_Cache_Source::Object");
+FL_LAYOUT_ASSERT(offsetof(FIVP_Sweep_Cache_Source, Frame) == 0x1c, "FIVP_Sweep_Cache_Source::Frame");
 
 struct IVP_Sweep_Frame_Cache
 {
@@ -453,9 +453,9 @@ struct IVP_Sweep_Frame_Cache
     // source's own storage rather than copying it.
     void Init(FIVP_Sweep_Cache_Source *Source);
 };
-static_assert(sizeof(IVP_Sweep_Frame_Cache) == 0x5a8, "IVP_Sweep_Frame_Cache size");
-static_assert(offsetof(IVP_Sweep_Frame_Cache, FrameAtSlot) == 0x14, "IVP_Sweep_Frame_Cache::FrameAtSlot");
-static_assert(offsetof(IVP_Sweep_Frame_Cache, FrameStorage) == 0x68, "IVP_Sweep_Frame_Cache::FrameStorage");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_Frame_Cache) == 0x5a8, "IVP_Sweep_Frame_Cache size");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Frame_Cache, FrameAtSlot) == 0x14, "IVP_Sweep_Frame_Cache::FrameAtSlot");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Frame_Cache, FrameStorage) == 0x68, "IVP_Sweep_Frame_Cache::FrameStorage");
 
 // ============================================================================
 // IVP_Ledge_Sweep_Evaluator -- PORT-LOCAL NAME for the abstract base of the 7
@@ -1035,8 +1035,8 @@ struct FIVP_Sweep_Ledge_Side
     FIVP_Sweep_Cache_Source *Source;    // +0x08
     IVP_Real_Object *Object;            // +0x0c
 };
-static_assert(offsetof(FIVP_Sweep_Ledge_Side, Source) == 0x08, "FIVP_Sweep_Ledge_Side::Source");
-static_assert(offsetof(FIVP_Sweep_Ledge_Side, Object) == 0x0c, "FIVP_Sweep_Ledge_Side::Object");
+FL_LAYOUT_ASSERT(offsetof(FIVP_Sweep_Ledge_Side, Source) == 0x08, "FIVP_Sweep_Ledge_Side::Source");
+FL_LAYOUT_ASSERT(offsetof(FIVP_Sweep_Ledge_Side, Object) == 0x0c, "FIVP_Sweep_Ledge_Side::Object");
 
 // ----------------------------------------------------------------------------
 // IVP_Sweep_Estimator_Context -- the driver's `this`.
@@ -1182,13 +1182,13 @@ struct IVP_Sweep_Estimator_Context
                                         FIVP_Sweep_Cache_Source *SourceA,
                                         FIVP_Sweep_Ledge_Side *SideB);
 };
-static_assert(sizeof(IVP_Sweep_Estimator_Context) == 0x34, "IVP_Sweep_Estimator_Context size");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, ClosingBound) == 0x08, "IVP_Sweep_Estimator_Context::ClosingBound");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, Mindist) == 0x10, "IVP_Sweep_Estimator_Context::Mindist");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, NowBase) == 0x18, "IVP_Sweep_Estimator_Context::NowBase");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, NextBase) == 0x20, "IVP_Sweep_Estimator_Context::NextBase");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, OutCode) == 0x28, "IVP_Sweep_Estimator_Context::OutCode");
-static_assert(offsetof(IVP_Sweep_Estimator_Context, OutEventBase) == 0x2c, "IVP_Sweep_Estimator_Context::OutEventBase");
+FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_Estimator_Context) == 0x34, "IVP_Sweep_Estimator_Context size");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, ClosingBound) == 0x08, "IVP_Sweep_Estimator_Context::ClosingBound");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, Mindist) == 0x10, "IVP_Sweep_Estimator_Context::Mindist");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, NowBase) == 0x18, "IVP_Sweep_Estimator_Context::NowBase");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, NextBase) == 0x20, "IVP_Sweep_Estimator_Context::NextBase");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, OutCode) == 0x28, "IVP_Sweep_Estimator_Context::OutCode");
+FL_LAYOUT_ASSERT(offsetof(IVP_Sweep_Estimator_Context, OutEventBase) == 0x2c, "IVP_Sweep_Estimator_Context::OutEventBase");
 
 // ============================================================================
 // The dispatch layer (decomp-tracker items 3380 / 3381 / 3382 / 3383, plus the

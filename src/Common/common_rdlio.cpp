@@ -660,7 +660,7 @@ namespace
         int Type;               // +0x00  1 TRA, 2 text, 4 position, 5 paragraph, 6 style
         unsigned int Length;    // +0x04  payload bytes after the header
     };
-    static_assert(sizeof(FRdlRecordHeader) == 8, "FRdlRecordHeader must be 8 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FRdlRecordHeader) == 8, "FRdlRecordHeader must be 8 bytes");
 
     // The fixed-size records (write_buffer 0632aa0e / 0632aa42 / 0632ab5d, read_buffer
     // 0632a5c5 / 0632a6eb / 0632a7d1). Type 2 (text) is a header plus Length bytes of
@@ -685,9 +685,9 @@ namespace
         unsigned short StyleId; // +0x08  StyleNode +0x04
     };
 #pragma pack(pop)
-    static_assert(sizeof(FRdlTraRecord) == 0x10, "TRA record is 0x10 bytes");
-    static_assert(sizeof(FRdlPositionRecord) == 0x11, "position record is 0x11 bytes");
-    static_assert(sizeof(FRdlStyleRecord) == 0xa, "style record is 0xa bytes");
+    FL_LAYOUT_ASSERT(sizeof(FRdlTraRecord) == 0x10, "TRA record is 0x10 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FRdlPositionRecord) == 0x11, "position record is 0x11 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FRdlStyleRecord) == 0xa, "style record is 0xa bytes");
 }
 
 // 0x06325ee0 / 0x06325ef0: store the vtable, nothing else.

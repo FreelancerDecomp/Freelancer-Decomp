@@ -254,11 +254,11 @@ public:
                                      // on success.
     unsigned char Pad11[3];          // +0x11, alignment only.
 };
-static_assert(offsetof(BaseIdea, Object) == 0x04, "BaseIdea::Object offset");
-static_assert(offsetof(BaseIdea, Handle) == 0x08, "BaseIdea::Handle offset");
-static_assert(offsetof(BaseIdea, Context) == 0x0c, "BaseIdea::Context offset");
-static_assert(offsetof(BaseIdea, Attached) == 0x10, "BaseIdea::Attached offset");
-static_assert(sizeof(BaseIdea) == 0x14, "BaseIdea size (own data ends at +0x14 -- see class comment)");
+FL_LAYOUT_ASSERT(offsetof(BaseIdea, Object) == 0x04, "BaseIdea::Object offset");
+FL_LAYOUT_ASSERT(offsetof(BaseIdea, Handle) == 0x08, "BaseIdea::Handle offset");
+FL_LAYOUT_ASSERT(offsetof(BaseIdea, Context) == 0x0c, "BaseIdea::Context offset");
+FL_LAYOUT_ASSERT(offsetof(BaseIdea, Attached) == 0x10, "BaseIdea::Attached offset");
+FL_LAYOUT_ASSERT(sizeof(BaseIdea) == 0x14, "BaseIdea size (own data ends at +0x14 -- see class comment)");
 
 // ============================================================================
 // StopIdea : public BaseIdea -- Common.dll RTTI name ".?AVStopIdea@@".
@@ -414,7 +414,7 @@ public:
     // Slot 4, .text:062a8920 (ICF-folded bare RET).
     void Commit() override {}
 };
-static_assert(sizeof(IdleIdea) == 0x14, "IdleIdea adds no fields to BaseIdea");
+FL_LAYOUT_ASSERT(sizeof(IdleIdea) == 0x14, "IdleIdea adds no fields to BaseIdea");
 
 // ============================================================================
 // MoveIdea : public BaseIdea -- Common.dll RTTI name ".?AVMoveIdea@@". Ctor
@@ -829,22 +829,22 @@ public:
     StopIdea EmbeddedStop;         // +0x64, ends +0x78. Embedded-by-value StopIdea
                                     // sub-object -- see class-level comment.
 };
-static_assert(offsetof(MoveIdea, Watcher) == 0x14, "MoveIdea::Watcher offset");
-static_assert(offsetof(MoveIdea, Position) == 0x1c, "MoveIdea::Position offset");
-static_assert(offsetof(MoveIdea, Direction) == 0x28, "MoveIdea::Direction offset");
-static_assert(offsetof(MoveIdea, Mode) == 0x34, "MoveIdea::Mode offset");
-static_assert(offsetof(MoveIdea, MaxThrustBearing) == 0x38, "MoveIdea::MaxThrustBearing offset");
-static_assert(offsetof(MoveIdea, ArrivalRange) == 0x3c, "MoveIdea::ArrivalRange offset");
-static_assert(offsetof(MoveIdea, Throttle) == 0x40, "MoveIdea::Throttle offset");
-static_assert(offsetof(MoveIdea, StopStyle) == 0x44, "MoveIdea::StopStyle offset");
-static_assert(offsetof(MoveIdea, TargetKind48) == 0x48, "MoveIdea::TargetKind48 offset");
-static_assert(offsetof(MoveIdea, Offset4c) == 0x4c, "MoveIdea::Offset4c offset");
-static_assert(offsetof(MoveIdea, Field58) == 0x58, "MoveIdea::Field58 offset");
-static_assert(offsetof(MoveIdea, bKillEngineOffBearing) == 0x59, "MoveIdea::bKillEngineOffBearing offset");
-static_assert(offsetof(MoveIdea, MaxSpeed5c) == 0x5c, "MoveIdea::MaxSpeed5c offset");
-static_assert(offsetof(MoveIdea, MaxAngularSpeedXY60) == 0x60, "MoveIdea::MaxAngularSpeedXY60 offset");
-static_assert(offsetof(MoveIdea, EmbeddedStop) == 0x64, "MoveIdea::EmbeddedStop offset");
-static_assert(sizeof(MoveIdea) == 0x78, "MoveIdea size (matches every sibling header's confirmed SubObjectA size)");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Watcher) == 0x14, "MoveIdea::Watcher offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Position) == 0x1c, "MoveIdea::Position offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Direction) == 0x28, "MoveIdea::Direction offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Mode) == 0x34, "MoveIdea::Mode offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, MaxThrustBearing) == 0x38, "MoveIdea::MaxThrustBearing offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, ArrivalRange) == 0x3c, "MoveIdea::ArrivalRange offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Throttle) == 0x40, "MoveIdea::Throttle offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, StopStyle) == 0x44, "MoveIdea::StopStyle offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, TargetKind48) == 0x48, "MoveIdea::TargetKind48 offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Offset4c) == 0x4c, "MoveIdea::Offset4c offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, Field58) == 0x58, "MoveIdea::Field58 offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, bKillEngineOffBearing) == 0x59, "MoveIdea::bKillEngineOffBearing offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, MaxSpeed5c) == 0x5c, "MoveIdea::MaxSpeed5c offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, MaxAngularSpeedXY60) == 0x60, "MoveIdea::MaxAngularSpeedXY60 offset");
+FL_LAYOUT_ASSERT(offsetof(MoveIdea, EmbeddedStop) == 0x64, "MoveIdea::EmbeddedStop offset");
+FL_LAYOUT_ASSERT(sizeof(MoveIdea) == 0x78, "MoveIdea size (matches every sibling header's confirmed SubObjectA size)");
 
 // ============================================================================
 // MatchThrottle2Idea : public BaseIdea -- RTTI COL 063a9a48 at [vtable-4] of
@@ -944,20 +944,20 @@ public:
     float ClosingWindow54;        // +0x54  ctor 5.0f
     float CatchUpRange58;         // +0x58  ctor 500.0f; FUN_062d6740
 };
-static_assert(offsetof(MatchThrottle2Idea, Watcher) == 0x14, "MatchThrottle2Idea::Watcher offset");
-static_assert(offsetof(MatchThrottle2Idea, Position) == 0x1c, "MatchThrottle2Idea::Position offset");
-static_assert(offsetof(MatchThrottle2Idea, Distance28) == 0x28, "MatchThrottle2Idea::Distance28 offset");
-static_assert(offsetof(MatchThrottle2Idea, Speed2c) == 0x2c, "MatchThrottle2Idea::Speed2c offset");
-static_assert(offsetof(MatchThrottle2Idea, ThrottleBias30) == 0x30, "MatchThrottle2Idea::ThrottleBias30 offset");
-static_assert(offsetof(MatchThrottle2Idea, MaxBearing34) == 0x34, "MatchThrottle2Idea::MaxBearing34 offset");
-static_assert(offsetof(MatchThrottle2Idea, Flag38) == 0x38, "MatchThrottle2Idea::Flag38 offset");
-static_assert(offsetof(MatchThrottle2Idea, Flag3d) == 0x3d, "MatchThrottle2Idea::Flag3d offset");
-static_assert(offsetof(MatchThrottle2Idea, ClosingFloor40) == 0x40, "MatchThrottle2Idea::ClosingFloor40 offset");
-static_assert(offsetof(MatchThrottle2Idea, Field48) == 0x48, "MatchThrottle2Idea::Field48 offset");
-static_assert(offsetof(MatchThrottle2Idea, Speed4c) == 0x4c, "MatchThrottle2Idea::Speed4c offset");
-static_assert(offsetof(MatchThrottle2Idea, ClosingWindow54) == 0x54, "MatchThrottle2Idea::ClosingWindow54 offset");
-static_assert(offsetof(MatchThrottle2Idea, CatchUpRange58) == 0x58, "MatchThrottle2Idea::CatchUpRange58 offset");
-static_assert(sizeof(MatchThrottle2Idea) == 0x5c, "MatchThrottle2Idea size (operator-new-free embed; next member at +0x5c in every owner)");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Watcher) == 0x14, "MatchThrottle2Idea::Watcher offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Position) == 0x1c, "MatchThrottle2Idea::Position offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Distance28) == 0x28, "MatchThrottle2Idea::Distance28 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Speed2c) == 0x2c, "MatchThrottle2Idea::Speed2c offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, ThrottleBias30) == 0x30, "MatchThrottle2Idea::ThrottleBias30 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, MaxBearing34) == 0x34, "MatchThrottle2Idea::MaxBearing34 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Flag38) == 0x38, "MatchThrottle2Idea::Flag38 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Flag3d) == 0x3d, "MatchThrottle2Idea::Flag3d offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, ClosingFloor40) == 0x40, "MatchThrottle2Idea::ClosingFloor40 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Field48) == 0x48, "MatchThrottle2Idea::Field48 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, Speed4c) == 0x4c, "MatchThrottle2Idea::Speed4c offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, ClosingWindow54) == 0x54, "MatchThrottle2Idea::ClosingWindow54 offset");
+FL_LAYOUT_ASSERT(offsetof(MatchThrottle2Idea, CatchUpRange58) == 0x58, "MatchThrottle2Idea::CatchUpRange58 offset");
+FL_LAYOUT_ASSERT(sizeof(MatchThrottle2Idea) == 0x5c, "MatchThrottle2Idea size (operator-new-free embed; next member at +0x5c in every owner)");
 
 // ============================================================================
 // FaceIdea : public BaseIdea -- Common.dll RTTI name ".?AVFaceIdea@@". Ctor is
@@ -1242,23 +1242,23 @@ public:
                                                                             // default 0.976563f
                                                                             // (0x3f7ae148).
 };
-static_assert(offsetof(FaceIdea, Watcher) == 0x14, "FaceIdea::Watcher offset");
-static_assert(offsetof(FaceIdea, Position1c) == 0x1c, "FaceIdea::Position1c offset");
-static_assert(offsetof(FaceIdea, Direction28) == 0x28, "FaceIdea::Direction28 offset");
-static_assert(offsetof(FaceIdea, ZeroBlock34) == 0x34, "FaceIdea::ZeroBlock34 offset");
-static_assert(offsetof(FaceIdea, Vector58) == 0x58, "FaceIdea::Vector58 offset");
-static_assert(offsetof(FaceIdea, Field64) == 0x64, "FaceIdea::Field64 offset");
-static_assert(offsetof(FaceIdea, FacingTolerance) == 0x8c, "FaceIdea::FacingTolerance offset");
-static_assert(offsetof(FaceIdea, Field90) == 0x90, "FaceIdea::Field90 offset");
-static_assert(offsetof(FaceIdea, TurnThrottle) == 0x94, "FaceIdea::TurnThrottle offset");
-static_assert(offsetof(FaceIdea, AngleWeight98) == 0x98, "FaceIdea::AngleWeight98 offset");
-static_assert(offsetof(FaceIdea, AngleWeight9c) == 0x9c, "FaceIdea::AngleWeight9c offset");
-static_assert(offsetof(FaceIdea, TargetKind) == 0xa0, "FaceIdea::TargetKind offset");
-static_assert(offsetof(FaceIdea, RemainingAngle) == 0xa8, "FaceIdea::RemainingAngle offset");
-static_assert(offsetof(FaceIdea, bUpValid) == 0xad, "FaceIdea::bUpValid offset");
-static_assert(offsetof(FaceIdea, UpB0) == 0xb0, "FaceIdea::UpB0 offset");
-static_assert(offsetof(FaceIdea, ThresholdBc) == 0xbc, "FaceIdea::ThresholdBc offset");
-static_assert(sizeof(FaceIdea) == 0xc0, "FaceIdea size (matches every sibling header's confirmed SubObjectB size)");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Watcher) == 0x14, "FaceIdea::Watcher offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Position1c) == 0x1c, "FaceIdea::Position1c offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Direction28) == 0x28, "FaceIdea::Direction28 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, ZeroBlock34) == 0x34, "FaceIdea::ZeroBlock34 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Vector58) == 0x58, "FaceIdea::Vector58 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Field64) == 0x64, "FaceIdea::Field64 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, FacingTolerance) == 0x8c, "FaceIdea::FacingTolerance offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, Field90) == 0x90, "FaceIdea::Field90 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, TurnThrottle) == 0x94, "FaceIdea::TurnThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, AngleWeight98) == 0x98, "FaceIdea::AngleWeight98 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, AngleWeight9c) == 0x9c, "FaceIdea::AngleWeight9c offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, TargetKind) == 0xa0, "FaceIdea::TargetKind offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, RemainingAngle) == 0xa8, "FaceIdea::RemainingAngle offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, bUpValid) == 0xad, "FaceIdea::bUpValid offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, UpB0) == 0xb0, "FaceIdea::UpB0 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceIdea, ThresholdBc) == 0xbc, "FaceIdea::ThresholdBc offset");
+FL_LAYOUT_ASSERT(sizeof(FaceIdea) == 0xc0, "FaceIdea size (matches every sibling header's confirmed SubObjectB size)");
 
 // ============================================================================
 // SplineMoveIdea : public BaseIdea -- Common.dll RTTI name
@@ -1464,19 +1464,19 @@ public:
     float PersistedT;                   // +0x170. NOT ctor-initialized;
                                          // SetContext()/Commit() both zero it.
 };
-static_assert(offsetof(SplineMoveIdea, Move) == 0x14, "SplineMoveIdea::Move offset");
-static_assert(offsetof(SplineMoveIdea, Face) == 0x8c, "SplineMoveIdea::Face offset");
-static_assert(offsetof(SplineMoveIdea, Spline) == 0x14c, "SplineMoveIdea::Spline offset");
-static_assert(offsetof(SplineMoveIdea, WideMode) == 0x150, "SplineMoveIdea::WideMode offset");
-static_assert(offsetof(SplineMoveIdea, BankBlendCap) == 0x154, "SplineMoveIdea::BankBlendCap offset");
-static_assert(offsetof(SplineMoveIdea, Field158) == 0x158, "SplineMoveIdea::Field158 offset");
-static_assert(offsetof(SplineMoveIdea, MaxSpeed15c) == 0x15c, "SplineMoveIdea::MaxSpeed15c offset");
-static_assert(offsetof(SplineMoveIdea, LookaheadScale) == 0x160, "SplineMoveIdea::LookaheadScale offset");
-static_assert(offsetof(SplineMoveIdea, SpeedNorm) == 0x164, "SplineMoveIdea::SpeedNorm offset");
-static_assert(offsetof(SplineMoveIdea, StepNumerator) == 0x168, "SplineMoveIdea::StepNumerator offset");
-static_assert(offsetof(SplineMoveIdea, ExtrapolateBase) == 0x16c, "SplineMoveIdea::ExtrapolateBase offset");
-static_assert(offsetof(SplineMoveIdea, PersistedT) == 0x170, "SplineMoveIdea::PersistedT offset");
-static_assert(sizeof(SplineMoveIdea) == 0x174, "SplineMoveIdea size (0x164+0x174==0x2d8 in GotoBehavior, 0x168+0x174==0x2dc in FUN_062c2e60)");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, Move) == 0x14, "SplineMoveIdea::Move offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, Face) == 0x8c, "SplineMoveIdea::Face offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, Spline) == 0x14c, "SplineMoveIdea::Spline offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, WideMode) == 0x150, "SplineMoveIdea::WideMode offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, BankBlendCap) == 0x154, "SplineMoveIdea::BankBlendCap offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, Field158) == 0x158, "SplineMoveIdea::Field158 offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, MaxSpeed15c) == 0x15c, "SplineMoveIdea::MaxSpeed15c offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, LookaheadScale) == 0x160, "SplineMoveIdea::LookaheadScale offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, SpeedNorm) == 0x164, "SplineMoveIdea::SpeedNorm offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, StepNumerator) == 0x168, "SplineMoveIdea::StepNumerator offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, ExtrapolateBase) == 0x16c, "SplineMoveIdea::ExtrapolateBase offset");
+FL_LAYOUT_ASSERT(offsetof(SplineMoveIdea, PersistedT) == 0x170, "SplineMoveIdea::PersistedT offset");
+FL_LAYOUT_ASSERT(sizeof(SplineMoveIdea) == 0x174, "SplineMoveIdea size (0x164+0x174==0x2d8 in GotoBehavior, 0x168+0x174==0x2dc in FUN_062c2e60)");
 
 // ============================================================================
 // DirectionPicker -- the SECOND base of DodgeIdea and BreakAwayIdea. Published
@@ -1567,11 +1567,11 @@ struct FDirectionPicker
                                  // BreakAwayIdea's writes 1.
     unsigned char Pad1d[3];     // rel +0x1d, alignment only.
 };
-static_assert(offsetof(FDirectionPicker, WeightLeft) == 0x04, "FDirectionPicker::WeightLeft offset");
-static_assert(offsetof(FDirectionPicker, WeightDown) == 0x10, "FDirectionPicker::WeightDown offset");
-static_assert(offsetof(FDirectionPicker, Watcher) == 0x14, "FDirectionPicker::Watcher offset");
-static_assert(offsetof(FDirectionPicker, Flag1c) == 0x1c, "FDirectionPicker::Flag1c offset");
-static_assert(sizeof(FDirectionPicker) == 0x20, "FDirectionPicker size (both derived ctors' shared region is +0x14..+0x34)");
+FL_LAYOUT_ASSERT(offsetof(FDirectionPicker, WeightLeft) == 0x04, "FDirectionPicker::WeightLeft offset");
+FL_LAYOUT_ASSERT(offsetof(FDirectionPicker, WeightDown) == 0x10, "FDirectionPicker::WeightDown offset");
+FL_LAYOUT_ASSERT(offsetof(FDirectionPicker, Watcher) == 0x14, "FDirectionPicker::Watcher offset");
+FL_LAYOUT_ASSERT(offsetof(FDirectionPicker, Flag1c) == 0x1c, "FDirectionPicker::Flag1c offset");
+FL_LAYOUT_ASSERT(sizeof(FDirectionPicker) == 0x20, "FDirectionPicker size (both derived ctors' shared region is +0x14..+0x34)");
 
 // ============================================================================
 // DodgeIdea : public BaseIdea (+ DirectionPicker at +0x14) -- Common.dll RTTI
@@ -1706,26 +1706,26 @@ public:
     float FieldDc;                                                                    // +0xdc. Ctor
                                                                                        // default 1.0f.
 };
-static_assert(offsetof(DodgeIdea, Picker) == 0x14, "DodgeIdea::Picker offset");
-static_assert(offsetof(DodgeIdea, IntervalTime) == 0x34, "DodgeIdea::IntervalTime offset");
-static_assert(offsetof(DodgeIdea, ConeAngle) == 0x3c, "DodgeIdea::ConeAngle offset");
-static_assert(offsetof(DodgeIdea, DodgeDistance) == 0x4c, "DodgeIdea::DodgeDistance offset");
-static_assert(offsetof(DodgeIdea, Field54) == 0x54, "DodgeIdea::Field54 offset");
-static_assert(offsetof(DodgeIdea, Field64) == 0x64, "DodgeIdea::Field64 offset");
-static_assert(offsetof(DodgeIdea, WorkingFrame) == 0x68, "DodgeIdea::WorkingFrame offset");
-static_assert(offsetof(DodgeIdea, Field50) == 0x50, "DodgeIdea::Field50 offset");
-static_assert(offsetof(DodgeIdea, IntervalTimeLeft) == 0x8c, "DodgeIdea::IntervalTimeLeft offset");
-static_assert(offsetof(DodgeIdea, TurnThrottle) == 0x90, "DodgeIdea::TurnThrottle offset");
-static_assert(offsetof(DodgeIdea, Throttle) == 0x94, "DodgeIdea::Throttle offset");
-static_assert(offsetof(DodgeIdea, Field98) == 0x98, "DodgeIdea::Field98 offset");
-static_assert(offsetof(DodgeIdea, DodgeStyle) == 0xb4, "DodgeIdea::DodgeStyle offset");
-static_assert(offsetof(DodgeIdea, VectorB8) == 0xb8, "DodgeIdea::VectorB8 offset");
-static_assert(offsetof(DodgeIdea, FieldC4) == 0xc4, "DodgeIdea::FieldC4 offset");
-static_assert(offsetof(DodgeIdea, VectorCc) == 0xcc, "DodgeIdea::VectorCc offset");
-static_assert(offsetof(DodgeIdea, SlideThrottle) == 0xc8, "DodgeIdea::SlideThrottle offset");
-static_assert(offsetof(DodgeIdea, bRollFlipDirection) == 0xd8, "DodgeIdea::bRollFlipDirection offset");
-static_assert(offsetof(DodgeIdea, FieldDc) == 0xdc, "DodgeIdea::FieldDc offset");
-static_assert(sizeof(DodgeIdea) == 0xe0, "DodgeIdea size (BuzzBehavior's 0x178..0x258 ctor gap meets the ctor's own +0xdc write)");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Picker) == 0x14, "DodgeIdea::Picker offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, IntervalTime) == 0x34, "DodgeIdea::IntervalTime offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, ConeAngle) == 0x3c, "DodgeIdea::ConeAngle offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, DodgeDistance) == 0x4c, "DodgeIdea::DodgeDistance offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Field54) == 0x54, "DodgeIdea::Field54 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Field64) == 0x64, "DodgeIdea::Field64 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, WorkingFrame) == 0x68, "DodgeIdea::WorkingFrame offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Field50) == 0x50, "DodgeIdea::Field50 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, IntervalTimeLeft) == 0x8c, "DodgeIdea::IntervalTimeLeft offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, TurnThrottle) == 0x90, "DodgeIdea::TurnThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Throttle) == 0x94, "DodgeIdea::Throttle offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, Field98) == 0x98, "DodgeIdea::Field98 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, DodgeStyle) == 0xb4, "DodgeIdea::DodgeStyle offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, VectorB8) == 0xb8, "DodgeIdea::VectorB8 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, FieldC4) == 0xc4, "DodgeIdea::FieldC4 offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, VectorCc) == 0xcc, "DodgeIdea::VectorCc offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, SlideThrottle) == 0xc8, "DodgeIdea::SlideThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, bRollFlipDirection) == 0xd8, "DodgeIdea::bRollFlipDirection offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeIdea, FieldDc) == 0xdc, "DodgeIdea::FieldDc offset");
+FL_LAYOUT_ASSERT(sizeof(DodgeIdea) == 0xe0, "DodgeIdea size (BuzzBehavior's 0x178..0x258 ctor gap meets the ctor's own +0xdc write)");
 
 // ============================================================================
 // BreakAwayIdea : public BaseIdea (+ DirectionPicker at +0x14) -- Common.dll
@@ -1906,22 +1906,22 @@ public:
                                         // EvadeBreakRollThrottle / FormationExitRollOutrunThrottle
                                         // (FUN_062d94a0).
 };
-static_assert(offsetof(BreakAwayIdea, Picker) == 0x14, "BreakAwayIdea::Picker offset");
-static_assert(offsetof(BreakAwayIdea, BreakStyle) == 0x34, "BreakAwayIdea::BreakStyle offset");
-static_assert(offsetof(BreakAwayIdea, Field38) == 0x38, "BreakAwayIdea::Field38 offset");
-static_assert(offsetof(BreakAwayIdea, Flag3c) == 0x3c, "BreakAwayIdea::Flag3c offset");
-static_assert(offsetof(BreakAwayIdea, Throttle) == 0x40, "BreakAwayIdea::Throttle offset");
-static_assert(offsetof(BreakAwayIdea, Flag44) == 0x44, "BreakAwayIdea::Flag44 offset");
-static_assert(offsetof(BreakAwayIdea, AttemptReverseTime) == 0x4c, "BreakAwayIdea::AttemptReverseTime offset");
-static_assert(offsetof(BreakAwayIdea, ReverseDistance) == 0x54, "BreakAwayIdea::ReverseDistance offset");
-static_assert(offsetof(BreakAwayIdea, Field58) == 0x58, "BreakAwayIdea::Field58 offset");
-static_assert(offsetof(BreakAwayIdea, Flag5c) == 0x5c, "BreakAwayIdea::Flag5c offset");
-static_assert(offsetof(BreakAwayIdea, Frame60) == 0x60, "BreakAwayIdea::Frame60 offset");
-static_assert(offsetof(BreakAwayIdea, IntervalElapsed) == 0x84, "BreakAwayIdea::IntervalElapsed offset");
-static_assert(offsetof(BreakAwayIdea, AfterburnerDelay) == 0x8c, "BreakAwayIdea::AfterburnerDelay offset");
-static_assert(offsetof(BreakAwayIdea, TurnThrottle) == 0x94, "BreakAwayIdea::TurnThrottle offset");
-static_assert(offsetof(BreakAwayIdea, RollThrottle) == 0x98, "BreakAwayIdea::RollThrottle offset");
-static_assert(sizeof(BreakAwayIdea) == 0x9c, "BreakAwayIdea size (BuzzBehavior's 0x258..0x2f4 upper bound meets the ctor's own +0x98 write)");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Picker) == 0x14, "BreakAwayIdea::Picker offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, BreakStyle) == 0x34, "BreakAwayIdea::BreakStyle offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Field38) == 0x38, "BreakAwayIdea::Field38 offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Flag3c) == 0x3c, "BreakAwayIdea::Flag3c offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Throttle) == 0x40, "BreakAwayIdea::Throttle offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Flag44) == 0x44, "BreakAwayIdea::Flag44 offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, AttemptReverseTime) == 0x4c, "BreakAwayIdea::AttemptReverseTime offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, ReverseDistance) == 0x54, "BreakAwayIdea::ReverseDistance offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Field58) == 0x58, "BreakAwayIdea::Field58 offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Flag5c) == 0x5c, "BreakAwayIdea::Flag5c offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, Frame60) == 0x60, "BreakAwayIdea::Frame60 offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, IntervalElapsed) == 0x84, "BreakAwayIdea::IntervalElapsed offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, AfterburnerDelay) == 0x8c, "BreakAwayIdea::AfterburnerDelay offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, TurnThrottle) == 0x94, "BreakAwayIdea::TurnThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(BreakAwayIdea, RollThrottle) == 0x98, "BreakAwayIdea::RollThrottle offset");
+FL_LAYOUT_ASSERT(sizeof(BreakAwayIdea) == 0x9c, "BreakAwayIdea size (BuzzBehavior's 0x258..0x2f4 upper bound meets the ctor's own +0x98 write)");
 
 // ============================================================================
 // DodgeMissileIdea : public BaseIdea -- Common.dll RTTI name
@@ -2050,6 +2050,6 @@ public:
     // +0x1c8 was right; the write goes through the setter's own ECX, not a host disp).
     int Mode1c;
 };
-static_assert(offsetof(DodgeMissileIdea, MissileWatcher) == 0x14, "DodgeMissileIdea::MissileWatcher offset");
-static_assert(offsetof(DodgeMissileIdea, Mode1c) == 0x1c, "DodgeMissileIdea::Mode1c offset");
-static_assert(sizeof(DodgeMissileIdea) == 0x20, "DodgeMissileIdea size (host FUN_062c7790's 0x1ac..0x1cc sub-object span meets Update's own +0x1c read)");
+FL_LAYOUT_ASSERT(offsetof(DodgeMissileIdea, MissileWatcher) == 0x14, "DodgeMissileIdea::MissileWatcher offset");
+FL_LAYOUT_ASSERT(offsetof(DodgeMissileIdea, Mode1c) == 0x1c, "DodgeMissileIdea::Mode1c offset");
+FL_LAYOUT_ASSERT(sizeof(DodgeMissileIdea) == 0x20, "DodgeMissileIdea size (host FUN_062c7790's 0x1ac..0x1cc sub-object span meets Update's own +0x1c read)");

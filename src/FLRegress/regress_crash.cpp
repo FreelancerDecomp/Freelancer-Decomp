@@ -177,15 +177,23 @@ namespace
 
         STACKFRAME64 Frame;
         memset(&Frame, 0, sizeof(Frame));
+#if defined(_WIN64)
+        const DWORD Machine = IMAGE_FILE_MACHINE_AMD64;
+        Frame.AddrPC.Offset = Context.Rip;
+        Frame.AddrFrame.Offset = Context.Rbp;
+        Frame.AddrStack.Offset = Context.Rsp;
+#else
+        const DWORD Machine = IMAGE_FILE_MACHINE_I386;
         Frame.AddrPC.Offset = Context.Eip;
-        Frame.AddrPC.Mode = AddrModeFlat;
         Frame.AddrFrame.Offset = Context.Ebp;
-        Frame.AddrFrame.Mode = AddrModeFlat;
         Frame.AddrStack.Offset = Context.Esp;
+#endif
+        Frame.AddrPC.Mode = AddrModeFlat;
+        Frame.AddrFrame.Mode = AddrModeFlat;
         Frame.AddrStack.Mode = AddrModeFlat;
         HANDLE Thread = OpenThread(THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME, FALSE, Request.ThreadId);
         while (FrameCount < MaxFrames &&
-               StackWalk64(IMAGE_FILE_MACHINE_I386, Process, Thread != nullptr ? Thread : GetCurrentThread(), &Frame,
+               StackWalk64(Machine, Process, Thread != nullptr ? Thread : GetCurrentThread(), &Frame,
                    &Context, nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
         {
             if (Frame.AddrPC.Offset == 0)

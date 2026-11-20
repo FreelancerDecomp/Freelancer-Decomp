@@ -88,7 +88,7 @@ struct FRenderPluginDesc
     IEngine* Engine;            // +0x0C DAT_06c37d4c
 };
 
-static_assert(sizeof(FRenderPluginDesc) == 0x10, "render plugin AGGDESC 0x10");
+FL_LAYOUT_ASSERT(sizeof(FRenderPluginDesc) == 0x10, "render plugin AGGDESC 0x10");
 
 struct FPluginNode
 {
@@ -167,10 +167,10 @@ struct FVmeshKey
     unsigned long Crc;
 };
 
-static_assert(offsetof(FVmeshData, Group) == 0x28, "VMeshData+0x28 group");
-static_assert(offsetof(FVmeshData, Header) == 0x34, "VMeshData+0x34 header");
-static_assert(sizeof(FVmeshData) == 0x38, "VMeshData 0x38");
-static_assert(sizeof(FVmeshGroup) == 0x28, "VMesh group 0x28");
+FL_LAYOUT_ASSERT(offsetof(FVmeshData, Group) == 0x28, "VMeshData+0x28 group");
+FL_LAYOUT_ASSERT(offsetof(FVmeshData, Header) == 0x34, "VMeshData+0x34 header");
+FL_LAYOUT_ASSERT(sizeof(FVmeshData) == 0x38, "VMeshData 0x38");
+FL_LAYOUT_ASSERT(sizeof(FVmeshGroup) == 0x28, "VMesh group 0x28");
 
 // FDUMP(Flags, "%s(%d) : <severity>:General:%s", File, Line, Message) exactly as retail pushes it.
 void RendCompFdumpAt(int Flags, const char* File, int Line, const char* Message);

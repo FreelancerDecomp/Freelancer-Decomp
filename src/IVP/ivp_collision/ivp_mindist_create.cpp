@@ -68,7 +68,7 @@ namespace
             return static_cast<const IVP_Compact_Ledge*>(List.Elems[Index]);
         }
     };
-    static_assert(offsetof(FLedgeList, InlineBuffer) == 0x0c, "inline buffer at list+0xc (FUN_0635d3e0's test)");
+    FL_LAYOUT_ASSERT(offsetof(FLedgeList, InlineBuffer) == 0x0c, "inline buffer at list+0xc (FUN_0635d3e0's test)");
 
     // The local IVP_U_Vector with a 0x80-entry inline buffer right after its
     // header (FUN_06347dd0(this, buffer, 0x80) at :0634e45f); its destructor

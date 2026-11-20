@@ -390,7 +390,7 @@ namespace
         float RelVel0() const { return At(0x104); }
         float RelVel1() const { return At(0x108); }
     };
-    static_assert(sizeof(IVP_Friction_Basis_Context) == 0x114, "friction-basis context size");
+    FL_LAYOUT_ASSERT(sizeof(IVP_Friction_Basis_Context) == 0x114, "friction-basis context size");
 
     // Retail inlines its dot products with a fixed accumulation order that
     // is NOT x-then-y-then-z, and keeps the sum on the x87 stack. FUN_06354120

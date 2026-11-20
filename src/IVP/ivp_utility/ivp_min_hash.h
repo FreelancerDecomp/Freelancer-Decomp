@@ -38,7 +38,7 @@ struct IVP_U_Min_Hash_Elem
     int32_t              seq;   // +0x08 insertion counter (DAT_063edcc8), ties: lower first
     void*                elem;  // +0x0c the hashed pointer
 };
-static_assert(sizeof(IVP_U_Min_Hash_Elem) == 0x10, "IVP_U_Min_Hash_Elem size");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Min_Hash_Elem) == 0x10, "IVP_U_Min_Hash_Elem size");
 
 class IVP_U_Min_Hash
 {
@@ -77,6 +77,6 @@ private:
     // 0634d320 (thiscall, RET 8).
     void remove_sort(IVP_U_Min_Hash_Elem* Removed, int32_t Pos);
 };
-static_assert(sizeof(IVP_U_Min_Hash) == 0x14, "IVP_U_Min_Hash size");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Min_Hash) == 0x14, "IVP_U_Min_Hash size");
 
 #pragma pack(pop)

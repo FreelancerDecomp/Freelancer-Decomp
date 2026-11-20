@@ -125,7 +125,7 @@ namespace
         int MoneyNeededToNextRank;                            // +0x2c
         int GroupCount;                                       // +0x30
     };
-    static_assert(sizeof(FPlayerStatsBlock) == 0x34, "retail stats header is 0x34 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FPlayerStatsBlock) == 0x34, "retail stats header is 0x34 bytes");
 
     // GameSupport message 0x31 parms (0x28 bytes, read at 06eff207-06eff8d2).
     struct FBestPathRequest
@@ -139,7 +139,7 @@ namespace
         Vector ToPosition;                                    // +0x18
         unsigned int ToSystemId;                              // +0x24
     };
-    static_assert(sizeof(FBestPathRequest) == 0x28, "retail msg 0x31 parms are 0x28 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FBestPathRequest) == 0x28, "retail msg 0x31 parms are 0x28 bytes");
 
     // Reply block of message 0x31 for pub::Player::ReturnBestPath: this 0xc-byte header, then
     // Count points.
@@ -152,7 +152,7 @@ namespace
         // or a failed system path).
         bool bFlag8;
     };
-    static_assert(sizeof(FBestPathHeader) == 0xc, "retail best path header is 0xc bytes");
+    FL_LAYOUT_ASSERT(sizeof(FBestPathHeader) == 0xc, "retail best path header is 0xc bytes");
 
     struct FBestPathPoint
     {
@@ -160,7 +160,7 @@ namespace
         unsigned int ObjectId;                                // +0x0c leg ring / connection
         unsigned int SystemId;                                // +0x10
     };
-    static_assert(sizeof(FBestPathPoint) == 0x14, "retail best path point is 0x14 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FBestPathPoint) == 0x14, "retail best path point is 0x14 bytes");
 
     struct FGameSupport : IDLL
     {

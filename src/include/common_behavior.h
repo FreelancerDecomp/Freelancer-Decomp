@@ -971,30 +971,30 @@ public:
     Vector Offset290;               // +0x290
     int Field29c;                   // +0x29c: Slot4 zeroes it; no reader found in this class
 };
-static_assert(offsetof(BaseFollowerBehavior, TypeId) == 0x04, "BaseFollowerBehavior::TypeId offset");
-static_assert(offsetof(BaseFollowerBehavior, ModeSelector0xc) == 0x0c, "BaseFollowerBehavior::ModeSelector0xc offset");
-static_assert(offsetof(BaseFollowerBehavior, UpdateResult) == 0x10, "BaseFollowerBehavior::UpdateResult offset");
-static_assert(offsetof(BaseFollowerBehavior, OwnerContext) == 0x14, "BaseFollowerBehavior::OwnerContext offset");
-static_assert(offsetof(BaseFollowerBehavior, DeltaTime) == 0x1c, "BaseFollowerBehavior::DeltaTime offset");
-static_assert(offsetof(BaseFollowerBehavior, BehaviorMgrPtr) == 0x20, "BaseFollowerBehavior::BehaviorMgrPtr offset");
-static_assert(offsetof(BaseFollowerBehavior, NavHelper) == 0x24, "BaseFollowerBehavior::NavHelper offset");
-static_assert(offsetof(BaseFollowerBehavior, Flags28) == 0x28, "BaseFollowerBehavior::Flags28 offset");
-static_assert(offsetof(BaseFollowerBehavior, Flag29) == 0x29, "BaseFollowerBehavior::Flag29 offset");
-static_assert(offsetof(BaseFollowerBehavior, LeadWatcher) == 0x2c, "BaseFollowerBehavior::LeadWatcher offset");
-static_assert(offsetof(BaseFollowerBehavior, MatchThrottle) == 0x34, "BaseFollowerBehavior::MatchThrottle offset");
-static_assert(offsetof(BaseFollowerBehavior, Face) == 0x90, "BaseFollowerBehavior::Face offset");
-static_assert(offsetof(BaseFollowerBehavior, Move) == 0x150, "BaseFollowerBehavior::Move offset");
-static_assert(offsetof(BaseFollowerBehavior, BreakAway) == 0x1c8, "BaseFollowerBehavior::BreakAway offset");
-static_assert(offsetof(BaseFollowerBehavior, Afterburner) == 0x264, "BaseFollowerBehavior::Afterburner offset");
-static_assert(offsetof(BaseFollowerBehavior, DockDelegate) == 0x278, "BaseFollowerBehavior::DockDelegate offset");
-static_assert(offsetof(BaseFollowerBehavior, GotoDelegate) == 0x27c, "BaseFollowerBehavior::GotoDelegate offset");
-static_assert(offsetof(BaseFollowerBehavior, Flag280) == 0x280, "BaseFollowerBehavior::Flag280 offset");
-static_assert(offsetof(BaseFollowerBehavior, Flag285) == 0x285, "BaseFollowerBehavior::Flag285 offset");
-static_assert(offsetof(BaseFollowerBehavior, Field288) == 0x288, "BaseFollowerBehavior::Field288 offset");
-static_assert(offsetof(BaseFollowerBehavior, Flag28c) == 0x28c, "BaseFollowerBehavior::Flag28c offset");
-static_assert(offsetof(BaseFollowerBehavior, Offset290) == 0x290, "BaseFollowerBehavior::Offset290 offset");
-static_assert(offsetof(BaseFollowerBehavior, Field29c) == 0x29c, "BaseFollowerBehavior::Field29c offset");
-static_assert(sizeof(BaseFollowerBehavior) == 0x2a0, "BaseFollowerBehavior size (base slot 4 writes +0x29c)");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, TypeId) == 0x04, "BaseFollowerBehavior::TypeId offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, ModeSelector0xc) == 0x0c, "BaseFollowerBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, UpdateResult) == 0x10, "BaseFollowerBehavior::UpdateResult offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, OwnerContext) == 0x14, "BaseFollowerBehavior::OwnerContext offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, DeltaTime) == 0x1c, "BaseFollowerBehavior::DeltaTime offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, BehaviorMgrPtr) == 0x20, "BaseFollowerBehavior::BehaviorMgrPtr offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, NavHelper) == 0x24, "BaseFollowerBehavior::NavHelper offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flags28) == 0x28, "BaseFollowerBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flag29) == 0x29, "BaseFollowerBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, LeadWatcher) == 0x2c, "BaseFollowerBehavior::LeadWatcher offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, MatchThrottle) == 0x34, "BaseFollowerBehavior::MatchThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Face) == 0x90, "BaseFollowerBehavior::Face offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Move) == 0x150, "BaseFollowerBehavior::Move offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, BreakAway) == 0x1c8, "BaseFollowerBehavior::BreakAway offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Afterburner) == 0x264, "BaseFollowerBehavior::Afterburner offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, DockDelegate) == 0x278, "BaseFollowerBehavior::DockDelegate offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, GotoDelegate) == 0x27c, "BaseFollowerBehavior::GotoDelegate offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flag280) == 0x280, "BaseFollowerBehavior::Flag280 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flag285) == 0x285, "BaseFollowerBehavior::Flag285 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Field288) == 0x288, "BaseFollowerBehavior::Field288 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flag28c) == 0x28c, "BaseFollowerBehavior::Flag28c offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Offset290) == 0x290, "BaseFollowerBehavior::Offset290 offset");
+FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Field29c) == 0x29c, "BaseFollowerBehavior::Field29c offset");
+FL_LAYOUT_ASSERT(sizeof(BaseFollowerBehavior) == 0x2a0, "BaseFollowerBehavior size (base slot 4 writes +0x29c)");
 
 // ============================================================================
 // FormationBehavior -- RTTI ".?AVFormationBehavior@@" (COL 0639fb60 -> 063a8fb8), behavior
@@ -1053,11 +1053,11 @@ public:
     Vector FaceAxis2ac;              // +0x2ac
 };
 
-static_assert(offsetof(FormationBehavior, StandoffDistance2a0) == 0x2a0, "FormationBehavior::StandoffDistance2a0 offset");
-static_assert(offsetof(FormationBehavior, CruiseStandoffDistance2a4) == 0x2a4, "FormationBehavior::CruiseStandoffDistance2a4 offset");
-static_assert(offsetof(FormationBehavior, bDirectionSet2a8) == 0x2a8, "FormationBehavior::bDirectionSet2a8 offset");
-static_assert(offsetof(FormationBehavior, FaceAxis2ac) == 0x2ac, "FormationBehavior::FaceAxis2ac offset");
-static_assert(sizeof(FormationBehavior) == 0x2b8, "FormationBehavior size == retail operator_new argument at .text:062d1b67");
+FL_LAYOUT_ASSERT(offsetof(FormationBehavior, StandoffDistance2a0) == 0x2a0, "FormationBehavior::StandoffDistance2a0 offset");
+FL_LAYOUT_ASSERT(offsetof(FormationBehavior, CruiseStandoffDistance2a4) == 0x2a4, "FormationBehavior::CruiseStandoffDistance2a4 offset");
+FL_LAYOUT_ASSERT(offsetof(FormationBehavior, bDirectionSet2a8) == 0x2a8, "FormationBehavior::bDirectionSet2a8 offset");
+FL_LAYOUT_ASSERT(offsetof(FormationBehavior, FaceAxis2ac) == 0x2ac, "FormationBehavior::FaceAxis2ac offset");
+FL_LAYOUT_ASSERT(sizeof(FormationBehavior) == 0x2b8, "FormationBehavior size == retail operator_new argument at .text:062d1b67");
 
 // ============================================================================
 // FUN_062ec520 (Common.dll.txt 251690-251755), "is WantedId one of the ids in the owner's own

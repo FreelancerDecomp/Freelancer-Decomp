@@ -195,7 +195,7 @@ struct _IMEUI_APPEARANCE
     BYTE Reserved35[3];
     unsigned CompositionColor;              // +0x38, resource 16 (composition font color)
 };
-static_assert(sizeof(_IMEUI_APPEARANCE) == 0x3c, "IME appearance field contract");
+FL_LAYOUT_ASSERT(sizeof(_IMEUI_APPEARANCE) == 0x3c, "IME appearance field contract");
 typedef struct _IMEUI_APPEARANCE IMEUI_APPEARANCE;
 
 // Intrusive list node вЂ” retail operator_new(0xc) in IMEFocus ctor.
@@ -264,4 +264,4 @@ public:
 #pragma pack(pop)
 
 static_assert(sizeof(void*) == 4, "IMEFocus is 32-bit");
-static_assert(sizeof(IMEFocus) == 0x18, "retail IMEFocus base through +0x17");
+FL_LAYOUT_ASSERT(sizeof(IMEFocus) == 0x18, "retail IMEFocus base through +0x17");

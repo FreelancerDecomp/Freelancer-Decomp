@@ -35,18 +35,18 @@ struct FBatchRecord
     FBatchRecord();
 };
 
-static_assert(sizeof(FBatchRecord) == 0xF0, "retail batch payload size 0xF0");
-static_assert(offsetof(FBatchRecord, Context) == 4, "queued context starts at +4");
-static_assert(sizeof(FMaterialSubmitContext) == 0x24, "queued context is nine words");
-static_assert(offsetof(FBatchRecord, Context) + offsetof(FMaterialSubmitContext, VbListing) == 0x18, "queued VB view +0x18");
-static_assert(offsetof(FBatchRecord, Context) + offsetof(FMaterialSubmitContext, IbScratch) == 0x1C, "queued IB view +0x1C");
-static_assert(offsetof(FBatchRecord, MatrixDataA) == 0x28, "world matrix follows context");
-static_assert(offsetof(FBatchRecord, MatrixDataB) == 0x58, "view matrix +0x58");
-static_assert(offsetof(FBatchRecord, Combined) == 0x88, "combined matrix +0x88");
-static_assert(sizeof(FVbListing) == 12 && sizeof(FIbScratch) == 8, "queued listing/scratch copy sizes");
-static_assert(offsetof(FBatchRecord, VertexBufferListing) == 0xCC, "owned VB listing +0xCC");
-static_assert(offsetof(FBatchRecord, IndexBufferScratch) == 0xD8, "owned IB scratch +0xD8");
-static_assert(offsetof(FBatchRecord, Flags) == 0xE0, "flags follow optional snapshots");
+FL_LAYOUT_ASSERT(sizeof(FBatchRecord) == 0xF0, "retail batch payload size 0xF0");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, Context) == 4, "queued context starts at +4");
+FL_LAYOUT_ASSERT(sizeof(FMaterialSubmitContext) == 0x24, "queued context is nine words");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, Context) + offsetof(FMaterialSubmitContext, VbListing) == 0x18, "queued VB view +0x18");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, Context) + offsetof(FMaterialSubmitContext, IbScratch) == 0x1C, "queued IB view +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, MatrixDataA) == 0x28, "world matrix follows context");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, MatrixDataB) == 0x58, "view matrix +0x58");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, Combined) == 0x88, "combined matrix +0x88");
+FL_LAYOUT_ASSERT(sizeof(FVbListing) == 12 && sizeof(FIbScratch) == 8, "queued listing/scratch copy sizes");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, VertexBufferListing) == 0xCC, "owned VB listing +0xCC");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, IndexBufferScratch) == 0xD8, "owned IB scratch +0xD8");
+FL_LAYOUT_ASSERT(offsetof(FBatchRecord, Flags) == 0xE0, "flags follow optional snapshots");
 
 struct FBatchQueuedRecord
 {

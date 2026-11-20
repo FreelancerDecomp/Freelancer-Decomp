@@ -572,7 +572,7 @@ struct FTexBlock
     unsigned char Pad29[3];
 };
 
-static_assert(sizeof(FTexBlock) == 0x2C, "FTexBlock stride 0x2C");
+FL_LAYOUT_ASSERT(sizeof(FTexBlock) == 0x2C, "FTexBlock stride 0x2C");
 
 // Serialized frame first word selects a canonical child, never a GPU handle.
 struct FTextureFrame
@@ -580,7 +580,7 @@ struct FTextureFrame
     unsigned long ChildIndex;
     float Uv[4];
 };
-static_assert(sizeof(FTextureFrame) == 0x14, "Texture frame file payload");
+FL_LAYOUT_ASSERT(sizeof(FTextureFrame) == 0x14, "Texture frame file payload");
 
 // Canonical name record: own GPU handle, frame descriptors and child pointers.
 // Playback state is independently owned by FTexturePlayback in TextureLibrary.h.

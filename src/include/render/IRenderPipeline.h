@@ -275,12 +275,12 @@ struct FRpVertexSrcDesc
     unsigned int SrcCount;           // +0x6c
 };
 
-static_assert(sizeof(FRpVertexStream) == 0x14, "FRpVertexStream is 0x14 bytes");
-static_assert(sizeof(FRpVertexSrcDesc) == 0x70, "FRpVertexSrcDesc is 0x70 bytes");
-static_assert(offsetof(FRpVertexSrcDesc, Normal) == 0x18, "FRpVertexSrcDesc +0x18 normal");
-static_assert(offsetof(FRpVertexSrcDesc, Diffuse) == 0x2c, "FRpVertexSrcDesc +0x2c diffuse");
-static_assert(offsetof(FRpVertexSrcDesc, Tex) == 0x40, "FRpVertexSrcDesc +0x40 texcoords");
-static_assert(offsetof(FRpVertexSrcDesc, SrcFvf) == 0x68, "FRpVertexSrcDesc +0x68 source FVF");
+FL_LAYOUT_ASSERT(sizeof(FRpVertexStream) == 0x14, "FRpVertexStream is 0x14 bytes");
+FL_LAYOUT_ASSERT(sizeof(FRpVertexSrcDesc) == 0x70, "FRpVertexSrcDesc is 0x70 bytes");
+FL_LAYOUT_ASSERT(offsetof(FRpVertexSrcDesc, Normal) == 0x18, "FRpVertexSrcDesc +0x18 normal");
+FL_LAYOUT_ASSERT(offsetof(FRpVertexSrcDesc, Diffuse) == 0x2c, "FRpVertexSrcDesc +0x2c diffuse");
+FL_LAYOUT_ASSERT(offsetof(FRpVertexSrcDesc, Tex) == 0x40, "FRpVertexSrcDesc +0x40 texcoords");
+FL_LAYOUT_ASSERT(offsetof(FRpVertexSrcDesc, SrcFvf) == 0x68, "FRpVertexSrcDesc +0x68 source FVF");
 
 // Borrowed vertex-buffer handle and draw offset.
 struct FVbListing
@@ -296,9 +296,9 @@ struct FVertexMemoryLock
     FVbListing Listing;
     void* Vertices;
 };
-static_assert(sizeof(FVbListing) == 0xC, "vertex listing three words");
-static_assert(offsetof(FVertexMemoryLock, Vertices) == 0xC, "vertex memory after listing");
-static_assert(sizeof(FVertexMemoryLock) == 0x10, "vertex memory lock four words");
+FL_LAYOUT_ASSERT(sizeof(FVbListing) == 0xC, "vertex listing three words");
+FL_LAYOUT_ASSERT(offsetof(FVertexMemoryLock, Vertices) == 0xC, "vertex memory after listing");
+FL_LAYOUT_ASSERT(sizeof(FVertexMemoryLock) == 0x10, "vertex memory lock four words");
 
 struct IVertexBufferManager : IDAComponent
 {

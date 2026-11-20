@@ -246,18 +246,18 @@ public:
                                // exceeds Field40.
 };
 
-static_assert(offsetof(DelayBehavior, CachedHandle08) == 0x08, "DelayBehavior::CachedHandle08 offset");
-static_assert(offsetof(DelayBehavior, ModeSelector0xc) == 0x0c, "DelayBehavior::ModeSelector0xc offset");
-static_assert(offsetof(DelayBehavior, UpdateResult10) == 0x10, "DelayBehavior::UpdateResult10 offset");
-static_assert(offsetof(DelayBehavior, OwnerContextPtr14) == 0x14, "DelayBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(DelayBehavior, DeltaTime1c) == 0x1c, "DelayBehavior::DeltaTime1c offset");
-static_assert(offsetof(DelayBehavior, BehaviorMgrPtr20) == 0x20, "DelayBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(DelayBehavior, NavHelperPtr24) == 0x24, "DelayBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(DelayBehavior, Flags28) == 0x28, "DelayBehavior::Flags28 offset");
-static_assert(offsetof(DelayBehavior, Flag29) == 0x29, "DelayBehavior::Flag29 offset");
-static_assert(offsetof(DelayBehavior, Watcher2c) == 0x2c, "DelayBehavior::Watcher2c offset");
-static_assert(offsetof(DelayBehavior, Field40) == 0x40, "DelayBehavior::Field40 offset");
-static_assert(offsetof(DelayBehavior, Field44) == 0x44, "DelayBehavior::Field44 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, CachedHandle08) == 0x08, "DelayBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, ModeSelector0xc) == 0x0c, "DelayBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, UpdateResult10) == 0x10, "DelayBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, OwnerContextPtr14) == 0x14, "DelayBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, DeltaTime1c) == 0x1c, "DelayBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, BehaviorMgrPtr20) == 0x20, "DelayBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, NavHelperPtr24) == 0x24, "DelayBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Flags28) == 0x28, "DelayBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Flag29) == 0x29, "DelayBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Watcher2c) == 0x2c, "DelayBehavior::Watcher2c offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Field40) == 0x40, "DelayBehavior::Field40 offset");
+FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Field44) == 0x44, "DelayBehavior::Field44 offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x48`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -266,4 +266,4 @@ static_assert(offsetof(DelayBehavior, Field44) == 0x44, "DelayBehavior::Field44 
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(DelayBehavior) <= 0x48, "DelayBehavior must not exceed its retail size 0x48");
+FL_LAYOUT_ASSERT(sizeof(DelayBehavior) <= 0x48, "DelayBehavior must not exceed its retail size 0x48");

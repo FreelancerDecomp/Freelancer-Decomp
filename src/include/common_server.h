@@ -356,7 +356,7 @@ struct ConnectionEnumerator {
     Vector Pos[10];                // +0x78  FSystemConnection +0x0c
     unsigned int Count;            // +0xf0
 };
-static_assert(sizeof(ConnectionEnumerator) == 0xf4, "ConnectionEnumerator size is 0xf4");
+FL_LAYOUT_ASSERT(sizeof(ConnectionEnumerator) == 0xf4, "ConnectionEnumerator size is 0xf4");
 
 // ?EnumerateConnections@System@pub@@YAHABIAAUConnectionEnumerator@12@W4ConnectionType@@@Z --
 // Server.dll .text:06cfb170, body server_pub.cpp. Appends to the caller's struct from
@@ -380,7 +380,7 @@ struct FSysObj {
     unsigned int Goto;          // +0x5c FSystemObject +0x84
     unsigned int SystemId;      // +0x60 the enumerated system
 };
-static_assert(sizeof(FSysObj) == 0x64, "FSysObj size is 0x64");
+FL_LAYOUT_ASSERT(sizeof(FSysObj) == 0x64, "FSysObj size is 0x64");
 
 // One virtual in slot 0 (.text:06cfb43d-06cfb446: MOV EDX,[EDI]; PUSH &record; CALL [EDX]);
 // the enumeration stops when it returns false (.text:06cfb448 TEST AL,AL).
@@ -1198,22 +1198,22 @@ public:
     bool m_bLogging;                          // +0x2E0
 };
 
-static_assert(offsetof(CRemotePhysicsSimulation, m_PositionDRV) == 0x08, "CRPS +0x08");
-static_assert(offsetof(CRemotePhysicsSimulation, m_OrientAxisXDRV) == 0xD8, "CRPS +0xd8");
-static_assert(offsetof(CRemotePhysicsSimulation, m_OrientAxisYDRV) == 0x1A8, "CRPS +0x1a8");
-static_assert(offsetof(CRemotePhysicsSimulation, m_Velocity) == 0x278, "CRPS +0x278");
-static_assert(offsetof(CRemotePhysicsSimulation, m_Orientation) == 0x29C, "CRPS +0x29c");
-static_assert(offsetof(CRemotePhysicsSimulation, m_ProjectedPosition) == 0x2AC, "CRPS +0x2ac");
-static_assert(offsetof(CRemotePhysicsSimulation, m_SampleCount) == 0x2B8, "CRPS +0x2b8");
-static_assert(offsetof(CRemotePhysicsSimulation, m_SimulationTime) == 0x2C0, "CRPS +0x2c0");
-static_assert(offsetof(CRemotePhysicsSimulation, m_ConvergeWindow) == 0x2C8, "CRPS +0x2c8");
-static_assert(offsetof(CRemotePhysicsSimulation, m_SyncBackoff) == 0x2D8, "CRPS +0x2d8");
-static_assert(offsetof(CRemotePhysicsSimulation, m_bLogging) == 0x2E0, "CRPS +0x2e0");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_PositionDRV) == 0x08, "CRPS +0x08");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_OrientAxisXDRV) == 0xD8, "CRPS +0xd8");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_OrientAxisYDRV) == 0x1A8, "CRPS +0x1a8");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_Velocity) == 0x278, "CRPS +0x278");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_Orientation) == 0x29C, "CRPS +0x29c");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_ProjectedPosition) == 0x2AC, "CRPS +0x2ac");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_SampleCount) == 0x2B8, "CRPS +0x2b8");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_SimulationTime) == 0x2C0, "CRPS +0x2c0");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_ConvergeWindow) == 0x2C8, "CRPS +0x2c8");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_SyncBackoff) == 0x2D8, "CRPS +0x2d8");
+FL_LAYOUT_ASSERT(offsetof(CRemotePhysicsSimulation, m_bLogging) == 0x2E0, "CRPS +0x2e0");
 
 // Retail's own element stride, read off the vector deleting destructor
 // (.text:0628417a `PUSH 0x2e8`). No STL member anywhere in the class, so the
 // assertion is safe to make here.
-static_assert(sizeof(CRemotePhysicsSimulation) == 0x2E8, "CRemotePhysicsSimulation sizeof 0x2e8");
+FL_LAYOUT_ASSERT(sizeof(CRemotePhysicsSimulation) == 0x2E8, "CRemotePhysicsSimulation sizeof 0x2e8");
 
 // ============================================================================
 // CRemotePhysicsController -- the object PhySys::RCBegin hangs off CObject+0x60 for a
@@ -1284,7 +1284,7 @@ public:
     IVP_Real_Object* RealObject;  // +0x3b8
 };
 
-static_assert(sizeof(CRemotePhysicsController) == 0x3C0,
+FL_LAYOUT_ASSERT(sizeof(CRemotePhysicsController) == 0x3C0,
               "CRemotePhysicsController is operator new(0x3c0) at .text:06285962");
 
 // ============================================================================
@@ -1476,7 +1476,7 @@ SERVER_API int __cdecl FindHardpoint(char const* Name, unsigned int ShipArchId, 
                                      Matrix& OutRot);
 } // namespace pub
 
-static_assert(sizeof(OwnerList<pub::SpaceObj::CargoDesc>) == 0x14, "OwnerList sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(OwnerList<pub::SpaceObj::CargoDesc>) == 0x14, "OwnerList sizeof 0x14");
 
 // Member-level export on purpose: class-level dllexport (or an extern-template base) also exports
 // all of MetaList<CargoDesc>, which retail never exports; MSVC member-level export has no ??_7, the one known gap (toy test 2026-09-24).

@@ -448,7 +448,7 @@ namespace
         long Param2;                    // +0x0c  the child handle
         unsigned char JointCopy[0x5c];  // +0x10
     };
-    static_assert(sizeof(JointEnumNode) == 0x6c, "JointEnumNode sizeof 0x6c");
+    FL_LAYOUT_ASSERT(sizeof(JointEnumNode) == 0x6c, "JointEnumNode sizeof 0x6c");
 
     struct JointEnumContext
     {

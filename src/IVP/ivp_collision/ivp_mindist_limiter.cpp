@@ -797,7 +797,7 @@ namespace
                       "Contact frames must not construct or retain owned resources in the scratch arena");
         // The modern alignas(16) object has tail padding; both sizeof(T) and
         // retail's 0xd8 request consume the same 0xe0-byte arena slot.
-        static_assert(((sizeof(IVP_Impact_Solver_Long_Term) + 0x1fu) & ~size_t(0x1f)) == 0xe0u,
+        FL_LAYOUT_ASSERT(((sizeof(IVP_Impact_Solver_Long_Term) + 0x1fu) & ~size_t(0x1f)) == 0xe0u,
                       "Contact frame must retain the listing's rounded arena stride");
         IVP_Environment* const Environment = Candidate->Object1->environment;
         void* const Storage = Environment->vector_cores_frozen->GetMem(
@@ -816,11 +816,11 @@ namespace
     // Offsets this cluster's three contact-frame builders reach through raw
     // casts or read as a wider type than the header declares. Pinned here
     // rather than in ivp_mindist.h because this file is the only consumer.
-    static_assert(offsetof(IVP_Contact_Point, _field4c) == 0x4C, "IVP_Contact_Point+0x4C");
-    static_assert(offsetof(IVP_Contact_Point, GapDistance) == 0x58, "IVP_Contact_Point+0x58");
-    static_assert(offsetof(IVP_Contact_Point, _flags60) == 0x60, "IVP_Contact_Point+0x60");
-    static_assert(offsetof(IVP_Impact_Solver_Long_Term, ContactNormalWS) == 0x00, "IVP_Impact_Solver_Long_Term+0x00");
-    static_assert(offsetof(IVP_Impact_Solver_Long_Term, StateProcessed) == 0x54, "IVP_Impact_Solver_Long_Term+0x54");
+    FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _field4c) == 0x4C, "IVP_Contact_Point+0x4C");
+    FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, GapDistance) == 0x58, "IVP_Contact_Point+0x58");
+    FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _flags60) == 0x60, "IVP_Contact_Point+0x60");
+    FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, ContactNormalWS) == 0x00, "IVP_Impact_Solver_Long_Term+0x00");
+    FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, StateProcessed) == 0x54, "IVP_Impact_Solver_Long_Term+0x54");
 
     // Common.dll.txt:063598cc-063598d9 and :06359ceb-06359cfa, byte-identical
     // in both leaves: `EAX = [Owner+0x54]; AND EAX,0xfffffdff; OR EAX,0x100;
@@ -1690,7 +1690,7 @@ namespace
     // +0x14 Env, +0x18/+0x1c NowBase/NowOffset (env current_time), +0x20/+0x24
     // NextBase/NextOffset (env next PSI time), +0x28 OutCode, +0x2c/+0x30
     // OutEventBase/OutEventOffset.
-    static_assert(sizeof(IVP_Sweep_Estimator_Context) == 0x34,
+    FL_LAYOUT_ASSERT(sizeof(IVP_Sweep_Estimator_Context) == 0x34,
                   "estimator context must be retail's 0x34 bytes");
 
     // The estimator dispatch `CALL dword ptr [TableIndex*4 + DAT_0658af9c]`

@@ -56,7 +56,7 @@ struct ThornCameraProperties
     float FarPlane;  // +0x08
     float Aspect;    // +0x0c
 };
-static_assert(sizeof(ThornCameraProperties) == 0x10, "camera tail is four floats");
+FL_LAYOUT_ASSERT(sizeof(ThornCameraProperties) == 0x10, "camera tail is four floats");
 
 // ---------------------------------------------------------------------------
 // HardpointInfo — sizeof 0x48. From HardpointSummary::get_info stride.
@@ -76,11 +76,11 @@ struct HardpointInfo
     char Pad[0x10];             // +0x38..+0x47
 };
 
-static_assert(sizeof(HardpointInfo) == 0x48, "HardpointInfo sizeof 0x48");
+FL_LAYOUT_ASSERT(sizeof(HardpointInfo) == 0x48, "HardpointInfo sizeof 0x48");
 
-static_assert(offsetof(HardpointInfo, Position) == 0x04, "hardpoint position at +0x04");
-static_assert(offsetof(HardpointInfo, Orient) == 0x10, "hardpoint orientation at +0x10");
-static_assert(offsetof(HardpointInfo, ParentInstance) == 0x34, "parent instance at +0x34");
+FL_LAYOUT_ASSERT(offsetof(HardpointInfo, Position) == 0x04, "hardpoint position at +0x04");
+FL_LAYOUT_ASSERT(offsetof(HardpointInfo, Orient) == 0x10, "hardpoint orientation at +0x10");
+FL_LAYOUT_ASSERT(offsetof(HardpointInfo, ParentInstance) == 0x34, "parent instance at +0x34");
 
 // ---------------------------------------------------------------------------
 // Hardpoint lookup -- 0xae940 / 0xae960 / 0xaeb70 / 0xaeba0.
@@ -133,7 +133,7 @@ struct COMMON_API SetpointProperties
     int Posture;                // +0x20  0=stand,1=sitlow,2=sithigh,3=special, -1 default/unset
 };
 
-static_assert(sizeof(SetpointProperties) == 0x24, "SetpointProperties sizeof 0x24");
+FL_LAYOUT_ASSERT(sizeof(SetpointProperties) == 0x24, "SetpointProperties sizeof 0x24");
 
 // ---------------------------------------------------------------------------
 // Room sub-structures
@@ -160,7 +160,7 @@ struct COMMON_API RoomCameraInfo
     float FarPlane;             // +0x3C  default 1000000.0
 };
 
-static_assert(sizeof(RoomCameraInfo) == 0x40, "RoomCameraInfo sizeof 0x40");
+FL_LAYOUT_ASSERT(sizeof(RoomCameraInfo) == 0x40, "RoomCameraInfo sizeof 0x40");
 
 // SetpointInfo — named position in a room (from Thorn type 7 or INI).
 struct COMMON_API SetpointInfo
@@ -232,7 +232,7 @@ struct COMMON_API ShipPlaceInfo
     char const* LaunchingScript; // +0x3c  [PlayerShipPlacement] "launching_script" only
 };
 
-static_assert(sizeof(ShipPlaceInfo) == 0x40, "ShipPlaceInfo sizeof 0x40");
+FL_LAYOUT_ASSERT(sizeof(ShipPlaceInfo) == 0x40, "ShipPlaceInfo sizeof 0x40");
 
 // RoomButtonInfo — button/hotspot in a room.
 struct COMMON_API RoomButtonInfo
@@ -258,7 +258,7 @@ struct COMMON_API RoomButtonInfo
     char const* StateTransition[4]; // +0x1c/0x20/0x24/0x28  "state_transition=", up to 4 entries
 };
 
-static_assert(sizeof(RoomButtonInfo) == 0x2c, "RoomButtonInfo sizeof 0x2c");
+FL_LAYOUT_ASSERT(sizeof(RoomButtonInfo) == 0x2c, "RoomButtonInfo sizeof 0x2c");
 
 // RoomLightInfo — light entity from Thorn type 5.
 struct COMMON_API RoomLightInfo
@@ -309,12 +309,12 @@ struct COMMON_API RoomLightInfo
     // +0xA5..+0xA7: trailing compiler alignment padding, not addressed by any retail code path.
 };
 
-static_assert(sizeof(RoomLightInfo) == 0xA8, "RoomLightInfo sizeof 0xA8");
-static_assert(offsetof(RoomLightInfo, Direction) == 0x30, "RoomLightInfo+0x30 direction");
-static_assert(offsetof(RoomLightInfo, Mode) == 0x3C, "RoomLightInfo+0x3C mode");
-static_assert(offsetof(RoomLightInfo, Color) == 0x40, "RoomLightInfo+0x40 colour");
-static_assert(offsetof(RoomLightInfo, Opaque4C) == 0x4C, "RoomLightInfo+0x4C opaque tail");
-static_assert(offsetof(RoomLightInfo, Type) == 0xA4, "RoomLightInfo+0xA4 type byte");
+FL_LAYOUT_ASSERT(sizeof(RoomLightInfo) == 0xA8, "RoomLightInfo sizeof 0xA8");
+FL_LAYOUT_ASSERT(offsetof(RoomLightInfo, Direction) == 0x30, "RoomLightInfo+0x30 direction");
+FL_LAYOUT_ASSERT(offsetof(RoomLightInfo, Mode) == 0x3C, "RoomLightInfo+0x3C mode");
+FL_LAYOUT_ASSERT(offsetof(RoomLightInfo, Color) == 0x40, "RoomLightInfo+0x40 colour");
+FL_LAYOUT_ASSERT(offsetof(RoomLightInfo, Opaque4C) == 0x4C, "RoomLightInfo+0x4C opaque tail");
+FL_LAYOUT_ASSERT(offsetof(RoomLightInfo, Type) == 0xA4, "RoomLightInfo+0xA4 type byte");
 
 // RoomPropInfo — furniture/prop from Thorn type 1 (COMPOUND).
 struct COMMON_API RoomPropInfo
@@ -349,7 +349,7 @@ struct COMMON_API RoomPropInfo
 };
 
 // operator= (0x062612b0) block-copies 0x15 dwords.
-static_assert(sizeof(RoomPropInfo) == 0x54, "RoomPropInfo sizeof 0x54");
+FL_LAYOUT_ASSERT(sizeof(RoomPropInfo) == 0x54, "RoomPropInfo sizeof 0x54");
 
 // ExhaustNozzleInfo — engine exhaust nozzle offset.
 struct COMMON_API ExhaustNozzleInfo
@@ -367,8 +367,8 @@ struct COMMON_API ExhaustNozzleInfo
     Transform Offset;            // +0x0C  hardpoint Orient then Position
 };
 
-static_assert(offsetof(ExhaustNozzleInfo, Offset) == 0x0C, "ExhaustNozzleInfo+0xC transform");
-static_assert(sizeof(ExhaustNozzleInfo) == 0x3C, "ExhaustNozzleInfo sizeof 0x3C");
+FL_LAYOUT_ASSERT(offsetof(ExhaustNozzleInfo, Offset) == 0x0C, "ExhaustNozzleInfo+0xC transform");
+FL_LAYOUT_ASSERT(sizeof(ExhaustNozzleInfo) == 0x3C, "ExhaustNozzleInfo sizeof 0x3C");
 
 // ---------------------------------------------------------------------------
 // HardpointSummary — runtime hardpoint enumeration from compound instances
@@ -417,7 +417,7 @@ private:
 };
 
 // freelancer.exe FUN_00457f10 allocates operator new(0x20) for one.
-static_assert(sizeof(HardpointSummary) == 0x20, "HardpointSummary sizeof 0x20");
+FL_LAYOUT_ASSERT(sizeof(HardpointSummary) == 0x20, "HardpointSummary sizeof 0x20");
 
 // ---------------------------------------------------------------------------
 // MissionVendorProperties / NewsBroadcastProperties / CharacterProperties
@@ -540,7 +540,7 @@ public:
 };
 
 // 0x14 header + three FmtStr at 0x18 each = 0x5C, plus the icon id.
-static_assert(sizeof(MissionVendorProperties) == 0x60, "MissionVendorProperties sizeof 0x60");
+FL_LAYOUT_ASSERT(sizeof(MissionVendorProperties) == 0x60, "MissionVendorProperties sizeof 0x60");
 
 // Retail Common.dll class carrying a client's accept/decline response (with an optional
 // FmtStr reason) to a mission vendor offer -- re-derived from its ctor/dtor/clear/destroy/
@@ -572,7 +572,7 @@ public:
     FmtStr Reason;         // +0x0C  sizeof 0x18
 };
 
-static_assert(sizeof(MissionVendorAcceptance) == 0x24, "MissionVendorAcceptance sizeof 0x24");
+FL_LAYOUT_ASSERT(sizeof(MissionVendorAcceptance) == 0x24, "MissionVendorAcceptance sizeof 0x24");
 
 class COMMON_API NewsBroadcastProperties
 {
@@ -613,7 +613,7 @@ public:
     unsigned LogoTextureId;     // +0x5C  CreateID() of NewsBroadcastDescription::AudioName
 };
 
-static_assert(sizeof(NewsBroadcastProperties) == 0x60, "NewsBroadcastProperties sizeof 0x60");
+FL_LAYOUT_ASSERT(sizeof(NewsBroadcastProperties) == 0x60, "NewsBroadcastProperties sizeof 0x60");
 
 class COMMON_API CharacterProperties
 {
@@ -720,7 +720,7 @@ public:
     char* Name;             // +0x10  heap-owned (malloc_strcpy/malloc_strfree)
 };
 
-static_assert(sizeof(AmbientScriptProperties) == 0x14, "AmbientScriptProperties sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(AmbientScriptProperties) == 0x14, "AmbientScriptProperties sizeof 0x14");
 
 // ---------------------------------------------------------------------------
 // AmbientScriptInfo -- retail Common.dll exports four members and nothing else
@@ -759,7 +759,7 @@ struct COMMON_API AmbientScriptInfo
     unsigned Priority;      // +0x08  CreateID(priority token), 0 without one; RtcSlider gate
 };
 
-static_assert(sizeof(AmbientScriptInfo) == 0x0c, "AmbientScriptInfo sizeof 0x0c");
+FL_LAYOUT_ASSERT(sizeof(AmbientScriptInfo) == 0x0c, "AmbientScriptInfo sizeof 0x0c");
 
 // ---------------------------------------------------------------------------
 // CostumeHint / BaseHint — serializable hint structs
@@ -791,8 +791,8 @@ struct COMMON_API BaseHint
     unsigned Kind;              // +0x04
 };
 
-static_assert(sizeof(BaseHint) == 0x08, "BaseHint sizeof 0x08 (vtable + Kind)");
-static_assert(offsetof(BaseHint, Kind) == 0x04, "BaseHint+0x04 kind");
+FL_LAYOUT_ASSERT(sizeof(BaseHint) == 0x08, "BaseHint sizeof 0x08 (vtable + Kind)");
+FL_LAYOUT_ASSERT(offsetof(BaseHint, Kind) == 0x04, "BaseHint+0x04 kind");
 
 struct COMMON_API CostumeHint : public BaseHint
 {
@@ -813,8 +813,8 @@ struct COMMON_API CostumeHint : public BaseHint
     Costume Cost;               // +0x08..+0x3B
 };
 
-static_assert(sizeof(CostumeHint) == 0x3C, "CostumeHint sizeof 0x3C (BaseHint + Costume)");
-static_assert(offsetof(CostumeHint, Cost) == 0x08, "CostumeHint+0x08 costume");
+FL_LAYOUT_ASSERT(sizeof(CostumeHint) == 0x3C, "CostumeHint sizeof 0x3C (BaseHint + Costume)");
+FL_LAYOUT_ASSERT(offsetof(CostumeHint, Cost) == 0x08, "CostumeHint+0x08 costume");
 
 // ---------------------------------------------------------------------------
 // CBase — lightweight CObject-holding base. Retail ctor/copy-ctor (0x48250/0x48260)
@@ -887,7 +887,7 @@ private:
     BaseWatcher* Next;          // +0x04  next in watcher chain
 };
 
-static_assert(sizeof(BaseWatcher) == 0x08, "BaseWatcher sizeof 0x08 (two 4-byte pointers)");
+FL_LAYOUT_ASSERT(sizeof(BaseWatcher) == 0x08, "BaseWatcher sizeof 0x08 (two 4-byte pointers)");
 
 // ---------------------------------------------------------------------------
 // EquipDesc — sizeof 0x20. ctor 0xa9ae0. Hardpoint "BAY" = internal cargo.
@@ -970,7 +970,7 @@ struct COMMON_API EquipDesc
     unsigned Owner;                 // +0x1C
 };
 
-static_assert(sizeof(EquipDesc) == 0x20, "EquipDesc sizeof 0x20");
+FL_LAYOUT_ASSERT(sizeof(EquipDesc) == 0x20, "EquipDesc sizeof 0x20");
 
 // Retail Common.dll exports every member of this STL instantiation (VC6 std::list, 55
 // members, imported by name by FreeLancer.exe, Server.dll and rpclocal.dll). The port
@@ -1041,8 +1041,8 @@ struct COMMON_API EquipDescVector
     EquipDesc* Cap;      // +0x0C
 };
 
-static_assert(sizeof(EquipDescVector) == 0x10, "EquipDescVector sizeof 0x10");
-static_assert(offsetof(EquipDescVector, Begin) == 4, "EquipDescVector+4 begin");
+FL_LAYOUT_ASSERT(sizeof(EquipDescVector) == 0x10, "EquipDescVector sizeof 0x10");
+FL_LAYOUT_ASSERT(offsetof(EquipDescVector, Begin) == 4, "EquipDescVector+4 begin");
 
 // ---------------------------------------------------------------------------
 // EquipDescList — retail Common.dll class, imported by freelancer.exe as a
@@ -1168,7 +1168,7 @@ struct COMMON_API GoodDesc
     float Field0C;     // +0x0C  default 1.0 -- uncertain; always tracks Price's default
 };
 
-static_assert(sizeof(GoodDesc) == 0x10, "GoodDesc sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(GoodDesc) == 0x10, "GoodDesc sizeof 0x10");
 
 // OwnerList<GoodDesc>::free releases each element through ??3GoodDesc (.text:0627be93).
 template <>
@@ -1285,8 +1285,8 @@ public:
     GoodDescList RequestedGoods;    // +0x20
 };
 
-static_assert(sizeof(GoodDescList) == 0x14, "GoodDescList sizeof 0x14");
-static_assert(sizeof(TradeResponseInfo) == 0x34, "TradeResponseInfo sizeof 0x34 (retail layout)");
+FL_LAYOUT_ASSERT(sizeof(GoodDescList) == 0x14, "GoodDescList sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(TradeResponseInfo) == 0x34, "TradeResponseInfo sizeof 0x34 (retail layout)");
 
 // ---------------------------------------------------------------------------
 // GoodInfo — retail operator_new(0xC0). Port is not layout-compatible (no VC6
@@ -1610,14 +1610,14 @@ public:
     Csys FinalFrames[64];            // +0xE2C
 };
 
-static_assert(offsetof(FlashLightSetInfo, Mode) == 0x1C, "FlashLightSetInfo Mode at +0x1C");
-static_assert(offsetof(FlashLightSetInfo, HardpointNames) == 0x20, "FlashLightSetInfo HardpointNames at +0x20");
-static_assert(offsetof(FlashLightSetInfo, SetpointNames) == 0x120, "FlashLightSetInfo SetpointNames at +0x120");
-static_assert(offsetof(FlashLightSetInfo, LightFrames) == 0x220, "FlashLightSetInfo LightFrames at +0x220");
-static_assert(offsetof(FlashLightSetInfo, NumLights) == 0xE20, "FlashLightSetInfo NumLights at +0xE20");
-static_assert(offsetof(FlashLightSetInfo, Cursor) == 0xE28, "FlashLightSetInfo Cursor at +0xE28");
-static_assert(offsetof(FlashLightSetInfo, FinalFrames) == 0xE2C, "FlashLightSetInfo FinalFrames at +0xE2C");
-static_assert(sizeof(FlashLightSetInfo) == 0x1A2C, "FlashLightSetInfo sizeof 0x1A2C");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, Mode) == 0x1C, "FlashLightSetInfo Mode at +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, HardpointNames) == 0x20, "FlashLightSetInfo HardpointNames at +0x20");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, SetpointNames) == 0x120, "FlashLightSetInfo SetpointNames at +0x120");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, LightFrames) == 0x220, "FlashLightSetInfo LightFrames at +0x220");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, NumLights) == 0xE20, "FlashLightSetInfo NumLights at +0xE20");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, Cursor) == 0xE28, "FlashLightSetInfo Cursor at +0xE28");
+FL_LAYOUT_ASSERT(offsetof(FlashLightSetInfo, FinalFrames) == 0xE2C, "FlashLightSetInfo FinalFrames at +0xE2C");
+FL_LAYOUT_ASSERT(sizeof(FlashLightSetInfo) == 0x1A2C, "FlashLightSetInfo sizeof 0x1A2C");
 
 // ---------------------------------------------------------------------------
 // RoomData -- one room of a base (E:\FL\Scratch\Source\Common\RoomData.cpp). Retail

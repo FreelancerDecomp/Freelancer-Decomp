@@ -8,6 +8,7 @@
 // Declared in common_cequip.h; helpers shared with the sibling TUs are in
 // common_cequip_internal.h (namespace CmnCequip).
 #include "common_cequip.h"
+#include "facet_offset.h"
 #include "x86math.h"
 
 #include "common_animdb.h"  // AnimDB::Add/Rem (common_animdb.cpp)
@@ -130,7 +131,7 @@ bool CECounterMeasureDropper::Update(float Dt, unsigned Flags)
                 if (Watched == nullptr)
                     continue;
                 // 0629a39c: ESI = Watched - 8 (IObjRW's Watchable base), TEST ESI,ESI.
-                IObjRW* Tracked = (IObjRW*)((char*)Watched - 8);
+                IObjRW* Tracked = (IObjRW*)((char*)Watched - FL_FACET_OFFSET(8, IObjRW, Watchable));
                 if (Tracked == nullptr)
                     continue;
 

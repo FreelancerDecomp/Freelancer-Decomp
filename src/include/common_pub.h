@@ -155,7 +155,7 @@ struct COMMON_API GSplinePath
     GSplinePath& operator=(GSplinePath const& Other);
 };
 
-static_assert(sizeof(GSplinePath) == 0x30, "GSplinePath size (operator= copies 0xC dwords)");
+FL_LAYOUT_ASSERT(sizeof(GSplinePath) == 0x30, "GSplinePath size (operator= copies 0xC dwords)");
 
 // ============================================================================
 // Personality — AI personality configuration
@@ -248,9 +248,9 @@ public:
         EvadeDodgeUseStruct& operator=(EvadeDodgeUseStruct const& Other);
     };
 
-    static_assert(offsetof(EvadeDodgeUseStruct, bEvadeDodgeCorkscrewRollFlipDirection) == 0x44, "EvadeDodgeUseStruct +0x44");
-    static_assert(offsetof(EvadeDodgeUseStruct, EvadeDodgeDirectionWeightDown) == 0x54, "EvadeDodgeUseStruct +0x54");
-    static_assert(sizeof(EvadeDodgeUseStruct) == 0x58, "EvadeDodgeUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(EvadeDodgeUseStruct, bEvadeDodgeCorkscrewRollFlipDirection) == 0x44, "EvadeDodgeUseStruct +0x44");
+    FL_LAYOUT_ASSERT(offsetof(EvadeDodgeUseStruct, EvadeDodgeDirectionWeightDown) == 0x54, "EvadeDodgeUseStruct +0x54");
+    FL_LAYOUT_ASSERT(sizeof(EvadeDodgeUseStruct) == 0x58, "EvadeDodgeUseStruct size");
 
     // EvadeBreakUseStruct — Common.dll.c 0x7A620; also inlined at Personality +0x58;
     // [EvadeBreakBlock] (Content 06f3a690)
@@ -276,7 +276,7 @@ public:
         EvadeBreakUseStruct& operator=(EvadeBreakUseStruct const& Other);
     };
 
-    static_assert(sizeof(EvadeBreakUseStruct) == 0x3C, "EvadeBreakUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(EvadeBreakUseStruct) == 0x3C, "EvadeBreakUseStruct size");
 
     // BuzzHeadTowardUseStruct — Common.dll.c 0x7A670; also inlined at Personality +0x94;
     // [BuzzHeadTowardBlock] (Content 06f3a940)
@@ -312,8 +312,8 @@ public:
         BuzzHeadTowardUseStruct& operator=(BuzzHeadTowardUseStruct const& Other);
     };
 
-    static_assert(offsetof(BuzzHeadTowardUseStruct, bBuzzHeadTowardRollFlipDirection) == 0x24, "BuzzHeadTowardUseStruct +0x24");
-    static_assert(sizeof(BuzzHeadTowardUseStruct) == 0x60, "BuzzHeadTowardUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(BuzzHeadTowardUseStruct, bBuzzHeadTowardRollFlipDirection) == 0x24, "BuzzHeadTowardUseStruct +0x24");
+    FL_LAYOUT_ASSERT(sizeof(BuzzHeadTowardUseStruct) == 0x60, "BuzzHeadTowardUseStruct size");
 
     // BuzzPassByUseStruct — Common.dll.c 0x7A6E0; also inlined at Personality +0xF4;
     // [BuzzPassByBlock] (Content 06f3ad40)
@@ -338,8 +338,8 @@ public:
         BuzzPassByUseStruct& operator=(BuzzPassByUseStruct const& Other);
     };
 
-    static_assert(offsetof(BuzzPassByUseStruct, bBuzzDropBombOnPassBy) == 0x14, "BuzzPassByUseStruct +0x14");
-    static_assert(sizeof(BuzzPassByUseStruct) == 0x34, "BuzzPassByUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(BuzzPassByUseStruct, bBuzzDropBombOnPassBy) == 0x14, "BuzzPassByUseStruct +0x14");
+    FL_LAYOUT_ASSERT(sizeof(BuzzPassByUseStruct) == 0x34, "BuzzPassByUseStruct size");
 
     // TrailUseStruct — Common.dll.c 0x7A720; also inlined at Personality +0x128;
     // [TrailBlock] (Content 06f3b030)
@@ -358,8 +358,8 @@ public:
         TrailUseStruct& operator=(TrailUseStruct const& Other);
     };
 
-    static_assert(offsetof(TrailUseStruct, bTrailBreakAfterburner) == 0x10, "TrailUseStruct +0x10");
-    static_assert(sizeof(TrailUseStruct) == 0x1C, "TrailUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(TrailUseStruct, bTrailBreakAfterburner) == 0x10, "TrailUseStruct +0x10");
+    FL_LAYOUT_ASSERT(sizeof(TrailUseStruct) == 0x1C, "TrailUseStruct size");
 
     // StrafeUseStruct — Common.dll.c 0x7A750; also inlined at Personality +0x144;
     // [StrafeBlock] (Content 06f3b190)
@@ -373,7 +373,7 @@ public:
         StrafeUseStruct& operator=(StrafeUseStruct const& Other);
     };
 
-    static_assert(sizeof(StrafeUseStruct) == 0x0C, "StrafeUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(StrafeUseStruct) == 0x0C, "StrafeUseStruct size");
 
     // EngineKillUseStruct — Common.dll.c 0x7A770; also inlined at Personality +0x150;
     // [EngineKillBlock] (Content 06f3b240)
@@ -389,7 +389,7 @@ public:
         EngineKillUseStruct& operator=(EngineKillUseStruct const& Other);
     };
 
-    static_assert(sizeof(EngineKillUseStruct) == 0x14, "EngineKillUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(EngineKillUseStruct) == 0x14, "EngineKillUseStruct size");
 
     // RepairUseStruct — Common.dll.c 0x7A7A0; also inlined at Personality +0x164;
     // [RepairBlock] (Content 06f3b370)
@@ -406,7 +406,7 @@ public:
         RepairUseStruct& operator=(RepairUseStruct const& Other);
     };
 
-    static_assert(sizeof(RepairUseStruct) == 0x18, "RepairUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(RepairUseStruct) == 0x18, "RepairUseStruct size");
 
     // GunUseStruct — Common.dll.c 0x7A7D0; also inlined at Personality +0x17C;
     // [GunBlock] (Content 06f3b470)
@@ -433,7 +433,7 @@ public:
         GunUseStruct& operator=(GunUseStruct const& Other);
     };
 
-    static_assert(sizeof(GunUseStruct) == 0x40, "GunUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(GunUseStruct) == 0x40, "GunUseStruct size");
 
     // MineUseStruct — Common.dll.c 0x7A830; also inlined at Personality +0x1BC;
     // [MineBlock] (Content 06f3b6c0)
@@ -447,7 +447,7 @@ public:
         MineUseStruct& operator=(MineUseStruct const& Other);
     };
 
-    static_assert(sizeof(MineUseStruct) == 0x0C, "MineUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(MineUseStruct) == 0x0C, "MineUseStruct size");
 
     // MissileUseStruct — Common.dll.c 0x7A850; also inlined at Personality +0x1C8;
     // [MissileBlock] (Content 06f3b770)
@@ -468,8 +468,8 @@ public:
         MissileUseStruct& operator=(MissileUseStruct const& Other);
     };
 
-    static_assert(offsetof(MissileUseStruct, bMissileLaunchAllowOutOfRange) == 0x04, "MissileUseStruct +0x04");
-    static_assert(sizeof(MissileUseStruct) == 0x24, "MissileUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(MissileUseStruct, bMissileLaunchAllowOutOfRange) == 0x04, "MissileUseStruct +0x04");
+    FL_LAYOUT_ASSERT(sizeof(MissileUseStruct) == 0x24, "MissileUseStruct size");
 
     // DamageReactionStruct — Common.dll.c 0x7A890; also inlined at Personality +0x1EC;
     // [DamageReactionBlock] (Content 06f3b900). operator= (Common.dll.c 0x48850) copies
@@ -500,7 +500,7 @@ public:
         DamageReactionStruct& operator=(DamageReactionStruct const& Other);
     };
 
-    static_assert(sizeof(DamageReactionStruct) == 0x44, "DamageReactionStruct size");
+    FL_LAYOUT_ASSERT(sizeof(DamageReactionStruct) == 0x44, "DamageReactionStruct size");
 
     // MissileReactionStruct — Common.dll.c 0x7A8E0; also inlined at Personality +0x230;
     // [MissileReactionBlock] (Content 06f3bb00)
@@ -515,7 +515,7 @@ public:
         MissileReactionStruct& operator=(MissileReactionStruct const& Other);
     };
 
-    static_assert(sizeof(MissileReactionStruct) == 0x10, "MissileReactionStruct size");
+    FL_LAYOUT_ASSERT(sizeof(MissileReactionStruct) == 0x10, "MissileReactionStruct size");
 
     // CountermeasureUseStruct — Common.dll.c 0x7A900; also inlined at Personality +0x240;
     // [CountermeasureBlock] (read inline by Content at 06f3db9e / 06f3dbb9)
@@ -528,7 +528,7 @@ public:
         CountermeasureUseStruct& operator=(CountermeasureUseStruct const& Other);
     };
 
-    static_assert(sizeof(CountermeasureUseStruct) == 0x08, "CountermeasureUseStruct size");
+    FL_LAYOUT_ASSERT(sizeof(CountermeasureUseStruct) == 0x08, "CountermeasureUseStruct size");
 
     // FormationUseStruct — ctor .text:062da910; also constructed at Personality +0x248
     // by the outer ctor. Field names are the [FormationBlock] keys Content.dll's loader
@@ -568,9 +568,9 @@ public:
         FormationUseStruct& operator=(FormationUseStruct const& Other);
     };
 
-    static_assert(offsetof(FormationUseStruct, FormationExitMode) == 0x44, "FormationUseStruct +0x44");
-    static_assert(offsetof(FormationUseStruct, bLeaderMakesMeTougher) == 0x54, "FormationUseStruct +0x54");
-    static_assert(sizeof(FormationUseStruct) == 0x58, "FormationUseStruct size");
+    FL_LAYOUT_ASSERT(offsetof(FormationUseStruct, FormationExitMode) == 0x44, "FormationUseStruct +0x44");
+    FL_LAYOUT_ASSERT(offsetof(FormationUseStruct, bLeaderMakesMeTougher) == 0x54, "FormationUseStruct +0x54");
+    FL_LAYOUT_ASSERT(sizeof(FormationUseStruct) == 0x58, "FormationUseStruct size");
 
     // JobStruct — ctor .text:062da980; also constructed at Personality +0x2A0 by the
     // outer ctor; operator= .text:062a8890 copies 0x4E dwords = 0x138 bytes. Field
@@ -625,16 +625,16 @@ public:
         JobStruct& operator=(JobStruct const& Other);
     };
 
-    static_assert(sizeof(JobStruct::FAttackPreference) == 0x0C, "attack preference stride 0xC");
-    static_assert(offsetof(JobStruct, AttackPreferences) == 0x10, "JobStruct +0x10");
-    static_assert(offsetof(JobStruct, AttackSubtargetOrder) == 0xAC, "JobStruct +0xAC");
-    static_assert(offsetof(JobStruct, bWaitForLeaderTarget) == 0xCC, "JobStruct +0xCC");
-    static_assert(offsetof(JobStruct, MaximumLeaderTargetDistance) == 0xD0, "JobStruct +0xD0");
-    static_assert(offsetof(JobStruct, ScanForCargo) == 0xE4, "JobStruct +0xE4");
-    static_assert(offsetof(JobStruct, FleeSceneThreatStyle) == 0x124, "JobStruct +0x124");
-    static_assert(offsetof(JobStruct, ScanChance) == 0x130, "JobStruct +0x130");
-    static_assert(offsetof(JobStruct, bForceAttackFormationSet) == 0x135, "JobStruct +0x135");
-    static_assert(sizeof(JobStruct) == 0x138, "JobStruct size");
+    FL_LAYOUT_ASSERT(sizeof(JobStruct::FAttackPreference) == 0x0C, "attack preference stride 0xC");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, AttackPreferences) == 0x10, "JobStruct +0x10");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, AttackSubtargetOrder) == 0xAC, "JobStruct +0xAC");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, bWaitForLeaderTarget) == 0xCC, "JobStruct +0xCC");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, MaximumLeaderTargetDistance) == 0xD0, "JobStruct +0xD0");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, ScanForCargo) == 0xE4, "JobStruct +0xE4");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, FleeSceneThreatStyle) == 0x124, "JobStruct +0x124");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, ScanChance) == 0x130, "JobStruct +0x130");
+    FL_LAYOUT_ASSERT(offsetof(JobStruct, bForceAttackFormationSet) == 0x135, "JobStruct +0x135");
+    FL_LAYOUT_ASSERT(sizeof(JobStruct) == 0x138, "JobStruct size");
 
     EvadeDodgeUseStruct     EvadeDodgeParams;    // +0x000  size 0x58
     EvadeBreakUseStruct     EvadeBreakParams;    // +0x058  size 0x3C
@@ -669,22 +669,22 @@ public:
     static float const SCAN_CHANCE_DEFAULT;
 };
 
-static_assert(offsetof(Personality, EvadeBreakParams) == 0x058, "Personality +0x058");
-static_assert(offsetof(Personality, BuzzHeadParams)   == 0x094, "Personality +0x094");
-static_assert(offsetof(Personality, BuzzPassParams)   == 0x0F4, "Personality +0x0F4");
-static_assert(offsetof(Personality, TrailParams)      == 0x128, "Personality +0x128");
-static_assert(offsetof(Personality, StrafeParams)     == 0x144, "Personality +0x144");
-static_assert(offsetof(Personality, EngineKillParams) == 0x150, "Personality +0x150");
-static_assert(offsetof(Personality, RepairParams)     == 0x164, "Personality +0x164");
-static_assert(offsetof(Personality, GunParams)        == 0x17C, "Personality +0x17C");
-static_assert(offsetof(Personality, MineParams)       == 0x1BC, "Personality +0x1BC");
-static_assert(offsetof(Personality, MissileParams)    == 0x1C8, "Personality +0x1C8");
-static_assert(offsetof(Personality, DamageReaction)   == 0x1EC, "Personality +0x1EC");
-static_assert(offsetof(Personality, MissileReaction)  == 0x230, "Personality +0x230");
-static_assert(offsetof(Personality, CMParams)         == 0x240, "Personality +0x240");
-static_assert(offsetof(Personality, FormationParams)  == 0x248, "Personality +0x248");
-static_assert(offsetof(Personality, JobParams)        == 0x2A0, "Personality +0x2A0");
-static_assert(sizeof(Personality) == 0x3D8, "Personality size");
+FL_LAYOUT_ASSERT(offsetof(Personality, EvadeBreakParams) == 0x058, "Personality +0x058");
+FL_LAYOUT_ASSERT(offsetof(Personality, BuzzHeadParams)   == 0x094, "Personality +0x094");
+FL_LAYOUT_ASSERT(offsetof(Personality, BuzzPassParams)   == 0x0F4, "Personality +0x0F4");
+FL_LAYOUT_ASSERT(offsetof(Personality, TrailParams)      == 0x128, "Personality +0x128");
+FL_LAYOUT_ASSERT(offsetof(Personality, StrafeParams)     == 0x144, "Personality +0x144");
+FL_LAYOUT_ASSERT(offsetof(Personality, EngineKillParams) == 0x150, "Personality +0x150");
+FL_LAYOUT_ASSERT(offsetof(Personality, RepairParams)     == 0x164, "Personality +0x164");
+FL_LAYOUT_ASSERT(offsetof(Personality, GunParams)        == 0x17C, "Personality +0x17C");
+FL_LAYOUT_ASSERT(offsetof(Personality, MineParams)       == 0x1BC, "Personality +0x1BC");
+FL_LAYOUT_ASSERT(offsetof(Personality, MissileParams)    == 0x1C8, "Personality +0x1C8");
+FL_LAYOUT_ASSERT(offsetof(Personality, DamageReaction)   == 0x1EC, "Personality +0x1EC");
+FL_LAYOUT_ASSERT(offsetof(Personality, MissileReaction)  == 0x230, "Personality +0x230");
+FL_LAYOUT_ASSERT(offsetof(Personality, CMParams)         == 0x240, "Personality +0x240");
+FL_LAYOUT_ASSERT(offsetof(Personality, FormationParams)  == 0x248, "Personality +0x248");
+FL_LAYOUT_ASSERT(offsetof(Personality, JobParams)        == 0x2A0, "Personality +0x2A0");
+FL_LAYOUT_ASSERT(sizeof(Personality) == 0x3D8, "Personality size");
 
 // ============================================================================
 // BaseOp — base class for directive operations
@@ -715,8 +715,8 @@ public:
     uint32_t Priority;
 };
 
-static_assert(offsetof(BaseOp, Priority) == 0x08, "BaseOp +0x08");
-static_assert(sizeof(BaseOp) == 0x0C, "BaseOp size");
+FL_LAYOUT_ASSERT(offsetof(BaseOp, Priority) == 0x08, "BaseOp +0x08");
+FL_LAYOUT_ASSERT(sizeof(BaseOp) == 0x0C, "BaseOp size");
 
 // ============================================================================
 // Directive operations
@@ -781,11 +781,11 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveGotoOp, Field_0C) == 0x0C, "DirectiveGotoOp +0x0C");
-static_assert(offsetof(DirectiveGotoOp, Destination) == 0x10, "DirectiveGotoOp +0x10");
-static_assert(offsetof(DirectiveGotoOp, Field_50) == 0x50, "DirectiveGotoOp +0x50");
-static_assert(offsetof(DirectiveGotoOp, Field_6C) == 0x6C, "DirectiveGotoOp +0x6C");
-static_assert(sizeof(DirectiveGotoOp) == 0x70, "DirectiveGotoOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGotoOp, Field_0C) == 0x0C, "DirectiveGotoOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGotoOp, Destination) == 0x10, "DirectiveGotoOp +0x10");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGotoOp, Field_50) == 0x50, "DirectiveGotoOp +0x50");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGotoOp, Field_6C) == 0x6C, "DirectiveGotoOp +0x6C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveGotoOp) == 0x70, "DirectiveGotoOp size");
 
 class COMMON_API DirectiveFollowOp : public BaseOp
 {
@@ -804,8 +804,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveFollowOp, TargetId) == 0x0C, "DirectiveFollowOp +0x0C");
-static_assert(sizeof(DirectiveFollowOp) == 0x24, "DirectiveFollowOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveFollowOp, TargetId) == 0x0C, "DirectiveFollowOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveFollowOp) == 0x24, "DirectiveFollowOp size");
 
 // Field meanings from FaceBehavior's directive handler (Common .text:062c8b30): Mode 1
 // watches TargetId, 2 faces FacePoint, 3 takes Orientation, 4 has no target; any other
@@ -828,11 +828,11 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveFaceOp, Mode) == 0x0C, "DirectiveFaceOp +0x0C");
-static_assert(offsetof(DirectiveFaceOp, FacePoint) == 0x14, "DirectiveFaceOp +0x14");
-static_assert(offsetof(DirectiveFaceOp, Orientation) == 0x20, "DirectiveFaceOp +0x20");
-static_assert(offsetof(DirectiveFaceOp, Field_44) == 0x44, "DirectiveFaceOp +0x44");
-static_assert(sizeof(DirectiveFaceOp) == 0x48, "DirectiveFaceOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveFaceOp, Mode) == 0x0C, "DirectiveFaceOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveFaceOp, FacePoint) == 0x14, "DirectiveFaceOp +0x14");
+FL_LAYOUT_ASSERT(offsetof(DirectiveFaceOp, Orientation) == 0x20, "DirectiveFaceOp +0x20");
+FL_LAYOUT_ASSERT(offsetof(DirectiveFaceOp, Field_44) == 0x44, "DirectiveFaceOp +0x44");
+FL_LAYOUT_ASSERT(sizeof(DirectiveFaceOp) == 0x48, "DirectiveFaceOp size");
 
 class COMMON_API DirectiveStrafeOp : public BaseOp
 {
@@ -846,8 +846,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveStrafeOp, TargetId) == 0x0C, "DirectiveStrafeOp +0x0C");
-static_assert(sizeof(DirectiveStrafeOp) == 0x10, "DirectiveStrafeOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveStrafeOp, TargetId) == 0x0C, "DirectiveStrafeOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveStrafeOp) == 0x10, "DirectiveStrafeOp size");
 
 class COMMON_API DirectiveTrailOp : public BaseOp
 {
@@ -864,8 +864,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveTrailOp, TargetId) == 0x0C, "DirectiveTrailOp +0x0C");
-static_assert(sizeof(DirectiveTrailOp) == 0x1C, "DirectiveTrailOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveTrailOp, TargetId) == 0x0C, "DirectiveTrailOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveTrailOp) == 0x1C, "DirectiveTrailOp size");
 
 class COMMON_API DirectiveRamOp : public BaseOp
 {
@@ -879,8 +879,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveRamOp, TargetId) == 0x0C, "DirectiveRamOp +0x0C");
-static_assert(sizeof(DirectiveRamOp) == 0x10, "DirectiveRamOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveRamOp, TargetId) == 0x0C, "DirectiveRamOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveRamOp) == 0x10, "DirectiveRamOp size");
 
 class COMMON_API DirectiveTractorBeamOp : public BaseOp
 {
@@ -895,9 +895,9 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveTractorBeamOp, TargetId) == 0x0C, "DirectiveTractorBeamOp +0x0C");
-static_assert(offsetof(DirectiveTractorBeamOp, Field_10) == 0x10, "DirectiveTractorBeamOp +0x10");
-static_assert(sizeof(DirectiveTractorBeamOp) == 0x14, "DirectiveTractorBeamOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveTractorBeamOp, TargetId) == 0x0C, "DirectiveTractorBeamOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveTractorBeamOp, Field_10) == 0x10, "DirectiveTractorBeamOp +0x10");
+FL_LAYOUT_ASSERT(sizeof(DirectiveTractorBeamOp) == 0x14, "DirectiveTractorBeamOp size");
 
 class COMMON_API DirectiveFormationOp : public BaseOp
 {
@@ -912,7 +912,7 @@ public:
     bool validate() override;
 };
 
-static_assert(sizeof(DirectiveFormationOp) == 0x0C, "DirectiveFormationOp size");
+FL_LAYOUT_ASSERT(sizeof(DirectiveFormationOp) == 0x0C, "DirectiveFormationOp size");
 
 class COMMON_API DirectiveEvadeOp : public BaseOp
 {
@@ -926,8 +926,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveEvadeOp, ThreatId) == 0x0C, "DirectiveEvadeOp +0x0C");
-static_assert(sizeof(DirectiveEvadeOp) == 0x10, "DirectiveEvadeOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveEvadeOp, ThreatId) == 0x0C, "DirectiveEvadeOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveEvadeOp) == 0x10, "DirectiveEvadeOp size");
 
 class COMMON_API DirectiveDrasticEvadeOp : public BaseOp
 {
@@ -949,9 +949,9 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveDrasticEvadeOp, ThreatId) == 0x0C, "DirectiveDrasticEvadeOp +0x0C");
-static_assert(offsetof(DirectiveDrasticEvadeOp, Field_1C) == 0x1C, "DirectiveDrasticEvadeOp +0x1C");
-static_assert(sizeof(DirectiveDrasticEvadeOp) == 0x30, "DirectiveDrasticEvadeOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDrasticEvadeOp, ThreatId) == 0x0C, "DirectiveDrasticEvadeOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDrasticEvadeOp, Field_1C) == 0x1C, "DirectiveDrasticEvadeOp +0x1C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveDrasticEvadeOp) == 0x30, "DirectiveDrasticEvadeOp size");
 
 class COMMON_API DirectiveDockOp : public BaseOp
 {
@@ -972,10 +972,10 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveDockOp, DockObjectId) == 0x0C, "DirectiveDockOp +0x0C");
-static_assert(offsetof(DirectiveDockOp, DockPortIndex) == 0x18, "DirectiveDockOp +0x18");
-static_assert(offsetof(DirectiveDockOp, Field_20) == 0x20, "DirectiveDockOp +0x20");
-static_assert(sizeof(DirectiveDockOp) == 0x2C, "DirectiveDockOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDockOp, DockObjectId) == 0x0C, "DirectiveDockOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDockOp, DockPortIndex) == 0x18, "DirectiveDockOp +0x18");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDockOp, Field_20) == 0x20, "DirectiveDockOp +0x20");
+FL_LAYOUT_ASSERT(sizeof(DirectiveDockOp) == 0x2C, "DirectiveDockOp size");
 
 class COMMON_API DirectiveLaunchOp : public BaseOp
 {
@@ -991,8 +991,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveLaunchOp, LaunchObjectId) == 0x0C, "DirectiveLaunchOp +0x0C");
-static_assert(sizeof(DirectiveLaunchOp) == 0x18, "DirectiveLaunchOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveLaunchOp, LaunchObjectId) == 0x0C, "DirectiveLaunchOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveLaunchOp) == 0x18, "DirectiveLaunchOp size");
 
 class COMMON_API DirectiveInstantTradelaneOp : public BaseOp
 {
@@ -1008,8 +1008,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveInstantTradelaneOp, TradeLaneId) == 0x0C, "DirectiveInstantTradelaneOp +0x0C");
-static_assert(sizeof(DirectiveInstantTradelaneOp) == 0x18, "DirectiveInstantTradelaneOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveInstantTradelaneOp, TradeLaneId) == 0x0C, "DirectiveInstantTradelaneOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveInstantTradelaneOp) == 0x18, "DirectiveInstantTradelaneOp size");
 
 class COMMON_API DirectiveDelayOp : public BaseOp
 {
@@ -1023,8 +1023,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveDelayOp, DelaySeconds) == 0x0C, "DirectiveDelayOp +0x0C");
-static_assert(sizeof(DirectiveDelayOp) == 0x10, "DirectiveDelayOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveDelayOp, DelaySeconds) == 0x0C, "DirectiveDelayOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveDelayOp) == 0x10, "DirectiveDelayOp size");
 
 class COMMON_API DirectiveCancelOp : public BaseOp
 {
@@ -1039,7 +1039,7 @@ public:
     bool validate() override;
 };
 
-static_assert(sizeof(DirectiveCancelOp) == 0x0C, "DirectiveCancelOp size");
+FL_LAYOUT_ASSERT(sizeof(DirectiveCancelOp) == 0x0C, "DirectiveCancelOp size");
 
 class COMMON_API DirectiveWaitForShip : public BaseOp
 {
@@ -1054,8 +1054,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveWaitForShip, ShipId) == 0x0C, "DirectiveWaitForShip +0x0C");
-static_assert(sizeof(DirectiveWaitForShip) == 0x14, "DirectiveWaitForShip size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveWaitForShip, ShipId) == 0x0C, "DirectiveWaitForShip +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveWaitForShip) == 0x14, "DirectiveWaitForShip size");
 
 class COMMON_API DirectiveWaitForPlayerManeuverOp : public BaseOp
 {
@@ -1071,8 +1071,8 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveWaitForPlayerManeuverOp, BehaviorName) == 0x0C, "DirectiveWaitForPlayerManeuverOp +0x0C");
-static_assert(sizeof(DirectiveWaitForPlayerManeuverOp) == 0x10, "DirectiveWaitForPlayerManeuverOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveWaitForPlayerManeuverOp, BehaviorName) == 0x0C, "DirectiveWaitForPlayerManeuverOp +0x0C");
+FL_LAYOUT_ASSERT(sizeof(DirectiveWaitForPlayerManeuverOp) == 0x10, "DirectiveWaitForPlayerManeuverOp size");
 
 class COMMON_API DirectiveIdleOp : public BaseOp
 {
@@ -1086,7 +1086,7 @@ public:
     bool validate() override;
 };
 
-static_assert(sizeof(DirectiveIdleOp) == 0x0C, "DirectiveIdleOp size");
+FL_LAYOUT_ASSERT(sizeof(DirectiveIdleOp) == 0x0C, "DirectiveIdleOp size");
 
 // DirectiveGuideOp — Common.dll.c 0x7B060 (default ctor). Previously ported
 // as a struct holding a single GuidedObjectId field; retail actually embeds
@@ -1114,11 +1114,11 @@ public:
     bool validate() override;
 };
 
-static_assert(offsetof(DirectiveGuideOp, GotoParams) == 0x0C, "DirectiveGuideOp +0x0C");
-static_assert(offsetof(DirectiveGuideOp, FollowParams) == 0x7C, "DirectiveGuideOp +0x7C");
-static_assert(offsetof(DirectiveGuideOp, Field_A0) == 0xA0, "DirectiveGuideOp +0xA0");
-static_assert(offsetof(DirectiveGuideOp, Field_B8) == 0xB8, "DirectiveGuideOp +0xB8");
-static_assert(sizeof(DirectiveGuideOp) == 0xBC, "DirectiveGuideOp size");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGuideOp, GotoParams) == 0x0C, "DirectiveGuideOp +0x0C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGuideOp, FollowParams) == 0x7C, "DirectiveGuideOp +0x7C");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGuideOp, Field_A0) == 0xA0, "DirectiveGuideOp +0xA0");
+FL_LAYOUT_ASSERT(offsetof(DirectiveGuideOp, Field_B8) == 0xB8, "DirectiveGuideOp +0xB8");
+FL_LAYOUT_ASSERT(sizeof(DirectiveGuideOp) == 0xBC, "DirectiveGuideOp size");
 
 // ============================================================================
 // Parameter structs for IBehaviorManager methods
@@ -1144,9 +1144,9 @@ struct COMMON_API SetFlagParams : public BaseOp
     bool validate() override;
 };
 
-static_assert(offsetof(SetFlagParams, FlagId) == 0x0C, "SetFlagParams +0x0C");
-static_assert(offsetof(SetFlagParams, bValue) == 0x10, "SetFlagParams +0x10");
-static_assert(sizeof(SetFlagParams) == 0x14, "SetFlagParams size");
+FL_LAYOUT_ASSERT(offsetof(SetFlagParams, FlagId) == 0x0C, "SetFlagParams +0x0C");
+FL_LAYOUT_ASSERT(offsetof(SetFlagParams, bValue) == 0x10, "SetFlagParams +0x10");
+FL_LAYOUT_ASSERT(sizeof(SetFlagParams) == 0x14, "SetFlagParams size");
 
 // SetPersonalityParams — Common.dll.c 0x7AD10 (default ctor) / 0x48930 (copy
 // ctor). Previously ported as a struct holding a Personality*; retail
@@ -1176,11 +1176,11 @@ struct COMMON_API SetPersonalityParams : public BaseOp
     bool validate() override;
 };
 
-static_assert(offsetof(SetPersonalityParams, StateGraphId) == 0x0C, "SetPersonalityParams +0x0C");
-static_assert(offsetof(SetPersonalityParams, DirectiveCallbackObject) == 0x14, "SetPersonalityParams +0x14");
-static_assert(offsetof(SetPersonalityParams, bSetPersonality) == 0x18, "SetPersonalityParams +0x18");
-static_assert(offsetof(SetPersonalityParams, Value) == 0x1C, "SetPersonalityParams +0x1C");
-static_assert(sizeof(SetPersonalityParams) == 0x3F4, "SetPersonalityParams size");
+FL_LAYOUT_ASSERT(offsetof(SetPersonalityParams, StateGraphId) == 0x0C, "SetPersonalityParams +0x0C");
+FL_LAYOUT_ASSERT(offsetof(SetPersonalityParams, DirectiveCallbackObject) == 0x14, "SetPersonalityParams +0x14");
+FL_LAYOUT_ASSERT(offsetof(SetPersonalityParams, bSetPersonality) == 0x18, "SetPersonalityParams +0x18");
+FL_LAYOUT_ASSERT(offsetof(SetPersonalityParams, Value) == 0x1C, "SetPersonalityParams +0x1C");
+FL_LAYOUT_ASSERT(sizeof(SetPersonalityParams) == 0x3F4, "SetPersonalityParams size");
 
 // Field names follow PathfindManager::UserZone (common_pathfind.h), which Server.dll
 // pub::AI::SubmitState (.text:06d5c957..06d5cb56) builds from these fields; Content's
@@ -1205,13 +1205,13 @@ struct COMMON_API SetZoneBehaviorParams : public BaseOp
     bool validate() override;
 };
 
-static_assert(offsetof(SetZoneBehaviorParams, Mode) == 0x0C, "SetZoneBehaviorParams +0x0C");
-static_assert(offsetof(SetZoneBehaviorParams, TargetPoint) == 0x14, "SetZoneBehaviorParams +0x14");
-static_assert(offsetof(SetZoneBehaviorParams, TargetId) == 0x20, "SetZoneBehaviorParams +0x20");
-static_assert(offsetof(SetZoneBehaviorParams, BoxMin) == 0x24, "SetZoneBehaviorParams +0x24");
-static_assert(offsetof(SetZoneBehaviorParams, BoxMax) == 0x30, "SetZoneBehaviorParams +0x30");
-static_assert(offsetof(SetZoneBehaviorParams, Radius) == 0x3C, "SetZoneBehaviorParams +0x3C");
-static_assert(sizeof(SetZoneBehaviorParams) == 0x40, "SetZoneBehaviorParams size");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, Mode) == 0x0C, "SetZoneBehaviorParams +0x0C");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, TargetPoint) == 0x14, "SetZoneBehaviorParams +0x14");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, TargetId) == 0x20, "SetZoneBehaviorParams +0x20");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, BoxMin) == 0x24, "SetZoneBehaviorParams +0x24");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, BoxMax) == 0x30, "SetZoneBehaviorParams +0x30");
+FL_LAYOUT_ASSERT(offsetof(SetZoneBehaviorParams, Radius) == 0x3C, "SetZoneBehaviorParams +0x3C");
+FL_LAYOUT_ASSERT(sizeof(SetZoneBehaviorParams) == 0x40, "SetZoneBehaviorParams size");
 
 // ============================================================================
 // ContentCallback — interface for content-driven AI events

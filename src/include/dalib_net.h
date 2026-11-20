@@ -126,10 +126,10 @@ public:
     HRESULT ConnectResult = 0;      // formerly Field1C; connect-complete result
 };
 
-static_assert(sizeof(DPNHANDLE) == 4 && sizeof(HRESULT) == 4, "DirectPlay message words");
-static_assert(sizeof(CDPMessage) == 0x20, "CDPMessage footprint");
-static_assert(offsetof(CDPMessage, ReceiveBufferHandle) == 0x10, "receive-buffer handle");
-static_assert(offsetof(CDPMessage, ConnectResult) == 0x1c, "connect result");
+FL_LAYOUT_ASSERT(sizeof(DPNHANDLE) == 4 && sizeof(HRESULT) == 4, "DirectPlay message words");
+FL_LAYOUT_ASSERT(sizeof(CDPMessage) == 0x20, "CDPMessage footprint");
+FL_LAYOUT_ASSERT(offsetof(CDPMessage, ReceiveBufferHandle) == 0x10, "receive-buffer handle");
+FL_LAYOUT_ASSERT(offsetof(CDPMessage, ConnectResult) == 0x1c, "connect result");
 
 // Synchronized message queue with a manual-reset nonempty event.
 class DALIB_NET_BASE_API CDPMsgList

@@ -260,53 +260,53 @@ public:
     ObstacleAvoidance Avoidance;               // +0x268 (0x318 bytes -- ends exactly at 0x580)
 };
 
-static_assert(offsetof(PathfindManager::UserZone, Invert) == 0x04, "UserZone+0x04 Invert");
-static_assert(offsetof(PathfindManager::UserZone, TargetPoint) == 0x08, "UserZone+0x08 TargetPoint");
-static_assert(offsetof(PathfindManager::UserZone, Radius) == 0x14, "UserZone+0x14 Radius");
-static_assert(offsetof(PathfindManager::UserZone, BoxRotation) == 0x18, "UserZone+0x18 BoxRotation");
-static_assert(offsetof(PathfindManager::UserZone, BoxCenter) == 0x3C, "UserZone+0x3C BoxCenter");
-static_assert(offsetof(PathfindManager::UserZone, BoxHalfExtent) == 0x48, "UserZone+0x48 BoxHalfExtent");
-static_assert(offsetof(PathfindManager::UserZone, TargetKey) == 0x54, "UserZone+0x54 TargetKey");
-static_assert(sizeof(PathfindManager::UserZone) == 0x58, "UserZone sizeof 0x58 (22-dword copy)");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, Invert) == 0x04, "UserZone+0x04 Invert");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, TargetPoint) == 0x08, "UserZone+0x08 TargetPoint");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, Radius) == 0x14, "UserZone+0x14 Radius");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, BoxRotation) == 0x18, "UserZone+0x18 BoxRotation");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, BoxCenter) == 0x3C, "UserZone+0x3C BoxCenter");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, BoxHalfExtent) == 0x48, "UserZone+0x48 BoxHalfExtent");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::UserZone, TargetKey) == 0x54, "UserZone+0x54 TargetKey");
+FL_LAYOUT_ASSERT(sizeof(PathfindManager::UserZone) == 0x58, "UserZone sizeof 0x58 (22-dword copy)");
 
-static_assert(offsetof(PathfindManager::ObstacleReaction, Heading) == 0x08, "ObstacleReaction+0x08 Heading");
-static_assert(offsetof(PathfindManager::ObstacleReaction, bInReaction) == 0x14, "ObstacleReaction+0x14");
-static_assert(offsetof(PathfindManager::ObstacleReaction, ActiveSlot) == 0x18, "ObstacleReaction+0x18 ActiveSlot");
-static_assert(sizeof(PathfindManager::ObstacleReaction) == 0x34, "ObstacleReaction sizeof 0x34");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::ObstacleReaction, Heading) == 0x08, "ObstacleReaction+0x08 Heading");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::ObstacleReaction, bInReaction) == 0x14, "ObstacleReaction+0x14");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager::ObstacleReaction, ActiveSlot) == 0x18, "ObstacleReaction+0x18 ActiveSlot");
+FL_LAYOUT_ASSERT(sizeof(PathfindManager::ObstacleReaction) == 0x34, "ObstacleReaction sizeof 0x34");
 
-static_assert(offsetof(PathfindManager, bUserZoneActive) == 0x008, "PathfindManager+0x008 bUserZoneActive");
-static_assert(offsetof(PathfindManager, Zone) == 0x00C, "PathfindManager+0x00C Zone");
-static_assert(offsetof(PathfindManager, Field_064) == 0x064, "PathfindManager+0x064");
-static_assert(offsetof(PathfindManager, NextDeflectionSlot) == 0x068, "PathfindManager+0x068");
-static_assert(offsetof(PathfindManager, RecentObstacleIds) == 0x06C, "PathfindManager+0x06C");
-static_assert(offsetof(PathfindManager, DeflectionSlots) == 0x08C, "PathfindManager+0x08C");
-static_assert(offsetof(PathfindManager, Reaction) == 0x16C, "PathfindManager+0x16C");
-static_assert(offsetof(PathfindManager, BlendTimer) == 0x1A0, "PathfindManager+0x1A0");
-static_assert(offsetof(PathfindManager, BlendStart) == 0x1A4, "PathfindManager+0x1A4");
-static_assert(offsetof(PathfindManager, bBlendEnabled) == 0x1B0, "PathfindManager+0x1B0");
-static_assert(offsetof(PathfindManager, TargetPosition) == 0x1B4, "PathfindManager+0x1B4");
-static_assert(offsetof(PathfindManager, Owner) == 0x1C0, "PathfindManager+0x1C0 Owner");
-static_assert(offsetof(PathfindManager, OwnerType) == 0x1C4, "PathfindManager+0x1C4");
-static_assert(offsetof(PathfindManager, Watcher1C8) == 0x1C8, "PathfindManager+0x1C8");
-static_assert(offsetof(PathfindManager, Field_1D0) == 0x1D0, "PathfindManager+0x1D0");
-static_assert(offsetof(PathfindManager, Timer1E0) == 0x1E0, "PathfindManager+0x1E0");
-static_assert(offsetof(PathfindManager, MaxEngineSpeed) == 0x1F4, "PathfindManager+0x1F4");
-static_assert(offsetof(PathfindManager, CachedTargetPosition) == 0x200, "PathfindManager+0x200");
-static_assert(offsetof(PathfindManager, Timer20C) == 0x20C, "PathfindManager+0x20C");
-static_assert(offsetof(PathfindManager, Field_214) == 0x214, "PathfindManager+0x214");
-static_assert(offsetof(PathfindManager, Watcher218) == 0x218, "PathfindManager+0x218");
-static_assert(offsetof(PathfindManager, Field_238) == 0x238, "PathfindManager+0x238");
-static_assert(offsetof(PathfindManager, Field_244) == 0x244, "PathfindManager+0x244");
-static_assert(offsetof(PathfindManager, Flag245) == 0x245, "PathfindManager+0x245");
-static_assert(offsetof(PathfindManager, Field_248) == 0x248, "PathfindManager+0x248");
-static_assert(offsetof(PathfindManager, Field_250) == 0x250, "PathfindManager+0x250");
-static_assert(offsetof(PathfindManager, Field_255) == 0x255, "PathfindManager+0x255");
-static_assert(offsetof(PathfindManager, CachedObstacleId) == 0x260, "PathfindManager+0x260");
-static_assert(offsetof(PathfindManager, bHasCachedObstacle) == 0x264, "PathfindManager+0x264");
-static_assert(offsetof(PathfindManager, Avoidance) == 0x268, "PathfindManager+0x268 Avoidance");
-static_assert(offsetof(PathfindManager, Avoidance) + offsetof(ObstacleAvoidance, HasContact) == 0x574,
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, bUserZoneActive) == 0x008, "PathfindManager+0x008 bUserZoneActive");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Zone) == 0x00C, "PathfindManager+0x00C Zone");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_064) == 0x064, "PathfindManager+0x064");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, NextDeflectionSlot) == 0x068, "PathfindManager+0x068");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, RecentObstacleIds) == 0x06C, "PathfindManager+0x06C");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, DeflectionSlots) == 0x08C, "PathfindManager+0x08C");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Reaction) == 0x16C, "PathfindManager+0x16C");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, BlendTimer) == 0x1A0, "PathfindManager+0x1A0");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, BlendStart) == 0x1A4, "PathfindManager+0x1A4");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, bBlendEnabled) == 0x1B0, "PathfindManager+0x1B0");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, TargetPosition) == 0x1B4, "PathfindManager+0x1B4");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Owner) == 0x1C0, "PathfindManager+0x1C0 Owner");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, OwnerType) == 0x1C4, "PathfindManager+0x1C4");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Watcher1C8) == 0x1C8, "PathfindManager+0x1C8");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_1D0) == 0x1D0, "PathfindManager+0x1D0");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Timer1E0) == 0x1E0, "PathfindManager+0x1E0");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, MaxEngineSpeed) == 0x1F4, "PathfindManager+0x1F4");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, CachedTargetPosition) == 0x200, "PathfindManager+0x200");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Timer20C) == 0x20C, "PathfindManager+0x20C");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_214) == 0x214, "PathfindManager+0x214");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Watcher218) == 0x218, "PathfindManager+0x218");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_238) == 0x238, "PathfindManager+0x238");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_244) == 0x244, "PathfindManager+0x244");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Flag245) == 0x245, "PathfindManager+0x245");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_248) == 0x248, "PathfindManager+0x248");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_250) == 0x250, "PathfindManager+0x250");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Field_255) == 0x255, "PathfindManager+0x255");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, CachedObstacleId) == 0x260, "PathfindManager+0x260");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, bHasCachedObstacle) == 0x264, "PathfindManager+0x264");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Avoidance) == 0x268, "PathfindManager+0x268 Avoidance");
+FL_LAYOUT_ASSERT(offsetof(PathfindManager, Avoidance) + offsetof(ObstacleAvoidance, HasContact) == 0x574,
               "PathfindManager+0x574 Avoidance.HasContact (FUN_062de160)");
-static_assert(sizeof(PathfindManager) == 0x580,
+FL_LAYOUT_ASSERT(sizeof(PathfindManager) == 0x580,
     "PathfindManager must match retail's operator_new(0x580) at .text:062d2327");
 
 // FUN_062db7c0 (sole caller FUN_062d2830 at .text:062d2879), thiscall on the

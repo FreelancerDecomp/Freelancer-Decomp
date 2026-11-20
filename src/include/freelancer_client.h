@@ -198,7 +198,7 @@ public:
     // retail listing -- meaning unrecovered.
     unsigned int Field_0x08;
 };
-static_assert(sizeof(IClientImpl) == 0x0c, "retail Client spans .data:0067ea64..0067ea6f");
+FL_LAYOUT_ASSERT(sizeof(IClientImpl) == 0x0c, "retail Client spans .data:0067ea64..0067ea6f");
 
 // Only the Client data object crosses this boundary; the class has no export attribute.
 #if defined(FREELANCER_EXPORTS)

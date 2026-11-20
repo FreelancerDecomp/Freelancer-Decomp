@@ -60,7 +60,7 @@ struct IVP_Hash_Elem // formerly FixedKeyHashNode_06356a40
         return (unsigned char*)(this + 1);
     }
 };
-static_assert(sizeof(IVP_Hash_Elem) == 0x8, "IVP_Hash_Elem key bytes start at +0x08");
+FL_LAYOUT_ASSERT(sizeof(IVP_Hash_Elem) == 0x8, "IVP_Hash_Elem key bytes start at +0x08");
 
 namespace
 {

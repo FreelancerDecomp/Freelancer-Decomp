@@ -41,7 +41,7 @@ public:
             reinterpret_cast<const char*>(this) + offset_compact_ledge);
     }
 };
-static_assert(sizeof(IVP_Compact_Ledgetree_Node) == 0x1c, "IVP_Compact_Ledgetree_Node size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Ledgetree_Node) == 0x1c, "IVP_Compact_Ledgetree_Node size");
 
 // `class`, not `struct`: common_phyarch.h forward-declares it as a class (Ipion's own spelling),
 // and MSVC mangles the two keywords differently.
@@ -60,6 +60,6 @@ public:
             reinterpret_cast<const char*>(this) + offset_ledgetree_root);
     }
 };
-static_assert(sizeof(IVP_Compact_Surface) == 0x24, "IVP_Compact_Surface header size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Surface) == 0x24, "IVP_Compact_Surface header size");
 
 #pragma pack(pop)

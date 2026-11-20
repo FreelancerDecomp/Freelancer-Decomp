@@ -45,8 +45,8 @@ namespace
         IVP_Real_Object* Objects[2];            // +0x3c / +0x40
         void* CompactEdges[2];                  // +0x44 / +0x48: Feature1 / Feature2
     };
-    static_assert(offsetof(FIVP_ContactPointDeletedEvent, Objects) == 0x3c, "event +0x3c");
-    static_assert(offsetof(FIVP_ContactPointDeletedEvent, CompactEdges) == 0x44, "event +0x44");
+    FL_LAYOUT_ASSERT(offsetof(FIVP_ContactPointDeletedEvent, Objects) == 0x3c, "event +0x3c");
+    FL_LAYOUT_ASSERT(offsetof(FIVP_ContactPointDeletedEvent, CompactEdges) == 0x44, "event +0x44");
 }
 
 // ---------------------------------------------------------------------

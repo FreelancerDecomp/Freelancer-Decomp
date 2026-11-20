@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "x86math.h"
+#include "facet_offset.h"
 #include "EngBase.h"
 #include "readfile.h"
 
@@ -101,49 +102,49 @@ struct FEngBaseFileSystemDesc
 
 // FEngineObject holds a real std::map (the instance-root map), so only the facet offset is
 // asserted; the retail byte layout is documented on the struct.
-static_assert(offsetof(FEngineObject, SearchPath) == 0x04, "Engine.SearchPath");
-static_assert(sizeof(FConstraintRecord) == 0x64, "constraint record 0x64");
-static_assert(offsetof(FConstraintRecord, ChildPart) == 0x00, "constraint.ChildPart");
-static_assert(offsetof(FConstraintRecord, ParentPart) == 0x04, "constraint.ParentPart");
-static_assert(offsetof(FConstraintRecord, Payload) == 0x08, "constraint.Payload");
-static_assert(sizeof(FArchetypeChild) == 0x48, "archetype child size");
-static_assert(offsetof(FArchetypeChild, Crc) == 0x40, "child.Crc");
-static_assert(offsetof(FArchetypeChild, Handle) == 0x44, "child.Handle");
-static_assert(sizeof(FHardpointRecord) == 0x50, "hardpoint list value 0x50 (node 0x58)");
-static_assert(offsetof(FEngineChildNode, Name) == 0x08, "child node Name");
-static_assert(offsetof(FEngineChildNode, Object) == 0x38, "child node Object");
-static_assert(sizeof(FEngineChildNode) == 0x3C, "child node size");
-static_assert(offsetof(FAnimationObject, NextPlaybackId) == 0x10, "Animation.NextPlaybackId");
-static_assert(offsetof(FAnimationObject, Playbacks) == 0x14, "Animation.Playbacks");
-static_assert(offsetof(FAnimationObject, Channels) == 0x28, "Animation.Channels");
-static_assert(offsetof(FAnimationObject, Controller) == 0x50, "Animation.Controller");
-static_assert(offsetof(FAnimationObject, Inner) == 0x54, "Animation.Inner");
-static_assert(sizeof(FAnimationObject) == G_AnimationObjectSize, "Animation object size");
-static_assert(offsetof(FChannelArchetypeObject, RefCount) == 0x1C, "ChannelArchetype.RefCount");
-static_assert(offsetof(FChannelArchetypeObject, FrameCount) == 0x04, "ChannelArchetype.FrameCount");
-static_assert(offsetof(FChannelArchetypeObject, Duration) == 0x18, "ChannelArchetype.Duration");
-static_assert(sizeof(FChannelArchetypeObject) == G_ChannelArchetypeObjectSize,
+FL_LAYOUT_ASSERT(offsetof(FEngineObject, SearchPath) == 0x04, "Engine.SearchPath");
+FL_LAYOUT_ASSERT(sizeof(FConstraintRecord) == 0x64, "constraint record 0x64");
+FL_LAYOUT_ASSERT(offsetof(FConstraintRecord, ChildPart) == 0x00, "constraint.ChildPart");
+FL_LAYOUT_ASSERT(offsetof(FConstraintRecord, ParentPart) == 0x04, "constraint.ParentPart");
+FL_LAYOUT_ASSERT(offsetof(FConstraintRecord, Payload) == 0x08, "constraint.Payload");
+FL_LAYOUT_ASSERT(sizeof(FArchetypeChild) == 0x48, "archetype child size");
+FL_LAYOUT_ASSERT(offsetof(FArchetypeChild, Crc) == 0x40, "child.Crc");
+FL_LAYOUT_ASSERT(offsetof(FArchetypeChild, Handle) == 0x44, "child.Handle");
+FL_LAYOUT_ASSERT(sizeof(FHardpointRecord) == 0x50, "hardpoint list value 0x50 (node 0x58)");
+FL_LAYOUT_ASSERT(offsetof(FEngineChildNode, Name) == 0x08, "child node Name");
+FL_LAYOUT_ASSERT(offsetof(FEngineChildNode, Object) == 0x38, "child node Object");
+FL_LAYOUT_ASSERT(sizeof(FEngineChildNode) == 0x3C, "child node size");
+FL_LAYOUT_ASSERT(offsetof(FAnimationObject, NextPlaybackId) == 0x10, "Animation.NextPlaybackId");
+FL_LAYOUT_ASSERT(offsetof(FAnimationObject, Playbacks) == 0x14, "Animation.Playbacks");
+FL_LAYOUT_ASSERT(offsetof(FAnimationObject, Channels) == 0x28, "Animation.Channels");
+FL_LAYOUT_ASSERT(offsetof(FAnimationObject, Controller) == 0x50, "Animation.Controller");
+FL_LAYOUT_ASSERT(offsetof(FAnimationObject, Inner) == 0x54, "Animation.Inner");
+FL_LAYOUT_ASSERT(sizeof(FAnimationObject) == G_AnimationObjectSize, "Animation object size");
+FL_LAYOUT_ASSERT(offsetof(FChannelArchetypeObject, RefCount) == 0x1C, "ChannelArchetype.RefCount");
+FL_LAYOUT_ASSERT(offsetof(FChannelArchetypeObject, FrameCount) == 0x04, "ChannelArchetype.FrameCount");
+FL_LAYOUT_ASSERT(offsetof(FChannelArchetypeObject, Duration) == 0x18, "ChannelArchetype.Duration");
+FL_LAYOUT_ASSERT(sizeof(FChannelArchetypeObject) == G_ChannelArchetypeObjectSize,
               "ChannelArchetype object size");
-static_assert(sizeof(FAggDesc18) == 0x18, "AGGDESC 0x18");
-static_assert(sizeof(FEngBaseFileSystemDesc) == 0x34, "FileSystem AGGDESC 0x34");
-static_assert(sizeof(FEngineInstance) == G_EngineInstanceSize, "instance size");
-static_assert(offsetof(FEngineInstance, Archetype) == 0x08, "instance.Archetype");
-static_assert(offsetof(FEngineInstance, ParentArchetype) == 0x0C, "instance.ParentArchetype");
-static_assert(offsetof(FEngineInstance, Parent) == 0x10, "instance.Parent");
-static_assert(offsetof(FEngineInstance, NextSibling) == 0x14, "instance.NextSibling");
-static_assert(offsetof(FEngineInstance, FirstChild) == 0x1C, "instance.FirstChild");
-static_assert(offsetof(FEngineInstance, LastChild) == 0x20, "instance.LastChild");
-static_assert(offsetof(FEngineInstance, UserData) == 0x28, "instance.UserData");
-static_assert(offsetof(FEngineInstance, Matrix) == 0x2C, "instance.Matrix");
-static_assert(offsetof(FEngineInstance, Relative) == 0x5C, "instance.Relative");
-static_assert(offsetof(FEngineInstance, JointState) == 0xB8, "instance.JointState");
-static_assert(offsetof(FEngineInstance, bWorldDirty) == 0xD4, "instance.bWorldDirty");
-static_assert(offsetof(FEngineInstance, PartChild) == 0xE8, "instance.PartChild");
-static_assert(sizeof(FInstanceTransform) == G_TransformObjectSize, "transform size");
-static_assert(offsetof(FInstanceTransform, Matrix) == 0x04, "transform.Matrix");
-static_assert(offsetof(FInstanceTransform, Extra) == 0x34, "transform.Extra");
-static_assert(offsetof(FInstanceTransform, User) == 0x44, "transform.User");
-static_assert(sizeof(FAggDescC) == 0xC, "AGGDESC 0xC");
+FL_LAYOUT_ASSERT(sizeof(FAggDesc18) == 0x18, "AGGDESC 0x18");
+FL_LAYOUT_ASSERT(sizeof(FEngBaseFileSystemDesc) == 0x34, "FileSystem AGGDESC 0x34");
+FL_LAYOUT_ASSERT(sizeof(FEngineInstance) == G_EngineInstanceSize, "instance size");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, Archetype) == 0x08, "instance.Archetype");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, ParentArchetype) == 0x0C, "instance.ParentArchetype");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, Parent) == 0x10, "instance.Parent");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, NextSibling) == 0x14, "instance.NextSibling");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, FirstChild) == 0x1C, "instance.FirstChild");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, LastChild) == 0x20, "instance.LastChild");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, UserData) == 0x28, "instance.UserData");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, Matrix) == 0x2C, "instance.Matrix");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, Relative) == 0x5C, "instance.Relative");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, JointState) == 0xB8, "instance.JointState");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, bWorldDirty) == 0xD4, "instance.bWorldDirty");
+FL_LAYOUT_ASSERT(offsetof(FEngineInstance, PartChild) == 0xE8, "instance.PartChild");
+FL_LAYOUT_ASSERT(sizeof(FInstanceTransform) == G_TransformObjectSize, "transform size");
+FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, Matrix) == 0x04, "transform.Matrix");
+FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, Extra) == 0x34, "transform.Extra");
+FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, User) == 0x44, "transform.User");
+FL_LAYOUT_ASSERT(sizeof(FAggDescC) == 0xC, "AGGDESC 0xC");
 
 struct FInnerIidEntry
 {
@@ -479,9 +480,9 @@ static GENRESULT InnerQueryTable(void* Object, const char* Iid, void** Out,
 static const FInnerIidEntry G_AnimationInnerIids[] = {
     {Iids::Animation2, 0},
     {Iids::Animation, 0},
-    {Iids::Channel, 0x08},
-    {Iids::RootData, 0x0C},
-    {Iids::AggregateComponent, 0x04},
+    {Iids::Channel, FL_FACET_OFFSET(0x08, FAnimationObject, FAnimationChannelFacet)},
+    {Iids::RootData, FL_FACET_OFFSET(0x0C, FAnimationObject, IRootData)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(0x04, FAnimationObject, IAggregateComponent)},
     {nullptr, 0},
 };
 
@@ -489,8 +490,8 @@ static const FInnerIidEntry G_AnimationInnerIids[] = {
 // {IAggregateComponent, 4}, then a null iid. IAggregateComponent answers with the IEC facet.
 static const FInnerIidEntry G_HardpointInnerIids[] = {
     {Iids::Hardpoint, 0},
-    {Iids::EngineComponent, 0x04},
-    {Iids::AggregateComponent, 0x04},
+    {Iids::EngineComponent, FL_FACET_OFFSET(0x04, FHardpointObject, IEngineComponent)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(0x04, FHardpointObject, IEngineComponent)},
     {nullptr, 0},
 };
 
@@ -540,6 +541,16 @@ static unsigned long DACOM_API AnimationRelease(FAnimationObject* This)
 
 static FAnimationObject* AnimationFromNested(void* Nested, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // Offset names a retail facet; x64 has the facets at other offsets (facet_offset.h).
+    switch (Offset)
+    {
+    case 4: Offset = FL_FACET_OFFSET(4, FAnimationObject, IAggregateComponent); break;
+    case 8: Offset = FL_FACET_OFFSET(8, FAnimationObject, FAnimationChannelFacet); break;
+    case 0xC: Offset = FL_FACET_OFFSET(0xC, FAnimationObject, IRootData); break;
+    default: break;
+    }
+#endif
     return (FAnimationObject*)((unsigned char*)Nested - Offset);
 }
 
@@ -2956,6 +2967,11 @@ static unsigned long DACOM_API HardpointRelease(FHardpointObject* This)
 
 static FHardpointObject* HardpointFromNested(void* Nested, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // 4 is the retail IEngineComponent facet; x64 has it at another offset (facet_offset.h).
+    if (Offset == 4)
+        Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);
+#endif
     return (FHardpointObject*)((unsigned char*)Nested - Offset);
 }
 
@@ -7543,8 +7559,14 @@ GENRESULT DACOM_API ChannelArchetypeFactoryCreateInstance(FDacomFactory* This, A
 }
 
 
+// Only FHardpointObject uses it, with 4: its retail IEngineComponent facet.
 static void* NestedThis(void* Object, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // x64 has the facet at another offset (facet_offset.h).
+    if (Offset == 4)
+        Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);
+#endif
     return (unsigned char*)Object + Offset;
 }
 

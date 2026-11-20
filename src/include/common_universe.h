@@ -94,7 +94,7 @@ namespace Universe
         unsigned char Visit;    // +0x18 the [Object] visit byte
         unsigned GateType;      // +0x1c ESolarGateType of the goto object's solar archetype
     };
-    static_assert(sizeof(FSystemConnection) == 0x20, "FSystemConnection size is 0x20");
+    FL_LAYOUT_ASSERT(sizeof(FSystemConnection) == 0x20, "FSystemConnection size is 0x20");
 
     // One [Object] record of a system file as FUN_06336380 reads it (memset 0x118, then the
     // keys below). ISystem slots 15/16 hand them out from the shared object pool; Server.dll
@@ -114,7 +114,7 @@ namespace Universe
         TString<64> PrevRing;   // +0xd0 "prev_ring"
         unsigned char Visit;    // +0x114 "visit"; forced to 1 by a "star" key
     };
-    static_assert(sizeof(FSystemObject) == 0x118, "FSystemObject size is 0x118");
+    FL_LAYOUT_ASSERT(sizeof(FSystemObject) == 0x118, "FSystemObject size is 0x118");
 
     // One entry of SYSTEM+0x80's zone list: the INI_Reader state captured at the zone's
     // [Zone] header (.text:063375c8) and the zone as it sits in the zone map (list node

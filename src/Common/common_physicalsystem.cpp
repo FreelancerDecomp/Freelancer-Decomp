@@ -264,7 +264,7 @@ static void PhySys_SyncObjectFromBody(CObject* Object)
     Acquire3DMathEngine()->QuaternionToMatrix(Orientation, Quat);
 
     // .text:0628cc57..0628cc7f: Object+0x2c = position, Object+0x08 = the 3x3 (REP MOVSD 9).
-    static_assert(sizeof(Matrix) == sizeof(FMatrix), "EngineObject orientation is 9 floats");
+    FL_LAYOUT_ASSERT(sizeof(Matrix) == sizeof(FMatrix), "EngineObject orientation is 9 floats");
     Object->WorldPosition = Position;
     memcpy(&Object->Orientation, &Orientation, sizeof(FMatrix));
 
@@ -539,7 +539,7 @@ namespace CmnPhySys
     // stored as IVP's (x, y, z, w) (.text:0628c7f2..0628c817 / 0628c8a1..0628c8c6).
     void PhySys_OrientationToIvpQuat(Matrix const& Orientation, IVP_U_Quat& Out)
     {
-        static_assert(sizeof(Matrix) == sizeof(FMatrix), "EngineObject orientation is 9 floats");
+        FL_LAYOUT_ASSERT(sizeof(Matrix) == sizeof(FMatrix), "EngineObject orientation is 9 floats");
         FQuaternion Quat;
         Acquire3DMathEngine()->MatrixToQuaternion(Quat, (FMatrix const&)Orientation);
         Out.x = Quat.X;

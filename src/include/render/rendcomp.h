@@ -196,8 +196,8 @@ struct FVwireDataHeader
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FVmeshDataHeader) == 0x10, "VMeshData header 0x10");
+FL_LAYOUT_ASSERT(sizeof(FVmeshDataHeader) == 0x10, "VMeshData header 0x10");
 
-static_assert(sizeof(FVmeshRef) == 0x3C, "VMeshRef 0x3C");
-static_assert(sizeof(FVmeshFacegroup) == 0xC, "facegroup 0xC");
-static_assert(sizeof(FVwireDataHeader) == 0x10, "VWireData header 0x10");
+FL_LAYOUT_ASSERT(sizeof(FVmeshRef) == 0x3C, "VMeshRef 0x3C");
+FL_LAYOUT_ASSERT(sizeof(FVmeshFacegroup) == 0xC, "facegroup 0xC");
+FL_LAYOUT_ASSERT(sizeof(FVwireDataHeader) == 0x10, "VWireData header 0x10");

@@ -5,6 +5,8 @@
 // Author: Giperion.
 
 #include "DALib.h"
+#include "readfile.h" // FFileSystemDesc, the layout ReadFile reads
+#include <cstddef>
 #include "dacom.h"
 #include "alchemy.h"
 #include "soundmanager.h"
@@ -253,6 +255,13 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
 
     return bResult;
 }
+
+// The descriptor DALib fills is read by ReadFile as an FFileSystemDesc, on every platform.
+static_assert(offsetof(FFileSystemAggDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
+static_assert(offsetof(FFileSystemAggDesc, Field10) == offsetof(FFileSystemDesc, Access), "Access");
+static_assert(offsetof(FFileSystemAggDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
+static_assert(offsetof(FFileSystemAggDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
+static_assert(offsetof(FFileSystemAggDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
 
 // Retail .text:065c1610 DALib::OpenData -- 0x34-byte "FileSystem"/"DOS" descriptor, result
 // written straight into DALib::Data; neither Dacom nor the result is checked.

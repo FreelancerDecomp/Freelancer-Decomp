@@ -954,7 +954,7 @@ static unsigned int RpcEncodeWideString(FPacketBase& Packet, const wchar_t* Valu
     Destination += 2u;
     if (Packet.MarshalCursor >= Packet.MarshalLimit) return 0x16u;
     std::memcpy(Destination, Value, ByteCount);
-    Packet.MarshalPtr = reinterpret_cast<unsigned int>(Destination + ByteCount);
+    Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(Destination + ByteCount);
     return 0;
 }
 
@@ -975,7 +975,7 @@ static unsigned int RpcDecodeWideString(FPacketBase& Packet, wchar_t** Value) {
         // the packet name and the moving input pointer completely untouched.
         std::memcpy(*Value, Source, ByteCount);
         (*Value)[Length] = L'\0';
-        Packet.MarshalPtr = reinterpret_cast<unsigned int>(Source + ByteCount);
+        Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(Source + ByteCount);
     }
     return 0;
 }
@@ -1342,12 +1342,13 @@ const double GUpdateInverseScale = 1.0 / 127.0;   // PE 06c0df48: 08040281402080
 // and only then calls _ftol. Keep that ordering around an unmasked FP exception.
 // The commit stores the destination cached before the preceding payload write
 // plus its width (RC06b64d58/06b64d5b, 06b64e3d/06b64e3e); it never rereads Ptr.
-unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommit,
-    unsigned int CommittedPointer) {
+unsigned char RpcUpdateQuantize(const float& Value, std::uintptr_t* PointerToCommit,
+    std::uintptr_t CommittedPointer) {
     const float* Source = &Value;
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Source
         fld dword ptr [ecx]
@@ -1366,18 +1367,28 @@ unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommi
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    if (PointerToCommit != nullptr) *PointerToCommit = CommittedPointer;
+    Quantized = X87TruncateToInt64(static_cast<double>(*Source) * GFireSmallScale);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
 void RpcUpdateExpand(signed char Encoded, float& Value) {
     const int Quantized = Encoded;
     float* Destination = &Value;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Destination
         fild dword ptr Quantized
         fmul qword ptr GUpdateInverseScale
         fstp dword ptr [ecx]
     }
+#else
+    *Destination = static_cast<float>(static_cast<double>(Quantized) * GUpdateInverseScale);
+#endif
 }
 
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
@@ -1385,6 +1396,7 @@ void RpcUpdateExpand(signed char Encoded, float& Value) {
 unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
     const float* Source = &Value;
     unsigned char Tier;
+#if defined(_M_IX86)
     if (bHasMediumTier) {
         __asm {
             mov ecx, Source
@@ -1422,6 +1434,16 @@ unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
             mov Tier, dl
         }
     }
+#else
+    // TEST AH,5 + JP: "taken" means not strictly less (or unordered).
+    const double Magnitude = static_cast<double>(*Source < 0.0f ? -*Source : *Source);
+    Tier = 0;
+    if (!(Magnitude < GFireSmallLimit)) {
+        if (bHasMediumTier && Magnitude < GFireMediumLimit) Tier = 2;
+    } else {
+        Tier = 1;
+    }
+#endif
     return Tier;
 }
 
@@ -1434,6 +1456,7 @@ unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Source
         mov eax, PreScale
@@ -1449,6 +1472,12 @@ unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    // The float product is exact in a double (24 + 24 significant bits).
+    Quantized = X87TruncateToInt64(static_cast<double>(*Source) * static_cast<double>(*PreScale) * *Scale);
+#endif
     return static_cast<unsigned int>(Quantized);
 }
 
@@ -1492,6 +1521,7 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
     }
     if (bCommitBefore) Stream.CommitReadPointer(Width);
     float* Destination = &Value;
+#if defined(_M_IX86)
     __asm {
         mov eax, Scale
         mov ecx, Destination
@@ -1499,6 +1529,9 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
         fmul qword ptr [eax]
         fstp dword ptr [ecx]
     }
+#else
+    *Destination = static_cast<float>(static_cast<double>(Quantized) * *Scale);
+#endif
     if (!bCommitBefore) Stream.CommitReadPointer(Width);
     return true;
 }
@@ -1518,7 +1551,7 @@ unsigned int FRpcUpdateObjectPacket::Encode(unsigned char** BufferHolder,
     std::memcpy(&PositionBits[0], &Position.x, 4u);
     std::memcpy(&PositionBits[1], &Position.y, 4u);
     std::memcpy(&PositionBits[2], &Position.z, 4u);
-    const unsigned int PositionDestination = MarshalPtr;
+    const std::uintptr_t PositionDestination = MarshalPtr;
     std::memcpy(reinterpret_cast<void*>(PositionDestination), PositionBits, 12u);
     // All four conversions precede the first quaternion-byte capacity check.
     const unsigned char X = RpcUpdateQuantize(Orientation.x, &MarshalPtr,
@@ -1532,7 +1565,7 @@ unsigned int FRpcUpdateObjectPacket::Encode(unsigned char** BufferHolder,
     // RC06b64e2f..06b64e3e: W is stored at the cached destination, the extra
     // value's FLD/FMUL follows, then Ptr=cached+1, then _ftol.
     if (!Stream.Reserve(1u, 0x16u)) return 0x16u;
-    const unsigned int WDestination = MarshalPtr;
+    const std::uintptr_t WDestination = MarshalPtr;
     std::memcpy(reinterpret_cast<void*>(WDestination), &W, 1u);
     const unsigned char Extra = RpcUpdateQuantize(Field_0x28, &MarshalPtr, WDestination + 1u);
     if (!Stream.Put(&Extra, 1u)) return 0x16u;

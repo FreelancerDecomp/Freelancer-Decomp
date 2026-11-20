@@ -268,14 +268,14 @@ public:
                                // shared FUN_062d20f0 effect.
 };
 
-static_assert(offsetof(CruiseBehavior, CachedHandle08) == 0x08, "CruiseBehavior::CachedHandle08 offset");
-static_assert(offsetof(CruiseBehavior, ModeSelector0xc) == 0x0c, "CruiseBehavior::ModeSelector0xc offset");
-static_assert(offsetof(CruiseBehavior, UpdateResult10) == 0x10, "CruiseBehavior::UpdateResult10 offset");
-static_assert(offsetof(CruiseBehavior, OwnerContextPtr14) == 0x14, "CruiseBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(CruiseBehavior, BehaviorMgrPtr20) == 0x20, "CruiseBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(CruiseBehavior, NavHelperPtr24) == 0x24, "CruiseBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(CruiseBehavior, Flags28) == 0x28, "CruiseBehavior::Flags28 offset");
-static_assert(offsetof(CruiseBehavior, Flag29) == 0x29, "CruiseBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, CachedHandle08) == 0x08, "CruiseBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, ModeSelector0xc) == 0x0c, "CruiseBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, UpdateResult10) == 0x10, "CruiseBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, OwnerContextPtr14) == 0x14, "CruiseBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, BehaviorMgrPtr20) == 0x20, "CruiseBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, NavHelperPtr24) == 0x24, "CruiseBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, Flags28) == 0x28, "CruiseBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, Flag29) == 0x29, "CruiseBehavior::Flag29 offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x2c`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -284,4 +284,4 @@ static_assert(offsetof(CruiseBehavior, Flag29) == 0x29, "CruiseBehavior::Flag29 
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(CruiseBehavior) <= 0x2c, "CruiseBehavior must not exceed its retail size 0x2c");
+FL_LAYOUT_ASSERT(sizeof(CruiseBehavior) <= 0x2c, "CruiseBehavior must not exceed its retail size 0x2c");

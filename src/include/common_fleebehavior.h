@@ -144,24 +144,24 @@ public:
     pub::AI::DirectiveDockOp DockOp;  // +0xbc, 0x2c bytes, ends at +0xe8.
 };
 
-static_assert(offsetof(FleeBehavior, CachedHandle08) == 0x08, "FleeBehavior::CachedHandle08 offset");
-static_assert(offsetof(FleeBehavior, ModeSelector0xc) == 0x0c, "FleeBehavior::ModeSelector0xc offset");
-static_assert(offsetof(FleeBehavior, UpdateResult10) == 0x10, "FleeBehavior::UpdateResult10 offset");
-static_assert(offsetof(FleeBehavior, OwnerContextPtr14) == 0x14, "FleeBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(FleeBehavior, BehaviorMgrPtr20) == 0x20, "FleeBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(FleeBehavior, NavHelperPtr24) == 0x24, "FleeBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(FleeBehavior, Flags28) == 0x28, "FleeBehavior::Flags28 offset");
-static_assert(offsetof(FleeBehavior, Flag29) == 0x29, "FleeBehavior::Flag29 offset");
-static_assert(offsetof(FleeBehavior, Field2c) == 0x2c, "FleeBehavior::Field2c offset");
-static_assert(offsetof(FleeBehavior, Field30) == 0x30, "FleeBehavior::Field30 offset");
-static_assert(offsetof(FleeBehavior, Field34) == 0x34, "FleeBehavior::Field34 offset");
-static_assert(offsetof(FleeBehavior, Field38) == 0x38, "FleeBehavior::Field38 offset");
-static_assert(offsetof(FleeBehavior, Field3c) == 0x3c, "FleeBehavior::Field3c offset");
-static_assert(offsetof(FleeBehavior, Field40) == 0x40, "FleeBehavior::Field40 offset");
-static_assert(offsetof(FleeBehavior, Field44) == 0x44, "FleeBehavior::Field44 offset");
-static_assert(offsetof(FleeBehavior, Field48) == 0x48, "FleeBehavior::Field48 offset");
-static_assert(offsetof(FleeBehavior, GotoOp) == 0x4c, "FleeBehavior::GotoOp offset");
-static_assert(offsetof(FleeBehavior, DockOp) == 0xbc, "FleeBehavior::DockOp offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, CachedHandle08) == 0x08, "FleeBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, ModeSelector0xc) == 0x0c, "FleeBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, UpdateResult10) == 0x10, "FleeBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, OwnerContextPtr14) == 0x14, "FleeBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, BehaviorMgrPtr20) == 0x20, "FleeBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, NavHelperPtr24) == 0x24, "FleeBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Flags28) == 0x28, "FleeBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Flag29) == 0x29, "FleeBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field2c) == 0x2c, "FleeBehavior::Field2c offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field30) == 0x30, "FleeBehavior::Field30 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field34) == 0x34, "FleeBehavior::Field34 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field38) == 0x38, "FleeBehavior::Field38 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field3c) == 0x3c, "FleeBehavior::Field3c offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field40) == 0x40, "FleeBehavior::Field40 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field44) == 0x44, "FleeBehavior::Field44 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, Field48) == 0x48, "FleeBehavior::Field48 offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, GotoOp) == 0x4c, "FleeBehavior::GotoOp offset");
+FL_LAYOUT_ASSERT(offsetof(FleeBehavior, DockOp) == 0xbc, "FleeBehavior::DockOp offset");
 
 // Retail object size: the factory pushes 0xe8 before operator new.
-static_assert(sizeof(FleeBehavior) == 0xe8, "FleeBehavior size must match retail 0xe8");
+FL_LAYOUT_ASSERT(sizeof(FleeBehavior) == 0xe8, "FleeBehavior size must match retail 0xe8");

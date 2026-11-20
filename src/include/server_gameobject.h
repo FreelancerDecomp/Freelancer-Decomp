@@ -94,7 +94,7 @@ struct FInvincibility
     unsigned char Pad06[2];
     float MaxHpLoss;            // +0x08  fraction of max hp that may still be lost -> +0x3c
 };
-static_assert(sizeof(FInvincibility) == 0x0c, "FInvincibility is the 0x0c list value");
+FL_LAYOUT_ASSERT(sizeof(FInvincibility) == 0x0c, "FInvincibility is the 0x0c list value");
 
 // +0x17c damage_sub_obj's record. Built by StarSystem FUN_06d0d730
 // (.text:06d0d7ad..06d0d7ca): +0 = the inflictor's id, +4 = the damaged
@@ -157,7 +157,7 @@ struct FCollisionEvent
     Vector Field_0x18;                       // +0x18  negated for side B
     Vector Field_0x24;                       // +0x24  negated for side B
 };
-static_assert(sizeof(FCollisionEvent) == 0x30, "FCollisionEvent 0x30");
+FL_LAYOUT_ASSERT(sizeof(FCollisionEvent) == 0x30, "FCollisionEvent 0x30");
 
 // One loot object to create, 0x6c bytes -- the element of the std::vector that
 // EqObj::build_loot (+0x244, .text:06cebe80) / build_equip_loot (+0x248,
@@ -182,7 +182,7 @@ struct FLootRecord
     unsigned char bMission;                          // +0x69  EquipDesc+0x18 / CEquip vt+0x14
     unsigned char Pad6a[2];
 };
-static_assert(sizeof(FLootRecord) == 0x6c, "FLootRecord is the 0x6c-byte loot element");
+FL_LAYOUT_ASSERT(sizeof(FLootRecord) == 0x6c, "FLootRecord is the 0x6c-byte loot element");
 
 // Controller message 0x39 (FUN_06d43650, the port's Server_ControllerDispatch
 // broadcast): "this object was destroyed". Built on the stack by EqObj::destroy
@@ -218,7 +218,7 @@ struct FSubObjDamageEvent
     float RelativeDamage;                    // +0x1c  Damage / max hit points
     float RelativeHealth;                    // +0x20  Entry.HitPts / max hit points
 };
-static_assert(sizeof(FSubObjDamageEvent) == 0x24, "FSubObjDamageEvent is nine dwords");
+FL_LAYOUT_ASSERT(sizeof(FSubObjDamageEvent) == 0x24, "FSubObjDamageEvent is nine dwords");
 
 // Controller message 0x13 (FUN_06d43650): "this equipment is about to be
 // dropped as loot". Built by EqObj::destroy_equip (.text:06cea0b2..06cea109)
@@ -234,7 +234,7 @@ struct FEquipLootEvent
     DamageCause Cause;                       // +0x0c
     EquipDesc Desc;                          // +0x10
 };
-static_assert(sizeof(FEquipLootEvent) == 0x30, "FEquipLootEvent is 0x30 bytes");
+FL_LAYOUT_ASSERT(sizeof(FEquipLootEvent) == 0x30, "FEquipLootEvent is 0x30 bytes");
 
 // Controller message 0x38 (FUN_06d43650), raised the first time a death fuse is
 // lit: by EqObj::light_fuse (.text:06cec62c..06cec66a) and EqObj::destroy
@@ -247,7 +247,7 @@ struct FDeathFuseEvent
     unsigned int ObjType;                    // +0x08  IObjInspect slot 34 get_type
     float Lifetime;                          // +0x0c  zeroed before the dispatch
 };
-static_assert(sizeof(FDeathFuseEvent) == 0x10, "FDeathFuseEvent is four dwords");
+FL_LAYOUT_ASSERT(sizeof(FDeathFuseEvent) == 0x10, "FDeathFuseEvent is four dwords");
 
 // ---------------------------------------------------------------------------
 // GameObject -- the base wrapper. .text:06cee360.
@@ -1779,7 +1779,7 @@ struct FInTransitObject
     PhySys::CreateParms Parms;   // +0x00  the physics state leave_system handed back
     GameObject* Obj;             // +0x34
 };
-static_assert(offsetof(FInTransitObject, Obj) == 0x34, "FInTransitObject: Obj at +0x34");
+FL_LAYOUT_ASSERT(offsetof(FInTransitObject, Obj) == 0x34, "FInTransitObject: Obj at +0x34");
 extern std::list<FInTransitObject> GInTransitObjects;
 
 // FUN_06d00380 (cdecl): the first entry holding Obj is taken out -- its Parms

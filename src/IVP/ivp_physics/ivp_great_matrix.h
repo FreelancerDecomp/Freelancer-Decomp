@@ -76,9 +76,9 @@ public:
     void MultAlignedMatrix();
 };
 
-static_assert(sizeof(IVP_Great_Matrix_Many_Zero) == 0x18, "IVP_Great_Matrix_Many_Zero is 0x18 bytes");
-static_assert(offsetof(IVP_Great_Matrix_Many_Zero, MatrixValues) == 0x0C, "IVP_Great_Matrix_Many_Zero+0x0C");
-static_assert(offsetof(IVP_Great_Matrix_Many_Zero, ResultVector) == 0x14, "IVP_Great_Matrix_Many_Zero+0x14");
+FL_LAYOUT_ASSERT(sizeof(IVP_Great_Matrix_Many_Zero) == 0x18, "IVP_Great_Matrix_Many_Zero is 0x18 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Great_Matrix_Many_Zero, MatrixValues) == 0x0C, "IVP_Great_Matrix_Many_Zero+0x0C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Great_Matrix_Many_Zero, ResultVector) == 0x14, "IVP_Great_Matrix_Many_Zero+0x14");
 
 class IVP_Incr_L_U_Matrix
 {
@@ -125,9 +125,9 @@ public:
     void SubtractRowL(int Src, int Dst, float Factor);
 };
 
-static_assert(sizeof(IVP_Incr_L_U_Matrix) == 0x2C, "IVP_Incr_L_U_Matrix is 0x2c bytes");
-static_assert(offsetof(IVP_Incr_L_U_Matrix, InputVec) == 0x14, "IVP_Incr_L_U_Matrix+0x14");
-static_assert(offsetof(IVP_Incr_L_U_Matrix, NSub) == 0x28, "IVP_Incr_L_U_Matrix+0x28");
+FL_LAYOUT_ASSERT(sizeof(IVP_Incr_L_U_Matrix) == 0x2C, "IVP_Incr_L_U_Matrix is 0x2c bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Incr_L_U_Matrix, InputVec) == 0x14, "IVP_Incr_L_U_Matrix+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Incr_L_U_Matrix, NSub) == 0x28, "IVP_Incr_L_U_Matrix+0x28");
 
 class IVP_Linear_Constraint_Solver
 {
@@ -209,10 +209,10 @@ public:
     int RemoveInvalidActives();
 };
 
-static_assert(offsetof(IVP_Linear_Constraint_Solver, ActivesInactivesIgnored) == 0x34, "LCS+0x34");
-static_assert(offsetof(IVP_Linear_Constraint_Solver, SubSolverStatus) == 0x68, "LCS+0x68");
-static_assert(offsetof(IVP_Linear_Constraint_Solver, LuMatrix) == 0x6C, "LCS+0x6C");
-static_assert(offsetof(IVP_Linear_Constraint_Solver, LuSubSolver) == 0x98, "LCS+0x98");
-static_assert(offsetof(IVP_Linear_Constraint_Solver, FullAMatrix) == 0xB0, "LCS+0xB0");
-static_assert(offsetof(IVP_Linear_Constraint_Solver, SubSolverMat) == 0xE0, "LCS+0xE0");
-static_assert(sizeof(IVP_Linear_Constraint_Solver) == 0xF8, "IVP_Linear_Constraint_Solver is 0xf8 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, ActivesInactivesIgnored) == 0x34, "LCS+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, SubSolverStatus) == 0x68, "LCS+0x68");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, LuMatrix) == 0x6C, "LCS+0x6C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, LuSubSolver) == 0x98, "LCS+0x98");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, FullAMatrix) == 0xB0, "LCS+0xB0");
+FL_LAYOUT_ASSERT(offsetof(IVP_Linear_Constraint_Solver, SubSolverMat) == 0xE0, "LCS+0xE0");
+FL_LAYOUT_ASSERT(sizeof(IVP_Linear_Constraint_Solver) == 0xF8, "IVP_Linear_Constraint_Solver is 0xf8 bytes");
