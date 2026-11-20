@@ -2124,6 +2124,40 @@ namespace
         return Word;
     }
 
+#if !defined(_M_IX86)
+    template <typename T>
+    int ThornFieldAsWord(const T& Field)
+    {
+        static_assert(sizeof(T) == sizeof(int), "an event descriptor word is four bytes");
+        int Word;
+        std::memcpy(&Word, &Field, sizeof(Word));
+        return Word;
+    }
+
+    // START_MOTION's +0x40 byte: retail reads the whole word and keeps its low byte.
+    int ThornFieldAsWord(unsigned char Field)
+    {
+        return Field;
+    }
+#endif
+
+    // Event descriptor reads. Win32 keeps the retail word/byte offsets verbatim; elsewhere
+    // the pointer fields widen and FThornEventDesc grows, so the named field of the typed
+    // struct (thorn_iface.h) is read instead. Arguments are not parenthesized on purpose:
+    // the Win32 expansion is token-for-token the expression it replaced.
+#if defined(_M_IX86)
+#define THORN_EVENT_WORD(Desc, WordIndex, Struct, Field) ReadEventWord(Desc, WordIndex)
+#define THORN_EVENT_POINTER(Desc, WordIndex, Struct, Field) \
+    reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(Desc, WordIndex)))
+#define THORN_EVENT_BYTES(Desc, ByteOffset, Struct, Field) static_cast<const unsigned char*>(Desc) + ByteOffset
+#else
+#define THORN_EVENT_WORD(Desc, WordIndex, Struct, Field) \
+    ThornFieldAsWord(static_cast<const Struct*>(Desc)->Field)
+#define THORN_EVENT_POINTER(Desc, WordIndex, Struct, Field) static_cast<const Struct*>(Desc)->Field
+#define THORN_EVENT_BYTES(Desc, ByteOffset, Struct, Field) \
+    reinterpret_cast<const unsigned char*>(&static_cast<const Struct*>(Desc)->Field)
+#endif
+
     void ApplyMotionPathDesc(FThornEntity* Entity, const FThornMotionPathDesc* Desc)
     {
         // 42900 has one string owner (+d4) and a separate descriptor pointer
@@ -3250,9 +3284,9 @@ void FThornEvent::ApplyFloorHeightDesc(const void* DescIn)
     TargetType = 0;
     if (ReadEventWord(DescIn, 0) == kThornTypeFloorHeightAnim)
     {
-        std::memcpy(&FloorTarget, static_cast<const unsigned char*>(DescIn) + 44, sizeof(FloorTarget));
-        SetFloorTargetPart(reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 12))));
-        TargetType = ReadEventWord(DescIn, 13);
+        std::memcpy(&FloorTarget, THORN_EVENT_BYTES(DescIn, 44, FThornFloorEventDesc, FloorHeight), sizeof(FloorTarget));
+        SetFloorTargetPart(THORN_EVENT_POINTER(DescIn, 12, FThornFloorEventDesc, TargetPart));
+        TargetType = THORN_EVENT_WORD(DescIn, 13, FThornFloorEventDesc, TargetType);
     }
     // 49677..49696 mirrors common timing/endpoints after the payload work.
     FinalizeDesc();
@@ -3455,7 +3489,7 @@ FThornEvent::FThornEvent(int Type, const void* Desc)
     else if (Type == kThornTypeStartSubScene)
     {
         float StartTimeValue = 0.0f;
-        std::memcpy(&StartTimeValue, static_cast<const unsigned char*>(Desc) + 44, sizeof(StartTimeValue));
+        std::memcpy(&StartTimeValue, THORN_EVENT_BYTES(Desc, 44, FThornSubSceneEventDesc, StartTime), sizeof(StartTimeValue));
         Event->ApplySubSceneDesc(Desc, StartTimeValue);
         // Own constructor publishes the independent ID after the setter.
         Event->Desc.UniqueId = Event->UniqueId;
@@ -3721,7 +3755,7 @@ void FThornEvent::ApplyUserEventDesc(const void* DescIn)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeUserEvent;
     UserEventDesc.ExternalPayloadWord = ReadEventWord(DescIn, 0) == kThornTypeUserEvent
-        ? static_cast<unsigned int>(ReadEventWord(DescIn, 11)) : 0u;
+        ? static_cast<unsigned int>(THORN_EVENT_WORD(DescIn, 11, FThornUserEventDesc, ExternalPayloadWord)) : 0u;
     FinalizeDesc();
 }
 
@@ -3732,7 +3766,7 @@ void FThornEvent::ApplySubtitleDesc(const void* DescIn)
     // FUN_06f49d00 preserves the existing subtitle id on a mismatched
     // descriptor, while the matching type copies dword 11.
     if (ReadEventWord(DescIn, 0) == kThornTypeSubtitle)
-        std::memcpy(&Strid, static_cast<const unsigned char*>(DescIn) + 44, sizeof(Strid));
+        std::memcpy(&Strid, THORN_EVENT_BYTES(DescIn, 44, FThornSubtitleEventDesc, Strid), sizeof(Strid));
     FinalizeDesc();
 }
 
@@ -3742,7 +3776,7 @@ void FThornEvent::ApplySubSceneDesc(const void* DescIn, float StartTimeValue)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeStartSubScene;
     if (ReadEventWord(DescIn, 0) == kThornTypeStartSubScene)
-        std::memcpy(&SubSceneStartTime, static_cast<const unsigned char*>(DescIn) + 44, sizeof(SubSceneStartTime));
+        std::memcpy(&SubSceneStartTime, THORN_EVENT_BYTES(DescIn, 44, FThornSubSceneEventDesc, StartTime), sizeof(SubSceneStartTime));
     else
         SubSceneStartTime = 0.0f;
     FinalizeDesc();
@@ -3773,12 +3807,12 @@ void FThornEvent::ApplyConnectDesc(const void* DescIn)
     if (bMatchingType)
     {
         const char* HardpointName =
-            reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 11)));
+            THORN_EVENT_POINTER(DescIn, 11, FThornConnectEventDesc, Hardpoint);
         if (HardpointName != nullptr)
             SetConnectHardpoint(HardpointName);
         // 48237 reads the second argument after the first string operation.
         const char* ParentHardpointName =
-            reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 12)));
+            THORN_EVENT_POINTER(DescIn, 12, FThornConnectEventDesc, ParentHardpoint);
         if (ParentHardpointName != nullptr)
             SetConnectParentHardpoint(ParentHardpointName);
     }
@@ -3793,11 +3827,11 @@ void FThornEvent::ApplyAttachDesc(const void* DescIn)
     TargetPart = nullptr;
     if (ReadEventWord(DescIn, 0) == kThornTypeAttachEntity)
     {
-        std::memcpy(PathOffset, static_cast<const unsigned char*>(DescIn) + 44, sizeof(PathOffset));
-        TargetType = ReadEventWord(DescIn, 14);
-        LookAtUpAxis = ReadEventWord(DescIn, 15);
-        LookAtFrontAxis = ReadEventWord(DescIn, 16);
-        const char* TargetPartName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 17)));
+        std::memcpy(PathOffset, THORN_EVENT_BYTES(DescIn, 44, FThornAttachEventDesc, Offset), sizeof(PathOffset));
+        TargetType = THORN_EVENT_WORD(DescIn, 14, FThornAttachEventDesc, TargetType);
+        LookAtUpAxis = THORN_EVENT_WORD(DescIn, 15, FThornAttachEventDesc, UpAxis);
+        LookAtFrontAxis = THORN_EVENT_WORD(DescIn, 16, FThornAttachEventDesc, FrontAxis);
+        const char* TargetPartName = THORN_EVENT_POINTER(DescIn, 17, FThornAttachEventDesc, TargetPart);
         if (TargetPartName != nullptr)
         {
             AttachTargetPartStorage.Assign(TargetPartName);
@@ -3827,12 +3861,12 @@ void FThornEvent::ApplyPathAnimDesc(const void* DescIn)
         // DescIn[11..16] are raw IEEE-754 float bit patterns, not integers to
         // convert -- memcpy preserves the bits (same convention as the other
         // float payloads carried past dword 11 in this descriptor format).
-        std::memcpy(&StartPercent, static_cast<const unsigned char*>(DescIn) + 44, sizeof(StartPercent));
-        std::memcpy(&StopPercent, static_cast<const unsigned char*>(DescIn) + 48, sizeof(StopPercent));
-        std::memcpy(&PercentDelta, static_cast<const unsigned char*>(DescIn) + 52, sizeof(PercentDelta));
-        std::memcpy(PathOffset, static_cast<const unsigned char*>(DescIn) + 56, sizeof(PathOffset));
-        LookAtUpAxis = ReadEventWord(DescIn, 17);
-        LookAtFrontAxis = ReadEventWord(DescIn, 18);
+        std::memcpy(&StartPercent, THORN_EVENT_BYTES(DescIn, 44, FThornPathEventDesc, StartPercent), sizeof(StartPercent));
+        std::memcpy(&StopPercent, THORN_EVENT_BYTES(DescIn, 48, FThornPathEventDesc, StopPercent), sizeof(StopPercent));
+        std::memcpy(&PercentDelta, THORN_EVENT_BYTES(DescIn, 52, FThornPathEventDesc, PercentDelta), sizeof(PercentDelta));
+        std::memcpy(PathOffset, THORN_EVENT_BYTES(DescIn, 56, FThornPathEventDesc, Offset), sizeof(PathOffset));
+        LookAtUpAxis = THORN_EVENT_WORD(DescIn, 17, FThornPathEventDesc, LookAtUpAxis);
+        LookAtFrontAxis = THORN_EVENT_WORD(DescIn, 18, FThornPathEventDesc, LookAtFrontAxis);
     }
     else
     {
@@ -3855,11 +3889,11 @@ void FThornEvent::ApplyLightEventDesc(const void* DescIn)
     Desc.Type = kThornTypeLightPropAnim;
     if (ReadEventWord(DescIn, 0) == kThornTypeLightPropAnim)
     {
-        LightMask = ReadEventWord(DescIn, 11);
+        LightMask = THORN_EVENT_WORD(DescIn, 11, FThornLightEventDesc, Mask);
         // 456ac forward REP MOVSD: preserve each DWORD, including any alias
         // with the destination rather than imposing memcpy's non-overlap rule.
         unsigned char* Destination = reinterpret_cast<unsigned char*>(&LightTarget);
-        const unsigned char* Source = reinterpret_cast<const unsigned char*>(static_cast<const unsigned char*>(DescIn) + 48);
+        const unsigned char* Source = reinterpret_cast<const unsigned char*>(THORN_EVENT_BYTES(DescIn, 48, FThornLightEventDesc, Target));
         for (int Index = 0; Index < 0x24; ++Index)
         {
             unsigned int Word;
@@ -3886,21 +3920,21 @@ void FThornEvent::ApplyMotionDesc(const void* DescIn)
     if (ReadEventWord(DescIn, 0) == kThornTypeStartMotion)
     {
         // 43b36..43b63 stores every scalar before either string operation.
-        std::memcpy(&Heading, static_cast<const unsigned char*>(DescIn) + 68, sizeof(Heading));
-        Field_0x40 = static_cast<unsigned char>(ReadEventWord(DescIn, 16));
-        std::memcpy(&MotionStartTime, static_cast<const unsigned char*>(DescIn) + 44, sizeof(MotionStartTime));
-        std::memcpy(&TimeScale, static_cast<const unsigned char*>(DescIn) + 52, sizeof(TimeScale));
-        Field_0x50 = ReadEventWord(DescIn, 20);
-        std::memcpy(&TransTime, static_cast<const unsigned char*>(DescIn) + 48, sizeof(TransTime));
-        std::memcpy(&TransScale, static_cast<const unsigned char*>(DescIn) + 76, sizeof(TransScale));
-        std::memcpy(&Weight, static_cast<const unsigned char*>(DescIn) + 56, sizeof(Weight));
-        const char* AnimationName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 15)));
+        std::memcpy(&Heading, THORN_EVENT_BYTES(DescIn, 68, FThornMotionEventDesc, Heading), sizeof(Heading));
+        Field_0x40 = static_cast<unsigned char>(THORN_EVENT_WORD(DescIn, 16, FThornMotionEventDesc, Field40));
+        std::memcpy(&MotionStartTime, THORN_EVENT_BYTES(DescIn, 44, FThornMotionEventDesc, StartTime), sizeof(MotionStartTime));
+        std::memcpy(&TimeScale, THORN_EVENT_BYTES(DescIn, 52, FThornMotionEventDesc, TimeScale), sizeof(TimeScale));
+        Field_0x50 = THORN_EVENT_WORD(DescIn, 20, FThornMotionEventDesc, Field50);
+        std::memcpy(&TransTime, THORN_EVENT_BYTES(DescIn, 48, FThornMotionEventDesc, TransTime), sizeof(TransTime));
+        std::memcpy(&TransScale, THORN_EVENT_BYTES(DescIn, 76, FThornMotionEventDesc, TransScale), sizeof(TransScale));
+        std::memcpy(&Weight, THORN_EVENT_BYTES(DescIn, 56, FThornMotionEventDesc, Weight), sizeof(Weight));
+        const char* AnimationName = THORN_EVENT_POINTER(DescIn, 15, FThornMotionEventDesc, Animation);
         if (AnimationName != nullptr)
         {
             MotionAnimationStorage.Assign(AnimationName);
             Animation = MotionAnimationStorage.GetPublishedData();
         }
-        const char* BoneName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 18)));
+        const char* BoneName = THORN_EVENT_POINTER(DescIn, 18, FThornMotionEventDesc, LockedBone);
         if (BoneName != nullptr)
         {
             MotionLockedBoneStorage.Assign(BoneName);
@@ -3951,19 +3985,19 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         FinalizeDesc();
         return;
     }
-    SpatialMask = ReadEventWord(DescIn, 11);
+    SpatialMask = THORN_EVENT_WORD(DescIn, 11, FThornSpatialEventDesc, Mask);
     const bool bQuaternionOrientation = (Desc.Flags & kThornFlagQuatOrient) != 0;
     // 46665 copies twelve words forwards; retain the store boundaries if the
     // incoming descriptor aliases the owner's orientation/position storage.
     for (int Index = 0; Index < 9; ++Index)
-        std::memcpy(TargetOrient + Index, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+        std::memcpy(TargetOrient + Index, THORN_EVENT_BYTES(DescIn, 48, FThornSpatialEventDesc, Orient) + Index * 4, 4);
     for (int Index = 0; Index < 3; ++Index)
-        std::memcpy(TargetPos + Index, static_cast<const unsigned char*>(DescIn) + 84 + Index * 4, 4);
+        std::memcpy(TargetPos + Index, THORN_EVENT_BYTES(DescIn, 84, FThornSpatialEventDesc, Position) + Index * 4, 4);
     if (bQuaternionOrientation)
     {
         for (int Index = 0; Index < 4; ++Index)
             std::memcpy(reinterpret_cast<unsigned char*>(&TargetQuat) + Index * 4,
-                        static_cast<const unsigned char*>(DescIn) + 96 + Index * 4, 4);
+                        THORN_EVENT_BYTES(DescIn, 96, FThornSpatialEventDesc, Quaternion) + Index * 4, 4);
     }
     else
     {
@@ -3972,9 +4006,9 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         if (G_SceneEventMathEngine == nullptr)
             G_SceneEventMathEngine = ThornAcquire3DMathEngine();
         SpatialMatrixToQuaternion(G_SceneEventMathEngine, TargetQuat,
-            static_cast<const unsigned char*>(DescIn) + 48);
+            THORN_EVENT_BYTES(DescIn, 48, FThornSpatialEventDesc, Orient));
     }
-    const char* TargetPartName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 30)));
+    const char* TargetPartName = THORN_EVENT_POINTER(DescIn, 30, FThornSpatialEventDesc, TargetPart);
     // 46636 already cleared exposure before the math callback. Null input
     // skips assignment entirely; do not clear a callback's later publication.
     if (TargetPartName != nullptr)
@@ -3983,9 +4017,9 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         TargetPart = SpatialTargetPartStorage.GetPublishedData();
     }
     // Read these only after the string call, matching 46773..46788.
-    TargetType = ReadEventWord(DescIn, 31);
-    std::memcpy(&AxisRotAngle, static_cast<const unsigned char*>(DescIn) + 112, sizeof(AxisRotAngle));
-    AxisRotAxis = ReadEventWord(DescIn, 29);
+    TargetType = THORN_EVENT_WORD(DescIn, 31, FThornSpatialEventDesc, TargetType);
+    std::memcpy(&AxisRotAngle, THORN_EVENT_BYTES(DescIn, 112, FThornSpatialEventDesc, AxisRotAngle), sizeof(AxisRotAngle));
+    AxisRotAxis = THORN_EVENT_WORD(DescIn, 29, FThornSpatialEventDesc, AxisRotAxis);
     FinalizeDesc();
 }
 
@@ -3994,7 +4028,8 @@ void FThornEvent::ApplyStartSoundDesc(const void* DescIn)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeStartSound;
     // 449e1 rereads the input after common callbacks and the forced store.
-    SoundStartTime = ReadEventWord(DescIn, 0) == kThornTypeStartSound ? ReadEventWord(DescIn, 11) : 0;
+    SoundStartTime = ReadEventWord(DescIn, 0) == kThornTypeStartSound
+        ? THORN_EVENT_WORD(DescIn, 11, FThornSoundEventDesc, SoundStartTime) : 0;
     FinalizeDesc();
 }
 
@@ -4013,9 +4048,9 @@ void FThornEvent::ApplyCameraPropAnimDesc(const void* DescIn)
     // 46091 reads the current input type after the common curve callbacks.
     if (ReadEventWord(DescIn, 0) == kThornTypeCameraPropAnim)
     {
-        CamMask = ReadEventWord(DescIn, 11);
+        CamMask = THORN_EVENT_WORD(DescIn, 11, FThornCameraEventDesc, Mask);
         for (int Index = 0; Index < 4; ++Index)
-            std::memcpy(CamTarget + Index, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+            std::memcpy(CamTarget + Index, THORN_EVENT_BYTES(DescIn, 48, FThornCameraEventDesc, Target) + Index * 4, 4);
     }
     else
         CamMask = 0; // 460c0 retains the four target words on mismatch.
@@ -4056,10 +4091,10 @@ void FThornEvent::ApplyPsysPropAnimDesc(const void* DescIn)
     // 48951 rereads the input after common callbacks and the forced store.
     if (ReadEventWord(DescIn, 0) == kThornTypePsysPropAnim)
     {
-        PsysMask = ReadEventWord(DescIn, 11);
+        PsysMask = THORN_EVENT_WORD(DescIn, 11, FThornPsysPropEventDesc, Mask);
         // 48961/48964 reads a DWORD before its store, including self input.
         unsigned int TargetBits;
-        std::memcpy(&TargetBits, static_cast<const unsigned char*>(DescIn) + 48, sizeof(TargetBits));
+        std::memcpy(&TargetBits, THORN_EVENT_BYTES(DescIn, 48, FThornPsysPropEventDesc, Sparam), sizeof(TargetBits));
         std::memcpy(&SparamTarget, &TargetBits, sizeof(TargetBits));
     }
     else
@@ -4095,12 +4130,12 @@ void FThornEvent::ApplyFogPropAnimDesc(const void* DescIn)
     // 48cf1 reads the input type only after common curve callbacks return.
     if (ReadEventWord(DescIn, 0) == kThornTypeFogPropAnim)
     {
-        FogMask = ReadEventWord(DescIn, 11);
+        FogMask = THORN_EVENT_WORD(DescIn, 11, FThornFogEventDesc, Mask);
         // 48d0c is a forward DWORD copy, preserving flags and padding.
         for (int Index = 0; Index < 8; ++Index)
         {
             unsigned int Word;
-            std::memcpy(&Word, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, sizeof(Word));
+            std::memcpy(&Word, THORN_EVENT_BYTES(DescIn, 48, FThornFogEventDesc, Target) + Index * 4, sizeof(Word));
             std::memcpy(reinterpret_cast<unsigned char*>(&FogTarget) + Index * 4, &Word, sizeof(Word));
         }
     }
@@ -4116,10 +4151,10 @@ void FThornEvent::ApplyReverbPropAnimDesc(const void* DescIn)
     // 49181 rereads type; 49194..491ab copies four raw words in order.
     if (ReadEventWord(DescIn, 0) == kThornTypeReverbPropAnim)
     {
-        ReverbMask = ReadEventWord(DescIn, 11);
+        ReverbMask = THORN_EVENT_WORD(DescIn, 11, FThornReverbEventDesc, Mask);
         for (int Index = 0; Index < 4; ++Index)
             std::memcpy(reinterpret_cast<unsigned char*>(&ReverbTarget) + Index * 4,
-                        static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+                        THORN_EVENT_BYTES(DescIn, 48, FThornReverbEventDesc, Target) + Index * 4, 4);
     }
     else
         ReverbMask = 0;
@@ -4179,12 +4214,12 @@ void FThornEvent::ApplyAudioPropAnimDesc(const void* DescIn)
     // 472d1 rereads input type after callbacks; mismatch clears only mask.
     if (ReadEventWord(DescIn, 0) == kThornTypeAudioPropAnim)
     {
-        AudioMask = ReadEventWord(DescIn, 11);
+        AudioMask = THORN_EVENT_WORD(DescIn, 11, FThornAudioPropEventDesc, Mask);
         // Exact DWORD-forward transport, including self/overlapping input.
         for (int Index = 0; Index < 8; ++Index)
         {
             unsigned int Word;
-            std::memcpy(&Word, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+            std::memcpy(&Word, THORN_EVENT_BYTES(DescIn, 48, FThornAudioPropEventDesc, Target) + Index * 4, 4);
             std::memcpy(reinterpret_cast<unsigned char*>(&AudioTarget) + Index * 4, &Word, 4);
         }
     }
@@ -7756,10 +7791,10 @@ GENRESULT FThornScene::AddEventFromDesc(const void* Desc, int* OutId)
 {
     // LAB_06f39b50: *out=-1; primary in map; secondary in map unless <0 and table allows.
     *OutId = -1;
-    const int Primary = ReadEventWord(Desc, 7);
+    const int Primary = THORN_EVENT_WORD(Desc, 7, FThornEventDesc, PrimaryIndex);
     if (!EntityExists(Primary))
         return GR_GENERIC;
-    const int Secondary = ReadEventWord(Desc, 8);
+    const int Secondary = THORN_EVENT_WORD(Desc, 8, FThornEventDesc, SecondaryIndex);
     if (Secondary < 0)
     {
         if (!EventAllowsMissingSecondary(ReadEventWord(Desc, 0)))
