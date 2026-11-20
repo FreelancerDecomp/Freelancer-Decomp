@@ -200,6 +200,10 @@ public:
     // Retail FUN_06d961b0, reached from IServerImpl::DumpPacketStats and IClient slot 125.
     void DumpStats(const char* Name) const;
 
+    // Port-only, read-only view of the registered types for the codec tests
+    // (src/RpcCodecTest). Inline and non-virtual: no layout, vtable or export change.
+    const std::map<unsigned int, FPacketTypeInfo*>& GetTypes() const { return Types; }
+
 private:
     std::map<unsigned int, FPacketTypeInfo*> Types;   // serializer+0x08
 };

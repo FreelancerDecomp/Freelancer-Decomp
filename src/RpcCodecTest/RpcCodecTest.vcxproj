@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- RpcCodecTest.exe: port-only network packet codec test (no retail counterpart). It compiles
+       RemoteClient.dll's codec sources with RemoteClient's defines and runs every packet type's
+       Encode/Decode on fixed inputs; see docs/testing.md. -->
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32"><Configuration>DebugASan</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32"><Configuration>Release</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RpcCodecTest</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'!='Release'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+    <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>
+    <TargetName>RpcCodecTest</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- RemoteClient.vcxproj's defines and /sdl setting, so the codecs compile as they do in
+           RemoteClient.dll. -->
+      <PreprocessorDefinitions>FL_SERVER;REMOTECLIENT_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>dacom.lib;Common.lib;Server.lib;rpclocal.lib;DALib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="RpcCodecTest.cpp" />
+    <ClCompile Include="..\RemoteClient\rpc_client_packets.cpp" />
+    <ClCompile Include="..\RemoteCommon\remote_packet_codecs.cpp" />
+    <ClCompile Include="..\RemoteCommon\remote_server_channel_codecs.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Server\Server.vcxproj">
+      <Project>{B1C2D3E4-F5A6-7890-BCDE-F12345678901}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DALib\DALib.vcxproj">
+      <Project>{9A4B2C31-0D5E-4F60-B728-C9DAE1F20415}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\rpclocal\rpclocal.vcxproj">
+      <Project>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
