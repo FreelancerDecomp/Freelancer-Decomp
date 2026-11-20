@@ -7828,6 +7828,144 @@ static float const kViewRadiusSqGroupMate = 1.0e8f;   // .rdata:06d66af4
 static unsigned int const kSolarTypeBits = 0x0000FDFFu;
 
 // ---------------------------------------------------------------------------
+// Port-only index of an Observer's tracked list (no retail counterpart).
+//
+// Retail answers "is this object in the player's view" with a walk of the
+// view's tracked list: FUN_06cf73d0 compares each record's object pointer,
+// FUN_06cf65b0 / FUN_06cf6820 / FUN_06cf6e60 / FUN_06cf6fc0 call get_id on each
+// record's object. A view tracks every object of its system, and
+// StarSystem::sp_obj_update fans every position update out to every other
+// player in the system, so those walks cost players^2 x objects per update
+// round. The index below answers the same questions from two hash maps.
+//
+// Why the answer is the walk's answer:
+//   - The list is only ever appended to by SystemPlayerView_AddTrackedObject
+//     and shrunk by the four removals (~Observer, OnObjectDestroyed,
+//     OnObjectSwitchedOut, OnObjectLanded); each one updates the index. The
+//     list stays the source of every order.
+//   - A record's Object is written once, before the append, and its id cannot
+//     change while it is tracked (see ObjectList::find_by_id's index: CSimple::Id
+//     is only written by CSimple::init, which runs before any append).
+//   - The walks return the FIRST matching node. While each object and each id
+//     occurs at most once, the first match is the only match. The moment an
+//     append would repeat an object or an id, or would add a record whose id
+//     the walk could not read (null object, not a CSimple), the index stops
+//     answering and every lookup walks, exactly as in retail, until the list is
+//     empty again. A copy of a non-empty list (Observer's copy constructor) also
+//     starts in that state.
+//   - Lookups were never read-only in this module's callers, and the server is
+//     single-threaded, so the index needs no locking.
+// ---------------------------------------------------------------------------
+namespace {
+
+struct FTrackedListIndex {
+    std::unordered_map<GameObject const*, SystemTrackedNode*> ByObject;
+    std::unordered_map<unsigned int, SystemTrackedNode*> ById;
+    std::unordered_map<SystemTrackedNode const*, unsigned int> IdOfNode;
+    bool bUsable;
+
+    FTrackedListIndex() : bUsable(true) {}
+};
+
+typedef std::unordered_map<FObserverTrackedList const*, FTrackedListIndex> FTrackedListIndexTable;
+
+// Created on first use and never freed: views are destroyed during static
+// teardown (SysDB::SysMap) and still reach TrackedIndex_Drop.
+FTrackedListIndexTable* GTrackedListIndexes = nullptr;
+
+FTrackedListIndex& TrackedIndex_Get(FObserverTrackedList const& List)
+{
+    if (GTrackedListIndexes == nullptr)
+        GTrackedListIndexes = new FTrackedListIndexTable;
+    return (*GTrackedListIndexes)[&List];
+}
+
+// A fresh list (empty: usable) or a copy (usable only when empty).
+void TrackedIndex_Reset(FObserverTrackedList const& List)
+{
+    FTrackedListIndex& Index = TrackedIndex_Get(List);
+    Index.ByObject.clear();
+    Index.ById.clear();
+    Index.IdOfNode.clear();
+    Index.bUsable = (List.Size == 0);
+}
+
+void TrackedIndex_Drop(FObserverTrackedList const& List)
+{
+    if (GTrackedListIndexes != nullptr)
+        GTrackedListIndexes->erase(&List);
+}
+
+// Called right after Node was appended (its record and object already set).
+void TrackedIndex_OnAppend(FObserverTrackedList const& List, SystemTrackedNode* Node)
+{
+    FTrackedListIndex& Index = TrackedIndex_Get(List);
+    if (!Index.bUsable)
+        return;
+    GameObject* const Obj = Node->Data->Object;
+    CObject* const Raw = (Obj != nullptr) ? Obj->Object : nullptr;
+    if (Raw == nullptr || (static_cast<unsigned int>(Raw->ObjectClass) & 3u) != 3u) {
+        Index.bUsable = false;
+        return;
+    }
+    unsigned int const Id = static_cast<unsigned int>(Obj->get_id());
+    if (Index.ByObject.find(Obj) != Index.ByObject.end() || Index.ById.find(Id) != Index.ById.end()) {
+        Index.bUsable = false;
+        return;
+    }
+    Index.ByObject.insert(std::make_pair(static_cast<GameObject const*>(Obj), Node));
+    Index.ById.insert(std::make_pair(Id, Node));
+    Index.IdOfNode.insert(std::make_pair(static_cast<SystemTrackedNode const*>(Node), Id));
+}
+
+// Called before Node is unlinked, while Node->Data is still the record.
+void TrackedIndex_OnRemove(FObserverTrackedList const& List, SystemTrackedNode const* Node)
+{
+    FTrackedListIndex& Index = TrackedIndex_Get(List);
+    if (Index.bUsable) {
+        std::unordered_map<SystemTrackedNode const*, unsigned int>::iterator const It =
+            Index.IdOfNode.find(Node);
+        if (It != Index.IdOfNode.end()) {
+            Index.ById.erase(It->second);
+            Index.ByObject.erase(Node->Data->Object);
+            Index.IdOfNode.erase(It);
+        }
+    } else if (List.Size == 1) {
+        // The list becomes empty: every lookup can be answered again.
+        Index.ByObject.clear();
+        Index.ById.clear();
+        Index.IdOfNode.clear();
+        Index.bUsable = true;
+    }
+}
+
+// The answer of a first-match walk, or Walk when the index cannot give it.
+// Returns true when Out holds the answer (null: no such record).
+bool TrackedIndex_FindByObject(FObserverTrackedList const& List, GameObject const* Obj,
+                               SystemTrackedNode*& Out)
+{
+    FTrackedListIndex& Index = TrackedIndex_Get(List);
+    if (!Index.bUsable)
+        return false;
+    std::unordered_map<GameObject const*, SystemTrackedNode*>::const_iterator const It =
+        Index.ByObject.find(Obj);
+    Out = (It != Index.ByObject.end()) ? It->second : nullptr;
+    return true;
+}
+
+bool TrackedIndex_FindById(FObserverTrackedList const& List, unsigned int Id, SystemTrackedNode*& Out)
+{
+    FTrackedListIndex& Index = TrackedIndex_Get(List);
+    if (!Index.bUsable)
+        return false;
+    std::unordered_map<unsigned int, SystemTrackedNode*>::const_iterator const It = Index.ById.find(Id);
+    Out = (It != Index.ById.end()) ? It->second : nullptr;
+    return true;
+}
+
+} // namespace
+
+// ---------------------------------------------------------------------------
 // FObserverTrackedList -- Observer+0x08, retail's std::list<SystemTrackedObject*>.
 // Its three members are the list's share of Observer's special members; see
 // server_sysdb.h for the address ranges.
@@ -7846,6 +7984,7 @@ FObserverTrackedList::FObserverTrackedList()
     Sentinel->Prev = Sentinel;
     Head = Sentinel;                  // .text:06cf5214
     Size = 0;                         // .text:06cf5217
+    TrackedIndex_Reset(*this); // port-only (see the index above)
 }
 
 // .text:06d0f705 .. 06d0f778 (inside FUN_06d0f6d0).
@@ -7873,6 +8012,7 @@ FObserverTrackedList::FObserverTrackedList(FObserverTrackedList const& Source)
         Node->Data = Src->Data;
         ++Size;
     }
+    TrackedIndex_Reset(*this); // port-only: usable only when the copy is empty
 }
 
 // .text:06cf538d .. 06cf53ca (the tail of FUN_06cf52d0). MSVC6's ~list():
@@ -7896,6 +8036,7 @@ FObserverTrackedList::~FObserverTrackedList()
     delete Sentinel;                  // .text:06cf53bb
     Head = nullptr;                   // .text:06cf53c7
     Size = 0;                         // .text:06cf53ca
+    TrackedIndex_Drop(*this); // port-only (see the index above)
 }
 
 // ---------------------------------------------------------------------------
@@ -7980,7 +8121,9 @@ Observer::~Observer()
         delete Node->Data;
     }
     // Pass 2, .text:06cf532f .. 06cf5353: FUN_06d0f620 = list::erase(node) on
-    // every node -- unlink, free, --size.
+    // every node -- unlink, free, --size. The port-only index forgets them all
+    // first (pass 1 freed the records it would otherwise read).
+    TrackedIndex_Drop(Tracked);
     Node = Sentinel->Next;
     while (Node != Sentinel) {
         SystemTrackedNode* const Next = Node->Next;
@@ -8032,6 +8175,7 @@ SystemTrackedObject* SystemPlayerView_AddTrackedObject(Observer* View, GameObjec
 
     // .text:06cf71e4  INC dword ptr [EDI + 0x10]
     ++View->Tracked.Size;
+    TrackedIndex_OnAppend(View->Tracked, Node); // port-only (see the index above)
 
     // .text:06cf71e7 .. .text:06cf7237 -- outside single player, prime the
     // simulation with the object's current state. SinglePlayer() is called a
@@ -8157,6 +8301,9 @@ static SystemTrackedNode* SystemPlayerView_FindByPointer(Observer* View, GameObj
     // constructor allocates it) and every node's Data is a live record
     // (AddTrackedObject is the only producer), so retail tests neither:
     // `MOV ECX,[EAX + 0x8]` / `CMP [ECX],ESI`.
+    SystemTrackedNode* Indexed;
+    if (TrackedIndex_FindByObject(View->Tracked, Obj, Indexed)) // port-only
+        return Indexed;
     SystemTrackedNode* const Sentinel = View->Tracked.Head;
     for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
         if (Node->Data->Object == Obj)
@@ -8171,6 +8318,9 @@ static SystemTrackedNode* SystemPlayerView_FindById(Observer* View, unsigned int
     // sentinel nor the record nor its object: .text:06cf684c `MOV EAX,[EDI+0xc]`
     // / 06cf6853 `MOV ESI,[EAX]`, then per node 06cf6860 `MOV EDX,[ESI+0x8]` /
     // 06cf6863 `MOV ECX,[EDX]` / 06cf6867 `CALL [EAX+0x20]` (get_id).
+    SystemTrackedNode* Indexed;
+    if (TrackedIndex_FindById(View->Tracked, ObjId, Indexed)) // port-only
+        return Indexed;
     SystemTrackedNode* const Sentinel = View->Tracked.Head;
     for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
         if (Node->Data->Object->get_id() == ObjId)
@@ -8240,19 +8390,18 @@ void SystemPlayerView_SendObjectUpdate(Observer* View, FCommonUpdateObjectInfo c
     if (SinglePlayer())
         return;
 
-    for (SystemTrackedNode* Node = View->Tracked.Head->Next; Node != View->Tracked.Head; Node = Node->Next)
-    {
-        SystemTrackedObject* const Tracked = Node->Data;
-        if (Tracked->Object->get_id() != Rec->ObjectId)
-            continue;
-
-        if (Tracked->bCreatedOnClient)
-            ::g_pClientInterface->SendCommonUpdateObject(View->PlayerId, *Rec);
-
-        Tracked->Simulation.RemoteUpdate(Rec->Position, Rec->Orientation,
-                                         static_cast<double>(Rec->Field_0x20));
+    // The walk is SystemPlayerView_FindById's (first record whose object's
+    // get_id() is the id), answered from the port-only index when it can.
+    SystemTrackedNode* const Node = SystemPlayerView_FindById(View, Rec->ObjectId);
+    if (Node == nullptr)
         return;
-    }
+
+    SystemTrackedObject* const Tracked = Node->Data;
+    if (Tracked->bCreatedOnClient)
+        ::g_pClientInterface->SendCommonUpdateObject(View->PlayerId, *Rec);
+
+    Tracked->Simulation.RemoteUpdate(Rec->Position, Rec->Orientation,
+                                     static_cast<double>(Rec->Field_0x20));
 }
 
 // FUN_06cf70c0 (.text:06cf70c0 .. .text:06cf7138), thiscall on the view, (ObjId),
@@ -8318,14 +8467,9 @@ void StarSystem_SendGroupChange(StarSystem& System, unsigned int ObjId)
 //   06cf67fa .. 06cf6804  operator delete(vector._First) -- the vector's destructor
 void SystemPlayerView_SendRemoteCargoUpdate(Observer* View, GameObject* Obj)
 {
-    SystemTrackedNode* const Head = View->Tracked.Head;
-    SystemTrackedNode* Node = Head->Next;
-    for (; Node != Head; Node = Node->Next)
-    {
-        if (Node->Data->Object == Obj)
-            break;
-    }
-    if (Node == Head)
+    // SystemPlayerView_FindByPointer's walk (first record whose object is Obj).
+    SystemTrackedNode* const Node = SystemPlayerView_FindByPointer(View, Obj);
+    if (Node == nullptr)
         return;
     if (!Node->Data->bCreatedOnClient)
         return;
@@ -8467,6 +8611,7 @@ bool SystemPlayerView_OnObjectDestroyed(Observer* View, GameObject* Obj, int Kin
     // CRemotePhysicsSimulation (FUN_06cf6940 is `ADD ECX,8` then a tail jump
     // into COMMON.DLL::CRemotePhysicsSimulation::~CRemotePhysicsSimulation)
     // and free the record.
+    TrackedIndex_OnRemove(View->Tracked, Node); // port-only, before the record goes
     if (Record != nullptr) {
         // Record::Simulation is a real CRemotePhysicsSimulation by value now, so
         // `delete` runs its destructor -- which is exactly what FUN_06cf6940
@@ -8984,18 +9129,16 @@ void SystemPlayerView_OnObjectLeftSystem(Observer* View,
     // at 06cf6ea6), so only the free is null-tested -- `delete` covers that --
     // and size-- at 06cf6ecd .. 06cf6ed4 is unconditional.
     bool bWasCreatedOnClient = false;
-    SystemTrackedNode* const Sentinel = View->Tracked.Head;
-    for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
+    SystemTrackedNode* const Node = SystemPlayerView_FindById(View, *ObjId); // the same first-match walk
+    if (Node != nullptr) {
         SystemTrackedObject* const Record = Node->Data;
-        if (Record->Object->get_id() != *ObjId)
-            continue;
         bWasCreatedOnClient = (Record->bCreatedOnClient != false);
+        TrackedIndex_OnRemove(View->Tracked, Node); // port-only
         delete Record;                   // .text:06cf6eaa FUN_06cf6940 + free
         Node->Prev->Next = Node->Next;
         Node->Next->Prev = Node->Prev;
         delete Node;                     // .text:06cf6ec8
         --View->Tracked.Size;             // .text:06cf6ed4
-        break;
     }
 
     // .text:06cf6ed7 .. .text:06cf6f64 -- `_Tree::erase(begin(), end())` on the
@@ -9049,18 +9192,16 @@ void SystemPlayerView_OnObjectLanded(Observer* View,
     // .text:06cf701c), size decremented unguarded (.text:06cf7027). One hit
     // at most: the match jumps out of the walk.
     bool bWasCreatedOnClient = false;
-    SystemTrackedNode* const Sentinel = View->Tracked.Head;
-    for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
+    SystemTrackedNode* const Node = SystemPlayerView_FindById(View, *ObjId); // the same first-match walk
+    if (Node != nullptr) {
         SystemTrackedObject* const Record = Node->Data;
-        if (Record->Object->get_id() != *ObjId)
-            continue;
         bWasCreatedOnClient = (Record->bCreatedOnClient != false);
+        TrackedIndex_OnRemove(View->Tracked, Node); // port-only
         delete Record;
         Node->Prev->Next = Node->Next;
         Node->Next->Prev = Node->Prev;
         delete Node;
         --View->Tracked.Size;
-        break;
     }
 
     // .text:06cf702e .. .text:06cf7048 -- the payload {*ObjId, *Arg2, *Arg3}
