@@ -507,7 +507,7 @@ void FRmVignetteMachine::MarkGroupTargets(FRmRecordList* Members, FRmObjectiveMa
     FRmSpawnRecord* const First = Members->Records.front();
     if (!(First->Attitude < 0.0f))
         return;
-    if (Map->Objectives.find(8) == Map->Objectives.end())
+    if (!Map->Objectives.contains(8))
         return;
     if (bMarked)
         return;
@@ -611,7 +611,7 @@ bool FRmVignetteMachine::HandleAnyState(SMEventData const* Event)
     {
         unsigned int const* PlayerId = static_cast<unsigned int const*>(Controller->DataPtr);
         std::map<unsigned int, FContentPlayerState*>* PlayerMap = GetMissionPlayerMap();
-        if (PlayerMap->find(*PlayerId) == PlayerMap->end())
+        if (!PlayerMap->contains(*PlayerId))
             return true;
         OnPlayerJoined(*PlayerId);
         return true;
@@ -656,7 +656,7 @@ bool FRmVignetteMachine::HandleAnyState(SMEventData const* Event)
         if (Player == nullptr)
             return true;
         std::map<unsigned int, FContentPlayerState*>* PlayerMap = GetMissionPlayerMap();
-        if (PlayerMap->find(Player->PlayerId) == PlayerMap->end())
+        if (!PlayerMap->contains(Player->PlayerId))
             return true;
         FailReason = 13;
         set_state(6);
@@ -1487,7 +1487,7 @@ bool FRmVignetteMachine::HandleCriticalLoot(SMEventData const* Event)
             return true;
         FContentPlayerState* Picker = FindContentPlayerStateByShip(&Picked->Value);
         std::map<unsigned int, FContentPlayerState*>* PlayerMap = GetMissionPlayerMap();
-        if (PlayerMap->find(Picker->PlayerId) == PlayerMap->end())
+        if (!PlayerMap->contains(Picker->PlayerId))
         {
             FDrop::Send(this, Record);
             return true;
@@ -1608,7 +1608,7 @@ bool FRmVignetteMachine::HandleCriticalLoot(SMEventData const* Event)
     {
         unsigned int const* Parms = static_cast<unsigned int const*>(Controller->DataPtr);
         std::map<unsigned int, FContentPlayerState*>* PlayerMap = GetMissionPlayerMap();
-        if (PlayerMap->find(Parms[3]) == PlayerMap->end())
+        if (!PlayerMap->contains(Parms[3]))
             return false;
         FRmRecordList Critical = Loot->Query(0, 2, 0, 0, 0);
         FRmLootRecord* const First = static_cast<FRmLootRecord*>(Critical.Records.front());

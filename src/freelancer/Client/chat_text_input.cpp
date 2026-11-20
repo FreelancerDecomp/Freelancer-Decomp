@@ -545,7 +545,7 @@ void ChatTextInputDisplay::Update()
     if (Current != nullptr && TableGeneration != Current->Generation)
     {
         // 0x0045f60f..0x0045f642: FUN_0046d920 lower_bound, key test (JA = not found).
-        if (Current->Names.find(Target.Id) == Current->Names.end())
+        if (!Current->Names.contains(Target.Id))
         {
             CHAT_ID const Fallback = G_ChatIdChannel1;
             G_ChatInputTarget = Fallback;    // DAT_0066d3fc

@@ -816,7 +816,7 @@ void ChatControl::FillPrivate(int FirstItem, unsigned VisibleRows)
             Entry = &Entries[0];
             ++OwnCount;
         }
-        else if (G_ChatGroupControl->GroupMembers.find(Key) != G_ChatGroupControl->GroupMembers.end())
+        else if (G_ChatGroupControl->GroupMembers.contains(Key))
         {
             Entry = &Entries[1 + static_cast<size_t>(GroupCount)];
             ++GroupCount;

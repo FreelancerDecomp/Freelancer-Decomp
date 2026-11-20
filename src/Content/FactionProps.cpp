@@ -764,7 +764,7 @@ void __cdecl LoadFactionProps(INI_Reader* Reader)
                 // 06f4f95a-06f4f9c8: inserted only when the key is new.
                 unsigned int const Key = CreateID(Reader->get_value_string(0));
                 unsigned int const Value = CreateID(Reader->get_value_string(1));
-                if (Props.Formations.find(Key) == Props.Formations.end())    // FUN_06f7b0f0
+                if (!Props.Formations.contains(Key))    // FUN_06f7b0f0
                     Props.Formations.insert(std::make_pair(Key, Value));     // FUN_06f003e0
             }
             else if (Reader->is_value("scan_chance"))

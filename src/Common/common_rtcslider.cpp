@@ -51,7 +51,7 @@ namespace
     // its first record.
     void InsertSliderSetting(unsigned NameId, float Threshold, int CompareMode)
     {
-        if (GRtcSliderSettings.find(NameId) != GRtcSliderSettings.end())
+        if (GRtcSliderSettings.contains(NameId))
             return;
 
         FRtcSliderSetting Setting;

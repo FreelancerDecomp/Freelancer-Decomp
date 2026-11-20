@@ -924,7 +924,7 @@ bool NavBar::SetIniValue(char const* Name, char const* Value)
     // FUN_0043f060 (RET 8): a missing key gets a new 0x80-byte buffer (FUN_00442b10 insert),
     // then the key is looked up again (FUN_00594de0) and Value copied in unbounded.
     std::string const Key(Name);
-    if (IniValues.find(Key) == IniValues.end())
+    if (!IniValues.contains(Key))
         IniValues.insert(std::map<std::string, char*>::value_type(Key, new char[0x80]));
     strcpy(IniValues.find(Key)->second, Value);
     return true;

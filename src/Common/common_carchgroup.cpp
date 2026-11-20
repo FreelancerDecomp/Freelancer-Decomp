@@ -746,7 +746,7 @@ bool CArchGroupManager::AddNewArchGroup(CArchGroup* Group)
     // .text:062a17f0..062a18a8. The key is Group->Arch->Id (+4 -> +4 word, GetID inlined),
     // read without any null test. lower_bound (FUN_062a2250) + `key < node.key` is find().
     unsigned short const GroupId = Group->GetID();
-    if (Groups->find(GroupId) != Groups->end())
+    if (Groups->contains(GroupId))
     {
         // 062a1878..062a18a8: warning, return false. Retail does NOT free the rejected
         // group; the caller's allocation stays alive (leaks), as retail.

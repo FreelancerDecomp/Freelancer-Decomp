@@ -157,7 +157,7 @@ void BuildCommodityByBaseRows(unsigned ArchId)
 
         // 0046f7c1..0046f894: the system's name (ids = ISystem slot 3, FUN_004347e0 into
         // DAT_0066fc60 with DAT_006119f8) under the space object, when not there yet.
-        if (G_CommodityByBaseSystemNames.find(SpaceObjectId) == G_CommodityByBaseSystemNames.end())
+        if (!G_CommodityByBaseSystemNames.contains(SpaceObjectId))
         {
             GetIdsStringWWithRawFallback((unsigned)System->GetStridName(),
                                          G_NnTextScratchB, G_NnTextScratchCapacity);
@@ -166,7 +166,7 @@ void BuildCommodityByBaseRows(unsigned ArchId)
         }
 
         // 0046f89c..0046f96f: the base's name (ids = vt+8) the same way.
-        if (G_CommodityByBaseBaseNames.find(SpaceObjectId) == G_CommodityByBaseBaseNames.end())
+        if (!G_CommodityByBaseBaseNames.contains(SpaceObjectId))
         {
             GetIdsStringWWithRawFallback(static_cast<unsigned>(Base->StridName),
                                          G_NnTextScratchB, G_NnTextScratchCapacity);

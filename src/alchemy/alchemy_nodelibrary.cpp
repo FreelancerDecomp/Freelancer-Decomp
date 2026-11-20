@@ -287,7 +287,7 @@ namespace AlchemyImpl
                       0x3d8, "This node has empty name. Alchemy give new name for this node.");
                 CurrentName = "unnamed";
                 unsigned long Suffix = 0;
-                while (Entries_->find(Library->HashNodeName(CurrentName)) != Entries_->end())
+                while (Entries_->contains(Library->HashNodeName(CurrentName)))
                 {
                     // The inline loader starts from the fixed literal "unnamed":
                     // every collision retains this base and an empty extension.

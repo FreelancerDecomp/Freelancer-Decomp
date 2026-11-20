@@ -298,7 +298,7 @@ void __cdecl WeaponModDB_load(char const* Path)
             {
                 unsigned ShieldId = CreateID(Reader.get_value_string(0));
                 float Modifier = Reader.get_value_float(1);
-                if (Current->ShieldMods.find(ShieldId) == Current->ShieldMods.end())
+                if (!Current->ShieldMods.contains(ShieldId))
                     Current->ShieldMods[ShieldId] = Modifier;
             }
         } while (Reader.read_value());

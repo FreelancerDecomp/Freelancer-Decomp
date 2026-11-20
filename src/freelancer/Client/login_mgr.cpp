@@ -124,7 +124,7 @@ FLoginHistory::FLoginHistory()
 // FUN_005b6be0
 bool FLoginHistory::Contains(unsigned int Id) const
 {
-    return Records.find(Id) != Records.end();
+    return Records.contains(Id);
 }
 
 // FUN_005b6bd0 -- `LEA EAX,[ESP+4]; PUSH EAX; ADD ECX,4; CALL FUN_005ad350` (operator[]).

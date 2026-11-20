@@ -560,7 +560,7 @@ bool CEqObj::is_damaged_obj_attached(CacheString const& Name) const
 {
     // .text:062a9590: lower_bound (FUN_062fcfb0) on the set at this+0xbc; the result is
     // end() unless its key equals Name; returns result != end().
-    return AttachedDamageObjs.find(Name) != AttachedDamageObjs.end();
+    return AttachedDamageObjs.contains(Name);
 }
 
 void CEqObj::attaching_damaged_obj(CacheString const& Name)

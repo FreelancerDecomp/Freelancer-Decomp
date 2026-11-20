@@ -1049,7 +1049,7 @@ bool __cdecl BasePopHasPlayer(unsigned int PlayerId)
     FBasePop* Instance = GBasePopInstance;
     if (Instance == nullptr)
         return false;
-    return Instance->PlayerNpcs.find(PlayerId) != Instance->PlayerNpcs.end();
+    return Instance->PlayerNpcs.contains(PlayerId);
 }
 
 // FUN_06f5a7a0 (06f5a7a0-06f5a7a5).

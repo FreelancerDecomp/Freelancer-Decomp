@@ -1607,7 +1607,7 @@ namespace
                 return INVALID_HANDLE_VALUE;
 
             const unsigned long Key = (unsigned long)(File);
-            if (OpenFiles.find(Key) != OpenFiles.end())
+            if (OpenFiles.contains(Key))
                 return INVALID_HANDLE_VALUE;
             FDosOpenFile* Open = new FDosOpenFile();
             Open->File = File;

@@ -304,7 +304,7 @@ bool NewChar::Database::InsertExtra(FNewCharExtra const& Extra)
     // Retail LAB_063146c0 (slot 9, vcall +0x24, RET 4): the key (+0) found in the tree at
     // this+0x40 -> false; else FUN_06316330 (operator[]) makes the node, the id is copied to
     // the record's +0 (.text:0631471b-0631471d) and the string (+4) assigned -> true.
-    if (Extras.find(Extra.Id) != Extras.end())
+    if (Extras.contains(Extra.Id))
         return false;
     FNewCharExtra& Record = Extras[Extra.Id];
     Record.Id = Extra.Id;
@@ -317,7 +317,7 @@ bool NewChar::Database::InsertFaction(FNewCharFaction const& Faction)
     // Retail LAB_06314100 (slot 6, vcall +0x18, RET 4): the key (+0) found in the tree at
     // this+0x04 -> false; else a new node: the id, the string at +4 assigned, the three sets
     // (+0x14 / +0x28 / +0x3c) copied -> true.
-    if (Factions.find(Faction.NicknameId) != Factions.end())
+    if (Factions.contains(Faction.NicknameId))
         return false;
     Factions[Faction.NicknameId] = Faction;
     return true;
@@ -329,7 +329,7 @@ bool NewChar::Database::InsertPackage(FNewCharPackage const& Package)
     // this+0x18; not the end and the key not below the node's (JC) -> present -> false
     // (0x063144a7). Else FUN_06315f90 makes the node: +0x00 / +0x04 / +0x08 copied, the strings
     // at +0x0c / +0x1c assigned, +0x2c copied -> true.
-    if (Packages.find(Package.NicknameId) != Packages.end())
+    if (Packages.contains(Package.NicknameId))
         return false;
     Packages[Package.NicknameId] = Package;
     return true;
@@ -341,7 +341,7 @@ bool NewChar::Database::InsertPilot(FNewCharPilot const& Pilot)
     // this+0x2c -> false (0x063146b2). Else FUN_06316110 makes the node: +0x00 copied, the
     // strings at +0x04 / +0x24 / +0x44 / +0x54 assigned, the vectors at +0x14 (inline
     // operator=) and +0x34 (FUN_06315b90) copied -> true.
-    if (Pilots.find(Pilot.NicknameId) != Pilots.end())
+    if (Pilots.contains(Pilot.NicknameId))
         return false;
     Pilots[Pilot.NicknameId] = Pilot;
     return true;

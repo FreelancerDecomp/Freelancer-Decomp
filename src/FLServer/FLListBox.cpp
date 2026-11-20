@@ -122,7 +122,7 @@ void CFLListBox::SetItemItalic(DWORD_PTR Data, bool bItalic)
 // .text:004103d0 — presence only; the stored bool is never read.
 bool CFLListBox::IsItemItalic(DWORD_PTR Data)
 {
-	return ItalicItems.find(Data) != ItalicItems.end();
+	return ItalicItems.contains(Data);
 }
 
 // .text:00410430
@@ -139,7 +139,7 @@ void CFLListBox::SetItemBold(DWORD_PTR Data, bool bBold)
 // .text:004104c0
 bool CFLListBox::IsItemBold(DWORD_PTR Data)
 {
-	return BoldItems.find(Data) != BoldItems.end();
+	return BoldItems.contains(Data);
 }
 
 // .text:004106b0
