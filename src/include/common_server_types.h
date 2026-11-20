@@ -394,8 +394,8 @@ public:
     unsigned int Field_0x1c;   // +0x1c  zeroed by the ctor; TODO: semantics unproven
     // Payload starts at +0x20 and belongs to the derived packet class.
 
-    unsigned int GetChannel() const { return PacketId >> 16; }
-    unsigned int GetOpcode() const { return PacketId & 0xfff; }
+    constexpr unsigned int GetChannel() const { return PacketId >> 16; }
+    constexpr unsigned int GetOpcode() const { return PacketId & 0xfff; }
 };
 static_assert(sizeof(CDAPacket) == 0x20, "CDAPacket base sizeof 0x20");
 
@@ -528,9 +528,9 @@ static_assert(sizeof(ServerStats) == 0x2c, "ServerStats sizeof 0x2c");
 struct CHAT_ID {
     unsigned int Id;
 
-    CHAT_ID() : Id(0) {}
-    CHAT_ID(unsigned int InId) : Id(InId) {}
-    unsigned short GetPlayerId() const { return (unsigned short)(Id & 0xFFFF); }
+    constexpr CHAT_ID() : Id(0) {}
+    constexpr CHAT_ID(unsigned int InId) : Id(InId) {}
+    constexpr unsigned short GetPlayerId() const { return (unsigned short)(Id & 0xFFFF); }
 };
 
 // DamageEntry lives in common_misc.h -- the real one, with SubObjFate and the retail 0x18

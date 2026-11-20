@@ -24,7 +24,7 @@
 //              Mongolian, fullwidth), all 180 code units confirmed.
 // Both helpers use explicit tables so the result does not depend on the process locale.
 
-inline int MsvcrtAtoi(char const* Text)
+constexpr int MsvcrtAtoi(char const* Text)
 {
     unsigned char C = static_cast<unsigned char>(*Text);
     while (C == ' ' || (C >= 0x09 && C <= 0x0d))
@@ -47,25 +47,28 @@ inline int MsvcrtAtoi(char const* Text)
     return static_cast<int>(Total);
 }
 
+// The '0' of each of the CRT's ten-digit runs, ascending. Namespace scope because a
+// constexpr function cannot hold a static local before C++23.
+inline constexpr unsigned short kMsvcrtWideDigitZeros[] = {
+    0x0030, 0x0660, 0x06f0, 0x0966, 0x09e6, 0x0a66, 0x0ae6, 0x0b66, 0x0c66,
+    0x0ce6, 0x0d66, 0x0e50, 0x0ed0, 0x0f20, 0x1040, 0x17e0, 0x1810, 0xff10,
+};
+
 // The CRT's _wchartodigit: value 0-9, or -1 when the code unit is not a decimal digit.
-inline int MsvcrtWideCharToDigit(wchar_t C)
+constexpr int MsvcrtWideCharToDigit(wchar_t C)
 {
-    static unsigned short const DigitZeros[] = {
-        0x0030, 0x0660, 0x06f0, 0x0966, 0x09e6, 0x0a66, 0x0ae6, 0x0b66, 0x0c66,
-        0x0ce6, 0x0d66, 0x0e50, 0x0ed0, 0x0f20, 0x1040, 0x17e0, 0x1810, 0xff10,
-    };
     unsigned int const Code = static_cast<unsigned int>(C);
-    for (unsigned int Index = 0; Index < sizeof(DigitZeros) / sizeof(DigitZeros[0]); ++Index)
+    for (unsigned short const Zero : kMsvcrtWideDigitZeros)
     {
-        if (Code < DigitZeros[Index])
+        if (Code < Zero)
             return -1;
-        if (Code < DigitZeros[Index] + 10u)
-            return static_cast<int>(Code - DigitZeros[Index]);
+        if (Code < Zero + 10u)
+            return static_cast<int>(Code - Zero);
     }
     return -1;
 }
 
-inline bool MsvcrtIsWideSpace(wchar_t C)
+constexpr bool MsvcrtIsWideSpace(wchar_t C)
 {
     unsigned int const Code = static_cast<unsigned int>(C);
     return (Code >= 0x09 && Code <= 0x0d) || Code == 0x20 || Code == 0xa0 || Code == 0x1680 ||
@@ -73,7 +76,7 @@ inline bool MsvcrtIsWideSpace(wchar_t C)
            Code == 0x2029 || Code == 0x202f || Code == 0x205f || Code == 0x3000;
 }
 
-inline int MsvcrtWtoi(wchar_t const* Text)
+constexpr int MsvcrtWtoi(wchar_t const* Text)
 {
     wchar_t C = *Text;
     while (MsvcrtIsWideSpace(C))
@@ -96,3 +99,13 @@ inline int MsvcrtWtoi(wchar_t const* Text)
         Total = 0u - Total;
     return static_cast<int>(Total);
 }
+
+// The msvcrt.dll measurements above, checked at compile time.
+static_assert(MsvcrtAtoi("2806013121") == -1488954175);
+static_assert(MsvcrtAtoi("4294967296") == 0);
+static_assert(MsvcrtAtoi("-2806013121") == 1488954175);
+static_assert(MsvcrtAtoi("99999999999") == 1215752191);
+static_assert(MsvcrtAtoi(" \t+42x") == 42);
+static_assert(MsvcrtWtoi(L"2806013121") == -1488954175);
+static_assert(MsvcrtWtoi(L"\x3000-\xff11\xff12") == -12);
+static_assert(MsvcrtWideCharToDigit(L'\x0669') == 9 && MsvcrtWideCharToDigit(L'\x0670') == -1);

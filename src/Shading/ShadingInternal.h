@@ -178,14 +178,14 @@ static constexpr unsigned long kPixelFormatFourCc[22] = {
     0x33545844u, 0x34545844u, 0x35545844u, 0x504F4144u, 0x544F4144u, 0x41414144u,
     0x4C414144u, 0x31414144u, 0x34414144u, 0x38414144u};
 
-inline unsigned long PixelFormatAlphaBits(int FormatIndex)
+constexpr unsigned long PixelFormatAlphaBits(int FormatIndex)
 {
     if (FormatIndex < 0 || FormatIndex > 14)
         return kPixelFormatAlphaBits[0];
     return kPixelFormatAlphaBits[FormatIndex];
 }
 
-inline unsigned char PixelFormatHasAlpha(int FormatIndex)
+constexpr unsigned char PixelFormatHasAlpha(int FormatIndex)
 {
     if (FormatIndex < 0 || FormatIndex > 14)
         return kPixelFormatHasAlpha[0];
@@ -269,7 +269,7 @@ inline GENRESULT RpDrawIndexed(void* Draw, unsigned long Prim, unsigned long Min
 }
 
 // FUN_06eb5940
-inline unsigned long FvfPosSize(unsigned long Fvf)
+constexpr unsigned long FvfPosSize(unsigned long Fvf)
 {
     const unsigned char Bits = (unsigned char)Fvf;
     if ((Bits & 0xC) == 0xC)
@@ -282,7 +282,7 @@ inline unsigned long FvfPosSize(unsigned long Fvf)
 }
 
 // FUN_06eb5980
-inline unsigned long FvfColorSize(unsigned long Fvf)
+constexpr unsigned long FvfColorSize(unsigned long Fvf)
 {
     unsigned long Size = 0;
     if ((Fvf & 0x40) != 0)
@@ -293,7 +293,7 @@ inline unsigned long FvfColorSize(unsigned long Fvf)
 }
 
 // FUN_06eb3310
-inline unsigned long FvfTexSize(unsigned long Fvf)
+constexpr unsigned long FvfTexSize(unsigned long Fvf)
 {
     unsigned long Size = 0;
     unsigned long Remaining = (Fvf >> 8) & 0xF;
@@ -321,17 +321,19 @@ inline unsigned long FvfTexSize(unsigned long Fvf)
     return Size;
 }
 
-inline unsigned long FvfNormalSize(unsigned long Fvf)
+constexpr unsigned long FvfNormalSize(unsigned long Fvf)
 {
     if ((Fvf & 0x10) != 0)
         return 0xC;
     return 0;
 }
 
-inline unsigned long FvfStride(unsigned long Fvf)
+constexpr unsigned long FvfStride(unsigned long Fvf)
 {
     return FvfPosSize(Fvf) + FvfNormalSize(Fvf) + FvfColorSize(Fvf) + FvfTexSize(Fvf);
 }
+static_assert(FvfStride(0x112) == 0x20); // XYZ | NORMAL | TEX1
+static_assert(FvfStride(0x144) == 0x1C); // XYZRHW | DIFFUSE | TEX1
 
 inline GENRESULT VbMgrLock(void* VbMgr, unsigned long Fvf, unsigned long Count,
                            FVertexMemoryLock* Out)
