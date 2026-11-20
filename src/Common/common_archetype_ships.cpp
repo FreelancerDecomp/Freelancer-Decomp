@@ -21,6 +21,7 @@
 #include "readfile.h"
 
 #include <cstddef>
+#include <iterator>
 #include <list>
 #include <map>
 #include <math.h>
@@ -57,7 +58,7 @@ namespace Archetype
                 {"airlock", 8},
             };
             if (OutCount != nullptr)
-                *OutCount = sizeof(kTable) / sizeof(kTable[0]);
+                *OutCount = std::size(kTable);
             return kTable;
         }
 
@@ -512,7 +513,7 @@ namespace Archetype
             else if (Reader.is_value("type"))
             {
                 Group->Type = LookupNamedType(Reader.get_value_string(), kCollisionGroupTypes,
-                                              sizeof(kCollisionGroupTypes) / sizeof(kCollisionGroupTypes[0]),
+                                              std::size(kCollisionGroupTypes),
                                               1);
             }
             else if (Reader.is_value("hit_pts"))
@@ -581,7 +582,7 @@ namespace Archetype
             {
                 Group->LinkedEquipType =
                     LookupNamedType(Reader.get_value_string(0), kLinkedEquipTypes,
-                                    sizeof(kLinkedEquipTypes) / sizeof(kLinkedEquipTypes[0]), 0);
+                                    std::size(kLinkedEquipTypes), 0);
                 Group->LinkedEquipHealth = Reader.get_value_float(1);
             }
         }

@@ -19,6 +19,7 @@
 #include "alchemy_nodelibrary.h"
 #include "alchemy_ramp.h"
 
+#include <iterator>
 #include <new>
 
 // alchemy.dll — DACOM particle FX scaffolding.
@@ -401,7 +402,7 @@ namespace AlchemyImpl
 
         ApplyAlchemyIniAndPools(Manager);
 
-        const int Count = static_cast<int>(sizeof(G_Specs) / sizeof(G_Specs[0]));
+        const int Count = static_cast<int>(std::size(G_Specs));
         for (int Index = 2; Index < Count; ++Index)
         {
             RegisterComponent(G_Specs[Index]);

@@ -47,6 +47,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cwchar>
+#include <iterator>
 #include <new>
 
 // ---------------------------------------------------------------------------
@@ -3109,4 +3110,4 @@ const FRpcPayloadCodec GChannel2Codecs[] = {
 };
 
 const unsigned int GChannel2CodecCount =
-    (unsigned int)(sizeof(GChannel2Codecs) / sizeof(GChannel2Codecs[0]));
+    (unsigned int)(std::size(GChannel2Codecs));

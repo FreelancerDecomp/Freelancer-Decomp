@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <iterator>
 #include <list>
 #include <map>
 #include <new>
@@ -677,7 +678,7 @@ namespace
         if (ThornNameEqual(FactoryName, "LinearPCurve"))
             return bDeadSecondLinear ? &Specs[6] : &Specs[2];
 
-        const int Count = static_cast<int>(sizeof(Specs) / sizeof(Specs[0]));
+        const int Count = static_cast<int>(std::size(Specs));
         for (int Index = 0; Index < Count; ++Index)
         {
             if (ThornNameEqual(FactoryName, Specs[Index].FactoryName))

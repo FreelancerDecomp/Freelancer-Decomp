@@ -18,6 +18,7 @@
 #include "readfile.h"
 
 #include <cstddef>
+#include <iterator>
 #include <list>
 #include <map>
 #include <math.h>
@@ -111,7 +112,7 @@ namespace Archetype
                 {"hp_freighter_shield_special_10", 0x42},
             };
             if (OutCount != nullptr)
-                *OutCount = sizeof(kTable) / sizeof(kTable[0]);
+                *OutCount = std::size(kTable);
             return kTable;
         }
     }
@@ -362,7 +363,7 @@ namespace Archetype
 // (common_physys.cpp) and the archetype `type =` handler.
 unsigned __cdecl DecodeType(char const* Name)
 {
-    unsigned Count = sizeof(Archetype::GObjectTypes) / sizeof(Archetype::GObjectTypes[0]);
+    unsigned Count = std::size(Archetype::GObjectTypes);
     for (unsigned Index = 0; Index < Count; ++Index)
     {
         if (Archetype::GObjectTypes[Index].Name == nullptr)

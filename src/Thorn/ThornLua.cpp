@@ -13,6 +13,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <iterator>
 #include <new>
 #include <memory>
 #include <map>
@@ -411,7 +412,7 @@ namespace
             "UNKNOWN_ENTITY", "COMPOUND",     "DEFORMABLE", "CAMERA",      "MONITOR",
             "LIGHT",          "SOUND",        "MARKER",     "HARDPOINT",   "SCENE",
             "SUB_SCENE",      "MOTION_PATH",  "DELETED",    "PSYS"};
-        const int EntityCount = static_cast<int>(sizeof(EntityNames) / sizeof(EntityNames[0]));
+        const int EntityCount = static_cast<int>(std::size(EntityNames));
         for (int Index = 0; Index < EntityCount; ++Index)
             SetGlobalNumber(EntityNames[Index], static_cast<double>(Index));
 
@@ -442,14 +443,14 @@ namespace
             {"START_FLR_HEIGHT_ANIM", 18},
             {"SUBTITLE", 19},
         };
-        const int EventCount = static_cast<int>(sizeof(EventIds) / sizeof(EventIds[0]));
+        const int EventCount = static_cast<int>(std::size(EventIds));
         for (int Index = 0; Index < EventCount; ++Index)
             SetGlobalNumber(EventIds[Index].Name, static_cast<double>(EventIds[Index].Id));
         // PTR_s_UNDEFINED_06f5e1e8 (SET_MONITOR, START_LIGHT_PROPERTY_ANIM, …): dump only, not setglobal.
 
         static const char* const AxisNames[] = {"X_AXIS",     "Y_AXIS",     "Z_AXIS",
                                                 "NEG_X_AXIS", "NEG_Y_AXIS", "NEG_Z_AXIS"};
-        const int AxisCount = static_cast<int>(sizeof(AxisNames) / sizeof(AxisNames[0]));
+        const int AxisCount = static_cast<int>(std::size(AxisNames));
         for (int Index = 0; Index < AxisCount; ++Index)
             SetGlobalNumber(AxisNames[Index], static_cast<double>(Index));
 

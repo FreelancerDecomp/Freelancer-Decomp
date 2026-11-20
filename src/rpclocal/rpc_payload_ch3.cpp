@@ -63,6 +63,7 @@
 
 #include <cstring>
 #include <cwchar>
+#include <iterator>
 #include <list>
 #include <new>
 
@@ -1195,7 +1196,7 @@ const FRpcServerCodec GChannel3Codecs[] = {
 };
 
 const unsigned int GChannel3CodecCount =
-    (unsigned int)(sizeof(GChannel3Codecs) / sizeof(GChannel3Codecs[0]));
+    (unsigned int)(std::size(GChannel3Codecs));
 
 const FRpcServerCodec* RpcFindServerCodec(unsigned int Channel, unsigned int Opcode) {
     if (Channel != 3u) {

@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <new>
 #include <memory>
 #include <string>
@@ -989,7 +990,7 @@ namespace
             return;
         }
 
-        const int Count = static_cast<int>(sizeof(G_ParamCurveRegistrations) / sizeof(G_ParamCurveRegistrations[0]));
+        const int Count = static_cast<int>(std::size(G_ParamCurveRegistrations));
         for (int Index = 0; Index < Count; ++Index)
         {
             const FThornCurveRegistration& Registration = G_ParamCurveRegistrations[Index];
@@ -1008,7 +1009,7 @@ namespace
             return;
         }
 
-        const int Count = static_cast<int>(sizeof(G_SplineNames) / sizeof(G_SplineNames[0]));
+        const int Count = static_cast<int>(std::size(G_SplineNames));
         for (int Index = 0; Index < Count; ++Index)
         {
             const EThornFactoryKind Kind = Index == 0 ? KindSplinePos : KindSplineOrient;

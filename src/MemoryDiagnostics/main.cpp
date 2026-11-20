@@ -10,6 +10,7 @@
 #include <shlobj.h>
 #include <psapi.h>
 #include <algorithm>
+#include <iterator>
 #include <memory>
 #include <process.h>
 #ifdef MD_UI_TEST
@@ -193,7 +194,7 @@ namespace
 		SetText(ProcessText, ProcessStatus);
 		const int ConfigControls[] = { GameEdit, GameBrowse, ArgumentsEdit, LogsEdit, LogsBrowse,
 			ToolsEdit, ToolsBrowse, SymbolsEdit, SymbolsBrowse, WindowsSymbols, EnableUst, DisableUst, Attach, PidEdit };
-		for (size_t Index = 0; Index < sizeof(ConfigControls) / sizeof(ConfigControls[0]); ++Index)
+		for (size_t Index = 0; Index < std::size(ConfigControls); ++Index)
 			EnableWindow(GetDlgItem(GApplication.Window, ConfigControls[Index]), !GApplication.bBusy);
 		EnableWindow(GetDlgItem(GApplication.Window, GameEdit), !GApplication.bBusy && !bRunning);
 		EnableWindow(GetDlgItem(GApplication.Window, GameBrowse), !GApplication.bBusy && !bRunning);

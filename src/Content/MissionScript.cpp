@@ -35,6 +35,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <iterator>
 #include <cstdlib>
 #include <cstring>
 #include <map>
@@ -246,7 +247,7 @@ void LoadTrigger(FTrigger* Trigger, INI_Reader* Reader)
     while (Reader->read_value())
     {
         bool bMatched = false;
-        for (int Index = 0; Index < static_cast<int>(sizeof(GCndFactory) / sizeof(GCndFactory[0]));
+        for (int Index = 0; Index < static_cast<int>(std::size(GCndFactory));
              ++Index)
         {
             FCndFactoryEntry const& Entry = GCndFactory[Index];
@@ -263,7 +264,7 @@ void LoadTrigger(FTrigger* Trigger, INI_Reader* Reader)
         }
         if (bMatched)
             continue;
-        for (int Index = 0; Index < static_cast<int>(sizeof(GActFactory) / sizeof(GActFactory[0]));
+        for (int Index = 0; Index < static_cast<int>(std::size(GActFactory));
              ++Index)
         {
             FActFactoryEntry const& Entry = GActFactory[Index];

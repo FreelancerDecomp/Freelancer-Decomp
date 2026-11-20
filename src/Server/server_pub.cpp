@@ -44,6 +44,7 @@
 #include <cstring>     // std::memcpy (SpaceObj::Create EquipIdMaker seed)
 #include <direct.h>
 #include <io.h>        // _unlink (the closeout at .text:06d4dfc7 / .text:06d4e16d)
+#include <iterator>
 #include <map>
 #include <set>
 #include <stdexcept>   // std::out_of_range (Server_VibeID_Free, FUN_06d15f90)
@@ -7278,7 +7279,7 @@ SERVER_API OP_RTYPE __cdecl SubmitDirective(unsigned int Flid, BaseOp* Op) {
     if (CurrentKind != 0) return static_cast<OP_RTYPE>(2);
 
     unsigned int Result = 5;                                    // 06d5d494 [S+0x1c] = 5
-    size_t const PairCount = sizeof(GSubmitDirectiveBehaviors) / sizeof(GSubmitDirectiveBehaviors[0]);
+    size_t const PairCount = std::size(GSubmitDirectiveBehaviors);
     for (size_t Index = 0; Index < PairCount; ++Index) {
         if (Op->OpType != GSubmitDirectiveBehaviors[Index].OpType) continue;
         if (Behavior->set_current_directive(

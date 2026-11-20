@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
 #include <new>
 
 #pragma comment(lib, "version.lib")
@@ -520,7 +521,7 @@ const char* FMgsdbDatabase::EvaluateIf()
     else
     {
         bool bFound = false;
-        for (size_t Index = 0; Index < sizeof(kMgsdbCapsKeys) / sizeof(kMgsdbCapsKeys[0]); ++Index)
+        for (size_t Index = 0; Index < std::size(kMgsdbCapsKeys); ++Index)
         {
             if (Match(kMgsdbCapsKeys[Index].Name))
             {

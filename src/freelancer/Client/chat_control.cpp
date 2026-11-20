@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <wchar.h>
 
+#include <iterator>
 #include <vector>
 
 // Retail DAT_0066d450 -- WINFACTORY<ChatControl> (LAB_00464d90 -> FUN_0046c4e0("ChatControl"),
@@ -712,7 +713,7 @@ void ChatControl::RenderPrivateRow(unsigned Row, FChatControlEntry const* Entry,
         }
         if (Entry->Info->Field_0x0 != 0)
         {
-            swprintf(Buffer, sizeof(Buffer) / sizeof(Buffer[0]), L"%u", Entry->Info->Field_0x0);   // DAT_005cfb80
+            swprintf(Buffer, std::size(Buffer), L"%u", Entry->Info->Field_0x0);   // DAT_005cfb80
             TextNode Value(Buffer, -1);
             AppendNodeClone(Text, Value);
         }
@@ -737,7 +738,7 @@ void ChatControl::RenderPrivateRow(unsigned Row, FChatControlEntry const* Entry,
             StyleNode Style(DetailStyle);
             AppendNodeClone(Text, Style);
         }
-        swprintf(Buffer, sizeof(Buffer) / sizeof(Buffer[0]), L"%u", Entry->Info->Rank);
+        swprintf(Buffer, std::size(Buffer), L"%u", Entry->Info->Rank);
         {
             TextNode Value(Buffer, -1);
             AppendNodeClone(Text, Value);
@@ -912,7 +913,7 @@ void ChatControl::FillPrivate(int FirstItem, unsigned VisibleRows)
         PrivateTitle->AppendNode(Ref);
     }
     wchar_t Buffer[64];
-    swprintf(Buffer, sizeof(Buffer) / sizeof(Buffer[0]), L" (%d)", Total);   // u" (%d)" 0x005cfb88
+    swprintf(Buffer, std::size(Buffer), L" (%d)", Total);   // u" (%d)" 0x005cfb88
     {
         TextNode Count(Buffer, -1);
         PrivateTitle->AppendNode(Count);

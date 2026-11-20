@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <iterator>
 #include <vector>
 
 // common_dacom_stricmp.cpp: DACOM.DLL!stricmp (Common IAT PTR 0639902c).
@@ -1415,7 +1416,7 @@ void RoomData::read_Hotspot_block(INI_Reader* Reader)
             char const* Text = MallocCopy(Reader->get_value_string());
             Button.Behavior = static_cast<int>(select_option_from_string(
                 const_cast<char*>(Text), kExitDoorBehaviors,
-                static_cast<int>(sizeof(kExitDoorBehaviors) / sizeof(kExitDoorBehaviors[0])),
+                static_cast<int>(std::size(kExitDoorBehaviors)),
                 Reader->get_file_name()));
             malloc_strfree(const_cast<char**>(&Text));
         }
