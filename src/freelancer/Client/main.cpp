@@ -412,6 +412,11 @@ namespace
     // probe (0x005b30bc). False (EBUEula returned 0) makes WinMain return 1.
     bool RunEulaGate()
     {
+#if defined(_WIN64)
+        // Port-only: EBUEula.dll is a 32-bit code module a 64-bit process cannot load, so the
+        // x64 client skips the EULA, as FLDedicated does (docs/x64.md, "EULA").
+        return true;
+#else
         // 0x005b2d6c..0x005b2d8e: "..\EBUEula.dll", then "EBUEula.dll"; neither -> fatal box.
         Platform::Module Eula = Platform::ModuleLoad("..\\EBUEula.dll");
         if (Eula == nullptr)
@@ -446,6 +451,7 @@ namespace
         // 0x005b2f36..0x005b2f44: FreeLibrary, then SETNZ on the result.
         Platform::ModuleFree(Eula);
         return Result != 0;
+#endif
     }
 
     // FUN_005b0b00 -- the assert callback WinMain hands ErrorHandler::activate. In a fullscreen
