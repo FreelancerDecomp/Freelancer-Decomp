@@ -29,6 +29,7 @@
 #include "rpc_server_channel_codec.h"
 #include "common_misc.h"   // SetMultiPlayer
 #include "common_net.h"    // SetIsMPServer
+#include "dacom.h"         // FDUMP
 
 // -------------------------------------------------------------------------------------------------
 // Allocation. Packet constructors leave some fields unset on purpose (as retail does), and a
@@ -127,6 +128,16 @@ namespace
                 TerminateProcess(GetCurrentProcess(), 3);
             }
         }
+    }
+
+    // Engine messages. Codecs that read game data (the archetype lookups of CREATESHIP and
+    // others) report misses through FDUMP, whose default handler shows a modal box. The test
+    // loads no game data, so they are only counted.
+    volatile LONG GEngineMessages = 0;
+
+    void __cdecl CountEngineMessage(int, const char*, ...)
+    {
+        InterlockedIncrement(&GEngineMessages);
     }
 
     // Cases that corrupt the heap in the codec itself, as they do in retail RemoteClient.dll.
@@ -565,14 +576,15 @@ namespace
         SetIsMPServer(bMultiPlayer);
 
         FCounts Counts;
+        const LONG MessagesBefore = GEngineMessages;
         fprintf(Out, "mode %s\n", Name);
         for (const auto& Entry : Serializer.GetTypes())
         {
             RunType(Out, Entry.first, *Entry.second, Inputs, Counts);
         }
-        fprintf(Out, "summary %s cases=%u decoded=%u encoded=%u round_trips=%u unstable=%u exceptions=%u skipped=%u\n",
+        fprintf(Out, "summary %s cases=%u decoded=%u encoded=%u round_trips=%u unstable=%u exceptions=%u skipped=%u engine_messages=%ld\n",
             Name, Counts.Cases, Counts.Decoded, Counts.Encoded, Counts.RoundTrips, Counts.Unstable,
-            Counts.Exceptions, Counts.Skipped);
+            Counts.Exceptions, Counts.Skipped, GEngineMessages - MessagesBefore);
         printf("RpcCodecTest: %s: %u types, %u cases, %u decoded, %u encoded, %u round trips, "
             "%u unstable, %u exceptions, %u skipped\n", Name, (unsigned int)Serializer.GetTypes().size(),
             Counts.Cases, Counts.Decoded, Counts.Encoded, Counts.RoundTrips, Counts.Unstable,
@@ -599,6 +611,7 @@ int main(int Argc, char** Argv)
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
     SetUnhandledExceptionFilter(ReportUnhandledException);
     CloseHandle(CreateThread(nullptr, 0, WatchdogThread, nullptr, 0, nullptr));
+    FDUMP = CountEngineMessage;
     // The server thread's FPU setup (FLServer SetupServerFpu): 53-bit precision, all masked.
     _control87(0x9001f, 0xfffff);
 

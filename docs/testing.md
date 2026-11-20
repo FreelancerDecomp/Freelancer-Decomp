@@ -49,6 +49,11 @@ allocator that refuses requests above 64 MiB. Packets are never destroyed, becau
 would free pointers that a failed Decode never set. A codec that faults is recorded as
 `exception:<code>` and the test carries on.
 
+**No game data.** The test loads no game data. Codecs that look up archetypes (CREATESHIP,
+CREATESOLAR and a few others) therefore see empty databases, as they would before the data is
+loaded: the lookups return 0, and the misses they report through `FDUMP` are only counted
+(`engine_messages` in the summary). Running the test on the retail data is a possible next step.
+
 **Known retail overflows.** Some inputs corrupt the heap inside the codec, exactly as they
 would in retail `RemoteClient.dll`. The CRT then ends the process, so the test cannot survive
 them. They are listed in `KnownOverflows` and appear in the output as `skipped:` with the reason.
