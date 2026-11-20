@@ -167,6 +167,22 @@ namespace
         return Bytes.size() >= 22 && Bytes[12] != 0 && Bytes[21] > 8;
     }
 
+    // FRpcServerSetReputationPacket::Decode, single player only: with the display-name flag
+    // (4) set, the name's signed length byte (after the flags, the target and, with flag 1,
+    // the affiliation) is not checked for a negative value. At -1 the bounds preflight wraps,
+    // the allocation of length * 4 + 4 bytes is 0 bytes and succeeds, and the copy of
+    // 0xfffffffe bytes overruns the heap. Other negative lengths fault on a null pointer,
+    // which the guard would catch; every negative length is skipped to stay clear of both.
+    bool SetReputationOverflows(const std::vector<unsigned char>& Bytes)
+    {
+        if (!SinglePlayer() || Bytes.empty() || (Bytes[0] & 4) == 0)
+        {
+            return false;
+        }
+        const size_t LengthOffset = 5 + ((Bytes[0] & 1) != 0 ? 4 : 0);
+        return Bytes.size() > LengthOffset && Bytes[LengthOffset] >= 0x80;
+    }
+
     struct FKnownOverflow
     {
         unsigned int PacketId;
@@ -179,6 +195,8 @@ namespace
             "retail heap overflow: size 0xffffffff wraps the bounds check and the allocation" },
         { 0x2004fu, SendCommOverflows,
             "retail heap overflow: accessory count above 8 overruns Costume::AccessoryIds" },
+        { 0x20029u, SetReputationOverflows,
+            "retail heap overflow (single player): negative display-name length wraps the bounds check and the allocation" },
     };
 
     const FKnownOverflow* FindKnownOverflow(unsigned int PacketId, const std::vector<unsigned char>& Bytes)

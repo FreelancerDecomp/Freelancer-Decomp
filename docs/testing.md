@@ -66,13 +66,20 @@ Each is a retail bug a remote client can trigger, and is kept for fidelity:
   writes that many ids into `Costume::AccessoryIds[8]`, past the packet's other members and its
   0x78-byte allocation.
 
+- `SETREPUTATION` (0x20029) in single-player mode, with the display-name flag set and a
+  negative length byte. At -1 the bounds preflight wraps, the `length * 4 + 4` allocation is
+  0 bytes, and the copy of `0xfffffffe` bytes overruns the heap. The test skips every negative
+  length. In single player, client and server share one process, so this packet never
+  crosses the network there.
+
 One more is known but not reached by the current inputs. `CREATESHIP` (0x20004) in
 multiplayer, with owner flag 4 and a display-name length byte of 0x80 or more: the signed
 length doubles to a size near `0xffffffff`, the bounds preflight wraps, the `+2` allocation
 wraps to 0, and the copy overruns the heap.
 
-These are server-to-client and client-to-server packet types. `SET_WEAPON_GROUP` is a COMMON
-packet the server decodes from clients, so any client can crash a server with it.
+`SET_WEAPON_GROUP` is a COMMON packet the server decodes from clients, so any client can
+crash a server with it. The others are SERVER packets, which a client decodes: a malicious
+server could crash its clients.
 
 Run it from `bin\`:
 
