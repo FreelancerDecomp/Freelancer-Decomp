@@ -50,6 +50,7 @@
 #include "render/IRenderPipeline.h"
 #include "render/IRenderPipelineEx.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -710,11 +711,6 @@ namespace
 
     // ---- helpers --------------------------------------------------------------------------
 
-    float Clamp(float V, float Lo, float Hi)
-    {
-        return V < Lo ? Lo : (V > Hi ? Hi : V);
-    }
-
     double Frac(double V)
     {
         return V - std::floor(V);
@@ -925,7 +921,7 @@ namespace
                 }
             }
         }
-        return 1.0f - Clamp(std::sqrt(Best), 0.0f, 1.0f);
+        return 1.0f - std::clamp(std::sqrt(Best), 0.0f, 1.0f);
     }
 
     // Fills Texels (kNoiseSize^3 dwords, 0xAARRGGBB) and BaseHistogram (256 counts of the R
@@ -1006,7 +1002,7 @@ namespace
                 const float Range = Max[Channel] - Min[Channel];
                 const float Norm =
                     Range > 1.0e-6f ? (Channels[Index * 4 + Channel] - Min[Channel]) / Range : 0.5f;
-                Bytes[Channel] = (unsigned long)(Clamp(Norm, 0.0f, 1.0f) * 255.0f + 0.5f);
+                Bytes[Channel] = (unsigned long)(std::clamp(Norm, 0.0f, 1.0f) * 255.0f + 0.5f);
             }
             ++BaseHistogram[Bytes[0]];
             // A8R8G8B8: R channel 0, G 1, B 2, A 3.
@@ -1019,8 +1015,8 @@ namespace
     // the ramp, the rest is full density.
     void CoverageRemap(float Coverage, float Softness, float* OutLow, float* OutInvWidth)
     {
-        Coverage = Clamp(Coverage, 0.0f, 1.0f);
-        Softness = Clamp(Softness, 0.02f, 1.0f);
+        Coverage = std::clamp(Coverage, 0.0f, 1.0f);
+        Softness = std::clamp(Softness, 0.02f, 1.0f);
         if (!(Coverage > 0.0f))
         {
             *OutLow = 2.0f; // above every noise value: no clouds
@@ -1139,7 +1135,7 @@ namespace
             }
         }
 
-        const float Scale = Clamp(Settings.ResolutionScale, 0.125f, 1.0f);
+        const float Scale = std::clamp(Settings.ResolutionScale, 0.125f, 1.0f);
         if (GVolumeTarget == nullptr || Scale != GVolumeTargetScale)
         {
             if (GbTargetFailed)
@@ -1291,7 +1287,7 @@ namespace
         Out->NearFadeB = 0.0f;
         for (int Channel = 0; Channel < 3; ++Channel)
         {
-            Out->ColourA[Channel] = Clamp(FogRgb[Channel] * 2.0f, 0.0f, 1.0f);
+            Out->ColourA[Channel] = std::clamp(FogRgb[Channel] * 2.0f, 0.0f, 1.0f);
             Out->ColourB[Channel] = Out->ColourA[Channel];
         }
         FNebulaCloudsListNode* const Sentinel = Nebula->Clouds.Sentinel;
@@ -1314,8 +1310,8 @@ namespace
         {
             for (int Channel = 0; Channel < 3; ++Channel)
             {
-                Out->ColourA[Channel] = Clamp(ColourA[Channel], 0.0f, 1.0f);
-                Out->ColourB[Channel] = Clamp(ColourB[Channel], 0.0f, 1.0f);
+                Out->ColourA[Channel] = std::clamp(ColourA[Channel], 0.0f, 1.0f);
+                Out->ColourB[Channel] = std::clamp(ColourB[Channel], 0.0f, 1.0f);
             }
         }
     }
@@ -1351,7 +1347,7 @@ namespace
         Out->FogDistance = Nebula->FogDistance > 1.0f ? Nebula->FogDistance : 1.0f;
         const double Density = S.DensityScale > 0.0f ? (double)(S.DensityScale) : 0.0;
         // Haze: exp(-sigma * [Fog] distance) = haze_transmittance_at_fog_distance.
-        const double THaze = (double)(Clamp(S.HazeTransmittanceAtFogDistance, 1.0e-4f, 0.9999f));
+        const double THaze = (double)(std::clamp(S.HazeTransmittanceAtFogDistance, 1.0e-4f, 0.9999f));
         Out->HazeSigma = (float)(-std::log(THaze) / (double)(Out->FogDistance) * Density);
         // Clouds: cloud_density = the optical depth of [Fog] distance metres of full cloud.
         Out->CloudSigma = (float)((S.CloudDensity > 0.0f ? (double)(S.CloudDensity) : 0.0) /
@@ -1363,7 +1359,7 @@ namespace
             // Where the haze alone leaves march_end_transmittance, but at least
             // auto_march_fog_distances times the largest exclusion fog_far span (the haze is
             // thinner in there), and between 1 and 30 [Fog] distances.
-            const double TEnd = (double)(Clamp(S.MarchEndTransmittance, 1.0e-4f, 0.9f));
+            const double TEnd = (double)(std::clamp(S.MarchEndTransmittance, 1.0e-4f, 0.9f));
             double Span = Out->HazeSigma > 1.0e-9f ? -std::log(TEnd) / (double)(Out->HazeSigma)
                                                    : 1.0e9;
             float MaxFogFar = 0.0f;
@@ -1426,8 +1422,8 @@ namespace
     {
         float InsideScale = 1.0f;
         if (Excl->FogFar > Medium.FogNear)
-            InsideScale = Clamp(Medium.FogDistance / (Excl->FogFar - Medium.FogNear), 0.0f, 1.0f);
-        return Clamp(InsideScale * S.ExclusionDensityScale, 0.0f, 1.0f);
+            InsideScale = std::clamp(Medium.FogDistance / (Excl->FogFar - Medium.FogNear), 0.0f, 1.0f);
+        return std::clamp(InsideScale * S.ExclusionDensityScale, 0.0f, 1.0f);
     }
 
     // The haze length that leaves asteroid_spawn_transmittance, with the haze around the camera:
@@ -1444,11 +1440,11 @@ namespace
                     (uintptr_t)(Nebula->Field24));
             float Immersion = 0.0f;
             memcpy(&Immersion, &Nebula->Field28, sizeof(float));
-            Immersion = Clamp(Immersion, 0.0f, 1.0f);
+            Immersion = std::clamp(Immersion, 0.0f, 1.0f);
             const float Scale = ExclusionInsideScale(Excl, Medium, S);
             Sigma *= (double)(1.0f + (Scale - 1.0f) * Immersion);
         }
-        const double T = (double)(Clamp(S.AsteroidSpawnTransmittance, 1.0e-4f, 0.9999f));
+        const double T = (double)(std::clamp(S.AsteroidSpawnTransmittance, 1.0e-4f, 0.9999f));
         if (!(Sigma > 1.0e-9))
             return 1.0e9f;
         // The clear radius ([Fog] near) holds no haze at the camera (smoothstep): about half of
@@ -1613,7 +1609,7 @@ namespace
                           NoiseTileCoordinate(Frame, 0, 1, Warped[1]),
                           NoiseTileCoordinate(Frame, 0, 2, Warped[2]), Base);
         const float Low = Frame.RemapLow + Rise * (1.0f - Frame.RemapLow);
-        return Clamp((Base[0] - Low) * Frame.RemapInvWidth, 0.0f, 1.0f);
+        return std::clamp((Base[0] - Low) * Frame.RemapInvWidth, 0.0f, 1.0f);
     }
 
     // The nebula's outer shell and halo in its unit space (nebula_volume.hlsl NebulaMedium,
@@ -1640,14 +1636,14 @@ namespace
     {
         // edge_softness stays the narrowest the shell can be (shell_width 0 = the edge ramp of
         // before, now eased).
-        const float Edge = Clamp(S.EdgeSoftness, 0.001f, 1.0f);
-        Out->Width = Clamp(S.ShellWidth > Edge ? S.ShellWidth : Edge, 0.001f, 1.0f);
-        Out->Amplitude = Clamp(S.ShellNoise, 0.0f, 0.5f);
+        const float Edge = std::clamp(S.EdgeSoftness, 0.001f, 1.0f);
+        Out->Width = std::clamp(S.ShellWidth > Edge ? S.ShellWidth : Edge, 0.001f, 1.0f);
+        Out->Amplitude = std::clamp(S.ShellNoise, 0.0f, 0.5f);
         // Without displacement the noise lookup is skipped everywhere.
         Out->NoiseStart = Out->Amplitude > 0.0f ? 1.0f - Out->Width - Out->Amplitude : 1.0e9f;
-        Out->CloudRise = Clamp(S.ShellCloudFalloff, 0.0f, 4.0f);
+        Out->CloudRise = std::clamp(S.ShellCloudFalloff, 0.0f, 4.0f);
         const float Extent = S.HaloExtent;
-        const float Density = Clamp(S.HaloDensity, 0.0f, 1.0f);
+        const float Density = std::clamp(S.HaloDensity, 0.0f, 1.0f);
         if (Extent > 0.001f && Density > 0.0f)
         {
             Out->HaloEnd = 1.0f + Extent;
@@ -1823,11 +1819,11 @@ namespace
         // falloff 1 / (1 + tau)), the emissive core (lightning_core_glow_size of the radius,
         // lightning_core_emission), the haze scale.
         const double Radius = StrikeRadius(S, CloudScale);
-        const double Core = (double)(Clamp(S.LightningCoreSize, 0.01f, 1.0f)) * Radius;
+        const double Core = (double)(std::clamp(S.LightningCoreSize, 0.01f, 1.0f)) * Radius;
         const double Glow = (double)(S.LightningCoreGlowSize > 0.001f ? S.LightningCoreGlowSize : 0.001f) *
                             Radius;
-        const float PhaseG = Clamp(S.LightningPhaseG, -0.9f, 0.9f);
-        const int ShadowMode = (int)(Clamp(S.LightningShadow, 0.0f, 2.0f) + 0.5f);
+        const float PhaseG = std::clamp(S.LightningPhaseG, -0.9f, 0.9f);
+        const int ShadowMode = (int)(std::clamp(S.LightningShadow, 0.0f, 2.0f) + 0.5f);
         Set4(RaymarchRegister(kRegLightShape), (float)(Core * Core), (float)(1.0 / (Radius * Radius)),
              1.0f - PhaseG * PhaseG,
              ShadowMode >= 1 && S.LightningShadowDensity > 0.0f ? S.LightningShadowDensity : 0.0f);
@@ -1938,7 +1934,7 @@ namespace
         ExteriorWeight = ExteriorWeight < 0.0 ? 0.0 : (ExteriorWeight > 1.0 ? 1.0 : ExteriorWeight);
         ExteriorWeight = ExteriorWeight * ExteriorWeight * (3.0 - 2.0 * ExteriorWeight);
         const float ExteriorShellTerm =
-            (float)(((double)(Clamp(S.ExteriorShellDensity, 0.0f, 4.0f)) - 1.0) * ExteriorWeight);
+            (float)(((double)(std::clamp(S.ExteriorShellDensity, 0.0f, 4.0f)) - 1.0) * ExteriorWeight);
 
         // Nebula values: [Fog] near / distance / colour (+0x29c / +0x298 / +0x2a0),
         // [NebulaLight] ambient / sun_burnthrough_intensity, [Clouds].
@@ -2009,7 +2005,7 @@ namespace
             // reciprocal and the offset precomputed, see c18.w).
             Set4(RaymarchRegister(kRegExclusionCentre + Pick), (float)((double)(Pos.x) - CamPos[0]),
                  (float)((double)(Pos.y) - CamPos[1]), (float)((double)(Pos.z) - CamPos[2]),
-                 1.0f / Clamp(ExclZone->GetEdgeFraction(), 0.001f, 1.0f));
+                 1.0f / std::clamp(ExclZone->GetEdgeFraction(), 0.001f, 1.0f));
             ZoneLocalRows(ExclZone, RaymarchRegister(kRegExclusionRow0 + Pick),
                           RaymarchRegister(kRegExclusionRow1 + Pick),
                           RaymarchRegister(kRegExclusionRow2 + Pick));
@@ -2029,8 +2025,8 @@ namespace
         const bool bShaderView = GNebulaView == 1 || GNebulaView == 2;
 
         // c10 march: steps, distance cap, step distribution, jitter.
-        Set4(RaymarchRegister(10), Clamp(S.StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap,
-             Clamp(S.StepDistribution, 0.25f, 4.0f), Clamp(S.Jitter, 0.0f, 1.0f));
+        Set4(RaymarchRegister(10), std::clamp(S.StepCount, 1.0f, (float)(kMaxSteps)), Medium.MarchCap,
+             std::clamp(S.StepDistribution, 0.25f, 4.0f), std::clamp(S.Jitter, 0.0f, 1.0f));
         // c11 medium: the two extinctions, the clear radius ([Fog] near), the debug view.
         Set4(RaymarchRegister(11), HazeSigma, CloudSigma, FogNear,
              bShaderView ? (float)(GNebulaView) : 0.0f);
@@ -2067,14 +2063,14 @@ namespace
 
         // c16 shape: coverage threshold and ramp (from the noise histogram), erosion, wispiness.
         Set4(RaymarchRegister(16), Frame.RemapLow, Frame.RemapInvWidth,
-             Clamp(S.Erosion, 0.0f, 0.95f), Clamp(S.Wispiness, 0.0f, 1.0f));
+             std::clamp(S.Erosion, 0.0f, 0.95f), std::clamp(S.Wispiness, 0.0f, 1.0f));
         // c91 the exterior shell term (above), far_cloud_softening (the coverage ramp's width
         // grows by 1 + this at full LOD, about its middle), far_detail_fade (the edge detail
         // left at full LOD: 1 - this), the middle of the coverage ramp (no clouds: far above
         // every noise value, so no softening can bring them back).
         Set4(RaymarchRegister(kRegShellMore), ExteriorShellTerm,
              S.FarCloudSoftening > 0.0f ? S.FarCloudSoftening : 0.0f,
-             Clamp(S.FarDetailFade, 0.0f, 1.0f),
+             std::clamp(S.FarDetailFade, 0.0f, 1.0f),
              Frame.RemapLow < 1.5f ? Frame.RemapLow + 0.5f / Frame.RemapInvWidth : 1000.0f);
         // c17 warp amplitude, cloud near fade range ([Clouds] near_fade_distance x
         // cloud_near_fade_scale), haze tail.
@@ -2102,7 +2098,7 @@ namespace
              FogRgb[2] * S.HazeEmission, FogNear > 0.0f ? 1.0f / FogNear : 0.0f);
         const float PowderLength = (float)(DetailCell);
         Set4(RaymarchRegister(20), FogRgb[0] * S.Emission, FogRgb[1] * S.Emission,
-             FogRgb[2] * S.Emission, Clamp(S.PowderStrength, 0.0f, 1.0f));
+             FogRgb[2] * S.Emission, std::clamp(S.PowderStrength, 0.0f, 1.0f));
         Set4(RaymarchRegister(21), Clouds.ColourA[0] * S.CloudBrightness,
              Clouds.ColourA[1] * S.CloudBrightness, Clouds.ColourA[2] * S.CloudBrightness,
              CloudSigma * 2.0f * PowderLength);
@@ -2224,17 +2220,17 @@ namespace
         }
         const double KeyUp = KeyDir[0] * Up[0] + KeyDir[1] * Up[1] + KeyDir[2] * Up[2];
         Set4(RaymarchRegister(25), (float)(KeyDir[0]), (float)(KeyDir[1]), (float)(KeyDir[2]),
-             Clamp(S.PhaseG, 0.0f, 0.95f));
+             std::clamp(S.PhaseG, 0.0f, 0.95f));
         Set4(RaymarchRegister(26), KeyColour[0], KeyColour[1], KeyColour[2],
-             Clamp(S.PhaseBackG, 0.0f, 0.95f));
+             std::clamp(S.PhaseBackG, 0.0f, 0.95f));
         Set4(RaymarchRegister(27), (float)(KeyDir[0] + Up[0] * KeyUp * (Stretch - 1.0)),
              (float)(KeyDir[1] + Up[1] * KeyUp * (Stretch - 1.0)),
              (float)(KeyDir[2] + Up[2] * KeyUp * (Stretch - 1.0)),
-             Clamp(S.PhaseBackWeight, 0.0f, 1.0f));
+             std::clamp(S.PhaseBackWeight, 0.0f, 1.0f));
         // c28 multiple scattering: octave strength, extinction and phase factors.
-        const float MsExtinction = Clamp(S.MsExtinction, 0.0f, 1.0f);
-        Set4(RaymarchRegister(28), Clamp(S.MsStrength, 0.0f, 1.0f), MsExtinction,
-             Clamp(S.MsPhase, 0.0f, 1.0f), MsExtinction * MsExtinction);
+        const float MsExtinction = std::clamp(S.MsExtinction, 0.0f, 1.0f);
+        Set4(RaymarchRegister(28), std::clamp(S.MsStrength, 0.0f, 1.0f), MsExtinction,
+             std::clamp(S.MsPhase, 0.0f, 1.0f), MsExtinction * MsExtinction);
         // c92 the key direction in the zone's unit space (the rows c7..c9) and its squared
         // length: the large-scale haze shadow's exit toward the key.
         float* const KeyLocal = RaymarchRegister(kRegKeyLocal);
@@ -2251,7 +2247,7 @@ namespace
         // c29..c34 shadow steps toward the key: shadow_steps segments growing by
         // kShadowStepGrowth over shadow_distance (0 = one base cell); each sample sits in its
         // segment's middle and carries sigma * shadow_density * the segment length.
-        int ShadowSteps = (int)(Clamp(S.ShadowSteps, 0.0f, (float)(kMaxShadowSteps)) + 0.5f);
+        int ShadowSteps = (int)(std::clamp(S.ShadowSteps, 0.0f, (float)(kMaxShadowSteps)) + 0.5f);
         const double ShadowDistance =
             S.ShadowDistance > 0.0f ? (double)(S.ShadowDistance) : CloudScale;
         const double GrowthSum = (std::pow(kShadowStepGrowth, (double)(ShadowSteps)) - 1.0) /
@@ -2295,7 +2291,7 @@ namespace
 
         // c35 exclusion count, point light count, in-shader tonemap (8-bit target only) and its
         // exposure.
-        const float TonemapMode = Clamp(S.Tonemap, 0.0f, 2.0f);
+        const float TonemapMode = std::clamp(S.Tonemap, 0.0f, 2.0f);
         const float Exposure = S.Exposure > 0.0f ? S.Exposure : 0.0f;
         const bool bShaderTonemap = !GbVolumeTargetFloat16 && !bShaderView;
         Set4(RaymarchRegister(35), (float)(PickCount), (float)(LightCount),
@@ -2310,15 +2306,15 @@ namespace
         // reached at the end, the LOD where the shadow ray switches to the pair-merged set.
         const float LodRange = S.LodEndDistance - S.LodStartDistance;
         Set4(RaymarchRegister(kRegLod), S.LodStartDistance > 0.0f ? S.LodStartDistance : 0.0f,
-             LodRange > 1.0f ? 1.0f / LodRange : 0.0f, Clamp(S.LodMinStepFraction, 0.05f, 1.0f),
-             Clamp(S.LodShadowSwitch, 0.001f, 2.0f));
+             LodRange > 1.0f ? 1.0f / LodRange : 0.0f, std::clamp(S.LodMinStepFraction, 0.05f, 1.0f),
+             std::clamp(S.LodShadowSwitch, 0.001f, 2.0f));
         // c78 exterior strength, the angle of a low-resolution pixel (the footprint of a sample
         // T metres away is T times it), 1 / the detail noise texel (lod_detail_fade; 0 = off),
         // ignore the scene depth.
         const float LowViewHeight = (float)(LowHeight) * RaymarchRegister(1)[3];
         const float PixelAngle = LowViewHeight > 0.5f ? 2.0f / (ScaleY * LowViewHeight) : 0.0f;
         const double DetailTexel = DetailTile / (double)(kNoiseSize);
-        Set4(RaymarchRegister(kRegExterior), Clamp(Entry.Strength, 0.0f, 1.0f), PixelAngle,
+        Set4(RaymarchRegister(kRegExterior), std::clamp(Entry.Strength, 0.0f, 1.0f), PixelAngle,
              S.LodDetailFade > 0.5f && DetailTexel > 1.0e-3 ? (float)(1.0 / DetailTexel) : 0.0f,
              bIgnoreDepth ? 1.0f : 0.0f);
         // c79 executed-instruction budget (per step with this frame's point lights, per
@@ -2368,7 +2364,7 @@ namespace
             Set4(RaymarchRegister(kRegStarGlow + Index), (float)(Rel[0]), (float)(Rel[1]),
                  (float)(Rel[2]), 1.0f / Note.Radius);
             StarDist[Index] = (float)(Dist);
-            StarWeight[Index] = GlowWeight * Clamp(Note.Alpha, 0.0f, 1.0f);
+            StarWeight[Index] = GlowWeight * std::clamp(Note.Alpha, 0.0f, 1.0f);
         }
         Set4(RaymarchRegister(kRegStarDistance), StarDist[0], StarDist[1], StarDist[2], 0.0f);
         Set4(RaymarchRegister(kRegStarWeight), StarWeight[0], StarWeight[1], StarWeight[2], 0.0f);
@@ -2615,7 +2611,7 @@ namespace
             const float Peak = ColourPeak(Tint);
             for (int Channel = 0; Channel < 3; ++Channel)
             {
-                const float Hue = Clamp(Tint[Channel], 0.0f, Peak) / Peak;
+                const float Hue = std::clamp(Tint[Channel], 0.0f, Peak) / Peak;
                 Out->Hue[Channel] = bWhiten ? 0.5f + 0.5f * Hue : Hue;
             }
         }
@@ -2683,7 +2679,7 @@ namespace
         }
         if (FarDistance < MaxDistance)
             FarDistance = MaxDistance;
-        const float ViewBias = Clamp(S.LightningViewBias, 0.0f, 1.0f);
+        const float ViewBias = std::clamp(S.LightningViewBias, 0.0f, 1.0f);
 
         // The camera's direction from the zone centre in the zone's unit space.
         double CamLocal[3];
@@ -2913,7 +2909,7 @@ namespace
         Strike.Lifetime = Lifetime;
         Strike.Envelope = 0.0f;
         Strike.Pulse = 0;
-        Strike.LightsShips = (int)(Clamp(S.LightningLightsShips, 0.0f, 2.0f) + 0.5f);
+        Strike.LightsShips = (int)(std::clamp(S.LightningLightsShips, 0.0f, 2.0f) + 0.5f);
         Strike.ShipIntensity = S.LightningShipIntensity > 0.0f ? S.LightningShipIntensity : 0.0f;
         Strike.ShipDistance = S.LightningShipDistance;
         return Lifetime;
@@ -3071,7 +3067,7 @@ namespace
             for (int Channel = 0; Channel < 3; ++Channel)
             {
                 const float Value =
-                    Clamp(GStrikes[Best].Colour[Channel] / GStrikes[Best].Peak * BestLevel, 0.0f, 1.0f);
+                    std::clamp(GStrikes[Best].Colour[Channel] / GStrikes[Best].Peak * BestLevel, 0.0f, 1.0f);
                 Rgb[Channel] = (unsigned char)(Value * 255.0f + 0.5f);
                 bLit = bLit || Rgb[Channel] > 1;
             }
@@ -3193,7 +3189,7 @@ namespace
                 continue;
             FVolumeEntry const* const Entry = FindEntry(Strike.Nebula);
             const float Flicker =
-                Entry != nullptr ? Clamp(Entry->Settings.LightningFlicker, 0.0f, 1.0f) : 0.0f;
+                Entry != nullptr ? std::clamp(Entry->Settings.LightningFlicker, 0.0f, 1.0f) : 0.0f;
             Strike.Envelope = StrikeEnvelope(Strike, Now) * (1.0f - Flicker * 0.6f * Random01());
         }
         DriveShipLight(Camera);
@@ -3284,7 +3280,7 @@ void NebulaVolume::LoadSettings(char const* IniPath)
             while (Reader.read_value())
             {
                 if (Reader.is_value("nebula_view"))
-                    GNebulaView = (int)(Clamp((float)(Reader.get_value_float(0)), 0.0f, 4.0f) + 0.5f);
+                    GNebulaView = (int)(std::clamp((float)(Reader.get_value_float(0)), 0.0f, 4.0f) + 0.5f);
                 else if (Reader.is_value("lightning_force"))
                     GbLightningForce = Reader.get_value_float(0) > 0.5f;
                 else if (Reader.is_value("lightning_show_positions"))
@@ -3415,7 +3411,7 @@ namespace
         GFrameCamPos[0] = CamPos[0];
         GFrameCamPos[1] = CamPos[1];
         GFrameCamPos[2] = CamPos[2];
-        int MaxCount = (int)(Clamp(GSettings.MaxNebulae, 1.0f, (float)(kMaxNebulae)) + 0.5f);
+        int MaxCount = (int)(std::clamp(GSettings.MaxNebulae, 1.0f, (float)(kMaxNebulae)) + 0.5f);
         for (size_t Index = 0; Index < GNebulae.size(); ++Index)
         {
             FNebulaEffect* const Nebula = GNebulae[Index].Nebula;
@@ -3636,7 +3632,7 @@ float NebulaVolume::AsteroidSpawnReach(Universe::IZone const* FieldZone, float* 
         {
             Best = Spawn;
             if (OutFadeFraction != nullptr)
-                *OutFadeFraction = Clamp(Entry.Settings.AsteroidFadeFraction, 0.0f, 0.9f);
+                *OutFadeFraction = std::clamp(Entry.Settings.AsteroidFadeFraction, 0.0f, 0.9f);
         }
     }
     return Best;

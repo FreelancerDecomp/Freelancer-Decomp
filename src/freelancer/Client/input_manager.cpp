@@ -40,6 +40,7 @@
 
 #include "platform.h"
 
+#include <algorithm>
 #include <list>
 #include <math.h>
 #include <stdarg.h>
@@ -203,16 +204,6 @@ namespace
     unsigned G_CursorCount = 0;                 // DAT_00616740 (LAB_0041dc10)
     FMouseCursor* G_CurrentCursor = nullptr;    // DAT_00616858
     TString<32> G_DefaultCursorName = {0, {0}}; // DAT_00616794 (LAB_0041dc00)
-
-    // FUN_0041e5a0.
-    int ClampColorByte(int Value)
-    {
-        if (Value < 0)
-            return 0;
-        if (Value > 0xff)
-            return 0xff;
-        return Value;
-    }
 
     // FUN_00420620 -- vsprintf into a 0x18-byte stack buffer, then TString<24> assignment
     // (length clamped to 0x17). Retail's vsprintf is unbounded and a longer result overruns its
@@ -927,10 +918,11 @@ namespace
                     int Alpha = static_cast<int>(Reader.get_value_float(3));
                     if (Alpha == 0)
                         Alpha = 0xff;
-                    Cursor->Color[0] = static_cast<unsigned char>(ClampColorByte(Red));
-                    Cursor->Color[1] = static_cast<unsigned char>(ClampColorByte(Green));
-                    Cursor->Color[2] = static_cast<unsigned char>(ClampColorByte(Blue));
-                    Cursor->Color[3] = static_cast<unsigned char>(ClampColorByte(Alpha));
+                    // Each channel clamped to [0, 0xff] (FUN_0041e5a0).
+                    Cursor->Color[0] = static_cast<unsigned char>(std::clamp(Red, 0, 255));
+                    Cursor->Color[1] = static_cast<unsigned char>(std::clamp(Green, 0, 255));
+                    Cursor->Color[2] = static_cast<unsigned char>(std::clamp(Blue, 0, 255));
+                    Cursor->Color[3] = static_cast<unsigned char>(std::clamp(Alpha, 0, 255));
                 }
                 else if (Reader.is_value("anim"))
                 {

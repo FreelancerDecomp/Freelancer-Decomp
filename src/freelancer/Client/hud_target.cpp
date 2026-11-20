@@ -39,6 +39,7 @@
 #include "DALib.h"
 #include "engine/engbase.h"
 
+#include <algorithm>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,20 +121,6 @@ namespace
         IObjInspectImpl* const Impl = static_cast<IObjInspectImpl*>(Rw);
         CBase const* const Base = Impl;
         return Base->cobject();
-    }
-
-    // FUN_004104c0 (cdecl) -- clamp to 0..255.
-    int ClampByte(int Value)
-    {
-        if (Value < 0)
-        {
-            return 0;
-        }
-        if (Value > 0xff)
-        {
-            return 0xff;
-        }
-        return Value;
     }
 
     // FILD byte / FMUL 0.7f / ftol: the product of an 8-bit integer and a float is exact in
@@ -1447,10 +1434,10 @@ void HudTargetBase::SetViewObject(IObjRW* Target)
     // 0x004e63d8: the chrome colour DAT_00679bb4 dimmed to 70 % per byte (byte 0 clamped inline,
     // bytes 1..3 through FUN_004104c0), packed as byte3 << 24 | byte0 << 16 | byte1 << 8 | byte2.
     unsigned char const* const Chrome = G_HudChromeColorRgba;
-    unsigned const Byte0 = static_cast<unsigned>(ClampByte(DimChromeByte(Chrome[0])));
-    unsigned const Byte1 = static_cast<unsigned>(ClampByte(DimChromeByte(Chrome[1])));
-    unsigned const Byte2 = static_cast<unsigned>(ClampByte(DimChromeByte(Chrome[2])));
-    unsigned const Byte3 = static_cast<unsigned>(ClampByte(DimChromeByte(Chrome[3])));
+    unsigned const Byte0 = static_cast<unsigned>(std::clamp(DimChromeByte(Chrome[0]), 0, 255));
+    unsigned const Byte1 = static_cast<unsigned>(std::clamp(DimChromeByte(Chrome[1]), 0, 255));
+    unsigned const Byte2 = static_cast<unsigned>(std::clamp(DimChromeByte(Chrome[2]), 0, 255));
+    unsigned const Byte3 = static_cast<unsigned>(std::clamp(DimChromeByte(Chrome[3]), 0, 255));
     unsigned const Tag = (Byte3 << 24) | (Byte0 << 16) | (Byte1 << 8) | Byte2;
 
     // 0x004e6492: get_index again; the renderer LODs pinned to 3 while the cache is built, then
@@ -1731,13 +1718,13 @@ void HudTargetBase::ColourGroupParts()
 
         // 0x004e6d66: each byte * 0.7f, ftol, clamped to 0..255 inline.
         unsigned long const Dim0 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour))));
+            std::clamp(DimChromeByte(static_cast<unsigned char>(Colour)), 0, 255));
         unsigned long const Dim1 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 8))));
+            std::clamp(DimChromeByte(static_cast<unsigned char>(Colour >> 8)), 0, 255));
         unsigned long const Dim2 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 16))));
+            std::clamp(DimChromeByte(static_cast<unsigned char>(Colour >> 16)), 0, 255));
         unsigned long const Dim3 = static_cast<unsigned long>(
-            ClampByte(DimChromeByte(static_cast<unsigned char>(Colour >> 24))));
+            std::clamp(DimChromeByte(static_cast<unsigned char>(Colour >> 24)), 0, 255));
         Colour = Dim0 | (Dim1 << 8) | (Dim2 << 16) | (Dim3 << 24);
 
         // The sub-target pulses (FUN_00561f20 round the dimmed colour) unless the mouse may not

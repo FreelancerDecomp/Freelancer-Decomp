@@ -1021,11 +1021,7 @@ namespace
     // DAT_063a3cc8=-1.0f confirmed via raw .rdata bytes.
     double ClampAttitude(double Value)
     {
-        if (Value > 1.0)
-            return 1.0;
-        if (Value < -1.0)
-            return -1.0;
-        return Value;
+        return std::clamp(Value, -1.0, 1.0);
     }
 
     // FUN_063217e0's quantize step, applied to each output right after ClampAttitude

@@ -20,6 +20,7 @@
 #include "common_iface.h"         // IObjInspect
 #include "common_systemmanager.h" // SystemManager
 
+#include <algorithm>
 #include <cstring>
 
 namespace CmnAiSteer
@@ -44,7 +45,6 @@ namespace CmnAiSteer
     inline Vector Add(Vector const& A, Vector const& B) { return Vector{ A.x + B.x, A.y + B.y, A.z + B.z }; }
     inline Vector Scale(Vector const& A, float S) { return Vector{ A.x * S, A.y * S, A.z * S }; }
     inline float LenSq(Vector const& A) { return A.x * A.x + A.y * A.y + A.z * A.z; }
-    inline float Clamp11(float V) { return V < -1.0f ? -1.0f : (V > 1.0f ? 1.0f : V); }
 
     // Local equivalent of the already-ported VecDot3 (FUN_062c47a0, item 1282) --
     // that port has internal linkage in common_behavior.cpp and isn't shared via
@@ -63,11 +63,7 @@ namespace CmnAiSteer
     // `FCOM -1.0f; TEST AH,0x5; JP` (only less takes -1.0f); NaN survives both.
     inline double ClampCos11(double V)
     {
-        if (V > 1.0f)
-            return 1.0f;
-        if (V < -1.0f)
-            return -1.0f;
-        return V;
+        return std::clamp(V, -1.0, 1.0);
     }
 
     // FaceIdea::Update / DodgeIdea::Update plumbing, defined in common_aisteer.cpp (see the

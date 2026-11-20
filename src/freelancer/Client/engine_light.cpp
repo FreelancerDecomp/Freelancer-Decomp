@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 #include <map>
 #include <new>
 #include <windows.h>
@@ -1135,19 +1136,6 @@ void EngineLightClearRegisteredList()
     G_LightListCount = 0;
 }
 
-namespace
-{
-    // FUN_004104c0 (cdecl): clamp an int to [0, 0xff].
-    int ClampColorByte(int Value)
-    {
-        if (Value < 0)
-            return 0;
-        if (Value > 0xff)
-            return 0xff;
-        return Value;
-    }
-}
-
 void EngineLightApplyList(FEngineLight* const* Lights, unsigned Count, ICamera* Camera,
                           float const* Pos3)
 {
@@ -1179,9 +1167,9 @@ void EngineLightApplyList(FEngineLight* const* Lights, unsigned Count, ICamera* 
 
     // 00410410..004104ab: each float * 255.0 (DAT_005c89c0, double), truncated by ftol and
     // clamped; R inline, G and B through FUN_004104c0; packed as ((R|0xffffff00)<<8|G)<<8|B.
-    int const R = ClampColorByte(static_cast<int>(static_cast<double>(Ambient[0]) * 255.0));
-    int const G = ClampColorByte(static_cast<int>(static_cast<double>(Ambient[1]) * 255.0));
-    int const B = ClampColorByte(static_cast<int>(static_cast<double>(Ambient[2]) * 255.0));
+    int const R = std::clamp(static_cast<int>(static_cast<double>(Ambient[0]) * 255.0), 0, 255);
+    int const G = std::clamp(static_cast<int>(static_cast<double>(Ambient[1]) * 255.0), 0, 255);
+    int const B = std::clamp(static_cast<int>(static_cast<double>(Ambient[2]) * 255.0), 0, 255);
     unsigned Out = static_cast<unsigned>(R) | 0xffffff00u;
     Out = (Out << 8) | static_cast<unsigned>(G);
     Out = (Out << 8) | static_cast<unsigned>(B);
