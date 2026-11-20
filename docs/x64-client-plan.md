@@ -1,0 +1,233 @@
+# Plan: an x64 client, then an SDL3 renderer
+
+This is the plan for a 64-bit Freelancer client that stays compatible with retail, and for the
+steps after it towards a cross-platform renderer on SDL3 and SDL_GPU. It builds on the x64
+server work in [x64.md](x64.md). Each numbered step is meant to be one pull request.
+
+Status: proposed, 2026-11-20.
+
+## Ground rules
+
+Retail compatibility comes first, as for the x64 server:
+
+- **Win32 stays the retail reference.** Its FLRegress and RpcCodecTest output does not change,
+  RP8 stays its renderer, and every layout check stays active there. A change is either the same
+  code on Win32 (for example `std::uintptr_t`, which is `unsigned int` there) or sits behind
+  `_WIN64` / `_M_IX86`.
+- **For the ports, compatibility means network and data.** An x64 or SDL3 client plays with
+  retail clients and servers, and reads the retail `DATA\`, saves and data-only mods (including
+  their 32-bit resource DLLs) without conversion. DLL plugins and exe patches stay Win32-only.
+- **No new behaviour.** The port renderers draw what RP8 draws. RP8 screenshots are the
+  reference. Visual extras such as RP9's volumetric nebulae stay off.
+- Known last-bit differences (x87 trigonometry and logarithms, see step 1.2) are listed in
+  [x64.md](x64.md), not hidden.
+
+## Where we are
+
+| Done or in progress | |
+|---|---|
+| x64 server modules (#17) | Built in CI, packet codecs byte-identical to Win32 |
+| Thorn for x64 (#31) | Merged; the x64 server enters bases (room scripts) |
+| Engine handles below 2 GB (#37) | Merged; the x64 FLDedicated shuts down cleanly |
+| DPNet (#29) and its adapter (#30) | Merged; CI requires Microsoft's DirectPlay 8 client to join the x64 server |
+| ReadFile handles and views (#33) | Merged: step 1.1 below |
+| CMake (#11) | Draft. Not needed for Windows; needed before any non-Windows build |
+
+What the client adds, from a survey of `master` (counts are from grep, then spot-checked):
+
+| Area | Size |
+|---|---|
+| Client modules without an x64 build | freelancer.exe, RemoteServer, alchemy, Deformable2, flmaterials, SoundManager, SoundStreamer, movie, ximage, imeui, luaprofile, RP9 |
+| Inline assembly | 21 blocks, none guarded: freelancer 7, RemoteServer 7, luaprofile 4, alchemy 1, flmaterials 1, SoundManager 1 |
+| Layout `static_assert`s not yet `FL_LAYOUT_ASSERT` | about 1,250 |
+| Pointers stored in 32-bit integers | about 50 sites in freelancer and alchemy; about 300 casts in movie's big-number code |
+| Hard-coded retail byte offsets | 133 (freelancer, flmaterials, movie) |
+| Facet and `this` adjustments without `FL_FACET_OFFSET` | `gf_thorn_component.cpp`, `Deformable2.cpp`, about 18 `Watchable` ±8 sites |
+| Data loaders | 25 found: the file formats are all fixed-width, so the formats themselves are fine. 10 break on x64 because of how they store pointers (step 1.1) |
+| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). RP9 (Direct3D 9) can |
+
+Rough total for phases 1–3: 5 to 7 weeks of work, plus the runtime surprises a first run always
+brings.
+
+## Phase 1: shared foundations
+
+These also make the existing x64 server safer.
+
+**1.1 Pointer-sized file handles and views.** Done in #33. On x64 ReadFile hands out 32-bit
+ids for its UTF handles and mapping tokens (`src/include/handle_value.h`; Win32 keeps the
+addresses, as retail), `IFileSystem::MapFileView` returns `std::intptr_t`, and its callers keep
+the whole address. With `FL_HIGH_MEMORY=1` the x64 programs reserve all free address space below
+4 GB at startup, so a remaining truncation fails at once; the x64 CI runs set it, and the client
+should call the same function when it gets an x64 build.
+
+**1.2 x87 helpers for the client.** Extend `x87_portable.h`:
+
+- a compare helper that reproduces FCOM/FCOMP plus the FNSTSW flag tests, unordered cases
+  included (the six compare sites in `menu_sound_arch.cpp` and `lparser.c`);
+- `log10` as FLDLG2 + FYL2X, then ×10 rounded to float (`menu_sound_arch.cpp`, `SoundManager.cpp`).
+  This can differ from Win32 in the last bit, like `x87_trig.h`.
+
+Also document the client's precision rule. Retail creates the Direct3D device without
+`FPU_PRESERVE`, so the client's x87 runs at 24-bit precision. The portable version of client
+arithmetic is therefore `float` arithmetic in the x87 order, not the `double` arithmetic the
+server codecs use. `_control87` with the precision mask (`client_frame_tick.cpp`,
+`engine_init.cpp`, `main.cpp`) does not exist on x64, so those calls go under `_M_IX86`.
+
+**1.3 Layout checks.** Convert the client modules' layout `static_assert`s to
+`FL_LAYOUT_ASSERT`, mostly with a script. Nothing changes on Win32. Checks that hold on every
+platform stay `static_assert`.
+
+**1.4 Retail resource DLLs.** `freelancer.ini` `[Resources]` DLLs and `resources.dll` are loaded
+with `LoadLibraryA`. A 64-bit process cannot load a 32-bit DLL that way, so the retail strings
+and infocards (and every mod's resource DLL) would disappear. Add
+`Platform::ResourceModuleLoad`: `LoadLibraryExA(..., LOAD_LIBRARY_AS_DATAFILE |
+LOAD_LIBRARY_AS_IMAGE_RESOURCE)` on x64, unchanged `LoadLibraryA` on Win32. Use it only at
+`dataconfig_progress.cpp:217` and `main.cpp:750`. Then check that
+`DialogBoxParamA(g_client.resources, ...)` (`engine_init.cpp:792`) works with that handle.
+
+## Phase 2: the client builds for x64
+
+Compile and link only; nothing runs yet. Modules go in dependency order, one or a few per PR,
+each adding `Release|x64` / `Debug|x64` to the `.vcxproj` (and to `CMakeLists.txt` if #11 has
+merged by then).
+
+**2.1 Leaf modules:** ximage, imeui, SoundStreamer, SoundManager, flmaterials, alchemy,
+Deformable2, luaprofile. Includes:
+
+- the asm sites, ported with the phase 1.2 helpers;
+- alchemy's pointer casts (`alchemy_alchemy.cpp`, `alchemy_effectobject.cpp`,
+  `alchemy_effectlibrary.cpp`). alchemy's x87 sin/cos path is unreachable on SSE CPUs; x64 uses
+  the SSE path;
+- pointer-sized storage in `.mat` properties (`Shading/Material.cpp` string and component
+  payloads, `flmaterials` `FlmLoadDeclaredParameter` and its raw record offsets);
+- Deformable2's skin table (`FSkinVertex` allocated as 8 bytes per entry), its bone `Parent`
+  handle in an `int`, its facet table, and `Count*4` pointer arrays;
+- the same pointer-array strides in `ximage.cpp`, `RendComp/TriMesh.cpp` and
+  `RendComp/Plugins.cpp` (sphere materials).
+
+**2.2 movie.dll:**
+
+- `SetWindowLongPtrA` / `GWLP_*` for the subclassed window procedure and user data;
+- the exe resolves movie's exports by their decorated 32-bit names (`engine_init.cpp:292`).
+  `PlayMovie`'s name is different on x64; take its x64 name there, so Win32 is unchanged;
+- the big-number code (`MovieField*.cpp`, `MovieGraph.cpp`, `MovieExp.cpp`, `MovieWide.cpp`)
+  passes pointers as `int` about 300 times. First find out what it is for. If it is not on the
+  movie playback path, leave it out of the x64 build; otherwise retype it.
+
+**2.3 RemoteServer:** seven asm blocks, all float copies or double-to-float narrowing (covered by
+`X87CopyFloat`). The packet codecs it shares with RemoteClient are already ported and checked by
+RpcCodecTest.
+
+**2.4 freelancer.exe:**
+
+- the seven asm blocks;
+- pointers kept in integers: `engine_light.cpp`, the `DrawStateA` sites, `cli_asteroid.cpp`,
+  `space_scene_obj_draw.cpp`, `long` engine-instance handles, and the UI slot messages that
+  pass `this` as `unsigned` (`Slot23`);
+- `FL_FACET_OFFSET` for `G_ThornFacetTable` and the `Watchable` ±8 adjustments;
+- the 133 hard-coded byte offsets (for example `cli_nebula.cpp` `This + 0x294`), each replaced
+  by a named member;
+- the crash-report block for `dw15.exe` (`main.cpp:150`), which has 32-bit offsets; leave it out
+  on x64.
+
+**2.5 RP9 for x64, as a stopgap renderer.** Link the x64 `d3dx9.lib`. Today `FreelancerRp9=1`
+also turns on the client's Ex hooks (volumetric nebulae). Split those into their own switch,
+off for x64, so the x64 client draws what RP8 draws. Note the `RP9-GAP` list in
+[re/rp9.md](re/rp9.md): these are visual-only differences. No effort goes into closing them;
+phase 5 replaces RP9 on x64.
+
+**Gate:** `Release|x64` of the whole solution is required in CI. Win32 FLRegress and RpcCodecTest
+output is unchanged.
+
+## Phase 3: the x64 client runs and plays with retail
+
+**3.1 RPNull.** A port-only DACOM module that answers RP8's IIDs (`IRenderPipeline`,
+`IVertexBufferManager`, `IRPDraw`, buffers, textures, `IGammaControl`) and draws nothing. Selected
+in `DACOM.INI` like RP9. It lets the client run on a CI machine without a GPU, and it becomes the
+skeleton of RPGPU in phase 5.
+
+**3.2 Client smoke test.** A scripted run of the real client: start, new game, first base,
+launch, fly, dock, save, load, quit. It runs on Win32 (RP8 and RPNull) and x64 (RPNull) in CI,
+and runs on x64 with RP9 by hand. It also runs with the "everything above 4 GB" switch from
+step 1.1.
+
+**3.3 Interop.** Report-only CI first, required once stable:
+
+| Client | Server |
+|---|---|
+| x64 client | Win32 FLServer / FLDedicated (the retail reference) |
+| Win32 client | x64 FLDedicated (over DPNet, #30) |
+| x64 client | x64 FLDedicated |
+
+The x64 client starts on Microsoft's DirectPlay. As far as we know, Windows' optional DirectPlay
+feature includes a 64-bit `dpnet.dll`; check this first. A client-side DPNet adapter
+(`IDirectPlay8Client` on DPNet, the counterpart of #30) then removes the dependency.
+
+**3.4 Data.** Load retail saves and at least one data-only mod that ships its own 32-bit
+resource DLL, on x64.
+
+## Phase 4: rendering without D3DX
+
+Still on Windows. This prepares both RP9-on-x64 and RPGPU.
+
+**4.1 Texture decoder.** Our own loader for what D3DX 8.1 reads in Freelancer's data (DDS,
+including DXT; TGA; BMP; cube maps), with D3DX 8.1's choice of format and mip chain.
+`IRenderPipeline` exposes `_D3DXIMAGE_INFO` (`GetImageInfo`), so that struct is kept as our own
+definition. Test: on Win32, decode every texture in `DATA\` with both D3DX8 and the new loader,
+and compare the surfaces byte for byte.
+
+**4.2 Screenshot comparison.** A set of fixed scenes (fixed camera, frozen time, fixed
+resolution), captured through the existing screenshot path and compared with a tolerance. RP8 on
+Win32 is the reference. RP9 on x64 gets measured too, for its known gaps.
+
+## Phase 5: RPGPU, the SDL3 + SDL_GPU renderer
+
+A port-only DACOM module, selected in `DACOM.INI`. It is developed on Windows first, with its
+output compared against RP8.
+
+**5.1 SDL3 dependency.** Pinned to a release, built from source for Win32 and x64. The window
+stays the client's own. SDL wraps the existing `HWND`
+(`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), so nothing else in the client changes yet.
+
+**5.2 Skeleton.** Start from RPNull. Bring up the device and swap chain, display modes, gamma,
+clear, and present.
+
+**5.3 Fixed-function emulation.** What reaches the device is small: 33 render states, 11
+texture-stage states, a few vertex formats (FVF), and no programmable shaders in RP8. Write one
+HLSL source with permutations keyed on that state, convert it offline with SDL_shadercross to
+DXIL, SPIR-V and MSL, and keep the bytecode in the repository. Fog, lighting, texture stages,
+alpha test and z-bias come first, because the menu and space scenes need them.
+
+**5.4 Buffers and textures.** Vertex and index buffers (static, dynamic, and the
+lock/discard pattern), textures through the phase 4.1 decoder, render targets, and screenshots.
+
+**5.5 Parity.** RPGPU on Win32 passes the phase 4.2 scene set within tolerance against RP8, the
+smoke test passes on it, and then it becomes the default on x64, replacing RP9. Win32's default
+stays RP8.
+
+## Phase 6: other platforms (Linux, macOS, Windows ARM64)
+
+Not started until the hold on the non-Windows port is lifted. It needs CMake (#11).
+
+- An SDL3 implementation of `platform.h` (window, timers, threads, files, modules).
+- Input: DirectInput replaced by SDL events.
+- Audio: DirectSound and ACM replaced by SDL audio and an MP3 decoder. Retail audio is MP3 inside
+  WAV files.
+- Movies: the intro movies are WMV played through DirectShow. They need a decoder, or they are
+  skipped on these platforms (to be decided).
+- IME: `imeui` replaced by SDL text input.
+- Network: DPNet, with no Microsoft DirectPlay at all.
+- Files: retail `DATA\` mixes upper and lower case in names that the ini files spell differently,
+  so case-insensitive path lookup is a requirement for reading retail data unchanged.
+- Compilers: clang and GCC, and the MSVC CRT behaviours documented in
+  [re/crt_compat.md](re/crt_compat.md).
+- Windows ARM64 is the cheapest of these and a good first check that the code is free of x64-only
+  assumptions.
+
+## Decisions needed
+
+1. Step 2.5: splitting RP9's Ex hooks into their own switch (off on x64).
+2. Step 2.2: the movie big-number code, once we know what it is for.
+3. Step 3.1: adding RPNull, a port-only module.
+4. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
+5. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
