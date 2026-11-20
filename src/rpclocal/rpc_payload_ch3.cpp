@@ -62,6 +62,7 @@
 #include "common_cobject.h"
 
 #include <cstring>
+#include <cwchar>
 #include <list>
 #include <new>
 
@@ -76,38 +77,13 @@ IChatServer* GRealChatServer = nullptr;
 // ---------------------------------------------------------------------------
 // Shared helpers. The three channel-3 block writers (FUN_06d9a160, FUN_06d9a5f0,
 // FUN_06d9aab0) and the one channel-3 blob writer (FUN_06d97b00, shared with channel 2)
-// are all the same four instructions: a bare operator new(N), REP MOVSD/MOVSB, store the
-// block and its length in two payload fields. The packet owns the block from then on.
-// The three block writers put `if (size == 0 || src == 0) return` in front
-// (06d9a16b/06d9a173, 06d9a5fb/06d9a603, 06d9aaba/06d9aac2) -- their callers carry that
-// test; FUN_06d97b00 has none (06d97b0b).
+// are all RpcCopyIntoPacketBlock (rpc_payloads.h) plus storing the block and its length
+// in two payload fields. The three block writers put `if (size == 0 || src == 0) return`
+// in front (06d9a16b/06d9a173, 06d9a5fb/06d9a603, 06d9aaba/06d9aac2) -- their callers
+// carry that test; FUN_06d97b00 has none (06d97b0b). Retail's REPNE SCASB strlen
+// (06d8d283) and MSVCRT wcslen (06d8db41) test no pointer; nor do the std::strlen /
+// std::wcslen below.
 // ---------------------------------------------------------------------------
-static void* RpcCh3CopyBlock(const void* Source, unsigned int InSize) {
-    unsigned char* Block = static_cast<unsigned char*>(::operator new(InSize, std::nothrow));
-    const unsigned char* Src = static_cast<const unsigned char*>(Source);
-    for (unsigned int i = 0; i < InSize; ++i) {
-        Block[i] = Src[i];
-    }
-    return Block;
-}
-
-// strlen / wcslen spelled out, the way retail's SCASB.REPNE loop (06d8d283) and MSVCRT
-// wcslen (06d8db41) compute them -- neither tests the pointer.
-static unsigned int RpcCh3StringLength(const char* Text) {
-    unsigned int Length = 0;
-    while (Text[Length] != '\0') {
-        ++Length;
-    }
-    return Length;
-}
-
-static unsigned int RpcCh3WideLength(const wchar_t* Text) {
-    unsigned int Length = 0;
-    while (Text[Length] != 0) {
-        ++Length;
-    }
-    return Length;
-}
 
 // ===========================================================================
 // Generic marshallers. The argument index is the position in the retail IServer
@@ -521,7 +497,7 @@ static bool DeliverMissionResponse(const FPacketBase* Packet, IServer* Server, u
 // ===========================================================================
 static bool MarshalReqAddItem(FPacketBase* Packet, const unsigned int* Args, unsigned int ArgCount) {
     const char* Hardpoint = reinterpret_cast<const char*>(Args[1]);
-    const unsigned int Length = RpcCh3StringLength(Hardpoint) + 1u;
+    const unsigned int Length = (unsigned int)std::strlen(Hardpoint) + 1u;
     FPayloadClientReqAddItem Wire;
     Wire.ArchId = Args[0];
     Wire.Count = (int)Args[2];
@@ -535,7 +511,7 @@ static bool MarshalReqAddItem(FPacketBase* Packet, const unsigned int* Args, uns
     // size store (06d9a17c / 06d9a194).
     Wire.Hardpoint = nullptr;
     if (Length != 0 && Hardpoint != nullptr) {
-        Wire.Hardpoint = static_cast<char*>(RpcCh3CopyBlock(Hardpoint, Length));
+        Wire.Hardpoint = static_cast<char*>(RpcCopyIntoPacketBlock(Hardpoint, Length));
         Wire.HardpointSize = Length;
     }
     return RpcPayloadWrite(Packet, 0, Wire);
@@ -550,7 +526,7 @@ static bool DeliverReqAddItem(const FPacketBase* Packet, IServer* Server, unsign
 
 static bool MarshalReqModifyItem(FPacketBase* Packet, const unsigned int* Args, unsigned int ArgCount) {
     const char* Hardpoint = reinterpret_cast<const char*>(Args[1]);
-    const unsigned int Length = RpcCh3StringLength(Hardpoint) + 1u;
+    const unsigned int Length = (unsigned int)std::strlen(Hardpoint) + 1u;
     FPayloadClientReqModifyItem Wire;
     Wire.Count = (int)Args[2];
     Wire.HardpointSize = 0u;
@@ -564,7 +540,7 @@ static bool MarshalReqModifyItem(FPacketBase* Packet, const unsigned int* Args, 
     // store (06d9a60c / 06d9a624).
     Wire.Hardpoint = nullptr;
     if (Length != 0 && Hardpoint != nullptr) {
-        Wire.Hardpoint = static_cast<char*>(RpcCh3CopyBlock(Hardpoint, Length));
+        Wire.Hardpoint = static_cast<char*>(RpcCopyIntoPacketBlock(Hardpoint, Length));
         Wire.HardpointSize = Length;
     }
     return RpcPayloadWrite(Packet, 0, Wire);
@@ -605,13 +581,13 @@ static bool MarshalSaveGame(FPacketBase* Packet, const unsigned int* Args, unsig
     MarshalCharacterId(Packet, Args, ArgCount);
     // 06d8db41 wcslen (no pointer test) / 06d8db4e INC EAX / 06d8db51 FUN_06d9aab0.
     const wchar_t* Description = reinterpret_cast<const wchar_t*>(Args[1]);
-    const unsigned int Count = RpcCh3WideLength(Description) + 1u;
+    const unsigned int Count = (unsigned int)std::wcslen(Description) + 1u;
     // FUN_06d9aab0(description, wcslen + 1) (06d8db51): its own guard, then the copy
     // (06d9aacf) and the count store (06d9aaef).
     wchar_t* Block = nullptr;
     unsigned int StoredCount = 0u;
     if (Count != 0 && Description != nullptr) {
-        Block = static_cast<wchar_t*>(RpcCh3CopyBlock(Description, Count * 2u));
+        Block = static_cast<wchar_t*>(RpcCopyIntoPacketBlock(Description, Count * 2u));
         StoredCount = Count;
     }
     RpcPayloadWrite(Packet, 0x200, Block);
@@ -670,7 +646,7 @@ static bool MarshalTradeResponse(FPacketBase* Packet, const unsigned int* Args, 
     FPayloadClientBlob Wire;
     Wire.Size = Args[1];
     // FUN_06d97b00: bare operator new(len) (06d97b0b) and the copy, no guard at all.
-    Wire.Buffer = RpcCh3CopyBlock(reinterpret_cast<const void*>(Args[0]), Args[1]);
+    Wire.Buffer = RpcCopyIntoPacketBlock(reinterpret_cast<const void*>(Args[0]), Args[1]);
     return RpcPayloadWrite(Packet, 0, Wire);
 }
 

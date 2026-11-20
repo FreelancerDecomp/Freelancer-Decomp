@@ -77,18 +77,9 @@ static HMODULE g_hSelfModule = nullptr;
 // GOTRADELANE, 0x06d8ea30 vs 0x06d8bd50 for SETTARGET, and so on).
 // ============================================================================
 
-// The four instructions every retail block writer on this side is made of:
-// operator_new(N) / REP MOVSD / REP MOVSB, the new bare (06d8ed0a, 06d8e02c). The packet
-// owns the block afterwards. Where retail tests the source or the length first (CHATMSG,
-// 06d8ed2a), the caller carries that test.
-static void* RpcServerCopyBlock(const void* Source, unsigned int InSize) {
-    unsigned char* Block = static_cast<unsigned char*>(::operator new(InSize, std::nothrow));
-    const unsigned char* Src = static_cast<const unsigned char*>(Source);
-    for (unsigned int i = 0; i < InSize; ++i) {
-        Block[i] = Src[i];
-    }
-    return Block;
-}
+// Every retail block writer on this side (06d8ed0a, 06d8e02c) is RpcCopyIntoPacketBlock
+// (rpc_payloads.h). Where retail tests the source or the length first (CHATMSG, 06d8ed2a),
+// the caller carries that test.
 
 // The argument arrays below carry raw dwords, exactly as retail's stack frame does, so a
 // float argument travels as its bit pattern -- a `MOV EAX,[ESP+n]` does not care which.
@@ -164,7 +155,7 @@ static bool MarshalServerChatMsg(FPacketBase* Packet, const unsigned int* Args,
     Wire.Buffer = nullptr;
     if (Args[2] != 0 && Args[1] != 0) {
         Wire.Size = Args[1];
-        Wire.Buffer = RpcServerCopyBlock(reinterpret_cast<const void*>(Args[2]), Args[1]);
+        Wire.Buffer = RpcCopyIntoPacketBlock(reinterpret_cast<const void*>(Args[2]), Args[1]);
     }
     return RpcPayloadWrite(Packet, 0, Wire);
 }
@@ -193,7 +184,7 @@ static bool MarshalServerChatMsg(FPacketBase* Packet, const unsigned int* Args,
 static bool MarshalServerBufferCopy(FPacketBase* Packet, const unsigned int* Args,
                                     unsigned int ArgCount) {
     FPayloadCommonBuffer Wire;
-    Wire.Buffer = RpcServerCopyBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
+    Wire.Buffer = RpcCopyIntoPacketBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
     Wire.Size = Args[2];
     Wire.bOwnsBuffer = (unsigned char)1;
     Wire.Pad_0x09[0] = 0;

@@ -59,30 +59,16 @@
 // faults on the very next store in retail and here alike.
 // ===========================================================================
 
-// strlen, spelled the way every retail hardpoint site spells it -- OR ECX,-1 ;
-// XOR EAX,EAX ; REPNE SCASB ; NOT ECX, strlen+1 in one step (06d8d04f..06d8d054) --
-// with no null test in front. Callers add the 1 back explicitly.
-static unsigned int RpcContainerStringLength(const char* Text) {
-    unsigned int Length = 0;
-    while (Text[Length] != '\0') {
-        ++Length;
-    }
-    return Length;
-}
+// Every retail hardpoint site measures with OR ECX,-1 ; XOR EAX,EAX ; REPNE SCASB ;
+// NOT ECX -- strlen+1 in one step (06d8d04f..06d8d054), with no null test in front. The
+// port calls std::strlen, also untested, and adds the 1 back explicitly.
 
 // operator new(SizeWithNul) with no test, then retail's byte loop that stops after
-// copying the NUL (06d8d070..06d8d078, 06d91503..06d9150b). The loop is bounded by the
-// terminator, not by the size it allocated.
+// copying the NUL (06d8d070..06d8d078, 06d91503..06d9150b) -- strcpy. The copy is bounded
+// by the terminator, not by the size it allocated.
 static char* RpcContainerCopyString(const char* Text, unsigned int SizeWithNul) {
     char* Block = static_cast<char*>(::operator new(SizeWithNul, std::nothrow));
-    char* Out = Block;
-    char Byte;
-    do {
-        Byte = *Text;
-        ++Text;
-        *Out = Byte;
-        ++Out;
-    } while (Byte != '\0');
+    std::strcpy(Block, Text);
     return Block;
 }
 
@@ -364,7 +350,7 @@ void RpcEquipHandleFromVector(FRpcEquipWireHandle* Handle,
         // (06d8c7ea) before the operator new it sizes (06d8c7ef, MOVZX of the word).
         if (!Item->is_internal()) {
             Record->HardpointSize =
-                (unsigned short)(RpcContainerStringLength(Item->Hardpoint) + 1u);
+                (unsigned short)((unsigned int)std::strlen(Item->Hardpoint) + 1u);
             Record->Hardpoint = RpcContainerCopyString(Item->Hardpoint, Record->HardpointSize);
         }
         RpcEquipHandlePushBack(Handle, Record);                           // 06d8c80f
@@ -549,7 +535,7 @@ void RpcEquipHandleFromList(FRpcEquipWireHandle* Handle, const EquipDescList& So
         // operator new it sizes at 06d8d060 (MOVZX of that word).
         if (!It->is_internal()) {
             Record->HardpointSize =
-                (unsigned short)(RpcContainerStringLength(It->Hardpoint) + 1u);
+                (unsigned short)((unsigned int)std::strlen(It->Hardpoint) + 1u);
             Record->Hardpoint = RpcContainerCopyString(It->Hardpoint, Record->HardpointSize);
         }
         RpcEquipHandlePushBack(Handle, Record);                           // 06d8d07f
@@ -824,7 +810,7 @@ static void RpcEquipHandleFromEquipDescVector(FRpcEquipWireHandle* Handle,
         // new it sizes (06d8c967).
         if (!Item->is_internal()) {
             Record->HardpointSize =
-                static_cast<unsigned short>(RpcContainerStringLength(Item->Hardpoint) + 1u);
+                static_cast<unsigned short>((unsigned int)std::strlen(Item->Hardpoint) + 1u);
             Record->Hardpoint = RpcContainerCopyString(Item->Hardpoint, Record->HardpointSize);
         }
         RpcEquipHandlePushBack(Handle, Record);                           // 06d8c989
@@ -1217,7 +1203,7 @@ void RpcCharacterInfoRecordToWire(FRpcCharacterInfoWireRecord* Wire,
         // FRpcEquipWireRecord::Field_0x0f, which every other user of the record leaves
         // at zero.
         Record->Field_0x0f = (unsigned char)(It->bMission ? 1 : 0);
-        const unsigned int Length = RpcContainerStringLength(It->Hardpoint);
+        const unsigned int Length = (unsigned int)std::strlen(It->Hardpoint);
         Record->Hardpoint = RpcContainerCopyString(It->Hardpoint, Length + 1u);
         Record->HardpointSize = (unsigned short)(Length + 1u);        // 06d89dad
         RpcEquipHandlePushBack(&Wire->Equipment, Record);             // 06d89dbc FUN_06d91580
@@ -2249,10 +2235,7 @@ static bool RpcDecodeCreateObjectEquip(FRpcMarshalStream& Stream,
     }
     // 06da46cd..06da46d8: `OR ECX,-1 ; REPNE SCASB ; NOT ECX` is strlen+1, stored WITH
     // the terminator, and 06da46f0 copies the terminator too.
-    unsigned int Length = 0;
-    while (Name[Length] != '\0') {
-        ++Length;
-    }
+    unsigned int Length = (unsigned int)std::strlen(Name);
     ++Length;
     Record->HardpointSize = static_cast<unsigned short>(Length & 0xffffu);   // 06da46d8
     // 06da46dc MOVZX / 06da46e0: bare operator new of the stored WORD, then the byte

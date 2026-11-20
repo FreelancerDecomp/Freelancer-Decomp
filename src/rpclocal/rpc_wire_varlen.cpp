@@ -55,6 +55,7 @@
 #include "rpc_containers.h"
 #include "rpc_payloads.h"
 
+#include <cstring>
 #include <new>
 
 // ===========================================================================
@@ -100,10 +101,7 @@ unsigned int RpcEncodeWireCharacterId(FPacketBase& Packet, unsigned char** Buffe
     // 06daf879..06daf88f -- the REPNE SCASB strlen over payload+0x00, unbounded, as
     // retail's. The payload is a CHARACTER_ID the marshaller copied whole, terminator
     // included.
-    unsigned int Length = 0;
-    while (Name[Length] != '\0') {
-        ++Length;
-    }
+    const unsigned int Length = (unsigned int)std::strlen(Name);
     const unsigned short WireLength = (unsigned short)(Length & 0xffffu);
 
     // 06daf88c `ADD EAX,0x2` reserves, 06daf894 `JBE` checks, 06daf8b2

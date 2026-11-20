@@ -63,19 +63,12 @@
 #include <cstring>
 #include <cwchar>
 
-// wcslen / wcscpy spelled out the way the rest of this port spells them (see
-// RpcCh3WideLength in rpc_payload_ch3.cpp): retail reaches MSVCRT for them, and the
-// loops below compute the same thing without dragging the _CRT_SECURE_NO_WARNINGS
-// switch into the project.
+// MSVCRT wcslen, as retail calls it, with a null pointer read as length 0.
 static unsigned int RpcWideLength(const wchar_t* Text) {
-    unsigned int Length = 0;
     if (Text == nullptr) {
         return 0;
     }
-    while (Text[Length] != 0) {
-        ++Length;
-    }
-    return Length;
+    return (unsigned int)std::wcslen(Text);
 }
 
 

@@ -67,6 +67,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <cwchar>
 #include <new>
 
 // ===========================================================================
@@ -669,10 +670,7 @@ unsigned int RpcDecodeServerMiscObjUpdate(FPacketBase& Packet, const unsigned ch
         Temp[WireChars] = 0;                                   // 06d992c9
         // 06d992d2 MSVCRT wcslen -- the STORED length comes from the terminator, not
         // from the count that arrived, so an embedded NUL truncates the string.
-        unsigned int Chars = 0;
-        while (Temp[Chars] != 0) {
-            ++Chars;
-        }
+        const unsigned int Chars = (unsigned int)std::wcslen(Temp);
         // 06d992e2 `_Grow(Chars, 1)` on the packet's own string, then 06d99300 copies
         // Chars characters in, 06d99312 stores the length and 06d99315 terminates:
         // basic_string::assign(Temp, Chars).
