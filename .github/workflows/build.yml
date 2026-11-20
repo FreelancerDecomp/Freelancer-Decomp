@@ -84,8 +84,6 @@ jobs:
     name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || format('Release|{0}', matrix.platform) }}
     # Visual Studio 2022 (v143) with the ATL/MFC component FLServer needs.
     runs-on: windows-2022
-    # TEMP(x64): x64 does not build yet; keep the Win32 jobs going.
-    continue-on-error: ${{ matrix.platform == 'x64' }}
     strategy:
       fail-fast: false
       matrix:
@@ -143,27 +141,6 @@ jobs:
           -p:Configuration=Release -p:Platform=${{ matrix.platform }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
           -clp:PerformanceSummary -bl:msbuild.binlog
-
-      # TEMP(x64): compile every x64 project on its own, so one project's errors do not hide
-      # the next one's.
-      - name: x64 compile census
-        if: failure() && matrix.platform == 'x64'
-        shell: pwsh
-        run: |
-          foreach ($p in 'dacom','DALib','zlib','qhull','Common','Server','rpclocal','RemoteClient','ReadFile','EngBase','RendComp','x86math','system','Shading','FLDedicated','FLRegress','RpcCodecTest','Content') {
-            $f = Get-ChildItem "src/$p/*.vcxproj" | Select-Object -First 1
-            msbuild $f.FullName -t:ClCompile -nologo -v:q -m -p:Configuration=Release -p:Platform=x64 -p:BuildProjectReferences=false -p:SolutionDir="$PWD\src\" | Select-String -Pattern ' error ' | ForEach-Object { "$p :: $($_.Line)" } | Out-File -Append census.txt
-          }
-          if (Test-Path census.txt) { Get-Content census.txt | Select-Object -First 400 | Write-Host }
-
-      - name: Upload x64 census
-        if: failure() && matrix.platform == 'x64'
-        uses: actions/upload-artifact@v4
-        with:
-          name: x64-census
-          path: census.txt
-          if-no-files-found: ignore
-          retention-days: 3
 
       - name: Upload build log
         if: always()
@@ -611,8 +588,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      # Report-only until the x64 server runs (docs/x64.md: Thorn is not built for x64 yet).
       - name: FLDedicated x64, start, run and stop
+        id: dedicated_x64
         if: always()
+        continue-on-error: true
         shell: pwsh
         working-directory: bin_x64
         run: |
@@ -635,9 +615,11 @@ jobs:
 
       # The game-state dump: x64 floating point (SSE2) rounds some results differently from
       # Win32's x87, so the two are compared but a difference is reported, not failed. The
-      # dumps hold game data and are not uploaded.
+      # dumps hold game data and are not uploaded. Report-only, as above.
       - name: FLRegress, x64 against Win32
+        id: regress_x64
         if: always()
+        continue-on-error: true
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -658,9 +640,9 @@ jobs:
           Write-Host "differing lines: $(@($diff).Count)"
           $diff | Select-Object -First 40 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
 
-      # TEMP(x64): the stack of a crash, from the console debugger.
+      # When an x64 run crashes, run it again under the console debugger for the stack.
       - name: x64 crash stacks
-        if: failure()
+        if: always() && (steps.dedicated_x64.outcome == 'failure' || steps.regress_x64.outcome == 'failure')
         shell: pwsh
         working-directory: bin_x64
         run: |

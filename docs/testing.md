@@ -11,7 +11,10 @@ behaviour must leave the file unchanged. A change that alters it on purpose carr
 | `FLRegress.exe` (`src/FLRegress/`) | Game state after the server starts on the retail data | `regress: expected change` |
 | `RpcCodecTest.exe` (`src/RpcCodecTest/`) | The network packet codecs: wire bytes and result codes | `codecs: expected change` |
 
-Layout `static_assert`s (struct sizes and field offsets against retail) and the FLDedicated
+The `x64 server` job runs RpcCodecTest from the port-only x64 build and requires its output to
+equal the Win32 output ([x64.md](x64.md)).
+
+Layout checks (`FL_LAYOUT_ASSERT`: struct sizes and field offsets against retail) and the FLDedicated
 start-and-stop job ([dedicated_server.md](dedicated_server.md)) complete the checks.
 
 ## RpcCodecTest
