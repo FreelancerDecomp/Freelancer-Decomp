@@ -22,6 +22,7 @@
 #include "render/rendcomp.h"
 #include "x86math.h"
 
+#include <algorithm>
 #include <math.h>
 #include <string.h>
 
@@ -57,20 +58,6 @@ namespace
     double const kQuadrantTurn = 0.39269909262657166; // DAT_005d8158, pi/8
     double const kInv255 = 0.00392156862745098;      // DAT_005c89c8
     double const kByteScale = 255.0;                 // DAT_005c89c0
-
-    // FUN_004104c0 (cdecl) -- clamp to 0..255.
-    int ClampByte(int Value)
-    {
-        if (Value < 0)
-        {
-            return 0;
-        }
-        if (Value > 0xff)
-        {
-            return 0xff;
-        }
-        return Value;
-    }
 
     // FLD K / FADD Flash / FST Flash / FCOM 1.0 / TEST AH,5 / JNP: the unrounded sum is kept
     // when it is below 1.0, anything else (NaN included) stores 1.0.
@@ -154,13 +141,13 @@ namespace
         OutColour[2] = 0;
         OutColour[3] = 0;
         OutColour[0] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(Byte0) * kInv255 * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(Byte0) * kInv255 * kByteScale), 0, 255));
         OutColour[1] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(Byte2F) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(Byte2F) * kByteScale), 0, 255));
         OutColour[2] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(Byte1F) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(Byte1F) * kByteScale), 0, 255));
         OutColour[3] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(Alpha) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(Alpha) * kByteScale), 0, 255));
     }
 
     // FUN_004d6a40 (thiscall on a byte quad, RET 0x10) -- each float x255.0, ftol, clamped to
@@ -168,13 +155,13 @@ namespace
     void ColourFromFloats(unsigned char* OutColour, float R, float G, float B, float A)
     {
         OutColour[0] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(R) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(R) * kByteScale), 0, 255));
         OutColour[1] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(G) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(G) * kByteScale), 0, 255));
         OutColour[2] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(B) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(B) * kByteScale), 0, 255));
         OutColour[3] = static_cast<unsigned char>(
-            ClampByte(static_cast<int>(static_cast<double>(A) * kByteScale)));
+            std::clamp(static_cast<int>(static_cast<double>(A) * kByteScale), 0, 255));
     }
 
     // The colour the last two arrows build through FUN_004d6a40 (0x004d68bc..0x004d6926 and

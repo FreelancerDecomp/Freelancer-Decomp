@@ -307,7 +307,6 @@ namespace AlchemyImpl
     void ReleaseAppearancePoolItem(FAppearancePool* Pool, void* Item);
     void AllocateAppearancePool(FAppearancePool* Pool, unsigned long Count, unsigned long Stride);
     void FreeAllAppearancePools();
-    unsigned long MaxULong(unsigned long Left, unsigned long Right);
     void ComputeDrawBufferHints();
 
     // ---- Byte-bag helpers ---------------------------------------------------

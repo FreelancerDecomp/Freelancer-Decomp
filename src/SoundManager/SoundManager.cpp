@@ -9,6 +9,7 @@
 #include "readfile.h"
 #include "platform.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstdarg>
 #include <cstdio>
@@ -991,15 +992,6 @@ namespace
         if (Handles != nullptr)
             operator delete(Handles);
         return 0;
-    }
-
-    float ClampDsDistance(float Value)
-    {
-        if (Value < 1.0f)
-            return 1.0f;
-        if (Value > 1.0e9f)
-            return 1.0e9f;
-        return Value;
     }
 
     // FUN_06ee1000 thiscall: { IDirectSoundBuffer* +0x00, DSBUFFERDESC +0x04 }.
@@ -2393,9 +2385,9 @@ unsigned char FSoundManager::MixerApplyInstance(FSoundInstanceNode* Node)
 
             // 06ee672c: payload+0x30 (MinDistance) clamped [1, 1e9] and written back, then
             // SetMinDistance (+0x44); then payload+0x28 (MaxDistance), SetMaxDistance (+0x40).
-            Node->MinDistance = ClampDsDistance(Node->MinDistance);
+            Node->MinDistance = std::clamp(Node->MinDistance, 1.0f, 1.0e9f);
             Buffer3d->SetMinDistance(Node->MinDistance, Apply);
-            Node->MaxDistance = ClampDsDistance(Node->MaxDistance);
+            Node->MaxDistance = std::clamp(Node->MaxDistance, 1.0f, 1.0e9f);
             Buffer3d->SetMaxDistance(Node->MaxDistance, Apply);
             Buffer3d->SetPosition(Node->Position.X, Node->Position.Y, Node->Position.Z, Apply);
         }

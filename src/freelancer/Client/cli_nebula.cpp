@@ -34,6 +34,7 @@
 #include "render/shading.h"
 #include "x86math.h"
 
+#include <algorithm>
 #include <list>
 #include <map>
 #include <math.h>
@@ -142,15 +143,6 @@ namespace
     // DAT_0067505c/60/64 is not a nebula listener list: it is the TexturePanels instance list
     // (FUN_0050bfa0 links into it, FUN_00509f20 hands it to the StarSys tick). Its walks
     // FUN_00509f30 / FUN_00509f60 live with the panels in texture_panels.cpp.
-
-    int ClampByte255(int V)
-    {
-        if (V < 0)
-            return 0;
-        if (V > 255)
-            return 255;
-        return V;
-    }
 
 } // namespace
 
@@ -321,9 +313,9 @@ namespace
         // (ftol); blue * 255.0f is truncated from the FPU. Each is clamped to 0..255.
         float const Red255 = Cr * 255.0f;
         float const Green255 = Cg * 255.0f;
-        int const Blue = ClampByte255(static_cast<int>(Cb * 255.0f));
-        int const Green = ClampByte255(static_cast<int>(Green255));
-        int const Red = ClampByte255(static_cast<int>(Red255));
+        int const Blue = std::clamp(static_cast<int>(Cb * 255.0f), 0, 255);
+        int const Green = std::clamp(static_cast<int>(Green255), 0, 255);
+        int const Red = std::clamp(static_cast<int>(Red255), 0, 255);
 
         // 0x00509a71..0x00509a91: {R, G, B, 0xff} built in the argument slot, then FUN_004114f0.
         unsigned char Rgba[4];

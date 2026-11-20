@@ -1158,11 +1158,6 @@ namespace AlchemyImpl
         FreeAppearancePool(&G_PoolBeam);
     }
 
-    unsigned long MaxULong(unsigned long Left, unsigned long Right)
-    {
-        return Left >= Right ? Left : Right;
-    }
-
     static unsigned long MaxSignedDword(unsigned long Left, unsigned long Right)
     {
         return static_cast<long>(Left) > static_cast<long>(Right) ? Left : Right;
