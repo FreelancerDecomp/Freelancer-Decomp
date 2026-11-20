@@ -183,6 +183,33 @@ namespace
         return Bytes.size() > LengthOffset && Bytes[LengthOffset] >= 0x80;
     }
 
+    // Inputs whose decoded packet cannot be encoded deterministically: the encoder would read
+    // memory the decoder never wrote. The decode is still recorded; the encode is skipped.
+    //
+    // FRpcServerPlayerListPacket: the name (byte 9 holds its length in characters, the
+    // characters follow) is malloc'ed and copied without a terminator; Encode then takes
+    // wcslen of it, which runs into whatever follows on the heap.
+    bool PlayerListNameUnterminated(const std::vector<unsigned char>& Bytes)
+    {
+        if (Bytes.size() < 10 || Bytes[9] == 0)
+        {
+            return false;
+        }
+        const size_t End = 10 + (size_t)Bytes[9] * 2;
+        if (Bytes.size() < End)
+        {
+            return false;
+        }
+        for (size_t Offset = 10; Offset < End; Offset += 2)
+        {
+            if (Bytes[Offset] == 0 && Bytes[Offset + 1] == 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     struct FKnownOverflow
     {
         unsigned int PacketId;
@@ -198,6 +225,23 @@ namespace
         { 0x20029u, SetReputationOverflows,
             "retail heap overflow (single player): negative display-name length wraps the bounds check and the allocation" },
     };
+
+    const FKnownOverflow KnownUnreadable[] = {
+        { 0x20052u, PlayerListNameUnterminated,
+            "encode skipped: the decoded name has no terminator and Encode reads past it (retail)" },
+    };
+
+    const FKnownOverflow* FindKnownUnreadable(unsigned int PacketId, const std::vector<unsigned char>& Bytes)
+    {
+        for (const FKnownOverflow& Entry : KnownUnreadable)
+        {
+            if (Entry.PacketId == PacketId && Entry.Overflows(Bytes))
+            {
+                return &Entry;
+            }
+        }
+        return nullptr;
+    }
 
     const FKnownOverflow* FindKnownOverflow(unsigned int PacketId, const std::vector<unsigned char>& Bytes)
     {
@@ -401,6 +445,13 @@ namespace
         if (Result.Code == 0 && Result.Length <= EncodeCapacity)
         {
             Out.assign(Buffer.begin(), Buffer.begin() + Result.Length);
+            // FRpcTradeResponsePacket::Encode puts the Data pointer's own value on the wire
+            // (retail): bytes 6..9, after the header and the size. A heap address differs
+            // from run to run, so it is replaced by a fixed pattern.
+            if (Packet->PacketId == 0x30027u && Out.size() >= 10)
+            {
+                memset(Out.data() + 6, 0xee, 4);
+            }
         }
         return Result;
     }
@@ -449,6 +500,13 @@ namespace
             return;
         }
         ++Counts.Decoded;
+
+        if (const FKnownOverflow* Unreadable = FindKnownUnreadable(PacketId, Input.Bytes))
+        {
+            ++Counts.Skipped;
+            fprintf(Out, "  %-10s dec=0 used=%u %s\n", Input.Name, Decode.Length, Unreadable->Reason);
+            return;
+        }
 
         std::vector<unsigned char> Encoded;
         const FCodecResult EncodeResult = Encode(Packet, Encoded);

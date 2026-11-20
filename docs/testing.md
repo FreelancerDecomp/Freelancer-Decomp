@@ -54,6 +54,15 @@ CREATESOLAR and a few others) therefore see empty databases, as they would befor
 loaded: the lookups return 0, and the misses they report through `FDUMP` are only counted
 (`engine_messages` in the summary). Running the test on the retail data is a possible next step.
 
+**Run-dependent output.** Two retail codecs would make the file differ between runs:
+
+- `TRADERESPONSE` (0x30027) encodes the value of its `Data` pointer, not the bytes it points
+  to. The test overwrites those four bytes (offset 6) with `ee ee ee ee`. On x64 this field
+  would carry only the low half of the pointer.
+- `PLAYERLIST` (0x20052) decodes the name with `malloc` and no terminator, and its encoder takes
+  `wcslen` of it. When an input's name has no terminator, the decode is recorded but the encode
+  is skipped.
+
 **Known retail overflows.** Some inputs corrupt the heap inside the codec, exactly as they
 would in retail `RemoteClient.dll`. The CRT then ends the process, so the test cannot survive
 them. They are listed in `KnownOverflows` and appear in the output as `skipped:` with the reason.
