@@ -62,6 +62,17 @@ Each is a retail bug a remote client can trigger, and is kept for fidelity:
 - `SET_WEAPON_GROUP` (0x10011) with size `0xffffffff`. The bounds preflight computes
   `4 + size`, which wraps to 3 and passes. The allocation size `size + 1` (for the terminator)
   wraps to 0. The payload copy of `0xffffffff` bytes then overruns the heap.
+- `SENDCOMM` (0x2004f) with the costume flag set and an accessory count above 8. The decoder
+  writes that many ids into `Costume::AccessoryIds[8]`, past the packet's other members and its
+  0x78-byte allocation.
+
+One more is known but not reached by the current inputs. `CREATESHIP` (0x20004) in
+multiplayer, with owner flag 4 and a display-name length byte of 0x80 or more: the signed
+length doubles to a size near `0xffffffff`, the bounds preflight wraps, the `+2` allocation
+wraps to 0, and the copy overruns the heap.
+
+These are server-to-client and client-to-server packet types. `SET_WEAPON_GROUP` is a COMMON
+packet the server decodes from clients, so any client can crash a server with it.
 
 Run it from `bin\`:
 

@@ -140,28 +140,52 @@ namespace
         InterlockedIncrement(&GEngineMessages);
     }
 
-    // Cases that corrupt the heap in the codec itself, as they do in retail RemoteClient.dll.
-    // The process cannot survive them (the CRT ends it on heap corruption), so they are listed
-    // in the output and skipped. Each one is a retail bug a remote peer can trigger.
+    // Inputs that corrupt the heap inside the codec, as they would in retail RemoteClient.dll.
+    // The process cannot survive them (the CRT ends it on heap corruption), so they are skipped
+    // and listed in the output. Each one is a retail bug a remote peer can trigger.
+    typedef bool (*FOverflowTest)(const std::vector<unsigned char>& Bytes);
+
+    unsigned int ReadDword(const std::vector<unsigned char>& Bytes, size_t Offset)
+    {
+        return (unsigned int)Bytes[Offset] | ((unsigned int)Bytes[Offset + 1] << 8)
+            | ((unsigned int)Bytes[Offset + 2] << 16) | ((unsigned int)Bytes[Offset + 3] << 24);
+    }
+
+    // FRpcCommonBufferPacketBase::Decode: size 0xffffffff passes the bounds preflight
+    // (4 + size wraps to 3), the terminator byte makes the allocation size wrap to 0, and the
+    // payload copy of 0xffffffff bytes then overruns the heap.
+    bool SetWeaponGroupOverflows(const std::vector<unsigned char>& Bytes)
+    {
+        return Bytes.size() >= 4 && ReadDword(Bytes, 0) == 0xffffffffu;
+    }
+
+    // FRpcServerSendCommPacket::Decode: with the costume flag (byte 12) set, the accessory
+    // count byte (byte 21) is not checked against Costume::AccessoryIds[8]; the loop writes
+    // past the array, the packet's later members and the 0x78-byte allocation.
+    bool SendCommOverflows(const std::vector<unsigned char>& Bytes)
+    {
+        return Bytes.size() >= 22 && Bytes[12] != 0 && Bytes[21] > 8;
+    }
+
     struct FKnownOverflow
     {
         unsigned int PacketId;
-        const char* Input;
+        FOverflowTest Overflows;
         const char* Reason;
     };
 
     const FKnownOverflow KnownOverflows[] = {
-        // FRpcCommonBufferPacketBase::Decode: size 0xffffffff passes the bounds preflight
-        // (4 + size wraps to 3), the terminator byte makes the allocation size wrap to 0, and
-        // the payload copy of 0xffffffff bytes then overruns the heap.
-        { 0x10011u, "ones", "retail heap overflow: size 0xffffffff wraps the bounds check and the allocation" },
+        { 0x10011u, SetWeaponGroupOverflows,
+            "retail heap overflow: size 0xffffffff wraps the bounds check and the allocation" },
+        { 0x2004fu, SendCommOverflows,
+            "retail heap overflow: accessory count above 8 overruns Costume::AccessoryIds" },
     };
 
-    const FKnownOverflow* FindKnownOverflow(unsigned int PacketId, const char* Input)
+    const FKnownOverflow* FindKnownOverflow(unsigned int PacketId, const std::vector<unsigned char>& Bytes)
     {
         for (const FKnownOverflow& Entry : KnownOverflows)
         {
-            if (Entry.PacketId == PacketId && strcmp(Entry.Input, Input) == 0)
+            if (Entry.PacketId == PacketId && Entry.Overflows(Bytes))
             {
                 return &Entry;
             }
@@ -380,7 +404,7 @@ namespace
     {
         ++Counts.Cases;
         SetCase(Input.Name);
-        if (const FKnownOverflow* Overflow = FindKnownOverflow(PacketId, Input.Name))
+        if (const FKnownOverflow* Overflow = FindKnownOverflow(PacketId, Input.Bytes))
         {
             ++Counts.Skipped;
             fprintf(Out, "  %-10s skipped: %s\n", Input.Name, Overflow->Reason);
