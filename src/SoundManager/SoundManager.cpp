@@ -10,6 +10,7 @@
 #include "readfile.h"
 #include "platform.h"
 
+#include <cstdint>
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
@@ -3981,7 +3982,8 @@ GENRESULT DACOM_API FSoundManager::GetInstanceStatus(int Index, void* Out)
         Node = Node->Next;
     }
     unsigned long* Dwords = static_cast<unsigned long*>(Out);
-    Dwords[0] = reinterpret_cast<unsigned long>(Node->PlayKey);
+    // The record is three dwords (retail interface): x64 keeps the low 32 bits of the pointer.
+    Dwords[0] = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Node->PlayKey));
     Dwords[1] = Node->StatusFlags;
     Dwords[2] = Node->DsCapsFlags;
     return GR_OK;

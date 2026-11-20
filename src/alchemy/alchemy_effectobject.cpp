@@ -270,7 +270,7 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FFxEffectObject::Slot10(void* IdRaw, void* Out)
     {
         const unsigned long Id =
-            static_cast<unsigned long>(reinterpret_cast<unsigned int>(IdRaw));
+            static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(IdRaw));
         for (unsigned long Index = 0; Index < NodeCount_; ++Index)
         {
             if (Nodes_[Index].Id != Id)
@@ -283,7 +283,7 @@ namespace AlchemyImpl
 
     GENRESULT DACOM_API FFxEffectObject::Slot11(void* Arg)
     {
-        return WalkNodesFlagged(static_cast<unsigned long>(reinterpret_cast<unsigned int>(Arg)));
+        return WalkNodesFlagged(static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Arg)));
     }
 
     GENRESULT DACOM_API FFxEffectObject::Slot12(void* A, void* B)
@@ -293,7 +293,7 @@ namespace AlchemyImpl
 
     GENRESULT DACOM_API FFxEffectObject::Slot13(void* Arg)
     {
-        return DispatchFlagsToAlchemy(static_cast<unsigned long>(reinterpret_cast<unsigned int>(Arg)));
+        return DispatchFlagsToAlchemy(static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Arg)));
     }
 
     GENRESULT DACOM_API FFxEffectObject::Slot15(void* Arg)

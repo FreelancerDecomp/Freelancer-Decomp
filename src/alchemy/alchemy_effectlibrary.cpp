@@ -11,6 +11,7 @@
 #include "alchemy_effectarchetype.h"
 #include "alchemy_effectobject.h"
 
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -178,7 +179,7 @@ namespace AlchemyImpl
     {
         FFxEffectObject* const Effect = new FFxEffectObject();
         IFxEffectArchetype* Archetype = nullptr;
-        const unsigned long Hash = static_cast<unsigned long>(reinterpret_cast<unsigned int>(Key));
+        const unsigned long Hash = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Key));
         if (FindByHash(Hash, &Archetype) != GR_OK)
         {
             if (Archetype != nullptr)
