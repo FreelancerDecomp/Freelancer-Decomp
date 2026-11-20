@@ -1125,10 +1125,11 @@ public:
 
         if (Sides != 0)
         {
-            Materials = (IMaterial**)new unsigned char[Sides * 4];
-            std::memset(Materials, 0, Sides * 4);
-            MaterialNames = (char**)new unsigned char[Sides * 4];
-            std::memset(MaterialNames, 0, Sides * 4);
+            // Retail Sides * 4: one pointer each (sizeof is 4 on Win32, 8 on x64).
+            Materials = (IMaterial**)new unsigned char[Sides * sizeof(IMaterial*)];
+            std::memset(Materials, 0, Sides * sizeof(IMaterial*));
+            MaterialNames = (char**)new unsigned char[Sides * sizeof(char*)];
+            std::memset(MaterialNames, 0, Sides * sizeof(char*));
 
             char Buffer[0x80];
             for (unsigned long Index = 0; Index < Sides; ++Index)
