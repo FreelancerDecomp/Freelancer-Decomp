@@ -56,6 +56,9 @@ namespace
         void OnDisconnect() override;
 
         unsigned int ClientId = 0;
+        // Port-only: set once DisconnectClient has released this proxy's slot; the id is kept
+        // for packets still in flight, as in retail (see DisconnectClient).
+        bool bReleased = false;
     };
 
     class CRemoteClientHost : public CDPServer
@@ -86,15 +89,30 @@ unsigned int CClientImpl::GetSendQSize(unsigned int ClientId)
     return Proxy != nullptr ? Proxy->GetSendQSize() : 0u;
 }
 
+// Retail: --NumClients, Proxy->Disconnect, Server->DisConnect, clear the slot,
+// every time. A server-side kick (PlayerDB, IClient slot 17) therefore ran twice: once here
+// and again from OnDisconnect when DirectPlay's DESTROY_PLAYER arrived a frame later. The
+// second run decremented NumClients again (it drifts below the real count, so FLServer's
+// 16-client stats guard stops protecting its buffer), logged the session out of Server.dll
+// again and cleared the slot again, which by then may belong to a new client that took the
+// same id. Port: only a call that finds the live proxy counts and releases the slot, and the
+// proxy is marked released so its OnDisconnect and destructor leave the slot alone
+// (deviations.md, REMOTECLIENT-SLOT-LIFECYCLE). Server.dll still sees the DisConnect of
+// every IClient::DisconnectClient call.
 void CClientImpl::DisconnectClient(unsigned int ClientId)
 {
-    --NumClients;
     CDPClientProxy* Proxy = FindProxy(ClientId);
     if (Proxy != nullptr)
+    {
+        --NumClients;
         Proxy->Disconnect();
+    }
     RemoteClientGetServer()->DisConnect(ClientId, static_cast<EFLConnection>(0));
-    if (ClientId != 0 && ClientId <= 128)
+    if (Proxy != nullptr)
+    {
         ClientProxies[ClientId - 1] = nullptr;
+        static_cast<CRemoteClientProxy*>(Proxy)->bReleased = true;
+    }
 }
 
 int CClientImpl::Update()
@@ -263,13 +281,17 @@ CDPClientProxy* CRemoteClientHost::CreateClientProxy()
 
 CRemoteClientProxy::~CRemoteClientProxy()
 {
-    if (ClientId != 0 && ClientId <= 128)
+    // Port: only a slot this proxy still holds (see DisconnectClient).
+    if (!bReleased && ClientId != 0 && ClientId <= 128 && Client.ClientProxies[ClientId - 1] == this)
         Client.ClientProxies[ClientId - 1] = nullptr;
 }
 
 void CRemoteClientProxy::OnDisconnect()
 {
-    Client.DisconnectClient(ClientId);
+    // Port: a proxy DisconnectClient already released, or one that never got a slot (see
+    // OnConnect), has nothing left to disconnect (see DisconnectClient).
+    if (!bReleased && ClientId != 0)
+        Client.DisconnectClient(ClientId);
 }
 
 void CRemoteClientProxy::OnConnect(long Result)
@@ -284,6 +306,15 @@ void CRemoteClientProxy::OnConnect(long Result)
                 ClientId = Index + 1;
                 break;
             }
+        }
+        // Port: with every slot taken retail went on with id 0 -- a counted client Server.dll
+        // was told about, which no packet could ever reach. Refuse the connection instead
+        // (deviations.md, REMOTECLIENT-SLOT-LIFECYCLE). Unreachable while the DirectPlay
+        // session holds no more players than the table has slots.
+        if (ClientId == 0)
+        {
+            Disconnect();
+            return;
         }
     }
     ++Client.NumClients;
