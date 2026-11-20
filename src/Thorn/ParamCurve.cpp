@@ -674,6 +674,9 @@ namespace
         HermitePhaseDone:
         }
 #else
+        // Set on every path that reaches Hermite1D; initialised for C4703 (the asm's MOVs on Win32).
+        Left = Begin;
+        Right = Begin;
         const int Available = Begin != nullptr ? Count : 0;
         if (Available == 1)
         {
