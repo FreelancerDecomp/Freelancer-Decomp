@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 
 #include "common_ini.h"           // INI_Reader
 #include "common_misc.h"          // SinglePlayer, SetMultiPlayer
@@ -37,6 +38,21 @@ namespace
     {
         const char* OutPath = "regress_state.txt";
         unsigned int TimeoutSeconds = 300;
+    };
+
+    // Runs a cleanup when the scope ends, however it ends, so each startup step sits next to
+    // its own teardown and every early return undoes exactly what was done before it.
+    template <typename FCleanup>
+    class TScopeExit
+    {
+    public:
+        explicit TScopeExit(FCleanup InCleanup) : Cleanup(InCleanup) {}
+        ~TScopeExit() { Cleanup(); }
+        TScopeExit(const TScopeExit&) = delete;
+        TScopeExit& operator=(const TScopeExit&) = delete;
+
+    private:
+        FCleanup Cleanup;
     };
 
     volatile const char* GPhase = "init";
@@ -165,6 +181,28 @@ namespace
         return bDataPath;
     }
 
+    bool WriteDump(const char* Path)
+    {
+        const std::unique_ptr<FILE, int (*)(FILE*)> File(fopen(Path, "wb"), fclose);
+        if (!File)
+        {
+            fprintf(stderr, "FLRegress: cannot write %s\n", Path);
+            return false;
+        }
+        FRegressWriter Out(File.get());
+        Out.Line("flregress 1");
+        Out.Line("startup single_player=%d", SinglePlayer() ? 1 : 0);
+        for (const FRegressClient::FCall& Call : GetRegressClient().GetTrace())
+        {
+            Out.Line("client_call slot=%d name=%s", Call.Slot, Call.Name);
+        }
+        DumpUniverse(Out);
+        printf("FLRegress: wrote %s\n", Path);
+        return true;
+    }
+
+    // Each guard tears down its step when Run returns; they run in reverse order, so the
+    // server shuts down before the data closes and DALib shuts down last.
     int Run(const FOptions& Options)
     {
         char ModulePath[MAX_PATH] = {};
@@ -186,6 +224,7 @@ namespace
             fprintf(stderr, "FLRegress: DALib::Startup failed\n");
             return 1;
         }
+        const TScopeExit ShutdownDALib([] { DALib::Shutdown(nullptr); });
 
         Phase("open data");
         char IniPath[MAX_PATH];
@@ -193,14 +232,13 @@ namespace
         if (!OpenDataFromIni(IniPath))
         {
             fprintf(stderr, "FLRegress: no data path in %s\n", IniPath);
-            DALib::Shutdown(nullptr);
             return 1;
         }
+        const TScopeExit CloseData([] { DALib::CloseData(); });
 
         // The fields the single-player client fills (server_connect.cpp StartServer). The
         // server loads its client from ModulePath, which is this executable.
-        SStartupInfo Info;
-        memset(&Info, 0, sizeof(Info));
+        SStartupInfo Info = {};
         strcpy(Info.ModulePath, ModulePath);
         strcpy(Info.IniPath, IniPath);
         Info.MaxPlayers = 1;
@@ -212,39 +250,15 @@ namespace
         if (!Server.Startup(Info))
         {
             fprintf(stderr, "FLRegress: Server::Startup failed\n");
-            DALib::CloseData();
-            DALib::Shutdown(nullptr);
             return 1;
         }
+        const TScopeExit ShutdownServer([] {
+            Phase("shutdown");
+            Server.Shutdown();
+        });
 
         Phase("dump");
-        int Result = 0;
-        FILE* File = fopen(Options.OutPath, "wb");
-        if (File == nullptr)
-        {
-            fprintf(stderr, "FLRegress: cannot write %s\n", Options.OutPath);
-            Result = 1;
-        }
-        else
-        {
-            FRegressWriter Out(File);
-            Out.Line("flregress 1");
-            Out.Line("startup single_player=%d", SinglePlayer() ? 1 : 0);
-            for (const FRegressClient::FCall& Call : GetRegressClient().GetTrace())
-            {
-                Out.Line("client_call slot=%d name=%s", Call.Slot, Call.Name);
-            }
-            DumpUniverse(Out);
-            fclose(File);
-            printf("FLRegress: wrote %s\n", Options.OutPath);
-        }
-
-        Phase("shutdown");
-        Server.Shutdown();
-        DALib::CloseData();
-        DALib::Shutdown(nullptr);
-        Phase("done");
-        return Result;
+        return WriteDump(Options.OutPath) ? 0 : 1;
     }
 }
 
@@ -266,11 +280,15 @@ int main(int Argc, char** Argv)
     }
 
     // FLServer runs Startup on a thread with COM initialised (StartupThreadProc).
-    const HRESULT ComResult = CoInitialize(nullptr);
+    const bool bComInitialised = SUCCEEDED(CoInitialize(nullptr));
+    const TScopeExit UninitialiseCom([bComInitialised] {
+        if (bComInitialised)
+        {
+            CoUninitialize();
+        }
+    });
+
     const int Result = Run(Options);
-    if (ComResult == S_OK || ComResult == S_FALSE)
-    {
-        CoUninitialize();
-    }
+    Phase("done");
     return Result;
 }
