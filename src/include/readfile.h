@@ -13,6 +13,7 @@
 #include "dacom.h"
 
 #include <cstddef>
+#include <cstdint>
 
 // Digital Anvil FileSystem AGGDESC (size 0x30 or 0x34). DALib::OpenData / ReadFile.dll.c.
 struct FFileSystemDesc
@@ -64,8 +65,11 @@ struct IFileSystem : IComponentFactory
                                  unsigned long A4) = 0; // formerly Slot38; TODO: original operation contract.
     virtual int DACOM_API CreateMapping(unsigned long A1, unsigned long A2, unsigned long A3,
                                  unsigned long A4, unsigned long A5, unsigned long A6) = 0; // formerly Slot3C
-    virtual int DACOM_API MapFileView(unsigned long A1, unsigned long A2, unsigned long A3,
-                                 unsigned long A4, unsigned long A5) = 0; // formerly Slot40
+    // Returns the view's address. std::intptr_t is retail's int on Win32; on x64 the address
+    // needs 64 bits (docs/x64.md). The other handle values here stay 32-bit on x64: ReadFile
+    // hands out ids for them (handle_value.h).
+    virtual std::intptr_t DACOM_API MapFileView(unsigned long A1, unsigned long A2, unsigned long A3,
+                                                unsigned long A4, unsigned long A5) = 0; // formerly Slot40
     virtual int DACOM_API UnmapFileView(unsigned long A1) = 0; // formerly Slot44
     virtual int DACOM_API FindFirst(const char* Pattern, WIN32_FIND_DATAA* FindData) = 0; // formerly Slot48
     virtual int DACOM_API FindNext(unsigned long Handle, WIN32_FIND_DATAA* FindData) = 0; // formerly Slot4C

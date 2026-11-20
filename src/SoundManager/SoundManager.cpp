@@ -627,8 +627,8 @@ namespace
         Map.Handle = FileSystem->CreateMapping(0, 0, 2, 0, 0, 0);
         if (Map.Handle == -1)
             return 0;
-        Map.View = reinterpret_cast<const unsigned char*>(static_cast<uintptr_t>(static_cast<unsigned int>(
-            FileSystem->MapFileView(static_cast<unsigned long>(Map.Handle), 4, 0, 0, 0))));
+        Map.View = reinterpret_cast<const unsigned char*>(static_cast<uintptr_t>(
+            FileSystem->MapFileView(static_cast<unsigned long>(Map.Handle), 4, 0, 0, 0)));
         Map.Size = FileSystem->GetSize(0, 0);
         Map.Cursor = 0;
         if (Map.View == nullptr)

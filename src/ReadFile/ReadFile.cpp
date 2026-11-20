@@ -5,10 +5,12 @@
 // Author: Giperion.
 
 #include "readfile.h"
+#include "handle_value.h"
 #include "platform.h"
 
 #include <cctype>
 #include <cstdarg>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -426,6 +428,8 @@ namespace
         // Destroy owned find blocks; the handle list releases its own nodes.
         ~FUtfWalker()
         {
+            for (const FUtfHandle& Handle : Handles)
+                HandleValue::Forget(&Handle);
             while (FirstBlock.Next != nullptr)
             {
                 FUtfFindBlock* Block = FirstBlock.Next;
@@ -493,10 +497,11 @@ namespace
         {
             if (Value == 0xFFFFFFFFu)
                 return false;
+            const void* Named = HandleValue::ObjectOf(Value);
             std::list<FUtfHandle>::const_iterator It = Handles.begin();
             while (It != Handles.end())
             {
-                if ((unsigned long)(&*It) == Value)
+                if (&*It == Named)
                     return true;
                 ++It;
             }
@@ -508,7 +513,7 @@ namespace
         {
             if (Value == 0xFFFFFFFFu)
                 return nullptr;
-            return (FUtfHandle*)(Value);
+            return HandleValue::To<FUtfHandle>(Value);
         }
 
         FUtfHandle* Open(const char* Path, unsigned long BaseValue, unsigned long Extra)
@@ -550,7 +555,12 @@ namespace
             if (BaseValue == 0)
                 Node = RootHandle->Node;
             else if (BaseValue != 0xFFFFFFFFu)
-                Node = ((const FUtfHandle*)(BaseValue))->Node;
+            {
+                // Win32: the address, never null here. x64: null for a value that names no handle.
+                const FUtfHandle* Base = HandleValue::To<const FUtfHandle>(BaseValue);
+                if (Base != nullptr)
+                    Node = Base->Node;
+            }
 
             const char* LastSeparator = nullptr;
             const char* Scan = Pattern;
@@ -594,7 +604,7 @@ namespace
             else
             {
                 // 06b725d4..06b725e3: ADD sets ZF on a zero sum -> -1, no LastError.
-                if ((unsigned long)(Root) + ReadUtfDword(Node, 0x04) == 0)
+                if ((std::uintptr_t)(Root) + ReadUtfDword(Node, 0x04) == 0)
                     return -1;
                 First = Root + ReadUtfDword(Node, 0x04);
                 Remaining = ReadUtfDword(Node, 0x08);
@@ -780,7 +790,11 @@ namespace
         {
             const unsigned char* Node = nullptr;
             if (BaseValue != 0 && BaseValue != 0xFFFFFFFFu)
-                Node = ((const FUtfHandle*)(BaseValue))->Node;
+            {
+                const FUtfHandle* Base = HandleValue::To<const FUtfHandle>(BaseValue);
+                if (Base != nullptr)
+                    Node = Base->Node;
+            }
             if (Node == nullptr)
                 Node = RootHandle->Node;
             return Node;
@@ -1260,16 +1274,16 @@ namespace
             FDosMapToken* Token = new FDosMapToken();
             Token->Open = Open;
             MapTokens.push_back(Token);
-            return (int)(Token);
+            return (int)(HandleValue::Of(Token));
         }
 
         // formerly Slot40
-        int DACOM_API MapFileView(unsigned long Token, unsigned long Access, unsigned long A3,
-                             unsigned long OffLow, unsigned long ByteCount) override
+        std::intptr_t DACOM_API MapFileView(unsigned long Token, unsigned long Access, unsigned long A3,
+                                       unsigned long OffLow, unsigned long ByteCount) override
         {
             if (NestedChild != nullptr)
             {
-                const int Result = NestedChild->MapFileView(Token, Access, A3, OffLow, ByteCount);
+                const std::intptr_t Result = NestedChild->MapFileView(Token, Access, A3, OffLow, ByteCount);
                 if (Result == 0)
                     CopyNestedLastError();
                 return Result;
@@ -1280,10 +1294,11 @@ namespace
                 return 0;
             }
             FDosMapToken* Found = nullptr;
+            const void* Named = HandleValue::ObjectOf(Token);
             const unsigned long Count = (unsigned long)(MapTokens.size());
             for (unsigned long Index = 0; Index < Count; ++Index)
             {
-                if ((unsigned long)(MapTokens[Index]) == Token)
+                if (MapTokens[Index] == Named)
                 {
                     Found = MapTokens[Index];
                     break;
@@ -1310,7 +1325,7 @@ namespace
                 LastError = 5;
                 return 0;
             }
-            return (int)((char*)(Open->View) + OffLow);
+            return (std::intptr_t)((char*)(Open->View) + OffLow);
         }
 
         // DOS LAB_06b75350: always 1. Does not UnmapViewOfFile.
@@ -1678,11 +1693,13 @@ namespace
 
         int DropMapToken(unsigned long Token)
         {
+            const void* Named = HandleValue::ObjectOf(Token);
             const unsigned long Count = (unsigned long)(MapTokens.size());
             for (unsigned long Index = 0; Index < Count; ++Index)
             {
-                if ((unsigned long)(MapTokens[Index]) == Token)
+                if (MapTokens[Index] == Named)
                 {
+                    HandleValue::Forget(MapTokens[Index]);
                     delete MapTokens[Index];
                     MapTokens.erase(MapTokens.begin() + (int)(Index));
                     return 1;
@@ -1742,7 +1759,10 @@ namespace
         {
             const unsigned long TokenCount = (unsigned long)(MapTokens.size());
             for (unsigned long Index = 0; Index < TokenCount; ++Index)
+            {
+                HandleValue::Forget(MapTokens[Index]);
                 delete MapTokens[Index];
+            }
             MapTokens.clear();
 
             std::map<unsigned long, FDosOpenFile*>::iterator It = OpenFiles.begin();
@@ -2014,6 +2034,8 @@ namespace
                 Platform::CloseHandle(FileHandle);
                 FileHandle = INVALID_HANDLE_VALUE;
             }
+            for (FUtfHandle*& Token : MapTokens)
+                HandleValue::Forget(&Token);
             MapTokens.clear();
         }
 
@@ -2239,7 +2261,7 @@ namespace
                    0x104);
             const unsigned long Extra = Desc->Size == 0x34 ? Desc->Field30 : 0xFFFFFFFFu;
             FUtfHandle* Found =
-                ActiveW->Open(Dest, (unsigned long)(RootHandle()), Extra);
+                ActiveW->Open(Dest, HandleValue::Of(RootHandle()), Extra);
             if (Found == nullptr)
                 return GR_GENERIC;
 
@@ -2313,7 +2335,7 @@ namespace
             }
 
             FUtfHandle* Opened =
-                ActiveW->Open(Dest, (unsigned long)(RootHandle()), 0xFFFFFFFFu);
+                ActiveW->Open(Dest, HandleValue::Of(RootHandle()), 0xFFFFFFFFu);
             if (Opened == nullptr)
             {
                 LastError = 0xA1;
@@ -2392,7 +2414,7 @@ namespace
                 LastError = 6;
                 return 0;
             }
-            ActiveW->GetFileTimes((unsigned long)(UtfHandle),
+            ActiveW->GetFileTimes(HandleValue::Of(UtfHandle),
                                   CreationOut,
                                   AccessOut,
                                   WriteOut);
@@ -2415,7 +2437,7 @@ namespace
                 return 0;
             }
             const int Attributes =
-                ActiveW->GetAttributes(Dest, (unsigned long)(RootHandle()));
+                ActiveW->GetAttributes(Dest, HandleValue::Of(RootHandle()));
             if (Attributes == -1)
             {
                 LastError = 0xA1;
@@ -2454,6 +2476,7 @@ namespace
             std::list<FUtfHandle*>::iterator Token = FindMapToken(Handle);
             if (Token != MapTokens.end())
             {
+                HandleValue::Forget(&*Token);
                 MapTokens.erase(Token);
                 return 1;
             }
@@ -2551,12 +2574,12 @@ namespace
                 return -1;
             }
             MapTokens.push_back(UtfHandle);
-            return (int)((unsigned long)(&MapTokens.back()));
+            return (int)(HandleValue::Of(&MapTokens.back()));
         }
 
         // formerly Slot40
-        int DACOM_API MapFileView(unsigned long Token, unsigned long Access, unsigned long,
-                             unsigned long OffLow, unsigned long ByteCount) override
+        std::intptr_t DACOM_API MapFileView(unsigned long Token, unsigned long Access, unsigned long,
+                                       unsigned long OffLow, unsigned long ByteCount) override
         {
             if (Access != FILE_MAP_READ)
             {
@@ -2593,18 +2616,19 @@ namespace
             }
             const unsigned long DataSection = ReadUtfDword(ActiveW->GetView(), 0x24);
             const unsigned long FileOff = DataSection + UtfHandle->DataOffset();
-            return (int)(
-                (unsigned long)((const char*)(ArchiveOwner->MappedView)) +
+            return (std::intptr_t)(
+                (std::uintptr_t)((const char*)(ArchiveOwner->MappedView)) +
                 FileOff + OffLow);
         }
 
         // The +0x240 token whose payload address is Value (06b736a7 / 06b738db scans).
         std::list<FUtfHandle*>::iterator FindMapToken(unsigned long Value)
         {
+            const void* Named = HandleValue::ObjectOf(Value);
             std::list<FUtfHandle*>::iterator It = MapTokens.begin();
             while (It != MapTokens.end())
             {
-                if ((unsigned long)(&*It) == Value)
+                if (&*It == Named)
                     return It;
                 ++It;
             }
@@ -2633,7 +2657,7 @@ namespace
             if (OpenNodeHandle != nullptr)
             {
                 const unsigned long Extra = Desc->Size == 0x34 ? Desc->Field30 : 0xFFFFFFFFu;
-                Opened = ActiveW->Open(Desc->Path, (unsigned long)(OpenNodeHandle),
+                Opened = ActiveW->Open(Desc->Path, HandleValue::Of(OpenNodeHandle),
                                        Extra);
             }
             else
@@ -2646,14 +2670,14 @@ namespace
                     return -1;
                 }
                 const unsigned long Extra = Desc->Size == 0x34 ? Desc->Field30 : 0xFFFFFFFFu;
-                Opened = ActiveW->Open(Dest, (unsigned long)(RootHandle()), Extra);
+                Opened = ActiveW->Open(Dest, HandleValue::Of(RootHandle()), Extra);
             }
             if (Opened == nullptr)
             {
                 LastError = 2;
                 return -1;
             }
-            return (int)((unsigned long)(Opened));
+            return (int)(HandleValue::Of(Opened));
         }
 
         // UTF LAB_06b73cc0: *Out = +0x234 (no Out check), AddRef it when set, return 0.
@@ -2692,7 +2716,7 @@ namespace
             int Result = -1;
             if (OpenNodeHandle != nullptr)
                 Result = ActiveW->FindFirst(Pattern, Out,
-                                            (unsigned long)(OpenNodeHandle));
+                                            HandleValue::Of(OpenNodeHandle));
             else
             {
                 char Dest[0x105];
@@ -2701,7 +2725,7 @@ namespace
                     LastError = 0xA1;
                     return -1;
                 }
-                Result = ActiveW->FindFirst(Dest, Out, (unsigned long)(OwnRootHandle));
+                Result = ActiveW->FindFirst(Dest, Out, HandleValue::Of(OwnRootHandle));
             }
             if (Result == -1)
                 LastError = ActiveW->GetLastError();
@@ -3117,8 +3141,8 @@ namespace
             return 0;
         }
         // formerly Slot40
-        int DACOM_API MapFileView(unsigned long, unsigned long, unsigned long, unsigned long,
-                             unsigned long) override
+        std::intptr_t DACOM_API MapFileView(unsigned long, unsigned long, unsigned long, unsigned long,
+                                       unsigned long) override
         {
             return 0;
         }

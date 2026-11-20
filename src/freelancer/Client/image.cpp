@@ -125,7 +125,7 @@ namespace
             Mapping = static_cast<unsigned long>(Fs->CreateMapping(Handle, 0, 2, 0, 0, 0));
             if (Mapping == 0xffffffffu)
                 return -6;
-            View = static_cast<unsigned long>(Fs->MapFileView(Mapping, 4, 0, 0, 0));
+            View = static_cast<std::uintptr_t>(Fs->MapFileView(Mapping, 4, 0, 0, 0));
             if (View != 0)
                 return 0;
             return -1;
@@ -140,7 +140,7 @@ namespace
                 {
                     if (View != 0)
                     {
-                        Fs->UnmapFileView(View); // +0x44
+                        Fs->UnmapFileView(static_cast<unsigned long>(View)); // +0x44
                         View = 0;
                     }
                     Fs->CloseFile(Mapping); // +0x10
@@ -158,7 +158,7 @@ namespace
         unsigned long Handle;  // +0x00
         unsigned long Size;    // +0x04
         unsigned long Mapping; // +0x08
-        unsigned long View;    // +0x0c
+        std::uintptr_t View;   // +0x0c
         IFileSystem* Fs;       // +0x10
 
     private:
