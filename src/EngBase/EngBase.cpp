@@ -7559,8 +7559,14 @@ GENRESULT DACOM_API ChannelArchetypeFactoryCreateInstance(FDacomFactory* This, A
 }
 
 
+// Only FHardpointObject uses it, with 4: its retail IEngineComponent facet.
 static void* NestedThis(void* Object, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // x64 has the facet at another offset (facet_offset.h).
+    if (Offset == 4)
+        Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);
+#endif
     return (unsigned char*)Object + Offset;
 }
 
