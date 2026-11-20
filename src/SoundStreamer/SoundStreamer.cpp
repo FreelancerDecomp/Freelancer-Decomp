@@ -180,14 +180,21 @@ namespace
         const char* DataPath;
         unsigned long Field10;
         unsigned long Field14;
-        unsigned long Field18;
+        void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
         unsigned long Field1C;
         unsigned long Field20;
-        unsigned long Field24;
-        unsigned long Field28;
+        void* Field24;      // template file
+        void* Field28;      // parent
         unsigned long Field2C;
         unsigned long Field30;
     };
+
+    // ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform.
+    static_assert(offsetof(FFileSystemAggDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
+    static_assert(offsetof(FFileSystemAggDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
+    static_assert(offsetof(FFileSystemAggDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
+    static_assert(offsetof(FFileSystemAggDesc, Field28) == offsetof(FFileSystemDesc, Parent), "Parent");
+    static_assert(offsetof(FFileSystemAggDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
 
     // 06ef30af..3109: 0x34 desc {size, "FileSystem", 0, Path, 0x80000000, 1, 0, 3, 0x8000080,
     // 0, 0, 0, -1} (REP STOSD zeroes +8..+0x33 first), DACOM_Acquire() unchecked, slot 0xC
@@ -200,7 +207,7 @@ namespace
         Desc.DataPath = Path;
         Desc.Field10 = 0x80000000;
         Desc.Field14 = 1;
-        Desc.Field18 = 0;
+        Desc.Field18 = nullptr;
         Desc.Field1C = 3;
         Desc.Field20 = 0x8000080;
         Desc.Field30 = 0xFFFFFFFF;

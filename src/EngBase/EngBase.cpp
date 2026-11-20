@@ -92,14 +92,23 @@ struct FEngBaseFileSystemDesc
     const char* DataPath;
     unsigned long Field10;
     unsigned long Field14;
-    unsigned long Field18;
+    void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
     unsigned long Field1C;
     unsigned long Field20;
-    unsigned long Field24;
-    unsigned long Field28;
+    void* Field24;      // template file
+    void* Field28;      // parent
     unsigned long Field2C;
     unsigned long Field30;
 };
+
+// ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform: the
+// pointer fields must be pointers there too, or every field after them moves on x64.
+static_assert(offsetof(FEngBaseFileSystemDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
+static_assert(offsetof(FEngBaseFileSystemDesc, Field10) == offsetof(FFileSystemDesc, Access), "Access");
+static_assert(offsetof(FEngBaseFileSystemDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
+static_assert(offsetof(FEngBaseFileSystemDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
+static_assert(offsetof(FEngBaseFileSystemDesc, Field28) == offsetof(FFileSystemDesc, Parent), "Parent");
+static_assert(offsetof(FEngBaseFileSystemDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
 
 // FEngineObject holds a real std::map (the instance-root map), so only the facet offset is
 // asserted; the retail byte layout is documented on the struct.
