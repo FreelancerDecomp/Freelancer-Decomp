@@ -278,7 +278,7 @@ namespace AlchemyImpl
 
     // The unbounded row limit the tables hold (0x7f7fffff = FLT_MAX; its negation
     // 0xff7fffff for signed rows).
-    const float kNodePropertyRowMax = 3.40282347e+38f;
+    constexpr float kNodePropertyRowMax = 3.40282347e+38f;
 
     // A retail hashed string (vtable 0x0624bd84: {vt, hash, string {..., owned, buffer,
     // length, capacity}}): the set's Node_ClassName (+0x04) and Node_Name (+0x28), the

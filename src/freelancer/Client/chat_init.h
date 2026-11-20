@@ -59,7 +59,7 @@ extern std::string G_ChatImageRoot;
 extern CHAT_ID G_ChatInputTarget;
 
 // FUN_0046ad40 (thiscall on the id, RET 4) -- {PlayerId, 0, 0}.
-inline CHAT_ID ChatIdForPlayer(unsigned PlayerId)
+constexpr CHAT_ID ChatIdForPlayer(unsigned PlayerId)
 {
     return CHAT_ID(PlayerId & 0xffffu);
 }
