@@ -12,6 +12,10 @@
 // instance and transform handles here on x64, so those fields stay as retail declared them.
 // Win32 does not use this header's allocator: there every address already fits.
 //
+// FL_LOW_ARENA_NEW, inside a class, gives that class operator new / delete from the arena on
+// x64 and nothing on Win32. RendComp's render plugins use it for the handles they return through
+// IRenderComponent::Claim, which retail declared as `int`.
+//
 // The arena reserves and commits 16 MB chunks of free address space below 2 GB, hands out
 // blocks by bumping a cursor, and keeps freed blocks on a list per block size for reuse. It
 // never returns memory to the system. With FL_HIGH_MEMORY=1 (x64_high_memory.h) all other
@@ -19,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <new>
 
 #if defined(_WIN64)
 #include <windows.h>
@@ -134,3 +139,21 @@ namespace LowArena
     }
 #endif
 }
+
+#if defined(_WIN64)
+#define FL_LOW_ARENA_NEW                                                                           \
+    static void* operator new(std::size_t Size)                                                    \
+    {                                                                                              \
+        return LowArena::Allocate(Size);                                                           \
+    }                                                                                              \
+    static void* operator new(std::size_t Size, const std::nothrow_t&) noexcept                    \
+    {                                                                                              \
+        return LowArena::Allocate(Size);                                                           \
+    }                                                                                              \
+    static void operator delete(void* Element, std::size_t Size)                                   \
+    {                                                                                              \
+        LowArena::Free(Element, Size);                                                             \
+    }
+#else
+#define FL_LOW_ARENA_NEW
+#endif
