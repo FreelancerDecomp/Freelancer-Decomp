@@ -60,18 +60,19 @@ the whole address. With `FL_HIGH_MEMORY=1` the x64 programs reserve all free add
 4 GB at startup, so a remaining truncation fails at once; the x64 CI runs set it, and the client
 should call the same function when it gets an x64 build.
 
-**1.2 x87 helpers for the client.** Extend `x87_portable.h`:
+**1.2 x87 helpers for the client.** #40. Extend `x87_portable.h`:
 
 - a compare helper that reproduces FCOM/FCOMP plus the FNSTSW flag tests, unordered cases
   included (the six compare sites in `menu_sound_arch.cpp` and `lparser.c`);
 - `log10` as FLDLG2 + FYL2X, then ×10 rounded to float (`menu_sound_arch.cpp`, `SoundManager.cpp`).
   This can differ from Win32 in the last bit, like `x87_trig.h`.
 
-Also document the client's precision rule. Retail creates the Direct3D device without
-`FPU_PRESERVE`, so the client's x87 runs at 24-bit precision. The portable version of client
-arithmetic is therefore `float` arithmetic in the x87 order, not the `double` arithmetic the
-server codecs use. `_control87` with the precision mask (`client_frame_tick.cpp`,
-`engine_init.cpp`, `main.cpp`) does not exist on x64, so those calls go under `_M_IX86`.
+Also document the client's precision rule (done in #40). The client runs at 53-bit precision
+except between `BeginScene` and `EndScene`, where it uses the precision the Direct3D device left:
+24-bit with RP8's default (`FPU_PRESERVE` 0). Portable client arithmetic is therefore the server's
+`double` rule outside the scene and `float` arithmetic in the x87 order inside it. The
+`_control87` precision switches (`client_frame_tick.cpp`, `engine_init.cpp`) are Win32 only,
+since x64 has no x87 precision control.
 
 **1.3 Layout checks.** Convert the client modules' layout `static_assert`s to
 `FL_LAYOUT_ASSERT`, mostly with a script. Nothing changes on Win32. Checks that hold on every
