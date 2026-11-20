@@ -276,7 +276,7 @@ static Heap GObjectHeapF0(0xf0, -1);
 static Heap GObjectHeap1ec(0x1ec, -1);
 static Heap GObjectHeap2dc(0x2dc, -1);
 
-void* CObject::operator new(unsigned int Size) noexcept
+void* CObject::operator new(std::size_t Size) noexcept
 {
     // .text:062adbc0. Size switch: 0x120, 0x9c, 0xf0, 0x104 below the JA, 0x1ec and 0x2dc
     // above it; anything else goes to the CRT malloc.
@@ -299,7 +299,7 @@ void* CObject::operator new(unsigned int Size) noexcept
     }
 }
 
-void CObject::operator delete(void* Ptr, unsigned int Size)
+void CObject::operator delete(void* Ptr, std::size_t Size)
 {
     // .text:062adc40. The same size switch, returning the block to its pool or to free().
     switch (Size)

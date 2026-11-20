@@ -311,8 +311,8 @@ public:
     // .text:062adbc0 / .text:062adc40. Per-size Heap pools (0x9c, 0xf0, 0x104, 0x120, 0x1ec,
     // 0x2dc; every other size goes to malloc/free). noexcept so a new-expression checks the
     // result for null before running the constructor, as retail's CObject::Alloc does.
-    static void* operator new(unsigned int Size) noexcept;
-    static void operator delete(void* Ptr, unsigned int Size);
+    static void* operator new(std::size_t Size) noexcept;
+    static void operator delete(void* Ptr, std::size_t Size);
 
     // Retail exports no CObject::operator= (VC6 only emitted the implicit one on use, and
     // nothing assigns a CObject).
