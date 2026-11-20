@@ -600,9 +600,9 @@ static_assert(sizeof(void*) != 4 || sizeof(FPosQuatTypedChannel) == 0x94, "type-
 
 // &typed+0x08: the 16-byte bind descriptor. FTypedChannel keeps Kind/Field0C/Field10/Field14
 // as four consecutive dwords, which is FAnimBindOut's layout on this 32-bit target.
-static_assert(offsetof(FTypedChannel, Field14) - offsetof(FTypedChannel, Kind) == 0xC,
+FL_LAYOUT_ASSERT(offsetof(FTypedChannel, Field14) - offsetof(FTypedChannel, Kind) == 0xC,
               "bind descriptor is four consecutive dwords");
-static_assert(sizeof(FAnimBindOut) == 0x10, "bind descriptor is 16 bytes");
+FL_LAYOUT_ASSERT(sizeof(FAnimBindOut) == 0x10, "bind descriptor is 16 bytes");
 inline FAnimBindOut* TypedBindDesc(FTypedChannel* This)
 {
     return (FAnimBindOut*)(&This->Kind);

@@ -162,16 +162,16 @@ public:
     unsigned char Flag29;       // +0x29.
     unsigned char Pad2a[0x2c - 0x2a];
 };
-static_assert(offsetof(GotoBehaviorFields, CachedHandle08) == 0x08, "GotoBehaviorFields::CachedHandle08 offset");
-static_assert(offsetof(GotoBehaviorFields, ModeSelector0xc) == 0x0c, "GotoBehaviorFields::ModeSelector0xc offset");
-static_assert(offsetof(GotoBehaviorFields, UpdateResult10) == 0x10, "GotoBehaviorFields::UpdateResult10 offset");
-static_assert(offsetof(GotoBehaviorFields, OwnerContextPtr14) == 0x14, "GotoBehaviorFields::OwnerContextPtr14 offset");
-static_assert(offsetof(GotoBehaviorFields, DeltaTime1c) == 0x1c, "GotoBehaviorFields::DeltaTime1c offset");
-static_assert(offsetof(GotoBehaviorFields, BehaviorMgrPtr20) == 0x20, "GotoBehaviorFields::BehaviorMgrPtr20 offset");
-static_assert(offsetof(GotoBehaviorFields, NavHelperPtr24) == 0x24, "GotoBehaviorFields::NavHelperPtr24 offset");
-static_assert(offsetof(GotoBehaviorFields, Flags28) == 0x28, "GotoBehaviorFields::Flags28 offset");
-static_assert(offsetof(GotoBehaviorFields, Flag29) == 0x29, "GotoBehaviorFields::Flag29 offset");
-static_assert(sizeof(GotoBehaviorFields) == 0x2c, "GotoBehaviorFields size");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, CachedHandle08) == 0x08, "GotoBehaviorFields::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, ModeSelector0xc) == 0x0c, "GotoBehaviorFields::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, UpdateResult10) == 0x10, "GotoBehaviorFields::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, OwnerContextPtr14) == 0x14, "GotoBehaviorFields::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, DeltaTime1c) == 0x1c, "GotoBehaviorFields::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, BehaviorMgrPtr20) == 0x20, "GotoBehaviorFields::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, NavHelperPtr24) == 0x24, "GotoBehaviorFields::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, Flags28) == 0x28, "GotoBehaviorFields::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, Flag29) == 0x29, "GotoBehaviorFields::Flag29 offset");
+FL_LAYOUT_ASSERT(sizeof(GotoBehaviorFields) == 0x2c, "GotoBehaviorFields size");
 
 class GotoBehavior : public GotoBehaviorFields
 {
@@ -396,44 +396,44 @@ public:
     IObjRW const* get_target() override;                               // 24 LAB_062c6db0
 };
 
-static_assert(offsetof(GotoBehavior, SubObjectA) == 0x2c, "GotoBehavior::SubObjectA offset");
-static_assert(offsetof(GotoBehavior, SubObjectB) == 0xa4, "GotoBehavior::SubObjectB offset");
-static_assert(offsetof(GotoBehavior, SubObjectC) == 0x164, "GotoBehavior::SubObjectC offset");
-static_assert(offsetof(GotoBehavior, Field2d8) == 0x2d8, "GotoBehavior::Field2d8 offset");
-static_assert(offsetof(GotoBehavior, Field2dc) == 0x2dc, "GotoBehavior::Field2dc offset");
-static_assert(offsetof(GotoBehavior, Field2e0) == 0x2e0, "GotoBehavior::Field2e0 offset");
-static_assert(offsetof(GotoBehavior, Field2e4) == 0x2e4, "GotoBehavior::Field2e4 offset");
-static_assert(offsetof(GotoBehavior, Flag2e8) == 0x2e8, "GotoBehavior::Flag2e8 offset");
-static_assert(offsetof(GotoBehavior, Flag2e9) == 0x2e9, "GotoBehavior::Flag2e9 offset");
-static_assert(offsetof(GotoBehavior, Flag2ea) == 0x2ea, "GotoBehavior::Flag2ea offset");
-static_assert(offsetof(GotoBehavior, Flag2eb) == 0x2eb, "GotoBehavior::Flag2eb offset");
-static_assert(offsetof(GotoBehavior, Flag2ec) == 0x2ec, "GotoBehavior::Flag2ec offset");
-static_assert(offsetof(GotoBehavior, Field2f0) == 0x2f0, "GotoBehavior::Field2f0 offset");
-static_assert(offsetof(GotoBehavior, Field2f4) == 0x2f4, "GotoBehavior::Field2f4 offset");
-static_assert(offsetof(GotoBehavior, Field2f8) == 0x2f8, "GotoBehavior::Field2f8 offset");
-static_assert(offsetof(GotoBehavior, Field304) == 0x304, "GotoBehavior::Field304 offset");
-static_assert(offsetof(GotoBehavior, Flag367) == 0x367, "GotoBehavior::Flag367 offset");
-static_assert(offsetof(GotoBehavior, Watcher310) == 0x310, "GotoBehavior::Watcher310 offset");
-static_assert(offsetof(GotoBehavior, Spline) == 0x318, "GotoBehavior::Spline offset");
-static_assert(offsetof(GotoBehavior, Field358) == 0x358, "GotoBehavior::Field358 offset");
-static_assert(offsetof(GotoBehavior, Field35c) == 0x35c, "GotoBehavior::Field35c offset");
-static_assert(offsetof(GotoBehavior, Field360) == 0x360, "GotoBehavior::Field360 offset");
-static_assert(offsetof(GotoBehavior, Flag364) == 0x364, "GotoBehavior::Flag364 offset");
-static_assert(offsetof(GotoBehavior, Flag365) == 0x365, "GotoBehavior::Flag365 offset");
-static_assert(offsetof(GotoBehavior, Flag366) == 0x366, "GotoBehavior::Flag366 offset");
-static_assert(offsetof(GotoBehavior, Flag368) == 0x368, "GotoBehavior::Flag368 offset");
-static_assert(offsetof(GotoBehavior, Flag369) == 0x369, "GotoBehavior::Flag369 offset");
-static_assert(offsetof(GotoBehavior, Flag36a) == 0x36a, "GotoBehavior::Flag36a offset");
-static_assert(offsetof(GotoBehavior, Flag36b) == 0x36b, "GotoBehavior::Flag36b offset");
-static_assert(offsetof(GotoBehavior, Flag36c) == 0x36c, "GotoBehavior::Flag36c offset");
-static_assert(offsetof(GotoBehavior, Watcher370) == 0x370, "GotoBehavior::Watcher370 offset");
-static_assert(offsetof(GotoBehavior, Field378) == 0x378, "GotoBehavior::Field378 offset");
-static_assert(offsetof(GotoBehavior, Field37c) == 0x37c, "GotoBehavior::Field37c offset");
-static_assert(offsetof(GotoBehavior, Field380) == 0x380, "GotoBehavior::Field380 offset");
-static_assert(offsetof(GotoBehavior, Flags384) == 0x384, "GotoBehavior::Flags384 offset (== Watcher370 + 0x14, the DockProximityWatcher::Flags14 slot read at .text:062fe1c4)");
-static_assert(offsetof(GotoBehavior, SavedFlags388) == 0x388, "GotoBehavior::SavedFlags388 offset");
-static_assert(offsetof(GotoBehavior, GotoOp) == 0x38c, "GotoBehavior::GotoOp offset");
-static_assert(sizeof(GotoBehavior) == 0x3fc, "GotoBehavior sizeof 0x3fc (operator_new(0x3fc) confirmed at every allocation site, decomp-tracker item 1253)");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, SubObjectA) == 0x2c, "GotoBehavior::SubObjectA offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, SubObjectB) == 0xa4, "GotoBehavior::SubObjectB offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, SubObjectC) == 0x164, "GotoBehavior::SubObjectC offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2d8) == 0x2d8, "GotoBehavior::Field2d8 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2dc) == 0x2dc, "GotoBehavior::Field2dc offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2e0) == 0x2e0, "GotoBehavior::Field2e0 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2e4) == 0x2e4, "GotoBehavior::Field2e4 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag2e8) == 0x2e8, "GotoBehavior::Flag2e8 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag2e9) == 0x2e9, "GotoBehavior::Flag2e9 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag2ea) == 0x2ea, "GotoBehavior::Flag2ea offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag2eb) == 0x2eb, "GotoBehavior::Flag2eb offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag2ec) == 0x2ec, "GotoBehavior::Flag2ec offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2f0) == 0x2f0, "GotoBehavior::Field2f0 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2f4) == 0x2f4, "GotoBehavior::Field2f4 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field2f8) == 0x2f8, "GotoBehavior::Field2f8 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field304) == 0x304, "GotoBehavior::Field304 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag367) == 0x367, "GotoBehavior::Flag367 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Watcher310) == 0x310, "GotoBehavior::Watcher310 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Spline) == 0x318, "GotoBehavior::Spline offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field358) == 0x358, "GotoBehavior::Field358 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field35c) == 0x35c, "GotoBehavior::Field35c offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field360) == 0x360, "GotoBehavior::Field360 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag364) == 0x364, "GotoBehavior::Flag364 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag365) == 0x365, "GotoBehavior::Flag365 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag366) == 0x366, "GotoBehavior::Flag366 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag368) == 0x368, "GotoBehavior::Flag368 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag369) == 0x369, "GotoBehavior::Flag369 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag36a) == 0x36a, "GotoBehavior::Flag36a offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag36b) == 0x36b, "GotoBehavior::Flag36b offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flag36c) == 0x36c, "GotoBehavior::Flag36c offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Watcher370) == 0x370, "GotoBehavior::Watcher370 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field378) == 0x378, "GotoBehavior::Field378 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field37c) == 0x37c, "GotoBehavior::Field37c offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Field380) == 0x380, "GotoBehavior::Field380 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, Flags384) == 0x384, "GotoBehavior::Flags384 offset (== Watcher370 + 0x14, the DockProximityWatcher::Flags14 slot read at .text:062fe1c4)");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, SavedFlags388) == 0x388, "GotoBehavior::SavedFlags388 offset");
+FL_LAYOUT_ASSERT(offsetof(GotoBehavior, GotoOp) == 0x38c, "GotoBehavior::GotoOp offset");
+FL_LAYOUT_ASSERT(sizeof(GotoBehavior) == 0x3fc, "GotoBehavior sizeof 0x3fc (operator_new(0x3fc) confirmed at every allocation site, decomp-tracker item 1253)");
 
 // ============================================================================
 // The shared 0x1c-byte proximity-watcher struct's three methods
@@ -559,12 +559,12 @@ struct FormationFollowerEnvelope
     unsigned char Flag10;        // +0x10 -- TODO: semantic name unproven
 };
 
-static_assert(offsetof(FormationFollowerEnvelope, Speed) == 0x00, "FormationFollowerEnvelope::Speed offset");
-static_assert(offsetof(FormationFollowerEnvelope, Throttle) == 0x04, "FormationFollowerEnvelope::Throttle offset");
-static_assert(offsetof(FormationFollowerEnvelope, AngularSpeed) == 0x08, "FormationFollowerEnvelope::AngularSpeed offset");
-static_assert(offsetof(FormationFollowerEnvelope, AngularThrottle) == 0x0c, "FormationFollowerEnvelope::AngularThrottle offset");
-static_assert(offsetof(FormationFollowerEnvelope, Flag10) == 0x10, "FormationFollowerEnvelope::Flag10 offset");
-static_assert(sizeof(FormationFollowerEnvelope) == 0x14, "FormationFollowerEnvelope is four floats plus a byte, 4-aligned");
+FL_LAYOUT_ASSERT(offsetof(FormationFollowerEnvelope, Speed) == 0x00, "FormationFollowerEnvelope::Speed offset");
+FL_LAYOUT_ASSERT(offsetof(FormationFollowerEnvelope, Throttle) == 0x04, "FormationFollowerEnvelope::Throttle offset");
+FL_LAYOUT_ASSERT(offsetof(FormationFollowerEnvelope, AngularSpeed) == 0x08, "FormationFollowerEnvelope::AngularSpeed offset");
+FL_LAYOUT_ASSERT(offsetof(FormationFollowerEnvelope, AngularThrottle) == 0x0c, "FormationFollowerEnvelope::AngularThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(FormationFollowerEnvelope, Flag10) == 0x10, "FormationFollowerEnvelope::Flag10 offset");
+FL_LAYOUT_ASSERT(sizeof(FormationFollowerEnvelope) == 0x14, "FormationFollowerEnvelope is four floats plus a byte, 4-aligned");
 
 // The envelope's producer, FUN_062ebf50 (item 1855), is
 // FGunConvergenceStateBlock::ComputeFormationFollowerEnvelope (common_systemmanager.h);

@@ -49,7 +49,7 @@ struct FPartMapEntry
     long EngineInstanceId;              // +0x04
     unsigned char bShieldPart;          // +0x08 (+0x09..+0x0b: alignment, no reader)
 };
-static_assert(sizeof(FPartMapEntry) == 0xc, "FPartMapEntry is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(FPartMapEntry) == 0xc, "FPartMapEntry is 0xc bytes");
 
 namespace Archetype
 {
@@ -153,12 +153,12 @@ private:
     void set_centered_radius(float NewRadius, Vector const& Center);
 };
 
-static_assert(sizeof(EngineObject) == 0x4c, "EngineObject sizeof 0x4c");
-static_assert(offsetof(EngineObject, EngineInstanceId) == 0x04, "EngineObject+0x04 instance");
-static_assert(offsetof(EngineObject, Orientation) == 0x08, "EngineObject+0x08 matrix");
-static_assert(offsetof(EngineObject, WorldPosition) == 0x2c, "EngineObject+0x2c position");
-static_assert(offsetof(EngineObject, Radius) == 0x38, "EngineObject+0x38 radius");
-static_assert(offsetof(EngineObject, Orientation) + sizeof(Matrix) ==
+FL_LAYOUT_ASSERT(sizeof(EngineObject) == 0x4c, "EngineObject sizeof 0x4c");
+FL_LAYOUT_ASSERT(offsetof(EngineObject, EngineInstanceId) == 0x04, "EngineObject+0x04 instance");
+FL_LAYOUT_ASSERT(offsetof(EngineObject, Orientation) == 0x08, "EngineObject+0x08 matrix");
+FL_LAYOUT_ASSERT(offsetof(EngineObject, WorldPosition) == 0x2c, "EngineObject+0x2c position");
+FL_LAYOUT_ASSERT(offsetof(EngineObject, Radius) == 0x38, "EngineObject+0x38 radius");
+FL_LAYOUT_ASSERT(offsetof(EngineObject, Orientation) + sizeof(Matrix) ==
                   offsetof(EngineObject, WorldPosition),
               "Orientation+WorldPosition overlay Transform");
 
@@ -432,19 +432,19 @@ public:
                                          // confirmed via Common.dll.c 40405-40505.
 };
 
-static_assert(sizeof(CObject) == 0x9c, "CObject sizeof 0x9c");
-static_assert(offsetof(CObject, ObjectClass) == 0x4c, "CObject+0x4c Class");
-static_assert(offsetof(CObject, PhysicsSystemId) == 0x50, "CObject+0x50 PhySys system id");
-static_assert(offsetof(CObject, BodyPtr) == 0x54, "CObject+0x54 IVP body");
-static_assert(offsetof(CObject, SurfaceManager) == 0x5c, "CObject+0x5c surface manager");
-static_assert(offsetof(CObject, GolemController) == 0x60, "CObject+0x60 golem force controller");
-static_assert(offsetof(CObject, PartMap) == 0x64, "CObject+0x64 part map vector");
-static_assert(offsetof(CObject, PhysicsControlMode) == 0x74, "CObject+0x74 physics control mode");
-static_assert(offsetof(CObject, Phantoms) == 0x78, "CObject+0x78 phantom list");
-static_assert(offsetof(CObject, CollisionStateMgr) == 0x84, "CObject+0x84 collision state manager");
-static_assert(offsetof(CObject, Archetype) == 0x88, "CObject+0x88 archetype");
-static_assert(offsetof(CObject, Advisors) == 0x8c, "CObject+0x8c advisor list");
-static_assert(offsetof(CObject, RefCount) == 0x98, "CObject+0x98 refcount");
+FL_LAYOUT_ASSERT(sizeof(CObject) == 0x9c, "CObject sizeof 0x9c");
+FL_LAYOUT_ASSERT(offsetof(CObject, ObjectClass) == 0x4c, "CObject+0x4c Class");
+FL_LAYOUT_ASSERT(offsetof(CObject, PhysicsSystemId) == 0x50, "CObject+0x50 PhySys system id");
+FL_LAYOUT_ASSERT(offsetof(CObject, BodyPtr) == 0x54, "CObject+0x54 IVP body");
+FL_LAYOUT_ASSERT(offsetof(CObject, SurfaceManager) == 0x5c, "CObject+0x5c surface manager");
+FL_LAYOUT_ASSERT(offsetof(CObject, GolemController) == 0x60, "CObject+0x60 golem force controller");
+FL_LAYOUT_ASSERT(offsetof(CObject, PartMap) == 0x64, "CObject+0x64 part map vector");
+FL_LAYOUT_ASSERT(offsetof(CObject, PhysicsControlMode) == 0x74, "CObject+0x74 physics control mode");
+FL_LAYOUT_ASSERT(offsetof(CObject, Phantoms) == 0x78, "CObject+0x78 phantom list");
+FL_LAYOUT_ASSERT(offsetof(CObject, CollisionStateMgr) == 0x84, "CObject+0x84 collision state manager");
+FL_LAYOUT_ASSERT(offsetof(CObject, Archetype) == 0x88, "CObject+0x88 archetype");
+FL_LAYOUT_ASSERT(offsetof(CObject, Advisors) == 0x8c, "CObject+0x8c advisor list");
+FL_LAYOUT_ASSERT(offsetof(CObject, RefCount) == 0x98, "CObject+0x98 refcount");
 
 // Listing operator_new(0x9c) Alloc(0x2001). CPhysAttachment::Connect gun mesh CObject.
 class COMMON_API CEquipmentObj : public CObject
@@ -460,7 +460,7 @@ public:
     CEquipmentObj& operator=(CEquipmentObj const&) = delete;
 };
 
-static_assert(sizeof(CEquipmentObj) == 0x9c, "CEquipmentObj sizeof 0x9c");
+FL_LAYOUT_ASSERT(sizeof(CEquipmentObj) == 0x9c, "CEquipmentObj sizeof 0x9c");
 
 struct COMMON_API CSimple : public CObject
 {
@@ -485,10 +485,10 @@ public:
         Vector AngularVelocity{0.0f, 0.0f, 0.0f}; // +0x4c init_physics
     };
 
-    static_assert(offsetof(CreateParms, Pos) == 0x10, "CSimple::CreateParms+0x10 pos");
-    static_assert(offsetof(CreateParms, Orient) == 0x1c, "CSimple::CreateParms+0x1c matrix");
-    static_assert(offsetof(CreateParms, Velocity) == 0x40, "CSimple::CreateParms+0x40 vel");
-    static_assert(sizeof(CreateParms) == 0x58, "CSimple::CreateParms through +0x4c Vector");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Pos) == 0x10, "CSimple::CreateParms+0x10 pos");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Orient) == 0x1c, "CSimple::CreateParms+0x1c matrix");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Velocity) == 0x40, "CSimple::CreateParms+0x40 vel");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x58, "CSimple::CreateParms through +0x4c Vector");
 
     // Default argument: CSimple::`default constructor closure' (.text:06281440) pushes 0x3.
     explicit CSimple(Class ObjectClass = ClassSimple);
@@ -601,16 +601,16 @@ public:
     unsigned TypeBits;          // +0xe0  arch ObjectType after open
 };
 
-static_assert(sizeof(CSimple) == 0xe4, "CSimple sizeof 0xe4");
-static_assert(offsetof(CSimple, SelfWatchable) == 0x9c, "CSimple+0x9c self-watchable");
-static_assert(offsetof(CSimple, ObjectDb) == 0xac, "CSimple+0xac IObjDB");
-static_assert(offsetof(CSimple, Id) == 0xb0, "CSimple+0xb0 id");
-static_assert(offsetof(CSimple, OwnerPlayer) == 0xb4, "CSimple+0xb4 owner");
-static_assert(offsetof(CSimple, HitPts) == 0xb8, "CSimple+0xb8 hit_pts");
-static_assert(offsetof(CSimple, AttachedDamageObjs) == 0xbc, "CSimple+0xbc attached damage-object set");
-static_assert(offsetof(CSimple, CachedCenterOfMass) == 0xd0, "CSimple+0xd0 cached center of mass");
-static_assert(offsetof(CSimple, CachedRadius) == 0xdc, "CSimple+0xdc cached radius");
-static_assert(offsetof(CSimple, TypeBits) == 0xe0, "CSimple+0xe0 type bits");
+FL_LAYOUT_ASSERT(sizeof(CSimple) == 0xe4, "CSimple sizeof 0xe4");
+FL_LAYOUT_ASSERT(offsetof(CSimple, SelfWatchable) == 0x9c, "CSimple+0x9c self-watchable");
+FL_LAYOUT_ASSERT(offsetof(CSimple, ObjectDb) == 0xac, "CSimple+0xac IObjDB");
+FL_LAYOUT_ASSERT(offsetof(CSimple, Id) == 0xb0, "CSimple+0xb0 id");
+FL_LAYOUT_ASSERT(offsetof(CSimple, OwnerPlayer) == 0xb4, "CSimple+0xb4 owner");
+FL_LAYOUT_ASSERT(offsetof(CSimple, HitPts) == 0xb8, "CSimple+0xb8 hit_pts");
+FL_LAYOUT_ASSERT(offsetof(CSimple, AttachedDamageObjs) == 0xbc, "CSimple+0xbc attached damage-object set");
+FL_LAYOUT_ASSERT(offsetof(CSimple, CachedCenterOfMass) == 0xd0, "CSimple+0xd0 cached center of mass");
+FL_LAYOUT_ASSERT(offsetof(CSimple, CachedRadius) == 0xdc, "CSimple+0xdc cached radius");
+FL_LAYOUT_ASSERT(offsetof(CSimple, TypeBits) == 0xe0, "CSimple+0xe0 type bits");
 
 // Listing Heap DAT_063fc3e0 size 0x104 / DAT_063fc3f0 size 0x120.
 // CProjectile 0xf0: CSimple + owner +0xe4 / lifetime +0xe8 / owner_safe +0xec.
@@ -623,8 +623,8 @@ public:
         unsigned OwnerId = 0; // +0x5c → this+0xe4
     };
 
-    static_assert(offsetof(CreateParms, OwnerId) == 0x5c, "CProjectile::CreateParms+0x5c owner");
-    static_assert(sizeof(CreateParms) == 0x60, "CProjectile::CreateParms sizeof 0x60");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, OwnerId) == 0x5c, "CProjectile::CreateParms+0x5c owner");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x60, "CProjectile::CreateParms sizeof 0x60");
 
     explicit CProjectile(Class ObjectClass);
     virtual ~CProjectile();
@@ -650,10 +650,10 @@ public:
     float OwnerSafeTime;     // +0xec  arch Projectile+0x74
 };
 
-static_assert(sizeof(CProjectile) == 0xf0, "CProjectile sizeof 0xf0");
-static_assert(offsetof(CProjectile, OwnerId) == 0xe4, "CProjectile+0xe4 owner");
-static_assert(offsetof(CProjectile, Lifetime) == 0xe8, "CProjectile+0xe8 lifetime");
-static_assert(offsetof(CProjectile, OwnerSafeTime) == 0xec, "CProjectile+0xec owner_safe");
+FL_LAYOUT_ASSERT(sizeof(CProjectile) == 0xf0, "CProjectile sizeof 0xf0");
+FL_LAYOUT_ASSERT(offsetof(CProjectile, OwnerId) == 0xe4, "CProjectile+0xe4 owner");
+FL_LAYOUT_ASSERT(offsetof(CProjectile, Lifetime) == 0xe8, "CProjectile+0xe8 lifetime");
+FL_LAYOUT_ASSERT(offsetof(CProjectile, OwnerSafeTime) == 0xec, "CProjectile+0xec owner_safe");
 
 // CMunition: the interposing layer between CProjectile and the guided/beam weapons.
 // Retail exports exactly five CMunition symbols and nothing else:
@@ -699,7 +699,7 @@ public:
     Archetype::Munition const* munitionarch() const;
 };
 
-static_assert(sizeof(CMunition) == 0xf0, "CMunition sizeof 0xf0 (adds no field to CProjectile)");
+FL_LAYOUT_ASSERT(sizeof(CMunition) == 0xf0, "CMunition sizeof 0xf0 (adds no field to CProjectile)");
 
 // Listing Alloc(0xa7) Heap 0x104. CMunition vtable then CGuided fields.
 struct COMMON_API CGuided : public CMunition
@@ -716,9 +716,9 @@ public:
         unsigned short SubTarget = 0;       // +0x64 (+0x66: padding; the ctor 062865e0 leaves it)
     };
 
-    static_assert(offsetof(CreateParms, Target) == 0x60, "CGuided::CreateParms+0x60 target");
-    static_assert(offsetof(CreateParms, SubTarget) == 0x64, "CGuided::CreateParms+0x64 sub");
-    static_assert(sizeof(CreateParms) == 0x68, "CGuided::CreateParms sizeof 0x68");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Target) == 0x60, "CGuided::CreateParms+0x60 target");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, SubTarget) == 0x64, "CGuided::CreateParms+0x64 sub");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x68, "CGuided::CreateParms sizeof 0x68");
 
     // Default argument: CGuided::`default constructor closure' (.text:06286820) pushes 0xa7.
     explicit CGuided(Class ObjectClass = ClassGuided);
@@ -755,11 +755,11 @@ public:
     float SeekerElapsed;                      // +0x100
 };
 
-static_assert(sizeof(CGuided) == 0x104, "CGuided sizeof 0x104");
-static_assert(offsetof(CGuided, TargetWatch) == 0xf0, "CGuided+0xf0 watcher");
-static_assert(offsetof(CGuided, SubTarget) == 0xf8, "CGuided+0xf8 sub_target");
-static_assert(offsetof(CGuided, MotorArch) == 0xfc, "CGuided+0xfc motor");
-static_assert(offsetof(CGuided, SeekerElapsed) == 0x100, "CGuided+0x100 elapsed");
+FL_LAYOUT_ASSERT(sizeof(CGuided) == 0x104, "CGuided sizeof 0x104");
+FL_LAYOUT_ASSERT(offsetof(CGuided, TargetWatch) == 0xf0, "CGuided+0xf0 watcher");
+FL_LAYOUT_ASSERT(offsetof(CGuided, SubTarget) == 0xf8, "CGuided+0xf8 sub_target");
+FL_LAYOUT_ASSERT(offsetof(CGuided, MotorArch) == 0xfc, "CGuided+0xfc motor");
+FL_LAYOUT_ASSERT(offsetof(CGuided, SeekerElapsed) == 0x100, "CGuided+0x100 elapsed");
 
 // Listing Alloc(0x67) Heap 0x120. CMunition then colgroup / vel / trail.
 // CBeam::CBeam(CBeam const&) at 0x06286b?? stamps CSimple's vptr, copies +0xe4/+0xe8/+0xec,
@@ -799,12 +799,12 @@ public:
     unsigned char bMoved;    // +0x11c (+0x11d..+0x11f: alignment)
 };
 
-static_assert(sizeof(CBeam) == 0x120, "CBeam sizeof 0x120");
-static_assert(offsetof(CBeam, CollisionGroup) == 0xf0, "CBeam+0xf0 colgroup");
-static_assert(offsetof(CBeam, Velocity) == 0xf8, "CBeam+0xf8 velocity");
-static_assert(offsetof(CBeam, OriginPos) == 0x104, "CBeam+0x104 origin");
-static_assert(offsetof(CBeam, LastPos) == 0x110, "CBeam+0x110 last pos");
-static_assert(offsetof(CBeam, bMoved) == 0x11c, "CBeam+0x11c moved");
+FL_LAYOUT_ASSERT(sizeof(CBeam) == 0x120, "CBeam sizeof 0x120");
+FL_LAYOUT_ASSERT(offsetof(CBeam, CollisionGroup) == 0xf0, "CBeam+0xf0 colgroup");
+FL_LAYOUT_ASSERT(offsetof(CBeam, Velocity) == 0xf8, "CBeam+0xf8 velocity");
+FL_LAYOUT_ASSERT(offsetof(CBeam, OriginPos) == 0x104, "CBeam+0x104 origin");
+FL_LAYOUT_ASSERT(offsetof(CBeam, LastPos) == 0x110, "CBeam+0x110 last pos");
+FL_LAYOUT_ASSERT(offsetof(CBeam, bMoved) == 0x11c, "CBeam+0x11c moved");
 
 // CMine: projectile subclass for space mines. Heap size 0xf0 (same as CProjectile).
 // Derives from CProjectile directly, NOT from CMunition: CMine's RTTI base array at
@@ -834,7 +834,7 @@ protected:
     virtual void expire_safe_time();
 };
 
-static_assert(sizeof(CMine) == 0xf0, "CMine sizeof 0xf0 (inherits CProjectile)");
+FL_LAYOUT_ASSERT(sizeof(CMine) == 0xf0, "CMine sizeof 0xf0 (inherits CProjectile)");
 
 // CCounterMeasure: projectile subclass for countermeasures (chaff/flares).
 // Like CMine, derives from CProjectile directly: RTTI base array 0x063a8124 (COL 0x063a8154,
@@ -866,7 +866,7 @@ protected:
     virtual void expire_safe_time();
 };
 
-static_assert(sizeof(CCounterMeasure) == 0xf0, "CCounterMeasure sizeof 0xf0");
+FL_LAYOUT_ASSERT(sizeof(CCounterMeasure) == 0xf0, "CCounterMeasure sizeof 0xf0");
 
 // CLoot: cargo container dropped by destroyed ships/solars.
 // CLoot::init 0x4c460 / CLoot::CLoot 0x4c400 / CLoot::update 0x4c680.
@@ -887,14 +887,14 @@ public:
         bool bTemporary;     // +0x71 → this+0xfd (+0x72/+0x73: alignment)
     };
 
-    static_assert(offsetof(CreateParms, OwnerId) == 0x5c, "CLoot::CreateParms+0x5c owner");
-    static_assert(offsetof(CreateParms, NameId) == 0x60, "CLoot::CreateParms+0x60 name id");
-    static_assert(offsetof(CreateParms, ContentsArch) == 0x64, "CLoot::CreateParms+0x64 contents arch ptr");
-    static_assert(offsetof(CreateParms, Units) == 0x68, "CLoot::CreateParms+0x68 units");
-    static_assert(offsetof(CreateParms, ContentsHitPts) == 0x6c, "CLoot::CreateParms+0x6c hp");
-    static_assert(offsetof(CreateParms, bCanAiTractor) == 0x70, "CLoot::CreateParms+0x70 can_ai_tractor");
-    static_assert(offsetof(CreateParms, bTemporary) == 0x71, "CLoot::CreateParms+0x71 temp flag");
-    static_assert(sizeof(CreateParms) == 0x74, "CLoot::CreateParms sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, OwnerId) == 0x5c, "CLoot::CreateParms+0x5c owner");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, NameId) == 0x60, "CLoot::CreateParms+0x60 name id");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, ContentsArch) == 0x64, "CLoot::CreateParms+0x64 contents arch ptr");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Units) == 0x68, "CLoot::CreateParms+0x68 units");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, ContentsHitPts) == 0x6c, "CLoot::CreateParms+0x6c hp");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bCanAiTractor) == 0x70, "CLoot::CreateParms+0x70 can_ai_tractor");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bTemporary) == 0x71, "CLoot::CreateParms+0x71 temp flag");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x74, "CLoot::CreateParms sizeof 0x74");
 
     // Default argument: CLoot::`default constructor closure' (.text:0629d7f0) pushes 0x803.
     explicit CLoot(Class ObjectClass = ClassLoot);
@@ -938,16 +938,16 @@ public:
     unsigned Reserved100;         // +0x100  zeroed/copied by retail ctor/copy-ctor; not read anywhere in this module
 };
 
-static_assert(sizeof(CLoot) == 0x104, "CLoot sizeof 0x104 (retail operator_new(0x104) before CLoot::CLoot)");
-static_assert(offsetof(CLoot, OwnerId) == 0xe4, "CLoot+0xe4 owner");
-static_assert(offsetof(CLoot, NameId) == 0xe8, "CLoot+0xe8 name id");
-static_assert(offsetof(CLoot, ContentsArch) == 0xec, "CLoot+0xec contents arch ptr");
-static_assert(offsetof(CLoot, Units) == 0xf0, "CLoot+0xf0 units");
-static_assert(offsetof(CLoot, ContentsHitPts) == 0xf4, "CLoot+0xf4 hp");
-static_assert(offsetof(CLoot, OwnerSafeTime) == 0xf8, "CLoot+0xf8 owner safe time");
-static_assert(offsetof(CLoot, bCanAiTractor) == 0xfc, "CLoot+0xfc can_ai_tractor");
-static_assert(offsetof(CLoot, bTemporary) == 0xfd, "CLoot+0xfd temp flag");
-static_assert(offsetof(CLoot, Reserved100) == 0x100, "CLoot+0x100 reserved");
+FL_LAYOUT_ASSERT(sizeof(CLoot) == 0x104, "CLoot sizeof 0x104 (retail operator_new(0x104) before CLoot::CLoot)");
+FL_LAYOUT_ASSERT(offsetof(CLoot, OwnerId) == 0xe4, "CLoot+0xe4 owner");
+FL_LAYOUT_ASSERT(offsetof(CLoot, NameId) == 0xe8, "CLoot+0xe8 name id");
+FL_LAYOUT_ASSERT(offsetof(CLoot, ContentsArch) == 0xec, "CLoot+0xec contents arch ptr");
+FL_LAYOUT_ASSERT(offsetof(CLoot, Units) == 0xf0, "CLoot+0xf0 units");
+FL_LAYOUT_ASSERT(offsetof(CLoot, ContentsHitPts) == 0xf4, "CLoot+0xf4 hp");
+FL_LAYOUT_ASSERT(offsetof(CLoot, OwnerSafeTime) == 0xf8, "CLoot+0xf8 owner safe time");
+FL_LAYOUT_ASSERT(offsetof(CLoot, bCanAiTractor) == 0xfc, "CLoot+0xfc can_ai_tractor");
+FL_LAYOUT_ASSERT(offsetof(CLoot, bTemporary) == 0xfd, "CLoot+0xfd temp flag");
+FL_LAYOUT_ASSERT(offsetof(CLoot, Reserved100) == 0x100, "CLoot+0x100 reserved");
 
 // CmnAsteroid::CAsteroidField is a distinct, non-CObject subsystem (common_casteroid.h).
 // CAsteroid only ever stores a back-pointer to it, so a forward declaration is enough here.
@@ -991,12 +991,12 @@ public:
         CmnAsteroid::CAsteroidField const* OwnerField; // +0x68 -> this+0xf8 (get_owner_field)
     };
 
-    static_assert(offsetof(CreateParms, AsteroidId) == 0x5c, "CAsteroid::CreateParms+0x5c id");
-    static_assert(offsetof(CreateParms, CubeId) == 0x60, "CAsteroid::CreateParms+0x60 cube id");
-    static_assert(offsetof(CreateParms, bMine) == 0x64, "CAsteroid::CreateParms+0x64 mine");
-    static_assert(offsetof(CreateParms, bInstantKill) == 0x65, "CAsteroid::CreateParms+0x65");
-    static_assert(offsetof(CreateParms, OwnerField) == 0x68, "CAsteroid::CreateParms+0x68 field");
-    static_assert(sizeof(CreateParms) == 0x6c, "CAsteroid::CreateParms sizeof 0x6c");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, AsteroidId) == 0x5c, "CAsteroid::CreateParms+0x5c id");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, CubeId) == 0x60, "CAsteroid::CreateParms+0x60 cube id");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bMine) == 0x64, "CAsteroid::CreateParms+0x64 mine");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bInstantKill) == 0x65, "CAsteroid::CreateParms+0x65");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, OwnerField) == 0x68, "CAsteroid::CreateParms+0x68 field");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x6c, "CAsteroid::CreateParms sizeof 0x6c");
 
     CAsteroid();
     CAsteroid(CAsteroid const& Other);
@@ -1047,13 +1047,13 @@ public:
     CmnAsteroid::CAsteroidField const* OwnerField;  // +0xf8
 };
 
-static_assert(sizeof(CAsteroid) == 0xfc, "CAsteroid sizeof 0xfc (operator_new(0xfc), Alloc case 0x1003)");
-static_assert(offsetof(CAsteroid, AsteroidId) == 0xe8, "CAsteroid+0xe8 id");
-static_assert(offsetof(CAsteroid, CubeId) == 0xec, "CAsteroid+0xec cube id");
-static_assert(offsetof(CAsteroid, bMine) == 0xf0, "CAsteroid+0xf0 mine");
-static_assert(offsetof(CAsteroid, bInstantKill) == 0xf1, "CAsteroid+0xf1 instant_kill");
-static_assert(offsetof(CAsteroid, CollisionGroupId) == 0xf4, "CAsteroid+0xf4 collision group");
-static_assert(offsetof(CAsteroid, OwnerField) == 0xf8, "CAsteroid+0xf8 owner field");
+FL_LAYOUT_ASSERT(sizeof(CAsteroid) == 0xfc, "CAsteroid sizeof 0xfc (operator_new(0xfc), Alloc case 0x1003)");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, AsteroidId) == 0xe8, "CAsteroid+0xe8 id");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, CubeId) == 0xec, "CAsteroid+0xec cube id");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, bMine) == 0xf0, "CAsteroid+0xf0 mine");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, bInstantKill) == 0xf1, "CAsteroid+0xf1 instant_kill");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, CollisionGroupId) == 0xf4, "CAsteroid+0xf4 collision group");
+FL_LAYOUT_ASSERT(offsetof(CAsteroid, OwnerField) == 0xf8, "CAsteroid+0xf8 owner field");
 
 // CDynamicAsteroid: animated/scripted asteroid-like scenery (ObjectClass 0x4001). Despite
 // the name, this is a direct CObject subclass -- see the block comment on CAsteroid above
@@ -1072,9 +1072,9 @@ public:
         Vector AngularVelocity;     // +0x10
     };
 
-    static_assert(offsetof(CreateParms, Velocity) == 0x04, "CDynamicAsteroid::CreateParms+0x4");
-    static_assert(offsetof(CreateParms, AngularVelocity) == 0x10, "CDynamicAsteroid::CreateParms+0x10");
-    static_assert(sizeof(CreateParms) == 0x1c, "CDynamicAsteroid::CreateParms sizeof 0x1c");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Velocity) == 0x04, "CDynamicAsteroid::CreateParms+0x4");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, AngularVelocity) == 0x10, "CDynamicAsteroid::CreateParms+0x10");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x1c, "CDynamicAsteroid::CreateParms sizeof 0x1c");
 
     CDynamicAsteroid();
     CDynamicAsteroid(CDynamicAsteroid const& Other);
@@ -1100,7 +1100,7 @@ public:
     virtual int update(float Dt, unsigned Flags);
 };
 
-static_assert(sizeof(CDynamicAsteroid) == 0x9c, "CDynamicAsteroid sizeof 0x9c (== sizeof(CObject), no added fields)");
+FL_LAYOUT_ASSERT(sizeof(CDynamicAsteroid) == 0x9c, "CDynamicAsteroid sizeof 0x9c (== sizeof(CObject), no added fields)");
 
 // CDeadReckonedVector: network dead reckoning for position interpolation.
 //
@@ -1236,22 +1236,22 @@ public:
     double MaxCorrectiveTime;     // +0xc8 cap on ConvergeWindow in the degenerate/reversal fallback path; default 0.25
 };
 
-static_assert(sizeof(CDeadReckonedVector) == 0xd0, "CDeadReckonedVector sizeof 0xd0");
-static_assert(offsetof(CDeadReckonedVector, Samples) == 0x08, "CDeadReckonedVector+0x08 samples");
-static_assert(offsetof(CDeadReckonedVector, Timestamps) == 0x30, "CDeadReckonedVector+0x30 timestamps");
-static_assert(offsetof(CDeadReckonedVector, BasePosition) == 0x48, "CDeadReckonedVector+0x48 base pos");
-static_assert(offsetof(CDeadReckonedVector, BlendBasePosition) == 0x54, "CDeadReckonedVector+0x54 blend base pos");
-static_assert(offsetof(CDeadReckonedVector, ProjectedPosition) == 0x60, "CDeadReckonedVector+0x60 projected pos");
-static_assert(offsetof(CDeadReckonedVector, TrackedPosition) == 0x6c, "CDeadReckonedVector+0x6c tracked pos");
-static_assert(offsetof(CDeadReckonedVector, Velocity) == 0x78, "CDeadReckonedVector+0x78 velocity");
-static_assert(offsetof(CDeadReckonedVector, Velocity2) == 0x84, "CDeadReckonedVector+0x84 velocity2");
-static_assert(offsetof(CDeadReckonedVector, ConvergedVelocity) == 0x90, "CDeadReckonedVector+0x90 converged velocity");
-static_assert(offsetof(CDeadReckonedVector, Acceleration) == 0x9c, "CDeadReckonedVector+0x9c accel");
-static_assert(offsetof(CDeadReckonedVector, Acceleration2) == 0xa8, "CDeadReckonedVector+0xa8 accel2");
-static_assert(offsetof(CDeadReckonedVector, SampleCount) == 0xb4, "CDeadReckonedVector+0xb4 sample count");
-static_assert(offsetof(CDeadReckonedVector, ConvergeWindow) == 0xb8, "CDeadReckonedVector+0xb8 converge window");
-static_assert(offsetof(CDeadReckonedVector, ElapsedTime) == 0xc0, "CDeadReckonedVector+0xc0 elapsed time");
-static_assert(offsetof(CDeadReckonedVector, MaxCorrectiveTime) == 0xc8, "CDeadReckonedVector+0xc8 max corrective time");
+FL_LAYOUT_ASSERT(sizeof(CDeadReckonedVector) == 0xd0, "CDeadReckonedVector sizeof 0xd0");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Samples) == 0x08, "CDeadReckonedVector+0x08 samples");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Timestamps) == 0x30, "CDeadReckonedVector+0x30 timestamps");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, BasePosition) == 0x48, "CDeadReckonedVector+0x48 base pos");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, BlendBasePosition) == 0x54, "CDeadReckonedVector+0x54 blend base pos");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, ProjectedPosition) == 0x60, "CDeadReckonedVector+0x60 projected pos");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, TrackedPosition) == 0x6c, "CDeadReckonedVector+0x6c tracked pos");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Velocity) == 0x78, "CDeadReckonedVector+0x78 velocity");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Velocity2) == 0x84, "CDeadReckonedVector+0x84 velocity2");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, ConvergedVelocity) == 0x90, "CDeadReckonedVector+0x90 converged velocity");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Acceleration) == 0x9c, "CDeadReckonedVector+0x9c accel");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, Acceleration2) == 0xa8, "CDeadReckonedVector+0xa8 accel2");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, SampleCount) == 0xb4, "CDeadReckonedVector+0xb4 sample count");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, ConvergeWindow) == 0xb8, "CDeadReckonedVector+0xb8 converge window");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, ElapsedTime) == 0xc0, "CDeadReckonedVector+0xc0 elapsed time");
+FL_LAYOUT_ASSERT(offsetof(CDeadReckonedVector, MaxCorrectiveTime) == 0xc8, "CDeadReckonedVector+0xc8 max corrective time");
 
 // SubObjectID (the three id makers and the id classifiers) MOVED 2026-09-24 to
 // common_archetype.h, next to CollisionGroupDesc and for the same reason: PlayerData
@@ -1388,13 +1388,13 @@ public:
     mutable Vector BoundCenter;                 // +0x28 .. +0x33
 };
 
-static_assert(sizeof(CArchGroup) == 0x34, "CArchGroup sizeof 0x34");
-static_assert(offsetof(CArchGroup, Arch) == 0x04, "CArchGroup+0x04 CollisionGroup*");
-static_assert(offsetof(CArchGroup, HitPts) == 0x0c, "CArchGroup+0x0c hit_pts");
-static_assert(offsetof(CArchGroup, State) == 0x14, "CArchGroup+0x14 state");
-static_assert(offsetof(CArchGroup, bBoundsValid) == 0x20, "CArchGroup+0x20 bounds-cache valid flag");
-static_assert(offsetof(CArchGroup, BoundRadius) == 0x24, "CArchGroup+0x24 cached bound radius");
-static_assert(offsetof(CArchGroup, BoundCenter) == 0x28, "CArchGroup+0x28 cached bound center");
+FL_LAYOUT_ASSERT(sizeof(CArchGroup) == 0x34, "CArchGroup sizeof 0x34");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, Arch) == 0x04, "CArchGroup+0x04 CollisionGroup*");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, HitPts) == 0x0c, "CArchGroup+0x0c hit_pts");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, State) == 0x14, "CArchGroup+0x14 state");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, bBoundsValid) == 0x20, "CArchGroup+0x20 bounds-cache valid flag");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, BoundRadius) == 0x24, "CArchGroup+0x24 cached bound radius");
+FL_LAYOUT_ASSERT(offsetof(CArchGroup, BoundCenter) == 0x28, "CArchGroup+0x28 cached bound center");
 
 // Stateful cursor for CArchGroupManager::Traverse(): an "at start" flag (+0x00) plus the
 // current position (+0x04, retail a VC6 _Tree node pointer advanced by _Tree::_Inc
@@ -1499,10 +1499,10 @@ public:
     unsigned Count;                                     // +0x14 the map's size
 };
 
-static_assert(sizeof(CArchGroupManager) == 0x18, "CArchGroupManager sizeof 0x18");
-static_assert(offsetof(CArchGroupManager, Groups) == 0x08, "CArchGroupManager+0x08 map");
-static_assert(offsetof(CArchGroupManager, bTreeMulti) == 0x10, "CArchGroupManager+0x10 _Multi");
-static_assert(offsetof(CArchGroupManager, Count) == 0x14, "CArchGroupManager+0x14 size");
+FL_LAYOUT_ASSERT(sizeof(CArchGroupManager) == 0x18, "CArchGroupManager sizeof 0x18");
+FL_LAYOUT_ASSERT(offsetof(CArchGroupManager, Groups) == 0x08, "CArchGroupManager+0x08 map");
+FL_LAYOUT_ASSERT(offsetof(CArchGroupManager, bTreeMulti) == 0x10, "CArchGroupManager+0x10 _Multi");
+FL_LAYOUT_ASSERT(offsetof(CArchGroupManager, Count) == 0x14, "CArchGroupManager+0x14 size");
 
 // Return type of CEqObj::activate (Common.dll.c 78735-78751, ?activate@CEqObj@@UAE?AW4...).
 // Retail never names these values; the names are ours. The numbers come from the success path
@@ -1562,12 +1562,12 @@ public:
         // base's +0xac list and +0x9c vector (FUN_06d0a080 is the base part alone).
     };
 
-    static_assert(offsetof(CreateParms, DockingCount) == 0x5c, "CEqObj::CreateParms+0x5c");
-    static_assert(offsetof(CreateParms, VibeId) == 0x60, "CEqObj::CreateParms+0x60");
-    static_assert(offsetof(CreateParms, SpaceCostume) == 0x64, "CEqObj::CreateParms+0x64 costume");
-    static_assert(offsetof(CreateParms, VoiceId) == 0x98, "CEqObj::CreateParms+0x98 voice");
-    static_assert(offsetof(CreateParms, Equipment) == 0x9c, "CEqObj::CreateParms+0x9c EquipDescVector");
-    static_assert(offsetof(CreateParms, ArchGroupDescs) == 0xac, "CEqObj::CreateParms+0xac CollisionGroupDesc");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, DockingCount) == 0x5c, "CEqObj::CreateParms+0x5c");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, VibeId) == 0x60, "CEqObj::CreateParms+0x60");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, SpaceCostume) == 0x64, "CEqObj::CreateParms+0x64 costume");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, VoiceId) == 0x98, "CEqObj::CreateParms+0x98 voice");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Equipment) == 0x9c, "CEqObj::CreateParms+0x9c EquipDescVector");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, ArchGroupDescs) == 0xac, "CEqObj::CreateParms+0xac CollisionGroupDesc");
 
 protected:
     // Retail: ??0CEqObj@@IAE@W4Class@CObject@@@Z (I = protected).
@@ -1844,23 +1844,23 @@ public:
     int BehaviorIndex;            // +0x1a0  -1; the behaviour index set by the behaviour manager (062d35a9), read when no manager is attached  // formerly Field1a0
 };
 
-static_assert(sizeof(CEqObj) == 0x1a4, "CEqObj sizeof 0x1a4: CShip's Controller starts there");
-static_assert(offsetof(CEqObj, EquipManager) == 0xe4, "CEqObj+0xe4 CEquipManager");
-static_assert(offsetof(CEqObj, VibeId) == 0x104, "CEqObj+0x104 vibe");
-static_assert(offsetof(CEqObj, SpaceCostume) == 0x108, "CEqObj+0x108 space costume");
-static_assert(offsetof(CEqObj, VoiceId) == 0x13c, "CEqObj+0x13c voice id");
-static_assert(offsetof(CEqObj, CloakPercent) == 0x140, "CEqObj+0x140 cloak percent");
-static_assert(offsetof(CEqObj, ArchGroups) == 0x144, "CEqObj+0x144 CArchGroupManager");
-static_assert(offsetof(CEqObj, bWeaponsOffline) == 0x15c, "CEqObj+0x15c IsDisabled gate");
-static_assert(offsetof(CEqObj, DockingBaseId) == 0x160, "CEqObj+0x160");
-static_assert(offsetof(CEqObj, bExplosionDmgCached) == 0x16c, "CEqObj+0x16c explosion dmg cache flag");
-static_assert(offsetof(CEqObj, ExplosionDmgRadius) == 0x170, "CEqObj+0x170 explosion dmg radius");
-static_assert(offsetof(CEqObj, ExplosionDmgCenter) == 0x174, "CEqObj+0x174 explosion dmg center");
-static_assert(offsetof(CEqObj, ControlExclusion) == 0x190, "CEqObj+0x190 control exclusion flags");
-static_assert(offsetof(CEqObj, BehaviorMgr) == 0x194, "CEqObj+0x194 BehaviorMgr");
-static_assert(offsetof(CEqObj, Power) == 0x198, "CEqObj+0x198 power");
-static_assert(offsetof(CEqObj, MaxPower) == 0x19c, "CEqObj+0x19c max power");
-static_assert(offsetof(CEqObj, BehaviorIndex) == 0x1a0, "CEqObj+0x1a0 behaviour index");
+FL_LAYOUT_ASSERT(sizeof(CEqObj) == 0x1a4, "CEqObj sizeof 0x1a4: CShip's Controller starts there");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, EquipManager) == 0xe4, "CEqObj+0xe4 CEquipManager");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, VibeId) == 0x104, "CEqObj+0x104 vibe");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, SpaceCostume) == 0x108, "CEqObj+0x108 space costume");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, VoiceId) == 0x13c, "CEqObj+0x13c voice id");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, CloakPercent) == 0x140, "CEqObj+0x140 cloak percent");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, ArchGroups) == 0x144, "CEqObj+0x144 CArchGroupManager");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, bWeaponsOffline) == 0x15c, "CEqObj+0x15c IsDisabled gate");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, DockingBaseId) == 0x160, "CEqObj+0x160");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, bExplosionDmgCached) == 0x16c, "CEqObj+0x16c explosion dmg cache flag");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, ExplosionDmgRadius) == 0x170, "CEqObj+0x170 explosion dmg radius");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, ExplosionDmgCenter) == 0x174, "CEqObj+0x174 explosion dmg center");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, ControlExclusion) == 0x190, "CEqObj+0x190 control exclusion flags");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, BehaviorMgr) == 0x194, "CEqObj+0x194 BehaviorMgr");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, Power) == 0x198, "CEqObj+0x198 power");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, MaxPower) == 0x19c, "CEqObj+0x19c max power");
+FL_LAYOUT_ASSERT(offsetof(CEqObj, BehaviorIndex) == 0x1a0, "CEqObj+0x1a0 behaviour index");
 
 // CShip::get_gun_stats return structure. From disasm at 0x514f0/0x514b0/0x51290.
 // Retail builds this by traversing EquipTypeGun equips and, per gun, reading its
@@ -1909,7 +1909,7 @@ struct COMMON_API ShipGunStats
     }
 };
 
-static_assert(sizeof(ShipGunStats) == 0x14, "ShipGunStats sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(ShipGunStats) == 0x14, "ShipGunStats sizeof 0x14");
 
 // Retail's typed watcher: a BaseWatcher with no data and no vtable of its own whose Watched
 // points at the Watchable that sits WatchableOffset bytes into a T. Its copy constructor
@@ -1969,7 +1969,7 @@ struct TWatcher : public BaseWatcher
 using FObjRWWatcher = TWatcher<IObjRW, 0x08>;
 using FSimpleWatcher = TWatcher<CSimple, 0x9c>;
 
-static_assert(sizeof(FObjRWWatcher) == 0x08, "TWatcher adds no data to BaseWatcher");
+FL_LAYOUT_ASSERT(sizeof(FObjRWWatcher) == 0x08, "TWatcher adds no data to BaseWatcher");
 
 // FAnimScriptRef (CShip +0x22c BayAnim, CSolar +0x1c0 / +0x1cc) is declared in common_cequip.h,
 // next to its third owner CEInternalFX.
@@ -2303,34 +2303,34 @@ public:
     mutable ShipGunStats GunStats;    // +0x2c8
 };
 
-static_assert(offsetof(CShip, GroupId) == 0x1b4, "CShip GroupId +0x1b4");
-static_assert(offsetof(CShip, FormationLeader) == 0x1b8, "CShip+0x1b8 formation leader");
-static_assert(offsetof(CShip, FormationOffset) == 0x1c0, "CShip+0x1c0 formation offset");
-static_assert(offsetof(CShip, FormationSpeed) == 0x1cc, "CShip+0x1cc formation speed");
-static_assert(offsetof(CShip, FormationFollowers) == 0x1d0, "CShip+0x1d0 formation followers");
-static_assert(offsetof(CShip, FollowLeader) == 0x1e0, "CShip+0x1e0 follow leader");
-static_assert(offsetof(CShip, FollowFollowers) == 0x1f4, "CShip+0x1f4 follow followers");
-static_assert(offsetof(CShip, Targeters) == 0x204, "CShip+0x204 targeters");
-static_assert(offsetof(CShip, bJumpedOut) == 0x214, "CShip+0x214 jumped-out flag");
-static_assert(offsetof(CShip, AtmosphereSolar) == 0x218, "CShip+0x218 atmosphere solar");
-static_assert(offsetof(CShip, GroupNameId) == 0x21c, "CShip+0x21c");
-static_assert(offsetof(CShip, Target) == 0x220, "CShip+0x220 target");
-static_assert(offsetof(CShip, SubTargetIndex) == 0x228, "CShip+0x228 sub target");
-static_assert(offsetof(CShip, BayAnim) == 0x22c, "CShip+0x22c anim");
-static_assert(offsetof(CShip, Steering) == 0x230, "CShip+0x230 Steering");
-static_assert(offsetof(CShip, NudgeEngine) == 0x258, "CShip+0x258 NudgeEngine");
-static_assert(offsetof(CShip, StrafeEngine) == 0x280, "CShip+0x280 StrafeEngine");
-static_assert(offsetof(CShip, Throttle) == 0x29c, "CShip+0x29c Throttle");
-static_assert(offsetof(CShip, ThrustPower) == 0x2a0, "CShip+0x2a0");
-static_assert(offsetof(CShip, MaxThrustPower) == 0x2a4, "CShip+0x2a4");
-static_assert(offsetof(CShip, Actions) == 0x2b0, "CShip+0x2b0 Actions");
-static_assert(offsetof(CShip, TradelaneSpeed) == 0x2b8, "CShip+0x2b8 TradelaneSpeed");
-static_assert(offsetof(CShip, bUsingTradelane) == 0x2bc, "CShip+0x2bc");
-static_assert(offsetof(CShip, bIsPlayer) == 0x2bd, "CShip+0x2bd player flag");
-static_assert(offsetof(CShip, AngularDragFactor) == 0x2c0, "CShip+0x2c0 angular drag factor");
-static_assert(offsetof(CShip, GunStatsDirty) == 0x2c4, "CShip+0x2c4 GunStatsDirty");
-static_assert(offsetof(CShip, GunStats) == 0x2c8, "CShip+0x2c8 GunStats");
-static_assert(sizeof(CShip) == 0x2dc, "CShip sizeof 0x2dc");
+FL_LAYOUT_ASSERT(offsetof(CShip, GroupId) == 0x1b4, "CShip GroupId +0x1b4");
+FL_LAYOUT_ASSERT(offsetof(CShip, FormationLeader) == 0x1b8, "CShip+0x1b8 formation leader");
+FL_LAYOUT_ASSERT(offsetof(CShip, FormationOffset) == 0x1c0, "CShip+0x1c0 formation offset");
+FL_LAYOUT_ASSERT(offsetof(CShip, FormationSpeed) == 0x1cc, "CShip+0x1cc formation speed");
+FL_LAYOUT_ASSERT(offsetof(CShip, FormationFollowers) == 0x1d0, "CShip+0x1d0 formation followers");
+FL_LAYOUT_ASSERT(offsetof(CShip, FollowLeader) == 0x1e0, "CShip+0x1e0 follow leader");
+FL_LAYOUT_ASSERT(offsetof(CShip, FollowFollowers) == 0x1f4, "CShip+0x1f4 follow followers");
+FL_LAYOUT_ASSERT(offsetof(CShip, Targeters) == 0x204, "CShip+0x204 targeters");
+FL_LAYOUT_ASSERT(offsetof(CShip, bJumpedOut) == 0x214, "CShip+0x214 jumped-out flag");
+FL_LAYOUT_ASSERT(offsetof(CShip, AtmosphereSolar) == 0x218, "CShip+0x218 atmosphere solar");
+FL_LAYOUT_ASSERT(offsetof(CShip, GroupNameId) == 0x21c, "CShip+0x21c");
+FL_LAYOUT_ASSERT(offsetof(CShip, Target) == 0x220, "CShip+0x220 target");
+FL_LAYOUT_ASSERT(offsetof(CShip, SubTargetIndex) == 0x228, "CShip+0x228 sub target");
+FL_LAYOUT_ASSERT(offsetof(CShip, BayAnim) == 0x22c, "CShip+0x22c anim");
+FL_LAYOUT_ASSERT(offsetof(CShip, Steering) == 0x230, "CShip+0x230 Steering");
+FL_LAYOUT_ASSERT(offsetof(CShip, NudgeEngine) == 0x258, "CShip+0x258 NudgeEngine");
+FL_LAYOUT_ASSERT(offsetof(CShip, StrafeEngine) == 0x280, "CShip+0x280 StrafeEngine");
+FL_LAYOUT_ASSERT(offsetof(CShip, Throttle) == 0x29c, "CShip+0x29c Throttle");
+FL_LAYOUT_ASSERT(offsetof(CShip, ThrustPower) == 0x2a0, "CShip+0x2a0");
+FL_LAYOUT_ASSERT(offsetof(CShip, MaxThrustPower) == 0x2a4, "CShip+0x2a4");
+FL_LAYOUT_ASSERT(offsetof(CShip, Actions) == 0x2b0, "CShip+0x2b0 Actions");
+FL_LAYOUT_ASSERT(offsetof(CShip, TradelaneSpeed) == 0x2b8, "CShip+0x2b8 TradelaneSpeed");
+FL_LAYOUT_ASSERT(offsetof(CShip, bUsingTradelane) == 0x2bc, "CShip+0x2bc");
+FL_LAYOUT_ASSERT(offsetof(CShip, bIsPlayer) == 0x2bd, "CShip+0x2bd player flag");
+FL_LAYOUT_ASSERT(offsetof(CShip, AngularDragFactor) == 0x2c0, "CShip+0x2c0 angular drag factor");
+FL_LAYOUT_ASSERT(offsetof(CShip, GunStatsDirty) == 0x2c4, "CShip+0x2c4 GunStatsDirty");
+FL_LAYOUT_ASSERT(offsetof(CShip, GunStats) == 0x2c8, "CShip+0x2c8 GunStats");
+FL_LAYOUT_ASSERT(sizeof(CShip) == 0x2dc, "CShip sizeof 0x2dc");
 
 struct COMMON_API CSolar : public CEqObj
 {
@@ -2499,23 +2499,23 @@ protected:
     void init_continual_anim(char const* AnimName);
 };
 
-static_assert(offsetof(CSolar, Nickname) == 0x1a4, "CSolar+0x1a4 Nickname");
-static_assert(offsetof(CSolar, bDestructible) == 0x1a8, "CSolar+0x1a8 bDestructible");
-static_assert(offsetof(CSolar, bDynamic) == 0x1a9, "CSolar+0x1a9 bDynamic");
-static_assert(offsetof(CSolar, AtmosphereRange) == 0x1ac, "CSolar+0x1ac AtmosphereRange");
-static_assert(offsetof(CSolar, Loadout) == 0x1b0, "CSolar+0x1b0 Loadout");
-static_assert(offsetof(CSolar, DestSystem) == 0x1b4, "CSolar+0x1b4 DestSystem");
-static_assert(offsetof(CSolar, DestGate) == 0x1b8, "CSolar+0x1b8 DestGate");
-static_assert(offsetof(CSolar, GateAnim) == 0x1c0, "CSolar+0x1c0 GateAnim");
-static_assert(offsetof(CSolar, GateAnimState) == 0x1c4, "CSolar+0x1c4 GateAnimState");
-static_assert(offsetof(CSolar, GateAnimTimer) == 0x1c8, "CSolar+0x1c8 GateAnimTimer");
-static_assert(offsetof(CSolar, ContinualAnims) == 0x1cc, "CSolar+0x1cc ContinualAnims list");
-static_assert(offsetof(CSolar, PrevRing) == 0x1d8, "CSolar+0x1d8 PrevRing");
-static_assert(offsetof(CSolar, NextRing) == 0x1dc, "CSolar+0x1dc NextRing");
-static_assert(offsetof(CSolar, TradelaneSpaceNameId) == 0x1e0, "CSolar+0x1e0 TradelaneSpaceNameId");
-static_assert(offsetof(CSolar, VisitValue) == 0x1e4, "CSolar+0x1e4 VisitValue");
-static_assert(offsetof(CSolar, ParentNickname) == 0x1e8, "CSolar+0x1e8 ParentNickname");
-static_assert(sizeof(CSolar) == 0x1ec, "CSolar sizeof 0x1ec (CObject::Alloc takes it from Heap 063fc3c0)");
+FL_LAYOUT_ASSERT(offsetof(CSolar, Nickname) == 0x1a4, "CSolar+0x1a4 Nickname");
+FL_LAYOUT_ASSERT(offsetof(CSolar, bDestructible) == 0x1a8, "CSolar+0x1a8 bDestructible");
+FL_LAYOUT_ASSERT(offsetof(CSolar, bDynamic) == 0x1a9, "CSolar+0x1a9 bDynamic");
+FL_LAYOUT_ASSERT(offsetof(CSolar, AtmosphereRange) == 0x1ac, "CSolar+0x1ac AtmosphereRange");
+FL_LAYOUT_ASSERT(offsetof(CSolar, Loadout) == 0x1b0, "CSolar+0x1b0 Loadout");
+FL_LAYOUT_ASSERT(offsetof(CSolar, DestSystem) == 0x1b4, "CSolar+0x1b4 DestSystem");
+FL_LAYOUT_ASSERT(offsetof(CSolar, DestGate) == 0x1b8, "CSolar+0x1b8 DestGate");
+FL_LAYOUT_ASSERT(offsetof(CSolar, GateAnim) == 0x1c0, "CSolar+0x1c0 GateAnim");
+FL_LAYOUT_ASSERT(offsetof(CSolar, GateAnimState) == 0x1c4, "CSolar+0x1c4 GateAnimState");
+FL_LAYOUT_ASSERT(offsetof(CSolar, GateAnimTimer) == 0x1c8, "CSolar+0x1c8 GateAnimTimer");
+FL_LAYOUT_ASSERT(offsetof(CSolar, ContinualAnims) == 0x1cc, "CSolar+0x1cc ContinualAnims list");
+FL_LAYOUT_ASSERT(offsetof(CSolar, PrevRing) == 0x1d8, "CSolar+0x1d8 PrevRing");
+FL_LAYOUT_ASSERT(offsetof(CSolar, NextRing) == 0x1dc, "CSolar+0x1dc NextRing");
+FL_LAYOUT_ASSERT(offsetof(CSolar, TradelaneSpaceNameId) == 0x1e0, "CSolar+0x1e0 TradelaneSpaceNameId");
+FL_LAYOUT_ASSERT(offsetof(CSolar, VisitValue) == 0x1e4, "CSolar+0x1e4 VisitValue");
+FL_LAYOUT_ASSERT(offsetof(CSolar, ParentNickname) == 0x1e8, "CSolar+0x1e8 ParentNickname");
+FL_LAYOUT_ASSERT(sizeof(CSolar) == 0x1ec, "CSolar sizeof 0x1ec (CObject::Alloc takes it from Heap 063fc3c0)");
 
 // Common.dll.txt:0630e660, ?GetRoot@@YAPAUCObject@@PBU1@@Z. Walks the engine parent chain
 // from the object's own instance up to the top, then hands back the CObject registered

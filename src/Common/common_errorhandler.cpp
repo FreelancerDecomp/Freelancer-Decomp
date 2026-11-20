@@ -47,7 +47,7 @@ namespace
         ::File File;       // +0x14  the exported File class (common_misc.h);
                            //        File.Handle is node +0x94
     };
-    static_assert(sizeof(LogEntry) == 0xA0, "ErrorHandler LogEntry sizeof 0xA0");
+    FL_LAYOUT_ASSERT(sizeof(LogEntry) == 0xA0, "ErrorHandler LogEntry sizeof 0xA0");
 
     // Common.dll.c FUN_0630b0d0 @ 0xab0d0 -- default-reset a freshly allocated node.
     void LogEntryResetDefaults(LogEntry* E)

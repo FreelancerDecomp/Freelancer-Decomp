@@ -48,7 +48,7 @@ namespace
         Vector Center; // +0x00
         float Radius;  // +0x0c
     };
-    static_assert(sizeof(FZoneSphere) == 0x10, "FZoneSphere is 0x10 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FZoneSphere) == 0x10, "FZoneSphere is 0x10 bytes");
 
     // The segment every clip function takes: {start, end}.
     struct FZoneSegment
@@ -56,7 +56,7 @@ namespace
         Vector Start; // +0x00
         Vector End;   // +0x0c
     };
-    static_assert(sizeof(FZoneSegment) == 0x18, "FZoneSegment is 0x18 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FZoneSegment) == 0x18, "FZoneSegment is 0x18 bytes");
 
     // The oriented frame the box / cylinder / ring code builds on the stack: the zone's
     // transform followed by three dimensions. ClampPointToBoxSurface (FUN_062dba00) reads the
@@ -67,7 +67,7 @@ namespace
         Vector Pos;         // +0x24
         float Dim[3];       // +0x30
     };
-    static_assert(sizeof(FZoneFrame) == 0x3c, "FZoneFrame is 0x3c bytes");
+    FL_LAYOUT_ASSERT(sizeof(FZoneFrame) == 0x3c, "FZoneFrame is 0x3c bytes");
 
     // The ellipsoid object FUN_06339f20 / FUN_06339fb0 / FUN_0633dc90 work on.
     struct FZoneEllipsoid
@@ -77,7 +77,7 @@ namespace
         float Radius[3];    // +0x30
         Matrix Scaled;      // +0x3c
     };
-    static_assert(sizeof(FZoneEllipsoid) == 0x60, "FZoneEllipsoid is 0x60 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FZoneEllipsoid) == 0x60, "FZoneEllipsoid is 0x60 bytes");
 
     // .data:DAT_0658a9b0 -- Systems.cpp's own 3DMathEngine pointer, fetched through
     // FUN_06391cf0 the first time a zone function needs it (every use site tests it first).

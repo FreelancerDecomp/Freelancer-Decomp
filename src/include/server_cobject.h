@@ -408,7 +408,7 @@ struct LootInfo {
     unsigned char Pad62[2];         // +0x62
     unsigned int MarkForPlayer;     // +0x64  -> record +0x18 (mark_for_player when non-zero)
 };
-static_assert(sizeof(LootInfo) == 0x68, "LootInfo: last field read at +0x64");
+FL_LAYOUT_ASSERT(sizeof(LootInfo) == 0x68, "LootInfo: last field read at +0x64");
 
 // DestroyType and EQUIPMENT_RTYPE are GLOBAL enums -- declared above, before
 // namespace pub.
@@ -433,7 +433,7 @@ struct EQInfo {
     // constructor or destructor call (.text:06cfa755 .. 06cfa77b).
     unsigned int CargoOut[4];       // +0x10 .. +0x1f
 };
-static_assert(sizeof(EQInfo) == 0x20, "EQInfo: +0x10 carries a 0x10-byte EquipDescVector");
+FL_LAYOUT_ASSERT(sizeof(EQInfo) == 0x20, "EQInfo: +0x10 carries a 0x10-byte EquipDescVector");
 
 // pub::SpaceObj::ActivateEquipment — Server.dll .text:06cf93f0. Body: server_pub.cpp.
 // Content.dll FUN_06f14780 at 06f148c0: Type=2, byte at +4 = 0.

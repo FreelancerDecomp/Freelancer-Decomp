@@ -544,7 +544,7 @@ struct FServerCreateGuidedInfo
     unsigned short Pad36;
 };
 // rpclocal's sender 0x06d8a730 reads up to +0x34 (a word) and caseD_37 rebuilds 0x38 bytes.
-static_assert(sizeof(FServerCreateGuidedInfo) == 0x38, "CREATEGUIDED argument struct 0x38");
+FL_LAYOUT_ASSERT(sizeof(FServerCreateGuidedInfo) == 0x38, "CREATEGUIDED argument struct 0x38");
 
 // ---------------------------------------------------------------------------
 // The builders, named for what retail's RTTI says they build.

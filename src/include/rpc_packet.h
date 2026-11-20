@@ -127,7 +127,7 @@ public:
 
 // The compiler must place the vptr first and pack the seven dwords behind it, so the
 // payload really does begin at +0x20 exactly as retail's does.
-static_assert(sizeof(FPacketBase) == 0x20, "FPacketBase must match the retail CDAPacket base");
+FL_LAYOUT_ASSERT(sizeof(FPacketBase) == 0x20, "FPacketBase must match the retail CDAPacket base");
 
 // ===========================================================================
 // The retail packet factory -- one per registered class.

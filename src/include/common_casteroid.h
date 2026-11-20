@@ -59,7 +59,7 @@ namespace CmnAsteroid
         float Angles[3][4];
     };
 
-    static_assert(sizeof(AxisRotations) == 0x30, "CmnAsteroid::AxisRotations sizeof 0x30");
+    FL_LAYOUT_ASSERT(sizeof(AxisRotations) == 0x30, "CmnAsteroid::AxisRotations sizeof 0x30");
 
     // CmnAsteroid::closest_cube_coord (Common.dll.c 0x42ff0). Snaps Coord to the nearest
     // multiple of CubeSize plus/minus HalfSize depending on sign.
@@ -115,7 +115,7 @@ namespace CmnAsteroid
         int DynamicLootDifficulty;          // +0x24, "dynamic_loot_difficulty", clamped [1,100]
     };
 
-    static_assert(sizeof(LootableZoneEntry) == 0x28, "CmnAsteroid::LootableZoneEntry sizeof 0x28");
+    FL_LAYOUT_ASSERT(sizeof(LootableZoneEntry) == 0x28, "CmnAsteroid::LootableZoneEntry sizeof 0x28");
 
     class CAsteroidField;
 

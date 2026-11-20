@@ -1359,7 +1359,7 @@ void CClientImpl::SendServerSendComm(unsigned int ClientId, unsigned int SenderI
         // float and bool arguments enter as their stack-slot bits; the bool's slot holds 0/1
         // here where retail's upper three bytes are whatever its caller pushed (Frame[36] is
         // read only at a count of 33).
-        static_assert(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords");
+        FL_LAYOUT_ASSERT(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords");
         unsigned int Frame[37];
         std::memcpy(&Frame[0], &CommCostume, sizeof(Costume));
         Frame[13] = 0u;

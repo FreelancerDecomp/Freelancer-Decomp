@@ -254,15 +254,15 @@ public:
                                  // same semantics as DockBehaviorFields::Flag29.
     unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only
 };
-static_assert(offsetof(InstantTradeLaneBehaviorFields, CachedHandle08) == 0x08, "InstantTradeLaneBehaviorFields::CachedHandle08 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, ModeSelector0xc) == 0x0c, "InstantTradeLaneBehaviorFields::ModeSelector0xc offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, UpdateResult10) == 0x10, "InstantTradeLaneBehaviorFields::UpdateResult10 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, TargetPtr14) == 0x14, "InstantTradeLaneBehaviorFields::TargetPtr14 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, BehaviorMgrPtr20) == 0x20, "InstantTradeLaneBehaviorFields::BehaviorMgrPtr20 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, NavHelperPtr24) == 0x24, "InstantTradeLaneBehaviorFields::NavHelperPtr24 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, Flags28) == 0x28, "InstantTradeLaneBehaviorFields::Flags28 offset");
-static_assert(offsetof(InstantTradeLaneBehaviorFields, Flag29) == 0x29, "InstantTradeLaneBehaviorFields::Flag29 offset");
-static_assert(sizeof(InstantTradeLaneBehaviorFields) == 0x2c, "InstantTradeLaneBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, CachedHandle08) == 0x08, "InstantTradeLaneBehaviorFields::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, ModeSelector0xc) == 0x0c, "InstantTradeLaneBehaviorFields::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, UpdateResult10) == 0x10, "InstantTradeLaneBehaviorFields::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, TargetPtr14) == 0x14, "InstantTradeLaneBehaviorFields::TargetPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, BehaviorMgrPtr20) == 0x20, "InstantTradeLaneBehaviorFields::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, NavHelperPtr24) == 0x24, "InstantTradeLaneBehaviorFields::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, Flags28) == 0x28, "InstantTradeLaneBehaviorFields::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, Flag29) == 0x29, "InstantTradeLaneBehaviorFields::Flag29 offset");
+FL_LAYOUT_ASSERT(sizeof(InstantTradeLaneBehaviorFields) == 0x2c, "InstantTradeLaneBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
 
 class InstantTradeLaneBehavior : public InstantTradeLaneBehaviorFields, public IObjAffect::RequestCB
 {
@@ -488,13 +488,13 @@ public:
                                  // CShip::go_tradelane's `float Speed`.
 };
 
-static_assert(offsetof(InstantTradeLaneBehavior, State30) == 0x30, "InstantTradeLaneBehavior::State30 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, SubObjPtr34) == 0x34, "InstantTradeLaneBehavior::SubObjPtr34 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, LanePtr38) == 0x38, "InstantTradeLaneBehavior::LanePtr38 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, LaneStart3c) == 0x3c, "InstantTradeLaneBehavior::LaneStart3c offset");
-static_assert(offsetof(InstantTradeLaneBehavior, LaneEnd48) == 0x48, "InstantTradeLaneBehavior::LaneEnd48 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, Flags54) == 0x54, "InstantTradeLaneBehavior::Flags54 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, Flag55) == 0x55, "InstantTradeLaneBehavior::Flag55 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, Flag56) == 0x56, "InstantTradeLaneBehavior::Flag56 offset");
-static_assert(offsetof(InstantTradeLaneBehavior, Field58) == 0x58, "InstantTradeLaneBehavior::Field58 offset");
-static_assert(sizeof(InstantTradeLaneBehavior) == 0x5c, "InstantTradeLaneBehavior size -- CONFIRMED via operator_new(0x5c) in the factory (item 1514), not just the largest field referenced");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, State30) == 0x30, "InstantTradeLaneBehavior::State30 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, SubObjPtr34) == 0x34, "InstantTradeLaneBehavior::SubObjPtr34 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, LanePtr38) == 0x38, "InstantTradeLaneBehavior::LanePtr38 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, LaneStart3c) == 0x3c, "InstantTradeLaneBehavior::LaneStart3c offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, LaneEnd48) == 0x48, "InstantTradeLaneBehavior::LaneEnd48 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, Flags54) == 0x54, "InstantTradeLaneBehavior::Flags54 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, Flag55) == 0x55, "InstantTradeLaneBehavior::Flag55 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, Flag56) == 0x56, "InstantTradeLaneBehavior::Flag56 offset");
+FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehavior, Field58) == 0x58, "InstantTradeLaneBehavior::Field58 offset");
+FL_LAYOUT_ASSERT(sizeof(InstantTradeLaneBehavior) == 0x5c, "InstantTradeLaneBehavior size -- CONFIRMED via operator_new(0x5c) in the factory (item 1514), not just the largest field referenced");

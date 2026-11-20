@@ -32,7 +32,7 @@ namespace Geometry
         Vector Center; // +0x00
         float Radius;  // +0x0C
     };
-    static_assert(sizeof(Sphere) == 0x10, "Geometry::Sphere size is 0x10");
+    FL_LAYOUT_ASSERT(sizeof(Sphere) == 0x10, "Geometry::Sphere size is 0x10");
 
     struct Frustum
     {
@@ -41,7 +41,7 @@ namespace Geometry
         float AngleY;    // +0x34
         float Distance;  // +0x38
     };
-    static_assert(sizeof(Frustum) == 0x3C, "Geometry::Frustum size is 0x3C");
+    FL_LAYOUT_ASSERT(sizeof(Frustum) == 0x3C, "Geometry::Frustum size is 0x3C");
 }
 namespace Universe { struct IZone; }
 struct CObject;
@@ -187,7 +187,7 @@ public:
     int Length;         // +0x88  cached size (open / get_info)
 };
 
-static_assert(sizeof(File) == 0x8C, "File sizeof 0x8C");
+FL_LAYOUT_ASSERT(sizeof(File) == 0x8C, "File sizeof 0x8C");
 
 // ============================================================================
 // Heap — tiny fixed-size-block free-list pool allocator (0xae580/0xae5a0/0xae600).
@@ -224,7 +224,7 @@ private:
     int CurrentFreeCount;     // +0x0C  number of blocks currently on FreeList
 };
 
-static_assert(sizeof(Heap) == 0x10, "Heap sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(Heap) == 0x10, "Heap sizeof 0x10");
 
 // ============================================================================
 // DamageEntry — single damage record
@@ -304,7 +304,7 @@ struct COMMON_API DamageEntry
     SubObjFate Fate;           // +0x08  default None
 };
 
-static_assert(sizeof(DamageEntry) == 0xC, "DamageEntry sizeof 0xC (retail, see comment above)");
+FL_LAYOUT_ASSERT(sizeof(DamageEntry) == 0xC, "DamageEntry sizeof 0xC (retail, see comment above)");
 
 // Retail Common.dll exports every member of this STL instantiation (VC6 std::list, 55
 // members, imported by name by FreeLancer.exe, Server.dll and rpclocal.dll). The port

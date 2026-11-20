@@ -47,7 +47,7 @@ namespace Async
         bool bDeleteWhenDone; // +0x04
         HANDLE hEvent;        // +0x08
     };
-    static_assert(sizeof(Action) == 0x0C, "Async::Action sizeof 0x0C");
+    FL_LAYOUT_ASSERT(sizeof(Action) == 0x0C, "Async::Action sizeof 0x0C");
 
     // 0x062fd580 ?AddWork@Async@@YA_NPAUAction@1@@Z. Unless the action deletes itself when
     // done, creates a fresh auto-reset, unsignaled event into Work->hEvent (unconditionally --

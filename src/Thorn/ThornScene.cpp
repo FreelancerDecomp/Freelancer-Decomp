@@ -957,7 +957,7 @@ namespace
         unsigned char Bytes[0x68];
     };
 
-    static_assert(sizeof(FThornRetailLightTarget) == 0x68, "retail compact light target size");
+    FL_LAYOUT_ASSERT(sizeof(FThornRetailLightTarget) == 0x68, "retail compact light target size");
 
     float ReadRetailFloat(const unsigned char* Blob, unsigned int Offset)
     {
@@ -1562,8 +1562,8 @@ namespace
         unsigned int Prefix[7];
         FThornFog8 Fog;
     };
-    static_assert(sizeof(FThornSceneFogSnapshot) == 15 * sizeof(unsigned int), "packed scene snapshot");
-    static_assert(offsetof(FThornSceneFogSnapshot, Fog) == 7 * sizeof(unsigned int), "packed fog offset");
+    FL_LAYOUT_ASSERT(sizeof(FThornSceneFogSnapshot) == 15 * sizeof(unsigned int), "packed scene snapshot");
+    FL_LAYOUT_ASSERT(offsetof(FThornSceneFogSnapshot, Fog) == 7 * sizeof(unsigned int), "packed fog offset");
 
     // FUN_06f431d0(blob, mask): copy 15 dword, mirror words 5/6 through the
     // optional native output pointers, and notify the typed light control when
@@ -8026,7 +8026,7 @@ namespace
         // Pass the recovered word with its proper type instead of variadic UB.
         const double PromotedValue = static_cast<double>(*Value);
         int IntegerWord;
-        static_assert(sizeof(PromotedValue) == 8 && sizeof(IntegerWord) == 4,
+        FL_LAYOUT_ASSERT(sizeof(PromotedValue) == 8 && sizeof(IntegerWord) == 4,
                       "Thorn writer requires an eight-byte double and four-byte int");
         std::memcpy(&IntegerWord, &PromotedValue, sizeof(IntegerWord));
         return SaveBufAppendInteger(Buf, Format, IntegerWord);
@@ -8035,7 +8035,7 @@ namespace
     int SaveBufAppendIntegerAsDouble(FThornSaveBuf* Buf, unsigned int IntegerWord,
                                     const FThornEntitySnap* SecondaryDesc)
     {
-        static_assert(sizeof(SecondaryDesc) == 4, "Thorn writer requires Win32 pointers");
+        FL_LAYOUT_ASSERT(sizeof(SecondaryDesc) == 4, "Thorn writer requires Win32 pointers");
         const unsigned int Words[2] = {IntegerWord,
             static_cast<unsigned int>(reinterpret_cast<ULONG_PTR>(SecondaryDesc))};
         double Payload;

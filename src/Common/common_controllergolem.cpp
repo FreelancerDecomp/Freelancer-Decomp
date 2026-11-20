@@ -148,8 +148,8 @@ void CmnPhySys::FLControllerGolemParms_Init(FLControllerGolemParms& Parms)
 // IVP_Event_Sim (the per-PSI context every controller's slot 4, do_simulation_controller,
 // receives) is declared in src/IVP/ivp_physics/ivp_controller.h next to IVP_Controller, with
 // the layout evidence (FUN_063499c0 builds it, FUN_063496a0 dispatches it).
-static_assert(offsetof(IVP_Event_Sim, i_delta_time) == 0x04, "IVP_Event_Sim+0x04");
-static_assert(offsetof(IVP_Event_Sim, environment) == 0x08, "IVP_Event_Sim+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Event_Sim, i_delta_time) == 0x04, "IVP_Event_Sim+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Event_Sim, environment) == 0x08, "IVP_Event_Sim+0x08");
 
 // IVP_Controller_Golem is DECLARED in src/IVP/ivp_physics/ivp_controller.h since 2026-09-24
 // (claude-code:w6-rpc). Until then this file declared the whole thing as FLControllerGolem,
@@ -265,28 +265,28 @@ public:
     virtual int beam_to_target(IVP_Event_Sim const* EventSim, int Reason) override;
 };
 
-static_assert(sizeof(IVP_Time) == 8, "IVP_Time is the 8 bytes retail copies verbatim");
-static_assert(sizeof(FLControllerGolem) == 0xd0, "FLControllerGolem is operator_new(0xd0) at .text:06288f67");
-static_assert(offsetof(IVP_Controller_Motion, CurrentTargetPosition) == 0x04, "golem+0x04");
-static_assert(offsetof(IVP_Controller_Motion, CurrentTargetQuat) == 0x14, "golem+0x14");
-static_assert(offsetof(IVP_Controller_Motion, MaxTranslationForce) == 0x24, "golem+0x24");
-static_assert(offsetof(IVP_Controller_Motion, MaxTorque) == 0x34, "golem+0x34");
-static_assert(offsetof(IVP_Controller_Motion, ForceFactor) == 0x44, "golem+0x44");
-static_assert(offsetof(IVP_Controller_Motion, AngularDampFactor) == 0x50, "golem+0x50");
-static_assert(offsetof(IVP_Controller_Motion, Environment) == 0x54, "golem+0x54");
-static_assert(offsetof(IVP_Controller_Motion, Body) == 0x58, "golem+0x58");
-static_assert(offsetof(IVP_Controller_Motion, Core) == 0x5c, "golem+0x5c");
-static_assert(offsetof(IVP_Controller_Golem, SmoothedPositionErrorSq) == 0x60, "golem+0x60");
-static_assert(offsetof(IVP_Controller_Golem, TargetPositionTime) == 0x64, "golem+0x64");
-static_assert(offsetof(IVP_Controller_Golem, TargetQuatTime) == 0x6c, "golem+0x6c");
-static_assert(offsetof(IVP_Controller_Golem, InvRotDeltaTime) == 0x74, "golem+0x74");
-static_assert(offsetof(IVP_Controller_Golem, bHasTargetRotQuat) == 0x78, "golem+0x78");
-static_assert(offsetof(IVP_Controller_Golem, TargetQuat) == 0x7c, "golem+0x7c");
-static_assert(offsetof(IVP_Controller_Golem, TargetRotQuat) == 0x8c, "golem+0x8c");
-static_assert(offsetof(IVP_Controller_Golem, TargetPosition) == 0x9c, "golem+0x9c");
-static_assert(offsetof(IVP_Controller_Golem, TargetSpeed) == 0xac, "golem+0xac");
-static_assert(offsetof(IVP_Controller_Golem, MaxDeltaPosition) == 0xbc, "golem+0xbc");
-static_assert(offsetof(IVP_Controller_Golem, Field_0xcc) == 0xcc, "golem+0xcc");
+FL_LAYOUT_ASSERT(sizeof(IVP_Time) == 8, "IVP_Time is the 8 bytes retail copies verbatim");
+FL_LAYOUT_ASSERT(sizeof(FLControllerGolem) == 0xd0, "FLControllerGolem is operator_new(0xd0) at .text:06288f67");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, CurrentTargetPosition) == 0x04, "golem+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, CurrentTargetQuat) == 0x14, "golem+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, MaxTranslationForce) == 0x24, "golem+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, MaxTorque) == 0x34, "golem+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, ForceFactor) == 0x44, "golem+0x44");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, AngularDampFactor) == 0x50, "golem+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, Environment) == 0x54, "golem+0x54");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, Body) == 0x58, "golem+0x58");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Motion, Core) == 0x5c, "golem+0x5c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, SmoothedPositionErrorSq) == 0x60, "golem+0x60");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetPositionTime) == 0x64, "golem+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetQuatTime) == 0x6c, "golem+0x6c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, InvRotDeltaTime) == 0x74, "golem+0x74");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, bHasTargetRotQuat) == 0x78, "golem+0x78");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetQuat) == 0x7c, "golem+0x7c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetRotQuat) == 0x8c, "golem+0x8c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetPosition) == 0x9c, "golem+0x9c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, TargetSpeed) == 0xac, "golem+0xac");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, MaxDeltaPosition) == 0xbc, "golem+0xbc");
+FL_LAYOUT_ASSERT(offsetof(IVP_Controller_Golem, Field_0xcc) == 0xcc, "golem+0xcc");
 
 // Slot 2 (LAB_06285a60, the shared DAT_0658a9e8 vector) is IVP_Controller_Independent's since
 // 2026-09-25 -- see ivp_controller.h/.cpp; the golem no longer declares it.

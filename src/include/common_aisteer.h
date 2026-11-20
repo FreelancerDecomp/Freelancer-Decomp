@@ -80,7 +80,7 @@ struct ObstacleAvoidance
         Vector Direction;     // +0x10  candidate deflection direction (unit-ish)
     };
 
-    static_assert(sizeof(Slot) == 0x1c, "ObstacleAvoidance::Slot stride 7 floats (Common.dll.c 0x062de490)");
+    FL_LAYOUT_ASSERT(sizeof(Slot) == 0x1c, "ObstacleAvoidance::Slot stride 7 floats (Common.dll.c 0x062de490)");
 
     // Common.dll.c 0x062de490: `*(int*)(*param_1_00 + 0xf0)` / `*(int*)(*param_1_00 + 0xc)`.
     // Owner+0xf0 matches IBehaviorManager::WatchablePtr byte-for-byte (see
@@ -133,18 +133,18 @@ struct ObstacleAvoidance
     bool GetAvoidPoint(Vector* OutPoint, unsigned* OutObjectId) const;
 };
 
-static_assert(offsetof(ObstacleAvoidance, NoseDistance) == 0x08, "ObstacleAvoidance+0x08 NoseDistance");
-static_assert(offsetof(ObstacleAvoidance, Breadth) == 0x0c, "ObstacleAvoidance+0x0c Breadth");
-static_assert(offsetof(ObstacleAvoidance, ElapsedTime) == 0x10, "ObstacleAvoidance+0x10 ElapsedTime");
-static_assert(offsetof(ObstacleAvoidance, Slots) == 0x14, "ObstacleAvoidance+0x14 Slots");
-static_assert(offsetof(ObstacleAvoidance, CursorIndex) == 0x2d0, "ObstacleAvoidance+0x2d0 CursorIndex");
-static_assert(offsetof(ObstacleAvoidance, ContactPoint) == 0x2d8, "ObstacleAvoidance+0x2d8 ContactPoint");
-static_assert(offsetof(ObstacleAvoidance, ContactNormal) == 0x2e4, "ObstacleAvoidance+0x2e4 ContactNormal");
-static_assert(offsetof(ObstacleAvoidance, ContactObjectId) == 0x2f0, "ObstacleAvoidance+0x2f0 ContactObjectId");
-static_assert(offsetof(ObstacleAvoidance, AvoidDirection) == 0x2f4, "ObstacleAvoidance+0x2f4 AvoidDirection");
-static_assert(offsetof(ObstacleAvoidance, AvoidPoint) == 0x300, "ObstacleAvoidance+0x300 AvoidPoint");
-static_assert(offsetof(ObstacleAvoidance, ContactTimer) == 0x310, "ObstacleAvoidance+0x310 ContactTimer");
-static_assert(sizeof(ObstacleAvoidance) == 0x318, "ObstacleAvoidance sizeof 0x318");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, NoseDistance) == 0x08, "ObstacleAvoidance+0x08 NoseDistance");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, Breadth) == 0x0c, "ObstacleAvoidance+0x0c Breadth");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, ElapsedTime) == 0x10, "ObstacleAvoidance+0x10 ElapsedTime");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, Slots) == 0x14, "ObstacleAvoidance+0x14 Slots");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, CursorIndex) == 0x2d0, "ObstacleAvoidance+0x2d0 CursorIndex");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, ContactPoint) == 0x2d8, "ObstacleAvoidance+0x2d8 ContactPoint");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, ContactNormal) == 0x2e4, "ObstacleAvoidance+0x2e4 ContactNormal");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, ContactObjectId) == 0x2f0, "ObstacleAvoidance+0x2f0 ContactObjectId");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, AvoidDirection) == 0x2f4, "ObstacleAvoidance+0x2f4 AvoidDirection");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, AvoidPoint) == 0x300, "ObstacleAvoidance+0x300 AvoidPoint");
+FL_LAYOUT_ASSERT(offsetof(ObstacleAvoidance, ContactTimer) == 0x310, "ObstacleAvoidance+0x310 ContactTimer");
+FL_LAYOUT_ASSERT(sizeof(ObstacleAvoidance) == 0x318, "ObstacleAvoidance sizeof 0x318");
 
 // FUN_062de2a0, __thiscall on &Slots[0], RET 8. For every active (Timer > 0) slot,
 // accumulates `2 * normalize(Ship.Translation - Slot.Point) + Slot.Direction`, then
@@ -1358,14 +1358,14 @@ Vector* TransformInversePoint(Transform const* Self, Vector* Out, Vector const* 
 // FGunConvergenceStateBlock members now (common_systemmanager.h,
 // common_gunconvergence.cpp).
 
-static_assert(offsetof(ICRSplineSegment, P0) == 0x00, "ICRSplineSegment+0x00 P0");
-static_assert(offsetof(ICRSplineSegment, P1) == 0x0c, "ICRSplineSegment+0x0c P1");
-static_assert(offsetof(ICRSplineSegment, P2) == 0x18, "ICRSplineSegment+0x18 P2");
-static_assert(offsetof(ICRSplineSegment, P3) == 0x24, "ICRSplineSegment+0x24 P3");
-static_assert(offsetof(ICRSplineSegment, ArcLength) == 0x30, "ICRSplineSegment+0x30 ArcLength");
-static_assert(offsetof(ICRSplineSegment, SampleCount) == 0x34, "ICRSplineSegment+0x34 SampleCount");
-static_assert(offsetof(ICRSplineSegment, Reserved38) == 0x38, "ICRSplineSegment+0x38 Reserved38");
-static_assert(sizeof(ICRSplineSegment) == 0x40, "ICRSplineSegment sizeof 0x40 (proven by operator= COMDAT fold with GunUseStruct)");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, P0) == 0x00, "ICRSplineSegment+0x00 P0");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, P1) == 0x0c, "ICRSplineSegment+0x0c P1");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, P2) == 0x18, "ICRSplineSegment+0x18 P2");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, P3) == 0x24, "ICRSplineSegment+0x24 P3");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, ArcLength) == 0x30, "ICRSplineSegment+0x30 ArcLength");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, SampleCount) == 0x34, "ICRSplineSegment+0x34 SampleCount");
+FL_LAYOUT_ASSERT(offsetof(ICRSplineSegment, Reserved38) == 0x38, "ICRSplineSegment+0x38 Reserved38");
+FL_LAYOUT_ASSERT(sizeof(ICRSplineSegment) == 0x40, "ICRSplineSegment sizeof 0x40 (proven by operator= COMDAT fold with GunUseStruct)");
 
 // LAB_062d68b0 (item 1603) and LAB_062d7950 (item 1618) are FaceIdea::Update and
 // DodgeIdea::Update (common_faceidea.cpp / common_dodgeidea.cpp).

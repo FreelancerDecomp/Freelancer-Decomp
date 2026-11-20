@@ -2595,35 +2595,35 @@ unsigned int RpcDecodeCreateObjectCommon(FRpcMarshalStream& Stream,
 // toolchain's std::list and DamageList, FRpcCreateObjectWire), so each tail is pinned
 // RELATIVE to its first field, which follows the header directly: retail offset minus
 // 0x7c on the right-hand side.
-static_assert(offsetof(FPayloadServerCreateShip, Field_0x7c) == sizeof(FRpcCreateObjectWire),
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, Field_0x7c) == sizeof(FRpcCreateObjectWire),
               "CREATESHIP's tail follows the shared header directly");
-static_assert(offsetof(FPayloadServerCreateSolar, Field_0x7c) == sizeof(FRpcCreateObjectWire),
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateSolar, Field_0x7c) == sizeof(FRpcCreateObjectWire),
               "CREATESOLAR's tail follows the shared header directly");
-static_assert(offsetof(FPayloadServerCreateShip, Field_0x80) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, Field_0x80) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0x80 - 0x7c,
               "the twelve-byte run starts at CREATESHIP payload+0x80");
-static_assert(offsetof(FPayloadServerCreateShip, Field_0x84) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, Field_0x84) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0x84 - 0x7c,
               "FUN_06d8f510 moves packet+0xa0, +0xa4 and +0xa8 back to back");
-static_assert(offsetof(FPayloadServerCreateShip, Field_0x88) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, Field_0x88) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0x88 - 0x7c,
               "FUN_06d8f510 moves packet+0xa0, +0xa4 and +0xa8 back to back");
-static_assert(offsetof(FPayloadServerCreateShip, Field_0x98) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, Field_0x98) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0x98 - 0x7c,
               "the 127.0-quantized float is CREATESHIP payload+0x98");
-static_assert(offsetof(FPayloadServerCreateShip, DisplayNameLength) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateShip, DisplayNameLength) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0xb8 - 0x7c,
               "the wide display name is length at payload+0xb8, buffer at +0xbc");
-static_assert(sizeof(FPayloadServerCreateShip) -
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateShip) -
                   offsetof(FPayloadServerCreateShip, Field_0x7c) == 0xcc - 0x7c,
               "CREATESHIP's tail is 0x50 bytes (retail payload 0xcc)");
-static_assert(offsetof(FPayloadServerCreateSolar, NameASize) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateSolar, NameASize) -
                   offsetof(FPayloadServerCreateSolar, Field_0x7c) == 0x80 - 0x7c,
               "FUN_06da1620 is handed &payload+0x80 for CREATESOLAR's first name block");
-static_assert(offsetof(FPayloadServerCreateSolar, NameBSize) -
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerCreateSolar, NameBSize) -
                   offsetof(FPayloadServerCreateSolar, Field_0x7c) == 0x88 - 0x7c,
               "FUN_06da1620 is handed &payload+0x88 for CREATESOLAR's second name block");
-static_assert(sizeof(FPayloadServerCreateSolar) -
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateSolar) -
                   offsetof(FPayloadServerCreateSolar, Field_0x7c) == 0x98 - 0x7c,
               "CREATESOLAR's tail is 0x1c bytes (retail payload 0x98)");
 

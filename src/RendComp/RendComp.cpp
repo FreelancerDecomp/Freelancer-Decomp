@@ -38,7 +38,7 @@ struct FRendCompXform
 
 // IRenderPipeline's matrix slots take the bare 12 floats. FRendCompXform is exactly that
 // layout and nothing else, so this is a view of the same storage, not a conversion.
-static_assert(sizeof(FRendCompXform) == 12 * sizeof(float), "FRendCompXform is 12 floats");
+FL_LAYOUT_ASSERT(sizeof(FRendCompXform) == 12 * sizeof(float), "FRendCompXform is 12 floats");
 
 inline const float* AsFloat12(const FRendCompXform* Xform)
 {

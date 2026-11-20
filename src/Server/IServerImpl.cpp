@@ -1091,7 +1091,7 @@ void IServerImpl::MissionResponse(unsigned int Arg0, unsigned long MissionId,
         unsigned char Padding[3];
         unsigned int SessionId;
     };
-    static_assert(sizeof(FMissionResponseMessage) == 0x10, "MissionResponse message size");
+    FL_LAYOUT_ASSERT(sizeof(FMissionResponseMessage) == 0x10, "MissionResponse message size");
     FMissionResponseMessage Message;
     Message.MissionId = MissionId;
     Message.Field_0x00 = Arg0;
@@ -1637,13 +1637,13 @@ void IServerImpl::SPBadLandsObjCollision(const SSPBadLandsObjCollisionInfo& info
     // two declarations to the same offsets; the pointer is passed unchanged, as
     // retail passes ESI. session_id is not read.
 void IServerImpl::SPObjCollision(const SSPObjCollisionInfo& info, unsigned int session_id) {
-        static_assert(sizeof(SSPObjCollisionInfo) == sizeof(FCollisionDamage),
+        FL_LAYOUT_ASSERT(sizeof(SSPObjCollisionInfo) == sizeof(FCollisionDamage),
                       "SSPObjCollisionInfo is the FCollisionDamage record");
-        static_assert(offsetof(SSPObjCollisionInfo, ObjectId) == offsetof(FCollisionDamage, TargetId),
+        FL_LAYOUT_ASSERT(offsetof(SSPObjCollisionInfo, ObjectId) == offsetof(FCollisionDamage, TargetId),
                       "+8 is the target FUN_06d006c0 resolves");
-        static_assert(offsetof(SSPObjCollisionInfo, SubObjId) == offsetof(FCollisionDamage, TargetSubObjId),
+        FL_LAYOUT_ASSERT(offsetof(SSPObjCollisionInfo, SubObjId) == offsetof(FCollisionDamage, TargetSubObjId),
                       "+0xc is the target's sub-object");
-        static_assert(offsetof(SSPObjCollisionInfo, Field_0x10) == offsetof(FCollisionDamage, Damage),
+        FL_LAYOUT_ASSERT(offsetof(SSPObjCollisionInfo, Field_0x10) == offsetof(FCollisionDamage, Damage),
                       "+0x10 is the damage");
         (void)session_id;
         GameObject* Obj = nullptr;
@@ -3317,7 +3317,7 @@ void Server_ControllerDestroy(unsigned int flid) {
 // FUN_06d0fb40 iterates Universe systems, constructs FStarSystem for each
 // FUN_06d00280 looks up by system_id via map::lower_bound
 // The table itself is the exported SysDB::SysMap (server_sysdb.h / server_classes.cpp).
-static_assert(sizeof(FStarSystem) == 0x100, "FStarSystem must stay 0x100 — SysDB memset/map");
+FL_LAYOUT_ASSERT(sizeof(FStarSystem) == 0x100, "FStarSystem must stay 0x100 — SysDB memset/map");
 // No "already initialised" latch: retail FUN_06d0fb40 has none, and its only
 // caller FUN_06cfffd0 (Server_PlayerSubsystemInit) runs once per server startup.
 

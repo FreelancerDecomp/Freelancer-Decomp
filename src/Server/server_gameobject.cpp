@@ -6135,7 +6135,7 @@ struct FSolarHitEvent
     unsigned int Zero1c;       // +0x1c
     float Scale;               // +0x20  1.0f
 };
-static_assert(sizeof(FSolarHitEvent) == 0x24, "Solar root-hit event is 0x24 bytes");
+FL_LAYOUT_ASSERT(sizeof(FSolarHitEvent) == 0x24, "Solar root-hit event is 0x24 bytes");
 
 // +0x180 .text:06d02d90 (RET 8).
 //   .text:06d02d98 .. 06d02dba  CSolar +0x1a8 (bDestructible) set -> EqObj

@@ -36,7 +36,7 @@ public:
     float z;
 };
 
-static_assert(sizeof(Quaternion) == 0x10, "Quaternion 4 floats");
+FL_LAYOUT_ASSERT(sizeof(Quaternion) == 0x10, "Quaternion 4 floats");
 
 namespace PhyArch
 {
@@ -162,10 +162,10 @@ namespace PhySys
         Vector Inertia;              // +0x28  Root+0x2c..+0x34
     };
 
-    static_assert(sizeof(CreateParms) == 0x34, "PhySys::CreateParms 13 dwords");
-    static_assert(offsetof(CreateParms, bEnableCollisions) == 0x1d, "CreateParms+0x1d");
-    static_assert(offsetof(CreateParms, bHasInertia) == 0x26, "CreateParms+0x26");
-    static_assert(offsetof(CreateParms, Inertia) == 0x28, "CreateParms+0x28");
+    FL_LAYOUT_ASSERT(sizeof(CreateParms) == 0x34, "PhySys::CreateParms 13 dwords");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bEnableCollisions) == 0x1d, "CreateParms+0x1d");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, bHasInertia) == 0x26, "CreateParms+0x26");
+    FL_LAYOUT_ASSERT(offsetof(CreateParms, Inertia) == 0x28, "CreateParms+0x28");
 
     // ---- DetachParms ----
     // Detach (.text:06284910) passes Parms through unchanged to FUN_062847e0 (0x0628496b).
@@ -191,11 +191,11 @@ namespace PhySys
         unsigned char Pad1d[3];
         Vector Inertia;              // +0x20
     };
-    static_assert(sizeof(DetachParms) == 0x2c, "PhySys::DetachParms 0x2c");
-    static_assert(offsetof(DetachParms, Name) == 0x10, "DetachParms+0x10");
-    static_assert(offsetof(DetachParms, Mass) == 0x18, "DetachParms+0x18");
-    static_assert(offsetof(DetachParms, bHasInertia) == 0x1c, "DetachParms+0x1c");
-    static_assert(offsetof(DetachParms, Inertia) == 0x20, "DetachParms+0x20");
+    FL_LAYOUT_ASSERT(sizeof(DetachParms) == 0x2c, "PhySys::DetachParms 0x2c");
+    FL_LAYOUT_ASSERT(offsetof(DetachParms, Name) == 0x10, "DetachParms+0x10");
+    FL_LAYOUT_ASSERT(offsetof(DetachParms, Mass) == 0x18, "DetachParms+0x18");
+    FL_LAYOUT_ASSERT(offsetof(DetachParms, bHasInertia) == 0x1c, "DetachParms+0x1c");
+    FL_LAYOUT_ASSERT(offsetof(DetachParms, Inertia) == 0x20, "DetachParms+0x20");
 
     // ---- CObjectCB ----
     // The phantom intruder callback that PhantomParms+0x40 carries. RTTI ".?AUCObjectCB@PhySys@@"
@@ -249,7 +249,7 @@ namespace PhySys
         CObjectCB* Listener;        // +0x40  phantom enter/leave listener (see CObjectCB above)
     };
 
-    static_assert(sizeof(PhantomParms) == 0x44, "PhySys::PhantomParms is 0x44 bytes");
+    FL_LAYOUT_ASSERT(sizeof(PhantomParms) == 0x44, "PhySys::PhantomParms is 0x44 bytes");
 
     // ---- RayHit ----
     // FindRayCollisions / FindRayIntersect output.
@@ -265,7 +265,7 @@ namespace PhySys
         unsigned PartId;           // +0x1c
     };
 
-    static_assert(sizeof(RayHit) == 0x20, "PhySys::RayHit sizeof 0x20");
+    FL_LAYOUT_ASSERT(sizeof(RayHit) == 0x20, "PhySys::RayHit sizeof 0x20");
 
     // ---- CollisionEvent ----
     // GetCollisions output range [Begin, End) -- the std::vector at world+0x20
@@ -299,7 +299,7 @@ namespace PhySys
         Vector RelativeVelocity;   // +0x28
     };
 
-    static_assert(sizeof(CollisionEvent) == 0x34, "PhySys::CollisionEvent sizeof 0x34");
+    FL_LAYOUT_ASSERT(sizeof(CollisionEvent) == 0x34, "PhySys::CollisionEvent sizeof 0x34");
 
     // ---- IVP_Time ----
     // There is no PhySys::IVP_Time. Retail's export ?GetCurrentTime@PhySys@@YA?AVIVP_Time@@I@Z
@@ -398,7 +398,7 @@ namespace PhySys
     };
 #pragma warning(pop)
 
-    static_assert(sizeof(Controller) == 0x10, "PhySys::Controller 0x10 with pad");
+    FL_LAYOUT_ASSERT(sizeof(Controller) == 0x10, "PhySys::Controller 0x10 with pad");
 
     // ---- PhyCollisionStateManager ----
     // Manages per-object collision enable/disable via IVP mindist callbacks.
@@ -444,7 +444,7 @@ namespace PhySys
     };
 #pragma warning(pop)
 
-    static_assert(sizeof(PhyCollisionStateManager) == 0x14, "PhyCollisionStateManager 0x14");
+    FL_LAYOUT_ASSERT(sizeof(PhyCollisionStateManager) == 0x14, "PhyCollisionStateManager 0x14");
 
     // ---- Startup / Shutdown ----
     COMMON_API void __cdecl Startup(unsigned SystemId);

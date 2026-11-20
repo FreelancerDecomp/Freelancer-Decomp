@@ -106,7 +106,7 @@
 //     9  InstantTradeLane 0x5c   FUN_062cee50      19 FreeFlight        0x400 FUN_062c6d10
 //    10  Formation        0x2b8  FUN_062cbfe0      20 Delay             0x48  FUN_062d0a10
 // Every one of those constructors is now `explicit XBehavior(int InTypeId)` in this port, and
-// every one of those sizes is pinned by a `static_assert(sizeof(X) <= ...)` in the class's own
+// every one of those sizes is pinned by a `FL_LAYOUT_ASSERT(sizeof(X) <= ...)` in the class's own
 // header. Id 8 deserves a note: several tracker items still describe that row as having an
 // "empty-string name", because Ghidra found no string literal inline in the .rdata row at
 // 063a00e8. The name is not inline -- the id-8 static initialiser at .text:062d0fba copies it
@@ -186,7 +186,7 @@ public:
         return new (std::nothrow) BehaviorClass(TypeId);
     }
 };
-static_assert(sizeof(TBehaviorTypeDesc<NullBehavior>) == sizeof(BehaviorTypeDesc),
+FL_LAYOUT_ASSERT(sizeof(TBehaviorTypeDesc<NullBehavior>) == sizeof(BehaviorTypeDesc),
               "a typed descriptor must stay the same 0x2C object retail's initialisers build");
 
 // Retail id order, read straight off the twenty-one initialisers (the literal

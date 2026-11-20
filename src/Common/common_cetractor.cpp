@@ -73,7 +73,7 @@ CETractor::CETractor(CShip* OwnerObj, unsigned short EquipId, Archetype::Tractor
 {
     // Layout check for the protected Arms member (see the class comment in common_cequip.h);
     // compile-time only, emits no code.
-    static_assert(offsetof(CETractor, Arms) == 0x50, "CETractor+0x50 arm vector");
+    FL_LAYOUT_ASSERT(offsetof(CETractor, Arms) == 0x50, "CETractor+0x50 arm vector");
 
     // Common.dll.c 65596-65672 (0x3e030). Identity is the default/failure-path Transform; if
     // Owner is a real ship (ObjectClass & 0x503) whose archetype names a HpTractorSource

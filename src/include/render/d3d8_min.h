@@ -32,9 +32,9 @@
 typedef D3DLIGHT9 D3DLIGHT8;
 typedef D3DMATERIAL9 D3DMATERIAL8;
 
-static_assert(sizeof(D3DLIGHT8) == 0x68, "D3DLIGHT9 has the D3DLIGHT8 layout");
-static_assert(sizeof(D3DMATERIAL8) == 0x44, "D3DMATERIAL9 has the D3DMATERIAL8 layout");
-static_assert(sizeof(D3DRENDERSTATETYPE) == 4, "D3DRENDERSTATETYPE is one dword");
+FL_LAYOUT_ASSERT(sizeof(D3DLIGHT8) == 0x68, "D3DLIGHT9 has the D3DLIGHT8 layout");
+FL_LAYOUT_ASSERT(sizeof(D3DMATERIAL8) == 0x44, "D3DMATERIAL9 has the D3DMATERIAL8 layout");
+FL_LAYOUT_ASSERT(sizeof(D3DRENDERSTATETYPE) == 4, "D3DRENDERSTATETYPE is one dword");
 
 #else
 
@@ -57,13 +57,13 @@ static_assert(sizeof(D3DRENDERSTATETYPE) == 4, "D3DRENDERSTATETYPE is one dword"
 #include "d3d8.h"
 
 
-static_assert(sizeof(D3DPRESENT_PARAMETERS) == 0x34, "D3DPRESENT_PARAMETERS");
-static_assert(sizeof(D3DCAPS8) == 0xD4, "D3DCAPS8 DX8");
-static_assert(offsetof(D3DCAPS8, DevCaps) == 0x1C, "DevCaps");
-static_assert(offsetof(D3DCAPS8, RasterCaps) == 0x24, "RasterCaps");
-static_assert(offsetof(D3DCAPS8, TextureCaps) == 0x3C, "TextureCaps");
-static_assert(offsetof(D3DCAPS8, MaxTextureWidth) == 0x58, "MaxTextureWidth");
-static_assert(offsetof(D3DCAPS8, MaxTextureHeight) == 0x5C, "MaxTextureHeight");
+FL_LAYOUT_ASSERT(sizeof(D3DPRESENT_PARAMETERS) == 0x34, "D3DPRESENT_PARAMETERS");
+FL_LAYOUT_ASSERT(sizeof(D3DCAPS8) == 0xD4, "D3DCAPS8 DX8");
+FL_LAYOUT_ASSERT(offsetof(D3DCAPS8, DevCaps) == 0x1C, "DevCaps");
+FL_LAYOUT_ASSERT(offsetof(D3DCAPS8, RasterCaps) == 0x24, "RasterCaps");
+FL_LAYOUT_ASSERT(offsetof(D3DCAPS8, TextureCaps) == 0x3C, "TextureCaps");
+FL_LAYOUT_ASSERT(offsetof(D3DCAPS8, MaxTextureWidth) == 0x58, "MaxTextureWidth");
+FL_LAYOUT_ASSERT(offsetof(D3DCAPS8, MaxTextureHeight) == 0x5C, "MaxTextureHeight");
 
 typedef IDirect3D8*(WINAPI* FnDirect3DCreate8)(UINT SdkVersion);
 

@@ -28,9 +28,9 @@ public:
     unsigned long RefCount; // +18
 };
 
-static_assert(offsetof(FImaData, NameCrc) == 0x04, "IMAData CRC +4");
-static_assert(offsetof(FImaData, Keys) == 0x08, "IMAData keys +8");
-static_assert(offsetof(FImaData, RefCount) == 0x18, "IMAData ref +18");
+FL_LAYOUT_ASSERT(offsetof(FImaData, NameCrc) == 0x04, "IMAData CRC +4");
+FL_LAYOUT_ASSERT(offsetof(FImaData, Keys) == 0x08, "IMAData keys +8");
+FL_LAYOUT_ASSERT(offsetof(FImaData, RefCount) == 0x18, "IMAData ref +18");
 
 class FImaInstance final : public IImaInstance
 {
@@ -56,12 +56,12 @@ public:
     unsigned long RefCount; // +18
 };
 
-static_assert(offsetof(FImaInstance, Data) == 0x04, "IMAInstance data +4");
-static_assert(offsetof(FImaInstance, Time) == 0x08, "IMAInstance time +8");
-static_assert(offsetof(FImaInstance, Frame) == 0x0C, "IMAInstance frame +C");
-static_assert(offsetof(FImaInstance, Next) == 0x10, "IMAInstance next +10");
-static_assert(offsetof(FImaInstance, Prev) == 0x14, "IMAInstance prev +14");
-static_assert(offsetof(FImaInstance, RefCount) == 0x18, "IMAInstance ref +18");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, Data) == 0x04, "IMAInstance data +4");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, Time) == 0x08, "IMAInstance time +8");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, Frame) == 0x0C, "IMAInstance frame +C");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, Next) == 0x10, "IMAInstance next +10");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, Prev) == 0x14, "IMAInstance prev +14");
+FL_LAYOUT_ASSERT(offsetof(FImaInstance, RefCount) == 0x18, "IMAInstance ref +18");
 
 class FMaterialAnimation;
 

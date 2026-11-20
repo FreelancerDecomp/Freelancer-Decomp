@@ -107,10 +107,10 @@ struct FLControllerGolemParms : public IVP_Controller_Motion_Parms
     float Field_0x34;              // +0x34  default 5.0f  (0x40a00000)
 };
 
-static_assert(sizeof(FLControllerGolemParms) == 0x38, "FLControllerGolemParms 0x38");
-static_assert(offsetof(FLControllerGolemParms, MaxTorque) == 0x20, "parms+0x20 MaxTorque");
-static_assert(offsetof(FLControllerGolemParms, MaxDeltaPosition) == 0x24, "parms+0x24");
-static_assert(offsetof(FLControllerGolemParms, Field_0x34) == 0x34, "parms+0x34");
+FL_LAYOUT_ASSERT(sizeof(FLControllerGolemParms) == 0x38, "FLControllerGolemParms 0x38");
+FL_LAYOUT_ASSERT(offsetof(FLControllerGolemParms, MaxTorque) == 0x20, "parms+0x20 MaxTorque");
+FL_LAYOUT_ASSERT(offsetof(FLControllerGolemParms, MaxDeltaPosition) == 0x24, "parms+0x24");
+FL_LAYOUT_ASSERT(offsetof(FLControllerGolemParms, Field_0x34) == 0x34, "parms+0x34");
 
 namespace CmnPhySys
 {

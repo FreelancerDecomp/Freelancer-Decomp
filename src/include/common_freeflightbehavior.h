@@ -104,7 +104,7 @@ public:
     unsigned char Flag3fc;
     unsigned char Pad3fd[0x400 - 0x3fd];
 };
-static_assert(offsetof(FreeFlightBehavior, Flag3fc) == 0x3fc, "FreeFlightBehavior::Flag3fc offset");
+FL_LAYOUT_ASSERT(offsetof(FreeFlightBehavior, Flag3fc) == 0x3fc, "FreeFlightBehavior::Flag3fc offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x400`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -113,4 +113,4 @@ static_assert(offsetof(FreeFlightBehavior, Flag3fc) == 0x3fc, "FreeFlightBehavio
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(FreeFlightBehavior) == 0x400, "FreeFlightBehavior is its retail size 0x400");
+FL_LAYOUT_ASSERT(sizeof(FreeFlightBehavior) == 0x400, "FreeFlightBehavior is its retail size 0x400");

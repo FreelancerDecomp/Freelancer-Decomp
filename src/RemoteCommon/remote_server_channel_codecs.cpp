@@ -1669,7 +1669,7 @@ unsigned int FRpcServerAdjustAttitudePacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x2d CREATECOUNTER ---
-static_assert(sizeof(FRpcServerCreateCounterPacket) == 0x68, "CREATECOUNTER is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateCounterPacket) == 0x68, "CREATECOUNTER is operator new(0x68)");
 
 // RC 06b4aab0 / RS 06be55d0.
 FRpcServerCreateCounterPacket::FRpcServerCreateCounterPacket() : FPacketBase(0x2002du) {
@@ -1729,7 +1729,7 @@ unsigned int FRpcServerCreateCounterPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x37 CREATEGUIDED ---
-static_assert(sizeof(FRpcServerCreateGuidedPacket) == 0x58, "CREATEGUIDED is operator new(0x58)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateGuidedPacket) == 0x58, "CREATEGUIDED is operator new(0x58)");
 
 // RC 06b4a460 / RS 06be4f60: only Position and Orientation are written.
 FRpcServerCreateGuidedPacket::FRpcServerCreateGuidedPacket() : FPacketBase(0x20037u) {
@@ -1801,7 +1801,7 @@ unsigned int FRpcServerCreateGuidedPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x22 SYSTEM_SWITCH_IN ---
-static_assert(sizeof(FRpcServerSystemSwitchInPacket) == 0x44, "SYSTEM_SWITCH_IN is operator new(0x44)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSystemSwitchInPacket) == 0x44, "SYSTEM_SWITCH_IN is operator new(0x44)");
 
 // RC 06b4a790 / RS 06be5290.
 FRpcServerSystemSwitchInPacket::FRpcServerSystemSwitchInPacket() : FPacketBase(0x20022u) {
@@ -1840,7 +1840,7 @@ unsigned int FRpcServerSystemSwitchInPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x31 EXPLODEASTEROIDMINE ---
-static_assert(sizeof(FRpcServerExplodeAsteroidMinePacket) == 0x30,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerExplodeAsteroidMinePacket) == 0x30,
     "EXPLODEASTEROIDMINE is operator new(0x30)");
 
 // RC 06b4ab90 / RS 06be56b0: +0x20..+0x2c = 0 as dwords.
@@ -1871,7 +1871,7 @@ unsigned int FRpcServerExplodeAsteroidMinePacket::Decode(const unsigned char* Bu
 }
 
 // --- 0x38 ITEMTRACTORED ---
-static_assert(sizeof(FRpcServerItemTractoredPacket) == 0x2c, "ITEMTRACTORED is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerItemTractoredPacket) == 0x2c, "ITEMTRACTORED is operator new(0x2c)");
 
 // RC 06b4a510 / RS 06be5010.
 FRpcServerItemTractoredPacket::FRpcServerItemTractoredPacket() : FPacketBase(0x20038u) {
@@ -1905,7 +1905,7 @@ unsigned int FRpcServerItemTractoredPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x2e SETADDITEM ---
-static_assert(sizeof(FRpcServerSetAddItemPacket) == 0x40, "SETADDITEM is operator new(0x40)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSetAddItemPacket) == 0x40, "SETADDITEM is operator new(0x40)");
 
 // RC 06b49e60 / RS 06be4920.
 FRpcServerSetAddItemPacket::FRpcServerSetAddItemPacket() : FPacketBase(0x2002eu) {
@@ -1981,7 +1981,7 @@ unsigned int FRpcServerSetAddItemPacket::Decode(const unsigned char* Buffer,
 }
 
 // --- 0x32 REQUESTSPACESCRIPT ---
-static_assert(sizeof(FRpcServerRequestSpaceScriptPacket) == 0x3c,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerRequestSpaceScriptPacket) == 0x3c,
     "REQUESTSPACESCRIPT is operator new(0x3c)");
 
 // RC 06b4b990 / RS 06be64b0.
@@ -2047,7 +2047,7 @@ unsigned int FRpcServerRequestSpaceScriptPacket::Decode(const unsigned char* Buf
 }
 
 // --- 0x33 SETMISSIONOBJECTIVESTATE ---
-static_assert(sizeof(FRpcServerSetMissionObjectiveStatePacket) == 0x2c,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSetMissionObjectiveStatePacket) == 0x2c,
     "SETMISSIONOBJECTIVESTATE is operator new(0x2c)");
 
 // RC 06b5ebc0 / RS 06bf3410: every failure returns literal 0x16; trailer 06b5ecb0.
@@ -2072,7 +2072,7 @@ unsigned int FRpcServerSetMissionObjectiveStatePacket::Decode(const unsigned cha
 }
 
 // --- 0x34 REPLACEMISSIONOBJECTIVE ---
-static_assert(sizeof(FRpcServerReplaceMissionObjectivePacket) == 0x30,
+FL_LAYOUT_ASSERT(sizeof(FRpcServerReplaceMissionObjectivePacket) == 0x30,
     "REPLACEMISSIONOBJECTIVE is operator new(0x30)");
 
 // RC 06b4b5c0 / RS 06be60e0.
@@ -2212,7 +2212,7 @@ unsigned int FRpcServerSetMissionObjectivesPacket::Decode(const unsigned char* B
 }
 
 // --- 0x3c REPAIROBJECT ---
-static_assert(sizeof(FRpcServerRepairObjectPacket) == 0x2c, "REPAIROBJECT is operator new(0x2c)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerRepairObjectPacket) == 0x2c, "REPAIROBJECT is operator new(0x2c)");
 
 // RC 06b4c4d0 / RS 06be70d0.
 FRpcServerRepairObjectPacket::FRpcServerRepairObjectPacket() : FPacketBase(0x2003cu) {
@@ -2642,7 +2642,7 @@ unsigned int FRpcServerSetGroupFeelingsPacket::Decode(const unsigned char* Buffe
 }
 
 // --- 0x2c CREATEMINE ---
-static_assert(sizeof(FRpcServerCreateMinePacket) == 0x68, "CREATEMINE is operator new(0x68)");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerCreateMinePacket) == 0x68, "CREATEMINE is operator new(0x68)");
 
 // RC 06b4a9e0 / RS 06be5500.
 FRpcServerCreateMinePacket::FRpcServerCreateMinePacket() : FPacketBase(0x2002cu) {

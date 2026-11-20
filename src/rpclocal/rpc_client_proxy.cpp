@@ -83,7 +83,7 @@ static unsigned int RpcArgFloatBits(const float& Value) {
 }
 
 // A Costume by value occupies thirteen argument dwords (RET 0x5c of 0x06d88fc0).
-static_assert(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords by value");
+FL_LAYOUT_ASSERT(sizeof(Costume) == 13 * sizeof(unsigned int), "Costume is 13 dwords by value");
 
 // retail .data:0x06dbbd18 -- set by Update (slot 16) the first time it runs while
 // connected (06d8efe4), cleared by DisconnectClient (slot 17, 06d8f072). Nothing else

@@ -238,7 +238,7 @@ namespace
         unsigned char bHasAlpha;
         unsigned char Padding[3];
     };
-    static_assert(sizeof(FTextureFormatDescriptor) == 0x4c, "Texture format descriptor");
+    FL_LAYOUT_ASSERT(sizeof(FTextureFormatDescriptor) == 0x4c, "Texture format descriptor");
 
     const FTextureFormatDescriptor GTextureFormatDescriptors[15] =
     {

@@ -108,7 +108,7 @@ public:
         float Key;            // +0x8: Insert's `param_2`, stored as a raw float (Common.dll.txt:0636308b/06363093).
         void* Payload;        // +0xc: Insert's `param_1` (06363096) -- a vtable-bearing listener object.
     };
-    static_assert(sizeof(Entry) == 0x10, "IVP_Priority_Pool::Entry size");
+    FL_LAYOUT_ASSERT(sizeof(Entry) == 0x10, "IVP_Priority_Pool::Entry size");
 
     uint16_t PoolCapacity = 0;      // +0x00: Common.dll.txt:06362ef7.
     uint16_t PoolFreeHead = 0xffff; // +0x02: 0xffff == free list empty; Common.dll.txt:06362eff (ctor)/06362fa2 (Insert check).
@@ -137,14 +137,14 @@ public:
     uint16_t Insert(void* Payload, float Key);
     void Remove(uint16_t Slot);
 };
-static_assert(sizeof(IVP_Priority_Pool) == 0x14, "IVP_Priority_Pool size must be 0x14 -- retail's own `PUSH 0x14; CALL operator_new` at Common.dll.txt:063608e2");
-static_assert(offsetof(IVP_Priority_Pool, PoolCapacity) == 0x00, "IVP_Priority_Pool+0x00");
-static_assert(offsetof(IVP_Priority_Pool, PoolFreeHead) == 0x02, "IVP_Priority_Pool+0x02");
-static_assert(offsetof(IVP_Priority_Pool, PoolEntries) == 0x04, "IVP_Priority_Pool+0x04");
-static_assert(offsetof(IVP_Priority_Pool, PoolKeyThreshold) == 0x08, "IVP_Priority_Pool+0x08");
-static_assert(offsetof(IVP_Priority_Pool, PoolSortedHead) == 0x0c, "IVP_Priority_Pool+0x0c");
-static_assert(offsetof(IVP_Priority_Pool, PoolLiveIndex) == 0x0e, "IVP_Priority_Pool+0x0e");
-static_assert(offsetof(IVP_Priority_Pool, PoolCount) == 0x10, "IVP_Priority_Pool+0x10");
+FL_LAYOUT_ASSERT(sizeof(IVP_Priority_Pool) == 0x14, "IVP_Priority_Pool size must be 0x14 -- retail's own `PUSH 0x14; CALL operator_new` at Common.dll.txt:063608e2");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolCapacity) == 0x00, "IVP_Priority_Pool+0x00");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolFreeHead) == 0x02, "IVP_Priority_Pool+0x02");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolEntries) == 0x04, "IVP_Priority_Pool+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolKeyThreshold) == 0x08, "IVP_Priority_Pool+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolSortedHead) == 0x0c, "IVP_Priority_Pool+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolLiveIndex) == 0x0e, "IVP_Priority_Pool+0x0e");
+FL_LAYOUT_ASSERT(offsetof(IVP_Priority_Pool, PoolCount) == 0x10, "IVP_Priority_Pool+0x10");
 
 // ============================================================================
 // IVP_Hull_Manager (FUN_06352150 ctor / FUN_063521b0 dtor / FUN_063521f0 /
@@ -335,28 +335,28 @@ public:
     uint16_t PoolInsert(void* Payload, float Key) { return Pool().Insert(Payload, Key); }
     void PoolRemove(uint16_t Slot) { Pool().Remove(Slot); }
 };
-static_assert(sizeof(IVP_Hull_Manager) == 0x34, "IVP_Hull_Manager size must be 0x34 (52 bytes)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Hull_Manager) == 0x34, "IVP_Hull_Manager size must be 0x34 (52 bytes)");
 // The embedded-pool aliasing contract: every IVP_Priority_Pool field must land
 // on the identically-named IVP_Hull_Manager field, offset by exactly 0x20.
-static_assert(offsetof(IVP_Hull_Manager, PoolCapacity)     == 0x20 + offsetof(IVP_Priority_Pool, PoolCapacity),     "hull/pool alias: PoolCapacity");
-static_assert(offsetof(IVP_Hull_Manager, PoolFreeHead)     == 0x20 + offsetof(IVP_Priority_Pool, PoolFreeHead),     "hull/pool alias: PoolFreeHead");
-static_assert(offsetof(IVP_Hull_Manager, PoolEntries)      == 0x20 + offsetof(IVP_Priority_Pool, PoolEntries),      "hull/pool alias: PoolEntries");
-static_assert(offsetof(IVP_Hull_Manager, PoolKeyThreshold) == 0x20 + offsetof(IVP_Priority_Pool, PoolKeyThreshold), "hull/pool alias: PoolKeyThreshold");
-static_assert(offsetof(IVP_Hull_Manager, PoolSortedHead)   == 0x20 + offsetof(IVP_Priority_Pool, PoolSortedHead),   "hull/pool alias: PoolSortedHead");
-static_assert(offsetof(IVP_Hull_Manager, PoolLiveIndex)    == 0x20 + offsetof(IVP_Priority_Pool, PoolLiveIndex),    "hull/pool alias: PoolLiveIndex");
-static_assert(offsetof(IVP_Hull_Manager, PoolCount)        == 0x20 + offsetof(IVP_Priority_Pool, PoolCount),        "hull/pool alias: PoolCount");
-static_assert(offsetof(IVP_Hull_Manager, LastEditTimeHi) == 0x00, "IVP_Hull_Manager+0x00");
-static_assert(offsetof(IVP_Hull_Manager, LastEditTimeLo) == 0x04, "IVP_Hull_Manager+0x04");
-static_assert(offsetof(IVP_Hull_Manager, OuterGradient) == 0x08, "IVP_Hull_Manager+0x08");
-static_assert(offsetof(IVP_Hull_Manager, InnerGradient) == 0x0c, "IVP_Hull_Manager+0x0c");
-static_assert(offsetof(IVP_Hull_Manager, OuterValueAtLastEdit) == 0x10, "IVP_Hull_Manager+0x10");
-static_assert(offsetof(IVP_Hull_Manager, InnerValueAtLastEdit) == 0x14, "IVP_Hull_Manager+0x14");
-static_assert(offsetof(IVP_Hull_Manager, AccumulatedDeltaA) == 0x18, "IVP_Hull_Manager+0x18");
-static_assert(offsetof(IVP_Hull_Manager, PoolCapacity) == 0x20, "IVP_Hull_Manager+0x20");
-static_assert(offsetof(IVP_Hull_Manager, PoolEntries) == 0x24, "IVP_Hull_Manager+0x24");
-static_assert(offsetof(IVP_Hull_Manager, PoolKeyThreshold) == 0x28, "IVP_Hull_Manager+0x28");
-static_assert(offsetof(IVP_Hull_Manager, PoolLiveIndex) == 0x2e, "IVP_Hull_Manager+0x2e");
-static_assert(offsetof(IVP_Hull_Manager, PoolCount) == 0x30, "IVP_Hull_Manager+0x30");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolCapacity)     == 0x20 + offsetof(IVP_Priority_Pool, PoolCapacity),     "hull/pool alias: PoolCapacity");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolFreeHead)     == 0x20 + offsetof(IVP_Priority_Pool, PoolFreeHead),     "hull/pool alias: PoolFreeHead");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolEntries)      == 0x20 + offsetof(IVP_Priority_Pool, PoolEntries),      "hull/pool alias: PoolEntries");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolKeyThreshold) == 0x20 + offsetof(IVP_Priority_Pool, PoolKeyThreshold), "hull/pool alias: PoolKeyThreshold");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolSortedHead)   == 0x20 + offsetof(IVP_Priority_Pool, PoolSortedHead),   "hull/pool alias: PoolSortedHead");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolLiveIndex)    == 0x20 + offsetof(IVP_Priority_Pool, PoolLiveIndex),    "hull/pool alias: PoolLiveIndex");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolCount)        == 0x20 + offsetof(IVP_Priority_Pool, PoolCount),        "hull/pool alias: PoolCount");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, LastEditTimeHi) == 0x00, "IVP_Hull_Manager+0x00");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, LastEditTimeLo) == 0x04, "IVP_Hull_Manager+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, OuterGradient) == 0x08, "IVP_Hull_Manager+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, InnerGradient) == 0x0c, "IVP_Hull_Manager+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, OuterValueAtLastEdit) == 0x10, "IVP_Hull_Manager+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, InnerValueAtLastEdit) == 0x14, "IVP_Hull_Manager+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, AccumulatedDeltaA) == 0x18, "IVP_Hull_Manager+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolCapacity) == 0x20, "IVP_Hull_Manager+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolEntries) == 0x24, "IVP_Hull_Manager+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolKeyThreshold) == 0x28, "IVP_Hull_Manager+0x28");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolLiveIndex) == 0x2e, "IVP_Hull_Manager+0x2e");
+FL_LAYOUT_ASSERT(offsetof(IVP_Hull_Manager, PoolCount) == 0x30, "IVP_Hull_Manager+0x30");
 
 // Moved here unchanged from ivp_real_object.cpp (cmn-phy5, 2026-10-08) so the
 // ray solver can read it (0634a600 reads slot->WorldTransform.vv at +0x4c).
@@ -394,9 +394,9 @@ struct IVP_NarrowPhaseCacheSlot
     Vector           Secondary;        // +0x5c..+0x67 (12 bytes)
     char             _pad68[0x70 - 0x68]; // +0x68..+0x6f: still unconfirmed.
 };
-static_assert(sizeof(IVP_NarrowPhaseCacheSlot) == 0x70, "IVP_NarrowPhaseCacheSlot size mismatch");
-static_assert(offsetof(IVP_NarrowPhaseCacheSlot, WorldTransform) == 0x1c, "WorldTransform offset mismatch");
-static_assert(offsetof(IVP_NarrowPhaseCacheSlot, Secondary) == 0x5c, "Secondary offset mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_NarrowPhaseCacheSlot) == 0x70, "IVP_NarrowPhaseCacheSlot size mismatch");
+FL_LAYOUT_ASSERT(offsetof(IVP_NarrowPhaseCacheSlot, WorldTransform) == 0x1c, "WorldTransform offset mismatch");
+FL_LAYOUT_ASSERT(offsetof(IVP_NarrowPhaseCacheSlot, Secondary) == 0x5c, "Secondary offset mismatch");
 
 // ============================================================================
 // IVP_RealObjectConstructionTemplate -- port-local name (no retail source) for
@@ -557,19 +557,19 @@ struct IVP_RealObjectConstructionTemplate
     // FUN_06348690: free(LongNamePtr), then LongNamePtr = _strdup(Name).
     void set_long_name(const char* Name);
 };
-static_assert(sizeof(IVP_RealObjectConstructionTemplate) == 0x58, "FUN_063486c0 zero-fills 0x16 dwords");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, ShortNameTag) == 0x04, "IVP_RealObjectConstructionTemplate+0x04");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, FlagsHi) == 0x0c, "IVP_RealObjectConstructionTemplate+0x0c");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, FlagsLo) == 0x10, "IVP_RealObjectConstructionTemplate+0x10");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, Material) == 0x18, "IVP_RealObjectConstructionTemplate+0x18");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, MassInput) == 0x1c, "IVP_RealObjectConstructionTemplate+0x1c");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, AutoCheckRotInertia) == 0x20, "IVP_RealObjectConstructionTemplate+0x20");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, InertiaBoxVector) == 0x24, "IVP_RealObjectConstructionTemplate+0x24");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, RotInertiaClampFactor) == 0x34, "IVP_RealObjectConstructionTemplate+0x34");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, SpeedDampInput) == 0x38, "IVP_RealObjectConstructionTemplate+0x38");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, Field_0x4c) == 0x4c, "IVP_RealObjectConstructionTemplate+0x4c");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, OptionalComOverride) == 0x50, "IVP_RealObjectConstructionTemplate+0x50");
-static_assert(offsetof(IVP_RealObjectConstructionTemplate, ClientData) == 0x54, "IVP_RealObjectConstructionTemplate+0x54");
+FL_LAYOUT_ASSERT(sizeof(IVP_RealObjectConstructionTemplate) == 0x58, "FUN_063486c0 zero-fills 0x16 dwords");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, ShortNameTag) == 0x04, "IVP_RealObjectConstructionTemplate+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, FlagsHi) == 0x0c, "IVP_RealObjectConstructionTemplate+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, FlagsLo) == 0x10, "IVP_RealObjectConstructionTemplate+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, Material) == 0x18, "IVP_RealObjectConstructionTemplate+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, MassInput) == 0x1c, "IVP_RealObjectConstructionTemplate+0x1c");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, AutoCheckRotInertia) == 0x20, "IVP_RealObjectConstructionTemplate+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, InertiaBoxVector) == 0x24, "IVP_RealObjectConstructionTemplate+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, RotInertiaClampFactor) == 0x34, "IVP_RealObjectConstructionTemplate+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, SpeedDampInput) == 0x38, "IVP_RealObjectConstructionTemplate+0x38");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, Field_0x4c) == 0x4c, "IVP_RealObjectConstructionTemplate+0x4c");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, OptionalComOverride) == 0x50, "IVP_RealObjectConstructionTemplate+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_RealObjectConstructionTemplate, ClientData) == 0x54, "IVP_RealObjectConstructionTemplate+0x54");
 
 // ============================================================================
 // The IVP object hierarchy (cmn-phy7 2026-10-08).
@@ -622,7 +622,7 @@ public:
     char*            object_name;  // +0x14 strdup'd (06356920), freed by the dtor
     IVP_Environment* environment;  // +0x18
 };
-static_assert(sizeof(IVP_Object) == 0x1c, "IVP_Object is 0x1c bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Object) == 0x1c, "IVP_Object is 0x1c bytes");
 
 class IVP_Cluster : public IVP_Object
 {
@@ -645,7 +645,7 @@ public:
 
     IVP_Object* first_object; // +0x1c
 };
-static_assert(sizeof(IVP_Cluster) == 0x20, "IVP_Cluster is 0x20 bytes (operator new(0x20) at .text:0634ad98)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Cluster) == 0x20, "IVP_Cluster is 0x20 bytes (operator new(0x20) at .text:0634ad98)");
 
 // The intermediate layer (vtbl 063a544c). Its ctor is inlined into 06345100
 // (.text:06345131-06345140): IVP_Object(Father, Template), vptr, then the hull
@@ -734,9 +734,9 @@ struct IVP_Anchor
     IVP_U_Point core_pos;              // +0x1c
     IIVPAnchorEvents* l_actuator;       // +0x2c
 };
-static_assert(offsetof(IVP_Anchor, object_pos) == 0x0c, "IVP_Anchor+0x0c");
-static_assert(offsetof(IVP_Anchor, core_pos) == 0x1c, "IVP_Anchor+0x1c");
-static_assert(offsetof(IVP_Anchor, l_actuator) == 0x2c, "IVP_Anchor+0x2c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Anchor, object_pos) == 0x0c, "IVP_Anchor+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Anchor, core_pos) == 0x1c, "IVP_Anchor+0x1c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Anchor, l_actuator) == 0x2c, "IVP_Anchor+0x2c");
 
 // IVP_Real_Object (0xA8 / 168 bytes), vtbl 063a5440.
 class IVP_Real_Object : public IVP_Real_Object_Fast_Static
@@ -1076,7 +1076,7 @@ public:
                 const IVP_U_Quat* InitialOrientationOrNull,
                 const IVP_U_Point* InitialPosition);
 };
-static_assert(sizeof(IVP_Polygon) == 0xA8, "IVP_Polygon must not change IVP_Real_Object's layout");
+FL_LAYOUT_ASSERT(sizeof(IVP_Polygon) == 0xA8, "IVP_Polygon must not change IVP_Real_Object's layout");
 
 // FUN_06362570 (Common.dll.txt:457067-457131, 47 insns). object_type == 3.
 // Sole caller: 0634ce45.
@@ -1096,7 +1096,7 @@ public:
              const IVP_U_Quat* InitialOrientationOrNull,
              const IVP_U_Point* InitialPosition);
 };
-static_assert(sizeof(IVP_Ball) == 0xA8, "IVP_Ball must not change IVP_Real_Object's layout");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ball) == 0xA8, "IVP_Ball must not change IVP_Real_Object's layout");
 
 // FUN_06345b20 (Common.dll.txt:06345b20-06345e2f, decomp-tracker item 2817).
 // The "second phase" of IVP_Real_Object construction -- rest-state (RotSpeed/
@@ -1185,4 +1185,4 @@ void IVP_TransformSlotToWorldSpace(struct IVP_NarrowPhaseCacheSlot* Slot, const 
 
 #pragma pack(pop)
 
-static_assert(sizeof(IVP_Real_Object) == 0xA8, "IVP_Real_Object size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_Real_Object) == 0xA8, "IVP_Real_Object size mismatch");

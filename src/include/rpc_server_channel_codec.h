@@ -811,8 +811,8 @@ using FRpcServerGfUpdateMissionComputerPacket = FRpcServerBlobPacket<0x2001du>;
 using FRpcServerGfUpdateNewsBroadcastPacket = FRpcServerBlobPacket<0x2001eu>;
 // 0x1f GFUPDATEAMBIENTSCRIPT RC 06b4c310/06b4c350, RS 06be6ed0/06be6f10.
 using FRpcServerGfUpdateAmbientScriptPacket = FRpcServerBlobPacket<0x2001fu, true>;
-static_assert(sizeof(FRpcServerGfScriptBehaviorPacket) == 0x28, "SERVER 0x1a size 0x28");
-static_assert(sizeof(FRpcServerGfUpdateAmbientScriptPacket) == 0x28, "SERVER 0x1f size 0x28");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerGfScriptBehaviorPacket) == 0x28, "SERVER 0x1a size 0x28");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerGfUpdateAmbientScriptPacket) == 0x28, "SERVER 0x1f size 0x28");
 
 // 0x04 FLPACKET_SERVER_CREATESHIP. RC factory 06b4a800 / ctor 06b4a840 / dtor 06b40320
 // (body 06b3f820), RS 06be5300 / 06be5340 / 06be54a0 (body 06bf0c10), operator
@@ -1233,7 +1233,7 @@ public:
     // TODO: meaning. bReceiverIsOwnShip's byte, raw; the codec sends the costume only when it is not 0.
     unsigned char Field_0x74;     // +0x74
 };
-static_assert(sizeof(FRpcServerSendCommPacket) == 0x78, "SERVER 0x4f size 0x78");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerSendCommPacket) == 0x78, "SERVER 0x4f size 0x78");
 
 // 0x54 FLPACKET_SERVER_MISCOBJUPDATE (RS-P9). RC factory 06b4d070 / ctor 06b4d0b0 / deleting
 // dtor 06b45810 (body 06b457a0), RS 06be7c90 / 06be7cd0 / 06be7d40 (body 06bfa600). One packet
@@ -1749,7 +1749,7 @@ struct FRpcServerLootRecord {
     unsigned char bTemporary;       // +0x45 desc +0x45
     unsigned char Pad46[2];         // +0x46
 };
-static_assert(sizeof(FRpcServerLootRecord) == 0x48, "CREATELOOT list record 0x48");
+FL_LAYOUT_ASSERT(sizeof(FRpcServerLootRecord) == 0x48, "CREATELOOT list record 0x48");
 
 // 0x28 FLPACKET_SERVER_CREATELOOT: RC factory 06b4ada0 / ctor 06b4ade0 / dtor 06b4ae90,
 // RS 06be58c0 / 06be5900 (retail size 0x34). The ctor zeroes OwnerId and Kind and builds

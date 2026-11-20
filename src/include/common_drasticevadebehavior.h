@@ -93,18 +93,18 @@ public:
     int TargetKind40;          // +0x40. Ctor 0; Slot10 copies Op+0xc; Slot7 switches on it.
 };
 
-static_assert(offsetof(DrasticEvadeBehavior, CachedHandle08) == 0x08, "DrasticEvadeBehavior::CachedHandle08 offset");
-static_assert(offsetof(DrasticEvadeBehavior, ModeSelector0xc) == 0x0c, "DrasticEvadeBehavior::ModeSelector0xc offset");
-static_assert(offsetof(DrasticEvadeBehavior, UpdateResult10) == 0x10, "DrasticEvadeBehavior::UpdateResult10 offset");
-static_assert(offsetof(DrasticEvadeBehavior, OwnerContextPtr14) == 0x14, "DrasticEvadeBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(DrasticEvadeBehavior, DeltaTime1c) == 0x1c, "DrasticEvadeBehavior::DeltaTime1c offset");
-static_assert(offsetof(DrasticEvadeBehavior, BehaviorMgrPtr20) == 0x20, "DrasticEvadeBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(DrasticEvadeBehavior, NavHelperPtr24) == 0x24, "DrasticEvadeBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(DrasticEvadeBehavior, Flags28) == 0x28, "DrasticEvadeBehavior::Flags28 offset");
-static_assert(offsetof(DrasticEvadeBehavior, Flag29) == 0x29, "DrasticEvadeBehavior::Flag29 offset");
-static_assert(offsetof(DrasticEvadeBehavior, StateTimer2c) == 0x2c, "DrasticEvadeBehavior::StateTimer2c offset");
-static_assert(offsetof(DrasticEvadeBehavior, DurationThreshold30) == 0x30, "DrasticEvadeBehavior::DurationThreshold30 offset");
-static_assert(offsetof(DrasticEvadeBehavior, TargetOffset) == 0x34, "DrasticEvadeBehavior::TargetOffset offset");
-static_assert(offsetof(DrasticEvadeBehavior, TargetKind40) == 0x40, "DrasticEvadeBehavior::TargetKind40 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, CachedHandle08) == 0x08, "DrasticEvadeBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, ModeSelector0xc) == 0x0c, "DrasticEvadeBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, UpdateResult10) == 0x10, "DrasticEvadeBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, OwnerContextPtr14) == 0x14, "DrasticEvadeBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, DeltaTime1c) == 0x1c, "DrasticEvadeBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, BehaviorMgrPtr20) == 0x20, "DrasticEvadeBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, NavHelperPtr24) == 0x24, "DrasticEvadeBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, Flags28) == 0x28, "DrasticEvadeBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, Flag29) == 0x29, "DrasticEvadeBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, StateTimer2c) == 0x2c, "DrasticEvadeBehavior::StateTimer2c offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, DurationThreshold30) == 0x30, "DrasticEvadeBehavior::DurationThreshold30 offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, TargetOffset) == 0x34, "DrasticEvadeBehavior::TargetOffset offset");
+FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, TargetKind40) == 0x40, "DrasticEvadeBehavior::TargetKind40 offset");
 // Retail object size: the factory pushes 0x44 before operator new.
-static_assert(sizeof(DrasticEvadeBehavior) == 0x44, "DrasticEvadeBehavior size must match retail 0x44");
+FL_LAYOUT_ASSERT(sizeof(DrasticEvadeBehavior) == 0x44, "DrasticEvadeBehavior size must match retail 0x44");

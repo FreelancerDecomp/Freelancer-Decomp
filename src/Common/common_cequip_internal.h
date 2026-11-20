@@ -49,7 +49,7 @@ namespace CmnCequip
         unsigned long Field_0x54;
         unsigned long Field_0x58;
     };
-    static_assert(sizeof(FJointRelative) == G_EngineJointPayloadDwords * sizeof(unsigned long),
+    FL_LAYOUT_ASSERT(sizeof(FJointRelative) == G_EngineJointPayloadDwords * sizeof(unsigned long),
                   "FJointRelative is the whole IEngine joint block");
 
     // IEngine+0xc4 for an instance id (retail never tests the result for null where it reads it).

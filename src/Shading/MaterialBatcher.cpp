@@ -312,7 +312,7 @@ FMaterialBatcher::~FMaterialBatcher()
     RpIndexBuffer = nullptr;
 }
 
-static_assert(offsetof(FMaterialBatcher, Library) == 0x04, "IMaterialLibrary at Batcher+4");
+FL_LAYOUT_ASSERT(offsetof(FMaterialBatcher, Library) == 0x04, "IMaterialLibrary at Batcher+4");
 
 GENRESULT DACOM_API FMaterialBatcher::QueryInterface(const char* Iid, void** Out)
 {

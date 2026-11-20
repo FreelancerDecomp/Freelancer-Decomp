@@ -56,11 +56,11 @@ namespace Timing
     };
 }
 
-static_assert(offsetof(Timing::Delta, Dt) == 0x00, "Timing::Delta.Dt");
-static_assert(offsetof(Timing::Delta, StartTicks) == 0x08, "Timing::Delta.StartTicks");
-static_assert(offsetof(Timing::Delta, StopTicks) == 0x10, "Timing::Delta.StopTicks");
-static_assert(offsetof(Timing::Delta, StartTickCount) == 0x18, "Timing::Delta.StartTickCount");
-static_assert(offsetof(Timing::Delta, StopTickCount) == 0x1c, "Timing::Delta.StopTickCount");
-static_assert(offsetof(Timing::Delta, bStarted) == 0x20, "Timing::Delta.bStarted");
-static_assert(offsetof(Timing::Delta, bStopped) == 0x21, "Timing::Delta.bStopped");
-static_assert(sizeof(Timing::Delta) == 0x28, "Timing::Delta size (MSVC pack 8)");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, Dt) == 0x00, "Timing::Delta.Dt");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, StartTicks) == 0x08, "Timing::Delta.StartTicks");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, StopTicks) == 0x10, "Timing::Delta.StopTicks");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, StartTickCount) == 0x18, "Timing::Delta.StartTickCount");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, StopTickCount) == 0x1c, "Timing::Delta.StopTickCount");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, bStarted) == 0x20, "Timing::Delta.bStarted");
+FL_LAYOUT_ASSERT(offsetof(Timing::Delta, bStopped) == 0x21, "Timing::Delta.bStopped");
+FL_LAYOUT_ASSERT(sizeof(Timing::Delta) == 0x28, "Timing::Delta size (MSVC pack 8)");

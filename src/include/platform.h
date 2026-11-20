@@ -244,7 +244,7 @@ namespace Platform
     // on Windows XP and later); the value is then 0.
     inline bool PerfCounter(int64_t* Ticks)
     {
-        static_assert(sizeof(LARGE_INTEGER) == sizeof(int64_t), "LARGE_INTEGER is 64-bit");
+        FL_LAYOUT_ASSERT(sizeof(LARGE_INTEGER) == sizeof(int64_t), "LARGE_INTEGER is 64-bit");
         LARGE_INTEGER Value;
         Value.QuadPart = 0;
         BOOL const Ok = ::QueryPerformanceCounter(&Value);

@@ -26,20 +26,20 @@
 // INI_Reader name compare (is_header / is_value / get_value_bool) call.
 int CallDacomStricmp(const char* Left, const char* Right);
 
-static_assert(sizeof(INI_Reader::State) == 0xC08, "text INI_Reader::State is cursor+line+3x0x400");
-static_assert(offsetof(INI_Reader::State, Text) == 4 && offsetof(INI_Reader::State, Bini) == 4,
+FL_LAYOUT_ASSERT(sizeof(INI_Reader::State) == 0xC08, "text INI_Reader::State is cursor+line+3x0x400");
+FL_LAYOUT_ASSERT(offsetof(INI_Reader::State, Text) == 4 && offsetof(INI_Reader::State, Bini) == 4,
               "both State views start after the cursor");
-static_assert(offsetof(INI_Reader::State::FBini, ValueIndex) == 4 &&
+FL_LAYOUT_ASSERT(offsetof(INI_Reader::State::FBini, ValueIndex) == 4 &&
                   offsetof(INI_Reader::State::FBini, ValueOffset) == 8 &&
                   offsetof(INI_Reader::State::FBini, ParamsOffset) == 0xc,
               "BINI get_state writes +4 dword, +8 word, +0xc dword, +0x10 dword");
-static_assert(offsetof(FBiniParam, Int) == 1, "BINI param payload follows the type byte");
-static_assert(sizeof(LineParser32) == 0x408, "LineParser32 is Buffer[0x400] + Length + Position");
-static_assert(sizeof(Vector) == 12, "Vector is 3 floats");
-static_assert(sizeof(BINI_Header) == 0xC, "BINI_Header is 0xC");
-static_assert(sizeof(BINI_Block) == 4, "BINI_Block is 4");
-static_assert(sizeof(BINI_Value) == 3, "BINI_Value is 3");
-static_assert(sizeof(FBiniParam) == 5, "BINI param is type + 4-byte payload");
+FL_LAYOUT_ASSERT(offsetof(FBiniParam, Int) == 1, "BINI param payload follows the type byte");
+FL_LAYOUT_ASSERT(sizeof(LineParser32) == 0x408, "LineParser32 is Buffer[0x400] + Length + Position");
+FL_LAYOUT_ASSERT(sizeof(Vector) == 12, "Vector is 3 floats");
+FL_LAYOUT_ASSERT(sizeof(BINI_Header) == 0xC, "BINI_Header is 0xC");
+FL_LAYOUT_ASSERT(sizeof(BINI_Block) == 4, "BINI_Block is 4");
+FL_LAYOUT_ASSERT(sizeof(BINI_Value) == 3, "BINI_Value is 3");
+FL_LAYOUT_ASSERT(sizeof(FBiniParam) == 5, "BINI param is type + 4-byte payload");
 
 namespace
 {

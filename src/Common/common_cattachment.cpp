@@ -66,7 +66,7 @@ namespace
         float Min;          // +0x40
         float Max;          // +0x44
     };
-    static_assert(sizeof(FHardpointData) == 0x48, "FHardpointData 0x48");
+    FL_LAYOUT_ASSERT(sizeof(FHardpointData) == 0x48, "FHardpointData 0x48");
 
     // .text:062942b0..062942f1 (and the copy at 06294326): wrap a limit range into [0, 360) by
     // whole steps of the double 6.2831854820251465 (DAT_0639c9e0); bounds DAT_0639c430 0.0 and

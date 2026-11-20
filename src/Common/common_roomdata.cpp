@@ -46,7 +46,7 @@ namespace
     char const* IniReaderGetNameCode()
     {
         char const* (INI_Reader::*Method)() const = &INI_Reader::get_name;
-        static_assert(sizeof(Method) == sizeof(char const*),
+        FL_LAYOUT_ASSERT(sizeof(Method) == sizeof(char const*),
                       "INI_Reader member pointer is a plain code address");
         char const* Code = nullptr;
         std::memcpy(&Code, &Method, sizeof(Code));
@@ -197,7 +197,7 @@ IScriptEngine* __cdecl ThornScriptLoad(char const* Path)
 
     // The descriptor retail builds at 0627b929 is five dwords with Size 0x14 -- dacom.h's
     // aggregate descriptor, here with no outer / inner unknown.
-    static_assert(sizeof(FAGGDESC14) == 0x14, "retail descriptor is 0x14 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FAGGDESC14) == 0x14, "retail descriptor is 0x14 bytes");
     FAGGDESC14 Desc;
     Desc.Size = 0x14;
     Desc.NameAt4 = "IScriptEngine";
@@ -1493,7 +1493,7 @@ void RoomData::add_set_script_light(unsigned long Id, Csys const& Frame,
     Light->Frame = Frame;
     memcpy(Light->Direction, Props->Direction, sizeof(Light->Direction));
     // The blob from its +0x28 (Type) to its end: the 0x1a dwords of the D3DLIGHT8.
-    static_assert(sizeof(FThornLightProps) - offsetof(FThornLightProps, Type) == 0x1a * sizeof(unsigned),
+    FL_LAYOUT_ASSERT(sizeof(FThornLightProps) - offsetof(FThornLightProps, Type) == 0x1a * sizeof(unsigned),
                   "the light blob's D3DLIGHT8 tail is 0x1a dwords");
     memcpy(&Light->Mode, &Props->Type, 0x1a * sizeof(unsigned));
     Light->Type = Type;

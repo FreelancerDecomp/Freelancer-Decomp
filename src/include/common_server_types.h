@@ -81,7 +81,7 @@ struct SStartupInfo {
 };
 #pragma pack(pop)
 
-static_assert(sizeof(SStartupInfo) == 0x214, "SStartupInfo size mismatch");
+FL_LAYOUT_ASSERT(sizeof(SStartupInfo) == 0x214, "SStartupInfo size mismatch");
 
 // SLoginInfo — passed to IServer::Login and PlayerDB::login.
 // Retail layout: wide-string account name at offset 0 (used as (wchar_t*)param_1
@@ -106,7 +106,7 @@ struct SLoginInfo {
     unsigned int Pad_C4;        // +0xC4: padding
 };
 #pragma pack(pop)
-static_assert(sizeof(SLoginInfo) == 0xC8, "SLoginInfo size mismatch");
+FL_LAYOUT_ASSERT(sizeof(SLoginInfo) == 0xC8, "SLoginInfo size mismatch");
 
 // ===========================================================================
 // IServer payload structures.
@@ -158,7 +158,7 @@ struct XActivateEquip {
     bool bActivate;          // +0x06
     unsigned char Pad_0x07;  // +0x07
 };
-static_assert(sizeof(XActivateEquip) == 0x8, "XActivateEquip sizeof 0x8");
+FL_LAYOUT_ASSERT(sizeof(XActivateEquip) == 0x8, "XActivateEquip sizeof 0x8");
 
 // XActivateCruise — 8 bytes (§3.3). Slot 2.
 struct XActivateCruise {
@@ -169,7 +169,7 @@ struct XActivateCruise {
     unsigned char Field_0x05;   // +0x05
     unsigned char Pad_0x06[2];  // +0x06
 };
-static_assert(sizeof(XActivateCruise) == 0x8, "XActivateCruise sizeof 0x8");
+FL_LAYOUT_ASSERT(sizeof(XActivateCruise) == 0x8, "XActivateCruise sizeof 0x8");
 
 // XActivateThrusters — 8 bytes, fully recovered (§3.4). Slot 3.
 struct XActivateThrusters {
@@ -177,7 +177,7 @@ struct XActivateThrusters {
     bool bActivate;             // +0x04
     unsigned char Pad_0x05[3];  // +0x05
 };
-static_assert(sizeof(XActivateThrusters) == 0x8, "XActivateThrusters sizeof 0x8");
+FL_LAYOUT_ASSERT(sizeof(XActivateThrusters) == 0x8, "XActivateThrusters sizeof 0x8");
 
 // XSetTarget — 0x10 bytes, fully recovered (§3.5). Slot 4.
 struct XSetTarget {
@@ -188,7 +188,7 @@ struct XSetTarget {
     unsigned short TargetSubObjId;  // +0x0c
     unsigned short Pad_0x0e;        // +0x0e
 };
-static_assert(sizeof(XSetTarget) == 0x10, "XSetTarget sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(XSetTarget) == 0x10, "XSetTarget sizeof 0x10");
 
 // XTractorObjects — IServer slot 5. Retail's vector at +0x08 owns its ids;
 // all our callers use this modern owning vector, never the VC6 object layout.
@@ -208,7 +208,7 @@ struct XGoTradelane {
     bool Field_0x0c;              // +0x0c
     unsigned char Pad_0x0d[3];    // +0x0d
 };
-static_assert(sizeof(XGoTradelane) == 0x10, "XGoTradelane sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(XGoTradelane) == 0x10, "XGoTradelane sizeof 0x10");
 
 // XJettisonCargo — 0x0c bytes, fully recovered (§3.8). Slot 8.
 struct XJettisonCargo {
@@ -217,7 +217,7 @@ struct XJettisonCargo {
     unsigned short Pad_0x06;  // +0x06
     unsigned int Count;       // +0x08
 };
-static_assert(sizeof(XJettisonCargo) == 0xc, "XJettisonCargo sizeof 0xc");
+FL_LAYOUT_ASSERT(sizeof(XJettisonCargo) == 0xc, "XJettisonCargo sizeof 0xc");
 
 // SSPUseItem — 8 bytes, fully recovered (§3.10). Slot 56.
 struct SSPUseItem {
@@ -225,7 +225,7 @@ struct SSPUseItem {
     unsigned short ItemId;   // +0x04
     unsigned short Count;    // +0x06
 };
-static_assert(sizeof(SSPUseItem) == 0x8, "SSPUseItem sizeof 0x8");
+FL_LAYOUT_ASSERT(sizeof(SSPUseItem) == 0x8, "SSPUseItem sizeof 0x8");
 
 // SGFGoodBuyInfo — 0x10 bytes; the SIZE is proven (rpclocal 0x06d8d5a0 and
 // Server 0x06d17bb0 both move exactly 4 dwords), the field semantics are not (§3.11).
@@ -235,7 +235,7 @@ struct SGFGoodBuyInfo {
     unsigned int Field_0x08;  // TODO: semantics unproven
     unsigned int Field_0x0c;  // TODO: semantics unproven
 };
-static_assert(sizeof(SGFGoodBuyInfo) == 0x10, "SGFGoodBuyInfo sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(SGFGoodBuyInfo) == 0x10, "SGFGoodBuyInfo sizeof 0x10");
 
 // SGFGoodSellInfo — PARTIAL (§3.12). Three dwords are serialized (rpclocal
 // 0x06d8d600 / Server 0x06d17bf0); no reader touches anything past +0x08, so the
@@ -266,7 +266,7 @@ struct SSPObjUpdateInfo {
     unsigned char Field_0x2c;    // +0x2c
     unsigned char Pad_0x2d[3];   // +0x2d
 };
-static_assert(sizeof(SSPObjUpdateInfo) == 0x30, "SSPObjUpdateInfo sizeof 0x30");
+FL_LAYOUT_ASSERT(sizeof(SSPObjUpdateInfo) == 0x30, "SSPObjUpdateInfo sizeof 0x30");
 
 // SSPMunitionCollisionInfo — 0x1c bytes, fully recovered (§3.18). Slot 53.
 // Semantics proven 2026-09-24 by its consumer, Server.dll StarSystem::munition_collision
@@ -285,7 +285,7 @@ struct SSPMunitionCollisionInfo {
     unsigned int Field_0x14;   // +0x14  hit position y (float bits)
     unsigned int Field_0x18;   // +0x18  hit position z (float bits)
 };
-static_assert(sizeof(SSPMunitionCollisionInfo) == 0x1c, "SSPMunitionCollisionInfo sizeof 0x1c");
+FL_LAYOUT_ASSERT(sizeof(SSPMunitionCollisionInfo) == 0x1c, "SSPMunitionCollisionInfo sizeof 0x1c");
 
 // SSPObjCollisionInfo — 0x14 bytes, fully recovered (§3.19). Slot 55.
 struct SSPObjCollisionInfo {
@@ -298,7 +298,7 @@ struct SSPObjCollisionInfo {
     // TODO: semantics unproven (energy/damage — probably a float). Serialized to packet+0x30.
     unsigned int Field_0x10;        // +0x10
 };
-static_assert(sizeof(SSPObjCollisionInfo) == 0x14, "SSPObjCollisionInfo sizeof 0x14");
+FL_LAYOUT_ASSERT(sizeof(SSPObjCollisionInfo) == 0x14, "SSPObjCollisionInfo sizeof 0x14");
 
 // SSPBadLandsObjCollisionInfo — 0x0c bytes, fully recovered (§3.20). Slot 54.
 struct SSPBadLandsObjCollisionInfo {
@@ -307,7 +307,7 @@ struct SSPBadLandsObjCollisionInfo {
     unsigned short Field_0x08;  // TODO: semantics unproven (SubObjId?)
     unsigned short Pad_0x0a;    // +0x0a
 };
-static_assert(sizeof(SSPBadLandsObjCollisionInfo) == 0xc, "SSPBadLandsObjCollisionInfo sizeof 0xc");
+FL_LAYOUT_ASSERT(sizeof(SSPBadLandsObjCollisionInfo) == 0xc, "SSPBadLandsObjCollisionInfo sizeof 0xc");
 
 // CollisionGroupDesc — 8 bytes, size proven (§3.15). ReqCollisionGroups takes a
 // std::list<CollisionGroupDesc> const&; rpclocal's list copier FUN_06d8f710
@@ -315,7 +315,7 @@ static_assert(sizeof(SSPBadLandsObjCollisionInfo) == 0xc, "SSPBadLandsObjCollisi
 // exactly two dwords.
 // It is NOT redeclared here: CollisionGroupDesc is a Common.dll type, already
 // published in common_cobject.h as { ushort Id; ushort Pad02; float Health; }
-// with its own static_assert(sizeof == 8) and comparison operators. A second
+// with its own FL_LAYOUT_ASSERT(sizeof == 8) and comparison operators. A second
 // body would be exactly the "two declarations, drifting slot order" hazard
 // AGENTS.md warns about, so this is a forward declaration only; translation
 // units that need the complete type include common_cobject.h.
@@ -362,7 +362,7 @@ struct XSetManeuver {
     // TODO: semantics unproven (target/parameter?). rpclocal writes it to packet+0x28.
     unsigned int Field_0x08;  // +0x08
 };
-static_assert(sizeof(XSetManeuver) == 0xc, "XSetManeuver sizeof 0xc");
+FL_LAYOUT_ASSERT(sizeof(XSetManeuver) == 0xc, "XSetManeuver sizeof 0xc");
 
 // ---------------------------------------------------------------------------
 // CDAPacket — the RPC packet base, exactly 0x20 bytes. Ground truth: the packet
@@ -397,7 +397,7 @@ public:
     constexpr unsigned int GetChannel() const { return PacketId >> 16; }
     constexpr unsigned int GetOpcode() const { return PacketId & 0xfff; }
 };
-static_assert(sizeof(CDAPacket) == 0x20, "CDAPacket base sizeof 0x20");
+FL_LAYOUT_ASSERT(sizeof(CDAPacket) == 0x20, "CDAPacket base sizeof 0x20");
 
 // EquipDescList / EquipDesc — real definitions in common_goods.h; referenced here
 // only by const-reference (ReqCargo/ReqEquipment/AddTradeEquip/DelTradeEquip), so
@@ -453,7 +453,7 @@ struct CHARACTER_ID {
     COMMON_API CHARACTER_ID const& operator=(CHARACTER_ID const& other);
 };
 
-static_assert(sizeof(CHARACTER_ID) == 0x200, "CHARACTER_ID must match the retail 512-byte buffer");
+FL_LAYOUT_ASSERT(sizeof(CHARACTER_ID) == 0x200, "CHARACTER_ID must match the retail 512-byte buffer");
 
 COMMON_API bool operator<(CHARACTER_ID const& lhs, CHARACTER_ID const& rhs);
 COMMON_API bool operator==(CHARACTER_ID const& lhs, CHARACTER_ID const& rhs);
@@ -519,7 +519,7 @@ struct ServerStats {
     unsigned int Reserved2;             // +0x24: always 0
     unsigned int Reserved3;             // +0x28: always 0
 };
-static_assert(sizeof(ServerStats) == 0x2c, "ServerStats sizeof 0x2c");
+FL_LAYOUT_ASSERT(sizeof(ServerStats) == 0x2c, "ServerStats sizeof 0x2c");
 
 // CHAT_ID — 4-byte chat identifier (passed by value in retail)
 // Low 16 bits = player/session ID, upper bits = flags/channel info

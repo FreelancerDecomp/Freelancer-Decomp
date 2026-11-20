@@ -20,7 +20,7 @@ void FRegressWriter::Line(const char* Format, ...)
 void FRegressWriter::FormatFloat(char* Out, size_t Size, float Value)
 {
     unsigned int Bits;
-    static_assert(sizeof(Bits) == sizeof(Value), "float is 32-bit");
+    FL_LAYOUT_ASSERT(sizeof(Bits) == sizeof(Value), "float is 32-bit");
     memcpy(&Bits, &Value, sizeof(Bits));
     snprintf(Out, Size, "%08x(%.9g)", Bits, (double)Value);
 }

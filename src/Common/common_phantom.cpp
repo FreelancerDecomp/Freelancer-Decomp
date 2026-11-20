@@ -110,7 +110,7 @@ namespace PhySys
         CObject* Owner;                             // +0x14  AttachPhantom
         unsigned SystemId;                          // +0x18  PhantomParms+0x00
     };
-    static_assert(sizeof(Phantom) == 0x1c, "PhySys::Phantom is operator new(0x1c)");
+    FL_LAYOUT_ASSERT(sizeof(Phantom) == 0x1c, "PhySys::Phantom is operator new(0x1c)");
 }
 
 // .text:0628b4c7..0628b4f5: the body through FUN_06345450 when set, the compact surface through

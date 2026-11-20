@@ -148,10 +148,10 @@ using PlayMap = std::map<int, FAnimSub>;
 // See common_cobject.h for the full proof chain on each.
 // ============================================================================
 
-static_assert(offsetof(CObject, PhysicsSystemId) == 0x50, "CObject+0x50 PhySys system id");
-static_assert(offsetof(CObject, GolemController) == 0x60, "CObject+0x60 golem force controller");
-static_assert(offsetof(CObject, PhysicsControlMode) == 0x74, "CObject+0x74 physics control mode");
-static_assert(sizeof(CObject) == 0x9c, "CObject sizeof 0x9c -- every offset above is inside it");
+FL_LAYOUT_ASSERT(offsetof(CObject, PhysicsSystemId) == 0x50, "CObject+0x50 PhySys system id");
+FL_LAYOUT_ASSERT(offsetof(CObject, GolemController) == 0x60, "CObject+0x60 golem force controller");
+FL_LAYOUT_ASSERT(offsetof(CObject, PhysicsControlMode) == 0x74, "CObject+0x74 physics control mode");
+FL_LAYOUT_ASSERT(sizeof(CObject) == 0x9c, "CObject sizeof 0x9c -- every offset above is inside it");
 
 static int GetTransformMode(CObject const* Obj)
 {

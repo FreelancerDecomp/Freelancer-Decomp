@@ -47,4 +47,4 @@ protected:
 
 // Server .text:06ce15da: PUSH 0xdc is the element size its vector deleting
 // destructor hands the array helper.
-static_assert(sizeof(MD5Hash) == 0xdc, "MD5Hash sizeof 0xdc");
+FL_LAYOUT_ASSERT(sizeof(MD5Hash) == 0xdc, "MD5Hash sizeof 0xdc");

@@ -103,7 +103,7 @@ struct FThornLightProps
     float Cutoff;
 };
 
-static_assert(sizeof(FThornLightProps) == 0x90, "FUN_06f27fe0 lightprops is 0x24 dwords");
+FL_LAYOUT_ASSERT(sizeof(FThornLightProps) == 0x90, "FUN_06f27fe0 lightprops is 0x24 dwords");
 
 // IPersistString facet retained by MOTION_PATH descriptors. RET includes the interface receiver.
 struct IPersistString : IDAComponent
@@ -172,7 +172,7 @@ struct FThornExtendedProgress
 {
     unsigned char Bytes[10];
 };
-static_assert(sizeof(FThornExtendedProgress) == 10, "x87 extended value storage");
+FL_LAYOUT_ASSERT(sizeof(FThornExtendedProgress) == 10, "x87 extended value storage");
 
 // Canonical modern DACOM interface: 17 original indices plus 2 output methods.
 // DACOM_API applies to every interface method; RET comments below describe retail
@@ -303,7 +303,7 @@ struct FThornSubtitleEventDesc
     unsigned int Strid;
 };
 
-static_assert(sizeof(FThornSubtitleEventDesc) == 0x30,
+FL_LAYOUT_ASSERT(sizeof(FThornSubtitleEventDesc) == 0x30,
               "SUBTITLE common descriptor plus string resource id");
 
 // START_MOTION's descriptor (retail object 0x9c, FUN_06f439b0; the descriptor at +0x28 is
@@ -384,7 +384,7 @@ struct FThornFog8
     float Density;
 };
 
-static_assert(sizeof(FThornFog8) == 32, "fog 8-dword record");
+FL_LAYOUT_ASSERT(sizeof(FThornFog8) == 32, "fog 8-dword record");
 
 // SPATIAL_PROP_ANIM: 465f0 stores orientation/position, quaternion and
 // axis/target data; table 5b2cc getter 4a570 exposes all thirty-two words.
@@ -426,7 +426,7 @@ struct FThornReverb4
     float Damping;
 };
 
-static_assert(sizeof(FThornReverb4) == 0x10, "REVERB four raw words");
+FL_LAYOUT_ASSERT(sizeof(FThornReverb4) == 0x10, "REVERB four raw words");
 
 struct FThornReverbEventDesc
 {
@@ -452,7 +452,7 @@ struct FThornAudio8
     float Rmix;
 };
 
-static_assert(sizeof(FThornAudio8) == 0x20, "AUDIO six floats and two integer cones");
+FL_LAYOUT_ASSERT(sizeof(FThornAudio8) == 0x20, "AUDIO six floats and two integer cones");
 
 struct FThornAudioPropEventDesc
 {

@@ -81,12 +81,21 @@ jobs:
   build:
     # On a pull request the PR's base commit is built alongside it, so the regression job can
     # compare the PR's dump with the dump of the code it would change.
-    name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || 'Release|Win32' }}
+    name: ${{ matrix.side == 'base' && 'Release|Win32 (base)' || format('Release|{0}', matrix.platform) }}
     # Visual Studio 2022 (v143) with the ATL/MFC component FLServer needs.
     runs-on: windows-2022
+    # TEMP(x64): x64 does not build yet; keep the Win32 jobs going.
+    continue-on-error: ${{ matrix.platform == 'x64' }}
     strategy:
+      fail-fast: false
       matrix:
         side: ${{ github.event_name == 'pull_request' && fromJSON('["pr", "base"]') || fromJSON('["pr"]') }}
+        platform: [Win32]
+        # The port-only x64 build of the server modules (docs/x64.md). Only the PR side: x64
+        # output is compared with the Win32 output of the same commit, not with the base.
+        include:
+          - side: pr
+            platform: x64
 
     steps:
       - uses: actions/checkout@v4
@@ -131,19 +140,52 @@ jobs:
       - name: Build
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
-          -p:Configuration=Release -p:Platform=Win32
+          -p:Configuration=Release -p:Platform=${{ matrix.platform }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
           -clp:PerformanceSummary -bl:msbuild.binlog
+
+      # TEMP(x64): compile every x64 project on its own, so one project's errors do not hide
+      # the next one's.
+      - name: x64 compile census
+        if: failure() && matrix.platform == 'x64'
+        shell: pwsh
+        run: |
+          foreach ($p in 'dacom','DALib','zlib','qhull','Common','Server','rpclocal','RemoteClient','ReadFile','EngBase','RendComp','x86math','system','Thorn','Shading','FLDedicated','FLRegress','RpcCodecTest') {
+            $f = Get-ChildItem "src/$p/*.vcxproj" | Select-Object -First 1
+            msbuild $f.FullName -t:ClCompile -nologo -v:q -m -p:Configuration=Release -p:Platform=x64 -p:BuildProjectReferences=false -p:SolutionDir="$PWD\src\" | Select-String -Pattern ' error ' | ForEach-Object { "$p :: $($_.Line)" } | Out-File -Append census.txt
+          }
+          if (Test-Path census.txt) { Get-Content census.txt | Select-Object -First 400 | Write-Host }
+
+      - name: Upload x64 census
+        if: failure() && matrix.platform == 'x64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: x64-census
+          path: census.txt
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || 'msbuild-binlog' }}
+          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || (matrix.platform == 'x64' && 'msbuild-binlog-x64' || 'msbuild-binlog') }}
           path: msbuild.binlog
           retention-days: 7
 
+      - name: Upload x64 binaries
+        if: matrix.platform == 'x64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: freelancer-release-x64
+          path: |
+            bin_x64/*.exe
+            bin_x64/*.dll
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Upload binaries
+        if: matrix.platform == 'Win32'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.side == 'base' && 'freelancer-base-win32' || 'freelancer-release-win32' }}

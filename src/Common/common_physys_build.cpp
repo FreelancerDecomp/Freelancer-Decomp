@@ -107,7 +107,7 @@ namespace PhySys
 
         CObject* Owner; // +0x08
     };
-    static_assert(sizeof(PhySurfaceManager) == 0x0c, "PhySys::PhySurfaceManager is operator new(0xc)");
+    FL_LAYOUT_ASSERT(sizeof(PhySurfaceManager) == 0x0c, "PhySys::PhySurfaceManager is operator new(0xc)");
 
     // vtable .rdata:0639baec (RTTI COL 063a6bf4), one slot (06285ec0). Built on the stack by
     // PhySurfaceManager::insert_all_ledges_hitting_ray: the IVP_Ray_Solver_Os constructor
@@ -126,7 +126,7 @@ namespace PhySys
 
         PhySurfaceManager* Manager; // +0x50
     };
-    static_assert(sizeof(RaySolver_MaskedSurface) == 0x54, "PhySys::RaySolver_MaskedSurface size");
+    FL_LAYOUT_ASSERT(sizeof(RaySolver_MaskedSurface) == 0x54, "PhySys::RaySolver_MaskedSurface size");
 }
 
 namespace

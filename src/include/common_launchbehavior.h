@@ -575,37 +575,37 @@ public:
     unsigned char Flag231;       // +0x231. Zeroed by ctor.
 };
 
-static_assert(offsetof(LaunchBehavior, CachedHandle08) == 0x08, "LaunchBehavior::CachedHandle08 offset");
-static_assert(offsetof(LaunchBehavior, ModeSelector0xc) == 0x0c, "LaunchBehavior::ModeSelector0xc offset");
-static_assert(offsetof(LaunchBehavior, UpdateResult10) == 0x10, "LaunchBehavior::UpdateResult10 offset");
-static_assert(offsetof(LaunchBehavior, ThreatSourcePtr14) == 0x14, "LaunchBehavior::ThreatSourcePtr14 offset");
-static_assert(offsetof(LaunchBehavior, Field18) == 0x18, "LaunchBehavior::Field18 offset");
-static_assert(offsetof(LaunchBehavior, BehaviorMgrPtr20) == 0x20, "LaunchBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(LaunchBehavior, NavHelperPtr24) == 0x24, "LaunchBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(LaunchBehavior, Flags28) == 0x28, "LaunchBehavior::Flags28 offset");
-static_assert(offsetof(LaunchBehavior, Flag29) == 0x29, "LaunchBehavior::Flag29 offset");
-static_assert(offsetof(LaunchBehavior, SubObjectA) == 0x2c, "LaunchBehavior::SubObjectA offset");
-static_assert(offsetof(LaunchBehavior, SubObjectB) == 0xa4, "LaunchBehavior::SubObjectB offset");
-static_assert(offsetof(LaunchBehavior, ModeState164) == 0x164, "LaunchBehavior::ModeState164 offset");
-static_assert(offsetof(LaunchBehavior, Watcher168) == 0x168, "LaunchBehavior::Watcher168 offset");
-static_assert(offsetof(LaunchBehavior, CachedSystemId170) == 0x170, "LaunchBehavior::CachedSystemId170 offset");
-static_assert(offsetof(LaunchBehavior, TargetType174) == 0x174, "LaunchBehavior::TargetType174 offset");
-static_assert(offsetof(LaunchBehavior, DirectiveField178) == 0x178, "LaunchBehavior::DirectiveField178 offset");
-static_assert(offsetof(LaunchBehavior, Flag17c) == 0x17c, "LaunchBehavior::Flag17c offset");
-static_assert(offsetof(LaunchBehavior, Field180) == 0x180, "LaunchBehavior::Field180 offset");
-static_assert(offsetof(LaunchBehavior, Field184) == 0x184, "LaunchBehavior::Field184 offset");
-static_assert(offsetof(LaunchBehavior, Field188) == 0x188, "LaunchBehavior::Field188 offset");
-static_assert(offsetof(LaunchBehavior, Field18c) == 0x18c, "LaunchBehavior::Field18c offset");
-static_assert(offsetof(LaunchBehavior, Field190) == 0x190, "LaunchBehavior::Field190 offset");
-static_assert(offsetof(LaunchBehavior, Field19c) == 0x19c, "LaunchBehavior::Field19c offset");
-static_assert(offsetof(LaunchBehavior, LaunchBasis) == 0x1a8, "LaunchBehavior::LaunchBasis offset");
-static_assert(offsetof(LaunchBehavior, Field1cc) == 0x1cc, "LaunchBehavior::Field1cc offset");
-static_assert(offsetof(LaunchBehavior, ApproachBasis2) == 0x1d8, "LaunchBehavior::ApproachBasis2 offset");
-static_assert(offsetof(LaunchBehavior, Field1fc) == 0x1fc, "LaunchBehavior::Field1fc offset");
-static_assert(offsetof(LaunchBehavior, ApproachBasis3) == 0x208, "LaunchBehavior::ApproachBasis3 offset");
-static_assert(offsetof(LaunchBehavior, Field22c) == 0x22c, "LaunchBehavior::Field22c offset");
-static_assert(offsetof(LaunchBehavior, Flag230) == 0x230, "LaunchBehavior::Flag230 offset");
-static_assert(offsetof(LaunchBehavior, Flag231) == 0x231, "LaunchBehavior::Flag231 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, CachedHandle08) == 0x08, "LaunchBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ModeSelector0xc) == 0x0c, "LaunchBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, UpdateResult10) == 0x10, "LaunchBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ThreatSourcePtr14) == 0x14, "LaunchBehavior::ThreatSourcePtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field18) == 0x18, "LaunchBehavior::Field18 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, BehaviorMgrPtr20) == 0x20, "LaunchBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, NavHelperPtr24) == 0x24, "LaunchBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flags28) == 0x28, "LaunchBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flag29) == 0x29, "LaunchBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, SubObjectA) == 0x2c, "LaunchBehavior::SubObjectA offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, SubObjectB) == 0xa4, "LaunchBehavior::SubObjectB offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ModeState164) == 0x164, "LaunchBehavior::ModeState164 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Watcher168) == 0x168, "LaunchBehavior::Watcher168 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, CachedSystemId170) == 0x170, "LaunchBehavior::CachedSystemId170 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, TargetType174) == 0x174, "LaunchBehavior::TargetType174 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, DirectiveField178) == 0x178, "LaunchBehavior::DirectiveField178 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flag17c) == 0x17c, "LaunchBehavior::Flag17c offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field180) == 0x180, "LaunchBehavior::Field180 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field184) == 0x184, "LaunchBehavior::Field184 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field188) == 0x188, "LaunchBehavior::Field188 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field18c) == 0x18c, "LaunchBehavior::Field18c offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field190) == 0x190, "LaunchBehavior::Field190 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field19c) == 0x19c, "LaunchBehavior::Field19c offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, LaunchBasis) == 0x1a8, "LaunchBehavior::LaunchBasis offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field1cc) == 0x1cc, "LaunchBehavior::Field1cc offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ApproachBasis2) == 0x1d8, "LaunchBehavior::ApproachBasis2 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field1fc) == 0x1fc, "LaunchBehavior::Field1fc offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ApproachBasis3) == 0x208, "LaunchBehavior::ApproachBasis3 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field22c) == 0x22c, "LaunchBehavior::Field22c offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flag230) == 0x230, "LaunchBehavior::Flag230 offset");
+FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flag231) == 0x231, "LaunchBehavior::Flag231 offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x234`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -614,4 +614,4 @@ static_assert(offsetof(LaunchBehavior, Flag231) == 0x231, "LaunchBehavior::Flag2
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(LaunchBehavior) <= 0x234, "LaunchBehavior must not exceed its retail size 0x234");
+FL_LAYOUT_ASSERT(sizeof(LaunchBehavior) <= 0x234, "LaunchBehavior must not exceed its retail size 0x234");

@@ -354,16 +354,16 @@ public:
                                // sizeof(IdleBehavior) as a result.
 };
 
-static_assert(offsetof(IdleBehavior, CachedHandle08) == 0x08, "IdleBehavior::CachedHandle08 offset");
-static_assert(offsetof(IdleBehavior, ModeSelector0xc) == 0x0c, "IdleBehavior::ModeSelector0xc offset");
-static_assert(offsetof(IdleBehavior, UpdateResult10) == 0x10, "IdleBehavior::UpdateResult10 offset");
-static_assert(offsetof(IdleBehavior, OwnerContextPtr14) == 0x14, "IdleBehavior::OwnerContextPtr14 offset");
-static_assert(offsetof(IdleBehavior, DeltaTime1c) == 0x1c, "IdleBehavior::DeltaTime1c offset");
-static_assert(offsetof(IdleBehavior, BehaviorMgrPtr20) == 0x20, "IdleBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(IdleBehavior, NavHelperPtr24) == 0x24, "IdleBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(IdleBehavior, Flags28) == 0x28, "IdleBehavior::Flags28 offset");
-static_assert(offsetof(IdleBehavior, Flag29) == 0x29, "IdleBehavior::Flag29 offset");
-static_assert(offsetof(IdleBehavior, Watcher2c) == 0x2c, "IdleBehavior::Watcher2c offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, CachedHandle08) == 0x08, "IdleBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, ModeSelector0xc) == 0x0c, "IdleBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, UpdateResult10) == 0x10, "IdleBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, OwnerContextPtr14) == 0x14, "IdleBehavior::OwnerContextPtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, DeltaTime1c) == 0x1c, "IdleBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, BehaviorMgrPtr20) == 0x20, "IdleBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, NavHelperPtr24) == 0x24, "IdleBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Flags28) == 0x28, "IdleBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Flag29) == 0x29, "IdleBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Watcher2c) == 0x2c, "IdleBehavior::Watcher2c offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x40`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -372,4 +372,4 @@ static_assert(offsetof(IdleBehavior, Watcher2c) == 0x2c, "IdleBehavior::Watcher2
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(IdleBehavior) <= 0x40, "IdleBehavior must not exceed its retail size 0x40");
+FL_LAYOUT_ASSERT(sizeof(IdleBehavior) <= 0x40, "IdleBehavior must not exceed its retail size 0x40");

@@ -73,11 +73,11 @@ public:
     float Field2b8;             // +0x2b8. Ctor 100.0f; Slot27's range bias.
 };
 
-static_assert(offsetof(FollowBehavior, SpeedParam2a0) == 0x2a0, "FollowBehavior::SpeedParam2a0 offset");
-static_assert(offsetof(FollowBehavior, Enabled2a4) == 0x2a4, "FollowBehavior::Enabled2a4 offset");
-static_assert(offsetof(FollowBehavior, Distance2a8) == 0x2a8, "FollowBehavior::Distance2a8 offset");
-static_assert(offsetof(FollowBehavior, Field2ac) == 0x2ac, "FollowBehavior::Field2ac offset");
-static_assert(offsetof(FollowBehavior, Field2b0) == 0x2b0, "FollowBehavior::Field2b0 offset");
-static_assert(offsetof(FollowBehavior, Field2b4) == 0x2b4, "FollowBehavior::Field2b4 offset");
-static_assert(offsetof(FollowBehavior, Field2b8) == 0x2b8, "FollowBehavior::Field2b8 offset");
-static_assert(sizeof(FollowBehavior) == 0x2bc, "FollowBehavior size == retail operator_new(0x2bc)");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, SpeedParam2a0) == 0x2a0, "FollowBehavior::SpeedParam2a0 offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Enabled2a4) == 0x2a4, "FollowBehavior::Enabled2a4 offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Distance2a8) == 0x2a8, "FollowBehavior::Distance2a8 offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Field2ac) == 0x2ac, "FollowBehavior::Field2ac offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Field2b0) == 0x2b0, "FollowBehavior::Field2b0 offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Field2b4) == 0x2b4, "FollowBehavior::Field2b4 offset");
+FL_LAYOUT_ASSERT(offsetof(FollowBehavior, Field2b8) == 0x2b8, "FollowBehavior::Field2b8 offset");
+FL_LAYOUT_ASSERT(sizeof(FollowBehavior) == 0x2bc, "FollowBehavior size == retail operator_new(0x2bc)");

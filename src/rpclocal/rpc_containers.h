@@ -187,7 +187,7 @@ struct FRpcCollisionGroupNode {
     unsigned int Field_0x04;        // +0x0c  float health fraction, bit pattern
 };
 
-static_assert(sizeof(FRpcCollisionGroupNode) == 0x10,
+FL_LAYOUT_ASSERT(sizeof(FRpcCollisionGroupNode) == 0x10,
               "retail CollisionGroupDesc list node is operator new(0x10)");
 
 // The 0x0c-byte list header. For the two COLLISIONGROUPS types this struct IS the
@@ -199,7 +199,7 @@ struct FRpcCollisionGroupList {
     unsigned int Size;              // +0x08
 };
 
-static_assert(sizeof(FRpcCollisionGroupList) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcCollisionGroupList) == 0x0c,
               "retail std::list header is 0x0c: allocator, head, size");
 
 // The 8-byte element on its own, for callers that only want the value.
@@ -208,7 +208,7 @@ struct FRpcCollisionGroupDescMirror {
     unsigned int Field_0x04;
 };
 
-static_assert(sizeof(FRpcCollisionGroupDescMirror) == 8,
+FL_LAYOUT_ASSERT(sizeof(FRpcCollisionGroupDescMirror) == 8,
               "CollisionGroupDesc mirror must be 8 like the real one");
 
 // ===========================================================================
@@ -236,7 +236,7 @@ struct FRpcEquipWireRecord {
     char* Hardpoint;                // +0x14  owned by the record
 };
 
-static_assert(sizeof(FRpcEquipWireRecord) == 0x18,
+FL_LAYOUT_ASSERT(sizeof(FRpcEquipWireRecord) == 0x18,
               "retail equipment wire record is operator new(0x18)");
 
 // One node of the equipment list. operator new(0x0c) -- the value is a POINTER.
@@ -246,7 +246,7 @@ struct FRpcEquipWireNode {
     FRpcEquipWireRecord* Value;     // +0x08
 };
 
-static_assert(sizeof(FRpcEquipWireNode) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcEquipWireNode) == 0x0c,
               "retail equipment list node is operator new(0x0c)");
 
 // The header of the equipment list. Same 0x0c shape as the collision-group one.
@@ -257,7 +257,7 @@ struct FRpcEquipWireListHeader {
     unsigned int Size;              // +0x08
 };
 
-static_assert(sizeof(FRpcEquipWireListHeader) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcEquipWireListHeader) == 0x0c,
               "retail std::list header is 0x0c: allocator, head, size");
 
 // The 4-byte handle behind the equipment payload. FUN_06d8fa90 allocates it with
@@ -289,7 +289,7 @@ struct FRpcEquipWireHandle {
     FRpcEquipWireHandle& operator=(const FRpcEquipWireHandle&) = delete;
 };
 
-static_assert(sizeof(FRpcEquipWireHandle) == 4,
+FL_LAYOUT_ASSERT(sizeof(FRpcEquipWireHandle) == 4,
               "retail equipment payload handle is operator new(4)");
 
 // ===========================================================================
@@ -635,7 +635,7 @@ struct FRpcCreateObjectHead {
     FRpcEquipWireHandle Equipment;          // +0x50    packet+0x70, FUN_06d91580's this
 };
 
-static_assert(sizeof(FRpcCreateObjectHead) == 0x54,
+FL_LAYOUT_ASSERT(sizeof(FRpcCreateObjectHead) == 0x54,
               "the create-object head ends at packet+0x74, where the collision list starts");
 
 struct FRpcCreateObjectWire : FRpcCreateObjectHead {
@@ -674,7 +674,7 @@ void RpcCollisionGroupListAssign(FRpcCollisionGroupList* Dest,
 template<typename TIterator>
 void RpcCollisionGroupListAssignRange(FRpcCollisionGroupList* List, TIterator First,
                                       TIterator Last) {
-    static_assert(sizeof(*First) == 8, "a CollisionGroupDesc value is 8 bytes");
+    FL_LAYOUT_ASSERT(sizeof(*First) == 8, "a CollisionGroupDesc value is 8 bytes");
     FRpcCollisionGroupNode* Dummy = List->Head;
 
     // Phase 1 (06d8f735..06d8f74b): overwrite the values of the nodes already there,
@@ -904,7 +904,7 @@ struct FRpcIdArrayBlockWire {
     int Count;                      // +0x10
     unsigned int* Ids;              // +0x14  operator new(Count << 2)
 };
-static_assert(sizeof(FRpcIdArrayBlockWire) == 0x18,
+FL_LAYOUT_ASSERT(sizeof(FRpcIdArrayBlockWire) == 0x18,
               "the wire id block is operator new(0x18)");
 
 // The wire record, 0x27c in retail. Field order below is retail's field order; the arrow
@@ -990,13 +990,13 @@ struct FRpcCharacterInfoWireList {
     FRpcCharacterInfoWireNode* Head;        // +0x04
     unsigned int Size;                      // +0x08
 };
-static_assert(sizeof(FRpcCharacterInfoWireList) == 0x0c, "retail std::list header is 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FRpcCharacterInfoWireList) == 0x0c, "retail std::list header is 0x0c");
 
 struct FPayloadServerCharacterInfo {
     unsigned int Field_0x00;                // +0x00 <- argument struct +0x14
     FRpcCharacterInfoWireList Records;      // +0x04 .. +0x0f
 };
-static_assert(sizeof(FPayloadServerCharacterInfo) == 0x10, "CHARACTERINFO payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCharacterInfo) == 0x10, "CHARACTERINFO payload 0x10");
 
 // FUN_06d955c0 -- the sender's transfer of its temporary list into the packet. Retail
 // builds the deep copy twice (once into a stack list, then again into the packet, each

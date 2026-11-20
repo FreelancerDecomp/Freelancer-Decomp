@@ -51,7 +51,7 @@ struct FThornAggDesc14
     IDAComponent** InnerOut;
     unsigned int Field_0x10; // TODO: meaning unknown; Lua producers store zero.
 };
-static_assert(sizeof(FThornAggDesc14) == 0x14, "Thorn creation descriptor size");
+FL_LAYOUT_ASSERT(sizeof(FThornAggDesc14) == 0x14, "Thorn creation descriptor size");
 
 // Retail COM aggregation shape shared by the CV_CRSplinePath object
 // (controlling unknown at +0x70, embedded inner unknown at +0x74) and the

@@ -1114,24 +1114,24 @@ static constexpr float kAtmosphereOne = 1.0f;
 static constexpr float kAtmosphereHalf = 0.5f;
 static constexpr unsigned long kAtmosphereEpsBits = 0x33D6BF95;
 
-static_assert(offsetof(FMaterial, Pipeline) == 0x04, "Pipeline +4");
-static_assert(offsetof(FMaterial, TexLib) == 0x08, "TexLib +8");
-static_assert(offsetof(FMaterial, VBMgr) == 0x0C, "VBMgr +C");
-static_assert(offsetof(FMaterial, RPDraw) == 0x10, "IRPDraw +10");
-static_assert(offsetof(FMaterial, InstanceName) == 0x14, "instance name +14");
-static_assert(offsetof(FMaterial, TexBlocks) == 0x18, "texblock +18");
-static_assert(offsetof(FMaterial, TexCount) == 0x1C, "tex count +1C");
-static_assert(offsetof(FMaterial, DiffuseR) == 0x20, "Diffuse +20");
-static_assert(offsetof(FMaterial, Opacity) == 0x2C, "Opacity +2C");
-static_assert(offsetof(FMaterial, Ambient) == 0x30, "Ambient +30");
-static_assert(offsetof(FMaterial, Specular) == 0x40, "Specular +40");
-static_assert(offsetof(FMaterial, Emissive) == 0x50, "Emissive +50");
-static_assert(offsetof(FMaterial, SpecularPower) == 0x60, "SpecularPower +60");
-static_assert(offsetof(FMaterial, bAlphablend) == 0x64, "Oc flag +64");
-static_assert(offsetof(FMaterial, bAlphatest) == 0x65, "alphatest +65");
-static_assert(offsetof(FMaterial, MatAnim) == 0x68, "MatAnim +68");
-static_assert(offsetof(FMaterial, Inner) == 0x70, "inner QI +70");
-static_assert(offsetof(FMaterial, bAtmosphereReady) == 0x74, "Atmosphere +74");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Pipeline) == 0x04, "Pipeline +4");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, TexLib) == 0x08, "TexLib +8");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, VBMgr) == 0x0C, "VBMgr +C");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, RPDraw) == 0x10, "IRPDraw +10");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, InstanceName) == 0x14, "instance name +14");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, TexBlocks) == 0x18, "texblock +18");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, TexCount) == 0x1C, "tex count +1C");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, DiffuseR) == 0x20, "Diffuse +20");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Opacity) == 0x2C, "Opacity +2C");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Ambient) == 0x30, "Ambient +30");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Specular) == 0x40, "Specular +40");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Emissive) == 0x50, "Emissive +50");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, SpecularPower) == 0x60, "SpecularPower +60");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, bAlphablend) == 0x64, "Oc flag +64");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, bAlphatest) == 0x65, "alphatest +65");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, MatAnim) == 0x68, "MatAnim +68");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, Inner) == 0x70, "inner QI +70");
+FL_LAYOUT_ASSERT(offsetof(FMaterial, bAtmosphereReady) == 0x74, "Atmosphere +74");
 
 void FMaterial::ConfigureAggregation(FMaterialAggregateDesc* Desc)
 {
@@ -3396,11 +3396,11 @@ IMaterial* FBatchedMaterial::InnerMaterial() const
     return Inner;
 }
 
-static_assert(offsetof(FBatchedMaterial, Batched) == 0x04, "IBatchedMaterial +4");
-static_assert(offsetof(FBatchedMaterial, Field8) == 0x08, "Field8 +8");
-static_assert(offsetof(FBatchedMaterial, InnerController) == 0x0C, "retained controller +C");
-static_assert(offsetof(FBatchedMaterial, Inner) == 0x10, "inner IMaterial +10");
-static_assert(offsetof(FBatchedMaterial, Batcher) == 0x14, "batcher +14");
+FL_LAYOUT_ASSERT(offsetof(FBatchedMaterial, Batched) == 0x04, "IBatchedMaterial +4");
+FL_LAYOUT_ASSERT(offsetof(FBatchedMaterial, Field8) == 0x08, "Field8 +8");
+FL_LAYOUT_ASSERT(offsetof(FBatchedMaterial, InnerController) == 0x0C, "retained controller +C");
+FL_LAYOUT_ASSERT(offsetof(FBatchedMaterial, Inner) == 0x10, "inner IMaterial +10");
+FL_LAYOUT_ASSERT(offsetof(FBatchedMaterial, Batcher) == 0x14, "batcher +14");
 
 FBatchedMaterial* FBatchedController::OwnerFromThis()
 {

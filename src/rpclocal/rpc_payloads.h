@@ -139,7 +139,7 @@ struct FPayloadCommonUpdateObject {
     float Field_0x24;            // +0x24  <- argument struct +0x20
     float Field_0x28;            // +0x28  <- argument struct +0x24
 };
-static_assert(sizeof(FPayloadCommonUpdateObject) == 0x2c, "UPDATEOBJECT payload 0x2c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonUpdateObject) == 0x2c, "UPDATEOBJECT payload 0x2c");
 
 // The struct the sender reads and the receiver rebuilds (0x2c bytes, same fields in a
 // different order), FCommonUpdateObjectInfo, is declared once in
@@ -158,7 +158,7 @@ struct FPayloadCommonFireWeapon {
     Vector TargetPos;                         // +0x04
     FRetailVector<unsigned short> Hardpoints; // +0x10  element stride 2
 };
-static_assert(sizeof(FPayloadCommonFireWeapon) == 0x20, "FIREWEAPON payload 0x20");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonFireWeapon) == 0x20, "FIREWEAPON payload 0x20");
 
 // ch1 op 0x04 FLPACKET_COMMON_SETTARGET, packet size 0x2c -> payload 0x0c.
 // Sender 0x06d8bd50 (IClient+0x010), receiver caseD_4 at 0x06d838c9.
@@ -170,7 +170,7 @@ struct FPayloadCommonSetTarget {
     unsigned short SubObjId;        // +0x08  <- XSetTarget +0x04
     unsigned short TargetSubObjId;  // +0x0a  <- XSetTarget +0x0c
 };
-static_assert(sizeof(FPayloadCommonSetTarget) == 0x0c, "SETTARGET payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonSetTarget) == 0x0c, "SETTARGET payload 0x0c");
 
 // ch1 op 0x05 FLPACKET_COMMON_CHATMSG, packet size 0x30 -> payload 0x10.
 // Sender 0x06d8c470 (IChatClient+0x000), receiver caseD_5 at 0x06d83900.
@@ -186,7 +186,7 @@ struct FPayloadCommonChatMsg {
     unsigned int Size;         // +0x08  operator new() argument and memcpy length
     void* Buffer;              // +0x0c  owned by the packet
 };
-static_assert(sizeof(FPayloadCommonChatMsg) == 0x10, "CHATMSG payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonChatMsg) == 0x10, "CHATMSG payload 0x10");
 
 // ch1 op 0x08 FLPACKET_COMMON_ACTIVATEEQUIP, packet size 0x28 -> payload 0x08.
 // Sender 0x06d8bbb0 (IClient+0x004), receiver case 8. Mirrors XActivateEquip with the
@@ -197,7 +197,7 @@ struct FPayloadCommonActivateEquip {
     unsigned char Pad_0x05;    // +0x05
     unsigned short EquipId;    // +0x06  <- XActivateEquip +0x04
 };
-static_assert(sizeof(FPayloadCommonActivateEquip) == 0x08, "ACTIVATEEQUIP payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonActivateEquip) == 0x08, "ACTIVATEEQUIP payload 0x08");
 
 // ch1 op 0x0e FLPACKET_COMMON_ACTIVATECRUISE, packet size 0x28 -> payload 0x08.
 // Sender 0x06d8bc10 (IClient+0x008), receiver case 0xe. Same order as XActivateCruise.
@@ -207,7 +207,7 @@ struct FPayloadCommonActivateCruise {
     unsigned char Field_0x05;  // +0x05  TODO: semantics unproven (XActivateCruise +0x05)
     unsigned char Pad_0x06[2]; // +0x06
 };
-static_assert(sizeof(FPayloadCommonActivateCruise) == 0x08, "ACTIVATECRUISE payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonActivateCruise) == 0x08, "ACTIVATECRUISE payload 0x08");
 
 // ch1 op 0x0f FLPACKET_COMMON_GOTRADELANE, packet size 0x30 -> payload 0x10.
 // Sender 0x06d8bcb0 (IClient+0x018), receiver case 0xf. Same order as XGoTradelane.
@@ -218,7 +218,7 @@ struct FPayloadCommonGoTradelane {
     unsigned char Field_0x0c;    // +0x0c  TODO: semantics unproven (XGoTradelane +0x0c)
     unsigned char Pad_0x0d[3];   // +0x0d
 };
-static_assert(sizeof(FPayloadCommonGoTradelane) == 0x10, "GOTRADELANE payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonGoTradelane) == 0x10, "GOTRADELANE payload 0x10");
 
 // ch1 op 0x10 FLPACKET_COMMON_STOPTRADELANE, packet size 0x2c -> payload 0x0c.
 // Sender 0x06d8bd10 (IClient+0x01c), receiver caseD_10 at 0x06d839fe.
@@ -230,7 +230,7 @@ struct FPayloadCommonStopTradelane {
     unsigned int Field_0x04;   // +0x04  entrance ring (IServer); zero (IClient)
     unsigned int Field_0x08;   // +0x08  exit ring (IServer); zero (IClient)
 };
-static_assert(sizeof(FPayloadCommonStopTradelane) == 0x0c, "STOPTRADELANE payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonStopTradelane) == 0x0c, "STOPTRADELANE payload 0x0c");
 
 // The buffer family -- ch1 ops 0x11, 0x13, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1c, packet
 // size 0x2c -> payload 0x0c. Senders 0x06d8b4f0 / 0x06d8b540 / 0x06d8b590 / 0x06d8b7a0 /
@@ -260,7 +260,7 @@ struct FPayloadCommonBuffer {
     unsigned char bOwnsBuffer; // +0x08  the destructor frees Buffer when set
     unsigned char Pad_0x09[3]; // +0x09
 };
-static_assert(sizeof(FPayloadCommonBuffer) == 0x0c, "buffer-family payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonBuffer) == 0x0c, "buffer-family payload 0x0c");
 
 // ch1 op 0x12 FLPACKET_COMMON_PLAYER_TRADE, packet size 0x44 -> payload 0x24.
 // Eight senders, 0x06d8b8e0 / 0x06d8b980 / 0x06d8b930 / 0x06d8b9d0 / 0x06d8ba20 /
@@ -280,7 +280,7 @@ struct FPayloadCommonPlayerTrade {
     unsigned short EquipId;     // +0x20  sub-types 8 / 0x10  <- EquipDesc +0x02
     unsigned short Pad_0x22;    // +0x22
 };
-static_assert(sizeof(FPayloadCommonPlayerTrade) == 0x24, "PLAYER_TRADE payload 0x24");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonPlayerTrade) == 0x24, "PLAYER_TRADE payload 0x24");
 
 // ch1 op 0x14 FLPACKET_COMMON_JETTISONCARGO, packet size 0x2c -> payload 0x0c.
 // Sender 0x06d8bdb0 (IClient+0x020), receiver caseD_14 at 0x06d83a1c. Same order as
@@ -291,7 +291,7 @@ struct FPayloadCommonJettisonCargo {
     unsigned short Pad_0x06;  // +0x06
     unsigned int Count;       // +0x08
 };
-static_assert(sizeof(FPayloadCommonJettisonCargo) == 0x0c, "JETTISONCARGO payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonJettisonCargo) == 0x0c, "JETTISONCARGO payload 0x0c");
 
 // ch1 op 0x15 FLPACKET_COMMON_ACTIVATETHRUSTERS, packet size 0x28 -> payload 0x08.
 // Sender 0x06d8bc60 (IClient+0x00c), receiver caseD_15 at 0x06d8399c.
@@ -300,7 +300,7 @@ struct FPayloadCommonActivateThrusters {
     unsigned char bActivate;    // +0x04
     unsigned char Pad_0x05[3];  // +0x05
 };
-static_assert(sizeof(FPayloadCommonActivateThrusters) == 0x08, "ACTIVATETHRUSTERS payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonActivateThrusters) == 0x08, "ACTIVATETHRUSTERS payload 0x08");
 
 // ch1 op 0x1b FLPACKET_COMMON_POP_UP_DIALOG, packet size 0x34 -> payload 0x14.
 // Sender 0x06d8b690 (IClient+0x17c), receiver caseD_1b at 0x06d835e3.
@@ -314,7 +314,7 @@ struct FPayloadCommonPopUpDialog {
     void* BufferB;          // +0x0c  flattened bytes of the 2nd FmtStr
     unsigned int Field_0x10;// +0x10  the sender's 4th argument. TODO: semantics unproven.
 };
-static_assert(sizeof(FPayloadCommonPopUpDialog) == 0x14, "POP_UP_DIALOG payload 0x14");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonPopUpDialog) == 0x14, "POP_UP_DIALOG payload 0x14");
 
 // ch1 op 0x1d FLPACKET_COMMON_TRACTOROBJECTS, packet size 0x38 -> payload 0x18.
 // Sender 0x06d8be10 (IClient+0x014), receiver caseD_1d at 0x06d8326a. Same shape as
@@ -325,7 +325,7 @@ struct FPayloadCommonTractorObjects {
     unsigned short Pad_0x06;                // +0x06
     FRetailVector<unsigned int> TargetIds;  // +0x08  element stride 4
 };
-static_assert(sizeof(FPayloadCommonTractorObjects) == 0x18, "TRACTOROBJECTS payload 0x18");
+FL_LAYOUT_ASSERT(sizeof(FPayloadCommonTractorObjects) == 0x18, "TRACTOROBJECTS payload 0x18");
 
 // payload 0x0c: ch2 0x3d FLPACKET_SERVER_REMOTEOBJECTCARGOUPDATE. The first dword is
 // the equipment handle FUN_06d8fa90 hangs off packet+0x20 (see rpc_containers.h); the
@@ -338,7 +338,7 @@ struct FPayloadServerRemoteObjectCargoUpdate {
     unsigned char Pad_0x05[3];   // +0x05
     unsigned int Field_0x08;     // +0x08  TODO: semantics unproven (an object id)
 };
-static_assert(sizeof(FPayloadServerRemoteObjectCargoUpdate) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerRemoteObjectCargoUpdate) == 0x0c,
               "ch2 0x3d payload 0x0c");
 
 // The three channel-1 codecs live in src/rpclocal/rpc_payload_ch1.cpp.
@@ -381,13 +381,13 @@ extern const unsigned int GChannel1CodecCount;
 struct FPayloadServerDword {
     unsigned int Field_0x00;
 };
-static_assert(sizeof(FPayloadServerDword) == 0x04, "ch2 dword payload 0x04");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerDword) == 0x04, "ch2 dword payload 0x04");
 
 // payload 0x04: one float (sender FLD/FSTP). Registry size 0x24.
 struct FPayloadServerFloat {
     float Field_0x00;
 };
-static_assert(sizeof(FPayloadServerFloat) == 0x04, "ch2 float payload 0x04");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerFloat) == 0x04, "ch2 float payload 0x04");
 
 // payload 0x04: one byte; the packet constructor zeroes packet+0x20 and nothing writes the
 // other three. Registry size 0x24.
@@ -395,14 +395,14 @@ struct FPayloadServerByte {
     unsigned char Field_0x00;
     unsigned char Pad_0x01[3];
 };
-static_assert(sizeof(FPayloadServerByte) == 0x04, "ch2 byte payload 0x04");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerByte) == 0x04, "ch2 byte payload 0x04");
 
 // payload 0x08: two dwords by value. Registry size 0x28.
 struct FPayloadServerDwordPair {
     unsigned int Field_0x00;
     unsigned int Field_0x04;
 };
-static_assert(sizeof(FPayloadServerDwordPair) == 0x08, "ch2 dword-pair payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerDwordPair) == 0x08, "ch2 dword-pair payload 0x08");
 
 // payload 0x08: a sized blob the packet OWNS. Written by FUN_06d97b00, which does
 // operator new(Size) + REP MOVSD/MOVSB, stores the block at packet+0x24 and the length at
@@ -411,7 +411,7 @@ struct FPayloadServerBlob {
     unsigned int Size;   // +0x00
     void* Buffer;        // +0x04  owned by the packet
 };
-static_assert(sizeof(FPayloadServerBlob) == 0x08, "ch2 blob payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerBlob) == 0x08, "ch2 blob payload 0x08");
 
 // payload 0x08: the same blob with the two fields the other way round. Written by
 // FUN_06d90a00 -- byte for byte the mirror of FUN_06d97b00, block at packet+0x20 and
@@ -421,7 +421,7 @@ struct FPayloadServerBlobReversed {
     void* Buffer;        // +0x00  owned by the packet
     unsigned int Size;   // +0x04
 };
-static_assert(sizeof(FPayloadServerBlobReversed) == 0x08, "ch2 reversed-blob payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerBlobReversed) == 0x08, "ch2 reversed-blob payload 0x08");
 
 // --- per-type shapes -----------------------------------------------------
 
@@ -435,7 +435,7 @@ struct FPayloadServerDestroyObject {
     unsigned char Field_0x04;   // +0x04  <- arg struct +0x04. TODO: semantics unproven.
     unsigned char Pad_0x05[3];
 };
-static_assert(sizeof(FPayloadServerDestroyObject) == 0x08, "DESTROYOBJECT payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerDestroyObject) == 0x08, "DESTROYOBJECT payload 0x08");
 
 // FServerDestroyObjectInfo (the argument struct) lives in src/include/rpc_iclient_args.h
 // (moved 2026-10-16: Server.dll builds it).
@@ -453,7 +453,7 @@ struct FPayloadServerLaunch {
     Vector Position;            // +0x0c  <- arg +0x1c (FUN_06d8f510)
     Quaternion Orientation;     // +0x18  <- arg +0x0c (FUN_06d8f4f0)
 };
-static_assert(sizeof(FPayloadServerLaunch) == 0x28, "LAUNCH payload 0x28");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerLaunch) == 0x28, "LAUNCH payload 0x28");
 
 // FServerLaunchInfo (the IClient +0x0f0 argument struct) lives in
 // src/include/rpc_iclient_args.h: Server.dll's IServerImpl::PlayerLaunch builds it.
@@ -471,7 +471,7 @@ struct FPayloadServerThreeDwords {
     unsigned int Field_0x04;
     unsigned int Field_0x08;
 };
-static_assert(sizeof(FPayloadServerThreeDwords) == 0x0c, "three-dword payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerThreeDwords) == 0x0c, "three-dword payload 0x0c");
 
 // ch2 0x27 FLPACKET_SERVER_REQUESTCREATESHIPRESP, size 0x28 -> payload 0x08.
 // Sender 0x06d8a130 (IClient+0x0f4, three arguments), receiver caseD_27 at 0x06d819b1.
@@ -480,7 +480,7 @@ struct FPayloadServerRequestCreateShipResp {
     unsigned char Pad_0x01[3];
     unsigned int Field_0x04;    // +0x04  <- 3rd argument
 };
-static_assert(sizeof(FPayloadServerRequestCreateShipResp) == 0x08, "REQUESTCREATESHIPRESP payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerRequestCreateShipResp) == 0x08, "REQUESTCREATESHIPRESP payload 0x08");
 
 // ch2 0x2c FLPACKET_SERVER_CREATEMINE, size 0x68 -> payload 0x48.
 // Sender 0x06d8a180 (IClient+0x0c4), receiver caseD_2c at 0x06d81ac1.
@@ -508,7 +508,7 @@ struct FPayloadServerCreateMine {
     unsigned int Field_0x40;    // +0x40  <- arg +0x40
     unsigned int Field_0x44;    // +0x44  <- arg +0x44
 };
-static_assert(sizeof(FPayloadServerCreateMine) == 0x48, "CREATEMINE payload 0x48");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateMine) == 0x48, "CREATEMINE payload 0x48");
 
 // The argument struct is Server.dll's FServerCreateProjectileInfo (server_createinfo.h,
 // built by FUN_06d07c80); the private mirror FServerCreateMineInfo of the same 0x48 bytes
@@ -533,7 +533,7 @@ struct FPayloadServerSetAddItem {
     unsigned char Pad_0x1a[2];
     char* Hardpoint;                // +0x1c  owned by the packet, nullptr when internal
 };
-static_assert(sizeof(FPayloadServerSetAddItem) == 0x20, "SETADDITEM payload 0x20");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetAddItem) == 0x20, "SETADDITEM payload 0x20");
 
 // ch2 0x2f FLPACKET_SERVER_SETREMOVEITEM, size 0x2c -> payload 0x0c.
 // Sender 0x06d88670 (IClient+0x06c, four arguments), receiver caseD_2f at 0x06d81aa0.
@@ -543,7 +543,7 @@ struct FPayloadServerSetRemoveItem {
     unsigned int Field_0x04;    // +0x04  <- 4th argument
     unsigned int Field_0x08;    // +0x08  <- 2nd argument
 };
-static_assert(sizeof(FPayloadServerSetRemoveItem) == 0x0c, "SETREMOVEITEM payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetRemoveItem) == 0x0c, "SETREMOVEITEM payload 0x0c");
 
 // ch2 0x31 FLPACKET_SERVER_EXPLODEASTEROIDMINE, size 0x30 -> payload 0x10.
 // Sender 0x06d8a360 (IClient+0x0d0), receiver caseD_31 at 0x06d81b6d. Four dwords, order
@@ -554,7 +554,7 @@ struct FPayloadServerFourDwords {
     unsigned int Field_0x08;
     unsigned int Field_0x0c;
 };
-static_assert(sizeof(FPayloadServerFourDwords) == 0x10, "four-dword payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerFourDwords) == 0x10, "four-dword payload 0x10");
 
 // ch2 0x33 FLPACKET_SERVER_SETMISSIONOBJECTIVESTATE, size 0x2c -> payload 0x0c.
 // Sender 0x06d8ac40 (IClient+0x124), receiver caseD_33 at 0x06d823df.
@@ -567,7 +567,7 @@ struct FPayloadServerSetMissionObjectiveState {
     unsigned short Field_0x08;  // +0x08  <- arg +0x08 (word)
     unsigned short Pad_0x0a;
 };
-static_assert(sizeof(FPayloadServerSetMissionObjectiveState) == 0x0c, "SETMISSIONOBJECTIVESTATE payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetMissionObjectiveState) == 0x0c, "SETMISSIONOBJECTIVESTATE payload 0x0c");
 
 // FServerMissionObjectiveStateInfo: declared once in src/include/rpc_iclient_args.h
 // (Server.dll builds it in pub::Player::SetMissionObjectiveState).
@@ -584,7 +584,7 @@ struct FPayloadServerRepairObject {
     unsigned int Field_0x04;    // +0x04  <- arg +0x04, zero-extended from a word
     unsigned int Field_0x08;    // +0x08  <- arg +0x08
 };
-static_assert(sizeof(FPayloadServerRepairObject) == 0x0c, "REPAIROBJECT payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerRepairObject) == 0x0c, "REPAIROBJECT payload 0x0c");
 
 // FServerRepairObjectInfo (the argument struct) lives in src/include/rpc_iclient_args.h
 // (moved 2026-10-16: freelancer.exe / RemoteClient.dll read the same record).
@@ -603,7 +603,7 @@ struct FPayloadServerBurnFuse {
     unsigned char Field_0x18;
     unsigned char Pad_0x19[3];
 };
-static_assert(sizeof(FPayloadServerBurnFuse) == 0x1c, "BURNFUSE payload 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerBurnFuse) == 0x1c, "BURNFUSE payload 0x1c");
 
 // ch2 0x44 FLPACKET_SERVER_REQUEST_RETURNED, size 0x28 -> payload 0x08.
 // Sender 0x06d8a9e0 (IClient+0x14c, five arguments), receiver caseD_44 at 0x06d81918.
@@ -616,7 +616,7 @@ struct FPayloadServerRequestReturned {
     signed char Field_0x06;     // +0x06  <- 5th argument, delivered sign-extended
     unsigned char Pad_0x07;
 };
-static_assert(sizeof(FPayloadServerRequestReturned) == 0x08, "REQUEST_RETURNED payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerRequestReturned) == 0x08, "REQUEST_RETURNED payload 0x08");
 
 // ch2 0x46 FLPACKET_SERVER_MARKOBJ, size 0x28 -> payload 0x08.
 // Sender 0x06d8ace0 (IClient+0x12c), receiver caseD_46 at 0x06d82420.
@@ -625,7 +625,7 @@ struct FPayloadServerDwordByte {
     unsigned char Field_0x04;
     unsigned char Pad_0x05[3];
 };
-static_assert(sizeof(FPayloadServerDwordByte) == 0x08, "dword+byte payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerDwordByte) == 0x08, "dword+byte payload 0x08");
 
 // ch2 0x47 FLPACKET_SERVER_CFGINTERFACENOTIFICATION, size 0x2c -> payload 0x0c.
 // Sender 0x06d8ad30 (IClient+0x130), receiver caseD_47 at 0x06d8244f. The payload IS the
@@ -640,7 +640,7 @@ struct FPayloadServerSetGuidedTarget {
     unsigned short Field_0x08;  // +0x08  <- 4th argument, truncated to a word
     unsigned short Pad_0x0a;
 };
-static_assert(sizeof(FPayloadServerSetGuidedTarget) == 0x0c, "SETGUIDEDTARGET payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetGuidedTarget) == 0x0c, "SETGUIDEDTARGET payload 0x0c");
 
 // ch2 0x4b FLPACKET_SERVER_SET_CAMERA, size 0x44 -> payload 0x24.
 // Sender 0x06d8ae90 (IClient+0x160), receiver caseD_4b at 0x06d82573. The payload IS the
@@ -661,7 +661,7 @@ static_assert(sizeof(FPayloadServerSetGuidedTarget) == 0x0c, "SETGUIDEDTARGET pa
 struct FPayloadServerConnectResponse {
     unsigned int Field_0x00;    // +0x00  always the literal 1
 };
-static_assert(sizeof(FPayloadServerConnectResponse) == 0x04, "CONNECTRESPONSE payload 0x04");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerConnectResponse) == 0x04, "CONNECTRESPONSE payload 0x04");
 
 // ch2 0x08 FLPACKET_SERVER_CHARSELECTVERIFIED, size 0x30 -> payload 0x10.
 // Sender 0x06d8a030 (IClient+0x38), receiver caseD_8 at 0x06d81828. A straight copy of a
@@ -674,7 +674,7 @@ struct FPayloadServerCharSelectVerified {
     unsigned int Field_0x08;    // +0x08
     unsigned int Field_0x0c;    // +0x0c
 };
-static_assert(sizeof(FPayloadServerCharSelectVerified) == 0x10, "CHARSELECTVERIFIED payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCharSelectVerified) == 0x10, "CHARSELECTVERIFIED payload 0x10");
 
 // ch2 0x22 FLPACKET_SERVER_SYSTEM_SWITCH_IN, size 0x44 -> payload 0x24.
 // Sender 0x06d8a8b0 (IClient+0xe8), receiver caseD_22 at 0x06d822c6 (file-static
@@ -696,7 +696,7 @@ struct FPayloadServerFormationUpdate {
     unsigned int Field_0x00;    // +0x00  <- 2nd argument, delivered by value
     Vector Offset;              // +0x04  <- the 3rd argument's first three floats
 };
-static_assert(sizeof(FPayloadServerFormationUpdate) == 0x10, "FORMATION_UPDATE payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerFormationUpdate) == 0x10, "FORMATION_UPDATE payload 0x10");
 
 // ch2 0x57 FLPACKET_SERVER_SET_MUSIC, size 0x38 -> payload 0x18.
 // Sender 0x06d8c660 (IClient+0x1e8) takes seven arguments and serializes six of them --
@@ -712,7 +712,7 @@ struct FPayloadServerSetMusic {
     unsigned char Pad_0x11[3];
     float Field_0x14;           // +0x14  FLD [ESP+0x24] / FSTP [EDX+0x34]
 };
-static_assert(sizeof(FPayloadServerSetMusic) == 0x18, "SET_MUSIC payload 0x18");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetMusic) == 0x18, "SET_MUSIC payload 0x18");
 
 // ===========================================================================
 // The two multi-slot channel-2 opcodes. Retail fans each of them out over several
@@ -745,7 +745,7 @@ struct FPayloadServerPlayerList {
     unsigned char Field_0x0c;   // +0x0c  delivered as bool: SETNZ against zero
     unsigned char Pad_0x0d[3];
 };
-static_assert(sizeof(FPayloadServerPlayerList) == 0x10, "PLAYERLIST payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerPlayerList) == 0x10, "PLAYERLIST payload 0x10");
 
 // The kind values (kPlayerListKind*) are public, in rpc_iclient_args.h, because
 // RemoteClient / RemoteServer encode and decode the same discriminator.
@@ -909,7 +909,7 @@ struct FRpcDamageEntryMirror {
     unsigned int Field_0x04;        // +0x04  float health, -1.0f default, bit pattern
     unsigned int Field_0x08;        // +0x08
 };
-static_assert(sizeof(FRpcDamageEntryMirror) == 0x0c, "damage entry is 0x0c (node 0x14 - 8 links)");
+FL_LAYOUT_ASSERT(sizeof(FRpcDamageEntryMirror) == 0x0c, "damage entry is 0x0c (node 0x14 - 8 links)");
 
 // operator new(0x14) at 06d90413 / 06d90324.
 struct FRpcDamageEntryNode {
@@ -917,7 +917,7 @@ struct FRpcDamageEntryNode {
     FRpcDamageEntryNode* Prev;      // +0x04
     FRpcDamageEntryMirror Value;    // +0x08
 };
-static_assert(sizeof(FRpcDamageEntryNode) == 0x14, "retail damage list node is operator new(0x14)");
+FL_LAYOUT_ASSERT(sizeof(FRpcDamageEntryNode) == 0x14, "retail damage list node is operator new(0x14)");
 
 // Same 0x0c retail std::list header as the collision-group one in rpc_containers.h.
 struct FRpcDamageEntryList {
@@ -926,7 +926,7 @@ struct FRpcDamageEntryList {
     FRpcDamageEntryNode* Head;      // +0x04  dummy node
     unsigned int Size;              // +0x08
 };
-static_assert(sizeof(FRpcDamageEntryList) == 0x0c, "retail std::list header is 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FRpcDamageEntryList) == 0x0c, "retail std::list header is 0x0c");
 
 // The 0x1c-byte retail image of Common.dll's DamageList. Nothing references it any more:
 // DAMAGEOBJECT's payload holds the real DamageList (below), and the CREATESHIP /
@@ -957,7 +957,7 @@ struct FRpcDamageListMirror {
     unsigned int Field_0x14;        // +0x14  DamageList::get_inflictor_id
     unsigned int Field_0x18;        // +0x18  DamageList::get_inflictor_owner_player
 };
-static_assert(sizeof(FRpcDamageListMirror) == 0x1c, "DAMAGEOBJECT argument struct 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FRpcDamageListMirror) == 0x1c, "DAMAGEOBJECT argument struct 0x1c");
 
 // ch2 0x05 DAMAGEOBJECT holds the real Common.dll DamageList (common_misc.h), declared
 // once there. Retail's packet ctor 06d9c8d0 builds exactly that object in place at
@@ -976,8 +976,8 @@ struct FPayloadServerDamageObject {
 };
 // The offset contract, not retail's byte count: the payload starts right after the
 // 0x20-byte packet header, and the list object follows the one argument dword.
-static_assert(sizeof(FPacketBase) == 0x20, "payload starts at packet+0x20");
-static_assert(offsetof(FPayloadServerDamageObject, Damage) == sizeof(unsigned int),
+FL_LAYOUT_ASSERT(sizeof(FPacketBase) == 0x20, "payload starts at packet+0x20");
+FL_LAYOUT_ASSERT(offsetof(FPayloadServerDamageObject, Damage) == sizeof(unsigned int),
               "DAMAGEOBJECT: the DamageList follows the by-value argument dword");
 
 // ===========================================================================
@@ -1032,14 +1032,14 @@ struct FRpcLootWireRecord {
     unsigned char Field_0x45;       // +0x45 <- record+0x45
     unsigned char Pad_0x46[2];      // +0x46  inside the 0x50 node, never written
 };
-static_assert(sizeof(FRpcLootWireRecord) == 0x48, "CREATELOOT wire record is 0x50 - 8 links");
+FL_LAYOUT_ASSERT(sizeof(FRpcLootWireRecord) == 0x48, "CREATELOOT wire record is 0x50 - 8 links");
 
 struct FRpcLootWireNode {
     FRpcLootWireNode* Next;         // +0x00
     FRpcLootWireNode* Prev;         // +0x04
     FRpcLootWireRecord Value;       // +0x08
 };
-static_assert(sizeof(FRpcLootWireNode) == 0x50, "retail loot list node is operator new(0x50)");
+FL_LAYOUT_ASSERT(sizeof(FRpcLootWireNode) == 0x50, "retail loot list node is operator new(0x50)");
 
 struct FRpcLootWireList {
     unsigned char Allocator;        // +0x00
@@ -1047,7 +1047,7 @@ struct FRpcLootWireList {
     FRpcLootWireNode* Head;         // +0x04
     unsigned int Size;              // +0x08
 };
-static_assert(sizeof(FRpcLootWireList) == 0x0c, "retail std::list header is 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FRpcLootWireList) == 0x0c, "retail std::list header is 0x0c");
 
 struct FPayloadServerCreateLoot {
     unsigned int Field_0x00;        // +0x00 <- argument+0x00 (06d8ab03/06d8ab09)
@@ -1055,7 +1055,7 @@ struct FPayloadServerCreateLoot {
     unsigned char Pad_0x05[3];      // +0x05
     FRpcLootWireList Items;         // +0x08
 };
-static_assert(sizeof(FPayloadServerCreateLoot) == 0x14, "CREATELOOT payload 0x14");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateLoot) == 0x14, "CREATELOOT payload 0x14");
 
 // The argument struct behind IClient::SendServerCreateLoot is Server.dll's
 // FServerCreateLootRequest (server_createinfo.h; the private FServerCreateLootInfo was
@@ -1096,7 +1096,7 @@ struct FPayloadServerCreateCounter {
     unsigned int Field_0x40;        // +0x40 <- argument+0x3c
     unsigned int Field_0x44;        // +0x44 <- argument+0x40
 };
-static_assert(sizeof(FPayloadServerCreateCounter) == 0x48, "CREATECOUNTER payload 0x48");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateCounter) == 0x48, "CREATECOUNTER payload 0x48");
 
 // The argument struct is Server.dll's FServerCreateProjectileInfo (server_createinfo.h),
 // the record CREATEMINE sends too; the private FServerCreateCounterInfo was folded onto it
@@ -1127,7 +1127,7 @@ struct FPayloadServerCreateGuided {
     unsigned int Field_0x30;        // +0x30 <- argument+0x18
     unsigned int Field_0x34;        // +0x34 <- argument+0x1c
 };
-static_assert(sizeof(FPayloadServerCreateGuided) == 0x38, "CREATEGUIDED payload 0x38");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerCreateGuided) == 0x38, "CREATEGUIDED payload 0x38");
 
 // The argument struct is FServerCreateGuidedInfo in src/include/server_createinfo.h -- the
 // record Server.dll's FUN_06d07d40 builds and this module's sender 0x06d8a730 reads. It
@@ -1162,7 +1162,7 @@ struct FPayloadServerRequestSpaceScript {
     unsigned char Pad_0x15[3];      // +0x15
     char* Name;                     // +0x18  owned by the packet
 };
-static_assert(sizeof(FPayloadServerRequestSpaceScript) == 0x1c, "REQUESTSPACESCRIPT payload 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerRequestSpaceScript) == 0x1c, "REQUESTSPACESCRIPT payload 0x1c");
 
 // The argument record (FServerRequestSpaceScriptInfo, 0x118) and kRequestSpaceScriptNameSize
 // are declared once, in src/include/rpc_iclient_args.h (included above): Server.dll builds the
@@ -1226,8 +1226,8 @@ struct FRpcRelation {
     unsigned int Field_0x00;        // +0x00  Reputation::Relation::GroupId
     unsigned int Field_0x04;        // +0x04  Reputation::Relation::Feeling, as float bits
 };
-static_assert(sizeof(FRpcRelation) == 0x08, "reputation relation element is 8 bytes");
-static_assert(sizeof(FRpcRelation) == sizeof(::Reputation::Relation),
+FL_LAYOUT_ASSERT(sizeof(FRpcRelation) == 0x08, "reputation relation element is 8 bytes");
+FL_LAYOUT_ASSERT(sizeof(FRpcRelation) == sizeof(::Reputation::Relation),
               "FRpcRelation is the wire view of Reputation::Relation");
 
 // Retail's list node is operator new(0xc) and its value is a POINTER to a separately
@@ -1239,7 +1239,7 @@ struct FRpcRelationNode {
     FRpcRelationNode* Prev;         // +0x04
     FRpcRelation* Value;            // +0x08
 };
-static_assert(sizeof(FRpcRelationNode) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcRelationNode) == 0x0c,
               "retail relation list node is operator new(0xc)");
 
 struct FRpcRelationList {
@@ -1248,7 +1248,7 @@ struct FRpcRelationList {
     FRpcRelationNode* Head;         // +0x04  dummy node; Next == Prev == itself when empty
     unsigned int Size;              // +0x08
 };
-static_assert(sizeof(FRpcRelationList) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcRelationList) == 0x0c,
               "retail std::list header is 0x0c: allocator, head, size");
 
 // ===========================================================================
@@ -1285,7 +1285,7 @@ struct FPayloadServerSetReputation {
     unsigned int DisplayNameLength; // +0x40  FUN_06d92710: wcslen(arg+0x48) + 1, in wchar_t
     wchar_t* DisplayName;           // +0x44  operator new((len+1)*4) -- see the note below
 };
-static_assert(sizeof(FPayloadServerSetReputation) == 0x48, "SETREPUTATION payload 0x48");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetReputation) == 0x48, "SETREPUTATION payload 0x48");
 
 // The struct Server.dll hands to IClient slot 66. Recovered from Server.dll's own two
 // call sites (Server.dll.c:89944-89970 and 89989-90015): both build it on the stack,
@@ -1315,7 +1315,7 @@ struct FPayloadServerSetGroupFeelings {
     unsigned int NameSize;          // +0x04  strlen(arg+0x00) + 1, from the REPNE SCASB
     FRpcRelationList Relations;     // +0x08  packet+0x28..+0x33 (FUN_06d91ca0 / FUN_06d91d20)
 };
-static_assert(sizeof(FPayloadServerSetGroupFeelings) == 0x14,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetGroupFeelings) == 0x14,
               "SETGROUPFEELINGS payload 0x14");
 
 // FServerSetGroupFeelingsInfo (the IClient slot 82 argument the receiver builds) is declared
@@ -1333,7 +1333,7 @@ struct FPayloadServerReplaceMissionObjective {
     unsigned int TextSize;          // +0x08  06d8ae12
     void* TextBuffer;               // +0x0c  06d8ae22
 };
-static_assert(sizeof(FPayloadServerReplaceMissionObjective) == 0x10,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerReplaceMissionObjective) == 0x10,
               "REPLACEMISSIONOBJECTIVE payload 0x10");
 
 // FServerReplaceMissionObjectiveInfo: declared once in src/include/rpc_iclient_args.h
@@ -1350,7 +1350,7 @@ struct FPayloadServerSetMissionMessage {
     void* TextBuffer;               // +0x04  06d8afe0
     unsigned int Field_0x08;        // +0x08  06d8aff4 <- arg+0x18
 };
-static_assert(sizeof(FPayloadServerSetMissionMessage) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetMissionMessage) == 0x0c,
               "SET_MISSION_MESSAGE payload 0x0c");
 
 // FServerSetMissionMessageInfo == CSetMissionMessage: declared once in
@@ -1369,7 +1369,7 @@ struct FRpcMissionObjectiveRecord {
     unsigned int TextSize;          // +0x04  06d8b1a0
     void* TextBuffer;               // +0x08  06d8b1b2
 };
-static_assert(sizeof(FRpcMissionObjectiveRecord) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcMissionObjectiveRecord) == 0x0c,
               "per-objective record is operator new(0xc)");
 
 struct FRpcMissionObjectiveNode {
@@ -1377,7 +1377,7 @@ struct FRpcMissionObjectiveNode {
     FRpcMissionObjectiveNode* Prev; // +0x04
     FRpcMissionObjectiveRecord* Value;  // +0x08  again a POINTER, not an inline value
 };
-static_assert(sizeof(FRpcMissionObjectiveNode) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcMissionObjectiveNode) == 0x0c,
               "retail objective list node is operator new(0xc)");
 
 struct FRpcMissionObjectiveList {
@@ -1386,7 +1386,7 @@ struct FRpcMissionObjectiveList {
     FRpcMissionObjectiveNode* Head; // +0x04
     unsigned int Size;              // +0x08
 };
-static_assert(sizeof(FRpcMissionObjectiveList) == 0x0c,
+FL_LAYOUT_ASSERT(sizeof(FRpcMissionObjectiveList) == 0x0c,
               "retail std::list header is 0x0c: allocator, head, size");
 
 struct FPayloadServerSetMissionObjectives {
@@ -1401,7 +1401,7 @@ struct FPayloadServerSetMissionObjectives {
                                     //        with the list size at packet+0x44
     FRpcMissionObjectiveList Objectives;  // +0x1c  packet+0x3c..+0x47
 };
-static_assert(sizeof(FPayloadServerSetMissionObjectives) == 0x28,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSetMissionObjectives) == 0x28,
               "SETMISSIONOBJECTIVES payload 0x28");
 
 // FServerMissionObjectiveEntry / FServerSetMissionObjectivesInfo (the slot 72
@@ -1438,7 +1438,7 @@ struct FPayloadServerLoadHint {
     unsigned int Size;              // +0x04  06d90a2e `MOV dword ptr [EBX + 0x24],EBP`
     unsigned int Kind;              // +0x08  06d8a406 <- BaseHint::Kind at hint+0x04
 };
-static_assert(sizeof(FPayloadServerLoadHint) == 0x0c, "LOADHINT payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerLoadHint) == 0x0c, "LOADHINT payload 0x0c");
 
 // ===========================================================================
 // ch2 0x55 FLPACKET_SERVER_OBJECTCARGOUPDATE -- registry 0x34, payload 0x14.
@@ -1480,7 +1480,7 @@ struct FPayloadServerObjectCargoUpdate {
     unsigned char bMission;         // +0x10  06d8c144 <- EquipDesc+0x18
     unsigned char Pad_0x11[3];      // +0x11  neither end touches these
 };
-static_assert(sizeof(FPayloadServerObjectCargoUpdate) == 0x14,
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerObjectCargoUpdate) == 0x14,
               "OBJECTCARGOUPDATE payload 0x14");
 
 // ===========================================================================
@@ -1510,7 +1510,7 @@ struct FRpcIdArrayBlock {
     unsigned int Ids[8];            // +0x10 .. +0x2f
     int Count;                      // +0x30
 };
-static_assert(sizeof(FRpcIdArrayBlock) == 0x34,
+FL_LAYOUT_ASSERT(sizeof(FRpcIdArrayBlock) == 0x34,
               "the id block is 13 dwords: four fields, eight ids and a count");
 
 // ch2 0x4f FLPACKET_SERVER_SENDCOMM -- registry 0x78, payload 0x58.
@@ -1568,7 +1568,7 @@ struct FPayloadServerSendComm {
     unsigned char Field_0x54;       // +0x54 <- LOW BYTE of A22; never read back
     unsigned char Pad_0x55[3];      // +0x55
 };
-static_assert(sizeof(FPayloadServerSendComm) == 0x58, "SENDCOMM payload 0x58");
+FL_LAYOUT_ASSERT(sizeof(FPayloadServerSendComm) == 0x58, "SENDCOMM payload 0x58");
 
 // The channel-2 codecs live in src/rpclocal/rpc_payload_ch2.cpp.
 // Three more channel-2 payloads -- 0x03 CHARACTERINFO, 0x04 CREATESHIP and 0x42
@@ -1621,14 +1621,14 @@ extern const unsigned int GChannel2CodecCount;
 struct FPayloadClientDword {
     unsigned int Field_0x00;
 };
-static_assert(sizeof(FPayloadClientDword) == 0x04, "ch3 single-dword payload 0x04");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDword) == 0x04, "ch3 single-dword payload 0x04");
 
 // payload 0x08. ch3 0x19, 0x2b, 0x3e, 0x43.
 struct FPayloadClientDwordPair {
     unsigned int Field_0x00;
     unsigned int Field_0x04;
 };
-static_assert(sizeof(FPayloadClientDwordPair) == 0x08, "ch3 dword-pair payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDwordPair) == 0x08, "ch3 dword-pair payload 0x08");
 
 // payload 0x0c. ch3 0x11 GFGOODSELL, 0x3c GFGOODVAPORIZED, 0x2f SETMANEUVER, 0x3f HAIL.
 struct FPayloadClientDwordTriple {
@@ -1636,7 +1636,7 @@ struct FPayloadClientDwordTriple {
     unsigned int Field_0x04;
     unsigned int Field_0x08;
 };
-static_assert(sizeof(FPayloadClientDwordTriple) == 0x0c, "ch3 dword-triple payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDwordTriple) == 0x0c, "ch3 dword-triple payload 0x0c");
 
 // payload 0x10. ch3 0x12 GFGOODBUY, 0x37 COMMCOMPLETE.
 struct FPayloadClientDwordQuad {
@@ -1645,7 +1645,7 @@ struct FPayloadClientDwordQuad {
     unsigned int Field_0x08;
     unsigned int Field_0x0c;
 };
-static_assert(sizeof(FPayloadClientDwordQuad) == 0x10, "ch3 dword-quad payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDwordQuad) == 0x10, "ch3 dword-quad payload 0x10");
 
 // --- per-opcode shapes ----------------------------------------------------
 
@@ -1676,7 +1676,7 @@ struct FPayloadClientLogin {
     unsigned char CreateFlag;     // +0x400  <- SLoginInfo+0xc0
     unsigned char Pad_0x401[3];
 };
-static_assert(sizeof(FPayloadClientLogin) == 0x404, "LOGIN payload 0x404");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientLogin) == 0x404, "LOGIN payload 0x404");
 
 // ch3 0x03 FLPACKET_CLIENT_MUNCOLLISION, packet size 0x3c -> payload 0x1c.
 // Sender IServerImpl::SPMunitionCollision 0x06d8d6e0, receiver caseD_3.
@@ -1692,7 +1692,7 @@ struct FPayloadClientMunCollision {
     unsigned int Field_0x14;
     unsigned int Field_0x18;
 };
-static_assert(sizeof(FPayloadClientMunCollision) == 0x1c, "MUNCOLLISION payload 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientMunCollision) == 0x1c, "MUNCOLLISION payload 0x1c");
 
 // ch3 0x06 FLPACKET_CLIENT_SELECTCHARACTER, size 0x220 -> payload 0x200, and
 // ch3 0x3a FLPACKET_CLIENT_DESTROYCHAR, size 0x220 -> payload 0x200.
@@ -1709,7 +1709,7 @@ struct FPayloadClientInfoRequest {
     unsigned char bFull;          // +0x04
     unsigned char Pad_0x05[3];
 };
-static_assert(sizeof(FPayloadClientInfoRequest) == 0x08, "REQUEST*INFO payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientInfoRequest) == 0x08, "REQUEST*INFO payload 0x08");
 
 // ch3 0x0c FLPACKET_CLIENT_OBJCOLLISION, size 0x34 -> payload 0x14.
 // Sender IServerImpl::SPObjCollision 0x06d8d7b0, receiver caseD_c.
@@ -1725,7 +1725,7 @@ struct FPayloadClientObjCollision {
     unsigned short Pad_0x0e;
     unsigned int Field_0x10;        // +0x10  <- +0x10
 };
-static_assert(sizeof(FPayloadClientObjCollision) == 0x14, "OBJCOLLISION payload 0x14");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientObjCollision) == 0x14, "OBJCOLLISION payload 0x14");
 
 // ch3 0x14 FLPACKET_CLIENT_MISSIONRESPONSE, size 0x2c -> payload 0x0c.
 // Sender IServerImpl::MissionResponse 0x06d8da80, receiver caseD_14.
@@ -1735,7 +1735,7 @@ struct FPayloadClientMissionResponse {
     unsigned char bAccepted;      // +0x08  <- 3rd argument
     unsigned char Pad_0x09[3];
 };
-static_assert(sizeof(FPayloadClientMissionResponse) == 0x0c, "MISSIONRESPONSE payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientMissionResponse) == 0x0c, "MISSIONRESPONSE payload 0x0c");
 
 // ch3 0x18 FLPACKET_CLIENT_REQADDITEM, size 0x38 -> payload 0x18.
 // Sender IServerImpl::ReqAddItem 0x06d8d230. The hardpoint string goes through the
@@ -1754,7 +1754,7 @@ struct FPayloadClientReqAddItem {
     unsigned char Pad_0x11[3];
     char* Hardpoint;              // +0x14  packet-owned copy
 };
-static_assert(sizeof(FPayloadClientReqAddItem) == 0x18, "REQADDITEM payload 0x18");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientReqAddItem) == 0x18, "REQADDITEM payload 0x18");
 
 // ch3 0x1a FLPACKET_CLIENT_REQMODIFYITEM, size 0x38 -> payload 0x18.
 // Sender IServerImpl::ReqModifyItem 0x06d8d300, block writer FUN_06d9a5f0 (same code as
@@ -1770,7 +1770,7 @@ struct FPayloadClientReqModifyItem {
     unsigned char Pad_0x11[3];
     char* Hardpoint;              // +0x14  packet-owned copy
 };
-static_assert(sizeof(FPayloadClientReqModifyItem) == 0x18, "REQMODIFYITEM payload 0x18");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientReqModifyItem) == 0x18, "REQMODIFYITEM payload 0x18");
 
 // ch3 0x1e FLPACKET_CLIENT_SAVEGAME, size 0x228 -> payload 0x208.
 // Sender IServerImpl::SaveGame 0x06d8db10: CHARACTER_ID::operator= into packet+0x20,
@@ -1784,7 +1784,7 @@ struct FPayloadClientSaveGame {
     wchar_t* Description;             // +0x200  packet-owned wide string copy
     unsigned int DescriptionCount;    // +0x204  in wide characters, including the NUL
 };
-static_assert(sizeof(FPayloadClientSaveGame) == 0x208, "SAVEGAME payload 0x208");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientSaveGame) == 0x208, "SAVEGAME payload 0x208");
 
 // ch3 0x20 FLPACKET_CLIENT_MINEASTEROID, size 0x3c -> payload 0x1c.
 // Sender IServerImpl::MineAsteroid 0x06d8dcf0 flattens the Vector inline; receiver
@@ -1798,7 +1798,7 @@ struct FPayloadClientMineAsteroid {
     unsigned int SecondaryLoot;   // +0x14
     unsigned int Quantity;        // +0x18
 };
-static_assert(sizeof(FPayloadClientMineAsteroid) == 0x1c, "MINEASTEROID payload 0x1c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientMineAsteroid) == 0x1c, "MINEASTEROID payload 0x1c");
 
 // ===========================================================================
 // ch3 0x22 FLPACKET_CLIENT_DBGCREATESHIP, size 0x90 -> payload 0x70.
@@ -1881,7 +1881,7 @@ struct FPayloadClientDbgCreateShip {
     void* BlockA;                   // +0x68  packet-owned, freed at 06db0519
     void* BlockB;                   // +0x6c  packet-owned, freed at 06db052c
 };
-static_assert(sizeof(FPayloadClientDbgCreateShip) == 0x70, "DBGCREATESHIP payload 0x70");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDbgCreateShip) == 0x70, "DBGCREATESHIP payload 0x70");
 
 // ch3 0x25 FLPACKET_CLIENT_DBGDESTROYOBJECT, size 0x28 -> payload 0x08.
 // No sender anywhere in the release image: the only instruction in rpclocal that writes
@@ -1895,7 +1895,7 @@ struct FPayloadClientDbgDestroyObject {
     unsigned short Field_0x04;    // +0x04  word
     unsigned short Pad_0x06;      // +0x06  neither direction touches it
 };
-static_assert(sizeof(FPayloadClientDbgDestroyObject) == 0x08, "DBGDESTROYOBJECT payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDbgDestroyObject) == 0x08, "DBGDESTROYOBJECT payload 0x08");
 
 // ch3 0x27 FLPACKET_CLIENT_TRADERESPONSE, size 0x28 -> payload 0x08.
 // Sender IServerImpl::TradeResponse 0x06d8dad0 uses FUN_06d97b00, the very same block
@@ -1906,7 +1906,7 @@ struct FPayloadClientBlob {
     unsigned int Size;            // +0x00
     void* Buffer;                 // +0x04  packet-owned copy
 };
-static_assert(sizeof(FPayloadClientBlob) == 0x08, "TRADERESPONSE payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientBlob) == 0x08, "TRADERESPONSE payload 0x08");
 
 // ch3 0x2d FLPACKET_CLIENT_DBGCONSOLE, size 0xa4 -> payload 0x84.
 // Encoder LAB_06db1670, decoder LAB_06db17a0, both transcribed in rpc_wire_fields.cpp.
@@ -1928,7 +1928,7 @@ struct FPayloadClientDbgConsole {
     unsigned int Field_0x00;      // +0x00  TODO: name unknown, no sender in rpclocal
     char Text_0x04[128];          // +0x04  fixed 128-byte run, sent in full
 };
-static_assert(sizeof(FPayloadClientDbgConsole) == 0x84, "DBGCONSOLE payload 0x84");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientDbgConsole) == 0x84, "DBGCONSOLE payload 0x84");
 
 // ch3 0x31 FLPACKET_CLIENT_REQUEST_EVENT, size 0x34 -> payload 0x14.
 // Sender IServerImpl::RequestEvent 0x06d8eaf0. Retail TRUNCATES both the int first
@@ -1943,7 +1943,7 @@ struct FPayloadClientRequestEvent {
     unsigned char Field_0x10;     // +0x10  <- ulong, truncated
     unsigned char Pad_0x11[3];
 };
-static_assert(sizeof(FPayloadClientRequestEvent) == 0x14, "REQUEST_EVENT payload 0x14");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientRequestEvent) == 0x14, "REQUEST_EVENT payload 0x14");
 
 // ch3 0x32 FLPACKET_CLIENT_REQUEST_CANCEL, size 0x30 -> payload 0x10.
 // Sender IServerImpl::RequestCancel 0x06d8eb60, same truncation habit.
@@ -1955,7 +1955,7 @@ struct FPayloadClientRequestCancel {
     unsigned char Field_0x0c;     // +0x0c  <- ulong, truncated
     unsigned char Pad_0x0d[3];
 };
-static_assert(sizeof(FPayloadClientRequestCancel) == 0x10, "REQUEST_CANCEL payload 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientRequestCancel) == 0x10, "REQUEST_CANCEL payload 0x10");
 
 // ch3 0x39 FLPACKET_CLIENT_CREATENEWCHAR, size 0xb0 -> payload 0x90.
 // Sender IServerImpl::CreateNewCharacter 0x06d8cdf0 does
@@ -1976,7 +1976,7 @@ struct FPayloadClientCreateNewChar {
     unsigned int Field_0x88;      // +0x88  <- +0x38
     unsigned int Field_0x8c;      // +0x8c  <- +0x3c
 };
-static_assert(sizeof(FPayloadClientCreateNewChar) == 0x90, "CREATENEWCHAR payload 0x90");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientCreateNewChar) == 0x90, "CREATENEWCHAR payload 0x90");
 
 // ch3 0x3d FLPACKET_CLIENT_BADLANDSOBJCOLLISION, size 0x2c -> payload 0x0c.
 // Sender IServerImpl::SPBadLandsObjCollision 0x06d8d760 rotates the three fields of
@@ -1988,7 +1988,7 @@ struct FPayloadClientBadLandsObjCollision {
     unsigned short Pad_0x06;
     unsigned int Field_0x08;      // +0x08  <- +0x00
 };
-static_assert(sizeof(FPayloadClientBadLandsObjCollision) == 0x0c, "BADLANDSOBJCOLLISION payload 0x0c");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientBadLandsObjCollision) == 0x0c, "BADLANDSOBJCOLLISION payload 0x0c");
 
 // ch3 0x40 FLPACKET_CLIENT_REQUEST_USE_ITEM, size 0x28 -> payload 0x08.
 // Sender IServerImpl::SPRequestUseItem 0x06d8ec20, identity mapping of SSPUseItem.
@@ -1997,7 +1997,7 @@ struct FPayloadClientUseItem {
     unsigned short ItemId;        // +0x04
     unsigned short Count;         // +0x06
 };
-static_assert(sizeof(FPayloadClientUseItem) == 0x08, "REQUEST_USE_ITEM payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientUseItem) == 0x08, "REQUEST_USE_ITEM payload 0x08");
 
 // ch3 0x44 FLPACKET_CLIENT_REQINVINCIBILITY, size 0x28 -> payload 0x08.
 // Sender IServerImpl::SPRequestInvincibility 0x06d8ec80 writes the REASON at +0x04 and
@@ -2010,7 +2010,7 @@ struct FPayloadClientInvincibility {
     unsigned char bInvincible;    // +0x05
     unsigned char Pad_0x06[2];
 };
-static_assert(sizeof(FPayloadClientInvincibility) == 0x08, "REQINVINCIBILITY payload 0x08");
+FL_LAYOUT_ASSERT(sizeof(FPayloadClientInvincibility) == 0x08, "REQINVINCIBILITY payload 0x08");
 
 // ===========================================================================
 // Channel-3 codec table. The deliver side of this channel does NOT call IClient --

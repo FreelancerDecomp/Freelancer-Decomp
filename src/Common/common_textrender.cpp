@@ -356,7 +356,7 @@ DeviceTRC& DeviceTRC::operator=(const DeviceTRC& Other)
 // is (Style << 3) | Combination, one byte of TextRenderAttributes::Packed.
 static constexpr int GMaxFontIndices = 32;
 static constexpr int GSubEntriesPerFont = 8;
-static_assert(sizeof(DeviceTRC::WinFont) == 0x7C, "retail WinFont stride is 0x7C");
+FL_LAYOUT_ASSERT(sizeof(DeviceTRC::WinFont) == 0x7C, "retail WinFont stride is 0x7C");
 DeviceTRC::WinFont DeviceTRC::mFont[256];
 
 // The 32 standard styles — retail DAT_06409588, 0x8C per style. SetStandardFont writes
@@ -372,7 +372,7 @@ struct FStandardFontStyle
     unsigned char Pad0B;        // +0x0B
     char NameBuffer[0x80];      // +0x0C
 };
-static_assert(sizeof(FStandardFontStyle) == 0x8C, "retail style stride is 0x8C");
+FL_LAYOUT_ASSERT(sizeof(FStandardFontStyle) == 0x8C, "retail style stride is 0x8C");
 static FStandardFontStyle GStandardFonts[GMaxFontIndices];
 
 // RVA 0xC5F20 (LAB_06325f20) — a DAT_063ea574 static-initializer table entry that runs at

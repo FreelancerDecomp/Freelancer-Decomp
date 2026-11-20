@@ -77,10 +77,10 @@ public:
     Matrix Orient;  // +0x0C
 };
 
-static_assert(sizeof(Vector) == 0x0C, "Vector 3 float");
-static_assert(sizeof(Matrix) == 0x24, "Matrix 3x3");
-static_assert(sizeof(Transform) == 0x30, "Transform matrix+pos");
-static_assert(sizeof(Csys) == 0x30, "Csys pos+matrix");
+FL_LAYOUT_ASSERT(sizeof(Vector) == 0x0C, "Vector 3 float");
+FL_LAYOUT_ASSERT(sizeof(Matrix) == 0x24, "Matrix 3x3");
+FL_LAYOUT_ASSERT(sizeof(Transform) == 0x30, "Transform matrix+pos");
+FL_LAYOUT_ASSERT(sizeof(Csys) == 0x30, "Csys pos+matrix");
 
 COMMON_API Csys __cdecl Csys_identity();
 COMMON_API Csys __cdecl Csys_init(Vector const& Pos, Matrix const& Orient);

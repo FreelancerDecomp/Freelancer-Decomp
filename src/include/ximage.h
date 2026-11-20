@@ -45,9 +45,9 @@ struct FBigImageDesc
     FBigImageDrawTile DrawTile;    // +0x28
 };
 
-static_assert(offsetof(FBigImageDesc, Pipeline) == 0x08, "BigImage pipeline field");
-static_assert(offsetof(FBigImageDesc, DrawTile) == 0x28, "BigImage callback field");
-static_assert(sizeof(FBigImageDesc) == 0x2C, "BigImage descriptor extent");
+FL_LAYOUT_ASSERT(offsetof(FBigImageDesc, Pipeline) == 0x08, "BigImage pipeline field");
+FL_LAYOUT_ASSERT(offsetof(FBigImageDesc, DrawTile) == 0x28, "BigImage callback field");
+FL_LAYOUT_ASSERT(sizeof(FBigImageDesc) == 0x2C, "BigImage descriptor extent");
 
 struct IBigImage2 : IDAComponent
 {

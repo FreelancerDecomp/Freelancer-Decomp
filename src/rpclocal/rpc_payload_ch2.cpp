@@ -687,7 +687,7 @@ static bool DeliverBurnFuse(const FPacketBase* Packet, IClient* Client, IChatCli
     const FPayloadServerBurnFuse Wire = RpcPayloadRead<FPayloadServerBurnFuse>(Packet, 0);
     // A straight copy back into the argument struct (caseD_41), the two floats as bits and
     // the pads as the wire carried them.
-    static_assert(sizeof(FServerBurnFuseInfo) == sizeof(FPayloadServerBurnFuse),
+    FL_LAYOUT_ASSERT(sizeof(FServerBurnFuseInfo) == sizeof(FPayloadServerBurnFuse),
                   "BURNFUSE argument and payload are the same 0x1c bytes");
     FServerBurnFuseInfo Info;
     Info.SourceId = Wire.Field_0x00;
@@ -1564,12 +1564,12 @@ __declspec(dllexport) bool RpcHandleDamageObject(const FPacketBase* Packet, ICli
 // (server_createinfo.h); both are the records retail's two ends walk, so the old private
 // mirrors FServerCreateLootInfo / FRpcLootDescMirror are gone (2026-10-16). Every float
 // member moves as its bits: both directions copy the record with plain dword MOVs.
-static_assert(sizeof(FServerLootDesc) == 0x48, "CREATELOOT record is 0x48 (the array stride)");
-static_assert(offsetof(FServerLootDesc, Orientation) == 0x28, "CREATELOOT record +0x28");
-static_assert(offsetof(FServerLootDesc, Velocity) == 0x38, "CREATELOOT record +0x38");
-static_assert(offsetof(FServerLootDesc, Field_0x44) == 0x44, "CREATELOOT record +0x44");
-static_assert(sizeof(FServerCreateLootRequest) == 0x14, "CREATELOOT argument struct 0x14");
-static_assert(offsetof(FServerCreateLootRequest, Items) == 0x0c, "CREATELOOT argument +0x0c");
+FL_LAYOUT_ASSERT(sizeof(FServerLootDesc) == 0x48, "CREATELOOT record is 0x48 (the array stride)");
+FL_LAYOUT_ASSERT(offsetof(FServerLootDesc, Orientation) == 0x28, "CREATELOOT record +0x28");
+FL_LAYOUT_ASSERT(offsetof(FServerLootDesc, Velocity) == 0x38, "CREATELOOT record +0x38");
+FL_LAYOUT_ASSERT(offsetof(FServerLootDesc, Field_0x44) == 0x44, "CREATELOOT record +0x44");
+FL_LAYOUT_ASSERT(sizeof(FServerCreateLootRequest) == 0x14, "CREATELOOT argument struct 0x14");
+FL_LAYOUT_ASSERT(offsetof(FServerCreateLootRequest, Items) == 0x0c, "CREATELOOT argument +0x0c");
 
 static bool MarshalCreateLoot(FPacketBase* Packet, const unsigned int* Args,
                               unsigned int ArgCount) {
@@ -2390,7 +2390,7 @@ struct FRpcLocalCostumeHint final : public CostumeHint
 {
 };
 
-static_assert(sizeof(FRpcLocalCostumeHint) == 0x3C, "operator new(0x3c) at 06d81bad");
+FL_LAYOUT_ASSERT(sizeof(FRpcLocalCostumeHint) == 0x3C, "operator new(0x3c) at 06d81bad");
 
 static bool MarshalLoadHint(FPacketBase* Packet, const unsigned int* Args,
                             unsigned int ArgCount) {

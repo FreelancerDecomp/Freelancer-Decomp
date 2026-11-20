@@ -523,34 +523,34 @@ public:
     float Field1d8;                   // +0x1d8. Zeroed by ctor/ResetApproachState().
 };
 
-static_assert(offsetof(FaceBehavior, CachedHandle08) == 0x08, "FaceBehavior::CachedHandle08 offset");
-static_assert(offsetof(FaceBehavior, ModeSelector0xc) == 0x0c, "FaceBehavior::ModeSelector0xc offset");
-static_assert(offsetof(FaceBehavior, UpdateResult10) == 0x10, "FaceBehavior::UpdateResult10 offset");
-static_assert(offsetof(FaceBehavior, ThreatSourcePtr14) == 0x14, "FaceBehavior::ThreatSourcePtr14 offset");
-static_assert(offsetof(FaceBehavior, DeltaTime1c) == 0x1c, "FaceBehavior::DeltaTime1c offset");
-static_assert(offsetof(FaceBehavior, BehaviorMgrPtr20) == 0x20, "FaceBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(FaceBehavior, NavHelperPtr24) == 0x24, "FaceBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(FaceBehavior, Flags28) == 0x28, "FaceBehavior::Flags28 offset");
-static_assert(offsetof(FaceBehavior, Flag29) == 0x29, "FaceBehavior::Flag29 offset");
-static_assert(offsetof(FaceBehavior, TargetKind2c) == 0x2c, "FaceBehavior::TargetKind2c offset");
-static_assert(offsetof(FaceBehavior, Watcher30) == 0x30, "FaceBehavior::Watcher30 offset");
-static_assert(offsetof(FaceBehavior, OrientMatrix38) == 0x38, "FaceBehavior::OrientMatrix38 offset");
-static_assert(offsetof(FaceBehavior, TargetPosition5c) == 0x5c, "FaceBehavior::TargetPosition5c offset");
-static_assert(offsetof(FaceBehavior, SubObjectA) == 0x68, "FaceBehavior::SubObjectA offset");
-static_assert(offsetof(FaceBehavior, SubObjectB) == 0xe0, "FaceBehavior::SubObjectB offset");
-static_assert(offsetof(FaceBehavior, SubObjectC) == 0x1a0, "FaceBehavior::SubObjectC offset");
-static_assert(offsetof(FaceBehavior, Flag1b4) == 0x1b4, "FaceBehavior::Flag1b4 offset");
-static_assert(offsetof(FaceBehavior, Field1b8) == 0x1b8, "FaceBehavior::Field1b8 offset");
-static_assert(offsetof(FaceBehavior, Field1bc) == 0x1bc, "FaceBehavior::Field1bc offset");
-static_assert(offsetof(FaceBehavior, Field1c0) == 0x1c0, "FaceBehavior::Field1c0 offset");
-static_assert(offsetof(FaceBehavior, Flag1c4) == 0x1c4, "FaceBehavior::Flag1c4 offset");
-static_assert(offsetof(FaceBehavior, Flag1c5) == 0x1c5, "FaceBehavior::Flag1c5 offset");
-static_assert(offsetof(FaceBehavior, Field1c8) == 0x1c8, "FaceBehavior::Field1c8 offset");
-static_assert(offsetof(FaceBehavior, Field1cc) == 0x1cc, "FaceBehavior::Field1cc offset");
-static_assert(offsetof(FaceBehavior, Field1d0) == 0x1d0, "FaceBehavior::Field1d0 offset");
-static_assert(offsetof(FaceBehavior, Flag1d4) == 0x1d4, "FaceBehavior::Flag1d4 offset");
-static_assert(offsetof(FaceBehavior, Field1d8) == 0x1d8, "FaceBehavior::Field1d8 offset");
-static_assert(sizeof(FaceBehavior) >= 0x1dc, "FaceBehavior minimum size (largest field actually read/written this pass)");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, CachedHandle08) == 0x08, "FaceBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, ModeSelector0xc) == 0x0c, "FaceBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, UpdateResult10) == 0x10, "FaceBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, ThreatSourcePtr14) == 0x14, "FaceBehavior::ThreatSourcePtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, DeltaTime1c) == 0x1c, "FaceBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, BehaviorMgrPtr20) == 0x20, "FaceBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, NavHelperPtr24) == 0x24, "FaceBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flags28) == 0x28, "FaceBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag29) == 0x29, "FaceBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, TargetKind2c) == 0x2c, "FaceBehavior::TargetKind2c offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Watcher30) == 0x30, "FaceBehavior::Watcher30 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, OrientMatrix38) == 0x38, "FaceBehavior::OrientMatrix38 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, TargetPosition5c) == 0x5c, "FaceBehavior::TargetPosition5c offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, SubObjectA) == 0x68, "FaceBehavior::SubObjectA offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, SubObjectB) == 0xe0, "FaceBehavior::SubObjectB offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, SubObjectC) == 0x1a0, "FaceBehavior::SubObjectC offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag1b4) == 0x1b4, "FaceBehavior::Flag1b4 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1b8) == 0x1b8, "FaceBehavior::Field1b8 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1bc) == 0x1bc, "FaceBehavior::Field1bc offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1c0) == 0x1c0, "FaceBehavior::Field1c0 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag1c4) == 0x1c4, "FaceBehavior::Flag1c4 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag1c5) == 0x1c5, "FaceBehavior::Flag1c5 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1c8) == 0x1c8, "FaceBehavior::Field1c8 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1cc) == 0x1cc, "FaceBehavior::Field1cc offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1d0) == 0x1d0, "FaceBehavior::Field1d0 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag1d4) == 0x1d4, "FaceBehavior::Flag1d4 offset");
+FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Field1d8) == 0x1d8, "FaceBehavior::Field1d8 offset");
+FL_LAYOUT_ASSERT(sizeof(FaceBehavior) >= 0x1dc, "FaceBehavior minimum size (largest field actually read/written this pass)");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x1dc`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -559,4 +559,4 @@ static_assert(sizeof(FaceBehavior) >= 0x1dc, "FaceBehavior minimum size (largest
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(FaceBehavior) <= 0x1dc, "FaceBehavior must not exceed its retail size 0x1dc");
+FL_LAYOUT_ASSERT(sizeof(FaceBehavior) <= 0x1dc, "FaceBehavior must not exceed its retail size 0x1dc");

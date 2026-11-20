@@ -51,7 +51,7 @@ struct FMathDesc
     const char* Implementation;
 };
 
-static_assert(sizeof(FMathDesc) == 0xC, "retail AGGDESC / DA3DMATHDESC size 0xC");
+FL_LAYOUT_ASSERT(sizeof(FMathDesc) == 0xC, "retail AGGDESC / DA3DMATHDESC size 0xC");
 
 // Retail vtable slots 0–25. Overload grouping does not match reconstructed Liberty 3dMath.h.
 struct I3DMathEngine : IDAComponent

@@ -372,22 +372,22 @@ public:
     Vector Field170;
 };
 
-static_assert(offsetof(LargeShipBehavior, CachedHandle08) == 0x08, "LargeShipBehavior::CachedHandle08 offset");
-static_assert(offsetof(LargeShipBehavior, ModeSelector0xc) == 0x0c, "LargeShipBehavior::ModeSelector0xc offset");
-static_assert(offsetof(LargeShipBehavior, UpdateResult10) == 0x10, "LargeShipBehavior::UpdateResult10 offset");
-static_assert(offsetof(LargeShipBehavior, ThreatSourcePtr14) == 0x14, "LargeShipBehavior::ThreatSourcePtr14 offset");
-static_assert(offsetof(LargeShipBehavior, DeltaTime1c) == 0x1c, "LargeShipBehavior::DeltaTime1c offset");
-static_assert(offsetof(LargeShipBehavior, BehaviorMgrPtr20) == 0x20, "LargeShipBehavior::BehaviorMgrPtr20 offset");
-static_assert(offsetof(LargeShipBehavior, NavHelperPtr24) == 0x24, "LargeShipBehavior::NavHelperPtr24 offset");
-static_assert(offsetof(LargeShipBehavior, Flags28) == 0x28, "LargeShipBehavior::Flags28 offset");
-static_assert(offsetof(LargeShipBehavior, Flag29) == 0x29, "LargeShipBehavior::Flag29 offset");
-static_assert(offsetof(LargeShipBehavior, Field2c) == 0x2c, "LargeShipBehavior::Field2c offset");
-static_assert(offsetof(LargeShipBehavior, SubObjectA) == 0x30, "LargeShipBehavior::SubObjectA offset");
-static_assert(offsetof(LargeShipBehavior, SubObjectB) == 0xa8, "LargeShipBehavior::SubObjectB offset");
-static_assert(offsetof(LargeShipBehavior, Field168) == 0x168, "LargeShipBehavior::Field168 offset");
-static_assert(offsetof(LargeShipBehavior, Field16c) == 0x16c, "LargeShipBehavior::Field16c offset");
-static_assert(offsetof(LargeShipBehavior, Field170) == 0x170, "LargeShipBehavior::Field170 offset");
-static_assert(sizeof(LargeShipBehavior) >= 0x17c, "LargeShipBehavior minimum size (largest field actually read/written)");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, CachedHandle08) == 0x08, "LargeShipBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, ModeSelector0xc) == 0x0c, "LargeShipBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, UpdateResult10) == 0x10, "LargeShipBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, ThreatSourcePtr14) == 0x14, "LargeShipBehavior::ThreatSourcePtr14 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, DeltaTime1c) == 0x1c, "LargeShipBehavior::DeltaTime1c offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, BehaviorMgrPtr20) == 0x20, "LargeShipBehavior::BehaviorMgrPtr20 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, NavHelperPtr24) == 0x24, "LargeShipBehavior::NavHelperPtr24 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Flags28) == 0x28, "LargeShipBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Flag29) == 0x29, "LargeShipBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Field2c) == 0x2c, "LargeShipBehavior::Field2c offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, SubObjectA) == 0x30, "LargeShipBehavior::SubObjectA offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, SubObjectB) == 0xa8, "LargeShipBehavior::SubObjectB offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Field168) == 0x168, "LargeShipBehavior::Field168 offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Field16c) == 0x16c, "LargeShipBehavior::Field16c offset");
+FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Field170) == 0x170, "LargeShipBehavior::Field170 offset");
+FL_LAYOUT_ASSERT(sizeof(LargeShipBehavior) >= 0x17c, "LargeShipBehavior minimum size (largest field actually read/written)");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x180`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -396,4 +396,4 @@ static_assert(sizeof(LargeShipBehavior) >= 0x17c, "LargeShipBehavior minimum siz
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(LargeShipBehavior) <= 0x180, "LargeShipBehavior must not exceed its retail size 0x180");
+FL_LAYOUT_ASSERT(sizeof(LargeShipBehavior) <= 0x180, "LargeShipBehavior must not exceed its retail size 0x180");

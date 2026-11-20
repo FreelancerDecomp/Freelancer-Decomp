@@ -140,11 +140,11 @@ struct FShadingPropertyRecord
     FShadingPropertyValue Saved;            // +0x38
 };
 
-static_assert(sizeof(FShadingPropertyValue) == 0x14, "retail typed property value stride");
-static_assert(offsetof(FShadingPropertyRecord, Current) == 0x10, "property current +0x10");
-static_assert(offsetof(FShadingPropertyRecord, Default) == 0x24, "property default +0x24");
-static_assert(offsetof(FShadingPropertyRecord, Saved) == 0x38, "property saved +0x38");
-static_assert(sizeof(FShadingPropertyRecord) == 0x4C, "retail property record stride");
+FL_LAYOUT_ASSERT(sizeof(FShadingPropertyValue) == 0x14, "retail typed property value stride");
+FL_LAYOUT_ASSERT(offsetof(FShadingPropertyRecord, Current) == 0x10, "property current +0x10");
+FL_LAYOUT_ASSERT(offsetof(FShadingPropertyRecord, Default) == 0x24, "property default +0x24");
+FL_LAYOUT_ASSERT(offsetof(FShadingPropertyRecord, Saved) == 0x38, "property saved +0x38");
+FL_LAYOUT_ASSERT(sizeof(FShadingPropertyRecord) == 0x4C, "retail property record stride");
 
 static constexpr char kIidImaData[] = "IMAData";
 static constexpr char kIidImaInstance[] = "IMAInstance";
@@ -241,7 +241,7 @@ struct FMaDelta
     float Field10;
 };
 
-static_assert(sizeof(FMaDelta) == 0x14, "FMaDelta 0x14");
+FL_LAYOUT_ASSERT(sizeof(FMaDelta) == 0x14, "FMaDelta 0x14");
 
 struct FMaKey
 {
@@ -251,7 +251,7 @@ struct FMaKey
     float D;
 };
 
-static_assert(sizeof(FMaKey) == 0x10, "FMaKey 0x10");
+FL_LAYOUT_ASSERT(sizeof(FMaKey) == 0x10, "FMaKey 0x10");
 
 struct FMaKeyBlock
 {
@@ -261,7 +261,7 @@ struct FMaKeyBlock
     FMaKey* Keys;        // +C MAKeys
 };
 
-static_assert(offsetof(FMaKeyBlock, Keys) == 0x0C, "key block +C");
+FL_LAYOUT_ASSERT(offsetof(FMaKeyBlock, Keys) == 0x0C, "key block +C");
 
 class IImaData : public IDAComponent
 {

@@ -57,7 +57,7 @@ struct COMMON_API CollisionGroupDesc
     bool operator!=(CollisionGroupDesc const& Other) const { return Id != Other.Id; }
 };
 
-static_assert(sizeof(CollisionGroupDesc) == 8, "CollisionGroupDesc sizeof 8");
+FL_LAYOUT_ASSERT(sizeof(CollisionGroupDesc) == 8, "CollisionGroupDesc sizeof 8");
 
 // MOVED HERE 2026-09-24 (claude:srv-pdb) from common_cobject.h -- see the note there.
 // SubObjectID: ID generation and classification for equipment/shields/collision groups.
@@ -113,9 +113,9 @@ namespace SubObjectID
     COMMON_API bool IsShieldEquipID(unsigned short Id);
 }
 
-static_assert(sizeof(SubObjectID::CollGroupIdMaker) == 2, "CollGroupIdMaker sizeof 2");
-static_assert(sizeof(SubObjectID::EquipIdMaker) == 2, "EquipIdMaker sizeof 2");
-static_assert(sizeof(SubObjectID::ShieldIdMaker) == 2, "ShieldIdMaker sizeof 2");
+FL_LAYOUT_ASSERT(sizeof(SubObjectID::CollGroupIdMaker) == 2, "CollGroupIdMaker sizeof 2");
+FL_LAYOUT_ASSERT(sizeof(SubObjectID::EquipIdMaker) == 2, "EquipIdMaker sizeof 2");
+FL_LAYOUT_ASSERT(sizeof(SubObjectID::ShieldIdMaker) == 2, "ShieldIdMaker sizeof 2");
 
 // Retail Common.dll exports every member of this STL instantiation (VC6 std::list, 55
 // members, imported by name by FreeLancer.exe, Server.dll and rpclocal.dll). The port
@@ -139,7 +139,7 @@ struct CacheString
     COMMON_API void clear();
 };
 
-static_assert(sizeof(CacheString) == 4, "CacheString is a single pointer");
+FL_LAYOUT_ASSERT(sizeof(CacheString) == 4, "CacheString is a single pointer");
 
 // Retail's global enum HpAttachmentType
 // (?get_hp_type_by_index@Gun@Archetype@@QBE?AW4HpAttachmentType@@H@Z). Enumerators leave no
@@ -430,19 +430,19 @@ namespace Archetype
         void free_physical_representation();
     };
 
-    static_assert(sizeof(Root) == 0x5C, "Root sizeof 0x5C");
-    static_assert(offsetof(Root, Companion) == 0x04, "Root+0x04 Companion");
-    static_assert(offsetof(Root, Nickname) == 0x08, "Root+0x08 nickname");
-    static_assert(offsetof(Root, DaArchetype) == 0x0C, "Root+0x0C DA_archetype");
-    static_assert(offsetof(Root, ObjectType) == 0x10, "Root+0x10 type bits");
-    static_assert(offsetof(Root, IdsName) == 0x14, "Root+0x14 ids_name");
-    static_assert(offsetof(Root, IdsInfo) == 0x18, "Root+0x18 ids_info");
-    static_assert(offsetof(Root, HitPts) == 0x1C, "Root+0x1C hit_pts");
-    static_assert(offsetof(Root, Mass) == 0x20, "Root+0x20 mass");
-    static_assert(offsetof(Root, ExplosionArch) == 0x24, "Root+0x24 explosion_arch");
-    static_assert(offsetof(Root, ExplosionResistance) == 0x28, "Root+0x28 explosion_resistance");
-    static_assert(offsetof(Root, LoadCount) == 0x3C, "Root+0x3C load/ref count");
-    static_assert(offsetof(Root, EngineIndex) == 0x40, "Root+0x40 engine index");
+    FL_LAYOUT_ASSERT(sizeof(Root) == 0x5C, "Root sizeof 0x5C");
+    FL_LAYOUT_ASSERT(offsetof(Root, Companion) == 0x04, "Root+0x04 Companion");
+    FL_LAYOUT_ASSERT(offsetof(Root, Nickname) == 0x08, "Root+0x08 nickname");
+    FL_LAYOUT_ASSERT(offsetof(Root, DaArchetype) == 0x0C, "Root+0x0C DA_archetype");
+    FL_LAYOUT_ASSERT(offsetof(Root, ObjectType) == 0x10, "Root+0x10 type bits");
+    FL_LAYOUT_ASSERT(offsetof(Root, IdsName) == 0x14, "Root+0x14 ids_name");
+    FL_LAYOUT_ASSERT(offsetof(Root, IdsInfo) == 0x18, "Root+0x18 ids_info");
+    FL_LAYOUT_ASSERT(offsetof(Root, HitPts) == 0x1C, "Root+0x1C hit_pts");
+    FL_LAYOUT_ASSERT(offsetof(Root, Mass) == 0x20, "Root+0x20 mass");
+    FL_LAYOUT_ASSERT(offsetof(Root, ExplosionArch) == 0x24, "Root+0x24 explosion_arch");
+    FL_LAYOUT_ASSERT(offsetof(Root, ExplosionResistance) == 0x28, "Root+0x28 explosion_resistance");
+    FL_LAYOUT_ASSERT(offsetof(Root, LoadCount) == 0x3C, "Root+0x3C load/ref count");
+    FL_LAYOUT_ASSERT(offsetof(Root, EngineIndex) == 0x40, "Root+0x40 engine index");
 
     // Archetype::ShieldLink. Listing shield_link element stride 0x1c: ID + EquipId + CacheString +
     // VC6 vector<CacheString>. Port nested GeneratorHps is MSVC vector (not 0x10 allocator+3ptr).
@@ -527,7 +527,7 @@ namespace Archetype
         std::vector<DamageObjInfo>* Items;   // +0x04  retail head node*
         unsigned Count;                      // +0x08
     };
-    static_assert(sizeof(DamageObjInfoList) == 0x0c, "DamageObjInfoList sizeof 0xc");
+    FL_LAYOUT_ASSERT(sizeof(DamageObjInfoList) == 0x0c, "DamageObjInfoList sizeof 0xc");
 
     // Archetype::FuseIgnitionList -- same embedded-list pattern as DamageObjInfoList, but over
     // FGroupFuse: CollisionGroup::Fuses at +0x58 (CArchGroup::FuseIgnitions).
@@ -547,7 +547,7 @@ namespace Archetype
         std::vector<FGroupFuse>* Items;    // +0x04  retail head node*
         unsigned Count;                    // +0x08
     };
-    static_assert(sizeof(FuseIgnitionList) == 0x0c, "FuseIgnitionList sizeof 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FuseIgnitionList) == 0x0c, "FuseIgnitionList sizeof 0xc");
 
     // sizeof 0x6c. operator_new(0x6c) FUN_062f9b10. Next* at +0. The three VC6 lists at
     // +0x40/+0x4c/+0x58 are the list classes above (a heap vector* in each head-node slot).
@@ -585,16 +585,16 @@ namespace Archetype
         float LinkedEquipHealth;                      // +0x68
     };
 
-    static_assert(sizeof(CollisionGroup) == 0x6c, "CollisionGroup sizeof 0x6c");
-    static_assert(offsetof(CollisionGroup, Id) == 0x04, "CollisionGroup+0x04 id");
-    static_assert(offsetof(CollisionGroup, ObjName) == 0x08, "CollisionGroup+0x08 obj");
-    static_assert(offsetof(CollisionGroup, HitPts) == 0x10, "CollisionGroup+0x10 hit_pts");
-    static_assert(offsetof(CollisionGroup, ParentImpulse) == 0x18, "CollisionGroup+0x18 parent_impulse");
-    static_assert(offsetof(CollisionGroup, RotationInertiaX) == 0x28, "CollisionGroup+0x28 rotation_inertia");
-    static_assert(offsetof(CollisionGroup, DmgObjs) == 0x40, "CollisionGroup+0x40 dmg list");
-    static_assert(offsetof(CollisionGroup, GroupDmgObjs) == 0x4c, "CollisionGroup+0x4c group dmg list");
-    static_assert(offsetof(CollisionGroup, Fuses) == 0x58, "CollisionGroup+0x58 fuse list");
-    static_assert(offsetof(CollisionGroup, LinkedEquipType) == 0x64, "CollisionGroup+0x64 linked_equip");
+    FL_LAYOUT_ASSERT(sizeof(CollisionGroup) == 0x6c, "CollisionGroup sizeof 0x6c");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, Id) == 0x04, "CollisionGroup+0x04 id");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, ObjName) == 0x08, "CollisionGroup+0x08 obj");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, HitPts) == 0x10, "CollisionGroup+0x10 hit_pts");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, ParentImpulse) == 0x18, "CollisionGroup+0x18 parent_impulse");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, RotationInertiaX) == 0x28, "CollisionGroup+0x28 rotation_inertia");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, DmgObjs) == 0x40, "CollisionGroup+0x40 dmg list");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, GroupDmgObjs) == 0x4c, "CollisionGroup+0x4c group dmg list");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, Fuses) == 0x58, "CollisionGroup+0x58 fuse list");
+    FL_LAYOUT_ASSERT(offsetof(CollisionGroup, LinkedEquipType) == 0x64, "CollisionGroup+0x64 linked_equip");
 
     // FUN_062f9b10. Appends to EqObj+0x5C. LoadShips/LoadSolar [CollisionGroup] only.
     void ReadCollisionGroup(INI_Reader& Reader, EqObj* Owner, unsigned short GroupId);
@@ -710,12 +710,12 @@ namespace Archetype
         std::vector<DockingSphere> DockingSpheres; // +0x84 (Debug) / +0x88 (Release)
     };
 
-    static_assert(sizeof(EqObj) == 0x94, "EqObj sizeof 0x94");
-    static_assert(offsetof(EqObj, CollisionGroups) == 0x5C, "EqObj+0x5C CollisionGroup*");
-    static_assert(offsetof(EqObj, ShieldIdNext) == 0x60, "EqObj+0x60 ShieldIdMaker");
-    static_assert(offsetof(EqObj, ShieldLinks) == 0x68, "EqObj+0x68 shield_link");
-    static_assert(offsetof(EqObj, bNomad) == 0x80, "EqObj+0x80 nomad");
-    static_assert(offsetof(EqObj, bDockingCamera) == 0x81, "EqObj+0x81 docking_camera");
+    FL_LAYOUT_ASSERT(sizeof(EqObj) == 0x94, "EqObj sizeof 0x94");
+    FL_LAYOUT_ASSERT(offsetof(EqObj, CollisionGroups) == 0x5C, "EqObj+0x5C CollisionGroup*");
+    FL_LAYOUT_ASSERT(offsetof(EqObj, ShieldIdNext) == 0x60, "EqObj+0x60 ShieldIdMaker");
+    FL_LAYOUT_ASSERT(offsetof(EqObj, ShieldLinks) == 0x68, "EqObj+0x68 shield_link");
+    FL_LAYOUT_ASSERT(offsetof(EqObj, bNomad) == 0x80, "EqObj+0x80 nomad");
+    FL_LAYOUT_ASSERT(offsetof(EqObj, bDockingCamera) == 0x81, "EqObj+0x81 docking_camera");
 
     // Thin: extra fields from Solar ctor 0x93380 / read 0x93470. sizeof 0xAC.
     struct COMMON_API Solar : public EqObj
@@ -737,10 +737,10 @@ namespace Archetype
         ID_String Loadout;        // +0xA8
     };
 
-    static_assert(sizeof(Solar) == 0xAC, "Solar sizeof 0xAC");
-    static_assert(offsetof(Solar, bDestructible) == 0x94, "Solar+0x94 destructible");
-    static_assert(offsetof(Solar, SolarRadius) == 0x98, "Solar+0x98 solar_radius");
-    static_assert(offsetof(Solar, Loadout) == 0xA8, "Solar+0xA8 loadout");
+    FL_LAYOUT_ASSERT(sizeof(Solar) == 0xAC, "Solar sizeof 0xAC");
+    FL_LAYOUT_ASSERT(offsetof(Solar, bDestructible) == 0x94, "Solar+0x94 destructible");
+    FL_LAYOUT_ASSERT(offsetof(Solar, SolarRadius) == 0x98, "Solar+0x98 solar_radius");
+    FL_LAYOUT_ASSERT(offsetof(Solar, Loadout) == 0xA8, "Solar+0xA8 loadout");
 
     // One element of retail's Ship+0x130 vector -- 0x14 bytes: the HpAttachmentType at +0x00 and a
     // VC6 std::vector<CacheString> at +0x04 (Common.dll .text:062f29b8 strides by 0x14, .text:062f29c4
@@ -812,9 +812,9 @@ namespace Archetype
         int ShieldBatteryLimit;                 // retail +0x144
     };
 
-    static_assert(offsetof(Ship, BayDoorAnim) == 0xDC, "Ship+0xDC bay_door_anim");
-    static_assert(offsetof(Ship, HoldSize) == 0x100, "Ship+0x100 hold_size");
-    static_assert(offsetof(Ship, MaxBankAngle) == 0x12C, "Ship+0x12C max_bank_angle");
+    FL_LAYOUT_ASSERT(offsetof(Ship, BayDoorAnim) == 0xDC, "Ship+0xDC bay_door_anim");
+    FL_LAYOUT_ASSERT(offsetof(Ship, HoldSize) == 0x100, "Ship+0x100 hold_size");
+    FL_LAYOUT_ASSERT(offsetof(Ship, MaxBankAngle) == 0x12C, "Ship+0x12C max_bank_angle");
 
     // Thin: Root + equipment scalars. sizeof 0x70. Leaf classes for alloc_equip switch.
     struct COMMON_API Equipment : public Root
@@ -846,12 +846,12 @@ namespace Archetype
         bool bLootable;               // +0x6C lootable, default true
     };
 
-    static_assert(sizeof(Equipment) == 0x70, "Equipment sizeof 0x70");
-    static_assert(offsetof(Equipment, Volume) == 0x5C, "Equipment+0x5C volume");
-    static_assert(offsetof(Equipment, bUseCount) == 0x60, "Equipment+0x60 use_count");
-    static_assert(offsetof(Equipment, UnitsPerContainer) == 0x64, "Equipment+0x64 units_per_container");
-    static_assert(offsetof(Equipment, TractoredExplosion) == 0x68, "Equipment+0x68 tractored_explosion");
-    static_assert(offsetof(Equipment, bLootable) == 0x6C, "Equipment+0x6C lootable");
+    FL_LAYOUT_ASSERT(sizeof(Equipment) == 0x70, "Equipment sizeof 0x70");
+    FL_LAYOUT_ASSERT(offsetof(Equipment, Volume) == 0x5C, "Equipment+0x5C volume");
+    FL_LAYOUT_ASSERT(offsetof(Equipment, bUseCount) == 0x60, "Equipment+0x60 use_count");
+    FL_LAYOUT_ASSERT(offsetof(Equipment, UnitsPerContainer) == 0x64, "Equipment+0x64 units_per_container");
+    FL_LAYOUT_ASSERT(offsetof(Equipment, TractoredExplosion) == 0x68, "Equipment+0x68 tractored_explosion");
+    FL_LAYOUT_ASSERT(offsetof(Equipment, bLootable) == 0x6C, "Equipment+0x6C lootable");
 
     // sizeof 0x70 same as Equipment. listing ctor 0x94460 / LoadEquipment 0x97c50:
     // Equipment::Equipment then LootCrate vtable; get_class_type 8. No read/load override.
@@ -866,7 +866,7 @@ namespace Archetype
         virtual AClassType get_class_type() const;
     };
 
-    static_assert(sizeof(LootCrate) == 0x70, "LootCrate sizeof 0x70");
+    FL_LAYOUT_ASSERT(sizeof(LootCrate) == 0x70, "LootCrate sizeof 0x70");
 
     // sizeof 0x88. LoadEquipment operator_new / ctor 0x95310. listing AttachedEquipment::read 0x953b0.
     struct COMMON_API AttachedEquipment : public Equipment
@@ -891,11 +891,11 @@ namespace Archetype
         int Toughness;                 // +0x84
     };
 
-    static_assert(sizeof(AttachedEquipment) == 0x88, "AttachedEquipment sizeof 0x88");
-    static_assert(offsetof(AttachedEquipment, SeparationExplosion) == 0x70,
+    FL_LAYOUT_ASSERT(sizeof(AttachedEquipment) == 0x88, "AttachedEquipment sizeof 0x88");
+    FL_LAYOUT_ASSERT(offsetof(AttachedEquipment, SeparationExplosion) == 0x70,
                   "AttachedEquipment+0x70 separation_explosion");
-    static_assert(offsetof(AttachedEquipment, HpChild) == 0x80, "AttachedEquipment+0x80 HP_child");
-    static_assert(offsetof(AttachedEquipment, Toughness) == 0x84, "AttachedEquipment+0x84 toughness");
+    FL_LAYOUT_ASSERT(offsetof(AttachedEquipment, HpChild) == 0x80, "AttachedEquipment+0x80 HP_child");
+    FL_LAYOUT_ASSERT(offsetof(AttachedEquipment, Toughness) == 0x84, "AttachedEquipment+0x84 toughness");
 
     // sizeof 0xa0. ctor 0x96010. Parent of Gun / MineDropper / CMDropper. listing read 0x960f0.
     struct COMMON_API Launcher : public AttachedEquipment
@@ -918,11 +918,11 @@ namespace Archetype
         CacheString UseAnimation;         // +0x9c
     };
 
-    static_assert(sizeof(Launcher) == 0xa0, "Launcher sizeof 0xa0");
-    static_assert(offsetof(Launcher, DamagePerFire) == 0x88, "Launcher+0x88 damage_per_fire");
-    static_assert(offsetof(Launcher, ProjectileArchetype) == 0x98,
+    FL_LAYOUT_ASSERT(sizeof(Launcher) == 0xa0, "Launcher sizeof 0xa0");
+    FL_LAYOUT_ASSERT(offsetof(Launcher, DamagePerFire) == 0x88, "Launcher+0x88 damage_per_fire");
+    FL_LAYOUT_ASSERT(offsetof(Launcher, ProjectileArchetype) == 0x98,
                   "Launcher+0x98 projectile_archetype");
-    static_assert(offsetof(Launcher, UseAnimation) == 0x9c, "Launcher+0x9c use_animation");
+    FL_LAYOUT_ASSERT(offsetof(Launcher, UseAnimation) == 0x9c, "Launcher+0x9c use_animation");
 
     // sizeof 0x80. CEPower reads Capacity @ +0x70 / ThrustCapacity @ +0x78.
     struct COMMON_API Power : public Equipment
@@ -944,9 +944,9 @@ namespace Archetype
         float ThrustChargeRate;    // +0x7c
     };
 
-    static_assert(sizeof(Power) == 0x80, "Power sizeof 0x80");
-    static_assert(offsetof(Power, Capacity) == 0x70, "Power+0x70 capacity");
-    static_assert(offsetof(Power, ThrustCapacity) == 0x78, "Power+0x78 thrust_capacity");
+    FL_LAYOUT_ASSERT(sizeof(Power) == 0x80, "Power sizeof 0x80");
+    FL_LAYOUT_ASSERT(offsetof(Power, Capacity) == 0x70, "Power+0x70 capacity");
+    FL_LAYOUT_ASSERT(offsetof(Power, ThrustCapacity) == 0x78, "Power+0x78 thrust_capacity");
 
     struct COMMON_API Engine : public Equipment
     {
@@ -975,14 +975,14 @@ namespace Archetype
         float ReverseFraction;            // +0x88  reverse_fraction; GetThrust uses ONLY when throttle < 0
     };
 
-    static_assert(sizeof(Engine) == 0x8c, "Engine sizeof 0x8c");
-    static_assert(offsetof(Engine, ThrustMultiplier) == 0x70, "Engine+0x70 max_force");
-    static_assert(offsetof(Engine, LinearDrag) == 0x74, "Engine+0x74 linear_drag");
-    static_assert(offsetof(Engine, PowerDrawFactor) == 0x78, "Engine+0x78 power_usage");
-    static_assert(offsetof(Engine, CruisePowerUsage) == 0x7c, "Engine+0x7c cruise_power_usage");
-    static_assert(offsetof(Engine, CruiseChargeTime) == 0x80, "Engine+0x80 cruise_charge_time");
-    static_assert(offsetof(Engine, bIndestructible) == 0x84, "Engine+0x84 indestructible");
-    static_assert(offsetof(Engine, ReverseFraction) == 0x88, "Engine+0x88 reverse_fraction");
+    FL_LAYOUT_ASSERT(sizeof(Engine) == 0x8c, "Engine sizeof 0x8c");
+    FL_LAYOUT_ASSERT(offsetof(Engine, ThrustMultiplier) == 0x70, "Engine+0x70 max_force");
+    FL_LAYOUT_ASSERT(offsetof(Engine, LinearDrag) == 0x74, "Engine+0x74 linear_drag");
+    FL_LAYOUT_ASSERT(offsetof(Engine, PowerDrawFactor) == 0x78, "Engine+0x78 power_usage");
+    FL_LAYOUT_ASSERT(offsetof(Engine, CruisePowerUsage) == 0x7c, "Engine+0x7c cruise_power_usage");
+    FL_LAYOUT_ASSERT(offsetof(Engine, CruiseChargeTime) == 0x80, "Engine+0x80 cruise_charge_time");
+    FL_LAYOUT_ASSERT(offsetof(Engine, bIndestructible) == 0x84, "Engine+0x84 indestructible");
+    FL_LAYOUT_ASSERT(offsetof(Engine, ReverseFraction) == 0x88, "Engine+0x88 reverse_fraction");
 
     struct COMMON_API Armor : public Equipment
     {
@@ -1001,8 +1001,8 @@ namespace Archetype
         float HitPtsScale;   // +0x70  hit_pts_scale, default 1
     };
 
-    static_assert(sizeof(Armor) == 0x74, "Armor sizeof 0x74");
-    static_assert(offsetof(Armor, HitPtsScale) == 0x70, "Armor+0x70 hit_pts_scale");
+    FL_LAYOUT_ASSERT(sizeof(Armor) == 0x74, "Armor sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(Armor, HitPtsScale) == 0x70, "Armor+0x70 hit_pts_scale");
 
     struct COMMON_API Shield : public AttachedEquipment
     {
@@ -1015,7 +1015,7 @@ namespace Archetype
         virtual AClassType get_class_type() const;
     };
 
-    static_assert(sizeof(Shield) == 0x88, "Shield sizeof 0x88");
+    FL_LAYOUT_ASSERT(sizeof(Shield) == 0x88, "Shield sizeof 0x88");
 
     struct COMMON_API ShieldGenerator : public AttachedEquipment
     {
@@ -1054,18 +1054,18 @@ namespace Archetype
         unsigned* HpShieldTypesCap;    // +0xb4
     };
 
-    static_assert(sizeof(ShieldGenerator) == 0xb8, "ShieldGenerator sizeof 0xb8");
-    static_assert(offsetof(ShieldGenerator, HpType) == 0x88, "ShieldGenerator+0x88 hp_type");
-    static_assert(offsetof(ShieldGenerator, ShieldType) == 0x8c, "ShieldGenerator+0x8c shield_type");
-    static_assert(offsetof(ShieldGenerator, RegenerationRate) == 0x90,
+    FL_LAYOUT_ASSERT(sizeof(ShieldGenerator) == 0xb8, "ShieldGenerator sizeof 0xb8");
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, HpType) == 0x88, "ShieldGenerator+0x88 hp_type");
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, ShieldType) == 0x8c, "ShieldGenerator+0x8c shield_type");
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, RegenerationRate) == 0x90,
                   "ShieldGenerator+0x90 regeneration_rate");
-    static_assert(offsetof(ShieldGenerator, OfflineRebuildTime) == 0xa4,
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, OfflineRebuildTime) == 0xa4,
                   "ShieldGenerator+0xa4 offline_rebuild_time");
-    static_assert(offsetof(ShieldGenerator, HpShieldTypesBegin) == 0xac,
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, HpShieldTypesBegin) == 0xac,
                   "ShieldGenerator+0xac hp_shield_type array begin");
-    static_assert(offsetof(ShieldGenerator, HpShieldTypesEnd) == 0xb0,
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, HpShieldTypesEnd) == 0xb0,
                   "ShieldGenerator+0xb0 hp_shield_type array end");
-    static_assert(offsetof(ShieldGenerator, HpShieldTypesCap) == 0xb4,
+    FL_LAYOUT_ASSERT(offsetof(ShieldGenerator, HpShieldTypesCap) == 0xb4,
                   "ShieldGenerator+0xb4 hp_shield_type array cap");
 
     struct COMMON_API Thruster : public AttachedEquipment
@@ -1085,9 +1085,9 @@ namespace Archetype
         float MaxThrust;  // +0x8C
     };
 
-    static_assert(sizeof(Thruster) == 0x90, "Thruster sizeof 0x90");
-    static_assert(offsetof(Thruster, PowerUsage) == 0x88, "Thruster+0x88 power");
-    static_assert(offsetof(Thruster, MaxThrust) == 0x8C, "Thruster+0x8C thrust");
+    FL_LAYOUT_ASSERT(sizeof(Thruster) == 0x90, "Thruster sizeof 0x90");
+    FL_LAYOUT_ASSERT(offsetof(Thruster, PowerUsage) == 0x88, "Thruster+0x88 power");
+    FL_LAYOUT_ASSERT(offsetof(Thruster, MaxThrust) == 0x8C, "Thruster+0x8C thrust");
 
     struct COMMON_API Gun : public Launcher
     {
@@ -1135,15 +1135,15 @@ namespace Archetype
         HpAttachmentType get_hp_type_by_index(int Index) const;
     };
 
-    static_assert(sizeof(Gun) == 0xd4, "Gun sizeof 0xd4");
-    static_assert(offsetof(Gun, DispersionAngle) == 0xa0, "Gun+0xa0 dispersion_angle");
-    static_assert(offsetof(Gun, TurnRate) == 0xa4, "Gun+0xa4 turn_rate");
-    static_assert(offsetof(Gun, bAutoTurret) == 0xba, "Gun+0xba auto_turret");
-    static_assert(offsetof(Gun, HpGunTypesBegin) == 0xc0, "Gun+0xc0 hp_gun_type array begin");
-    static_assert(offsetof(Gun, HpGunTypesEnd) == 0xc4, "Gun+0xc4 hp_gun_type array end");
-    static_assert(offsetof(Gun, HpGunTypesCap) == 0xc8, "Gun+0xc8 hp_gun_type array cap");
-    static_assert(offsetof(Gun, bRangeCached) == 0xcc, "Gun+0xcc range cached flag");
-    static_assert(offsetof(Gun, CachedMunitionRange) == 0xd0, "Gun+0xd0 cached munition range");
+    FL_LAYOUT_ASSERT(sizeof(Gun) == 0xd4, "Gun sizeof 0xd4");
+    FL_LAYOUT_ASSERT(offsetof(Gun, DispersionAngle) == 0xa0, "Gun+0xa0 dispersion_angle");
+    FL_LAYOUT_ASSERT(offsetof(Gun, TurnRate) == 0xa4, "Gun+0xa4 turn_rate");
+    FL_LAYOUT_ASSERT(offsetof(Gun, bAutoTurret) == 0xba, "Gun+0xba auto_turret");
+    FL_LAYOUT_ASSERT(offsetof(Gun, HpGunTypesBegin) == 0xc0, "Gun+0xc0 hp_gun_type array begin");
+    FL_LAYOUT_ASSERT(offsetof(Gun, HpGunTypesEnd) == 0xc4, "Gun+0xc4 hp_gun_type array end");
+    FL_LAYOUT_ASSERT(offsetof(Gun, HpGunTypesCap) == 0xc8, "Gun+0xc8 hp_gun_type array cap");
+    FL_LAYOUT_ASSERT(offsetof(Gun, bRangeCached) == 0xcc, "Gun+0xcc range cached flag");
+    FL_LAYOUT_ASSERT(offsetof(Gun, CachedMunitionRange) == 0xd0, "Gun+0xd0 cached munition range");
 
     struct COMMON_API MineDropper : public Launcher
     {
@@ -1157,7 +1157,7 @@ namespace Archetype
         virtual HpAttachmentType get_hp_type() const;
     };
 
-    static_assert(sizeof(MineDropper) == 0xa0, "MineDropper sizeof 0xa0");
+    FL_LAYOUT_ASSERT(sizeof(MineDropper) == 0xa0, "MineDropper sizeof 0xa0");
 
     struct COMMON_API CounterMeasureDropper : public Launcher
     {
@@ -1175,8 +1175,8 @@ namespace Archetype
         float AiRangeSq;   // +0xa0  ai_range, squared on read; default 0
     };
 
-    static_assert(sizeof(CounterMeasureDropper) == 0xa4, "CounterMeasureDropper sizeof 0xa4");
-    static_assert(offsetof(CounterMeasureDropper, AiRangeSq) == 0xa0,
+    FL_LAYOUT_ASSERT(sizeof(CounterMeasureDropper) == 0xa4, "CounterMeasureDropper sizeof 0xa4");
+    FL_LAYOUT_ASSERT(offsetof(CounterMeasureDropper, AiRangeSq) == 0xa0,
                   "CounterMeasureDropper+0xa0 ai_range^2");
 
     struct COMMON_API Scanner : public Equipment
@@ -1197,7 +1197,7 @@ namespace Archetype
         float CargoScanRange;         // +0x78  cargo_scan_range, GetCargoScanRange
     };
 
-    static_assert(sizeof(Scanner) == 0x7c, "Scanner sizeof 0x7c");
+    FL_LAYOUT_ASSERT(sizeof(Scanner) == 0x7c, "Scanner sizeof 0x7c");
 
     struct COMMON_API Light : public Equipment
     {
@@ -1215,9 +1215,9 @@ namespace Archetype
         unsigned char Pad72[2];
     };
 
-    static_assert(sizeof(Light) == 0x74, "Light sizeof 0x74");
-    static_assert(offsetof(Light, bAlwaysOn) == 0x70, "Light+0x70 always_on");
-    static_assert(offsetof(Light, bDockingLight) == 0x71, "Light+0x71 docking_light");
+    FL_LAYOUT_ASSERT(sizeof(Light) == 0x74, "Light sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(Light, bAlwaysOn) == 0x70, "Light+0x70 always_on");
+    FL_LAYOUT_ASSERT(offsetof(Light, bDockingLight) == 0x71, "Light+0x71 docking_light");
 
     struct COMMON_API Tractor : public Equipment
     {
@@ -1236,9 +1236,9 @@ namespace Archetype
         float ReachSpeed;  // +0x74  reach_speed, default 100.0
     };
 
-    static_assert(sizeof(Tractor) == 0x78, "Tractor sizeof 0x78");
-    static_assert(offsetof(Tractor, MaxLength) == 0x70, "Tractor+0x70 max_length");
-    static_assert(offsetof(Tractor, ReachSpeed) == 0x74, "Tractor+0x74 reach_speed");
+    FL_LAYOUT_ASSERT(sizeof(Tractor) == 0x78, "Tractor sizeof 0x78");
+    FL_LAYOUT_ASSERT(offsetof(Tractor, MaxLength) == 0x70, "Tractor+0x70 max_length");
+    FL_LAYOUT_ASSERT(offsetof(Tractor, ReachSpeed) == 0x74, "Tractor+0x74 reach_speed");
 
     struct COMMON_API CargoPod : public AttachedEquipment
     {
@@ -1252,7 +1252,7 @@ namespace Archetype
         virtual HpAttachmentType get_hp_type() const;
     };
 
-    static_assert(sizeof(CargoPod) == 0x88, "CargoPod sizeof 0x88");
+    FL_LAYOUT_ASSERT(sizeof(CargoPod) == 0x88, "CargoPod sizeof 0x88");
 
     struct COMMON_API AttachedFXEquip : public Equipment
     {
@@ -1267,7 +1267,7 @@ namespace Archetype
         AttachedFXEquip& operator=(AttachedFXEquip const& Other);
     };
 
-    static_assert(sizeof(AttachedFXEquip) == 0x70, "AttachedFXEquip sizeof 0x70");
+    FL_LAYOUT_ASSERT(sizeof(AttachedFXEquip) == 0x70, "AttachedFXEquip sizeof 0x70");
 
     struct COMMON_API InternalFXEquip : public Equipment
     {
@@ -1284,8 +1284,8 @@ namespace Archetype
         CacheString UseAnimation;   // +0x70  use_animation
     };
 
-    static_assert(sizeof(InternalFXEquip) == 0x74, "InternalFXEquip sizeof 0x74");
-    static_assert(offsetof(InternalFXEquip, UseAnimation) == 0x70, "InternalFXEquip+0x70 use_animation");
+    FL_LAYOUT_ASSERT(sizeof(InternalFXEquip) == 0x74, "InternalFXEquip sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(InternalFXEquip, UseAnimation) == 0x70, "InternalFXEquip+0x70 use_animation");
 
     struct COMMON_API RepairDroid : public Equipment
     {
@@ -1303,8 +1303,8 @@ namespace Archetype
         float RepairRate;   // +0x70  repair_rate, default 0
     };
 
-    static_assert(sizeof(RepairDroid) == 0x74, "RepairDroid sizeof 0x74");
-    static_assert(offsetof(RepairDroid, RepairRate) == 0x70, "RepairDroid+0x70 repair_rate");
+    FL_LAYOUT_ASSERT(sizeof(RepairDroid) == 0x74, "RepairDroid sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(RepairDroid, RepairRate) == 0x70, "RepairDroid+0x70 repair_rate");
 
     struct COMMON_API CloakingDevice : public AttachedEquipment
     {
@@ -1325,9 +1325,9 @@ namespace Archetype
         unsigned CloakOutFx;   // +0x98  cloakout_fx, CreateID
     };
 
-    static_assert(sizeof(CloakingDevice) == 0x9c, "CloakingDevice sizeof 0x9c");
-    static_assert(offsetof(CloakingDevice, PowerUsage) == 0x88, "CloakingDevice+0x88 power_usage");
-    static_assert(offsetof(CloakingDevice, CloakOutFx) == 0x98, "CloakingDevice+0x98 cloakout_fx");
+    FL_LAYOUT_ASSERT(sizeof(CloakingDevice) == 0x9c, "CloakingDevice sizeof 0x9c");
+    FL_LAYOUT_ASSERT(offsetof(CloakingDevice, PowerUsage) == 0x88, "CloakingDevice+0x88 power_usage");
+    FL_LAYOUT_ASSERT(offsetof(CloakingDevice, CloakOutFx) == 0x98, "CloakingDevice+0x98 cloakout_fx");
 
     // sizeof 0x7c. listing read 0x94550. get_class_type 0xa.
     struct COMMON_API Commodity : public Equipment
@@ -1354,10 +1354,10 @@ namespace Archetype
         CargoPod* PodAppearance;          // +0x78  only if class 9
     };
 
-    static_assert(sizeof(Commodity) == 0x7c, "Commodity sizeof 0x7c");
-    static_assert(offsetof(Commodity, DecayPerSecond) == 0x70, "Commodity+0x70 decay_per_second");
-    static_assert(offsetof(Commodity, LootAppearance) == 0x74, "Commodity+0x74 loot_appearance");
-    static_assert(offsetof(Commodity, PodAppearance) == 0x78, "Commodity+0x78 pod_appearance");
+    FL_LAYOUT_ASSERT(sizeof(Commodity) == 0x7c, "Commodity sizeof 0x7c");
+    FL_LAYOUT_ASSERT(offsetof(Commodity, DecayPerSecond) == 0x70, "Commodity+0x70 decay_per_second");
+    FL_LAYOUT_ASSERT(offsetof(Commodity, LootAppearance) == 0x74, "Commodity+0x74 loot_appearance");
+    FL_LAYOUT_ASSERT(offsetof(Commodity, PodAppearance) == 0x78, "Commodity+0x78 pod_appearance");
 
     // sizeof 0x74. listing read 0x94d60 shared with ShieldBattery.
     struct COMMON_API RepairKit : public Equipment
@@ -1378,8 +1378,8 @@ namespace Archetype
         Equipment* LootAppearance;        // +0x70
     };
 
-    static_assert(sizeof(RepairKit) == 0x74, "RepairKit sizeof 0x74");
-    static_assert(offsetof(RepairKit, LootAppearance) == 0x70, "RepairKit+0x70 loot_appearance");
+    FL_LAYOUT_ASSERT(sizeof(RepairKit) == 0x74, "RepairKit sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(RepairKit, LootAppearance) == 0x70, "RepairKit+0x70 loot_appearance");
 
     struct COMMON_API ShieldBattery : public Equipment
     {
@@ -1399,8 +1399,8 @@ namespace Archetype
         Equipment* LootAppearance;        // +0x70
     };
 
-    static_assert(sizeof(ShieldBattery) == 0x74, "ShieldBattery sizeof 0x74");
-    static_assert(offsetof(ShieldBattery, LootAppearance) == 0x70,
+    FL_LAYOUT_ASSERT(sizeof(ShieldBattery) == 0x74, "ShieldBattery sizeof 0x74");
+    FL_LAYOUT_ASSERT(offsetof(ShieldBattery, LootAppearance) == 0x70,
                   "ShieldBattery+0x70 loot_appearance");
 
     // sizeof 0x70 same as Equipment; get_class_type 0x1d.
@@ -1415,7 +1415,7 @@ namespace Archetype
         virtual AClassType get_class_type() const;
     };
 
-    static_assert(sizeof(TradeLaneEquip) == 0x70, "TradeLaneEquip sizeof 0x70");
+    FL_LAYOUT_ASSERT(sizeof(TradeLaneEquip) == 0x70, "TradeLaneEquip sizeof 0x70");
 
     // sizeof 0x80. Base of Munition / Mine / CounterMeasure. listing read 0x96de0.
     struct COMMON_API Projectile : public Equipment
@@ -1441,10 +1441,10 @@ namespace Archetype
         Equipment* LootAppearance;        // +0x7c
     };
 
-    static_assert(sizeof(Projectile) == 0x80, "Projectile sizeof 0x80");
-    static_assert(offsetof(Projectile, Lifetime) == 0x70, "Projectile+0x70 lifetime");
-    static_assert(offsetof(Projectile, bRequiresAmmo) == 0x78, "Projectile+0x78 requires_ammo");
-    static_assert(offsetof(Projectile, LootAppearance) == 0x7c, "Projectile+0x7c loot_appearance");
+    FL_LAYOUT_ASSERT(sizeof(Projectile) == 0x80, "Projectile sizeof 0x80");
+    FL_LAYOUT_ASSERT(offsetof(Projectile, Lifetime) == 0x70, "Projectile+0x70 lifetime");
+    FL_LAYOUT_ASSERT(offsetof(Projectile, bRequiresAmmo) == 0x78, "Projectile+0x78 requires_ammo");
+    FL_LAYOUT_ASSERT(offsetof(Projectile, LootAppearance) == 0x7c, "Projectile+0x7c loot_appearance");
 
     // sizeof 0xb0. listing read 0x97090. load 0x97450 (empty DA_archetype → BEAM_ARCH).
     struct COMMON_API Munition : public Projectile
@@ -1500,10 +1500,10 @@ namespace Archetype
         friend struct ShieldGenerator;
     };
 
-    static_assert(sizeof(Munition) == 0xb0, "Munition sizeof 0xb0");
-    static_assert(offsetof(Munition, HullDamage) == 0x80, "Munition+0x80 hull_damage");
-    static_assert(offsetof(Munition, Seeker) == 0x90, "Munition+0x90 seeker");
-    static_assert(offsetof(Munition, HpType) == 0xa8, "Munition+0xa8 hp_type");
+    FL_LAYOUT_ASSERT(sizeof(Munition) == 0xb0, "Munition sizeof 0xb0");
+    FL_LAYOUT_ASSERT(offsetof(Munition, HullDamage) == 0x80, "Munition+0x80 hull_damage");
+    FL_LAYOUT_ASSERT(offsetof(Munition, Seeker) == 0x90, "Munition+0x90 seeker");
+    FL_LAYOUT_ASSERT(offsetof(Munition, HpType) == 0xa8, "Munition+0xa8 hp_type");
 
     struct COMMON_API Mine : public Projectile
     {
@@ -1525,9 +1525,9 @@ namespace Archetype
         float TopSpeed;                   // +0x90  default 40
     };
 
-    static_assert(sizeof(Mine) == 0x94, "Mine sizeof 0x94");
-    static_assert(offsetof(Mine, LinearDrag) == 0x80, "Mine+0x80 linear_drag");
-    static_assert(offsetof(Mine, TopSpeed) == 0x90, "Mine+0x90 top_speed");
+    FL_LAYOUT_ASSERT(sizeof(Mine) == 0x94, "Mine sizeof 0x94");
+    FL_LAYOUT_ASSERT(offsetof(Mine, LinearDrag) == 0x80, "Mine+0x80 linear_drag");
+    FL_LAYOUT_ASSERT(offsetof(Mine, TopSpeed) == 0x90, "Mine+0x90 top_speed");
 
     struct COMMON_API CounterMeasure : public Projectile
     {
@@ -1547,9 +1547,9 @@ namespace Archetype
         int DiversionPctg;                // +0x88  _ftol of diversion_pctg
     };
 
-    static_assert(sizeof(CounterMeasure) == 0x8c, "CounterMeasure sizeof 0x8c");
-    static_assert(offsetof(CounterMeasure, LinearDrag) == 0x80, "CounterMeasure+0x80 linear_drag");
-    static_assert(offsetof(CounterMeasure, DiversionPctg) == 0x88,
+    FL_LAYOUT_ASSERT(sizeof(CounterMeasure) == 0x8c, "CounterMeasure sizeof 0x8c");
+    FL_LAYOUT_ASSERT(offsetof(CounterMeasure, LinearDrag) == 0x80, "CounterMeasure+0x80 linear_drag");
+    FL_LAYOUT_ASSERT(offsetof(CounterMeasure, DiversionPctg) == 0x88,
                   "CounterMeasure+0x88 diversion_pctg");
 
     // Root + 3 floats. listing LoadAsteroids operator_new(0x68). Not Equipment.
@@ -1575,10 +1575,10 @@ namespace Archetype
         float RechargeTime;       // +0x64 default 1000
     };
 
-    static_assert(sizeof(Asteroid) == 0x68, "Asteroid sizeof 0x68");
-    static_assert(offsetof(Asteroid, DetectRadius) == 0x5C, "Asteroid+0x5C detect_radius");
-    static_assert(offsetof(Asteroid, ExplosionOffset) == 0x60, "Asteroid+0x60 explosion_offset");
-    static_assert(offsetof(Asteroid, RechargeTime) == 0x64, "Asteroid+0x64 recharge_time");
+    FL_LAYOUT_ASSERT(sizeof(Asteroid) == 0x68, "Asteroid sizeof 0x68");
+    FL_LAYOUT_ASSERT(offsetof(Asteroid, DetectRadius) == 0x5C, "Asteroid+0x5C detect_radius");
+    FL_LAYOUT_ASSERT(offsetof(Asteroid, ExplosionOffset) == 0x60, "Asteroid+0x60 explosion_offset");
+    FL_LAYOUT_ASSERT(offsetof(Asteroid, RechargeTime) == 0x64, "Asteroid+0x64 recharge_time");
 
     // Root only. ctor 0x9a090 sets ObjectType 0x40000000. sizeof 0x5C.
     struct COMMON_API DynamicAsteroid : public Root
@@ -1594,7 +1594,7 @@ namespace Archetype
         virtual AClassType get_class_type() const;
     };
 
-    static_assert(sizeof(DynamicAsteroid) == 0x5C, "DynamicAsteroid sizeof 0x5C");
+    FL_LAYOUT_ASSERT(sizeof(DynamicAsteroid) == 0x5C, "DynamicAsteroid sizeof 0x5C");
 
     // Not Root. LoadEquipment [Motor] operator_new(0x14). Vtable slot 0 = read, not dtor.
     struct MotorData
@@ -1658,11 +1658,11 @@ namespace Archetype
         std::vector<FExplosionDebrisType> DebrisTypes; // retail vector +0x50
     };
 
-    static_assert(sizeof(MotorData) == 0x14, "MotorData sizeof 0x14");
-    static_assert(offsetof(MotorData, Nickname) == 0x04, "Motor+0x04 nickname");
-    static_assert(offsetof(MotorData, Delay) == 0x08, "Motor+0x08 delay");
-    static_assert(offsetof(MotorData, Accel) == 0x0C, "Motor+0x0C accel");
-    static_assert(offsetof(MotorData, Lifetime) == 0x10, "Motor+0x10 lifetime");
+    FL_LAYOUT_ASSERT(sizeof(MotorData) == 0x14, "MotorData sizeof 0x14");
+    FL_LAYOUT_ASSERT(offsetof(MotorData, Nickname) == 0x04, "Motor+0x04 nickname");
+    FL_LAYOUT_ASSERT(offsetof(MotorData, Delay) == 0x08, "Motor+0x08 delay");
+    FL_LAYOUT_ASSERT(offsetof(MotorData, Accel) == 0x0C, "Motor+0x0C accel");
+    FL_LAYOUT_ASSERT(offsetof(MotorData, Lifetime) == 0x10, "Motor+0x10 lifetime");
 
     // DAT_063fcafc vector + DAT_063fcb0c map. Listing 0x994e0 / 0x99530.
     // ?LargeIDToSmallID@Archetype@@YAGI@Z

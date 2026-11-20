@@ -83,7 +83,7 @@
 // classes reserve different amounts of space". That reasoning is now
 // disproved: common_idea.h has since decoded FUN_062da500's RTTI chain to
 // ".?AVAfterburnerIdea@@" and established that the class adds NO fields of its
-// own beyond BaseIdea, whose `static_assert(sizeof(BaseIdea) == 0x14)` makes
+// own beyond BaseIdea, whose `FL_LAYOUT_ASSERT(sizeof(BaseIdea) == 0x14)` makes
 // sizeof(AfterburnerIdea) EXACTLY 0x14 -- i.e. WatcherC's measured size is an
 // exact match, not a mismatch, and it is DockBehavior's 0x18 that is the
 // outlier (common_idea.h's own AfterburnerIdea note already flags that storage
@@ -681,44 +681,44 @@ public:
                                      // (FaceIdea::SetScale94 in AcquireLockEffects()).
 };
 
-static_assert(offsetof(BuzzBehavior, CachedHandle08) == 0x08, "BuzzBehavior::CachedHandle08 offset");
-static_assert(offsetof(BuzzBehavior, ModeSelector0xc) == 0x0c, "BuzzBehavior::ModeSelector0xc offset");
-static_assert(offsetof(BuzzBehavior, UpdateResult10) == 0x10, "BuzzBehavior::UpdateResult10 offset");
-static_assert(offsetof(BuzzBehavior, OwnerContext) == 0x14, "BuzzBehavior::OwnerContext offset");
-static_assert(offsetof(BuzzBehavior, ObjectDb) == 0x18, "BuzzBehavior::ObjectDb offset");
-static_assert(offsetof(BuzzBehavior, DeltaTime) == 0x1c, "BuzzBehavior::DeltaTime offset");
-static_assert(offsetof(BuzzBehavior, BehaviorMgrPtr) == 0x20, "BuzzBehavior::BehaviorMgrPtr offset");
-static_assert(offsetof(BuzzBehavior, NavHelper) == 0x24, "BuzzBehavior::NavHelper offset");
-static_assert(offsetof(BuzzBehavior, Flags28) == 0x28, "BuzzBehavior::Flags28 offset");
-static_assert(offsetof(BuzzBehavior, Flag29) == 0x29, "BuzzBehavior::Flag29 offset");
-static_assert(offsetof(BuzzBehavior, WatcherA) == 0x2c, "BuzzBehavior::WatcherA offset");
-static_assert(offsetof(BuzzBehavior, WatcherB) == 0xa4, "BuzzBehavior::WatcherB offset");
-static_assert(offsetof(BuzzBehavior, WatcherC) == 0x164, "BuzzBehavior::WatcherC offset");
-static_assert(offsetof(BuzzBehavior, WatcherD) == 0x178, "BuzzBehavior::WatcherD offset");
-static_assert(offsetof(BuzzBehavior, WatcherE) == 0x258, "BuzzBehavior::WatcherE offset");
-static_assert(offsetof(BuzzBehavior, Field2f4) == 0x2f4, "BuzzBehavior::Field2f4 offset");
-static_assert(offsetof(BuzzBehavior, Field300) == 0x300, "BuzzBehavior::Field300 offset");
-static_assert(offsetof(BuzzBehavior, Field304) == 0x304, "BuzzBehavior::Field304 offset");
-static_assert(offsetof(BuzzBehavior, Field308) == 0x308, "BuzzBehavior::Field308 offset");
-static_assert(offsetof(BuzzBehavior, Field30c) == 0x30c, "BuzzBehavior::Field30c offset");
-static_assert(offsetof(BuzzBehavior, Field310) == 0x310, "BuzzBehavior::Field310 offset");
-static_assert(offsetof(BuzzBehavior, Field314) == 0x314, "BuzzBehavior::Field314 offset");
-static_assert(offsetof(BuzzBehavior, BuzzState) == 0x318, "BuzzBehavior::BuzzState offset");
-static_assert(offsetof(BuzzBehavior, HeadTowardStyle) == 0x31c, "BuzzBehavior::HeadTowardStyle offset");
-static_assert(offsetof(BuzzBehavior, PassByStyle) == 0x320, "BuzzBehavior::PassByStyle offset");
-static_assert(offsetof(BuzzBehavior, MinDistanceToHeadToward) == 0x324, "BuzzBehavior::MinDistanceToHeadToward offset");
-static_assert(offsetof(BuzzBehavior, Field328) == 0x328, "BuzzBehavior::Field328 offset");
-static_assert(offsetof(BuzzBehavior, DistanceToPassBy) == 0x32c, "BuzzBehavior::DistanceToPassBy offset");
-static_assert(offsetof(BuzzBehavior, Field330) == 0x330, "BuzzBehavior::Field330 offset");
-static_assert(offsetof(BuzzBehavior, PassByTime) == 0x334, "BuzzBehavior::PassByTime offset");
-static_assert(offsetof(BuzzBehavior, PassByElapsed) == 0x338, "BuzzBehavior::PassByElapsed offset");
-static_assert(offsetof(BuzzBehavior, MaxTimeToHeadAway) == 0x33c, "BuzzBehavior::MaxTimeToHeadAway offset");
-static_assert(offsetof(BuzzBehavior, HeadAwayElapsed) == 0x340, "BuzzBehavior::HeadAwayElapsed offset");
-static_assert(offsetof(BuzzBehavior, Field344) == 0x344, "BuzzBehavior::Field344 offset");
-static_assert(offsetof(BuzzBehavior, PassByRollThrottle) == 0x348, "BuzzBehavior::PassByRollThrottle offset");
-static_assert(offsetof(BuzzBehavior, HeadTowardEngineThrottle) == 0x34c, "BuzzBehavior::HeadTowardEngineThrottle offset");
-static_assert(offsetof(BuzzBehavior, HeadTowardTurnThrottle) == 0x350, "BuzzBehavior::HeadTowardTurnThrottle offset");
-static_assert(sizeof(BuzzBehavior) >= 0x354, "BuzzBehavior minimum size (largest field actually read/written)");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, CachedHandle08) == 0x08, "BuzzBehavior::CachedHandle08 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, ModeSelector0xc) == 0x0c, "BuzzBehavior::ModeSelector0xc offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, UpdateResult10) == 0x10, "BuzzBehavior::UpdateResult10 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, OwnerContext) == 0x14, "BuzzBehavior::OwnerContext offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, ObjectDb) == 0x18, "BuzzBehavior::ObjectDb offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, DeltaTime) == 0x1c, "BuzzBehavior::DeltaTime offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, BehaviorMgrPtr) == 0x20, "BuzzBehavior::BehaviorMgrPtr offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, NavHelper) == 0x24, "BuzzBehavior::NavHelper offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Flags28) == 0x28, "BuzzBehavior::Flags28 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Flag29) == 0x29, "BuzzBehavior::Flag29 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherA) == 0x2c, "BuzzBehavior::WatcherA offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherB) == 0xa4, "BuzzBehavior::WatcherB offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherC) == 0x164, "BuzzBehavior::WatcherC offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherD) == 0x178, "BuzzBehavior::WatcherD offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherE) == 0x258, "BuzzBehavior::WatcherE offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field2f4) == 0x2f4, "BuzzBehavior::Field2f4 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field300) == 0x300, "BuzzBehavior::Field300 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field304) == 0x304, "BuzzBehavior::Field304 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field308) == 0x308, "BuzzBehavior::Field308 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field30c) == 0x30c, "BuzzBehavior::Field30c offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field310) == 0x310, "BuzzBehavior::Field310 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field314) == 0x314, "BuzzBehavior::Field314 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, BuzzState) == 0x318, "BuzzBehavior::BuzzState offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, HeadTowardStyle) == 0x31c, "BuzzBehavior::HeadTowardStyle offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, PassByStyle) == 0x320, "BuzzBehavior::PassByStyle offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, MinDistanceToHeadToward) == 0x324, "BuzzBehavior::MinDistanceToHeadToward offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field328) == 0x328, "BuzzBehavior::Field328 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, DistanceToPassBy) == 0x32c, "BuzzBehavior::DistanceToPassBy offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field330) == 0x330, "BuzzBehavior::Field330 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, PassByTime) == 0x334, "BuzzBehavior::PassByTime offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, PassByElapsed) == 0x338, "BuzzBehavior::PassByElapsed offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, MaxTimeToHeadAway) == 0x33c, "BuzzBehavior::MaxTimeToHeadAway offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, HeadAwayElapsed) == 0x340, "BuzzBehavior::HeadAwayElapsed offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Field344) == 0x344, "BuzzBehavior::Field344 offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, PassByRollThrottle) == 0x348, "BuzzBehavior::PassByRollThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, HeadTowardEngineThrottle) == 0x34c, "BuzzBehavior::HeadTowardEngineThrottle offset");
+FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, HeadTowardTurnThrottle) == 0x350, "BuzzBehavior::HeadTowardTurnThrottle offset");
+FL_LAYOUT_ASSERT(sizeof(BuzzBehavior) >= 0x354, "BuzzBehavior minimum size (largest field actually read/written)");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x354`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing
@@ -727,4 +727,4 @@ static_assert(sizeof(BuzzBehavior) >= 0x354, "BuzzBehavior minimum size (largest
 // That is exactly what happened to FormationBehavior, which carried a block of DockBehavior
 // fields up to 0x470 behind a `>= 0x470` assert while retail allocates 0x2b8. An upper bound
 // cannot fail on an incomplete model, so it is safe to assert even where the port is short.
-static_assert(sizeof(BuzzBehavior) <= 0x354, "BuzzBehavior must not exceed its retail size 0x354");
+FL_LAYOUT_ASSERT(sizeof(BuzzBehavior) <= 0x354, "BuzzBehavior must not exceed its retail size 0x354");

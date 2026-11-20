@@ -23,7 +23,7 @@ namespace
     const unsigned int G_RegisterPriority = 0x40000000u;
     // LAB_06f71170: CMPSB.REPE ECX=0xD — 12 chars + NUL, not CRT strcmp.
     const unsigned int G_ComponentNameBytes = 13;
-    static_assert(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
+    FL_LAYOUT_ASSERT(sizeof(G_ComponentName) == G_ComponentNameBytes, "CMPSB ECX=0xD");
 
     // DAT_06f74030..06f7442f: 0x400 bytes (06f74430 is a separate guard byte). Readers index
     // with (bits >> 14) & 0x3FF (06f72851/06f728d1).
@@ -614,12 +614,12 @@ namespace
 
     const int G_FastDotSavedOps[27] = {5, 5, 4, 5, 4, 3, 4, 3, 2, 5, 4, 3, 4, 3, 2, 3, 2, 1, 4, 3, 2, 3, 2, 1, 2, 1, 0};
 
-    static_assert(offsetof(FFastDot, A) == 0, "FastDot A");
-    static_assert(offsetof(FFastDot, B) == 4, "FastDot B");
-    static_assert(offsetof(FFastDot, C) == 8, "FastDot C");
-    static_assert(offsetof(FFastDot, Kernel) == 0xC, "retail kernel @ +0xC");
-    static_assert(offsetof(FFastDot, SavedOps) == 0x10, "retail saved-ops @ +0x10");
-    static_assert(sizeof(FFastDotKernel) == 4, "MSVC simple-class member pointer is a code address");
+    FL_LAYOUT_ASSERT(offsetof(FFastDot, A) == 0, "FastDot A");
+    FL_LAYOUT_ASSERT(offsetof(FFastDot, B) == 4, "FastDot B");
+    FL_LAYOUT_ASSERT(offsetof(FFastDot, C) == 8, "FastDot C");
+    FL_LAYOUT_ASSERT(offsetof(FFastDot, Kernel) == 0xC, "retail kernel @ +0xC");
+    FL_LAYOUT_ASSERT(offsetof(FFastDot, SavedOps) == 0x10, "retail saved-ops @ +0x10");
+    FL_LAYOUT_ASSERT(sizeof(FFastDotKernel) == 4, "MSVC simple-class member pointer is a code address");
 
     // Ordinary C++ member dispatch; the native result/store boundary is
     // checked against 71ab4..71ad2 and 72110..7213c.
@@ -1465,7 +1465,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     }
 };
 
-static_assert(sizeof(FMathEngine) == 8, "retail DllMain allocates operator_new(8) — two vfptrs");
+FL_LAYOUT_ASSERT(sizeof(FMathEngine) == 8, "retail DllMain allocates operator_new(8) — two vfptrs");
 
 FMathEngine* G_Engine = nullptr;
 
