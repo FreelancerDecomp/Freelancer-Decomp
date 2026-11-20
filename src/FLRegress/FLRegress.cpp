@@ -47,6 +47,7 @@
 #include "regress_dump.h"
 #include "regress_hooks.h"
 #include "server_iserverimpl.h"   // Server
+#include "x64_high_memory.h"      // ReserveLowAddressSpaceIfRequested
 
 namespace
 {
@@ -529,6 +530,8 @@ namespace
 
 int main(int Argc, char** Argv)
 {
+    ReserveLowAddressSpaceIfRequested();
+
     FOptions Options;
     if (!ParseOptions(Argc, Argv, Options))
     {

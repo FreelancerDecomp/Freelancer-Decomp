@@ -39,6 +39,7 @@
 #include "remoteclient.h"         // SetRemoteClient*, GetNumClients, SetServerLogFunction
 #include "server_iserverimpl.h"   // Server
 #include "server_playerdb.h"      // Players
+#include "x64_high_memory.h"      // ReserveLowAddressSpaceIfRequested
 
 namespace
 {
@@ -854,6 +855,8 @@ namespace
 
 int wmain(int Argc, wchar_t** Argv)
 {
+    ReserveLowAddressSpaceIfRequested();
+
     if (!ParseOptions(Argc, Argv, GOptions))
     {
         PrintUsage();
