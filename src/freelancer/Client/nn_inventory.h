@@ -343,7 +343,7 @@ private:
     NnInventory& operator=(NnInventory const&) = delete;
 };
 
-static_assert(offsetof(NnInventory, Mode) == 0x32c, "NN_Inventory members start at +0x32c");
+FL_LAYOUT_ASSERT(offsetof(NnInventory, Mode) == 0x32c, "NN_Inventory members start at +0x32c");
 
 // DAT_00671ce4 -- the filter mode the player's own inventory last used (SetMode / BindControls).
 extern int G_NnInventoryLastMode;

@@ -113,13 +113,13 @@ private:
     ServerFilterDialog& operator=(ServerFilterDialog const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(ServerFilterDialog) == 0x39c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(ServerFilterDialog) == 0x39c,
               "retail ServerFilterDialog is 0x39c bytes (operator_new 0x00563919)");
-static_assert(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Rows) == 0x338,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Rows) == 0x338,
               "ServerFilterDialog +0x338");
-static_assert(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Target) == 0x374,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Target) == 0x374,
               "ServerFilterDialog +0x374");
-static_assert(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Backup) == 0x378,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(ServerFilterDialog, Backup) == 0x378,
               "ServerFilterDialog +0x378");
 
 // FUN_005637b0 (cdecl) -- build a ServerFilterDialog under Parent for Filter, centre it (slot 42

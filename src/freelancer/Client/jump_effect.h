@@ -49,7 +49,7 @@ struct FJumpFxCompanion
     FJumpFxCompanion(FJumpFxCompanion const&) = delete;
     FJumpFxCompanion& operator=(FJumpFxCompanion const&) = delete;
 };
-static_assert(sizeof(FJumpFxCompanion) == 0x10, "effect companion 0x10");
+FL_LAYOUT_ASSERT(sizeof(FJumpFxCompanion) == 0x10, "effect companion 0x10");
 
 // One glow ring of a JumpGateEffect (0x24 bytes, five at +0x2c). Constructor LAB_00502de0
 // (byte +0 and dwords +4..+0x20 zeroed), destructor FUN_00502e00 (the companion at +0x14
@@ -64,7 +64,7 @@ struct FJumpGateRingFx
 
     FJumpGateRingFx();
 };
-static_assert(sizeof(FJumpGateRingFx) == 0x24, "gate ring 0x24");
+FL_LAYOUT_ASSERT(sizeof(FJumpGateRingFx) == 0x24, "gate ring 0x24");
 
 class FClientSolarGameobj; // client_gameobj.h
 
@@ -95,11 +95,11 @@ struct FJumpGateEffect
     FJumpFxCompanion Fx;               // +0x1c
     FJumpGateRingFx Rings[5];          // +0x2c
 };
-static_assert(offsetof(FJumpGateEffect, JumpOutPosition) == 0x0c, "JumpGateEffect +0x0c");
-static_assert(offsetof(FJumpGateEffect, bFire) == 0x18, "JumpGateEffect +0x18");
-static_assert(offsetof(FJumpGateEffect, Fx) == 0x1c, "JumpGateEffect +0x1c");
-static_assert(offsetof(FJumpGateEffect, Rings) == 0x2c, "JumpGateEffect rings +0x2c");
-static_assert(sizeof(FJumpGateEffect) == 0xe0, "JumpGateEffect operator_new(0xe0)");
+FL_LAYOUT_ASSERT(offsetof(FJumpGateEffect, JumpOutPosition) == 0x0c, "JumpGateEffect +0x0c");
+FL_LAYOUT_ASSERT(offsetof(FJumpGateEffect, bFire) == 0x18, "JumpGateEffect +0x18");
+FL_LAYOUT_ASSERT(offsetof(FJumpGateEffect, Fx) == 0x1c, "JumpGateEffect +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FJumpGateEffect, Rings) == 0x2c, "JumpGateEffect rings +0x2c");
+FL_LAYOUT_ASSERT(sizeof(FJumpGateEffect) == 0xe0, "JumpGateEffect operator_new(0xe0)");
 
 // FUN_00503380 (thiscall) -- bFire = 1. Caller: solar notify 0x00547bda.
 void JumpGateEffectFire(FJumpGateEffect* Gate);
@@ -176,18 +176,18 @@ struct FJumpShipEffect
     unsigned char Field_0xd8;          // +0xd8  ctor 0; FUN_00503cd0 clears it
     unsigned char Padd9[3];
 };
-static_assert(offsetof(FJumpShipEffect, TunnelEffect) == 0x18, "JumpShipEffect +0x18");
-static_assert(offsetof(FJumpShipEffect, Color) == 0x20, "JumpShipEffect colour +0x20");
-static_assert(offsetof(FJumpShipEffect, FxA) == 0x28, "JumpShipEffect +0x28");
-static_assert(offsetof(FJumpShipEffect, FxD) == 0x58, "JumpShipEffect +0x58");
-static_assert(offsetof(FJumpShipEffect, Ship) == 0x68, "JumpShipEffect ship +0x68");
-static_assert(offsetof(FJumpShipEffect, Field_0x70) == 0x70, "JumpShipEffect +0x70");
-static_assert(offsetof(FJumpShipEffect, JumpInPosition) == 0x74, "JumpShipEffect +0x74");
-static_assert(offsetof(FJumpShipEffect, JumpInOrientation) == 0x80, "JumpShipEffect +0x80");
-static_assert(offsetof(FJumpShipEffect, Field_0xa4) == 0xa4, "JumpShipEffect +0xa4");
-static_assert(offsetof(FJumpShipEffect, Field_0xa8) == 0xa8, "JumpShipEffect transform +0xa8");
-static_assert(offsetof(FJumpShipEffect, Field_0xd8) == 0xd8, "JumpShipEffect +0xd8");
-static_assert(sizeof(FJumpShipEffect) == 0xdc, "JumpShipEffect operator_new(0xdc)");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, TunnelEffect) == 0x18, "JumpShipEffect +0x18");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Color) == 0x20, "JumpShipEffect colour +0x20");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, FxA) == 0x28, "JumpShipEffect +0x28");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, FxD) == 0x58, "JumpShipEffect +0x58");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Ship) == 0x68, "JumpShipEffect ship +0x68");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Field_0x70) == 0x70, "JumpShipEffect +0x70");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, JumpInPosition) == 0x74, "JumpShipEffect +0x74");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, JumpInOrientation) == 0x80, "JumpShipEffect +0x80");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Field_0xa4) == 0xa4, "JumpShipEffect +0xa4");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Field_0xa8) == 0xa8, "JumpShipEffect transform +0xa8");
+FL_LAYOUT_ASSERT(offsetof(FJumpShipEffect, Field_0xd8) == 0xd8, "JumpShipEffect +0xd8");
+FL_LAYOUT_ASSERT(sizeof(FJumpShipEffect) == 0xdc, "JumpShipEffect operator_new(0xdc)");
 
 // FUN_00502b00 (cdecl) -- DAT_00674fd0, the JumpShipEffectDesc the [JumpShipEffect] section
 // of the jump-effect INI (FUN_005020a0, not ported) loads; the first call without one warns

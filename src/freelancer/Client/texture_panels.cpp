@@ -122,7 +122,7 @@ namespace
         float U, V;              // +0x10
         float U1, V1;            // +0x18
     };
-    static_assert(sizeof(FPanelVert20) == 0x20, "panel batcher vert 0x20");
+    FL_LAYOUT_ASSERT(sizeof(FPanelVert20) == 0x20, "panel batcher vert 0x20");
 
     // FUN_00405840's object: a render-state saver {Pipeline, State, Old}. Retail builds it in
     // place (MOV [ESP+..],Pipeline / State, then vt+0xf4 GetRenderState(State, &Old)) and the
@@ -203,11 +203,11 @@ namespace
     // The destructor retail runs on this batch is the effect batch's FUN_0046e9c0 (one body for
     // both under /OPT:ICF): it touches only +0x04, +0x10 and +0x18, which sit at the same offsets
     // in both port types.
-    static_assert(offsetof(FPanelVertexBatcher, Verts) == offsetof(FEffectVertexBatch, Vertices),
+    FL_LAYOUT_ASSERT(offsetof(FPanelVertexBatcher, Verts) == offsetof(FEffectVertexBatch, Vertices),
                   "FUN_0046e9c0 frees +0x04");
-    static_assert(offsetof(FPanelVertexBatcher, Indices) == offsetof(FEffectVertexBatch, Indices),
+    FL_LAYOUT_ASSERT(offsetof(FPanelVertexBatcher, Indices) == offsetof(FEffectVertexBatch, Indices),
                   "FUN_0046e9c0 frees +0x10");
-    static_assert(offsetof(FPanelVertexBatcher, Pipeline) == offsetof(FEffectVertexBatch, Pipeline),
+    FL_LAYOUT_ASSERT(offsetof(FPanelVertexBatcher, Pipeline) == offsetof(FEffectVertexBatch, Pipeline),
                   "FUN_0046e9c0 releases +0x18");
 
     // DAT_00675010 -- LAB_0050a020's once-flag.
@@ -666,7 +666,7 @@ namespace
     // The zone's vt+0x0c transform (orientation, then position), as retail reads it.
     void ZoneToTransform(Universe::IZone const& Zone, FTransform& Out)
     {
-        static_assert(sizeof(FTransform) == sizeof(Transform), "FTransform matches Transform");
+        FL_LAYOUT_ASSERT(sizeof(FTransform) == sizeof(Transform), "FTransform matches Transform");
         memcpy(&Out, &Zone.GetTransform(), sizeof(Out));
     }
 } // namespace

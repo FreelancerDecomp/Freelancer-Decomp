@@ -50,10 +50,10 @@ struct FMouseEvent
     unsigned ButtonIndex;       // +0x20  0..7 buttons, 8 wheel
 };
 
-static_assert(sizeof(FHudCmdRecord) == 0x1c, "FUN_00577680 copies seven dwords");
-static_assert(offsetof(FMouseEvent, bMove) == 0x1c, "event +0x1c move flag");
-static_assert(offsetof(FMouseEvent, ButtonIndex) == 0x20, "event +0x20 button index");
-static_assert(sizeof(FMouseEvent) == 0x24, "FUN_0041ef20 copies nine dwords");
+FL_LAYOUT_ASSERT(sizeof(FHudCmdRecord) == 0x1c, "FUN_00577680 copies seven dwords");
+FL_LAYOUT_ASSERT(offsetof(FMouseEvent, bMove) == 0x1c, "event +0x1c move flag");
+FL_LAYOUT_ASSERT(offsetof(FMouseEvent, ButtonIndex) == 0x20, "event +0x20 button index");
+FL_LAYOUT_ASSERT(sizeof(FMouseEvent) == 0x24, "FUN_0041ef20 copies nine dwords");
 
 // FUN_0041e890 -- WM_MOUSEMOVE: with input focus (DAT_0061685c), make sure the device exists and
 // re-activate the object (FUN_004201a0(1) inlined): the cursor jumps to the OS pointer.

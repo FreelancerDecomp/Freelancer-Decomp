@@ -79,7 +79,7 @@ namespace
         void* TextureHandle;               // +0x20
         int BlendMode;                     // +0x24
     };
-    static_assert(sizeof(FScreenQuadBatchNode) == 0x28, "batch node 0x28");
+    FL_LAYOUT_ASSERT(sizeof(FScreenQuadBatchNode) == 0x28, "batch node 0x28");
 
     // DAT_00616498 batch container (map value body). Free list at +0x00,
     // live list at +0x0c, current at +0x18, 5-dword material key at +0x1c.

@@ -67,11 +67,11 @@ public:
     void Close();
 };
 
-static_assert(sizeof(NnNetworkOperation) == 0x340,
+FL_LAYOUT_ASSERT(sizeof(NnNetworkOperation) == 0x340,
               "retail NN_NetworkOperation is 0x340 bytes (operator_new 00474688)");
-static_assert(offsetof(NnNetworkOperation, ResultFn) == 0x330, "NN_NetworkOperation +0x330");
-static_assert(offsetof(NnNetworkOperation, bCursorDrawFlag) == 0x338, "NN_NetworkOperation +0x338");
-static_assert(offsetof(NnNetworkOperation, ExitText) == 0x33c, "NN_NetworkOperation +0x33c");
+FL_LAYOUT_ASSERT(offsetof(NnNetworkOperation, ResultFn) == 0x330, "NN_NetworkOperation +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnNetworkOperation, bCursorDrawFlag) == 0x338, "NN_NetworkOperation +0x338");
+FL_LAYOUT_ASSERT(offsetof(NnNetworkOperation, ExitText) == 0x33c, "NN_NetworkOperation +0x33c");
 
 // FUN_00473ad0 (cdecl) -- unless one is registered, build an NN_NetworkOperation, centre it
 // (SetProperty 0x42 with {0,0,0}), set its text to Ids (SetProperty 0x1e) and capture the mouse.

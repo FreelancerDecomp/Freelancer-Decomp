@@ -1806,7 +1806,7 @@ namespace AlchemyImpl
     }
 #pragma runtime_checks("", restore)
 
-    static_assert(sizeof(FAlchemyVertex) == kAlchemyVertexStride,
+    FL_LAYOUT_ASSERT(sizeof(FAlchemyVertex) == kAlchemyVertexStride,
                   "FAlchemyVertex must match FUN_06208aa0 stride 0x18");
 
     IGenericFx* QueryGenericFx(IDAComponent* Node)

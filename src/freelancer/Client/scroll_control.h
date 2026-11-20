@@ -51,9 +51,9 @@ struct FScrollControlPart
     FTransform Hp;               // +0x74 "<part>_hp" -- the parent's hardpoint (identity if none)
 };
 
-static_assert(sizeof(FScrollControlPart) == 0xa4, "ScrollControl part stride 0xa4");
-static_assert(offsetof(FScrollControlPart, Xform) == 0x34, "part +0x34 transform");
-static_assert(offsetof(FScrollControlPart, Hp) == 0x74, "part +0x74 hardpoint transform");
+FL_LAYOUT_ASSERT(sizeof(FScrollControlPart) == 0xa4, "ScrollControl part stride 0xa4");
+FL_LAYOUT_ASSERT(offsetof(FScrollControlPart, Xform) == 0x34, "part +0x34 transform");
+FL_LAYOUT_ASSERT(offsetof(FScrollControlPart, Hp) == 0x74, "part +0x74 hardpoint transform");
 
 class ScrollControl : public WinControl
 {
@@ -142,16 +142,16 @@ private:
     ScrollControl& operator=(ScrollControl const&) = delete;
 };
 
-static_assert(sizeof(ScrollControl) == 0x67c, "retail ScrollControl is 0x67c bytes (0x00583508)");
-static_assert(offsetof(ScrollControl, Back) == 0x32c, "ScrollControl +0x32c back");
-static_assert(offsetof(ScrollControl, Next) == 0x3d0, "ScrollControl +0x3d0 next");
-static_assert(offsetof(ScrollControl, Prev) == 0x474, "ScrollControl +0x474 prev");
-static_assert(offsetof(ScrollControl, ThumbHolder) == 0x518, "ScrollControl +0x518 thumb");
-static_assert(offsetof(ScrollControl, ThumbXform) == 0x5b8, "ScrollControl +0x5b8 thumb xform");
-static_assert(offsetof(ScrollControl, ThumbHp1) == 0x628, "ScrollControl +0x628 thumb hp1");
-static_assert(offsetof(ScrollControl, MinRange) == 0x658, "ScrollControl +0x658 min");
-static_assert(offsetof(ScrollControl, RepeatTime) == 0x670, "ScrollControl +0x670 repeat time");
-static_assert(offsetof(ScrollControl, bPageTowardMin) == 0x67b, "ScrollControl +0x67b");
+FL_LAYOUT_ASSERT(sizeof(ScrollControl) == 0x67c, "retail ScrollControl is 0x67c bytes (0x00583508)");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, Back) == 0x32c, "ScrollControl +0x32c back");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, Next) == 0x3d0, "ScrollControl +0x3d0 next");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, Prev) == 0x474, "ScrollControl +0x474 prev");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, ThumbHolder) == 0x518, "ScrollControl +0x518 thumb");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, ThumbXform) == 0x5b8, "ScrollControl +0x5b8 thumb xform");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, ThumbHp1) == 0x628, "ScrollControl +0x628 thumb hp1");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, MinRange) == 0x658, "ScrollControl +0x658 min");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, RepeatTime) == 0x670, "ScrollControl +0x670 repeat time");
+FL_LAYOUT_ASSERT(offsetof(ScrollControl, bPageTowardMin) == 0x67b, "ScrollControl +0x67b");
 
 // DAT_0067c4c4 -- set while a ScrollControl drags its thumb (0x0058304a), cleared by the dtor,
 // Update and MouseEvent; retail never reads it.

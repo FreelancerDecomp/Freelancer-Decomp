@@ -15,9 +15,9 @@
 // 0x06ac8d40. Defined in MovieFieldHigh.cpp.
 int __stdcall LimbBitLength(int Limbs, int Count);
 
-static_assert(sizeof(FRngState) == 0x120u, "rng state");
-static_assert(sizeof(OSVERSIONINFOA) == 0x94u, "version info");
-static_assert(offsetof(OSVERSIONINFOA, dwPlatformId) == 0x10u, "platform id");
+FL_LAYOUT_ASSERT(sizeof(FRngState) == 0x120u, "rng state");
+FL_LAYOUT_ASSERT(sizeof(OSVERSIONINFOA) == 0x94u, "version info");
+FL_LAYOUT_ASSERT(offsetof(OSVERSIONINFOA, dwPlatformId) == 0x10u, "platform id");
 
 // DAT_06add3c0, DAT_06add3c4, DAT_06add3c8. Initial bytes from the listing.
 static unsigned int GPoolCapacity = 0x200u;
@@ -61,7 +61,7 @@ struct FRngRequest
     unsigned int Length;
 };
 
-static_assert(sizeof(FRngRequest) == 0x10u, "rng request");
+FL_LAYOUT_ASSERT(sizeof(FRngRequest) == 0x10u, "rng request");
 
 // OBJECT_ATTRIBUTES is 0x18 bytes in the 0x06acd11d frame. UNICODE_STRING is 8.
 struct FKernelUnicodeString
@@ -81,8 +81,8 @@ struct FKernelObjectAttributes
     void* SecurityQualityOfService;
 };
 
-static_assert(sizeof(FKernelUnicodeString) == 8u, "UNICODE_STRING");
-static_assert(sizeof(FKernelObjectAttributes) == 0x18u, "OBJECT_ATTRIBUTES");
+FL_LAYOUT_ASSERT(sizeof(FKernelUnicodeString) == 8u, "UNICODE_STRING");
+FL_LAYOUT_ASSERT(sizeof(FKernelObjectAttributes) == 0x18u, "OBJECT_ATTRIBUTES");
 
 // REP MOVSD then REP MOVSB. x86 stores the dwords at whatever alignment the pointer has.
 static void CopyBytes(unsigned char* Dest, const unsigned char* Source, unsigned int Count)

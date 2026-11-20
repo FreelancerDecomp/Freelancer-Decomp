@@ -88,7 +88,7 @@ namespace
         float         U;
         float         V;
     };
-    static_assert(sizeof(FWin3DVertex) == 0x18, "the FVF 0x142 vertex is 24 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FWin3DVertex) == 0x18, "the FVF 0x142 vertex is 24 bytes");
 
     FWin3DVertex   G_Vertices[kMaxVertices];
     unsigned short G_Indices[kMaxIndices];

@@ -16,8 +16,8 @@
 #include <cmath>
 #include <cstring>
 
-static_assert(sizeof(Action_Land) == 0x50, "Action_Land is IAction::operator new(0x50)");
-static_assert(sizeof(Action_JumpOut) == 0x64, "Action_JumpOut is IAction::operator new(0x64)");
+FL_LAYOUT_ASSERT(sizeof(Action_Land) == 0x50, "Action_Land is IAction::operator new(0x50)");
+FL_LAYOUT_ASSERT(sizeof(Action_JumpOut) == 0x64, "Action_JumpOut is IAction::operator new(0x64)");
 
 namespace
 {

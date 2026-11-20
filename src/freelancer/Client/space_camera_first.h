@@ -55,15 +55,15 @@ struct FFirstPersonCamera : FHudCamera
 };
 
 // The third-person camera sits at controller + 0x1b0 and this one at + 0x00c.
-static_assert(sizeof(FFirstPersonCamera) == 0x1a4, "FFirstPersonCamera must be 0x1a4");
-static_assert(offsetof(FFirstPersonCamera, PositionA) == 0x100, "FP +0x100");
-static_assert(offsetof(FFirstPersonCamera, OrientationA) == 0x10c, "FP +0x10c");
-static_assert(offsetof(FFirstPersonCamera, HeadPosition) == 0x130, "FP +0x130");
-static_assert(offsetof(FFirstPersonCamera, HeadOrientation) == 0x13c, "FP +0x13c");
-static_assert(offsetof(FFirstPersonCamera, PositionC) == 0x160, "FP +0x160");
-static_assert(offsetof(FFirstPersonCamera, OrientationC) == 0x16c, "FP +0x16c");
-static_assert(offsetof(FFirstPersonCamera, Mesh) == 0x190, "FP +0x190");
-static_assert(offsetof(FFirstPersonCamera, bFlag1A0) == 0x1a0, "FP +0x1a0");
+FL_LAYOUT_ASSERT(sizeof(FFirstPersonCamera) == 0x1a4, "FFirstPersonCamera must be 0x1a4");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, PositionA) == 0x100, "FP +0x100");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, OrientationA) == 0x10c, "FP +0x10c");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, HeadPosition) == 0x130, "FP +0x130");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, HeadOrientation) == 0x13c, "FP +0x13c");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, PositionC) == 0x160, "FP +0x160");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, OrientationC) == 0x16c, "FP +0x16c");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, Mesh) == 0x190, "FP +0x190");
+FL_LAYOUT_ASSERT(offsetof(FFirstPersonCamera, bFlag1A0) == 0x1a0, "FP +0x1a0");
 
 // [Cockpit] head_turn, which retail keeps in two globals rather than on the camera --
 // DAT_006135a0 and DAT_006135a4 (.data 30.0f / 25.0f; written by the loader, read by nothing).

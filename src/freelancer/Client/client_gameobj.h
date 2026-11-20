@@ -110,7 +110,7 @@ struct FGameobjEffectList : public FGameobjEffectListStorage
     // FUN_005393e0.
     ~FGameobjEffectList();
 };
-static_assert(sizeof(FGameobjEffectList) == 0x0c, "GameObject effect list 0xc");
+FL_LAYOUT_ASSERT(sizeof(FGameobjEffectList) == 0x0c, "GameObject effect list 0xc");
 
 // EquippedObj+0xb4 -- the list of equipment-effect wrappers (VC6 std::list<ClientEquip*>, node
 // 0xc {next, prev, wrapper}). Its constructor is inlined in FUN_00532bc0 at 0x00532bf0..
@@ -131,7 +131,7 @@ struct FEquipFxList
     void* Head;                  // +0x04  sentinel, operator_new(0xc), next = prev = itself
     int Count;                   // +0x08
 };
-static_assert(sizeof(FEquipFxList) == 0x0c, "EquippedObj equip-FX list 0xc");
+FL_LAYOUT_ASSERT(sizeof(FEquipFxList) == 0x0c, "EquippedObj equip-FX list 0xc");
 
 // EquippedObj+0xc0 -- the list of burning fuses (VC6 std::list<ClientFuse>, node 0x40 =
 // FFuseBurnNode {next, prev, ClientFuse}). Its constructor is inlined in FUN_00532bc0 at
@@ -150,7 +150,7 @@ struct FEquippedFuseList
     void* Head;                  // +0x04  sentinel, operator_new(0x40), only the links written
     int Count;                   // +0x08
 };
-static_assert(sizeof(FEquippedFuseList) == 0x0c, "EquippedObj fuse list 0xc");
+FL_LAYOUT_ASSERT(sizeof(FEquippedFuseList) == 0x0c, "EquippedObj fuse list 0xc");
 
 // GameObject+0x84 element: the destructor stops (vt+0x60, ISoundSource::Stop) and releases
 // (vt+0x8) the interface at +4 of every 8-byte element.
@@ -159,7 +159,7 @@ struct FGameobjSound
     unsigned Field_0x00;  // +0x00  not read by any function ported so far
     ISoundSource* Source; // +0x04
 };
-static_assert(sizeof(FGameobjSound) == 8, "GameObject sound element 8 bytes");
+FL_LAYOUT_ASSERT(sizeof(FGameobjSound) == 8, "GameObject sound element 8 bytes");
 
 // EquippedObj+0xcc map value (retail node +0x10 / +0x14): the target object id and its
 // sub-object. A new entry is {0, SUBOBJ_ID_NONE} (0x005356d5..0x005356f3,
@@ -383,25 +383,25 @@ public:
     unsigned char Pada9[3];
 };
 
-static_assert(offsetof(FClientGameobj, ListNext) == 0x14, "Gameobj ListNext +0x14");
-static_assert(offsetof(FClientGameobj, ListPrev) == 0x18, "Gameobj ListPrev +0x18");
-static_assert(offsetof(FClientGameobj, ManagerKind) == 0x1c, "Gameobj ManagerKind +0x1c");
-static_assert(offsetof(FClientGameobj, Actions) == 0x20, "Gameobj ActionDB +0x20");
-static_assert(offsetof(FClientGameobj, EffectList) == 0x28, "Gameobj effect list +0x28");
-static_assert(offsetof(FClientGameobj, Field_0x34) == 0x34, "Gameobj +0x34");
-static_assert(offsetof(FClientGameobj, DrawStateA) == 0x38, "Gameobj +0x38");
-static_assert(offsetof(FClientGameobj, DrawStateB) == 0x3c, "Gameobj +0x3c");
-static_assert(offsetof(FClientGameobj, ExplosionArch) == 0x40, "Gameobj explosion +0x40");
-static_assert(offsetof(FClientGameobj, Flags) == 0x44, "Gameobj flags +0x44");
-static_assert(offsetof(FClientGameobj, Field_0x48) == 0x48, "Gameobj font string +0x48");
-static_assert(offsetof(FClientGameobj, Field_0x7c) == 0x7c, "Gameobj +0x7c");
-static_assert(offsetof(FClientGameobj, SoundsBegin) == 0x84, "Gameobj sounds +0x84");
-static_assert(offsetof(FClientGameobj, HitEffects) == 0x90, "Gameobj hit effects +0x90");
-static_assert(offsetof(FClientGameobj, CachedAttitude) == 0x9c, "Gameobj attitude +0x9c");
-static_assert(offsetof(FClientGameobj, AttitudeCountdown) == 0xa0, "Gameobj countdown +0xa0");
-static_assert(offsetof(FClientGameobj, Field_0xa4) == 0xa4, "Gameobj +0xa4");
-static_assert(offsetof(FClientGameobj, bWatchListed) == 0xa8, "Gameobj +0xa8");
-static_assert(sizeof(FClientGameobj) == 0xac, "GameObject sizeof 0xac");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, ListNext) == 0x14, "Gameobj ListNext +0x14");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, ListPrev) == 0x18, "Gameobj ListPrev +0x18");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, ManagerKind) == 0x1c, "Gameobj ManagerKind +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Actions) == 0x20, "Gameobj ActionDB +0x20");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, EffectList) == 0x28, "Gameobj effect list +0x28");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Field_0x34) == 0x34, "Gameobj +0x34");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, DrawStateA) == 0x38, "Gameobj +0x38");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, DrawStateB) == 0x3c, "Gameobj +0x3c");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, ExplosionArch) == 0x40, "Gameobj explosion +0x40");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Flags) == 0x44, "Gameobj flags +0x44");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Field_0x48) == 0x48, "Gameobj font string +0x48");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Field_0x7c) == 0x7c, "Gameobj +0x7c");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, SoundsBegin) == 0x84, "Gameobj sounds +0x84");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, HitEffects) == 0x90, "Gameobj hit effects +0x90");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, CachedAttitude) == 0x9c, "Gameobj attitude +0x9c");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, AttitudeCountdown) == 0xa0, "Gameobj countdown +0xa0");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, Field_0xa4) == 0xa4, "Gameobj +0xa4");
+FL_LAYOUT_ASSERT(offsetof(FClientGameobj, bWatchListed) == 0xa8, "Gameobj +0xa8");
+FL_LAYOUT_ASSERT(sizeof(FClientGameobj) == 0xac, "GameObject sizeof 0xac");
 
 // Simple : GameObject -- FUN_00547440. Adds no data; its ctor zeroes bWatchListed.
 class FClientSimpleGameobj : public FClientGameobj
@@ -426,7 +426,7 @@ public:
     // The first argument is not read.
     void SetWatchListed(int Unused, int bWatch);
 };
-static_assert(sizeof(FClientSimpleGameobj) == 0xac, "Simple sizeof 0xac");
+FL_LAYOUT_ASSERT(sizeof(FClientSimpleGameobj) == 0xac, "Simple sizeof 0xac");
 
 // EquippedObj : Simple, INotify -- FUN_00532bc0. INotify's vptr lands at +0xac (right after
 // Simple), the way retail's ctor stores 005de1a8 there.
@@ -537,12 +537,12 @@ public:
     unsigned char Field_0xe0;          // +0xe0
     unsigned char Pade1[3];
 };
-static_assert(offsetof(FClientEquippedObj, EquipFlags) == 0xb0, "EquippedObj +0xb0");
-static_assert(offsetof(FClientEquippedObj, EquipFx) == 0xb4, "EquippedObj equip-FX list +0xb4");
-static_assert(offsetof(FClientEquippedObj, Fuses) == 0xc0, "EquippedObj fuse list +0xc0");
-static_assert(offsetof(FClientEquippedObj, SubTargets) == 0xcc, "EquippedObj sub-target map +0xcc");
-static_assert(offsetof(FClientEquippedObj, Field_0xe0) == 0xe0, "EquippedObj +0xe0");
-static_assert(sizeof(FClientEquippedObj) == 0xe4, "EquippedObj sizeof 0xe4");
+FL_LAYOUT_ASSERT(offsetof(FClientEquippedObj, EquipFlags) == 0xb0, "EquippedObj +0xb0");
+FL_LAYOUT_ASSERT(offsetof(FClientEquippedObj, EquipFx) == 0xb4, "EquippedObj equip-FX list +0xb4");
+FL_LAYOUT_ASSERT(offsetof(FClientEquippedObj, Fuses) == 0xc0, "EquippedObj fuse list +0xc0");
+FL_LAYOUT_ASSERT(offsetof(FClientEquippedObj, SubTargets) == 0xcc, "EquippedObj sub-target map +0xcc");
+FL_LAYOUT_ASSERT(offsetof(FClientEquippedObj, Field_0xe0) == 0xe0, "EquippedObj +0xe0");
+FL_LAYOUT_ASSERT(sizeof(FClientEquippedObj) == 0xe4, "EquippedObj sizeof 0xe4");
 
 class FClientSolarGameobj : public FClientEquippedObj
 {
@@ -595,11 +595,11 @@ public:
     ID_String Field_0x200;             // +0x200 ctor ID_String::clear; "jump_effect" CreateID
     void* Field_0x204;                 // +0x204 ctor 0; the dtor runs FUN_00502e40 and frees it
 };
-static_assert(offsetof(FClientSolarGameobj, DockScript) == 0xe8, "Solar +0xe8 dock_script");
-static_assert(offsetof(FClientSolarGameobj, BurnColor) == 0x1f4, "Solar +0x1f4 burn_color");
-static_assert(offsetof(FClientSolarGameobj, Field_0x1f0) == 0x1f0, "Solar +0x1f0");
-static_assert(offsetof(FClientSolarGameobj, Field_0x200) == 0x200, "Solar +0x200");
-static_assert(sizeof(FClientSolarGameobj) == 0x208, "Solar sizeof 0x208");
+FL_LAYOUT_ASSERT(offsetof(FClientSolarGameobj, DockScript) == 0xe8, "Solar +0xe8 dock_script");
+FL_LAYOUT_ASSERT(offsetof(FClientSolarGameobj, BurnColor) == 0x1f4, "Solar +0x1f4 burn_color");
+FL_LAYOUT_ASSERT(offsetof(FClientSolarGameobj, Field_0x1f0) == 0x1f0, "Solar +0x1f0");
+FL_LAYOUT_ASSERT(offsetof(FClientSolarGameobj, Field_0x200) == 0x200, "Solar +0x200");
+FL_LAYOUT_ASSERT(sizeof(FClientSolarGameobj) == 0x208, "Solar sizeof 0x208");
 
 class FClientShipGameobj : public FClientEquippedObj
 {
@@ -788,20 +788,20 @@ public:
     unsigned char Field_0x18c;
     unsigned char Pad18d[3];
 };
-static_assert(offsetof(FClientShipGameobj, Field_0xec) == 0xec, "Ship +0xec");
-static_assert(offsetof(FClientShipGameobj, Field_0xf0) == 0xf0, "Ship +0xf0");
-static_assert(offsetof(FClientShipGameobj, Field_0x104) == 0x104, "Ship +0x104");
-static_assert(offsetof(FClientShipGameobj, Field_0x108) == 0x108, "Ship mesh holder +0x108");
-static_assert(offsetof(FClientShipGameobj, Field_0x118) == 0x118, "Ship transform +0x118");
-static_assert(offsetof(FClientShipGameobj, Field_0x148) == 0x148, "Ship +0x148");
-static_assert(offsetof(FClientShipGameobj, Field_0x158) == 0x158, "Ship +0x158");
-static_assert(offsetof(FClientShipGameobj, Field_0x160) == 0x160, "Ship +0x160");
-static_assert(offsetof(FClientShipGameobj, Field_0x164) == 0x164, "Ship companion +0x164");
-static_assert(offsetof(FClientShipGameobj, Field_0x174) == 0x174, "Ship companion +0x174");
-static_assert(offsetof(FClientShipGameobj, Field_0x184) == 0x184, "Ship +0x184");
-static_assert(offsetof(FClientShipGameobj, Field_0x188) == 0x188, "Ship +0x188");
-static_assert(offsetof(FClientShipGameobj, Field_0x18c) == 0x18c, "Ship +0x18c");
-static_assert(sizeof(FClientShipGameobj) == 0x190, "Ship sizeof 0x190 (operator_new(400))");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0xec) == 0xec, "Ship +0xec");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0xf0) == 0xf0, "Ship +0xf0");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x104) == 0x104, "Ship +0x104");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x108) == 0x108, "Ship mesh holder +0x108");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x118) == 0x118, "Ship transform +0x118");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x148) == 0x148, "Ship +0x148");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x158) == 0x158, "Ship +0x158");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x160) == 0x160, "Ship +0x160");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x164) == 0x164, "Ship companion +0x164");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x174) == 0x174, "Ship companion +0x174");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x184) == 0x184, "Ship +0x184");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x188) == 0x188, "Ship +0x188");
+FL_LAYOUT_ASSERT(offsetof(FClientShipGameobj, Field_0x18c) == 0x18c, "Ship +0x18c");
+FL_LAYOUT_ASSERT(sizeof(FClientShipGameobj) == 0x190, "Ship sizeof 0x190 (operator_new(400))");
 
 // ===========================================================================
 // The projectile branch: Projectile : Simple, Munition : Projectile, Beam : Munition.
@@ -855,9 +855,9 @@ public:
     float ConstEffectDelay;     // +0xac  -1.0f = not armed
     void* OneShotCompanion[4];  // +0xb0  {EffectArch, ISoundSource*, particle, light}
 };
-static_assert(offsetof(FClientProjectileGameobj, ConstEffectDelay) == 0xac, "Projectile +0xac");
-static_assert(offsetof(FClientProjectileGameobj, OneShotCompanion) == 0xb0, "Projectile +0xb0");
-static_assert(sizeof(FClientProjectileGameobj) == 0xc0, "Projectile sizeof 0xc0");
+FL_LAYOUT_ASSERT(offsetof(FClientProjectileGameobj, ConstEffectDelay) == 0xac, "Projectile +0xac");
+FL_LAYOUT_ASSERT(offsetof(FClientProjectileGameobj, OneShotCompanion) == 0xb0, "Projectile +0xb0");
+FL_LAYOUT_ASSERT(sizeof(FClientProjectileGameobj) == 0xc0, "Projectile sizeof 0xc0");
 
 class FClientMunitionGameobj : public FClientProjectileGameobj
 {
@@ -871,7 +871,7 @@ public:
     // this->Slot1ac(A, B, Other, D).
     void Slot194(void const* A, void const* B, FClientGameobj* Other, void const* D) override;
 };
-static_assert(sizeof(FClientMunitionGameobj) == 0xc0, "Munition sizeof 0xc0");
+FL_LAYOUT_ASSERT(sizeof(FClientMunitionGameobj) == 0xc0, "Munition sizeof 0xc0");
 
 struct FBeamEffect; // beam_effect.h
 
@@ -910,9 +910,9 @@ public:
     void* Companion[4];       // +0xc0  FUN_005154a0; the effect list gets a copy
     FBeamEffect* BeamAlloc;   // +0xd0  FUN_0053f340's beam effect
 };
-static_assert(offsetof(FClientBeamGameobj, Companion) == 0xc0, "Beam +0xc0");
-static_assert(offsetof(FClientBeamGameobj, BeamAlloc) == 0xd0, "Beam +0xd0");
-static_assert(sizeof(FClientBeamGameobj) == 0xd4, "Beam sizeof 0xd4");
+FL_LAYOUT_ASSERT(offsetof(FClientBeamGameobj, Companion) == 0xc0, "Beam +0xc0");
+FL_LAYOUT_ASSERT(offsetof(FClientBeamGameobj, BeamAlloc) == 0xd0, "Beam +0xd0");
+FL_LAYOUT_ASSERT(sizeof(FClientBeamGameobj) == 0xd4, "Beam sizeof 0xd4");
 
 // Mine : Projectile (retail E:\FL\Scratch\Source\Client\Space\Mine.cpp has no string of its own;
 // the bodies sit at 0x0053e930..0x0053eae0 beside Loot.cpp's).
@@ -943,7 +943,7 @@ public:
     // into DrawStateA / its fog factor into DrawStateB, and Field_0x34 = 1.0f.
     void Slot1b8(float Dt) override;
 };
-static_assert(sizeof(FClientMineGameobj) == 0xc0, "Mine sizeof 0xc0 (operator new(0xc0))");
+FL_LAYOUT_ASSERT(sizeof(FClientMineGameobj) == 0xc0, "Mine sizeof 0xc0 (operator new(0xc0))");
 
 // CounterMeasure : Projectile (bodies at 0x0052ff90..0x005300c0).
 class FClientCounterMeasureGameobj : public FClientProjectileGameobj
@@ -965,7 +965,7 @@ public:
     // 110 +0x1b8 FUN_0053ea60: Mine's.
     void Slot1b8(float Dt) override;
 };
-static_assert(sizeof(FClientCounterMeasureGameobj) == 0xc0, "CounterMeasure sizeof 0xc0");
+FL_LAYOUT_ASSERT(sizeof(FClientCounterMeasureGameobj) == 0xc0, "CounterMeasure sizeof 0xc0");
 
 // Guided : Munition -- the missile (retail Munition.cpp, .rdata 005df858; bodies at
 // 0x0053ec30..0x0053f1d0).
@@ -1005,7 +1005,7 @@ public:
     // the server (IServer::SetTarget) when the request came from this connection.
     int set_target(IObjRW* Target, unsigned short SubTarget, int SourceClient) override;
 };
-static_assert(sizeof(FClientGuidedGameobj) == 0xc0, "Guided sizeof 0xc0");
+FL_LAYOUT_ASSERT(sizeof(FClientGuidedGameobj) == 0xc0, "Guided sizeof 0xc0");
 
 // Loot : Simple (retail E:\FL\Scratch\Source\Client\Space\Loot.cpp, .rdata 005df7e0).
 //   ctor FUN_0053e470  0xb0  IObjRW 005df5d4, IObjAffect 005df554, CBase 005df548 -> FUN_0053e4b0
@@ -1035,8 +1035,8 @@ public:
 
     Archetype::Explosion* TractoredExplosionArch; // +0xac  slot 92 resolves; the dtor releases
 };
-static_assert(offsetof(FClientLootGameobj, TractoredExplosionArch) == 0xac, "Loot +0xac");
-static_assert(sizeof(FClientLootGameobj) == 0xb0, "Loot sizeof 0xb0 (operator new(0xb0))");
+FL_LAYOUT_ASSERT(offsetof(FClientLootGameobj, TractoredExplosionArch) == 0xac, "Loot +0xac");
+FL_LAYOUT_ASSERT(sizeof(FClientLootGameobj) == 0xb0, "Loot sizeof 0xb0 (operator new(0xb0))");
 
 // FUN_00549e30 -- before the docking camera takes the view, close the HUD's rear view
 // (command 0x39 when HUD_Status +0x5ba == 1) and turret view (command 0xbf when +0x5b9 == 1).

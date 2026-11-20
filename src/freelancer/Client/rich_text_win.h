@@ -204,24 +204,24 @@ private:
     BaseRichTextWin& operator=(BaseRichTextWin const&) = delete;
 };
 
-static_assert(sizeof(BaseRichTextWin) == 0x488, "retail BaseRichTextWin is 0x488 bytes");
-static_assert(offsetof(BaseRichTextWin, NormWidth) == 0x330, "BaseRichTextWin +0x330");
-static_assert(offsetof(BaseRichTextWin, WorldRect) == 0x338, "BaseRichTextWin +0x338");
-static_assert(offsetof(BaseRichTextWin, ScreenRect) == 0x348, "BaseRichTextWin +0x348");
-static_assert(offsetof(BaseRichTextWin, PixelWidth) == 0x358, "BaseRichTextWin +0x358");
-static_assert(offsetof(BaseRichTextWin, List368) == 0x368, "BaseRichTextWin +0x368");
-static_assert(offsetof(BaseRichTextWin, LayoutList) == 0x374, "BaseRichTextWin +0x374");
-static_assert(offsetof(BaseRichTextWin, Trc) == 0x384, "BaseRichTextWin +0x384");
-static_assert(offsetof(BaseRichTextWin, Surface) == 0x3d4, "BaseRichTextWin +0x3d4");
-static_assert(offsetof(BaseRichTextWin, Image) == 0x3ec, "BaseRichTextWin +0x3ec");
-static_assert(offsetof(BaseRichTextWin, ScrollBarV) == 0x3f0, "BaseRichTextWin +0x3f0");
-static_assert(offsetof(BaseRichTextWin, bLayoutDirty) == 0x400, "BaseRichTextWin +0x400");
-static_assert(offsetof(BaseRichTextWin, FrameColor) == 0x403, "BaseRichTextWin +0x403");
-static_assert(offsetof(BaseRichTextWin, AlignMode) == 0x408, "BaseRichTextWin +0x408");
-static_assert(offsetof(BaseRichTextWin, HoverInfo) == 0x40c, "BaseRichTextWin +0x40c");
-static_assert(offsetof(BaseRichTextWin, bToolTipEnabled) == 0x470, "BaseRichTextWin +0x470");
-static_assert(offsetof(BaseRichTextWin, Alpha) == 0x474, "BaseRichTextWin +0x474");
-static_assert(offsetof(BaseRichTextWin, AttachOffset) == 0x47c, "BaseRichTextWin +0x47c");
+FL_LAYOUT_ASSERT(sizeof(BaseRichTextWin) == 0x488, "retail BaseRichTextWin is 0x488 bytes");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, NormWidth) == 0x330, "BaseRichTextWin +0x330");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, WorldRect) == 0x338, "BaseRichTextWin +0x338");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, ScreenRect) == 0x348, "BaseRichTextWin +0x348");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, PixelWidth) == 0x358, "BaseRichTextWin +0x358");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, List368) == 0x368, "BaseRichTextWin +0x368");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, LayoutList) == 0x374, "BaseRichTextWin +0x374");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, Trc) == 0x384, "BaseRichTextWin +0x384");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, Surface) == 0x3d4, "BaseRichTextWin +0x3d4");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, Image) == 0x3ec, "BaseRichTextWin +0x3ec");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, ScrollBarV) == 0x3f0, "BaseRichTextWin +0x3f0");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, bLayoutDirty) == 0x400, "BaseRichTextWin +0x400");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, FrameColor) == 0x403, "BaseRichTextWin +0x403");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, AlignMode) == 0x408, "BaseRichTextWin +0x408");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, HoverInfo) == 0x40c, "BaseRichTextWin +0x40c");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, bToolTipEnabled) == 0x470, "BaseRichTextWin +0x470");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, Alpha) == 0x474, "BaseRichTextWin +0x474");
+FL_LAYOUT_ASSERT(offsetof(BaseRichTextWin, AttachOffset) == 0x47c, "BaseRichTextWin +0x47c");
 
 class RichTextWin : public BaseRichTextWin
 {
@@ -260,9 +260,9 @@ private:
     RichTextWin& operator=(RichTextWin const&) = delete;
 };
 
-static_assert(sizeof(RichTextWin) == 0x498, "UIRichTextWin allocates 0x498 (FUN_0059cbd0)");
-static_assert(offsetof(RichTextWin, Content) == 0x488, "RichTextWin +0x488");
-static_assert(offsetof(RichTextWin, LayoutFlag) == 0x494, "RichTextWin +0x494");
+FL_LAYOUT_ASSERT(sizeof(RichTextWin) == 0x498, "UIRichTextWin allocates 0x498 (FUN_0059cbd0)");
+FL_LAYOUT_ASSERT(offsetof(RichTextWin, Content) == 0x488, "RichTextWin +0x488");
+FL_LAYOUT_ASSERT(offsetof(RichTextWin, LayoutFlag) == 0x494, "RichTextWin +0x494");
 
 // Retail RichTextEditWin (RTTI .?AVRichTextEditWin@@ : RichTextWin, Event::Handler), the
 // editable rich text box. ctor FUN_0057b8d0, scalar deleting dtor FUN_0057bb10, vftable

@@ -60,19 +60,19 @@
 #include <string>
 
 // FCommWindow has no port-only members, so its layout is retail's.
-static_assert(offsetof(FCommWindow, Rect) == 0x04, "comm window +0x04 rect");
-static_assert(offsetof(FCommWindow, WinPos) == 0x24, "comm window +0x24 win_pos");
-static_assert(offsetof(FCommWindow, BtnPos) == 0x30, "comm window +0x30 btn_pos");
-static_assert(offsetof(FCommWindow, WinSizeX) == 0x3c, "comm window +0x3c win_size");
-static_assert(offsetof(FCommWindow, OpenFraction) == 0x44, "comm window +0x44 open fraction");
-static_assert(offsetof(FCommWindow, FlyTime) == 0x48, "comm window +0x48 fly_time");
-static_assert(offsetof(FCommWindow, bOpenRequest) == 0x4c, "comm window +0x4c open request");
-static_assert(offsetof(FCommWindow, bStatic) == 0x4e, "comm window +0x4e static");
-static_assert(offsetof(FCommWindow, Corner) == 0x50, "comm window +0x50 corner holder");
-static_assert(offsetof(FCommWindow, CornerXform) == 0x78, "comm window +0x78 corner transforms");
-static_assert(sizeof(FCommWindow) == 0x138, "retail comm window is 0x138 bytes");
-static_assert(sizeof(FCommSlot) == 0x10, "retail comm slot is 0x10 bytes");
-static_assert(sizeof(FCommInbox) == 0x984, "retail comm inbox is 0x984 bytes");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, Rect) == 0x04, "comm window +0x04 rect");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, WinPos) == 0x24, "comm window +0x24 win_pos");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, BtnPos) == 0x30, "comm window +0x30 btn_pos");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, WinSizeX) == 0x3c, "comm window +0x3c win_size");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, OpenFraction) == 0x44, "comm window +0x44 open fraction");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, FlyTime) == 0x48, "comm window +0x48 fly_time");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, bOpenRequest) == 0x4c, "comm window +0x4c open request");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, bStatic) == 0x4e, "comm window +0x4e static");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, Corner) == 0x50, "comm window +0x50 corner holder");
+FL_LAYOUT_ASSERT(offsetof(FCommWindow, CornerXform) == 0x78, "comm window +0x78 corner transforms");
+FL_LAYOUT_ASSERT(sizeof(FCommWindow) == 0x138, "retail comm window is 0x138 bytes");
+FL_LAYOUT_ASSERT(sizeof(FCommSlot) == 0x10, "retail comm slot is 0x10 bytes");
+FL_LAYOUT_ASSERT(sizeof(FCommInbox) == 0x984, "retail comm inbox is 0x984 bytes");
 // FCommVoice / FCommChannel / HUD_Receiver carry a std::vector where retail has VC6's
 // four-dword vector plus an iterator (no retail ABI, AGENTS.md), so their sizes are the port's.
 

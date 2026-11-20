@@ -38,7 +38,7 @@ struct FPixelFormatDesc
     unsigned long HasAlpha;       // +0x48 -- FUN_005b7050 reads its low byte
 };
 
-static_assert(sizeof(FPixelFormatDesc) == 0x4c, "retail PixelFormat descriptor is 0x4c bytes");
+FL_LAYOUT_ASSERT(sizeof(FPixelFormatDesc) == 0x4c, "retail PixelFormat descriptor is 0x4c bytes");
 
 // FUN_005b7000 -- DAT_00615e70, the 0x16-entry D3DFORMAT array.
 unsigned long* PixelFormatGetD3DFormats();

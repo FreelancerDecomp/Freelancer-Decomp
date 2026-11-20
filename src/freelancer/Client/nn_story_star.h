@@ -88,13 +88,13 @@ private:
     MissionObjectiveWindow& operator=(MissionObjectiveWindow const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(MissionObjectiveWindow) == 0x340,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(MissionObjectiveWindow) == 0x340,
               "retail MissionObjectiveWindow is 0x340 bytes (0x004bd189)");
-static_assert(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, Elapsed) == 0x32c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, Elapsed) == 0x32c,
               "MissionObjectiveWindow +0x32c");
-static_assert(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, HoldTime) == 0x334,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, HoldTime) == 0x334,
               "MissionObjectiveWindow +0x334");
-static_assert(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, Text) == 0x33c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(MissionObjectiveWindow, Text) == 0x33c,
               "MissionObjectiveWindow +0x33c");
 
 // ---------------------------------------------------------------------------------------------
@@ -171,17 +171,17 @@ private:
     NeuroNetStoryStar& operator=(NeuroNetStoryStar const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(NeuroNetStoryStar) == 0x390,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(NeuroNetStoryStar) == 0x390,
               "retail NeuroNetStoryStar is 0x390 bytes (0x004bd049)");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, HistoryText) == 0x334,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, HistoryText) == 0x334,
               "NeuroNetStoryStar +0x334");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, MissionButton) == 0x36c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, MissionButton) == 0x36c,
               "NeuroNetStoryStar +0x36c");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, bMissionMode) == 0x37c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, bMissionMode) == 0x37c,
               "NeuroNetStoryStar +0x37c");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, PendingScrollY) == 0x388,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, PendingScrollY) == 0x388,
               "NeuroNetStoryStar +0x388");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, bPausedGame) == 0x38c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetStoryStar, bPausedGame) == 0x38c,
               "NeuroNetStoryStar +0x38c");
 
 // ---------------------------------------------------------------------------------------------

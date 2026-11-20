@@ -37,6 +37,6 @@ public:
     float LocalHeight;              // +0xf0 -- payload +0x04
 };
 
-static_assert(sizeof(UiStaticText) == 0xf4, "retail UIStaticText is 0xf4 bytes");
-static_assert(offsetof(UiStaticText, LocalWidth) == 0xec, "UIStaticText +0xec");
-static_assert(offsetof(UiStaticText, LocalHeight) == 0xf0, "UIStaticText +0xf0");
+FL_LAYOUT_ASSERT(sizeof(UiStaticText) == 0xf4, "retail UIStaticText is 0xf4 bytes");
+FL_LAYOUT_ASSERT(offsetof(UiStaticText, LocalWidth) == 0xec, "UIStaticText +0xec");
+FL_LAYOUT_ASSERT(offsetof(UiStaticText, LocalHeight) == 0xf0, "UIStaticText +0xf0");

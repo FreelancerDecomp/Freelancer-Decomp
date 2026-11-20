@@ -29,7 +29,7 @@ struct FFontAtlasPage
     FFontAtlasPage* NextY;  // +0x24 next row
 };
 
-static_assert(sizeof(FFontAtlasPage) == 0x28, "atlas page 0x28");
+FL_LAYOUT_ASSERT(sizeof(FFontAtlasPage) == 0x28, "atlas page 0x28");
 
 // FUN_00412670 — lazy shared HDC / 256×256 DIB scratch (DAT_00616654..6c).
 void FontAtlasEnsureScratch();

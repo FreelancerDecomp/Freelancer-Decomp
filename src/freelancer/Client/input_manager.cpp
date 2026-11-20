@@ -53,8 +53,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
-static_assert(sizeof(DIDEVICEOBJECTDATA) == 0x14, "FUN_0041fa10 walks 0x14-byte records");
-static_assert(sizeof(DIMOUSESTATE2) == 0x14, "FUN_0041fd90 reads 0x14 bytes into +0x2c");
+FL_LAYOUT_ASSERT(sizeof(DIDEVICEOBJECTDATA) == 0x14, "FUN_0041fa10 walks 0x14-byte records");
+FL_LAYOUT_ASSERT(sizeof(DIMOUSESTATE2) == 0x14, "FUN_0041fd90 reads 0x14 bytes into +0x2c");
 
 namespace
 {
@@ -171,7 +171,7 @@ namespace
         float Fps;              // +0x68 "anim" [2]
         TString<32> AnimName;   // +0x6c "anim" [0] -- a printf format taking the frame
     };
-    static_assert(sizeof(FMouseCursor) == 0x90, "FUN_0041df30 allocates 0x90 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FMouseCursor) == 0x90, "FUN_0041df30 allocates 0x90 bytes");
 
     // FUN_0041e550. Fps (+0x68) is not written by retail; operator new leaves it as it finds it.
     // The port zeroes it -- it is read only after "anim" has stored it (FUN_0041dae0 tests

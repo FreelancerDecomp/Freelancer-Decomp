@@ -54,7 +54,7 @@ struct FBillboardSavedVertex
     float V;            // +0x14
 };
 
-static_assert(sizeof(FBillboardSavedVertex) == 0x18, "saved vertex 0x18");
+FL_LAYOUT_ASSERT(sizeof(FBillboardSavedVertex) == 0x18, "saved vertex 0x18");
 
 // DAT_006797d0, 0x84 bytes.
 class FAsteroidBillboardBatch

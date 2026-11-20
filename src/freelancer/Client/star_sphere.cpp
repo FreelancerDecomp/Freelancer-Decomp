@@ -2873,8 +2873,8 @@ FStarSphere::~FStarSphere()
 
 // ------------------------------------------------ the star list DAT_0067517c (FUN_0050c580..6e0)
 
-static_assert(sizeof(FStarSphere) == 0x8c, "FUN_0050c630 allocates 0x8c");
-static_assert(sizeof(FStarSphereListNode) == 0xc, "std::list node 0xc");
+FL_LAYOUT_ASSERT(sizeof(FStarSphere) == 0x8c, "FUN_0050c630 allocates 0x8c");
+FL_LAYOUT_ASSERT(sizeof(FStarSphereListNode) == 0xc, "std::list node 0xc");
 
 namespace
 {

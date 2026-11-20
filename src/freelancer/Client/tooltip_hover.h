@@ -58,11 +58,11 @@ struct FToolTipHoverInfo
     unsigned char bLive;         // +0x60
 };
 
-static_assert(offsetof(FToolTipHoverInfo, AuxField) == 0x44, "hover +0x44");
-static_assert(offsetof(FToolTipHoverInfo, WorldPos) == 0x48, "hover +0x48");
-static_assert(offsetof(FToolTipHoverInfo, bLive) == 0x60, "hover +0x60");
-static_assert(offsetof(FToolTipHoverInfo, Text) == 0x10, "hover +0x10 Font::String");
-static_assert(sizeof(FToolTipHoverInfo) == 0x64, "BaseRichTextWin +0x40c..+0x470");
+FL_LAYOUT_ASSERT(offsetof(FToolTipHoverInfo, AuxField) == 0x44, "hover +0x44");
+FL_LAYOUT_ASSERT(offsetof(FToolTipHoverInfo, WorldPos) == 0x48, "hover +0x48");
+FL_LAYOUT_ASSERT(offsetof(FToolTipHoverInfo, bLive) == 0x60, "hover +0x60");
+FL_LAYOUT_ASSERT(offsetof(FToolTipHoverInfo, Text) == 0x10, "hover +0x10 Font::String");
+FL_LAYOUT_ASSERT(sizeof(FToolTipHoverInfo) == 0x64, "BaseRichTextWin +0x40c..+0x470");
 
 // FUN_004be370 -- guarded forward to the ToolTip singleton's UpdateFromHover.
 void NnToolTipFeedHover(FToolTipHoverInfo const* Info);

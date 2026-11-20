@@ -553,10 +553,10 @@ IObjRW* FHudContactEntry::Object() const
 // HUD_ContactList
 // -------------------------------------------------------------------------------------------
 
-static_assert(offsetof(HUD_ContactList, Tiles) == 0x368, "HUD_ContactList +0x368 tiles");
-static_assert(offsetof(HUD_ContactList, Icons) == 0x3ac, "HUD_ContactList +0x3ac icons");
-static_assert(offsetof(HUD_ContactList, Scroll) == 0x40c, "HUD_ContactList +0x40c scroll");
-static_assert(sizeof(FHudContactEntry) == 0x1c, "retail contact entry is 0x1c bytes");
+FL_LAYOUT_ASSERT(offsetof(HUD_ContactList, Tiles) == 0x368, "HUD_ContactList +0x368 tiles");
+FL_LAYOUT_ASSERT(offsetof(HUD_ContactList, Icons) == 0x3ac, "HUD_ContactList +0x3ac icons");
+FL_LAYOUT_ASSERT(offsetof(HUD_ContactList, Scroll) == 0x40c, "HUD_ContactList +0x40c scroll");
+FL_LAYOUT_ASSERT(sizeof(FHudContactEntry) == 0x1c, "retail contact entry is 0x1c bytes");
 
 HUD_ContactList::HUD_ContactList(INI_Reader& /*Reader*/)
 {

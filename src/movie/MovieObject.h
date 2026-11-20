@@ -74,17 +74,17 @@ struct FApproach2Player : FApproach2Base
     FApproach2String Path; // +0x10
 };
 
-static_assert(sizeof(FApproach2String) == 0x10, "VC6 string");
-static_assert(offsetof(FApproach2String, Ptr) == 0x4, "string ptr");
-static_assert(offsetof(FApproach2String, Length) == 0x8, "string length");
-static_assert(offsetof(FApproach2String, Capacity) == 0xC, "string capacity");
-static_assert(sizeof(FApproach2Base) == 4, "vfptr only");
-static_assert(sizeof(FApproach2Player) == 0x20, "operator new(0x20)");
-static_assert(offsetof(FApproach2Player, ParentWindow) == 0x4, "hwnd");
-static_assert(offsetof(FApproach2Player, MciWindow) == 0x8, "mci wnd");
-static_assert(offsetof(FApproach2Player, bStopped) == 0xC, "stopped");
-static_assert(offsetof(FApproach2Player, bError) == 0xD, "error");
-static_assert(offsetof(FApproach2Player, Path) == 0x10, "string");
+FL_LAYOUT_ASSERT(sizeof(FApproach2String) == 0x10, "VC6 string");
+FL_LAYOUT_ASSERT(offsetof(FApproach2String, Ptr) == 0x4, "string ptr");
+FL_LAYOUT_ASSERT(offsetof(FApproach2String, Length) == 0x8, "string length");
+FL_LAYOUT_ASSERT(offsetof(FApproach2String, Capacity) == 0xC, "string capacity");
+FL_LAYOUT_ASSERT(sizeof(FApproach2Base) == 4, "vfptr only");
+FL_LAYOUT_ASSERT(sizeof(FApproach2Player) == 0x20, "operator new(0x20)");
+FL_LAYOUT_ASSERT(offsetof(FApproach2Player, ParentWindow) == 0x4, "hwnd");
+FL_LAYOUT_ASSERT(offsetof(FApproach2Player, MciWindow) == 0x8, "mci wnd");
+FL_LAYOUT_ASSERT(offsetof(FApproach2Player, bStopped) == 0xC, "stopped");
+FL_LAYOUT_ASSERT(offsetof(FApproach2Player, bError) == 0xD, "error");
+FL_LAYOUT_ASSERT(offsetof(FApproach2Player, Path) == 0x10, "string");
 
 // DAT_06ae1208. Bit 0 is set by Approach2RegisterEmptyAtexit and Approach2RepeatEmptyAtexit.
 extern uint8_t g_movieAtexitGuard;

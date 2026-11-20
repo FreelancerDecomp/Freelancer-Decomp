@@ -760,7 +760,7 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
     Mode.buffer_count = 2;
     Mode.border = 1;
     Mode.fullscreen = 1;
-    static_assert(offsetof(DisplaySettings, height) == offsetof(DisplaySettings, width) + 4 &&
+    FL_LAYOUT_ASSERT(offsetof(DisplaySettings, height) == offsetof(DisplaySettings, width) + 4 &&
                       offsetof(DisplaySettings, color_bpp) == offsetof(DisplaySettings, width) + 8 &&
                       offsetof(DisplaySettings, depth_bpp) == offsetof(DisplaySettings, width) + 12,
                   "FPerfDisplaySettings mirrors mode +0x08..+0x14");

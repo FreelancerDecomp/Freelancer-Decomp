@@ -52,7 +52,7 @@ struct FUtfHeader
     unsigned long Pad34;
 };
 
-static_assert(sizeof(FUtfHeader) == 0x38, "UTF header must be 0x38");
+FL_LAYOUT_ASSERT(sizeof(FUtfHeader) == 0x38, "UTF header must be 0x38");
 
 // FUN_065f3e80 / FUN_065f36c0 FileSystem AGGDESC 0x34
 // FileSystem desc and IFileSystem itself come from ReadFile.dll's published ABI
@@ -74,7 +74,7 @@ struct FFaceGroup
     unsigned long UvBoneIndex; // +0x20 FUN_065f7590: -1 none; 0 = EyeMaterial
 };
 
-static_assert(sizeof(FFaceGroup) == 0x24, "face group must be 0x24");
+FL_LAYOUT_ASSERT(sizeof(FFaceGroup) == 0x24, "face group must be 0x24");
 
 // FUN_065f8480 zip of 9 Geometry streams. Draw lookup by BoneId, not vertex UV offset.
 struct FUvDeformRecord
@@ -90,7 +90,7 @@ struct FUvDeformRecord
     float MaxDv;
 };
 
-static_assert(sizeof(FUvDeformRecord) == 0x24, "UV-deform record must be 0x24");
+FL_LAYOUT_ASSERT(sizeof(FUvDeformRecord) == 0x24, "UV-deform record must be 0x24");
 
 struct FBoneRuntime;
 
@@ -113,7 +113,7 @@ struct FSkinPair
     float Weight;
 };
 
-static_assert(sizeof(FSkinPair) == 8, "skin pair must be 8");
+FL_LAYOUT_ASSERT(sizeof(FSkinPair) == 8, "skin pair must be 8");
 
 struct FSkinVertex
 {
@@ -121,7 +121,7 @@ struct FSkinVertex
     FSkinPair* Pairs;
 };
 
-static_assert(sizeof(FSkinVertex) == 8, "skin vertex must be 8");
+FL_LAYOUT_ASSERT(sizeof(FSkinVertex) == 8, "skin vertex must be 8");
 
 // FUN_065f89e0 / FUN_065f96b0: per-bone std::vector<ushort> of vertex indices (invert, not skin apply).
 struct FBoneVertexList
@@ -133,7 +133,7 @@ struct FBoneVertexList
     unsigned short* CapacityEnd;
 };
 
-static_assert(sizeof(FBoneVertexList) == 0x10, "bone vertex list must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(FBoneVertexList) == 0x10, "bone vertex list must be 0x10");
 
 // FUN_065f75f0: per-vertex vector<uint> of Point_indices slots (mesh+0x64).
 struct FVertexRemapList
@@ -144,7 +144,7 @@ struct FVertexRemapList
     unsigned int* CapacityEnd;
 };
 
-static_assert(sizeof(FVertexRemapList) == 0x10, "vertex remap list must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(FVertexRemapList) == 0x10, "vertex remap list must be 0x10");
 
 struct FDeformPart;
 struct FLodHolder;
@@ -221,20 +221,20 @@ struct FMeshArchetype : FDeformMesh
     float SphereRadius;         // +0x80
 };
 
-static_assert(sizeof(FMeshArchetype) == 0x84, "mesh archetype must be 0x84");
-static_assert(offsetof(FMeshArchetype, Field_0x20) == 0x20, "never-written field +20");
-static_assert(offsetof(FMeshArchetype, SkinPairs) == 0x2C, "skin pairs +2C");
-static_assert(offsetof(FMeshArchetype, SkinTable) == 0x30, "skin table +30");
-static_assert(offsetof(FMeshArchetype, BoneVerts) == 0x34, "bone vertex lists +34");
-static_assert(offsetof(FMeshArchetype, FaceFlags) == 0x38, "face flags +38");
-static_assert(offsetof(FMeshArchetype, FaceFlagCount) == 0x3C, "face flag count +3C");
-static_assert(offsetof(FMeshArchetype, UvCount) == 0x4C, "UV0 count +4C");
-static_assert(offsetof(FMeshArchetype, UvIndices) == 0x54, "UV0_indices +54");
-static_assert(offsetof(FMeshArchetype, UvDeformCount) == 0x58, "UV-deform count +58");
-static_assert(offsetof(FMeshArchetype, RemapStart) == 0x64, "vertex remap +64");
-static_assert(offsetof(FMeshArchetype, SphereReady) == 0x71, "sphere cache flag +71");
-static_assert(offsetof(FMeshArchetype, SphereCenter) == 0x74, "sphere center +74");
-static_assert(offsetof(FMeshArchetype, SphereRadius) == 0x80, "sphere radius +80");
+FL_LAYOUT_ASSERT(sizeof(FMeshArchetype) == 0x84, "mesh archetype must be 0x84");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, Field_0x20) == 0x20, "never-written field +20");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, SkinPairs) == 0x2C, "skin pairs +2C");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, SkinTable) == 0x30, "skin table +30");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, BoneVerts) == 0x34, "bone vertex lists +34");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, FaceFlags) == 0x38, "face flags +38");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, FaceFlagCount) == 0x3C, "face flag count +3C");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, UvCount) == 0x4C, "UV0 count +4C");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, UvIndices) == 0x54, "UV0_indices +54");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, UvDeformCount) == 0x58, "UV-deform count +58");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, RemapStart) == 0x64, "vertex remap +64");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, SphereReady) == 0x71, "sphere cache flag +71");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, SphereCenter) == 0x74, "sphere center +74");
+FL_LAYOUT_ASSERT(offsetof(FMeshArchetype, SphereRadius) == 0x80, "sphere radius +80");
 
 
 // FUN_065fdcc0 IVMeshLibrary wrapper 0x14. Vtable PTR_LAB_066013dc.
@@ -251,7 +251,7 @@ struct FVmeshWrapper : FDeformMesh
     IVMeshPart* VMeshPart;
 };
 
-static_assert(sizeof(FVmeshWrapper) == 0x14, "VMesh wrapper must be 0x14");
+FL_LAYOUT_ASSERT(sizeof(FVmeshWrapper) == 0x14, "VMesh wrapper must be 0x14");
 
 // The EyeMaterial classes (LAB_065fe070 operator new(0x78)) live in EyeMaterial.h/.cpp.
 
@@ -379,7 +379,7 @@ struct FBoneSlot
     float BoneToRoot[12];
 };
 
-static_assert(sizeof(FBoneSlot) == 0x34, "bone slot must be 0x34");
+FL_LAYOUT_ASSERT(sizeof(FBoneSlot) == 0x34, "bone slot must be 0x34");
 
 struct FSkeleton
 {
@@ -390,8 +390,8 @@ struct FSkeleton
     int RefCount;
 };
 
-static_assert(sizeof(FSkeleton) == 0x1E88, "skeleton must be 0x1e88");
-static_assert(offsetof(FSkeleton, EngineHandle) == 0x1E80, "skel handle +1e80");
+FL_LAYOUT_ASSERT(sizeof(FSkeleton) == 0x1E88, "skeleton must be 0x1e88");
+FL_LAYOUT_ASSERT(offsetof(FSkeleton, EngineHandle) == 0x1E80, "skel handle +1e80");
 
 // Engine transform callback: local pose, dirty flags and computed world pose.
 struct FBoneRuntime : IInstanceTransform
@@ -422,10 +422,10 @@ struct FBoneRuntime : IInstanceTransform
     unsigned long DACOM_API MarkWorldDirty(void* InInstance) override; // formerly Slot13
 };
 
-static_assert(sizeof(FBoneRuntime) == 0x70, "bone runtime must be 0x70");
-static_assert(offsetof(FBoneRuntime, LocalTransform) == 0x0C, "bone local transform +0c");
-static_assert(offsetof(FBoneRuntime, Flags) == 0x3C, "bone flag byte +3c");
-static_assert(offsetof(FBoneRuntime, Matrix) == 0x40, "bone world matrix +40");
+FL_LAYOUT_ASSERT(sizeof(FBoneRuntime) == 0x70, "bone runtime must be 0x70");
+FL_LAYOUT_ASSERT(offsetof(FBoneRuntime, LocalTransform) == 0x0C, "bone local transform +0c");
+FL_LAYOUT_ASSERT(offsetof(FBoneRuntime, Flags) == 0x3C, "bone flag byte +3c");
+FL_LAYOUT_ASSERT(offsetof(FBoneRuntime, Matrix) == 0x40, "bone world matrix +40");
 
 // FUN_065f1550 LOD/skel holder 0x10.
 struct FLodHolder
@@ -438,7 +438,7 @@ struct FLodHolder
     unsigned char AttachSkeleton(FSkeleton* Skel); // formerly AttachLodSkeleton
 };
 
-static_assert(sizeof(FLodHolder) == 0x10, "LOD holder must be 0x10");
+FL_LAYOUT_ASSERT(sizeof(FLodHolder) == 0x10, "LOD holder must be 0x10");
 
 // FUN_065f9f00 / FUN_065fadb0: 12-stride Golub SVD (IK Jacobian ≤ 4×3).
 static constexpr int G_SvdMaxDim = 12;
@@ -452,9 +452,9 @@ struct FSvdMatrix
     int ColCount;       // +0x244 this+0x244
 };
 
-static_assert(sizeof(FSvdMatrix) == 0x248, "SVD matrix must be 0x248");
-static_assert(offsetof(FSvdMatrix, RowCount) == 0x240, "SVD rows +240");
-static_assert(offsetof(FSvdMatrix, ColCount) == 0x244, "SVD cols +244");
+FL_LAYOUT_ASSERT(sizeof(FSvdMatrix) == 0x248, "SVD matrix must be 0x248");
+FL_LAYOUT_ASSERT(offsetof(FSvdMatrix, RowCount) == 0x240, "SVD rows +240");
+FL_LAYOUT_ASSERT(offsetof(FSvdMatrix, ColCount) == 0x244, "SVD cols +244");
 
 // FUN_065f5400 list node 0x14. FUN_065fb030 IK event 0x44.
 // Mixed list @ instance+0x0C: Active==0 animation handle @+4; Active!=0 FIkEvent*.
@@ -468,8 +468,8 @@ struct FIkListNode
     FIkListNode* Next; // +0x10
 };
 
-static_assert(sizeof(FIkListNode) == 0x14, "IK list node must be 0x14");
-static_assert(offsetof(FIkListNode, Extra8) == 0x08, "list node extra +8");
+FL_LAYOUT_ASSERT(sizeof(FIkListNode) == 0x14, "IK list node must be 0x14");
+FL_LAYOUT_ASSERT(offsetof(FIkListNode, Extra8) == 0x08, "list node extra +8");
 
 // IK event owns its typed channels and serves as their owner callback.
 struct FIkEvent : IChannelOwner
@@ -502,12 +502,12 @@ struct FIkEvent : IChannelOwner
     int JointCount;          // +0x40 FUN_065fb030
 };
 
-static_assert(sizeof(FIkEvent) == 0x44, "IK event must be 0x44");
-static_assert(offsetof(FIkEvent, JointIds) == 0x08, "IK joints +8");
-static_assert(offsetof(FIkEvent, Flags28) == 0x28, "IK flags +28");
-static_assert(offsetof(FIkEvent, Flags34) == 0x34, "IK flags34 +34");
-static_assert(offsetof(FIkEvent, Damp38) == 0x38, "IK damp +38");
-static_assert(offsetof(FIkEvent, JointCount) == 0x40, "IK joint count +40");
+FL_LAYOUT_ASSERT(sizeof(FIkEvent) == 0x44, "IK event must be 0x44");
+FL_LAYOUT_ASSERT(offsetof(FIkEvent, JointIds) == 0x08, "IK joints +8");
+FL_LAYOUT_ASSERT(offsetof(FIkEvent, Flags28) == 0x28, "IK flags +28");
+FL_LAYOUT_ASSERT(offsetof(FIkEvent, Flags34) == 0x34, "IK flags34 +34");
+FL_LAYOUT_ASSERT(offsetof(FIkEvent, Damp38) == 0x38, "IK damp +38");
+FL_LAYOUT_ASSERT(offsetof(FIkEvent, JointCount) == 0x40, "IK joint count +40");
 
 // LAB_065fb540 arg4: +0 skip DLS; +0xC joint for +0xC4/+0xD4.
 struct FIkApplyGate
@@ -517,7 +517,7 @@ struct FIkApplyGate
     int JointAt0C;
 };
 
-static_assert(offsetof(FIkApplyGate, JointAt0C) == 0x0C, "IK apply gate +C");
+FL_LAYOUT_ASSERT(offsetof(FIkApplyGate, JointAt0C) == 0x0C, "IK apply gate +C");
 
 struct FIkMathDesc
 {
@@ -526,7 +526,7 @@ struct FIkMathDesc
     void* Extra;
 };
 
-static_assert(sizeof(FIkMathDesc) == 0xC, "3DMathEngine desc must be 0xC");
+FL_LAYOUT_ASSERT(sizeof(FIkMathDesc) == 0xC, "3DMathEngine desc must be 0xC");
 
 // Material-context VB listing followed by its allocation capacity.
 struct FDeformVbDesc
@@ -543,8 +543,8 @@ struct FDeformIbDesc
     int Capacity;
 };
 
-static_assert(sizeof(FDeformVbDesc) == 0x10, "part VB descriptor is 0x10");
-static_assert(sizeof(FDeformIbDesc) == 0xC, "part IB descriptor is 0xC");
+FL_LAYOUT_ASSERT(sizeof(FDeformVbDesc) == 0x10, "part VB descriptor is 0x10");
+FL_LAYOUT_ASSERT(sizeof(FDeformIbDesc) == 0xC, "part IB descriptor is 0xC");
 
 // FUN_065f6720 constructs it (13 zero dwords, then byte +0x30 |= 1).
 struct FDeformPart
@@ -565,10 +565,10 @@ struct FDeformPart
     void Reset(); // formerly DestroyPart
 };
 
-static_assert(offsetof(FDeformPart, Vb) == 0x14, "part VB descriptor +0x14");
-static_assert(offsetof(FDeformPart, Ib) == 0x24, "part IB descriptor +0x24");
-static_assert(offsetof(FDeformPart, Flags) == 0x30, "part flags +0x30");
-static_assert(sizeof(FDeformPart) == 0x34, "part is 0x34");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Vb) == 0x14, "part VB descriptor +0x14");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Ib) == 0x24, "part IB descriptor +0x24");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Flags) == 0x30, "part flags +0x30");
+FL_LAYOUT_ASSERT(sizeof(FDeformPart) == 0x34, "part is 0x34");
 
 // Playback notifications forward to the caller-provided channel sink.
 struct FDeformInstance : IChannelSink
@@ -592,31 +592,31 @@ struct FDeformInstance : IChannelSink
                           void* Context) override;                           // LAB_065f52b0
 };
 
-static_assert(sizeof(FDeformableFactory) == 0x0C, "factory must be 0xC");
-static_assert(sizeof(FDeformableObject) == 0x18, "component must be 0x18");
-static_assert(offsetof(FDeformableObject, Controlling) == 0x08, "deformable Controlling +8");
-static_assert(offsetof(FDeformableObject, Inner) == 0x0C, "deformable inner +C");
-static_assert(sizeof(FDeformableInner) == 0x0C, "deformable inner is 0xC (ref +0x10, owner +0x14)");
-static_assert(sizeof(FDeformPart) == 0x34, "part must be 0x34");
-static_assert(offsetof(FDeformPart, Meshes) == 0x08, "part meshes +8");
-static_assert(offsetof(FDeformPart, MeshCount) == 0x0C, "part mesh count +C");
-static_assert(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
+FL_LAYOUT_ASSERT(sizeof(FDeformableFactory) == 0x0C, "factory must be 0xC");
+FL_LAYOUT_ASSERT(sizeof(FDeformableObject) == 0x18, "component must be 0x18");
+FL_LAYOUT_ASSERT(offsetof(FDeformableObject, Controlling) == 0x08, "deformable Controlling +8");
+FL_LAYOUT_ASSERT(offsetof(FDeformableObject, Inner) == 0x0C, "deformable inner +C");
+FL_LAYOUT_ASSERT(sizeof(FDeformableInner) == 0x0C, "deformable inner is 0xC (ref +0x10, owner +0x14)");
+FL_LAYOUT_ASSERT(sizeof(FDeformPart) == 0x34, "part must be 0x34");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Meshes) == 0x08, "part meshes +8");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, MeshCount) == 0x0C, "part mesh count +C");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
                       offsetof(FVbListing, VertexBuffer) == 0x14, "part VB handle +14");
-static_assert(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
                       offsetof(FVbListing, Fvf) == 0x18, "part VB FVF +18");
-static_assert(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Listing) +
                       offsetof(FVbListing, BaseVertex) == 0x1C, "part VB lock offset +1C");
-static_assert(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Capacity) == 0x20,
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Vb) + offsetof(FDeformVbDesc, Capacity) == 0x20,
               "part vertex capacity +20");
-static_assert(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Scratch) +
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Scratch) +
                       offsetof(FIbScratch, IndexBuffer) == 0x24, "part IB handle +24");
-static_assert(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Scratch) +
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Scratch) +
                       offsetof(FIbScratch, Bias) == 0x28, "part IB lock offset +28");
-static_assert(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Capacity) == 0x2C,
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Ib) + offsetof(FDeformIbDesc, Capacity) == 0x2C,
               "part index capacity +2C");
-static_assert(offsetof(FDeformPart, Flags) == 0x30, "part flags +30");
-static_assert(sizeof(FDeformInstance) == 0x2C, "create instance must be 0x2C");
-static_assert(offsetof(FDeformInstance, ListHead) == 0x0C, "instance list head +0c");
-static_assert(offsetof(FDeformInstance, ListTail) == 0x10, "instance list tail +10");
-static_assert(offsetof(FDeformInstance, Offset20) == 0x20, "instance offset +20");
-static_assert(offsetof(FDeformInstance, Offset24) == 0x24, "instance offset +24");
+FL_LAYOUT_ASSERT(offsetof(FDeformPart, Flags) == 0x30, "part flags +30");
+FL_LAYOUT_ASSERT(sizeof(FDeformInstance) == 0x2C, "create instance must be 0x2C");
+FL_LAYOUT_ASSERT(offsetof(FDeformInstance, ListHead) == 0x0C, "instance list head +0c");
+FL_LAYOUT_ASSERT(offsetof(FDeformInstance, ListTail) == 0x10, "instance list tail +10");
+FL_LAYOUT_ASSERT(offsetof(FDeformInstance, Offset20) == 0x20, "instance offset +20");
+FL_LAYOUT_ASSERT(offsetof(FDeformInstance, Offset24) == 0x24, "instance offset +24");

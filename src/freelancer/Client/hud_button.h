@@ -77,10 +77,10 @@ struct WinButton : public WinObject
     unsigned char PadF1[3];
 };
 
-static_assert(sizeof(WinButton) == 0xf4, "retail WinButton is 0xf4 bytes");
-static_assert(offsetof(WinButton, RestPose) == 0xac, "WinButton +0xac rest pose");
-static_assert(offsetof(WinButton, bHover) == 0xdc, "WinButton +0xdc hover");
-static_assert(offsetof(WinButton, SpinSpeed) == 0xe4, "WinButton +0xe4 spin speed");
+FL_LAYOUT_ASSERT(sizeof(WinButton) == 0xf4, "retail WinButton is 0xf4 bytes");
+FL_LAYOUT_ASSERT(offsetof(WinButton, RestPose) == 0xac, "WinButton +0xac rest pose");
+FL_LAYOUT_ASSERT(offsetof(WinButton, bHover) == 0xdc, "WinButton +0xdc hover");
+FL_LAYOUT_ASSERT(offsetof(WinButton, SpinSpeed) == 0xe4, "WinButton +0xe4 spin speed");
 
 // FUN_0059f200 (cdecl Holder, Out) -- the instance's projected screen rectangle as four floats
 // (left, top, right, bottom): IEngine::GetInstanceExtent (+0x88) gives the bounding sphere
@@ -107,9 +107,9 @@ struct HUD_Button : public WinButton, public HUDItem
     int CommandId;               // +0x150 the command the action maps to
 };
 
-static_assert(offsetof(HUD_Button, Action) == 0x12c, "HUD_Button +0x12c action");
-static_assert(offsetof(HUD_Button, CommandId) == 0x150, "HUD_Button +0x150 command");
-static_assert(sizeof(HUD_Button) == 0x154, "retail HUD_Button is 0x154 bytes");
+FL_LAYOUT_ASSERT(offsetof(HUD_Button, Action) == 0x12c, "HUD_Button +0x12c action");
+FL_LAYOUT_ASSERT(offsetof(HUD_Button, CommandId) == 0x150, "HUD_Button +0x150 command");
+FL_LAYOUT_ASSERT(sizeof(HUD_Button) == 0x154, "retail HUD_Button is 0x154 bytes");
 
 // FUN_004c8ca0 / FUN_004c8d40 -- UHUD_Button::HUDFACTORY, the static object DAT_006733b0 built
 // by the XC entry LAB_004c8320 ("Button") and torn down by LAB_004c8340.

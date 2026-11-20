@@ -129,8 +129,8 @@ private:
     NnCommodityByBase& operator=(NnCommodityByBase const&) = delete;
 };
 
-static_assert(sizeof(NnCommodityByBase) == 0x424,
+FL_LAYOUT_ASSERT(sizeof(NnCommodityByBase) == 0x424,
               "retail NN_CommodityByBase is 0x424 bytes (operator_new 0x004707a8)");
-static_assert(offsetof(NnCommodityByBase, ArchId) == 0x330, "NN_CommodityByBase +0x330");
-static_assert(offsetof(NnCommodityByBase, Scroll) == 0x348, "NN_CommodityByBase +0x348");
-static_assert(offsetof(NnCommodityByBase, Rows) == 0x354, "NN_CommodityByBase +0x354");
+FL_LAYOUT_ASSERT(offsetof(NnCommodityByBase, ArchId) == 0x330, "NN_CommodityByBase +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnCommodityByBase, Scroll) == 0x348, "NN_CommodityByBase +0x348");
+FL_LAYOUT_ASSERT(offsetof(NnCommodityByBase, Rows) == 0x354, "NN_CommodityByBase +0x354");

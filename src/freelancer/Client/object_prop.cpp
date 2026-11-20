@@ -53,7 +53,7 @@ namespace
         Matrix Orient;
         Vector Pos;
     };
-    static_assert(sizeof(FInstanceMatrix) == 0x30, "engine instance matrix 0x30");
+    FL_LAYOUT_ASSERT(sizeof(FInstanceMatrix) == 0x30, "engine instance matrix 0x30");
 
     // FUN_00446ac0 / FUN_00446b40 0x00446ac3..0x00446b09: which options show a prop of Type.
     bool IsPropTypeShown(int Type)

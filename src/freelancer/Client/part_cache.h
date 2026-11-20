@@ -45,8 +45,8 @@ struct FPartCacheEntry
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FPartCacheEntry) == 0x1C, "FPartCacheEntry 0x1C");
-static_assert(sizeof(FPartCacheVertex) == 0x10, "FPartCacheVertex 0x10");
+FL_LAYOUT_ASSERT(sizeof(FPartCacheEntry) == 0x1C, "FPartCacheEntry 0x1C");
+FL_LAYOUT_ASSERT(sizeof(FPartCacheVertex) == 0x10, "FPartCacheVertex 0x10");
 
 // Root cache object — retail layout at consumer+0x3a0.
 struct FPartCache

@@ -3150,7 +3150,7 @@ struct FIkVec
     int Count;
 };
 
-static_assert(sizeof(FIkVec) == 0x34, "IK vector is 13 dwords");
+FL_LAYOUT_ASSERT(sizeof(FIkVec) == 0x34, "IK vector is 13 dwords");
 
 // Keep Rest9 adjacent: a locked first joint writes into the preceding cells.
 struct FIkDlsJacobian
@@ -3159,7 +3159,7 @@ struct FIkDlsJacobian
     FSvdMatrix J;
 };
 
-static_assert(offsetof(FIkDlsJacobian, J) == 0x24, "the Jacobian sits right after the scratch");
+FL_LAYOUT_ASSERT(offsetof(FIkDlsJacobian, J) == 0x24, "the Jacobian sits right after the scratch");
 
 // The Jacobian's cells as the listing addresses them: flat, 12 per row, from Cell[0][0].
 static float* IkDlsCells(FIkDlsJacobian* Block)
@@ -5426,7 +5426,7 @@ static void DrawInstanceParts(FDeformInstance* Instance, void* /*Unused*/, ICame
     *OutLod = 0;
     if (Instance->PartCount <= 0)
         return;
-    static_assert(sizeof(ICamera*) == sizeof(float), "the radius shares the camera's slot");
+    FL_LAYOUT_ASSERT(sizeof(ICamera*) == sizeof(float), "the radius shares the camera's slot");
     float Radius = 0.0f;
     std::memcpy(&Radius, &Camera, sizeof(Radius));
     float Center[3];

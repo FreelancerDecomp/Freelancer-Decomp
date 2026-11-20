@@ -95,7 +95,7 @@ struct FEffectArch
     unsigned char Pad51[3];
     int RefCount;                        // +0x54
 };
-static_assert(sizeof(FEffectArch) == 0x58, "EffectArch 0x58");
+FL_LAYOUT_ASSERT(sizeof(FEffectArch) == 0x58, "EffectArch 0x58");
 
 // FUN_0040eac0 (cdecl Path, bReload; caller the [Data] effects = key, 0x005b0dd6 with 0) --
 // binds the FxRuntime once (FUN_0042e290), then reads [Effect] (new EffectArch into the

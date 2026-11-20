@@ -71,12 +71,12 @@ private:
     void Close(int Result);
 };
 
-static_assert(sizeof(NnExit) == 0x350, "retail NN_Exit is 0x350 bytes (operator_new 00472039)");
-static_assert(offsetof(NnExit, ResultFn) == 0x330, "NN_Exit +0x330 callback");
-static_assert(offsetof(NnExit, bImmediate) == 0x338, "NN_Exit +0x338 immediate");
-static_assert(offsetof(NnExit, ExitText) == 0x33c, "NN_Exit +0x33c ExitText");
-static_assert(offsetof(NnExit, ButtonBox) == 0x340, "NN_Exit +0x340 button boxes");
-static_assert(offsetof(NnExit, ButtonText) == 0x348, "NN_Exit +0x348 button texts");
+FL_LAYOUT_ASSERT(sizeof(NnExit) == 0x350, "retail NN_Exit is 0x350 bytes (operator_new 00472039)");
+FL_LAYOUT_ASSERT(offsetof(NnExit, ResultFn) == 0x330, "NN_Exit +0x330 callback");
+FL_LAYOUT_ASSERT(offsetof(NnExit, bImmediate) == 0x338, "NN_Exit +0x338 immediate");
+FL_LAYOUT_ASSERT(offsetof(NnExit, ExitText) == 0x33c, "NN_Exit +0x33c ExitText");
+FL_LAYOUT_ASSERT(offsetof(NnExit, ButtonBox) == 0x340, "NN_Exit +0x340 button boxes");
+FL_LAYOUT_ASSERT(offsetof(NnExit, ButtonText) == 0x348, "NN_Exit +0x348 button texts");
 
 // FUN_00471e80 (cdecl) -- the player's ship is gone: a mission message of kind 5 (the story star,
 // FUN_004b9c60) whose FmtStr is the bare ids 0x723. Caller: the space state's frame 0x0054b1e2,

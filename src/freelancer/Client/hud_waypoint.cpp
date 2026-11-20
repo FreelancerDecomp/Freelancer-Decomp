@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static_assert(sizeof(HUD_Waypoint) == 0x390, "retail HUD_Waypoint is 0x390 bytes");
+FL_LAYOUT_ASSERT(sizeof(HUD_Waypoint) == 0x390, "retail HUD_Waypoint is 0x390 bytes");
 
 namespace
 {

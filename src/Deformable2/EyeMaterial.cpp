@@ -62,7 +62,7 @@ namespace
         unsigned long HasAlpha;      // +0x48 (low byte read)
     };
 
-    static_assert(sizeof(FPixelFormatDesc) == 0x4C, "PixelFormat descriptor is 0x4C bytes");
+    FL_LAYOUT_ASSERT(sizeof(FPixelFormatDesc) == 0x4C, "PixelFormat descriptor is 0x4C bytes");
 
     // DAT_06602c30 (.data, 0x16 dwords), read verbatim from the PE bytes.
     unsigned long G_PixelFormatD3D[0x16] = {

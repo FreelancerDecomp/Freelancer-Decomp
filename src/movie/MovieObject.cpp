@@ -14,7 +14,7 @@
 
 #pragma comment(lib, "vfw32.lib")
 
-static_assert(sizeof(WNDCLASSEXA) == 0x30, "RegisterClassExA cbSize");
+FL_LAYOUT_ASSERT(sizeof(WNDCLASSEXA) == 0x30, "RegisterClassExA cbSize");
 static_assert((WS_CHILD | WS_VISIBLE) == 0x50000000u, "CreateWindowEx style");
 static_assert(SWP_NOZORDER == 4, "SetWindowPos flags");
 static_assert(WM_CREATE == 1 && WM_SIZE == 5 && WM_PAINT == 0x0F && WM_ERASEBKGND == 0x14, "window messages");

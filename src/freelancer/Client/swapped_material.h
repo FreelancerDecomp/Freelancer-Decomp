@@ -63,4 +63,4 @@ struct FSwappedMaterial
     unsigned char Pad11[3];
 };
 
-static_assert(sizeof(FSwappedMaterial) == 0x14, "SwappedMaterial is 0x14 bytes (NN_MissionVendor +0x35c..+0x370)");
+FL_LAYOUT_ASSERT(sizeof(FSwappedMaterial) == 0x14, "SwappedMaterial is 0x14 bytes (NN_MissionVendor +0x35c..+0x370)");

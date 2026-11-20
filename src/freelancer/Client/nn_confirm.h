@@ -77,11 +77,11 @@ private:
     void Answer(unsigned bYes);
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(NnConfirm) == 0x348,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(NnConfirm) == 0x348,
               "retail NN_Confirm is 0x348 bytes (operator_new 00488e3f)");
-static_assert(sizeof(void*) != 4 || offsetof(NnConfirm, Frame) == 0x330, "NN_Confirm +0x330");
-static_assert(sizeof(void*) != 4 || offsetof(NnConfirm, YesBox) == 0x338, "NN_Confirm +0x338");
-static_assert(sizeof(void*) != 4 || offsetof(NnConfirm, NoText) == 0x344, "NN_Confirm +0x344");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnConfirm, Frame) == 0x330, "NN_Confirm +0x330");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnConfirm, YesBox) == 0x338, "NN_Confirm +0x338");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnConfirm, NoText) == 0x344, "NN_Confirm +0x344");
 
 // FUN_004889e0 (cdecl) -- unless an NN_Confirm is up (FUN_0059d9c0), build one under Parent with
 // Text and Style (null Style -> "ConfirmText"), centre it (slot 42 (0x42, &{0,0,0}, 0)) and
