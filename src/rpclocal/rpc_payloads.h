@@ -46,6 +46,8 @@
 #include "common_misc.h"        // DamageList, the DAMAGEOBJECT payload member
 
 #include <cstddef>
+#include <cstring>
+#include <new>
 #include <string>
 #include <vector>
 
@@ -83,23 +85,32 @@ extern "C" __declspec(dllexport) const FRpcPayloadCodec* RpcFindPayloadCodec(uns
 // ===========================================================================
 template<typename T>
 inline bool RpcPayloadWrite(FPacketBase* Packet, unsigned int Offset, const T& Value) {
-    unsigned char* Base = Packet->Payload() + Offset;
-    const unsigned char* Src = reinterpret_cast<const unsigned char*>(&Value);
-    for (unsigned int i = 0; i < (unsigned int)sizeof(T); ++i) {
-        Base[i] = Src[i];
-    }
+    std::memcpy(Packet->Payload() + Offset, &Value, sizeof(T));
     return true;
 }
 
 template<typename T>
 inline T RpcPayloadRead(const FPacketBase* Packet, unsigned int Offset) {
     T Value;
-    unsigned char* Dst = reinterpret_cast<unsigned char*>(&Value);
-    const unsigned char* Base = Packet->Payload() + Offset;
-    for (unsigned int i = 0; i < (unsigned int)sizeof(T); ++i) {
-        Dst[i] = Base[i];
-    }
+    std::memcpy(&Value, Packet->Payload() + Offset, sizeof(T));
     return Value;
+}
+
+// Copies InSize bytes into a block the packet owns from now on (its destructor frees it).
+// Every retail block writer is the same four instructions: a bare operator new(N) -- a
+// size of 0 included, which still hands back a non-null zero-byte block -- then REP
+// MOVSD/MOVSB the caller's bytes in. Channel 1: 0x06d8c4aa (CHATMSG), 0x06d8b5b1
+// (REQUEST_BEST_PATH), 0x06d8b631 (REQUEST_PLAYER_STATS). Channel 2: FUN_06d97b00 /
+// FUN_06d90a00 (06d97b0b / 06d90a0b) and the bodies of FUN_06d97470 / FUN_06d989b0.
+// Channel 3: FUN_06d9a160, FUN_06d9a5f0, FUN_06d9aab0 and FUN_06d97b00. The IServerImpl
+// senders: 06d8ed0a, 06d8e02c. The allocation is not tested, as retail's is not. Where
+// retail tests the source or the size first (`if (len == 0 || src == 0) return`:
+// 06d97474..06d97482, 06d989b4..06d989c2, 06d9a16b/06d9a173, 06d9a5fb/06d9a603,
+// 06d9aaba/06d9aac2; CHATMSG 06d8c499 / 06d8c4a1, 06d8ed2a), the caller carries that test.
+inline void* RpcCopyIntoPacketBlock(const void* Source, unsigned int InSize) {
+    void* Block = ::operator new(InSize, std::nothrow);
+    std::memcpy(Block, Source, InSize);
+    return Block;
 }
 
 // ===========================================================================

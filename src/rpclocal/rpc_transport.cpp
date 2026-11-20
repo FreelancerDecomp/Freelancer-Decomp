@@ -18,6 +18,7 @@
 #include <new>
 #include <ostream>
 #include <cstring>
+#include <cwchar>
 #include <cstdio>
 
 // ===========================================================================
@@ -221,9 +222,7 @@ bool FRpcMarshalStream::PutWideString(const wchar_t* Text) {
     }
     unsigned int Length = 0;                                           // 06da1520 wcslen
     if (Text != nullptr) {
-        while (Text[Length] != 0) {
-            ++Length;
-        }
+        Length = (unsigned int)std::wcslen(Text);
     }
     const unsigned short Count = (unsigned short)(Length & 0xffffu);   // 06da1526 MOV word
     unsigned char* Ptr = reinterpret_cast<unsigned char*>(Packet.MarshalPtr);

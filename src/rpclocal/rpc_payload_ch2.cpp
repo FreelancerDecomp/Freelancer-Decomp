@@ -50,32 +50,10 @@
 #include <new>
 
 // ---------------------------------------------------------------------------
-// Shared helpers -- the two block writers retail uses on this channel.
+// Shared helpers. The block writers retail uses on this channel are
+// RpcCopyIntoPacketBlock (rpc_payloads.h); retail's REPNE SCASB strlen has no null test,
+// and neither has the std::strlen that stands in for it below.
 // ---------------------------------------------------------------------------
-
-// FUN_06d97b00 / FUN_06d90a00 (06d97b0b / 06d90a0b) and the body of FUN_06d97470 /
-// FUN_06d989b0: bare operator new(N) -- a size of 0 included -- and REP MOVSD/MOVSB the
-// caller's bytes in. The packet owns the block from then on and its destructor frees it.
-// FUN_06d97470 / FUN_06d989b0 add `if (len == 0 || src == 0) return` in front
-// (06d97474..06d97482, 06d989b4..06d989c2); their callers carry that test themselves.
-static void* RpcCh2CopyBlock(const void* Source, unsigned int InSize) {
-    unsigned char* Block = static_cast<unsigned char*>(::operator new(InSize, std::nothrow));
-    const unsigned char* Src = static_cast<const unsigned char*>(Source);
-    for (unsigned int i = 0; i < InSize; ++i) {
-        Block[i] = Src[i];
-    }
-    return Block;
-}
-
-// strlen, spelled out the way retail's SCASB.REPNE loop computes it (no null test --
-// REPNE SCASB would fault on one).
-static unsigned int RpcCh2StringLength(const char* Text) {
-    unsigned int Length = 0;
-    while (Text[Length] != '\0') {
-        ++Length;
-    }
-    return Length;
-}
 
 // A float field moved as its bit pattern -- retail's senders and receivers copy these
 // with plain dword MOVs (no FLD/FSTP), so the port copies the bits, never the value.
@@ -153,7 +131,7 @@ static bool MarshalCh2Blob(FPacketBase* Packet, const unsigned int* Args, unsign
     // FUN_06d97b00(this = packet, src, size): 06d97b0b operator new(size) -> 06d97b14
     // [+0x24]; REP MOVSD/MOVSB copy; 06d97b2e [+0x20] = size.
     FPayloadServerBlob* Wire = Ch2Payload<FPayloadServerBlob>(Packet);
-    Wire->Buffer = RpcCh2CopyBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
+    Wire->Buffer = RpcCopyIntoPacketBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
     Wire->Size = Args[2];
     return true;
 }
@@ -163,7 +141,7 @@ static bool MarshalCh2BlobReversed(FPacketBase* Packet, const unsigned int* Args
     // FUN_06d90a00: 06d90a0b operator new(size) -> 06d90a14 [+0x20]; copy; 06d90a2e
     // [+0x24] = size.
     FPayloadServerBlobReversed* Wire = Ch2Payload<FPayloadServerBlobReversed>(Packet);
-    Wire->Buffer = RpcCh2CopyBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
+    Wire->Buffer = RpcCopyIntoPacketBlock(reinterpret_cast<const void*>(Args[1]), Args[2]);
     Wire->Size = Args[2];
     return true;
 }
@@ -503,9 +481,9 @@ static bool MarshalSetAddItem(FPacketBase* Packet, const unsigned int* Args, uns
     if (!Desc->is_internal()) {
         // 06d88636..06d8864c: strlen via REPNE SCASB, then FUN_06d97470(packet, str, len),
         // which itself no-ops when len == 0 (06d97474 TEST EAX,EAX / JBE).
-        const unsigned int Length = RpcCh2StringLength(Desc->Hardpoint);
+        const unsigned int Length = (unsigned int)std::strlen(Desc->Hardpoint);
         if (Length != 0) {                                    // 06d97474 JBE
-            Wire.Hardpoint = static_cast<char*>(RpcCh2CopyBlock(Desc->Hardpoint, Length + 1u));
+            Wire.Hardpoint = static_cast<char*>(RpcCopyIntoPacketBlock(Desc->Hardpoint, Length + 1u));
             Wire.HardpointSize = Length + 1u;                 // 06d974a8
         }
     }
@@ -1875,12 +1853,12 @@ static bool MarshalRequestSpaceScript(FPacketBase* Packet, const unsigned int* A
     // at payload+0x18 and the count at payload+0x04. A zero-length name ships nothing,
     // exactly as the retail guard at 06d989b4 does (the name is an inline array at
     // src+0x04, 06d8aaa5, so the null half of that guard never fires).
-    const unsigned int Length = RpcCh2StringLength(Source->Name);
+    const unsigned int Length = (unsigned int)std::strlen(Source->Name);
     if (Length == 0) {
         Wire.NameSize = 0;
         Wire.Name = nullptr;
     } else {
-        Wire.Name = static_cast<char*>(RpcCh2CopyBlock(Source->Name, Length + 1));  // 06d989cf
+        Wire.Name = static_cast<char*>(RpcCopyIntoPacketBlock(Source->Name, Length + 1));  // 06d989cf
         Wire.NameSize = Length + 1;                                              // 06d989e8
     }
     return RpcPayloadWrite(Packet, 0, Wire);
@@ -1994,10 +1972,7 @@ static bool MarshalSetReputation(FPacketBase* Packet, const unsigned int* Args,
     // (06d92731): retail allocates FOUR bytes per wchar_t and copies (len+1)*2 bytes,
     // terminator included (06d92743), so the block is twice the size it needs. Reproduced.
     const wchar_t* NameSource = Source->DisplayName;
-    unsigned int NameChars = 0;
-    while (NameSource[NameChars] != L'\0') {
-        ++NameChars;
-    }
+    const unsigned int NameChars = (unsigned int)std::wcslen(NameSource);
     if (NameChars != 0) {
         const unsigned int Total = NameChars + 1;
         wchar_t* NameBlock = static_cast<wchar_t*>(::operator new(Total * 4, std::nothrow));
@@ -2739,9 +2714,7 @@ static bool MarshalCreateShip(FPacketBase* Packet, const unsigned int* Args,
     // null/zero.
     unsigned int DisplayLength = 0;
     if (DisplayName != nullptr) {
-        while (DisplayName[DisplayLength] != L'\0') {
-            ++DisplayLength;
-        }
+        DisplayLength = (unsigned int)std::wcslen(DisplayName);
     }
     if (DisplayLength == 0) {
         Wire->NameABuffer = RpcFlattenFmtStr(NameA, Wire->NameASize);

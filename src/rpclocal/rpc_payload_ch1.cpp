@@ -30,19 +30,7 @@
 // Shared helpers
 // ---------------------------------------------------------------------------
 
-// Copies InSize bytes into a block the packet owns from now on. Retail does the same with
-// a bare operator new (e.g. 0x06d8c4aa for CHATMSG, 0x06d8b5b1 for REQUEST_BEST_PATH,
-// 0x06d8b631 for REQUEST_PLAYER_STATS) -- a zero size included, which still hands back a
-// non-null zero-byte block. Where retail tests the source or the size first (CHATMSG,
-// 06d8c499 / 06d8c4a1), the caller carries that test.
-static void* RpcCopyIntoPacketBlock(const void* Source, unsigned int InSize) {
-    unsigned char* Block = static_cast<unsigned char*>(::operator new(InSize, std::nothrow));
-    const unsigned char* Src = static_cast<const unsigned char*>(Source);
-    for (unsigned int i = 0; i < InSize; ++i) {
-        Block[i] = Src[i];
-    }
-    return Block;
-}
+// RpcCopyIntoPacketBlock, the block writer, lives in rpc_payloads.h.
 
 static void RpcFreePacketBlock(void* Block) {
     if (Block != nullptr) {
