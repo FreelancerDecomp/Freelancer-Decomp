@@ -39,18 +39,20 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\$(FlBinDirName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;Server.lib;ole32.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dacom.lib;DALib.lib;Common.lib;Server.lib;ole32.lib;winmm.lib;psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FLRegress.cpp" />
     <ClCompile Include="regress_client.cpp" />
+    <ClCompile Include="regress_crash.cpp" />
     <ClCompile Include="regress_dump.cpp" />
     <ClCompile Include="regress_hooks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="regress_client.h" />
     <ClInclude Include="regress_client_slots.inl" />
+    <ClInclude Include="regress_crash.h" />
     <ClInclude Include="regress_dump.h" />
     <ClInclude Include="regress_hooks.h" />
   </ItemGroup>
