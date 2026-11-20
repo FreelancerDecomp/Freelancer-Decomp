@@ -7,6 +7,7 @@
 #include "RendComp.h"
 #include "common_misc.h"
 #include "render/shading.h"
+#include "x64_low_arena.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -90,6 +91,9 @@ public:
 class FVMeshPart : public IVMeshPart
 {
 public:
+    // x64: allocated below 2 GB; IRenderComponent::Claim returns the address as an int.
+    FL_LOW_ARENA_NEW
+
     FVMeshPartMesh Mesh;
     FVMeshPartHook Hook;
     FVMeshPartRenderable Renderable;
