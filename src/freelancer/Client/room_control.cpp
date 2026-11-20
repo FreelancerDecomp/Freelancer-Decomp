@@ -64,6 +64,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <concepts>
 
 namespace
 {
@@ -2440,6 +2441,7 @@ namespace
     // The FUN_0044b570 layer walk: every object of Room in DAT_00679a10 order whose layer byte
     // is Layer.
     template <typename FVisit>
+        requires std::invocable<FVisit&, FRoomObject*>
     void ForEachRoomObjectInLayer(FRoomRuntime* Room, unsigned char Layer, FVisit Visit)
     {
         std::list<FRoomObject*>::iterator It = G_RoomObjects.begin();

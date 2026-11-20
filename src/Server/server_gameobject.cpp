@@ -23,6 +23,8 @@
 #include "common_physys.h"   // PhySys::RCBegin/RCEnd, Collision::CalcCollisionDamage
 #include "common_universe.h" // Universe::IZone (CSimple::ZoneAtA4)
 #include <cmath>
+#include <concepts>
+#include <type_traits>
 #include <windows.h>
 #include <cstdio>
 #include <cstdlib>   // rand (Ship::tick_jettison / compute_jettison_launch)
@@ -1467,6 +1469,8 @@ void EqObj::apply_damage_list(DamageList& Damage)
 //   healing: Value2 < After (TEST AH,5 / JP), Before <= Value2 (TEST AH,0x41 /
 //            JP) -> unlight_fuse(Fuse, SubObjId, Value1), vt +0x1e8.
 template <typename FReadHitPts>
+    requires std::invocable<FReadHitPts&> &&
+             std::convertible_to<std::invoke_result_t<FReadHitPts&>, float>
 static void EqObj_SweepFuses(EqObj* Obj, std::vector<Archetype::FGroupFuse> const& List,
                              FReadHitPts ReadHitPts, float After, unsigned short SubObjId,
                              unsigned int InflictorId)
