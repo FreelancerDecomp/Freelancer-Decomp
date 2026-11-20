@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "dacom.h"
+#include "facet_offset.h"
 #include "luaprofile.h"
 #include "system.h"
 
@@ -196,7 +197,8 @@ GENRESULT DACOM_API FInnerUnknown::QueryInterface(const char* Iid, void** Out)
         {Iids::SystemContainer, 0},            // 06f1205c / 06f12060
         {Iids::AggregateComponent, 0},         // 06f12064 / 06f12068
         {Iids::SystemComponent, 0},            // 06f1206c / 06f12070
-        {Iids::DAConnectionPointContainer, 4}, // 06f12074 / 06f12078
+        {Iids::DAConnectionPointContainer,     // 06f12074 / 06f12078
+         static_cast<unsigned long>(FL_FACET_OFFSET(4, FSystemContainer, IDAConnectionPointContainer))},
         {nullptr, 0},                          // 06f1207c
     };
 

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "x86math.h"
+#include "facet_offset.h"
 #include "EngBase.h"
 #include "readfile.h"
 
@@ -479,9 +480,9 @@ static GENRESULT InnerQueryTable(void* Object, const char* Iid, void** Out,
 static const FInnerIidEntry G_AnimationInnerIids[] = {
     {Iids::Animation2, 0},
     {Iids::Animation, 0},
-    {Iids::Channel, 0x08},
-    {Iids::RootData, 0x0C},
-    {Iids::AggregateComponent, 0x04},
+    {Iids::Channel, FL_FACET_OFFSET(0x08, FAnimationObject, FAnimationChannelFacet)},
+    {Iids::RootData, FL_FACET_OFFSET(0x0C, FAnimationObject, IRootData)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(0x04, FAnimationObject, IAggregateComponent)},
     {nullptr, 0},
 };
 
@@ -489,8 +490,8 @@ static const FInnerIidEntry G_AnimationInnerIids[] = {
 // {IAggregateComponent, 4}, then a null iid. IAggregateComponent answers with the IEC facet.
 static const FInnerIidEntry G_HardpointInnerIids[] = {
     {Iids::Hardpoint, 0},
-    {Iids::EngineComponent, 0x04},
-    {Iids::AggregateComponent, 0x04},
+    {Iids::EngineComponent, FL_FACET_OFFSET(0x04, FHardpointObject, IEngineComponent)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(0x04, FHardpointObject, IEngineComponent)},
     {nullptr, 0},
 };
 
