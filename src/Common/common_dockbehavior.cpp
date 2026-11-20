@@ -12,6 +12,7 @@
 #include "common_csys.h"           // Transform, Acquire3DMathEngine -- SetContext's hpmount offset
 #include "x86math.h"               // I3DMathEngine::TransposeTransform, FVector, FMatrix
 #include "common_cobject.h"        // CObject, CShip::request_exit_tradelane -- Disengage
+#include "float_bits.h"
                                    // -- AdvancePreamble's two speed-cap sources
                            // directly (Common.dll.txt 062c5025)
 
@@ -21,14 +22,8 @@
 #include <cstring>
 
 // Retail pushes float parameters to the MoveIdea/FaceIdea setters as raw dword
-// bit patterns (`PUSH 0x3eb2b8c3`), so the call sites below reinterpret rather
-// than convert -- the same convention common_idea.cpp uses.
-static float BitsToFloat(unsigned int Bits)
-{
-    float Result;
-    std::memcpy(&Result, &Bits, sizeof(Result));
-    return Result;
-}
+// bit patterns (`PUSH 0x3eb2b8c3`), so the call sites below reinterpret (FloatFromBits)
+// rather than convert -- the same convention common_idea.cpp uses.
 
 // The "-8 header" idiom, used at five sites inside UpdateApproachTail()/EnterState():
 // a BaseWatcher's watched payload pointer is the middle of an allocation whose object
@@ -1087,7 +1082,7 @@ void DockBehavior::EnterState(int NewState)
         // caseD_6 at 062c41c8. `TEST AL,0xc0` then `TEST AH,8` on the same dword.
         if ((StateFlags32c & 0xc0) != 0)
         {
-            SubObjectB.SetAngleWeight8c(BitsToFloat(0x3ec90fdbu)); // 062c41df FUN_062d93c0, pi/8
+            SubObjectB.SetAngleWeight8c(FloatFromBits(0x3ec90fdbu)); // 062c41df FUN_062d93c0, pi/8
             SubObjectB.SetPosition(DestPoint3cc);           // 062c41ed FUN_062d7560
             SubObjectA.SetPosition(DestPoint3cc);           // 062c41f8 FUN_062d5840
             SubObjectA.SetRange3c(10.0f);                   // 062c4204 bind_to_dc fold, 0x41200000
@@ -1162,7 +1157,7 @@ void DockBehavior::EnterState(int NewState)
             // writes -- two adjacent bytes, two different one-instruction
             // functions ten bytes apart. See MoveIdea::SetField59.
             SubObjectA.SetField59(0);                       // 062c43f4 FUN_062d5a70
-            SubObjectA.SetAngle38(BitsToFloat(0x3eb2b8c3u)); // 062c4400 set_origin_h fold
+            SubObjectA.SetAngle38(FloatFromBits(0x3eb2b8c3u)); // 062c4400 set_origin_h fold
             SubObjectA.SetField44(2);                       // 062c4409 FUN_062d88b0
             SubObjectB.SetPosition(SavedPosition3fc);       // 062c4415 FUN_062d7560
             return;

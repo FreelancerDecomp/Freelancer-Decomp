@@ -34,6 +34,7 @@
 #include "common_server_controller.h"
 #include "server_cobject.h"     // pub::SpaceObj::Destroy, DestroyType
 #include "server_gameobject.h"  // FObjectDestroyedEvent, FSubObjDamageEvent, FEquipLootEvent
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstdint>
@@ -517,9 +518,7 @@ namespace
     // The dword at Msg[Index] read as a float (retail FLD / PUSH of the parms slot).
     float MsgFloat(unsigned int const* Msg, int Index)
     {
-        float Value;
-        std::memcpy(&Value, &Msg[Index], sizeof(Value));
-        return Value;
+        return FloatFromBits(Msg[Index]);
     }
 
     // The inline search of GDockingShips by ship id (node +0xc) in cases 0x11, 0x12, 0x27,

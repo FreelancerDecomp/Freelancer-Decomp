@@ -12,6 +12,7 @@
 #include "nav_bar.h"            // NavBarCloseService (FUN_004424f0)
 #include "nn_pause.h"           // NnPause::CloseNow (FUN_004a7560)
 #include "nn_main_button.h"     // G_bNnKeepPanelOpen (DAT_0066d359)
+#include "float_bits.h"
 #include "nn_modal.h"
 #include "nn_story_star.h"      // StoryStarOnMissionMessage (FUN_004b9c60)
 #include "win3d.h"
@@ -77,40 +78,40 @@ bool NnExit::Create(Win3D* NewParent, void* Data)
                         0, 1, 0, 0, 0, Zero);
 
     // 004718d0..00471946: (0, 0x3cf5c288, -1).
-    float TextFramePosition[3] = {0.0f, NnFloatBits(0x3cf5c288), -1.0f};
+    float TextFramePosition[3] = {0.0f, FloatFromBits(0x3cf5c288), -1.0f};
     CreateStaticControl("ExitTextFrame", kExitTextFrameMesh, TextFramePosition, nullptr, Zero, 0,
                         0, 1, 0, 1, 0, 1, 0, 0, 0, Zero);
 
     // 0047194b..00471997: (0, 0x3d0b4394, -1) -> +0x33c.
-    float TextPosition[3] = {0.0f, NnFloatBits(0x3d0b4394), -1.0f};
+    float TextPosition[3] = {0.0f, FloatFromBits(0x3d0b4394), -1.0f};
     ExitText = CreateTextControl("ExitText", "PageHeader", TextPosition, nullptr,
-                                 NnFloatBits(0x3eb851ec), NnFloatBits(0x3cf5c28f),
-                                 NnFloatBits(0x3fc00000), 0, 1, 0, 0);
+                                 FloatFromBits(0x3eb851ec), FloatFromBits(0x3cf5c28f),
+                                 FloatFromBits(0x3fc00000), 0, 1, 0, 0);
 
     // 004719a7..00471a93: two buttons side by side. The row coordinate is
     // i * DAT_005d043c - DAT_005d0438 (FILD / FMUL / FSUB, FSTP float); the box sits at
     // + DAT_005d0434 and the caption at + DAT_005d041c, both as the X component (the FSTP lands
     // in the first dword of the position; Y is the immediate that follows).
-    float const kRowStep = NnFloatBits(0x3e4ccccd);     // DAT_005d043c 0.2
-    float const kRowOrigin = NnFloatBits(0x3e6b851e);   // DAT_005d0438 0.23
-    float const kBoxOffset = NnFloatBits(0x3e051eb8);   // DAT_005d0434 0.13
-    float const kCaptionOffset = NnFloatBits(0x3e051eb9); // DAT_005d041c
+    float const kRowStep = FloatFromBits(0x3e4ccccd);     // DAT_005d043c 0.2
+    float const kRowOrigin = FloatFromBits(0x3e6b851e);   // DAT_005d0438 0.23
+    float const kBoxOffset = FloatFromBits(0x3e051eb8);   // DAT_005d0434 0.13
+    float const kCaptionOffset = FloatFromBits(0x3e051eb9); // DAT_005d041c
     for (int Index = 0; Index < 2; ++Index)
     {
         float const Row = static_cast<float>(Index) * kRowStep - kRowOrigin;
         char Name[0x100]; // local_100
 
         sprintf(Name, "ExitButtonBox%d", Index);
-        float BoxPosition[3] = {Row + kBoxOffset, NnFloatBits(0xbd99999a), -1.0f};
-        float BoxExtents[3] = {NnFloatBits(0x3db645a2), NnFloatBits(0x3cac0831), 0.0f};
+        float BoxPosition[3] = {Row + kBoxOffset, FloatFromBits(0xbd99999a), -1.0f};
+        float BoxExtents[3] = {FloatFromBits(0x3db645a2), FloatFromBits(0x3cac0831), 0.0f};
         ButtonBox[Index] = CreateWireButtonControl(Name, "ui_select_item", BoxPosition,
                                                    BoxExtents, 0, 0, 0, 0, 0);
 
         sprintf(Name, "ExitButtonText%d", Index);
-        float CaptionPosition[3] = {Row + kCaptionOffset, NnFloatBits(0xbd916873), -1.0f};
+        float CaptionPosition[3] = {Row + kCaptionOffset, FloatFromBits(0xbd916873), -1.0f};
         ButtonText[Index] = CreateTextControl(Name, "ButtonText", CaptionPosition, nullptr,
-                                              NnFloatBits(0x3e8a3d71), NnFloatBits(0x3cf5c28f),
-                                              NnFloatBits(0x3fc00000), 0, 1, 0, 0);
+                                              FloatFromBits(0x3e8a3d71), FloatFromBits(0x3cf5c28f),
+                                              FloatFromBits(0x3fc00000), 0, 1, 0, 0);
     }
 
     // 00471a99..00471ad8: slot 42 (0x1e, ids, 0) on the three captions, no null test.

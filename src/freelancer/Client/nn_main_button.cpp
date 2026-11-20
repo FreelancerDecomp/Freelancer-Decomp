@@ -19,7 +19,8 @@
 #include "menu_ui_init.h"        // PlayOrRewindUiSoundSlot (FUN_005645c0)
 #include "nav_bar.h"             // NavBarCloseService (FUN_004424f0)
 #include "nn_messaging.h"        // NnVoiceTick (FUN_00489e00)
-#include "nn_modal.h"            // G_NnMainButton, G_bNnScreenUp, NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"            // G_NnMainButton, G_bNnScreenUp
 #include "nn_navmap.h"           // NavMapPostPendingOpen (FUN_004a2a80)
 #include "nn_story_star.h"       // StoryStarTick (FUN_004bc990), StoryStarRequeueLastObjective
 #include "nn_trade.h"            // G_NnTrade (DAT_006724b4)
@@ -121,8 +122,8 @@ namespace
                                 char const* MeshPath, float X, int ToolTipIds, int CommandId,
                                 WinControl** OutButton, WinControl** OutRoot)
     {
-        float const Position[3] = {X, NnFloatBits(0x3eeb020c), NnFloatBits(0xbfa00000)};
-        float const HalfExtents[3] = {NnFloatBits(0x3c9374bc), NnFloatBits(0x3c9374bc), 0.0f};
+        float const Position[3] = {X, FloatFromBits(0x3eeb020c), FloatFromBits(0xbfa00000)};
+        float const HalfExtents[3] = {FloatFromBits(0x3c9374bc), FloatFromBits(0x3c9374bc), 0.0f};
 
         WinControl* const Button =
             Bar->CreateButtonControl(Name, MeshPath, nullptr, "ui_select_item", nullptr, Position,
@@ -143,9 +144,9 @@ namespace
 
     void NnSetVector(float* Out, unsigned XBits, unsigned YBits, unsigned ZBits)
     {
-        Out[0] = NnFloatBits(XBits);
-        Out[1] = NnFloatBits(YBits);
-        Out[2] = NnFloatBits(ZBits);
+        Out[0] = FloatFromBits(XBits);
+        Out[1] = FloatFromBits(YBits);
+        Out[2] = FloatFromBits(ZBits);
     }
 }
 
@@ -191,16 +192,16 @@ bool NN_MainButton::Create(Win3D* NewParent, void* Data)
     float const Zero338[3] = {0.0f, 0.0f, 0.0f};
     if (SinglePlayer())
     {
-        float const Position[3] = {NnFloatBits(0x3ece5604), NnFloatBits(0x3ebb645a),
-                                   NnFloatBits(0xbf800000)};
+        float const Position[3] = {FloatFromBits(0x3ece5604), FloatFromBits(0x3ebb645a),
+                                   FloatFromBits(0xbf800000)};
         Background = CreateStaticControl("NNBackground", "Interface\\HUD\\HUD_nnbox5.cmp",
                                          Position, nullptr, Zero, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
                                          Zero338);
     }
     else
     {
-        float const Position[3] = {NnFloatBits(0x3eb95810), NnFloatBits(0x3ebb645a),
-                                   NnFloatBits(0xbf800000)};
+        float const Position[3] = {FloatFromBits(0x3eb95810), FloatFromBits(0x3ebb645a),
+                                   FloatFromBits(0xbf800000)};
         Background = CreateStaticControl("NNBackground", "Interface\\HUD\\HUD_nnbox7.cmp",
                                          Position, nullptr, Zero, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0,
                                          Zero338);
@@ -208,33 +209,33 @@ bool NN_MainButton::Create(Win3D* NewParent, void* Data)
 
     // 0x0045b9da..0x0045bfa0: the five common pairs, y 0.459, z -1.25, half size 0.018.
     NnMainButtonCreatePair(this, "NNNavmapButton", "NNNavmapButtonRoot",
-                           "interface\\NeuroNet\\icons\\NN_Map.3db", NnFloatBits(0x3ee978d6),
+                           "interface\\NeuroNet\\icons\\NN_Map.3db", FloatFromBits(0x3ee978d6),
                            0x3fc, 0x63, &NavmapButton, &NavmapRoot);
     NnMainButtonCreatePair(this, "NNInventoryButton", "NNInventoryButtonRoot",
                            "interface\\NeuroNet\\icons\\NN_Inventory.3db",
-                           NnFloatBits(0x3f010625), 0x3ed, 0x66, &InventoryButton,
+                           FloatFromBits(0x3f010625), 0x3ed, 0x66, &InventoryButton,
                            &InventoryRoot);
     NnMainButtonCreatePair(this, "NNMissionLogButton", "NNMissionLogButtonRoot",
                            "interface\\NeuroNet\\icons\\NN_storystar.3db",
-                           NnFloatBits(0x3ed0e561), 0x421, 0x67, &MissionLogButton,
+                           FloatFromBits(0x3ed0e561), 0x421, 0x67, &MissionLogButton,
                            &MissionLogRoot);
     NnMainButtonCreatePair(this, "NNPlayerInfoButton", "NNPlayerInfoButtonRoot",
                            "interface\\NeuroNet\\icons\\NN_PlayerStatus.3db",
-                           NnFloatBits(0x3f0d4fe0), 0x55f, 0x65, &PlayerInfoButton,
+                           FloatFromBits(0x3f0d4fe0), 0x55f, 0x65, &PlayerInfoButton,
                            &PlayerInfoRoot);
     NnMainButtonCreatePair(this, "NNHelpButton", "NNHelpButtonRoot",
-                           "interface\\NeuroNet\\icons\\NN_info.3db", NnFloatBits(0x3f19999a),
+                           "interface\\NeuroNet\\icons\\NN_info.3db", FloatFromBits(0x3f19999a),
                            0x570, 0x6a, &HelpButton, &HelpRoot);
 
     // 0x0045bfa0..0x0045c216: multiplayer adds chat and group; single player zeroes them.
     if (!SinglePlayer())
     {
         NnMainButtonCreatePair(this, "NNChatButton", "NNChatButtonRoot",
-                               "interface\\NeuroNet\\icons\\NN_Chat.3db", NnFloatBits(0x3eb851ec),
+                               "interface\\NeuroNet\\icons\\NN_Chat.3db", FloatFromBits(0x3eb851ec),
                                0x435, 0x68, &ChatButton, &ChatRoot);
         NnMainButtonCreatePair(this, "NNGroupButton", "NNGroupButtonRoot",
                                "interface\\NeuroNet\\icons\\NN_request.3db",
-                               NnFloatBits(0x3e9fbe78), 0x560, 0x69, &GroupButton, &GroupRoot);
+                               FloatFromBits(0x3e9fbe78), 0x560, 0x69, &GroupButton, &GroupRoot);
     }
     else
     {
@@ -293,13 +294,13 @@ bool NN_MainButton::Create(Win3D* NewParent, void* Data)
     NnSetVector(BackgroundPosition[5], 0x00000000, 0x3d6147ae, 0xbf800000); // (0, 0.055, -1)
     NnSetVector(BackgroundPosition[6], 0x00000000, 0x3d4ccccd, 0xbf800000); // (0, 0.05, -1)
     // 0x0045c744..0x0045c776: the background's collapsed scale per slot.
-    PanelScale[0] = NnFloatBits(0x3da3d70a); // 0.08
-    PanelScale[1] = NnFloatBits(0x3d4ccccd); // 0.05
-    PanelScale[2] = NnFloatBits(0x3d4ccccd);
-    PanelScale[3] = NnFloatBits(0x3d4ccccd);
-    PanelScale[4] = NnFloatBits(0x3d4ccccd);
-    PanelScale[5] = NnFloatBits(0x3da3d70a);
-    PanelScale[6] = NnFloatBits(0x3da3d70a);
+    PanelScale[0] = FloatFromBits(0x3da3d70a); // 0.08
+    PanelScale[1] = FloatFromBits(0x3d4ccccd); // 0.05
+    PanelScale[2] = FloatFromBits(0x3d4ccccd);
+    PanelScale[3] = FloatFromBits(0x3d4ccccd);
+    PanelScale[4] = FloatFromBits(0x3d4ccccd);
+    PanelScale[5] = FloatFromBits(0x3da3d70a);
+    PanelScale[6] = FloatFromBits(0x3da3d70a);
 
     // 0x0045c77c..0x0045c78d: FUN_004b5060 (Win3D::Create), SETNE.
     return Win3D::Create(NewParent, Data);
@@ -525,10 +526,10 @@ void NN_MainButton::OnMoveFinished()
         // 0x0045d61d..0x0045d6d6: the opening button arrived -- grow the background from the
         // slot's collapsed scale (0.05 in the info-card layout) to 1.
         int const Slot = NnPanelSlot(OpenPanelId);
-        float Scale = bInfoCardLayout != 0 ? NnFloatBits(0x3d4ccccd) : PanelScale[Slot];
+        float Scale = bInfoCardLayout != 0 ? FloatFromBits(0x3d4ccccd) : PanelScale[Slot];
         MakeScaledBackground(Scale);
         ButtonScaler::Start(kAnimSeconds);
-        Scale = bInfoCardLayout != 0 ? NnFloatBits(0x3d4ccccd) : PanelScale[Slot];
+        Scale = bInfoCardLayout != 0 ? FloatFromBits(0x3d4ccccd) : PanelScale[Slot];
         ButtonScaler::AddButton(ScaledBackground, Scale, 1.0f);
         return;
     }
@@ -695,8 +696,8 @@ void NN_MainButton::OpenPanel(WinControl* Button, int PanelId)
     if (bInfoCardLayout != 0)
     {
         Target[0] = 0.0f;
-        Target[1] = NnFloatBits(0xbd99999a);
-        Target[2] = NnFloatBits(0xbfa00000);
+        Target[1] = FloatFromBits(0xbd99999a);
+        Target[2] = FloatFromBits(0xbfa00000);
     }
     else
     {
@@ -749,8 +750,8 @@ void NN_MainButton::ClosePanel()
     if (bInfoCardLayout != 0)
     {
         ClosingStart[0] = 0.0f;
-        ClosingStart[1] = NnFloatBits(0xbd99999a);
-        ClosingStart[2] = NnFloatBits(0xbfa00000);
+        ClosingStart[1] = FloatFromBits(0xbd99999a);
+        ClosingStart[2] = FloatFromBits(0xbfa00000);
     }
     else
     {
@@ -771,7 +772,7 @@ void NN_MainButton::ClosePanel()
     MakeScaledBackground(1.0f);
     int const ClosingSlot = NnPanelSlot(ClosingPanelId);
     ButtonScaler::Start(kAnimSeconds);
-    float const Scale = bInfoCardLayout != 0 ? NnFloatBits(0x3d4ccccd) : PanelScale[ClosingSlot];
+    float const Scale = bInfoCardLayout != 0 ? FloatFromBits(0x3d4ccccd) : PanelScale[ClosingSlot];
     ButtonScaler::AddButton(ScaledBackground, 1.0f, Scale);
 
     OpenButton = nullptr;
@@ -794,7 +795,7 @@ void NN_MainButton::MakeScaledBackground(float Scale)
     float const Zero338[3] = {0.0f, 0.0f, 0.0f};
     if (bInfoCardLayout != 0)
     {
-        float const Position[3] = {0.0f, NnFloatBits(0xbdb020c5), NnFloatBits(0xbfa4dd2f)};
+        float const Position[3] = {0.0f, FloatFromBits(0xbdb020c5), FloatFromBits(0xbfa4dd2f)};
         ScaledBackground = CreateStaticControl(
             "ScaledBackground", "Interface\\NeuroNet\\Inventory\\INV_biginforcard_center.cmp",
             Position, nullptr, HalfExtents, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, Zero338);

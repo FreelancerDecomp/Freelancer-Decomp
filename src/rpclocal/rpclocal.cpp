@@ -29,6 +29,7 @@
 #include "rpc_iclient.h"        // the real 126-slot IClient / IChatClient
 #include "rpc_iserver.h"        // IServerImpl, Server, Get*Interface -- the exported ABI
 #include "common_misc.h"       // GiveServerRunPermission / WaitForClientRunPermission
+#include "float_bits.h"
 #include <windows.h>
 #include "platform.h"
 #include <cstring>
@@ -91,16 +92,8 @@ static void* RpcServerCopyBlock(const void* Source, unsigned int InSize) {
 }
 
 // The argument arrays below carry raw dwords, exactly as retail's stack frame does, so a
-// float argument travels as its bit pattern -- a `MOV EAX,[ESP+n]` does not care which.
-static unsigned int RpcFloatBits(float Value) {
-    unsigned int Bits = 0;
-    const unsigned char* Src = reinterpret_cast<const unsigned char*>(&Value);
-    unsigned char* Dst = reinterpret_cast<unsigned char*>(&Bits);
-    for (unsigned int i = 0; i < 4u; ++i) {
-        Dst[i] = Src[i];
-    }
-    return Bits;
-}
+// float argument travels as its bit pattern (BitsFromFloat) -- a `MOV EAX,[ESP+n]` does not
+// care which.
 
 // ---------------------------------------------------------------------------
 // ch1 0x01 FLPACKET_COMMON_UPDATEOBJECT -- sender IServerImpl::SPObjUpdate 0x06d8dc30.
@@ -655,7 +648,7 @@ void IServerImpl::ReqShipArch(unsigned int arch_id, unsigned int session_id) {
 }
 void IServerImpl::ReqHullStatus(float hull_status, unsigned int session_id) {
     // retail 0x06d8cf10: ch3 op 0x3b, one dword -- a float, read back with FLD
-    const unsigned int Args[2] = { RpcFloatBits(hull_status), session_id };
+    const unsigned int Args[2] = { BitsFromFloat(hull_status), session_id };
     RpcSendToServer(this, 3u, 0x3bu, Args, 2u);
 }
 void IServerImpl::ReqCollisionGroups(const std::list<CollisionGroupDesc>& groups, unsigned int session_id) {
@@ -679,7 +672,7 @@ void IServerImpl::ReqAddItem(unsigned int arch_id, const char* hardpoint, int co
     // retail 0x06d8d230: ch3 op 0x18
     const unsigned int Args[6] = {
         arch_id, reinterpret_cast<unsigned int>(hardpoint), (unsigned int)count,
-        RpcFloatBits(health), static_cast<unsigned int>(b_mounted), session_id
+        BitsFromFloat(health), static_cast<unsigned int>(b_mounted), session_id
     };
     RpcSendToServer(this, 3u, 0x18u, Args, 6u);
 }
@@ -693,7 +686,7 @@ void IServerImpl::ReqModifyItem(unsigned short equip_id, const char* hardpoint, 
     // retail 0x06d8d300: ch3 op 0x1a
     const unsigned int Args[6] = {
         (unsigned int)equip_id, reinterpret_cast<unsigned int>(hardpoint), (unsigned int)count,
-        RpcFloatBits(health), static_cast<unsigned int>(b_mounted), session_id
+        BitsFromFloat(health), static_cast<unsigned int>(b_mounted), session_id
     };
     RpcSendToServer(this, 3u, 0x1au, Args, 6u);
 }
@@ -1048,7 +1041,7 @@ void IServerImpl::StopTradeRequest(unsigned int session_id) {
 // === Slots 87-92: tail ===
 void IServerImpl::ReqDifficultyScale(float scale, unsigned int session_id) {
     // retail 0x06d8dbf0: ch3 op 0x46, one dword -- a float, read back with FLD
-    const unsigned int Args[2] = { RpcFloatBits(scale), session_id };
+    const unsigned int Args[2] = { BitsFromFloat(scale), session_id };
     RpcSendToServer(this, 3u, 0x46u, Args, 2u);
 }
 // Retail 0x06d8cda0: XOR EAX,EAX / RET -- always zero, never forwarded to Server.dll.

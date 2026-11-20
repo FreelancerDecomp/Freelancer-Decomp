@@ -29,7 +29,8 @@
 #include "nn_button_control.h"      // NnButtonControl (+0x330 bits)
 #include "nn_inventory.h"           // NnInventoryOpenDealer (FUN_00477ab0) / OpenShipDealer (FUN_00477bf0)
 #include "nn_messaging.h"           // NnVoiceEnqueue (FUN_00489e80)
-#include "nn_modal.h"               // NnMainButtonOnModalOpen (FUN_0045a460), G_bNnScreenUp, NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"               // NnMainButtonOnModalOpen (FUN_0045a460), G_bNnScreenUp
 #include "nn_repair.h"              // NnRepair::PlayerNeedsRepair (FUN_004b4510)
 #include "nn_tooltip.h"             // NnToolTipHideGlobal (FUN_004be390)
 #include "room_control.h"
@@ -62,16 +63,16 @@ namespace
     I3DMathEngine* G_NavBarMath = nullptr;
 
     // DAT_005cb4d0 (0x3e99999a) -- every slide and scale; DAT_005cb4d4 -- the layout delay.
-    float const kAnimSeconds = NnFloatBits(0x3e99999a);
-    float const kLayoutDelay = NnFloatBits(0x3e800000);
+    float const kAnimSeconds = FloatFromBits(0x3e99999a);
+    float const kLayoutDelay = FloatFromBits(0x3e800000);
 
     // LAB_0043d5a0 / LAB_0043d5b0 / LAB_0043d5c0 -- three float statics of this translation unit
     // (DAT_00668824 = DAT_00668820 = [0x005cb4c4] -0.6, DAT_0066881c = [0x005cb4c8] 0.6). Each
     // has one XREF, its initializer's write; nothing reads them (the same trio as NN_Repair's and
     // NN_MissionVendor's).
-    float G_NavBarStatic668824 = NnFloatBits(0xbf19999a);
-    float G_NavBarStatic668820 = NnFloatBits(0xbf19999a);
-    float G_NavBarStatic66881c = NnFloatBits(0x3f19999a);
+    float G_NavBarStatic668824 = FloatFromBits(0xbf19999a);
+    float G_NavBarStatic668820 = FloatFromBits(0xbf19999a);
+    float G_NavBarStatic66881c = FloatFromBits(0x3f19999a);
 
     // The launch checks' voice messages, CreateID'd at load (LAB_0043d5d0 / LAB_0043d5f0 /
     // LAB_0043d610).
@@ -82,10 +83,10 @@ namespace
 
     // Where an opened service tab slides to (LAB_0043d630 / LAB_0043d650 / LAB_0043d670 /
     // LAB_0043d690).
-    float const G_NavBarRepairTarget[3] = {0.0f, NnFloatBits(0xbeb33333), 0.0f};  // DAT_00668804 (0xc)
-    float const G_NavBarShipTarget[3] = {0.0f, NnFloatBits(0xbeb33333), 0.0f};    // DAT_006687f8 (7)
-    float const G_NavBarNewsTarget[3] = {0.0f, NnFloatBits(0xbecccccd), 0.0f};    // DAT_006687ec (2)
-    float const G_NavBarMissionTarget[3] = {0.0f, NnFloatBits(0xbecccccd), 0.0f}; // DAT_006687e0 (3)
+    float const G_NavBarRepairTarget[3] = {0.0f, FloatFromBits(0xbeb33333), 0.0f};  // DAT_00668804 (0xc)
+    float const G_NavBarShipTarget[3] = {0.0f, FloatFromBits(0xbeb33333), 0.0f};    // DAT_006687f8 (7)
+    float const G_NavBarNewsTarget[3] = {0.0f, FloatFromBits(0xbecccccd), 0.0f};    // DAT_006687ec (2)
+    float const G_NavBarMissionTarget[3] = {0.0f, FloatFromBits(0xbecccccd), 0.0f}; // DAT_006687e0 (3)
 
     // DAT_00610bf0 -- the maneuver tab mesh for 1..3 service tabs.
     char const* const kTabMeshes[3] = {"Interface\\Baseside\\CITY_maneuvertab1.cmp",
@@ -95,8 +96,8 @@ namespace
     // DAT_00610c10 -- the tabs' x offsets for 1..3 tabs: DAT_0066882c (.bss, never written),
     // DAT_00610bfc, DAT_00610c04.
     float G_NavBarTabOffset1[1] = {0.0f};
-    float const kTabOffset2[2] = {NnFloatBits(0xbc9374bc), NnFloatBits(0x3c9374bc)};
-    float const kTabOffset3[3] = {NnFloatBits(0xbd178d50), 0.0f, NnFloatBits(0x3d178d50)};
+    float const kTabOffset2[2] = {FloatFromBits(0xbc9374bc), FloatFromBits(0x3c9374bc)};
+    float const kTabOffset3[3] = {FloatFromBits(0xbd178d50), 0.0f, FloatFromBits(0x3d178d50)};
     float const* const kTabOffsets[3] = {G_NavBarTabOffset1, kTabOffset2, kTabOffset3};
 
     // DAT_00610c1c..0x00610c63 -- the room buttons' x offsets for 2, 3, 4 and 5 buttons, one
@@ -105,14 +106,14 @@ namespace
     // reads on past row 5 into the pointer table DAT_00610c50 (+4..+0x10): those four dwords
     // are kept here with retail's bits (a ninth button reads index 17, 0x00610c60).
     float const kRowOffsetData[18] = {
-        NnFloatBits(0x3d051eb8), NnFloatBits(0xbd051eb8),                          // 2
-        NnFloatBits(0x3d851eb8), 0.0f, NnFloatBits(0xbd851eb8),                    // 3
-        NnFloatBits(0x3dc7ae14), NnFloatBits(0x3d051eb8), NnFloatBits(0xbd051eb8),
-        NnFloatBits(0xbdc7ae14),                                                   // 4
-        NnFloatBits(0x3e051eb8), NnFloatBits(0x3d851eb8), 0.0f, NnFloatBits(0xbd851eb8),
-        NnFloatBits(0xbe051eb8),                                                   // 5
-        NnFloatBits(0x00668830), NnFloatBits(0x00610c1c), NnFloatBits(0x00610c24),
-        NnFloatBits(0x00610c30)};                                                  // past row 5
+        FloatFromBits(0x3d051eb8), FloatFromBits(0xbd051eb8),                          // 2
+        FloatFromBits(0x3d851eb8), 0.0f, FloatFromBits(0xbd851eb8),                    // 3
+        FloatFromBits(0x3dc7ae14), FloatFromBits(0x3d051eb8), FloatFromBits(0xbd051eb8),
+        FloatFromBits(0xbdc7ae14),                                                   // 4
+        FloatFromBits(0x3e051eb8), FloatFromBits(0x3d851eb8), 0.0f, FloatFromBits(0xbd851eb8),
+        FloatFromBits(0xbe051eb8),                                                   // 5
+        FloatFromBits(0x00668830), FloatFromBits(0x00610c1c), FloatFromBits(0x00610c24),
+        FloatFromBits(0x00610c30)};                                                  // past row 5
     // DAT_00668830 -- row 1 (.bss, never written).
     float G_NavBarRowOffset1[1] = {0.0f};
     // DAT_00610c50 -- [count] for 1..5; [0] is the dword 0xbe051eb8 (row 5's last float, never
@@ -222,19 +223,19 @@ namespace
         if (!bEngine)
         {
             NnVoiceEnqueue(G_NavBarVoiceNoEngine, 0);
-            NnRolloverShowIdsGlobal(0x49d, NnFloatBits(0x41000000));
+            NnRolloverShowIdsGlobal(0x49d, FloatFromBits(0x41000000));
             return false;
         }
         if (!bPower)
         {
             NnVoiceEnqueue(G_NavBarVoiceNoPower, 0);
-            NnRolloverShowIdsGlobal(0x49e, NnFloatBits(0x41000000));
+            NnRolloverShowIdsGlobal(0x49e, FloatFromBits(0x41000000));
             return false;
         }
         if (!bScanner)
         {
             NnVoiceEnqueue(G_NavBarVoiceNoScanner, 0);
-            NnRolloverShowIdsGlobal(0x49f, NnFloatBits(0x41000000));
+            NnRolloverShowIdsGlobal(0x49f, FloatFromBits(0x41000000));
             return false;
         }
         return true;
@@ -314,12 +315,12 @@ bool NavBar::Create(Win3D* NewParent, void* Data)
     // LAB_0043dc40 (RET 8). 0x0043dc62..0x0043dcdb: "ManeuverFrame" at (0, 0.176, -0.5).
     float const HalfExtents[3] = {0.0f, 0.0f, 0.0f};
     float const Zero338[3] = {0.0f, 0.0f, 0.0f};
-    float const FramePosition[3] = {0.0f, NnFloatBits(0x3e343958), NnFloatBits(0xbf000000)};
+    float const FramePosition[3] = {0.0f, FloatFromBits(0x3e343958), FloatFromBits(0xbf000000)};
     ManeuverFrame = CreateStaticControl("ManeuverFrame", "Interface\\HUD\\HUD_maneuverbox6.cmp",
                                         FramePosition, nullptr, HalfExtents, 0, 0, 0, 1, 0, 0, 1,
                                         0, 0, 0, Zero338);
     // 0x0043dce1..0x0043dd49: "ManeuverTab" at (0, 0.283, -1.0), hidden (property 1).
-    float const TabPosition[3] = {0.0f, NnFloatBits(0x3e90624e), NnFloatBits(0xbf800000)};
+    float const TabPosition[3] = {0.0f, FloatFromBits(0x3e90624e), FloatFromBits(0xbf800000)};
     ManeuverTab = CreateStaticControl("ManeuverTab", "Interface\\Baseside\\CITY_maneuvertab3.cmp",
                                       TabPosition, nullptr, HalfExtents, 0, 0, 0, 1, 0, 0, 1, 0,
                                       0, 0, Zero338);
@@ -479,7 +480,7 @@ void NavBar::LayoutTabs(bool bAnimate)
             Selected = &Button;
             if (bFirst)
             {
-                Step = NnFloatBits(0xbc23d70a);
+                Step = FloatFromBits(0xbc23d70a);
                 bFirstSelected = true;
                 break;
             }
@@ -488,7 +489,7 @@ void NavBar::LayoutTabs(bool bAnimate)
         bFirst = false;
     }
     if (!bFirstSelected && Last == Selected)
-        Step = NnFloatBits(0x3c23d70a);
+        Step = FloatFromBits(0x3c23d70a);
     if (Selected == nullptr)
         return;
 
@@ -511,7 +512,7 @@ void NavBar::LayoutTabs(bool bAnimate)
 
     // 0x0043e2f7..0x0043e33a: the tab mesh and its offset (x, 0.295, -1.0).
     ManeuverTab->SetProperty(4, reinterpret_cast<uintptr_t>(kTabMeshes[TabIndex]), 0);
-    float const TabPosition[3] = {Base[0], NnFloatBits(0x3e970a3d), NnFloatBits(0xbf800000)};
+    float const TabPosition[3] = {Base[0], FloatFromBits(0x3e970a3d), FloatFromBits(0xbf800000)};
     ManeuverTab->SetProperty(6, reinterpret_cast<uintptr_t>(TabPosition), 0);
 
     // 0x0043e340..0x0043e364
@@ -536,7 +537,7 @@ void NavBar::LayoutTabs(bool bAnimate)
             {
                 Button.Control->SetProperty(6, reinterpret_cast<uintptr_t>(Base), 0);
                 End[0] = *Offset + Base[0];
-                End[1] = Base[1] - NnFloatBits(0x3d851eb8);
+                End[1] = Base[1] - FloatFromBits(0x3d851eb8);
                 End[2] = Base[2];
                 ++Offset;
                 ButtonMover::AddButton(Button.Control, Base, End);
@@ -544,7 +545,7 @@ void NavBar::LayoutTabs(bool bAnimate)
             else
             {
                 End[0] = *Offset + Base[0];
-                End[1] = Base[1] - NnFloatBits(0x3d851eb8);
+                End[1] = Base[1] - FloatFromBits(0x3d851eb8);
                 End[2] = Base[2];
                 ++Offset;
                 Button.Control->SetProperty(6, reinterpret_cast<uintptr_t>(End), 0);
@@ -583,7 +584,7 @@ void NavBar::LayoutRoomButtons()
     {
         if (It->bRoomSwitch == 0)
             continue;
-        float const Position[3] = {*Offset, NnFloatBits(0x3be56042), 0.0f};
+        float const Position[3] = {*Offset, FloatFromBits(0x3be56042), 0.0f};
         It->Control->SetProperty(6, reinterpret_cast<uintptr_t>(Position), 0);
         ++Offset;
     }
@@ -1266,9 +1267,9 @@ float NavBar::ServiceScale(unsigned Type)
     case 2:
     case 3:
     case 0xc:
-        return NnFloatBits(0x3da3d70a);
+        return FloatFromBits(0x3da3d70a);
     case 7:
-        return NnFloatBits(0x3d4ccccd);
+        return FloatFromBits(0x3d4ccccd);
     default:
         return 1.0f;
     }
@@ -1281,14 +1282,14 @@ void NavBar::MakeServiceBackground(unsigned Type, float Scale)
     {
     case 0xc:
     {
-        float const Position[3] = {0.0f, 0.0f, NnFloatBits(0xbf8ccccd)};
+        float const Position[3] = {0.0f, 0.0f, FloatFromBits(0xbf8ccccd)};
         MakeScaledBackground(Scale, "Interface\\NeuroNet\\Inventory\\repair_bakgrnd.cmp",
                              Position);
         return;
     }
     case 7:
     {
-        float const Position[3] = {0.0f, NnFloatBits(0xbdb020c5), NnFloatBits(0xbfa4dd2f)};
+        float const Position[3] = {0.0f, FloatFromBits(0xbdb020c5), FloatFromBits(0xbfa4dd2f)};
         MakeScaledBackground(Scale, "Interface\\NeuroNet\\Inventory\\INV_biginforcard_center.cmp",
                              Position);
         return;
@@ -1296,7 +1297,7 @@ void NavBar::MakeServiceBackground(unsigned Type, float Scale)
     case 2:
     case 3:
     {
-        float const Position[3] = {0.0f, NnFloatBits(0xbdcccccd), NnFloatBits(0xbfbfbe77)};
+        float const Position[3] = {0.0f, FloatFromBits(0xbdcccccd), FloatFromBits(0xbfbfbe77)};
         MakeScaledBackground(Scale, "Interface\\NeuroNet\\NewsVendor\\NEWS_background.cmp",
                              Position);
         return;
@@ -1381,7 +1382,7 @@ void NavBar::OnScaleFinished()
             Win3D* const Repair = WinFactoryCreate("NN_Repair", "NN_Repair", nullptr, nullptr);
             if (Repair == nullptr)
                 return;
-            float const Position[3] = {0.0f, 0.0f, NnFloatBits(0xbf8ccccd)};
+            float const Position[3] = {0.0f, 0.0f, FloatFromBits(0xbf8ccccd)};
             static_cast<WinControl*>(Repair)->SetProperty(
                 0x42, reinterpret_cast<uintptr_t>(Position), 0);
             return;

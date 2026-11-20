@@ -15,6 +15,7 @@
 #include "effect_type_info.h"
 #include "menu_sound_arch.h"
 #include "readfile.h"
+#include "float_bits.h"
 
 #include <map>
 #include <stdarg.h>
@@ -206,25 +207,21 @@ namespace
 
         if (Arch->IntensityScale0 < kBrightMin)
         {
-            unsigned Bits = kBrightMinBits;
-            Arch->IntensityScale0 = *reinterpret_cast<float*>(&Bits);
+            Arch->IntensityScale0 = FloatFromBits(kBrightMinBits);
         }
         else if (Arch->IntensityScale0 > 1.0f)
         {
-            unsigned Bits = kOneBits;
-            Arch->IntensityScale0 = *reinterpret_cast<float*>(&Bits);
+            Arch->IntensityScale0 = FloatFromBits(kOneBits);
         }
 
         if (Arch->IntensityScale1 < kBrightMin)
         {
-            unsigned Bits = kBrightMinBits;
-            Arch->IntensityScale1 = *reinterpret_cast<float*>(&Bits);
+            Arch->IntensityScale1 = FloatFromBits(kBrightMinBits);
             return;
         }
         if (Arch->IntensityScale1 > 1.0f)
         {
-            unsigned Bits = kOneBits;
-            Arch->IntensityScale1 = *reinterpret_cast<float*>(&Bits);
+            Arch->IntensityScale1 = FloatFromBits(kOneBits);
         }
     }
 

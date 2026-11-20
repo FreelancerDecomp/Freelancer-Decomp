@@ -12,6 +12,7 @@
 #include "win_factory.h"
 
 #include "common_csys.h"
+#include "float_bits.h"
 
 #include <math.h>
 #include <string.h>
@@ -25,13 +26,6 @@ namespace
     // .data 0x006155ec = 0xb22bcc77 (-1e-08f), added to the depth of the top-left unproject in
     // FUN_00591cd0.
     unsigned const kMasterWinDepthBiasBits = 0xb22bcc77u;
-
-    float FloatFromBits(unsigned Bits)
-    {
-        float Value;
-        memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
-    }
 }
 
 namespace

@@ -20,6 +20,7 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "x86math.h"        // I3DMathEngine::TransformMatrix (RoomData set_script lights)
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstring>
@@ -334,13 +335,6 @@ namespace
         Camera.Fov = 35.0f;
         Camera.NearPlane = 0.25f;
         Camera.FarPlane = 1000000.0f;
-    }
-
-    float FloatFromBits(unsigned Bits)
-    {
-        float Value = 0.0f;
-        memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
     }
 }
 

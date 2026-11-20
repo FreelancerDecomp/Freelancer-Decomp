@@ -6,6 +6,7 @@
 
 #include "nn_modal.h"
 
+#include "float_bits.h"
 #include "character_select_equip.h" // GetPlayerBaseIdRetail (DAT_00673358), GetPlayerStarSystemIdRetail
 #include "client_base_market.h" // GetClientCurrentLocationBaseData (FUN_0043b630)
 #include "globals.h"       // SetClientServerTickPause (FUN_0042d6f0), GetClientFrameTimeCapped
@@ -108,10 +109,10 @@ bool NnArrivalText::Create(Win3D* NewParent, void* Data)
 
     // 0x0045abd4..0x0045ac22: FUN_005a0e30 "ArrivalText" / "PageHeader" at (-0.45f, 0.24f, 0),
     // no hardpoint, 0.95f x 0.06f, 1.4f, ids 0, 0, 0, last byte 1 -> +0x32c.
-    float const CaptionPosition[3] = {NnFloatBits(0xbee66666), NnFloatBits(0x3e75c28f), 0.0f};
+    float const CaptionPosition[3] = {FloatFromBits(0xbee66666), FloatFromBits(0x3e75c28f), 0.0f};
     Caption = static_cast<NnTextControl*>(CreateTextControl(
-        "ArrivalText", "PageHeader", CaptionPosition, nullptr, NnFloatBits(0x3f733333),
-        NnFloatBits(0x3d75c28f), NnFloatBits(0x3fb33333), 0, 0, 0, 1));
+        "ArrivalText", "PageHeader", CaptionPosition, nullptr, FloatFromBits(0x3f733333),
+        FloatFromBits(0x3d75c28f), FloatFromBits(0x3fb33333), 0, 0, 0, 1));
 
     // 0x0045ac1b..0x0045ac2e: the caption's slot 42 (0x33, &DAT_00679b90, 1) -- the colour
     // override. No null test on the control.
@@ -557,7 +558,7 @@ void NnMainButtonOnUnclaimedMouse(unsigned Msg, unsigned WParam, unsigned LParam
 
     // 0x0045a36e..0x0045a379: FUN_004b62d0(&record, 8.0f) -- the rollover shows the record for
     // eight seconds.
-    NnRolloverShowHoverGlobal(&Record, NnFloatBits(0x41000000));
+    NnRolloverShowHoverGlobal(&Record, FloatFromBits(0x41000000));
     // 0x0045a37e..0x0045a386: FUN_00489e80(DAT_0066d344, 0) -- the voice line.
     NnVoiceEnqueue(G_NnVoiceClickOnCharactersId, 0);
     // 0x0045a38e..0x0045a40e: the record's dtor inlined (FUN_00444ee0) -- ~FToolTipHoverInfo.

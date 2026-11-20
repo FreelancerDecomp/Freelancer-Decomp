@@ -17,6 +17,7 @@
 #include "login_mgr.h"              // G_Server (DAT_0067ecd0)
 #include "misc_util.h"              // FormatGroupedNumber (FUN_004779a0)
 #include "nn_dealer.h"              // NnDealer::ApplyPlayerStatsFeeling (FUN_00483f30)
+#include "float_bits.h"
 #include "nn_modal.h"               // NnMainButtonOnModalOpen (FUN_0045a460)
 #include "nn_text_scratch.h"        // G_NnTextScratchB (DAT_0066fc60), G_NnTextScratchCapacity
 #include "nn_ui_pulse.h"            // G_HudChromeColorRgba (DAT_00679bb4),
@@ -258,7 +259,7 @@ bool NnPlayerInfo::Create(Win3D* NewParent, void* Data)
         sprintf(ControlName,"PlayerInfoFactionName%d", Row);
         {
             float const Position[3] = {
-                NnFloatBits(0xbe666667), // -0.225 plus one ulp
+                FloatFromBits(0xbe666667), // -0.225 plus one ulp
                 static_cast<float>(static_cast<double>(RowYf) + static_cast<double>(0.16f)),
                 0.0f}; // DAT_005d4938
             FactionNames[Row] = CreateTextControl(ControlName,"ItemName", Position, nullptr, 0.358f,
@@ -287,7 +288,7 @@ bool NnPlayerInfo::Create(Win3D* NewParent, void* Data)
 
         sprintf(ControlName,"PlayerInfofriendlyBar%d", Row);
         {
-            float const Position[3] = {NnFloatBits(0xbe2e7d57), BarY, 0.0f}; // -0.1704 + 1 ulp
+            float const Position[3] = {FloatFromBits(0xbe2e7d57), BarY, 0.0f}; // -0.1704 + 1 ulp
             FriendlyBars[Row] = CreateStaticControl(ControlName,kFriendlyBarMesh, Position, nullptr,
                                                     Half, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, Zero);
         }

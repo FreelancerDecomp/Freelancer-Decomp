@@ -17,23 +17,12 @@
 #include "common_goods.h"   // BaseWatcher
 #include "common_iface.h"   // IObjInspect, IObjRW, ObjRwFromWatchable
 #include "common_aisteer.h" // GetInterceptClearanceOfIface
+#include "float_bits.h"
 
 #include <cstring>
 
 namespace CmnIdea
 {
-    // Local helper: reinterpret a raw IEEE-754 bit pattern as float, for the
-    // handful of constants in this cluster that don't round-trip cleanly
-    // through a decimal literal (e.g. 0x3dc90fdb). Matches this marathon's
-    // established BitsToFloat convention used elsewhere in the port (see
-    // src/IVP/ivp_compact_builder/ivp_surface_builder_ledge_soup.cpp).
-    inline float BitsToFloat(unsigned int Bits)
-    {
-        float Result;
-        std::memcpy(&Result, &Bits, sizeof(Result));
-        return Result;
-    }
-
     // Shared by MoveIdea::SetPosition/SetWatchObject/Commit and (independently)
     // by SplineMoveIdea's own SetContext/Commit (common_splinemoveidea.cpp): retail reaches an
     // external "owning slot array" through `*(BaseIdea::Context + 0xc)` and then

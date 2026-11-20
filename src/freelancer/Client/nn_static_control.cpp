@@ -26,6 +26,7 @@
 #include "engine/engbase.h"
 #include "render/IRenderPipeline.h"
 #include "render/rendcomp.h"
+#include "float_bits.h"
 
 #include <math.h>
 #include <string.h>
@@ -140,21 +141,6 @@ namespace
         RotateColumns(Transform, ColA, ColB, cos(Forward), sin(Forward));
         DALib::Engine->SetInstanceMatrix(Self->MeshHolder.EngineInstance, Transform);
         DALib::Engine->UpdateInstance(Self->MeshHolder.EngineInstance, 0, nullptr);
-    }
-
-    float FloatFromBits(uintptr_t Bits)
-    {
-        unsigned const Value = static_cast<unsigned>(Bits);
-        float Result;
-        memcpy(&Result, &Value, sizeof(Result));
-        return Result;
-    }
-
-    intptr_t BitsFromFloat(float Value)
-    {
-        unsigned Bits;
-        memcpy(&Bits, &Value, sizeof(Bits));
-        return static_cast<intptr_t>(static_cast<int>(Bits));
     }
 
     // The "boolean" INI keys: get_value_float(0) against 0.0 (DAT_005c8ba8; FCOMP / TEST
@@ -703,30 +689,30 @@ intptr_t NnStaticControl::SetProperty(int Msg, uintptr_t A, uintptr_t B)
         // Roll (+0x32c): the instance turned back and forth on columns 0/1; the new angle is
         // also the start roll (+0x340).
         if (HasInstance(this))
-            TurnInstanceAngle(this, 0, 1, CurRoll, FloatFromBits(A));
-        CurRoll = FloatFromBits(A);
-        StartYpr[2] = FloatFromBits(A);
+            TurnInstanceAngle(this, 0, 1, CurRoll, FloatFromBits(static_cast<unsigned int>(A)));
+        CurRoll = FloatFromBits(static_cast<unsigned int>(A));
+        StartYpr[2] = FloatFromBits(static_cast<unsigned int>(A));
         return 0;
     case 0x0e:
-        return BitsFromFloat(CurRoll);
+        return static_cast<int>(BitsFromFloat(CurRoll));
     case 0x0f:
         // Pitch (+0x330) on columns 1/2; also the start pitch (+0x33c).
         if (HasInstance(this))
-            TurnInstanceAngle(this, 1, 2, CurPitch, FloatFromBits(A));
-        CurPitch = FloatFromBits(A);
-        StartYpr[1] = FloatFromBits(A);
+            TurnInstanceAngle(this, 1, 2, CurPitch, FloatFromBits(static_cast<unsigned int>(A)));
+        CurPitch = FloatFromBits(static_cast<unsigned int>(A));
+        StartYpr[1] = FloatFromBits(static_cast<unsigned int>(A));
         return 0;
     case 0x10:
-        return BitsFromFloat(CurPitch);
+        return static_cast<int>(BitsFromFloat(CurPitch));
     case 0x11:
         // Yaw (+0x334) on columns 2/0; also the start yaw (+0x338).
         if (HasInstance(this))
-            TurnInstanceAngle(this, 2, 0, CurYaw, FloatFromBits(A));
-        CurYaw = FloatFromBits(A);
-        StartYpr[0] = FloatFromBits(A);
+            TurnInstanceAngle(this, 2, 0, CurYaw, FloatFromBits(static_cast<unsigned int>(A)));
+        CurYaw = FloatFromBits(static_cast<unsigned int>(A));
+        StartYpr[0] = FloatFromBits(static_cast<unsigned int>(A));
         return 0;
     case 0x12:
-        return BitsFromFloat(CurYaw);
+        return static_cast<int>(BitsFromFloat(CurYaw));
     case 0x17:
     {
         // 0x005890fc: a new engine instance handed in -- the holder released (FUN_0059eee0),

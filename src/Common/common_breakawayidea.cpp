@@ -522,7 +522,7 @@ int BreakAwayIdea::EvaluateBreakAwayClearance()
     {
         bNearlyAstern = IsPointOutsideHeadingCone(ObjInspectOf(Watched)->get_position(),
                                                   ObjInspectOf(Object),
-                                                  BitsToFloat(0xbf7ff972u));
+                                                  FloatFromBits(0xbf7ff972u));
 
         // 062d9271-062d92a5: a 12-byte scratch whose x is 1.0f on the true arm
         // and 0.0f on the false arm, y and z always zero.
@@ -555,7 +555,7 @@ int BreakAwayIdea::EvaluateBreakAwayClearance()
         // (0xbf3504f3); decoded from the raw immediate, not rounded to it.
         bool const bAstern = IsPointOutsideHeadingCone(ObjInspectOf(Watched)->get_position(),
                                                        ObjInspectOf(Object),
-                                                       BitsToFloat(0xbf34fdf4u));
+                                                       FloatFromBits(0xbf34fdf4u));
         if (!bAstern || bNearlyAstern)
         {
             Flag5c = 0; // LAB_062d932f

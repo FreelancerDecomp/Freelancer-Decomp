@@ -10,6 +10,7 @@
 #include "globals.h"            // PushClientTimingPause / PopClientTimingPause
 #include "hud_command_dispatch.h"
 #include "input_manager.h"      // MouseSetCursor (FUN_0041dde0)
+#include "float_bits.h"
 #include "nn_modal.h"
 #include "nn_text_control.h"    // NnTextControl::GetFontString (+0x334)
 #include "win3d.h"
@@ -60,10 +61,10 @@ bool NnNetworkOperation::Create(Win3D* NewParent, void* Data)
                         0, 1, 0, 0, 0, Zero);
 
     // 004722c4..0047230e: FUN_005a0e30 at (0, 0x3d71a9fc, -1), ids 0x736 -> +0x33c.
-    float TextPosition[3] = {0.0f, NnFloatBits(0x3d71a9fc), -1.0f};
+    float TextPosition[3] = {0.0f, FloatFromBits(0x3d71a9fc), -1.0f};
     ExitText = CreateTextControl("ExitText", "Normal", TextPosition, nullptr,
-                                 NnFloatBits(0x3eb851ec), NnFloatBits(0x3cf5c28f),
-                                 NnFloatBits(0x3fa00000), 0x736, 1, 0, 0);
+                                 FloatFromBits(0x3eb851ec), FloatFromBits(0x3cf5c28f),
+                                 FloatFromBits(0x3fa00000), 0x736, 1, 0, 0);
 
     // 00472314..00472324: the text's Font::String (+0x334) goes multi-line (+0x30 = 1, and
     // +0x28 = 0 to re-lay it out) unless it already is. No null test on the text.

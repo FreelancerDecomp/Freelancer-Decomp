@@ -159,7 +159,7 @@ int MoveIdea::Update(float DeltaTime)
     // directly. Kept as a local so the shape matches retail's own.
     int const Result = 0;
 
-    float BestDistSq = BitsToFloat(0x7effffffu);               // 062d4fd6
+    float BestDistSq = FloatFromBits(0x7effffffu);               // 062d4fd6
 
     // 062d4fc5-062d4ff4: refresh the cached (radius, centre) at most once. The
     // gate reads `Handle[0x157a]` and the body writes `Nav[0x7e]`, and

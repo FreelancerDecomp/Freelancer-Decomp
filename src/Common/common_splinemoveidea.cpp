@@ -357,7 +357,7 @@ int SplineMoveIdea::Update(float Dt)
     // 062da129-062da13c: Move.Throttle = BankBlend (FSTP), Move's angle default
     // back to pi (raw 0x40490fdb), Move.TargetKind48 = 2.
     Move.Throttle = (float)BankBlend;
-    Move.MaxThrustBearing = BitsToFloat(0x40490fdbu);
+    Move.MaxThrustBearing = FloatFromBits(0x40490fdbu);
     Move.TargetKind48 = 2;
 
     // 062da13f-062da176: Spline->P2 into Move.Position and, from that copy, into

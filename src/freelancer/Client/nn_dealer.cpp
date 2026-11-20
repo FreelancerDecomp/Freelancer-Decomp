@@ -22,7 +22,8 @@
 #include "misc_util.h"              // FormatGroupedNumber (FUN_004779a0)
 #include "nav_bar.h"                // NavBarOpenButton (FUN_00442200), NavBarRefreshRepairTab (FUN_004427e0)
 #include "nn_messaging.h"           // NnVoiceEnqueue (FUN_00489e80)
-#include "nn_modal.h"               // NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"
 #include "nn_text_scratch.h"        // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
 #include "nn_text_control.h"        // NnTextControl::GetFontString (Font::String +0x334)
 #include "nn_ui_pulse.h"            // G_NnPaletteArgb_679bac (DAT_00679bac)
@@ -139,13 +140,13 @@ void NnDealer::Slot45()
 
     // 00480d3a..00480d7f: "PlayerTitle"; the result is not kept.
     {
-        float const TitlePosition[3] = {NnFloatBits(0x3f870a3e), -0.039f, 0.0f}; // 1.055
+        float const TitlePosition[3] = {FloatFromBits(0x3f870a3e), -0.039f, 0.0f}; // 1.055
         CreateTextControl("PlayerTitle", "PageHeader", TitlePosition, nullptr, 0.394f, 0.03f,
                           1.65f, 0x2143, 1, 0, 0); // FUN_005a0e30
     }
 
     // 00480d84..00480d9a: the price column's x.
-    float const PriceX = PriceColumn + NnFloatBits(0x3f908313); // DAT_005d1cec, 1.129 (not 1.129f)
+    float const PriceX = PriceColumn + FloatFromBits(0x3f908313); // DAT_005d1cec, 1.129 (not 1.129f)
 
     // 00480da0..00481161: the five item rows. Names count from 1, the row offset from 0.
     char Name[0x100];
@@ -417,12 +418,12 @@ void NnDealer::Slot45()
                                                1, 1, 1, 0x50, 0, 0, ZeroVector); // FUN_005a0db0
     }
     {
-        float const NamePosition[3] = {0.691f, NnFloatBits(0xbe21cac0), 0.0f}; // -0.158
+        float const NamePosition[3] = {0.691f, FloatFromBits(0xbe21cac0), 0.0f}; // -0.158
         TransferItemName = CreateTextControl("TransferItemName", "ItemName", NamePosition, nullptr,
                                              0.27f, 0.04f, 1.5f, 0, 0, 0, 0);
     }
     {
-        float const QuantityPosition[3] = {NnFloatBits(0x3f1be76c), -0.188f, 0.0f}; // 0.609
+        float const QuantityPosition[3] = {FloatFromBits(0x3f1be76c), -0.188f, 0.0f}; // 0.609
         TransferItemQuantity = CreateTextControl("TransferItemQuantity", "ItemName",
                                                  QuantityPosition, nullptr, 0.1f, 0.04f, 1.5f, 0,
                                                  0, 0xbcf, 0); // +0x9d0
@@ -430,7 +431,7 @@ void NnDealer::Slot45()
     {
         // 0048194e..004819b9: a horizontal cargo bar with the empty mesh path DAT_005c865c and the
         // colour DAT_00679bac for both states, then property 0x19 (0x10000, 0).
-        float const DamagePosition[3] = {0.502f, NnFloatBits(0xbe4ac084), 0.001f}; // -0.198
+        float const DamagePosition[3] = {0.502f, FloatFromBits(0xbe4ac084), 0.001f}; // -0.198
         float const DamageHalfExtents[3] = {0.03f, 0.003f, 0.0f};
         TransferItemDamage = CreateCargoBarControl("TransferItemDamage", "", DamagePosition,
                                                    nullptr, DamageHalfExtents, 1, 0x43c,
@@ -440,7 +441,7 @@ void NnDealer::Slot45()
     }
     {
         // 004819bf..00481a0a: x = the price column + 0.728 (the float at 0x005d1b40).
-        float const PricePosition[3] = {PriceColumn + NnFloatBits(0x3f3a5e36), -0.192f, 0.0f};
+        float const PricePosition[3] = {PriceColumn + FloatFromBits(0x3f3a5e36), -0.192f, 0.0f};
         TransferItemPrice = CreateTextControl("TransferItemPrice", "ItemName", PricePosition,
                                               nullptr, 0.12f, 0.04f, 1.5f, 0xbd4, 2, 0xbd4, 0);
     }
@@ -455,7 +456,7 @@ void NnDealer::Slot45()
     }
 
     // 00481a88..00481ae3: the quantity panel's rows; the ship dealer's sit higher.
-    float PromptY = NnFloatBits(0xbe851eb8); // DAT_005d1b10, -0.26
+    float PromptY = FloatFromBits(0xbe851eb8); // DAT_005d1b10, -0.26
     float TotalY = -0.461f;                  // [ESP+0x28]
     float TextY = -0.359f;                   // [ESP+0x24]
     float SliderY = -0.28f;                  // [ESP+0x3c]
@@ -463,7 +464,7 @@ void NnDealer::Slot45()
     if (TradeMode == 2)
     {
         TotalY = -0.424f;
-        PromptY = NnFloatBits(0xbe7ced91); // DAT_005d1b0c, -0.247
+        PromptY = FloatFromBits(0xbe7ced91); // DAT_005d1b0c, -0.247
         TextY = -0.337f;
         SliderY = -0.263f;
         PriceY = -0.382f;

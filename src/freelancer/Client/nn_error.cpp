@@ -14,6 +14,7 @@
 #include "hud_command_dispatch.h"
 #include "input_manager.h"      // MouseFrameUpdate (FUN_0041f150)
 #include "login_mgr.h"          // G_Server (DAT_0067ecd0)
+#include "float_bits.h"
 #include "nn_modal.h"
 #include "nn_text_control.h"    // NnTextControl::GetFontString (+0x334)
 #include "win3d.h"
@@ -65,14 +66,14 @@ bool NnError::Create(Win3D* NewParent, void* Data)
     float const Zero[3] = {0.0f, 0.0f, 0.0f}; // local_24 / local_18
 
     // 004725c8..0047261b: FUN_005a0db0 "Frame" at (0, 0, 0xbfd9999a).
-    float FramePosition[3] = {0.0f, 0.0f, NnFloatBits(0xbfd9999a)};
+    float FramePosition[3] = {0.0f, 0.0f, FloatFromBits(0xbfd9999a)};
     CreateStaticControl("Frame", kErrorFrameMesh, FramePosition, nullptr, Zero, 0, 0, 0, 1, 1, 0,
                         1, 0, 0, 0, Zero);
 
     // 00472620..0047265a: "Text" (DAT_005d075c) at (0, 0, -1), no ids -> +0x334.
     float TextPosition[3] = {0.0f, 0.0f, -1.0f};
-    Text = CreateTextControl("Text", "SubHeader", TextPosition, nullptr, NnFloatBits(0x3f07ae14),
-                             NnFloatBits(0x3e08b439), NnFloatBits(0x3fa00000), 0, 1, 0, 0);
+    Text = CreateTextControl("Text", "SubHeader", TextPosition, nullptr, FloatFromBits(0x3f07ae14),
+                             FloatFromBits(0x3e08b439), FloatFromBits(0x3fa00000), 0, 1, 0, 0);
     // 00472660..0047266e: Text's Font::String (+0x334) goes multi-line (+0x30 = 1, and +0x28 = 0
     // to re-lay it out) unless it already is. No null test.
     FFontString* const TextFont = static_cast<NnTextControl*>(Text)->GetFontString();
@@ -83,22 +84,22 @@ bool NnError::Create(Win3D* NewParent, void* Data)
     }
 
     // 00472671..004726d9: the OK box -> +0x338.
-    float ButtonPosition[3] = {NnFloatBits(0xbc449ba6), NnFloatBits(0xbd99999a), -1.0f};
-    float ButtonExtents[3] = {NnFloatBits(0x3e083127), NnFloatBits(0x3cd4fdf4), 0.0f};
+    float ButtonPosition[3] = {FloatFromBits(0xbc449ba6), FloatFromBits(0xbd99999a), -1.0f};
+    float ButtonExtents[3] = {FloatFromBits(0x3e083127), FloatFromBits(0x3cd4fdf4), 0.0f};
     OkayButton = CreateWireButtonControl("ErrorOkayButton", "ui_select_item", ButtonPosition,
                                          ButtonExtents, 0, 0, 0, 0, 0);
 
     // 004726c1..00472736: the OK caption, ids 0x411 -> +0x33c.
-    float OkayPosition[3] = {NnFloatBits(0xbcbc6a7f), NnFloatBits(0xbdb851ec), -1.0f};
+    float OkayPosition[3] = {FloatFromBits(0xbcbc6a7f), FloatFromBits(0xbdb851ec), -1.0f};
     OkayText = CreateTextControl("ErrorOkayText", "ButtonText", OkayPosition, nullptr,
-                                 NnFloatBits(0x3e21cac1), NnFloatBits(0x3d75c28f),
-                                 NnFloatBits(0x3fa00000), 0x411, 1, 0, 0);
+                                 FloatFromBits(0x3e21cac1), FloatFromBits(0x3d75c28f),
+                                 FloatFromBits(0x3fa00000), 0x411, 1, 0, 0);
 
     // 0047270d..00472759: the title, ids 0x3e8, last argument 1 -> +0x340.
-    float TitlePosition[3] = {NnFloatBits(0xbe6c8b44), NnFloatBits(0x3def9db2), -1.0f};
+    float TitlePosition[3] = {FloatFromBits(0xbe6c8b44), FloatFromBits(0x3def9db2), -1.0f};
     Title = CreateTextControl("ErrorDialogTitle", "PageHeader", TitlePosition, nullptr,
-                              NnFloatBits(0x3ee66666), NnFloatBits(0x3d75c28f),
-                              NnFloatBits(0x3f99999a), 0x3e8, 1, 0, 1);
+                              FloatFromBits(0x3ee66666), FloatFromBits(0x3d75c28f),
+                              FloatFromBits(0x3f99999a), 0x3e8, 1, 0, 1);
     // 0047275f..0047276d: the same Font::String poke on the title.
     FFontString* const TitleFont = static_cast<NnTextControl*>(Title)->GetFontString();
     if (TitleFont->bMultiLine != 1)
