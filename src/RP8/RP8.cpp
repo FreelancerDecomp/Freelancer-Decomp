@@ -6353,7 +6353,7 @@ namespace
         int Handle;
         int Mapping;
         unsigned long Size;
-        int View;
+        std::intptr_t View;
     };
 
     // Handle = -1, Size = 0, View = 0, hr = -1; +0x7C OpenByDesc -> -1 gives -8; else +0x28

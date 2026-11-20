@@ -1239,8 +1239,8 @@ static void OpenMappedFileNode(FMappedFileNode* Node, const char* NodeName)
     Node->Mapping = Node->Fs->CreateMapping((unsigned long)Node->Handle, 0, 2, 0, 0, 0);
     if (Node->Mapping == -1)
         return;
-    Node->View = (void*)((uintptr_t)((unsigned int)(
-        Node->Fs->MapFileView((unsigned long)Node->Mapping, 4, 0, 0, 0))));
+    Node->View = (void*)((uintptr_t)(
+        Node->Fs->MapFileView((unsigned long)Node->Mapping, 4, 0, 0, 0)));
 }
 
 // FUN_065f8360 (thiscall RET 4: Fs): +0x10 = Fs, AddRef when non-null; Handle = -1, Size = 0,
@@ -1266,8 +1266,8 @@ static int MapFileNode(FMappedFileNode* Node, const char* NodeName, unsigned lon
     Node->Mapping = Node->Fs->CreateMapping((unsigned long)Node->Handle, 0, 2, 0, 0, 0);
     if (Node->Mapping == -1)
         return -6;
-    Node->View = (void*)((uintptr_t)((unsigned int)(
-        Node->Fs->MapFileView((unsigned long)Node->Mapping, 4, 0, 0, 0))));
+    Node->View = (void*)((uintptr_t)(
+        Node->Fs->MapFileView((unsigned long)Node->Mapping, 4, 0, 0, 0)));
     if (Node->View != nullptr)
         return 0;
     return -1;

@@ -330,7 +330,7 @@ namespace
         Stream->MapHandle = Map;
         if (Map == 0xFFFFFFFFu)
             return 0;
-        const unsigned long View = static_cast<unsigned long>(Fs->MapFileView(Map, 4, 0, 0, 0));
+        const std::uintptr_t View = static_cast<std::uintptr_t>(Fs->MapFileView(Map, 4, 0, 0, 0));
         Stream->MappedView = reinterpret_cast<unsigned char*>(View);
         Stream->MappedSize = Fs->GetSize(Stream->FileHandle, 0);
         Stream->ReadCursor = 0;
