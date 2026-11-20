@@ -12,7 +12,10 @@
 //
 // Usage (from bin\, next to the game DLLs):
 //     FLRegress.exe [--out <file>] [--timeout <seconds>] [--frames <count>]
-// Exit code: 0 on success, 1 on a startup failure, 2 on bad arguments, 3 on a timeout.
+//                   [--crash-dir <dir>] [--crash-test]
+// Exit code: 0 on success, 1 on a startup failure, 2 on bad arguments, 3 on a timeout,
+// 4 on a crash (a minidump and a text report are then in --crash-dir, default "crashes";
+// see regress_crash.h). --crash-test crashes on purpose after startup, to test that path.
 //
 // Nobody can answer a dialog on a build machine, so engine messages (FDUMP) go to stderr
 // instead of DACOM's default Abort/Retry/Ignore box, and a watchdog ends the process with the
@@ -40,6 +43,7 @@
 #include "dacom.h"                // FDUMP
 #include "dalib_core.h"           // DALib::Startup / OpenData / CloseData / Shutdown
 #include "regress_client.h"
+#include "regress_crash.h"
 #include "regress_dump.h"
 #include "regress_hooks.h"
 #include "server_iserverimpl.h"   // Server
@@ -51,6 +55,8 @@ namespace
         const char* OutPath = "regress_state.txt";
         unsigned int TimeoutSeconds = 300;
         unsigned int Frames = 900;    // stage B: 30 s of game time after the launch
+        const char* CrashDirectory = "crashes";
+        bool bCrashTest = false;
     };
 
     // The scripted player's session (the single-player client's connection id).
@@ -137,6 +143,14 @@ namespace
             else if (strcmp(Argv[i], "--frames") == 0 && i + 1 < Argc)
             {
                 Options.Frames = (unsigned int)strtoul(Argv[++i], nullptr, 10);
+            }
+            else if (strcmp(Argv[i], "--crash-dir") == 0 && i + 1 < Argc)
+            {
+                Options.CrashDirectory = Argv[++i];
+            }
+            else if (strcmp(Argv[i], "--crash-test") == 0)
+            {
+                Options.bCrashTest = true;
             }
             else
             {
@@ -473,6 +487,12 @@ namespace
             return 1;
         }
 
+        if (Options.bCrashTest)
+        {
+            Phase("crash test");
+            *(volatile int*)nullptr = 0;
+        }
+
         Phase("dump");
         int Result = 0;
         FILE* File = fopen(Options.OutPath, "wb");
@@ -515,8 +535,10 @@ int main(int Argc, char** Argv)
         return 2;
     }
 
-    // No Windows error boxes for missing DLLs or crashes either.
+    // No Windows error boxes for missing DLLs or crashes either; a crash writes a minidump
+    // and a report instead. The crash directory is made absolute before Run changes directory.
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    InstallCrashHandler(Options.CrashDirectory, &GPhase);
     FDUMP = RegressDump;
     if (Options.TimeoutSeconds != 0)
     {

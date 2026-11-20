@@ -7,6 +7,11 @@ on:
     # labeled/unlabeled re-run the checks when the expected-change label below is set.
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
+    inputs:
+      crash_test:
+        description: Make FLRegress crash on purpose, to test the crash report and issue path
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -148,6 +153,7 @@ jobs:
             bin/*.ini
             bin/*.txt
             bin/*.fl
+            bin/*.pdb
           if-no-files-found: error
           retention-days: 14
 
@@ -158,6 +164,10 @@ jobs:
     # Stage A (startup) and stage B (930 server frames on a virtual clock) run in one process;
     # FLRegress's own watchdog ends a stuck run after 5 minutes.
     timeout-minutes: 15
+    permissions:
+      contents: read
+      # Only the crash issue step uses it, and only outside pull requests.
+      issues: write
 
     steps:
       - uses: actions/checkout@v4
@@ -184,13 +194,25 @@ jobs:
 
       # The dump holds values read from the game data, so it is compared here and never
       # uploaded; only its SHA-256 and, on a mismatch, the first differing lines are printed.
+      # A crash minidump stays on the runner for the same reason (its stacks can hold game
+      # data); only the text report leaves it, in the crash issue.
       - name: Run twice and compare
+        id: run
         shell: pwsh
         working-directory: bin
+        env:
+          CRASH_TEST: ${{ inputs.crash_test && '--crash-test' || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
           foreach ($run in 'a', 'b') {
-            & .\FLRegress.exe --out "regress_$run.txt" --timeout 300
+            $extra = @()
+            if ($env:CRASH_TEST) { $extra += $env:CRASH_TEST }
+            & .\FLRegress.exe --out "regress_$run.txt" --timeout 300 --crash-dir crashes @extra
+            if ($LASTEXITCODE -eq 4) {
+              $report = Get-ChildItem crashes -Filter *.txt -ErrorAction SilentlyContinue | Select-Object -First 1
+              if ($report) { "crash_report=$($report.FullName)" >> $env:GITHUB_OUTPUT }
+              throw "FLRegress run $run crashed"
+            }
             if ($LASTEXITCODE -ne 0) { throw "FLRegress run $run failed with exit code $LASTEXITCODE" }
           }
           $a = (Get-FileHash -Algorithm SHA256 regress_a.txt).Hash
@@ -204,6 +226,55 @@ jobs:
             Compare-Object (Get-Content regress_a.txt) (Get-Content regress_b.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
             throw 'FLRegress is not deterministic: the two runs differ'
           }
+
+      # One open issue per crash signature (exception code + first symbolised frame): a new
+      # crash opens one, the same crash again adds a comment. Pull requests only fail; runs
+      # from forks get no token that can write issues, and a PR's crash belongs in its review.
+      - name: Open or update the crash issue
+        if: >-
+          failure() && steps.run.outputs.crash_report != '' &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPORT: ${{ steps.run.outputs.crash_report }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $text = Get-Content -Raw $env:REPORT
+          $line = $text -split "`n" | Where-Object { $_ -like 'signature: *' } | Select-Object -First 1
+          $signature = if ($line) { $line.Substring(11).Trim() } else { 'unknown' }
+          $sha1 = [System.Security.Cryptography.SHA1]::Create()
+          $hash = $sha1.ComputeHash([Text.Encoding]::UTF8.GetBytes($signature))
+          $id = ([System.BitConverter]::ToString($hash) -replace '-', '').Substring(0, 8).ToLowerInvariant()
+          $where = ($signature -split ' ', 2)[-1]
+          if ($where.Length -gt 120) { $where = $where.Substring(0, 120) + '...' }
+          $title = "FLRegress crash in $where [crash:$id]"
+
+          $body = Join-Path $env:RUNNER_TEMP 'crash_issue.md'
+          @(
+            "FLRegress crashed on ``$env:GITHUB_REF_NAME`` at $env:GITHUB_SHA ($env:GITHUB_EVENT_NAME)."
+            ''
+            "Run: $env:RUN_URL"
+            ''
+            '```'
+            $text.TrimEnd()
+            '```'
+          ) | Set-Content -Encoding utf8 $body
+
+          gh label create flregress-crash --color B60205 --description 'Crash found by FLRegress in CI' --force
+          if ($LASTEXITCODE -ne 0) { throw "gh label create failed ($LASTEXITCODE); are issues enabled for the repository?" }
+          # Matched on the title here rather than with issue search, which lags behind new issues.
+          $open = gh issue list --label flregress-crash --state open --limit 500 --json number,title | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "gh issue list failed ($LASTEXITCODE)" }
+          $existing = ($open | Where-Object { $_.title.EndsWith("[crash:$id]") } | Select-Object -First 1).number
+          if ($existing) {
+            gh issue comment $existing --body-file $body
+            Write-Host "Commented on issue #$existing"
+          } else {
+            gh issue create --title $title --label flregress-crash --body-file $body
+          }
+          if ($LASTEXITCODE -ne 0) { throw "gh failed to file the crash ($LASTEXITCODE)" }
 
       # A pull request must not change the dump: the port stays faithful to retail. A PR that
       # changes it on purpose (a retail-fidelity fix) carries the label 'regress: expected

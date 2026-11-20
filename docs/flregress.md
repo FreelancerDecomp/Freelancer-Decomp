@@ -13,11 +13,20 @@ The multiplayer server builds them from the system files itself.
 
 ```
 FLRegress.exe [--out <file>] [--timeout <seconds>] [--frames <count>]
+              [--crash-dir <dir>] [--crash-test]
 ```
 
 Run it from `bin\`, next to the game DLLs, with the retail `DATA\` beside `bin\`. Exit codes:
 0 on success, 1 on a startup failure, 2 on bad arguments, 3 when the watchdog ends the run
-(`--timeout`, default 300 s).
+(`--timeout`, default 300 s), 4 on a crash.
+
+**Crashes.** An unhandled exception, `abort()`, a pure virtual call or a CRT invalid parameter
+writes `FLRegress-<pid>.dmp` (a minidump: thread stacks and modules, no heap) and
+`FLRegress-<pid>.txt` to `--crash-dir` (default `crashes`, relative to the working directory).
+The text report has the exception, the phase, the stack symbolised from the PDBs beside the
+executable, and a `signature:` line: the exception code and the first symbolised frame outside
+the CRT failure path. It has no offsets, so the same bug keeps its signature across builds.
+`--crash-test` writes to a null pointer after startup, to exercise this path.
 
 ## What it checks
 
@@ -85,3 +94,10 @@ fix, or a change to FLRegress's own output) carries the label `regress: expected
 job then reports the difference but does not fail. The job prints the script's progress and
 the object counts. The dump itself holds values read from the game data, so it is never
 uploaded.
+
+When FLRegress crashes on a push to `master` or a manual run, the job files the crash report
+as a GitHub issue labelled `flregress-crash`, titled with the signature's frame and an id
+derived from the signature (`[crash:1a2b3c4d]`). If an open issue already has that id, the job
+comments on it instead. The minidump stays on the runner, since its stacks can hold game data.
+Pull requests only fail. A manual run with the `crash_test` input set passes `--crash-test`, to
+test the issue path end to end.
