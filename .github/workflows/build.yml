@@ -454,3 +454,35 @@ jobs:
           foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
             if (-not $log.Contains($line)) { throw "missing from the log: $line" }
           }
+
+  # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
+  # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
+  dpnet:
+    name: DirectPlay protocol (DPNet, ${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux GCC
+            os: ubuntu-latest
+            configure: -DCMAKE_BUILD_TYPE=Debug -DDPNET_SANITIZE=ON
+          - name: Windows Win32
+            os: windows-2022
+            configure: -A Win32
+          - name: Windows x64
+            os: windows-2022
+            configure: -A x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S src/DPNet -B build/dpnet ${{ matrix.configure }}
+
+      - name: Build
+        run: cmake --build build/dpnet --config Debug --parallel
+
+      - name: Test
+        run: ctest --test-dir build/dpnet --build-config Debug --output-on-failure

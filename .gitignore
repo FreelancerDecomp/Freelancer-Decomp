@@ -76,3 +76,6 @@ Desktop.ini
 
 # Throwaway RE scratch: per-investigation emulators, listing dumps, audit dumps.
 tools/_*
+
+# CMake build trees (src/DPNet: cmake -S src/DPNet -B build/dpnet)
+/build/
