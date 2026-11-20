@@ -16,9 +16,9 @@
 #include <cstddef>
 #include <vector>
 
-static const int kFdumpError = 0x100001;
-static const int kFdumpWarning = 0x100002;
-static const int kFdumpNotice = 0x100003;
+static constexpr int kFdumpError = 0x100001;
+static constexpr int kFdumpWarning = 0x100002;
+static constexpr int kFdumpNotice = 0x100003;
 static const char* const G_FdumpFmtError = "%s(%d) : ERROR:General:%s";
 static const char* const G_FdumpFmtWarning = "%s(%d) : WARNING:General:%s";
 static const char* const G_FdumpFmtNotice = "%s(%d) : NOTICE:General:%s";
@@ -45,9 +45,9 @@ static const char* const G_FileVMPartArch =
 static const char* const G_FileSphereMeshArchetype =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\RendComp\\SphereMesh\\SphereMeshArchetype.cpp";
 
-static const unsigned long G_RegisterPriority = 0x80000000;
-static const unsigned long G_HandleFail = 0xFFFFFFFF;
-static const float G_DefaultLodDistance = 1000000.0f;
+static constexpr unsigned long G_RegisterPriority = 0x80000000;
+static constexpr unsigned long G_HandleFail = 0xFFFFFFFF;
+static constexpr float G_DefaultLodDistance = 1000000.0f;
 
 struct FDacomFactory;
 typedef GENRESULT (DACOM_API* FDacomFactoryCreateFn)(FDacomFactory* This, AGGDESC* Desc, void** Out);

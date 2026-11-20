@@ -1043,7 +1043,7 @@ unsigned int IServerImpl::GetServerID() {
 // buffer with exactly one xref (this load) and no writer anywhere in the image, so the
 // local server's signature is the empty string.
 const char* IServerImpl::GetServerSig() {
-    static const char kEmptySig[8] = {0};
+    static constexpr char kEmptySig[8] = {0};
     return kEmptySig;
 }
 void IServerImpl::DumpPacketStats(const char* name) {

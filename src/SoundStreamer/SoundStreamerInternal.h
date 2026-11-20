@@ -13,26 +13,26 @@
 #include <msacm.h>
 #include <stddef.h>
 
-static const unsigned long kAggDescSize = 0x14;
-static const unsigned long kRegisterPriority = 0x40000000;
+static constexpr unsigned long kAggDescSize = 0x14;
+static constexpr unsigned long kRegisterPriority = 0x40000000;
 
-static const char kComponentName[] = "SoundStreamer";
+static constexpr char kComponentName[] = "SoundStreamer";
 
-static const unsigned int kFdumpError = 0x100001;
-static const unsigned int kFdumpWarning = 0x100002;
-static const unsigned int kFdumpNotice = 0x100003;
+static constexpr unsigned int kFdumpError = 0x100001;
+static constexpr unsigned int kFdumpWarning = 0x100002;
+static constexpr unsigned int kFdumpNotice = 0x100003;
 
 // .data:06efe070: __FILE__ of the StreamingSound handle code (FDUMP sites 06ef101d, 17ec, 18f6,
 // 1b0c, 1b3d, 1bc7, 1c7f, 206d).
-static const char kRetailSource[] =
+static constexpr char kRetailSource[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\SoundStreamer\\NewStream.cpp";
 // .data:06efe320: __FILE__ of the streamer object code (device init 06ef2e00 and CreateStream
 // 06ef3060: FDUMP sites 06ef2e80/2e9a, 2efe/2f18, 2fc5, 2ff6, 303c, 31ae).
-static const char kStreamerSource[] =
+static constexpr char kStreamerSource[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\SoundStreamer\\SoundStreamer.cpp";
-static const char kFdumpErrorFmt[] = "%s(%d) : ERROR:General:%s";
-static const char kFdumpWarningFmt[] = "%s(%d) : WARNING:General:%s";
-static const char kFdumpNoticeFmt[] = "%s(%d) : NOTICE:General:%s";
+static constexpr char kFdumpErrorFmt[] = "%s(%d) : ERROR:General:%s";
+static constexpr char kFdumpWarningFmt[] = "%s(%d) : WARNING:General:%s";
+static constexpr char kFdumpNoticeFmt[] = "%s(%d) : NOTICE:General:%s";
 
 static const GUID kClsidDirectSound = {
     0x47D4D946, 0x62E8, 0x11CF, {0x93, 0xBC, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}};

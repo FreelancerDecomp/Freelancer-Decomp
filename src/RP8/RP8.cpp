@@ -479,8 +479,8 @@ namespace
         unsigned long Count;
     };
     static_assert(sizeof(FRp8Ib) == 0x1C, "create_ib operator new(0x1c)");
-    static const unsigned int kOffVbList = 0x22E4;
-    static const unsigned int kOffIbList = 0x22F0;
+    static constexpr unsigned int kOffVbList = 0x22E4;
+    static constexpr unsigned int kOffIbList = 0x22F0;
 
     static FRp8Ib* ResolveIbHandle(unsigned char* IbThis, void* Handle)
     {
@@ -492,10 +492,10 @@ namespace
     // Pipeline-state id 7 (VIEWSPACE_LIGHTS) value slot: this+0x354 + 7*0xC. Read raw (no named
     // field exists for this id -- it currently lives inside Pad39C_) because it gates which of
     // View/World gets the Z-flip matrix in ApplyIdentityTransforms below (retail FUN_06d03c94).
-    static const unsigned int kOffViewspaceLights = 0x3A8;
-    static const unsigned int kOffStageCount = 0x39C;
+    static constexpr unsigned int kOffViewspaceLights = 0x3A8;
+    static constexpr unsigned int kOffStageCount = 0x39C;
     // FUN_06d1b480(0x200): Flags = 0x200|8 (D3DUSAGE_DYNAMIC|WRITEONLY).
-    static const unsigned long kVbPoolUsage = 0x208;
+    static constexpr unsigned long kVbPoolUsage = 0x208;
 
 
     FRp8Factory* G_Factory = nullptr;
@@ -526,18 +526,18 @@ namespace
     }
 
     // FUN_06d020ab apply list only. Offsets from listing (format-class pads, not Ability_).
-    static const unsigned int kOffFmt8888Zero = 0x384;
-    static const unsigned int kOffFmt8888 = 0x388;
-    static const unsigned int kOffFmt8888Mirror = 0x38C;
-    static const unsigned int kOffFmtDxtZero = 0x390;
-    static const unsigned int kOffFmtDxt = 0x394;
-    static const unsigned int kOffFmtDxtMirror = 0x398;
-    static const unsigned int kOffFmtMod2xAlt = 0x3E4;
-    static const unsigned int kOffFmtMod2x = 0x3E8;
-    static const unsigned int kOffFmtMod2xMirror = 0x3EC;
-    static const unsigned int kOffNoAlpha548 = 0x548;
-    static const unsigned int kOffNoAlpha5D8 = 0x5D8;
-    static const unsigned int kOffNoAlpha5E8 = 0x5E8;
+    static constexpr unsigned int kOffFmt8888Zero = 0x384;
+    static constexpr unsigned int kOffFmt8888 = 0x388;
+    static constexpr unsigned int kOffFmt8888Mirror = 0x38C;
+    static constexpr unsigned int kOffFmtDxtZero = 0x390;
+    static constexpr unsigned int kOffFmtDxt = 0x394;
+    static constexpr unsigned int kOffFmtDxtMirror = 0x398;
+    static constexpr unsigned int kOffFmtMod2xAlt = 0x3E4;
+    static constexpr unsigned int kOffFmtMod2x = 0x3E8;
+    static constexpr unsigned int kOffFmtMod2xMirror = 0x3EC;
+    static constexpr unsigned int kOffNoAlpha548 = 0x548;
+    static constexpr unsigned int kOffNoAlpha5D8 = 0x5D8;
+    static constexpr unsigned int kOffNoAlpha5E8 = 0x5E8;
 
     // FUN_06d01000 (cdecl; the name is pushed but never read): the value of the first record
     // of the database's live set whose name has the DACOM CRC Crc, or null.

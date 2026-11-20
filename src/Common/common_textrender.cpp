@@ -354,8 +354,8 @@ DeviceTRC& DeviceTRC::operator=(const DeviceTRC& Other)
 // bold/italic/underline combinations of 0x7C-byte WinFont entries (0x3E0 per style; the
 // retail loops walk the HFONT slots 0x064019a8..0x064095a8, exactly 32 blocks). A font index
 // is (Style << 3) | Combination, one byte of TextRenderAttributes::Packed.
-static const int GMaxFontIndices = 32;
-static const int GSubEntriesPerFont = 8;
+static constexpr int GMaxFontIndices = 32;
+static constexpr int GSubEntriesPerFont = 8;
 static_assert(sizeof(DeviceTRC::WinFont) == 0x7C, "retail WinFont stride is 0x7C");
 DeviceTRC::WinFont DeviceTRC::mFont[256];
 
@@ -392,7 +392,7 @@ static struct FDefaultStandardFontsInit
         static const char* const Names[4] = {
             "Vibrocentric", "Vibrocentric", "Arial Unicode MS", "Arial Unicode MS"
         };
-        static const unsigned long Sizes[4] = { 16, 18, 22, 26 };
+        static constexpr unsigned long Sizes[4] = { 16, 18, 22, 26 };
         for (int i = 0; i < GMaxFontIndices; ++i)
         {
             const int Pattern = (i + 2) % 4;

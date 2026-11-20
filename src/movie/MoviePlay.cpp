@@ -77,7 +77,7 @@ static const GUID GIidWmAuthorizer =
 // DAT_06add23c is DAT_06add1d8 + 0x64.
 static int GAuthorizerCertCount = 4;
 
-static const unsigned char GAuthorizerCerts[4 * 0x78] =
+static constexpr unsigned char GAuthorizerCerts[4 * 0x78] =
 {
 	0x00, 0x01, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0x4D, 0x9F, 0x93, 0x85, 0x06, 0x73, 0x5B, 0xAF,
 	0xD5, 0xA2, 0xD8, 0x17, 0x7C, 0xC8, 0x62, 0x7B, 0x00, 0xD5, 0xFB, 0x36, 0x03, 0x6D, 0x93, 0x1C,
@@ -112,7 +112,7 @@ static const unsigned char GAuthorizerCerts[4 * 0x78] =
 };
 
 // __FILE__ baked into FUN_06ac1e50 at 06ada718.
-static const char GMoviePlayerSourceFile[] = "E:\\FL\\Scratch\\Source\\Movie\\MoviePlayer.cpp";
+static constexpr char GMoviePlayerSourceFile[] = "E:\\FL\\Scratch\\Source\\Movie\\MoviePlayer.cpp";
 
 // IServiceProvider is IUnknown plus QueryService. IWMAuthorizer is IUnknown plus the three cert slots.
 // Both are stdcall: Quartz PUSHes the object and the method RETs 4/8/0xC/0x10.

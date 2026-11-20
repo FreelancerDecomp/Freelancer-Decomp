@@ -29,12 +29,12 @@
 #include <map>
 #include <vector>
 
-static const unsigned long kRp9RegisterPriority = 0x40000000;
+static constexpr unsigned long kRp9RegisterPriority = 0x40000000;
 // QueryDeviceAbility accepts 0..0x14. Indices 0..0x13 live here; 0x14 reads render-state entry
 // 0, which is where RP8's 21st ability dword overlaps (see FDirectX9::QueryDeviceAbility).
-static const unsigned int kRp9AbilityCount = 20;
+static constexpr unsigned int kRp9AbilityCount = 20;
 // Pipeline-state ids 0..0xD (RP8 object +0x354, 0xC bytes each).
-static const unsigned int kRp9PipelineStateCount = 14;
+static constexpr unsigned int kRp9PipelineStateCount = 14;
 // RP8's default INI section, shared.
 static const char* const kRp9DefaultSection = kRp8DefaultSection;
 

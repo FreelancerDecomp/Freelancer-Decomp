@@ -37,43 +37,43 @@ static const D3DRENDERSTATETYPE kRsCullMode = D3DRS_CULLMODE;
 static const D3DRENDERSTATETYPE kRsAlphaRef = D3DRS_ALPHAREF;
 static const D3DRENDERSTATETYPE kRsAlphaFunc = D3DRS_ALPHAFUNC;
 static const D3DRENDERSTATETYPE kRsAlphaTestEnable = D3DRS_ALPHATESTENABLE;
-static const unsigned long kZFuncLessEqual = 4;
+static constexpr unsigned long kZFuncLessEqual = 4;
 
-static const unsigned long kTssColorOp = 1;
-static const unsigned long kTssColorArg1 = 2;
-static const unsigned long kTssColorArg2 = 3;
-static const unsigned long kTssAlphaOp = 4;
-static const unsigned long kTssAlphaArg1 = 5;
-static const unsigned long kTssAlphaArg2 = 6;
-static const unsigned long kTssTexCoordIndex = 0xB;
-static const unsigned long kTssAddressU = 0xD;
-static const unsigned long kTssAddressV = 0xE;
-static const unsigned long kTssTextureTransformFlags = 0x18;
+static constexpr unsigned long kTssColorOp = 1;
+static constexpr unsigned long kTssColorArg1 = 2;
+static constexpr unsigned long kTssColorArg2 = 3;
+static constexpr unsigned long kTssAlphaOp = 4;
+static constexpr unsigned long kTssAlphaArg1 = 5;
+static constexpr unsigned long kTssAlphaArg2 = 6;
+static constexpr unsigned long kTssTexCoordIndex = 0xB;
+static constexpr unsigned long kTssAddressU = 0xD;
+static constexpr unsigned long kTssAddressV = 0xE;
+static constexpr unsigned long kTssTextureTransformFlags = 0x18;
 
-static const unsigned long kTopDisable = 1;
-static const unsigned long kTopSelectArg1 = 2;
-static const unsigned long kTopModulate = 4;
-static const unsigned long kTopModulate2X = 5;
-static const unsigned long kTopAdd = 7;
-static const unsigned long kTaDiffuse = 0;
-static const unsigned long kTaCurrent = 1;
-static const unsigned long kTaTexture = 2;
-static const unsigned long kBlendZero = 1;
-static const unsigned long kBlendSrcAlpha = 5;
-static const unsigned long kBlendInvSrcAlpha = 6;
-static const unsigned long kBlendDestColor = 9;
-static const unsigned long kBlendOne = 2;
+static constexpr unsigned long kTopDisable = 1;
+static constexpr unsigned long kTopSelectArg1 = 2;
+static constexpr unsigned long kTopModulate = 4;
+static constexpr unsigned long kTopModulate2X = 5;
+static constexpr unsigned long kTopAdd = 7;
+static constexpr unsigned long kTaDiffuse = 0;
+static constexpr unsigned long kTaCurrent = 1;
+static constexpr unsigned long kTaTexture = 2;
+static constexpr unsigned long kBlendZero = 1;
+static constexpr unsigned long kBlendSrcAlpha = 5;
+static constexpr unsigned long kBlendInvSrcAlpha = 6;
+static constexpr unsigned long kBlendDestColor = 9;
+static constexpr unsigned long kBlendOne = 2;
 
-static const unsigned long kSubmitFlagIrDraw = 0x100;
-static const unsigned long kSubmitFlagSkipAlphaTest = 0x400;
+static constexpr unsigned long kSubmitFlagIrDraw = 0x100;
+static constexpr unsigned long kSubmitFlagSkipAlphaTest = 0x400;
 
 
 // DAT_06ed4848 dword[4]: NONE stays, CW↔CCW. Indexed by D3DRS_CULLMODE (0x16).
-static const unsigned long kCullFlip[4] = {0, 1, 3, 2};
+static constexpr unsigned long kCullFlip[4] = {0, 1, 3, 2};
 
 // D3D8 D3DPRIMITIVETYPE. SphereMesh slot-10 arg2 is immediate 4 (TRIANGLELIST).
-static const unsigned long kD3dPrimTriangleList = 4;
-static const unsigned long kD3dPrimMax = 6;
+static constexpr unsigned long kD3dPrimTriangleList = 4;
+static constexpr unsigned long kD3dPrimMax = 6;
 
 enum EMaterialBind
 {
@@ -161,19 +161,19 @@ inline GENRESULT PipeGetTextureFormat(IRenderPipeline* Pipeline, unsigned long H
     return Pipeline->GetTextureFormat((void*)Handle, OutFormat);
 }
 
-static const unsigned long kPixelFormatField04[15] = {
+static constexpr unsigned long kPixelFormatField04[15] = {
     0, 8, 0x18, 0x10, 0x10, 0x10, 0x10, 0x20, 0x20, 0, 0, 0, 0, 0, 0};
-static const unsigned long kPixelFormatField08[15] = {0, 0, 8, 5, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
-static const unsigned long kPixelFormatField18[15] = {0, 0, 8, 6, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
-static const unsigned long kPixelFormatField28[15] = {0, 0, 8, 5, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
-static const unsigned long kPixelFormatAlphaBits[15] = {
+static constexpr unsigned long kPixelFormatField08[15] = {0, 0, 8, 5, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
+static constexpr unsigned long kPixelFormatField18[15] = {0, 0, 8, 6, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
+static constexpr unsigned long kPixelFormatField28[15] = {0, 0, 8, 5, 5, 4, 5, 8, 8, 0, 0, 0, 0, 0, 0};
+static constexpr unsigned long kPixelFormatAlphaBits[15] = {
     0, 0, 0, 0, 0, 4, 1, 8, 0, 0, 1, 0, 0, 0, 0};
-static const unsigned char kPixelFormatHasAlpha[15] = {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1};
-static const int kDxtFormatIndexMin = 10;
-static const int kDxtFormatIndexMax = 14;
-static const int kPixelFormatFourCcCount = 22;
+static constexpr unsigned char kPixelFormatHasAlpha[15] = {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1};
+static constexpr int kDxtFormatIndexMin = 10;
+static constexpr int kDxtFormatIndexMax = 14;
+static constexpr int kPixelFormatFourCcCount = 22;
 // DAT_06ed51d8 — FUN_06ed0b50 / FUN_06ed0b80 (ids 9…21).
-static const unsigned long kPixelFormatFourCc[22] = {
+static constexpr unsigned long kPixelFormatFourCc[22] = {
     0, 0x29, 0x14, 0x17, 0x18, 0x1A, 0x19, 0x15, 0x16, 0, 0x31545844u, 0x32545844u,
     0x33545844u, 0x34545844u, 0x35545844u, 0x504F4144u, 0x544F4144u, 0x41414144u,
     0x4C414144u, 0x31414144u, 0x34414144u, 0x38414144u};

@@ -102,10 +102,10 @@ static const char* const G_StartAimBlocked = "deform::start_aim(): instance bloc
 static const char* const G_FdumpFileDeformIk =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\Deformable2\\deformIK.cpp";
 static const char* const G_RateCharset = "0123456789truefalsynoxTRUEFALSYNOX+-";
-static const float G_RandToUnit = 3.051851e-05f;
-static const int G_PartDescStride = 0x18;
-static const int G_MaxLodCount = 8;
-static const unsigned long G_ParseTagUtf = 0x112;
+static constexpr float G_RandToUnit = 3.051851e-05f;
+static constexpr int G_PartDescStride = 0x18;
+static constexpr int G_MaxLodCount = 8;
+static constexpr unsigned long G_ParseTagUtf = 0x112;
 // Return to the parent UTF node after loading a child.
 static const char* const G_ParentNode = "..";
 
@@ -2902,7 +2902,7 @@ static void IkLookAt(float* Out9, const float* Dir, const float* Parent9, unsign
 // DAT_066013b0: the double widening of 1e-5f (bytes 00000080b5f8e43e).
 static const double G_IkLogEps = (double)1.0e-5f;
 // DAT_06601348: the double 1e-5 (bytes f168e388b5f8e43e).
-static const double G_IkExpEps = 1.0e-5;
+static constexpr double G_IkExpEps = 1.0e-5;
 
 // FUN_065fbc90 (cdecl: Out3, Quat wxyz), 065fbc90..bd21: FLD 1.0f, FSUB w, FABS, FCOMP double
 static void IkQuatLogVec(float* Out3, const float* Quat)
@@ -3005,7 +3005,7 @@ static void StopAimNode(FIkListNode* Node)
 
 // DAT_066013a8 (PE bytes 00 00 00 36): the float 0x36000000 = 2^-19, written out exactly
 // (the old 1.907349e-06f literal is not guaranteed to round to the same float).
-static const float G_IkGimbalEps = 1.9073486328125e-06f;
+static constexpr float G_IkGimbalEps = 1.9073486328125e-06f;
 
 // The Euler rebuild FUN_065f5400 (065f57e5..587c) and FUN_065fb900 inline with the same
 static void IkEulerRebuild(float* Out9, float Yaw, float Pitch, float Roll)

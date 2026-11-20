@@ -29,10 +29,10 @@ FEffectArch* FindEffectArch(unsigned const* NicknameId);
 
 namespace
 {
-    static const float kColorScale = 0.003921569f; // 1/255
-    static const float kBrightMin = 0.01f;
-    static const unsigned kBrightMinBits = 0x3c23d70a; // 0.01f
-    static const unsigned kOneBits = 0x3f800000;       // 1.0f
+    static constexpr float kColorScale = 0.003921569f; // 1/255
+    static constexpr float kBrightMin = 0.01f;
+    static constexpr unsigned kBrightMinBits = 0x3c23d70a; // 0.01f
+    static constexpr unsigned kOneBits = 0x3f800000;       // 1.0f
 
     // DAT_006164b0 -- the EffectArch registry, a std::map keyed by the nickname's CreateID
     // (unsigned compare, FUN_0052c7a0 / FUN_0046d6d0) holding operator-new'd EffectArchs.

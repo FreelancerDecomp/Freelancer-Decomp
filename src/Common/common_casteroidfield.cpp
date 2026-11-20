@@ -87,7 +87,7 @@ void CAsteroidField::load(INI_Reader& Reader, int CubeSizeParm)
     CubeSize = CubeSizeParm;
     ArchCubeSize = CubeSizeParm;
 
-    static const float kDegToRad = 0.017453292f;
+    static constexpr float kDegToRad = 0.017453292f;
 
     if (!Reader.read_header())
         return;

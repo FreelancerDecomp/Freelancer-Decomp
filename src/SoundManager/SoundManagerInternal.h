@@ -15,24 +15,24 @@
 
 // SoundManager.dll internals. The ABI other modules see is src/include/soundmanager.h.
 
-static const unsigned long kAggDescSize = 0x14;
-static const unsigned long kRegisterPriority = 0x40000000;
+static constexpr unsigned long kAggDescSize = 0x14;
+static constexpr unsigned long kRegisterPriority = 0x40000000;
 
-static const char kComponentName[] = "SoundManager";
+static constexpr char kComponentName[] = "SoundManager";
 
-static const unsigned int kFdumpError = 0x100001;
-static const unsigned int kFdumpWarning = 0x100002;
-static const unsigned int kFdumpNotice = 0x100003;
+static constexpr unsigned int kFdumpError = 0x100001;
+static constexpr unsigned int kFdumpWarning = 0x100002;
+static constexpr unsigned int kFdumpNotice = 0x100003;
 
 // s_C:\work\... at .data:06eea070 (21 FDUMP sites in SoundMan.cpp code).
-static const char kRetailSource[] =
+static constexpr char kRetailSource[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\SoundManager\\SoundMan.cpp";
 // .data:06eeadd4 - the statically linked WavLib (FDUMP sites 06ee867d, 8812, 883f, 88f8).
-static const char kWavLibSource[] =
+static constexpr char kWavLibSource[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\WavLib\\wavlib.cpp";
-static const char kFdumpErrorFmt[] = "%s(%d) : ERROR:General:%s";
-static const char kFdumpWarningFmt[] = "%s(%d) : WARNING:General:%s";
-static const char kFdumpNoticeFmt[] = "%s(%d) : NOTICE:General:%s";
+static constexpr char kFdumpErrorFmt[] = "%s(%d) : ERROR:General:%s";
+static constexpr char kFdumpWarningFmt[] = "%s(%d) : WARNING:General:%s";
+static constexpr char kFdumpNoticeFmt[] = "%s(%d) : NOTICE:General:%s";
 
 // Retail DAT_06ee91cc / 06ee91bc / 06ee91ac — last word E5 60, not SDK A7 70.
 static const GUID kClsidDirectSound = {

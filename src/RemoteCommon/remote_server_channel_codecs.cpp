@@ -14,8 +14,8 @@
 // RS-P2: the 127-scale attitude quantizer and its inverse (CREATEGUIDED 0x37: RC
 // 06b5c4bf..06b5c504, 06b5c862..06b5c8ae; RS 06bef98f.., 06befd32..). The two
 // doubles are RC 06b6c1e0 / 06b6c1e8, RS 06c0df40 / 06c0df48.
-static const double GRpcServerScale127 = 127.0;
-static const double GRpcServerInverse127 = 1.0 / 127.0;
+static constexpr double GRpcServerScale127 = 127.0;
+static constexpr double GRpcServerInverse127 = 1.0 / 127.0;
 
 unsigned char RpcServerQuantize127(const float* Value) {
     unsigned short OldControl;
@@ -55,8 +55,8 @@ void RpcServerExpand127(unsigned char Encoded, float* Value) {
 
 // The two doubles behind the 255-scale health bytes: RS 06c0e270 (255.0) and
 // 06c0e660 (1/255).
-static const double GRpcServerScale255 = 255.0;
-static const double GRpcServerInverse255 = 1.0 / 255.0;
+static constexpr double GRpcServerScale255 = 255.0;
+static constexpr double GRpcServerInverse255 = 1.0 / 255.0;
 
 // FLD float, FMUL double 255.0, MSVCRT _ftol (truncating 64-bit), low byte
 // (06c08bb8..06c08bc1 equipment health, 06c08e01..06c08e0a collision health).
@@ -205,14 +205,14 @@ FRpcServerCreateObjectFields::FRpcServerCreateObjectFields()
 
 // The per-record flag byte, built at 06c08ac6..06c08b2d and taken apart at
 // 06c09399..06c0961c.
-static const unsigned char kRpcServerEquipEquipped = 0x01;
-static const unsigned char kRpcServerEquipField0f = 0x02;
-static const unsigned char kRpcServerEquipWideCount = 0x04;
-static const unsigned char kRpcServerEquipWideId = 0x08;
-static const unsigned char kRpcServerEquipHardpointText = 0x10;
-static const unsigned char kRpcServerEquipNoHardpoint = 0x20;
-static const unsigned char kRpcServerEquipFullHealth = 0x40;
-static const unsigned char kRpcServerEquipUnitCount = 0x80;
+static constexpr unsigned char kRpcServerEquipEquipped = 0x01;
+static constexpr unsigned char kRpcServerEquipField0f = 0x02;
+static constexpr unsigned char kRpcServerEquipWideCount = 0x04;
+static constexpr unsigned char kRpcServerEquipWideId = 0x08;
+static constexpr unsigned char kRpcServerEquipHardpointText = 0x10;
+static constexpr unsigned char kRpcServerEquipNoHardpoint = 0x20;
+static constexpr unsigned char kRpcServerEquipFullHealth = 0x40;
+static constexpr unsigned char kRpcServerEquipUnitCount = 0x80;
 
 // 06c08ac0..06c08d3e, one record; the node's record is used untested (06c08ac0).
 static bool RpcServerEncodeCreateObjectEquip(FRpcWireStream& Stream,
@@ -3305,9 +3305,9 @@ unsigned int FRpcServerSetCollisionGroupsPacket::Decode(const unsigned char* Buf
 // FMUL double 255.0 (RC 06b6e390 / RS 06c0e270), MSVCRT _ftol (truncating 64-bit FISTP),
 // low byte. Its inverse: the byte zero-extended, FILD dword, FMUL double 2/51 (RC 06b6e948 /
 // RS 06c0e280, 3fa41414'14141414), FSTP float.
-static const float GRpcServerSendCommTenth = 0.1f;
-static const double GRpcServerSendCommScale255 = 255.0;
-static const double GRpcServerSendCommExpand = 2.0 / 51.0;
+static constexpr float GRpcServerSendCommTenth = 0.1f;
+static constexpr double GRpcServerSendCommScale255 = 255.0;
+static constexpr double GRpcServerSendCommExpand = 2.0 / 51.0;
 
 static unsigned char RpcServerSendCommQuantize(const float* Value) {
     unsigned short OldControl;

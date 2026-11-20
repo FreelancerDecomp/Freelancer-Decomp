@@ -101,7 +101,7 @@ bool TurretCameraActivate(FTurretCamera* Cam, const int* ViewRect4)
 {
     // FUN_0051a640 (thiscall, RET 4): the five turret ids {0x32..0x36} from a stack table, each
     // through FUN_005760d0 on the face at +0xf8, then HUDCamera's FUN_0051cad0 -- its answer.
-    static const unsigned kTurretEvents[5] = {0x32, 0x33, 0x34, 0x35, 0x36};
+    static constexpr unsigned kTurretEvents[5] = {0x32, 0x33, 0x34, 0x35, 0x36};
     FHudCmdHandler* const Face = Cam->AsHudCmdHandler();
     for (unsigned Index = 0; Index < 5; ++Index)
         HudRegisterCommandHandler(Face, kTurretEvents[Index]);

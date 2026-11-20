@@ -19,51 +19,51 @@
 #include <set>
 #include <vector>
 
-static const int kThornPlaybackLoaded = 2;
-static const int kThornPlaybackReset = 3;
-static const int kThornPlaybackDone = 4;
-static const int kThornPlaybackPaused = 5;
-static const int kThornPlaybackPlay = 6;
-static const int kThornPlaybackLoop = 7;
+static constexpr int kThornPlaybackLoaded = 2;
+static constexpr int kThornPlaybackReset = 3;
+static constexpr int kThornPlaybackDone = 4;
+static constexpr int kThornPlaybackPaused = 5;
+static constexpr int kThornPlaybackPlay = 6;
+static constexpr int kThornPlaybackLoop = 7;
 
 // The entity / event type constants, FThornLightProps, FThornMotionPathDesc and
 // FThornEntitySnap are public ABI now: src/include/thorn_iface.h (through Thorn.h).
 
-static const int kThornTargetRoot = 0;
-static const int kThornTargetHardpoint = 1;
-static const int kThornTargetPart = 2;
+static constexpr int kThornTargetRoot = 0;
+static constexpr int kThornTargetHardpoint = 1;
+static constexpr int kThornTargetPart = 2;
 
-static const int kThornFlagUseScriptDuration = 1;
-static const int kThornFlagPosition = 2;
-static const int kThornFlagOrientation = 4;
-static const int kThornFlagLookAt = 8;
-static const int kThornFlagQuatOrient = 0x10;
-static const int kThornFlagEntityRelative = 0x20;
-static const int kThornFlagParentChild = 0x40;
-static const int kThornFlagOrientRelative = 0x80;
+static constexpr int kThornFlagUseScriptDuration = 1;
+static constexpr int kThornFlagPosition = 2;
+static constexpr int kThornFlagOrientation = 4;
+static constexpr int kThornFlagLookAt = 8;
+static constexpr int kThornFlagQuatOrient = 0x10;
+static constexpr int kThornFlagEntityRelative = 0x20;
+static constexpr int kThornFlagParentChild = 0x40;
+static constexpr int kThornFlagOrientRelative = 0x80;
 
-static const int kThornSpatialBitPos = 0x1;
-static const int kThornSpatialBitOrient = 0x2;
-static const int kThornSpatialBitAxisRot = 0x4;
+static constexpr int kThornSpatialBitPos = 0x1;
+static constexpr int kThornSpatialBitOrient = 0x2;
+static constexpr int kThornSpatialBitAxisRot = 0x4;
 
 // Type 5 load PTR_DAT_06f5e148: fovh/aspect/near/far → bits 1/2/4/8 (not GET-order names).
-static const int kThornCamBitFovh = 0x1;
-static const int kThornCamBitAspect = 0x2;
-static const int kThornCamBitNear = 0x4;
-static const int kThornCamBitFar = 0x8;
+static constexpr int kThornCamBitFovh = 0x1;
+static constexpr int kThornCamBitAspect = 0x2;
+static constexpr int kThornCamBitNear = 0x4;
+static constexpr int kThornCamBitFar = 0x8;
 
-static const int kThornLightBitColor = 0x1;
-static const int kThornLightBitDirection = 0x2;
-static const int kThornLightBitRange = 0x4;
-static const int kThornLightBitCutoff = 0x8;
-static const int kThornLightBitOn = 0x10;
-static const int kThornLightBitInfinite = 0x20;
-static const int kThornLightBitAtten = 0x40;
-static const int kThornLightBitTheta = 0x80;
-static const int kThornLightBitType = 0x100;
-static const int kThornLightBitSpecular = 0x200;
-static const int kThornLightBitAmbient = 0x400;
-static const int kThornLightBitDiffuse = 0x800;
+static constexpr int kThornLightBitColor = 0x1;
+static constexpr int kThornLightBitDirection = 0x2;
+static constexpr int kThornLightBitRange = 0x4;
+static constexpr int kThornLightBitCutoff = 0x8;
+static constexpr int kThornLightBitOn = 0x10;
+static constexpr int kThornLightBitInfinite = 0x20;
+static constexpr int kThornLightBitAtten = 0x40;
+static constexpr int kThornLightBitTheta = 0x80;
+static constexpr int kThornLightBitType = 0x100;
+static constexpr int kThornLightBitSpecular = 0x200;
+static constexpr int kThornLightBitAmbient = 0x400;
+static constexpr int kThornLightBitDiffuse = 0x800;
 
 // Retail Csys object: orient 3×3 @ +0, pos @ +0x24 (FUN_06f3b970 / event+0x4).
 struct FThornCsys

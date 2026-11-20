@@ -411,7 +411,7 @@ namespace AlchemyImpl
         IDAComponent* StartNode = static_cast<IDAComponent*>(B);
         if (StartNode == nullptr)
             StartNode = G_RootNode;
-        static const float kIdentityXform12[12] = {1.f, 0.f, 0.f, 0.f, 1.f, 0.f,
+        static constexpr float kIdentityXform12[12] = {1.f, 0.f, 0.f, 0.f, 1.f, 0.f,
                                                    0.f, 0.f, 1.f, 0.f, 0.f, 0.f};
         std::memcpy(G_NodeWalkXform, kIdentityXform12, sizeof(G_NodeWalkXform));
         IGenericFx* const StartFx = AsFxNode(StartNode);

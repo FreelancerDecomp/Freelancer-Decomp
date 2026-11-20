@@ -77,7 +77,7 @@ namespace
         return strcmp(Left, Right) == 0;
     }
 
-    static const char kFraunhoferName[] = "Fraunhofer IIS MPEG Layer-3 Codec (advanced)";
+    static constexpr char kFraunhoferName[] = "Fraunhofer IIS MPEG Layer-3 Codec (advanced)";
 
     struct FAcmSearch
     {

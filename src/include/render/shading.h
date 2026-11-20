@@ -146,8 +146,8 @@ static_assert(offsetof(FShadingPropertyRecord, Default) == 0x24, "property defau
 static_assert(offsetof(FShadingPropertyRecord, Saved) == 0x38, "property saved +0x38");
 static_assert(sizeof(FShadingPropertyRecord) == 0x4C, "retail property record stride");
 
-static const char kIidImaData[] = "IMAData";
-static const char kIidImaInstance[] = "IMAInstance";
+static constexpr char kIidImaData[] = "IMAData";
+static constexpr char kIidImaInstance[] = "IMAInstance";
 
 
 // Texture groups, records, frames and playback state share one library object.

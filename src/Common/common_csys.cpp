@@ -357,7 +357,7 @@ Matrix __cdecl EulerMatrix(Vector const& AnglesDegrees)
     // narrowed either. Only SinR*CosP (0630429e) and CosR*CosP (063042a6) are FSTP float;
     // SinY*SinP (06304296) stays on the stack. Every element is one double expression narrowed
     // by its own FSTP float into the nine-float local copied out at 06304310.
-    static const float kDegToRad = 0.017453292f;
+    static constexpr float kDegToRad = 0.017453292f;
 
     const float Pitch = AnglesDegrees.x * kDegToRad;
     const float Yaw = AnglesDegrees.y * kDegToRad;
@@ -405,8 +405,8 @@ Matrix __cdecl RotateMatrix(Vector const& AnglesDegrees)
     //      E00 = 1, E11 = cos, E12 = -sin, E21 = sin, E22 = cos, rest 0.
     //   Z: FUN_063041f0(float(z*k)): E00 = cos, E01 = -sin, E10 = sin, E11 = cos, E22 = 1.
     // The engine's return code is ignored, as in retail.
-    static const float kDegToRad = 0.017453292f;   // .rdata:0639d210
-    static const double kAngleEpsilon = 0.01;      // .rdata:0639e6b0, compared against fabs()
+    static constexpr float kDegToRad = 0.017453292f;   // .rdata:0639d210
+    static constexpr double kAngleEpsilon = 0.01;      // .rdata:0639e6b0, compared against fabs()
 
     Matrix Accum;
     MatrixSetIdentity(Accum);

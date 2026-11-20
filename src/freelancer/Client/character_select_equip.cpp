@@ -77,7 +77,7 @@ namespace
 
     // DAT_006728e4 cluster — 4-dword header + count @ +0x30 + up to 8 rank dwords.
     // Sibling DAT_00672918 cluster (FUN_004c3d20) for the other rank buffer.
-    static const int kMaxRepScratchTail = 8;
+    static constexpr int kMaxRepScratchTail = 8;
     unsigned G_RepVibeHeader[4] = {};
     int G_RepVibeCount = 0;
     unsigned G_RepVibeTail[kMaxRepScratchTail] = {};

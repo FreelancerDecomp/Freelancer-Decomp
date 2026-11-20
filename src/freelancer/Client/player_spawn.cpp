@@ -61,7 +61,7 @@ namespace
 
     // DAT_00672978 (99 records of 0x18, FPlayerWaypointRecord in player_spawn.h) and
     // DAT_00673374 (the count). The six accessors FUN_004c4690..FUN_004c4780 are public below.
-    static const int kMaxPlayerWaypoints = 0x63;
+    static constexpr int kMaxPlayerWaypoints = 0x63;
     static FPlayerWaypointRecord G_PlayerWaypoints[kMaxPlayerWaypoints] = {};
     static int G_PlayerWaypointCount = 0;
     // DAT_00673390 -- read by FUN_004c4ea0, written only by FUN_004c4eb0 (0x004c4eca, called

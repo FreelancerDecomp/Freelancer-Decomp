@@ -1003,7 +1003,7 @@ namespace
                 return;
             }
         }
-        static const float NumericIndices[3] = {1.0f, 2.0f, 3.0f};
+        static constexpr float NumericIndices[3] = {1.0f, 2.0f, 3.0f};
         float Coordinates[3];
         for (int Index = 0; Index < 3; ++Index)
             StoreLuaNumberFloat(GetLightFloatIndex(Table, &NumericIndices[Index]), &Coordinates[Index]);

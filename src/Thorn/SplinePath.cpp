@@ -26,13 +26,13 @@
 // (inner vtable+0x08). FSplinePath's IMotionPath overrides branch on bOrientation_ (retail: two
 // vptrs, one per class).
 
-static const int G_MathMulQuatSlot = 0x18 / 4;
-static const int G_MathSlerpSlot = 0x58 / 4;
-static const int G_MathQuatToMatrixSlot = 0x54 / 4;
-static const float G_QuatSinEps = 0.001f;
-static const int G_CrSamples = 16;              // inner +0x8
-static const float G_CrStep = 0.0625f;          // inner +0xC = 0x3d800000
-static const int G_SamplesPerSegment = G_CrSamples + 1;
+static constexpr int G_MathMulQuatSlot = 0x18 / 4;
+static constexpr int G_MathSlerpSlot = 0x58 / 4;
+static constexpr int G_MathQuatToMatrixSlot = 0x54 / 4;
+static constexpr float G_QuatSinEps = 0.001f;
+static constexpr int G_CrSamples = 16;              // inner +0x8
+static constexpr float G_CrStep = 0.0625f;          // inner +0xC = 0x3d800000
+static constexpr int G_SamplesPerSegment = G_CrSamples + 1;
 
 namespace
 {
@@ -267,17 +267,17 @@ namespace
     }
 
     // FUN_06f34bc0 / FUN_06f35580 / LAB_06f34ca0 / LAB_06f356c0
-    static const char G_PersistOpen[] = "OPEN";
-    static const char G_PersistClosed[] = "CLOSED";
-    static const char G_PersistFlagFmt[] = "%s, ";
-    static const char G_PersistVec3Fmt[] = "{%f,%f,%f}, ";
-    static const char G_PersistQuatFmt[] = "{%f,%f,%f,%f}, ";
-    static const char G_PersistDigits[] = "0123456789.";
-    static const char G_PersistNumberChars[] = "-0123456789.";
-    static const unsigned long G_PersistPrefixBytes = 10;
-    static const unsigned long G_PersistVec3Bytes = 36;       // LAB_06f34ca0: count*9*4
-    static const unsigned long G_PersistOrientVec3Bytes = 40; // LAB_06f356c0: count*5*8
-    static const unsigned long G_PersistQuatBytes = 51;       // LAB_06f356c0: count*0x33
+    static constexpr char G_PersistOpen[] = "OPEN";
+    static constexpr char G_PersistClosed[] = "CLOSED";
+    static constexpr char G_PersistFlagFmt[] = "%s, ";
+    static constexpr char G_PersistVec3Fmt[] = "{%f,%f,%f}, ";
+    static constexpr char G_PersistQuatFmt[] = "{%f,%f,%f,%f}, ";
+    static constexpr char G_PersistDigits[] = "0123456789.";
+    static constexpr char G_PersistNumberChars[] = "-0123456789.";
+    static constexpr unsigned long G_PersistPrefixBytes = 10;
+    static constexpr unsigned long G_PersistVec3Bytes = 36;       // LAB_06f34ca0: count*9*4
+    static constexpr unsigned long G_PersistOrientVec3Bytes = 40; // LAB_06f356c0: count*5*8
+    static constexpr unsigned long G_PersistQuatBytes = 51;       // LAB_06f356c0: count*0x33
 
     // FUN_06f34a10 (Needed=3) / FUN_06f34ae0 (Needed=4).
     bool ParsePersistFloats(const char** Cursor, float* Out, int Needed)

@@ -253,7 +253,7 @@ struct FCShip {
 };
 
 // Minimum allocation size for FCShip
-static const unsigned int CSHIP_SIZE = 0x2DC;
+static constexpr unsigned int CSHIP_SIZE = 0x2DC;
 
 // ===========================================================================
 // CShip method stubs — match Common.dll exports used by Server.dll

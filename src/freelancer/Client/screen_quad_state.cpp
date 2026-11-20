@@ -34,10 +34,10 @@ unsigned long const G_ScreenQuadDefaultFrame[5] = {0u, 0u, 0u, 0x3f800000u, 0x3f
 
 namespace
 {
-    static const int kMaxCachedRenderStates = 64;
-    static const int kMaxCachedPipelineStates = 16;
-    static const int kMaxCachedTextureStageStates = 32;
-    static const unsigned kScreenQuadFvf = 0x1c4u; // XYZRHW|DIFFUSE|SPECULAR|TEX1
+    static constexpr int kMaxCachedRenderStates = 64;
+    static constexpr int kMaxCachedPipelineStates = 16;
+    static constexpr int kMaxCachedTextureStageStates = 32;
+    static constexpr unsigned kScreenQuadFvf = 0x1c4u; // XYZRHW|DIFFUSE|SPECULAR|TEX1
 
     struct FCachedIntPair
     {

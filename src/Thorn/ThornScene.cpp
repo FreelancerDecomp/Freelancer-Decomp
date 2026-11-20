@@ -696,7 +696,7 @@ namespace
     void BuildAxisFrame(float* Out9, const float* Direction, unsigned FrontAxis, unsigned UpAxis,
                         const unsigned int* SceneFrontAxis, const unsigned int* SceneUpAxis)
     {
-        static const float kAxisTable[6][3] = {
+        static constexpr float kAxisTable[6][3] = {
             {1.0f, 0.0f, 0.0f},  {0.0f, 1.0f, 0.0f},  {0.0f, 0.0f, 1.0f},
             {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}};
 
@@ -1199,7 +1199,7 @@ namespace
     // C++ reverses the operands or changes the waiting instruction boundary.
     bool IsLightInterpolationComplete(const float* U)
     {
-        static const float One = 1.0f;
+        static constexpr float One = 1.0f;
         unsigned short Status;
         __asm
         {
@@ -1689,7 +1689,7 @@ namespace
 
     void ApplyEntityLightRuntimeProps(FThornEntity* Entity, const FThornLightProps* Props)
     {
-        static const float PiOver180 = 0.017453292f; // Exact retail 0x3c8efa35.
+        static constexpr float PiOver180 = 0.017453292f; // Exact retail 0x3c8efa35.
         ID3DLightControl* D3dLight = Entity->D3dLightControl;
         FThornLightProps& Live = Entity->LightEntityDescriptor;
         for (int Index = 0; Index < 36; ++Index)
@@ -1767,7 +1767,7 @@ namespace
     // Sole modern string owner; no VC6 object layout or shared-buffer header.
     const char* AssignMotionPathType(FThornEntity* Entity, const char* Source, bool bConstructionCopy)
     {
-        static const char Empty[] = "";
+        static constexpr char Empty[] = "";
         const std::size_t Length = std::strlen(Source);
         if (Length > 0xfffffffdu)
             throw std::length_error("Thorn descriptor string too long");
@@ -1968,7 +1968,7 @@ namespace
     // These local frames are raw retail MOVs, even with a pending x87 trap.
     void InitializeEventFrameWords(float* Frame)
     {
-        static const unsigned int Words[9] = {
+        static constexpr unsigned int Words[9] = {
             0x3f800000u, 0u, 0u, 0u, 0x3f800000u, 0u, 0u, 0u, 0x3f800000u};
         std::memcpy(Frame, Words, sizeof(Words));
     }
@@ -2155,9 +2155,9 @@ namespace
     // for the first subtraction. Later comparisons reload the stored Tfloat.
     void SpatialWrapScale(float* Last, const FThornExtendedProgress* Progress, float* RoundedProgress, float* ResultScale)
     {
-        static const float Zero = 0.0f;
-        static const float One = 1.0f;
-        static const double OneDouble = 1.0;
+        static constexpr float Zero = 0.0f;
+        static constexpr float One = 1.0f;
+        static constexpr double OneDouble = 1.0;
         float T;
         float Delta;
         float Scale;
@@ -2539,7 +2539,7 @@ void ThornInitLightEntityDefaults(FThornLightProps* Props)
     // FUN_06f41840: execute the retail compact/D3D initialization against a
     // raw adapter first, then expose the values through the port-side record.
     // This keeps the retail offsets explicit without importing the retail ABI.
-    static const unsigned int kOneBits = 0x3f800000;
+    static constexpr unsigned int kOneBits = 0x3f800000;
     if (Props == nullptr)
         return;
 
@@ -7751,7 +7751,7 @@ namespace
         if (Type < 0 || Type > 19)
             return kEventTypeNames[0];
         // 06f2b1f1 searches the numeric IDs before indexing the registration names.
-        static const int EventIds[] = {0, 10, 3, 11, 6, 8, 4, 5, 7, 2, 9, 12, 1,
+        static constexpr int EventIds[] = {0, 10, 3, 11, 6, 8, 4, 5, 7, 2, 9, 12, 1,
                                         13, 14, 15, 16, 17, 18, 19};
         for (int Index = 0; Index < 20; ++Index)
         {
@@ -7959,7 +7959,7 @@ namespace
     {
         // Every uint32 value is exact in both signed int64 and double.
         const __int64 ExtendedMilliseconds = Milliseconds;
-        static const double GMillisecondsToSeconds = 0.001;
+        static constexpr double GMillisecondsToSeconds = 0.001;
         const float Seconds = static_cast<float>(
             static_cast<double>(ExtendedMilliseconds) * GMillisecondsToSeconds);
         return SaveBufAppendFloat(Buf, Format, &Seconds);
@@ -7969,7 +7969,7 @@ namespace
     int SaveBufAppendSignedMilliseconds(FThornSaveBuf* Buf, const char* Format,
                                         const int* Milliseconds)
     {
-        static const double GMillisecondsToSeconds = 0.001;
+        static constexpr double GMillisecondsToSeconds = 0.001;
         const float Seconds = static_cast<float>(
             static_cast<double>(*Milliseconds) * GMillisecondsToSeconds);
         return SaveBufAppendFloat(Buf, Format, &Seconds);
@@ -8748,7 +8748,7 @@ GENRESULT FThornScene::SaveToFileSystem(void* FileSystem, IThornComContext* ComC
         {
             const FThornCameraEventDesc* Packet = reinterpret_cast<const FThornCameraEventDesc*>(Descriptor);
             static const char* const CameraKeys[] = {"fovh", "aspect", "near", "far"};
-            static const int CameraBits[] = {
+            static constexpr int CameraBits[] = {
                 kThornCamBitFovh, kThornCamBitAspect, kThornCamBitNear, kThornCamBitFar};
             SaveBufAppendLiteral(&Buf, ", cameraprops = {");
             bool bWroteCameraField = false;
@@ -8940,7 +8940,7 @@ GENRESULT FThornScene::SaveToFileSystem(void* FileSystem, IThornComContext* ComC
             const FThornAudioPropEventDesc* Packet = reinterpret_cast<const FThornAudioPropEventDesc*>(Descriptor);
             static const char* const AudioKeys[] = {
                 "attenuation", "pan", "dmin", "dmax", "ain", "aout", "atout", "rmix"};
-            static const int AudioBits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
+            static constexpr int AudioBits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
             SaveBufAppendLiteral(&Buf, ", audioprops = {");
             bool bWroteAudioField = false;
             for (int Audio = 0; Audio < 8; ++Audio)

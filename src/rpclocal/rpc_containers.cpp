@@ -2064,14 +2064,14 @@ const char* RpcHardpointCodeToName(unsigned int Code) {
 
 // The per-equipment-record flag byte, built at 06da3ba3..06da3c0d and taken apart at
 // 06da4479..06da45f3. Every bit is a wire-width or presence switch.
-static const unsigned char kEquipFlagEquipped      = 0x01; // 06da3bb0 -> 06da4481
-static const unsigned char kEquipFlagMission       = 0x02; // 06da3bb9 -> 06da447b
-static const unsigned char kEquipFlagWideCount     = 0x04; // 06da3bc8 -> 06da449b
-static const unsigned char kEquipFlagWideId        = 0x08; // 06da3bd1 -> 06da4580
-static const unsigned char kEquipFlagHardpointText = 0x10; // 06da3bf1 -> 06da45f3
-static const unsigned char kEquipFlagNoHardpoint   = 0x20; // 06da3bdb -> 06da45e7
-static const unsigned char kEquipFlagUnitStatus    = 0x40; // 06da3c0d -> 06da44f8
-static const unsigned char kEquipFlagUnitCount     = 0x80; // 06da3bfa -> 06da4490
+static constexpr unsigned char kEquipFlagEquipped      = 0x01; // 06da3bb0 -> 06da4481
+static constexpr unsigned char kEquipFlagMission       = 0x02; // 06da3bb9 -> 06da447b
+static constexpr unsigned char kEquipFlagWideCount     = 0x04; // 06da3bc8 -> 06da449b
+static constexpr unsigned char kEquipFlagWideId        = 0x08; // 06da3bd1 -> 06da4580
+static constexpr unsigned char kEquipFlagHardpointText = 0x10; // 06da3bf1 -> 06da45f3
+static constexpr unsigned char kEquipFlagNoHardpoint   = 0x20; // 06da3bdb -> 06da45e7
+static constexpr unsigned char kEquipFlagUnitStatus    = 0x40; // 06da3c0d -> 06da44f8
+static constexpr unsigned char kEquipFlagUnitCount     = 0x80; // 06da3bfa -> 06da4490
 
 // 06da3ba0..06da3e1b -- one equipment record.
 static void RpcEncodeCreateObjectEquip(FRpcMarshalStream& Stream,
@@ -2656,9 +2656,9 @@ bool RpcGetSizedBlock(FRpcMarshalStream& Stream, unsigned int& OutSize,
 // The CREATESHIP tail's one flag byte, built at 06d97d82..06d97daf and taken apart at
 // 06d982d0..06d982e5. Bit 0x04 is a presence switch as well as a value bit: it decides
 // between the wide display name and the two flattened FmtStrs.
-static const unsigned char kCreateShipFlagField_0x7c = 0x01;  // 06d97d91 -> 06d982da
-static const unsigned char kCreateShipFlagField_0xc8 = 0x02;  // 06d97daf -> 06d982e5
-static const unsigned char kCreateShipFlagField_0x9c = 0x04;  // 06d97da0 -> 06d983b9
+static constexpr unsigned char kCreateShipFlagField_0x7c = 0x01;  // 06d97d91 -> 06d982da
+static constexpr unsigned char kCreateShipFlagField_0xc8 = 0x02;  // 06d97daf -> 06d982e5
+static constexpr unsigned char kCreateShipFlagField_0x9c = 0x04;  // 06d97da0 -> 06d983b9
 
 // 0x06d97d20 -- CREATESHIP, packet vtable +0x04.
 unsigned int RpcEncodeServerCreateShip(FPacketBase& Packet, unsigned char** BufferHolder,
@@ -3039,22 +3039,22 @@ static double RpcFireWeaponAbs(double Value) {
 }
 
 // 06da50f3 / 06da5106 and their y and z copies.
-static const double kFireWeaponSmallLimit = 64.0;      // DAT_06db6130
-static const double kFireWeaponMediumLimit = 8192.0;   // DAT_06db6128
+static constexpr double kFireWeaponSmallLimit = 64.0;      // DAT_06db6130
+static constexpr double kFireWeaponMediumLimit = 8192.0;   // DAT_06db6128
 // DAT_06db6124 * DAT_06db3fd8 and DAT_06db6120 * DAT_06db6118, folded (see above).
-static const double kFireWeaponSmallScale = 127.0 / 64.0;
-static const double kFireWeaponMediumScale = 32767.0 / 8192.0;
-static const double kFireWeaponSmallInvScale = 64.0 / 127.0;      // DAT_06db6140
-static const double kFireWeaponMediumInvScale = 8192.0 / 32767.0; // DAT_06db6138
+static constexpr double kFireWeaponSmallScale = 127.0 / 64.0;
+static constexpr double kFireWeaponMediumScale = 32767.0 / 8192.0;
+static constexpr double kFireWeaponSmallInvScale = 64.0 / 127.0;      // DAT_06db6140
+static constexpr double kFireWeaponMediumInvScale = 8192.0 / 32767.0; // DAT_06db6138
 
-static const unsigned char kFireWeaponXSmall = 0x01;   // 06da5102 MOV BL,0x1
-static const unsigned char kFireWeaponXMedium = 0x02;  // 06da5113 MOV BL,0x2
-static const unsigned char kFireWeaponYSmall = 0x04;   // 06da512d OR BL,0x4
-static const unsigned char kFireWeaponYMedium = 0x08;  // 06da513f OR BL,0x8
-static const unsigned char kFireWeaponZSmall = 0x10;   // 06da5158 OR BL,0x10
+static constexpr unsigned char kFireWeaponXSmall = 0x01;   // 06da5102 MOV BL,0x1
+static constexpr unsigned char kFireWeaponXMedium = 0x02;  // 06da5113 MOV BL,0x2
+static constexpr unsigned char kFireWeaponYSmall = 0x04;   // 06da512d OR BL,0x4
+static constexpr unsigned char kFireWeaponYMedium = 0x08;  // 06da513f OR BL,0x8
+static constexpr unsigned char kFireWeaponZSmall = 0x10;   // 06da5158 OR BL,0x10
 // Read at 06da53c5 and 06da5859, written nowhere. See note 1 above.
-static const unsigned char kFireWeaponZMedium = 0x20;
-static const unsigned char kFireWeaponOneHardpoint = 0x40;  // 06da5172 OR BL,0x40
+static constexpr unsigned char kFireWeaponZMedium = 0x20;
+static constexpr unsigned char kFireWeaponOneHardpoint = 0x40;  // 06da5172 OR BL,0x40
 
 // The per-component width decision, 06da50e8..06da515f. bMedium is false for z.
 static unsigned char RpcFireWeaponPickTier(float Value, unsigned char SmallBit,
@@ -3571,14 +3571,14 @@ unsigned int RpcDecodeClientDbgCreateShip(FPacketBase& Packet, const unsigned ch
 // the signature is common_net.h's, verbatim, so the redeclaration is a no-op.
 COMMON_API bool __cdecl IsMPServer();
 
-static const unsigned int kPlayerTradeSubAccept = 0x01;
-static const unsigned int kPlayerTradeSubCash = 0x02;
-static const unsigned int kPlayerTradeSubOffer = 0x04;
-static const unsigned int kPlayerTradeSubAddEquip = 0x08;
-static const unsigned int kPlayerTradeSubRemoveEquip = 0x10;
-static const unsigned int kPlayerTradeSubClear = 0x20;
-static const unsigned int kPlayerTradeSubFlag = 0x40;
-static const unsigned int kPlayerTradeSubEnd = 0x80;
+static constexpr unsigned int kPlayerTradeSubAccept = 0x01;
+static constexpr unsigned int kPlayerTradeSubCash = 0x02;
+static constexpr unsigned int kPlayerTradeSubOffer = 0x04;
+static constexpr unsigned int kPlayerTradeSubAddEquip = 0x08;
+static constexpr unsigned int kPlayerTradeSubRemoveEquip = 0x10;
+static constexpr unsigned int kPlayerTradeSubClear = 0x20;
+static constexpr unsigned int kPlayerTradeSubFlag = 0x40;
+static constexpr unsigned int kPlayerTradeSubEnd = 0x80;
 
 // LAB_06da7030 -- PLAYER_TRADE, packet vtable +0x04.
 unsigned int RpcEncodeCommonPlayerTrade(FPacketBase& Packet, unsigned char** BufferHolder,

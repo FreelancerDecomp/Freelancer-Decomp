@@ -49,10 +49,10 @@ namespace AlchemyImpl
 
     // DAT_0624bac4 = 1.0f, DAT_0624bb14 = 3.0f, DAT_0624babc = 255.0f,
     // DAT_0624bc98 = 0x3b808081 (1/255 rounded up), DAT_0624bc38 = 0.0f.
-    static const float kRampOne = 1.0f;
-    static const float kRampThree = 3.0f;
-    static const float kRamp255 = 255.0f;
-    static const float kRampInv255 = 0.003921568859368563f;
+    static constexpr float kRampOne = 1.0f;
+    static constexpr float kRampThree = 3.0f;
+    static constexpr float kRamp255 = 255.0f;
+    static constexpr float kRampInv255 = 0.003921568859368563f;
 
     // ---- FxRampSingle interpolators (cdecl, (A, B, T) -> ST0) ----------------------------
     // x87 bodies 06242970..06242a70; the SSE table swaps only mode 4 for 06242ac0. Every

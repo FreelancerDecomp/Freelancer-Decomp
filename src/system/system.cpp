@@ -19,22 +19,22 @@
 // Aggregate that loads System profile entries and fans interface queries out to its children.
 
 
-static const unsigned long kAggDescSize = 0x14;
-static const unsigned long kRegisterPriority = 0x40000000;
-static const unsigned int kFdumpNotice = 0x100003;
-static const int kLoadComponentsLine = 0x123;
+static constexpr unsigned long kAggDescSize = 0x14;
+static constexpr unsigned long kRegisterPriority = 0x40000000;
+static constexpr unsigned int kFdumpNotice = 0x100003;
+static constexpr int kLoadComponentsLine = 0x123;
 
-static const char kComponentName[] = "SystemContainer";  // s_SystemContainer_06f13080
-static const char kSystemSection[] = "System";            // s_System_06f13154
-static const char kStatusOk[] = "[OK]";                   // DAT_06f13140
-static const char kStatusFailed[] = "[FAILED]";           // s_[FAILED]_06f13148
-static const char kEmptyExtra[] = "";                     // DAT_06f13190 (zero dword)
-static const char kLoadFormat[] = "SystemContainer: LoadSystemComponents: Loading '%s' [%s] returned %s";
-static const char kRetailSource[] =
+static constexpr char kComponentName[] = "SystemContainer";  // s_SystemContainer_06f13080
+static constexpr char kSystemSection[] = "System";            // s_System_06f13154
+static constexpr char kStatusOk[] = "[OK]";                   // DAT_06f13140
+static constexpr char kStatusFailed[] = "[FAILED]";           // s_[FAILED]_06f13148
+static constexpr char kEmptyExtra[] = "";                     // DAT_06f13190 (zero dword)
+static constexpr char kLoadFormat[] = "SystemContainer: LoadSystemComponents: Loading '%s' [%s] returned %s";
+static constexpr char kRetailSource[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\System\\SysContainer.cpp";
-static const char kFdumpPrefix[] = "%s(%d) : NOTICE:General:%s";
-static const unsigned int kFdumpScratchSize = 0x2000; // FUN_06f11480 _vsnprintf cap
-static const unsigned int kLineBufferSize = 0x100;    // ReadLine buffer @06f11246
+static constexpr char kFdumpPrefix[] = "%s(%d) : NOTICE:General:%s";
+static constexpr unsigned int kFdumpScratchSize = 0x2000; // FUN_06f11480 _vsnprintf cap
+static constexpr unsigned int kLineBufferSize = 0x100;    // ReadLine buffer @06f11246
 
 // AGGDESC size 0x14 used by this factory and when creating [System] children.
 // +8 = outer IUnknown (aggregation), +0xC = inner out, +0x10 = optional extra.

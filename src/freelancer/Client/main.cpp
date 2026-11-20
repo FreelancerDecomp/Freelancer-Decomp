@@ -603,7 +603,7 @@ FClientCommandLine::FClientCommandLine()
 // FUN_005b3400 (.text:005b3400-005b34aa), __thiscall, RET 4.
 void FClientCommandLine::Parse(const char* CommandLine)
 {
-    static const char kDelimiters[] = " \t"; // .rdata:005e6dec
+    static constexpr char kDelimiters[] = " \t"; // .rdata:005e6dec
 
     Count = 0;
     strcpy(Buffer, CommandLine);

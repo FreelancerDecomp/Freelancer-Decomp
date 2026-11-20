@@ -141,9 +141,9 @@ static bool MarshalCh3StructHead(FPacketBase* Packet, const unsigned int* Args, 
 // depending on src/include/common_server_types.h's SLoginInfo field break -- which is
 // wrong (it has one wchar_t AccountName[96] spanning +0x00..+0xbf and therefore no room
 // for the string retail keeps at +0xa0). Reported, not patched: cross-module header.
-static const unsigned int kLoginAccountOffset = 0x00;   // cap 0x28 wide chars
-static const unsigned int kLoginPasswordOffset = 0xa0;  // cap 0x10 wide chars
-static const unsigned int kLoginFlagOffset = 0xc0;
+static constexpr unsigned int kLoginAccountOffset = 0x00;   // cap 0x28 wide chars
+static constexpr unsigned int kLoginPasswordOffset = 0xa0;  // cap 0x10 wide chars
+static constexpr unsigned int kLoginFlagOffset = 0xc0;
 static unsigned char GStaticLoginInfo[sizeof(SLoginInfo)];   // retail .data:0x06dbba38
 
 static bool MarshalLogin(FPacketBase* Packet, const unsigned int* Args, unsigned int ArgCount) {

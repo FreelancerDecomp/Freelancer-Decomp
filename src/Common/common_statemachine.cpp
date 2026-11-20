@@ -299,7 +299,7 @@ void StateMachine::set_state(int NewState)
 
 // .rdata:063a4978 -- the -1 "any state" value process() offers slot 2 when the current state
 // did not take the event.
-static const int GStateMachineAnyState = -1;
+static constexpr int GStateMachineAnyState = -1;
 
 void StateMachine::process(const SMEventData* Event)
 {

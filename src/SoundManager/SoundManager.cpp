@@ -733,7 +733,7 @@ namespace
     float SoftwareAttenuation(float MinDistance, float Dist, float DistanceFactor,
                               float RolloffFactor, float ClientAtten)
     {
-        static const double kTen = 10.0; // DAT_06ee9480
+        static constexpr double kTen = 10.0; // DAT_06ee9480
         float Result;
         __asm
         {

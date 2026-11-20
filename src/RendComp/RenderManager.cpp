@@ -31,13 +31,13 @@ struct FAggDesc18
 };
 
 // IRenderer Slot7 flag bits (LAB_06c32a80).
-static const unsigned long kDrawPickSwitch = 0x08;     // pick the LOD by distance (FUN_06c32040)
-static const unsigned long kDrawRotateOffset = 0x10;   // rotate the matrix offset by its own 3x3
-static const unsigned long kDrawConjugate = 0x20;      // matrix := World * matrix * World^-1
-static const unsigned long kDrawMatrixReady = 0x40;    // the matrix is used as given
-static const unsigned long kDrawKeepCurrent = 0x80;    // draw the current LOD
-static const unsigned long kDrawNoCull = 0x100;        // skip ICamera ClassifySphere, rank 4
-static const unsigned long kDrawNoChildren = 0x2000;   // do not recurse into child instances
+static constexpr unsigned long kDrawPickSwitch = 0x08;     // pick the LOD by distance (FUN_06c32040)
+static constexpr unsigned long kDrawRotateOffset = 0x10;   // rotate the matrix offset by its own 3x3
+static constexpr unsigned long kDrawConjugate = 0x20;      // matrix := World * matrix * World^-1
+static constexpr unsigned long kDrawMatrixReady = 0x40;    // the matrix is used as given
+static constexpr unsigned long kDrawKeepCurrent = 0x80;    // draw the current LOD
+static constexpr unsigned long kDrawNoCull = 0x100;        // skip ICamera ClassifySphere, rank 4
+static constexpr unsigned long kDrawNoChildren = 0x2000;   // do not recurse into child instances
 
 // The archetype map (retail VC6 std::map<int, FLodSet> at +8, head +0xC, helpers FUN_06c34170 /
 // 06c34380 / 06c34ab0 / 06c2a270). Every lookup in the listing is lower_bound plus a key compare,

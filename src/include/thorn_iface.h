@@ -45,41 +45,41 @@ struct IMotionPath : IDAComponent
 
 // Entity types (snapshot +0x00). Retail: the per-type entity constructors of the scene
 // loader (thorn.dll FUN_06f25xxx switch), thorn_thn_format.md.
-static const int kThornEntityCompound = 1;
-static const int kThornEntityDeformable = 2;
-static const int kThornEntityCamera = 3;
-static const int kThornEntityMonitor = 4;
-static const int kThornEntityLight = 5;
-static const int kThornEntitySound = 6;
-static const int kThornEntityMarker = 7;
-static const int kThornEntityHardpoint = 8;
-static const int kThornEntityScene = 9;
-static const int kThornEntitySubScene = 10;
-static const int kThornEntityMotionPath = 11;
-static const int kThornEntityPsys = 13;
+static constexpr int kThornEntityCompound = 1;
+static constexpr int kThornEntityDeformable = 2;
+static constexpr int kThornEntityCamera = 3;
+static constexpr int kThornEntityMonitor = 4;
+static constexpr int kThornEntityLight = 5;
+static constexpr int kThornEntitySound = 6;
+static constexpr int kThornEntityMarker = 7;
+static constexpr int kThornEntityHardpoint = 8;
+static constexpr int kThornEntityScene = 9;
+static constexpr int kThornEntitySubScene = 10;
+static constexpr int kThornEntityMotionPath = 11;
+static constexpr int kThornEntityPsys = 13;
 
 // Event types (event descriptor +0x00), the switch at thorn.dll 0x06f25953.
-static const int kThornEventTypeMin = 1;
-static const int kThornEventTypeMax = 19;
-static const int kThornTypeUserEvent = 1;
-static const int kThornTypeSetCamera = 2;
-static const int kThornTypeStartSound = 3;
-static const int kThornTypeLightPropAnim = 4;
-static const int kThornTypeCameraPropAnim = 5;
-static const int kThornTypePathAnim = 6;
-static const int kThornTypeSpatialPropAnim = 7;
-static const int kThornTypeAttachEntity = 8;
-static const int kThornTypeConnectHardpoints = 9;
-static const int kThornTypeStartMotion = 10;
-static const int kThornTypeStartIk = 11;
-static const int kThornTypeStartSubScene = 12;
-static const int kThornTypeStartPsys = 13;
-static const int kThornTypePsysPropAnim = 14;
-static const int kThornTypeAudioPropAnim = 15;
-static const int kThornTypeFogPropAnim = 16;
-static const int kThornTypeReverbPropAnim = 17;
-static const int kThornTypeFloorHeightAnim = 18;
-static const int kThornTypeSubtitle = 19;
+static constexpr int kThornEventTypeMin = 1;
+static constexpr int kThornEventTypeMax = 19;
+static constexpr int kThornTypeUserEvent = 1;
+static constexpr int kThornTypeSetCamera = 2;
+static constexpr int kThornTypeStartSound = 3;
+static constexpr int kThornTypeLightPropAnim = 4;
+static constexpr int kThornTypeCameraPropAnim = 5;
+static constexpr int kThornTypePathAnim = 6;
+static constexpr int kThornTypeSpatialPropAnim = 7;
+static constexpr int kThornTypeAttachEntity = 8;
+static constexpr int kThornTypeConnectHardpoints = 9;
+static constexpr int kThornTypeStartMotion = 10;
+static constexpr int kThornTypeStartIk = 11;
+static constexpr int kThornTypeStartSubScene = 12;
+static constexpr int kThornTypeStartPsys = 13;
+static constexpr int kThornTypePsysPropAnim = 14;
+static constexpr int kThornTypeAudioPropAnim = 15;
+static constexpr int kThornTypeFogPropAnim = 16;
+static constexpr int kThornTypeReverbPropAnim = 17;
+static constexpr int kThornTypeFloorHeightAnim = 18;
+static constexpr int kThornTypeSubtitle = 19;
 
 // FUN_06f27fe0 param_2: 0x24 dwords. Color = _ftol ints; cutoff/theta stored in radians.
 // The LIGHT entity's descriptor tail (+0x44) and the light event's target.

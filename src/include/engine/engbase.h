@@ -25,7 +25,7 @@ struct FEngineName
 static void* const G_InvalidEngineHandle = (void*)((ptrdiff_t)-1);
 
 // Joint payload contains 23 DWORDs; mixed values are copied without numeric conversion.
-static const unsigned long G_EngineJointPayloadDwords = 0x17;
+static constexpr unsigned long G_EngineJointPayloadDwords = 0x17;
 
 // Transform callbacks carry an instance argument and have no IDAComponent prefix.
 struct IInstanceTransform

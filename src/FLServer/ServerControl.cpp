@@ -20,7 +20,7 @@ unsigned int GServerVersion = 0;
 static const char* GLocalServerPrefix = "SrvLocal-";
 
 // .data:00425fd8 -- an empty wide string the ctor assigns to ServerName / ServerDescription.
-static const wchar_t GEmptyWide[1] = { 0 };
+static constexpr wchar_t GEmptyWide[1] = { 0 };
 
 bool LoadStringChecked(CString& Out, UINT Id)
 {
