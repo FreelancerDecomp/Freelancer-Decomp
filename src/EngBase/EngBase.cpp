@@ -8,6 +8,7 @@
 #include "facet_offset.h"
 #include "EngBase.h"
 #include "readfile.h"
+#include "x64_low_arena.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -3078,7 +3079,23 @@ static void* FreeListAlloc(FEngBaseFreeList* List)
         List->FreeCount -= 1;
         return Element;
     }
+#if defined(_WIN64)
+    // Port-only: handles stay below 2 GB, where retail's 32-bit fields keep them (x64_low_arena.h).
+    return LowArena::Allocate(List->ElementSize);
+#else
     return std::malloc(List->ElementSize);
+#endif
+}
+
+// The free() that FreeListFree and FreeListDrain end with; on x64 the block goes back to LowArena.
+static void FreeListRelease(FEngBaseFreeList* List, void* Element)
+{
+#if defined(_WIN64)
+    LowArena::Free(Element, List->ElementSize);
+#else
+    (void)(List);
+    std::free(Element);
+#endif
 }
 
 // FUN_06625c00 (thiscall, RET 4): 06625c06 CMP limit,count / JG push; 06625c0a TEST limit /
@@ -3093,7 +3110,7 @@ static void FreeListFree(FEngBaseFreeList* List, void* Element)
         List->FreeHead = Element;
         return;
     }
-    std::free(Element);
+    FreeListRelease(List, Element);
 }
 
 // FUN_06625c40 (thiscall): free every cached element, then count = 0 and head = 0. Live
@@ -3104,7 +3121,7 @@ static void FreeListDrain(FEngBaseFreeList* List)
     while (Element != nullptr)
     {
         void* Next = *(void**)Element;
-        std::free(Element);
+        FreeListRelease(List, Element);
         Element = Next;
     }
     List->FreeCount = 0;

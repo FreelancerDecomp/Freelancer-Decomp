@@ -11,6 +11,12 @@
 // Memory taken before the call stays where it is: the process heap's first segment is usually
 // below 4 GB, and the heap keeps using it until it is full. So the switch catches most, not all,
 // truncated addresses. Win32 ignores it.
+//
+// One window stays free: LowArena (x64_low_arena.h) hands out EngBase's handles below 2 GB,
+// because retail fields keep them in 32 bits. Allocations that land in that window by chance
+// are not caught.
+
+#include "x64_low_arena.h"
 
 #include <windows.h>
 
@@ -37,12 +43,23 @@ inline void ReserveLowAddressSpaceIfRequested()
         {
             const std::uintptr_t Start = (Base + Granularity - 1) & ~(Granularity - 1);
             const std::uintptr_t Stop = (End < Limit ? End : Limit) & ~(Granularity - 1);
-            if (Start < Stop && VirtualAlloc((void*)(Start), Stop - Start, MEM_RESERVE, PAGE_NOACCESS) != nullptr)
-                Reserved = Reserved + (Stop - Start);
+            // The free range, minus LowArena's window: up to two pieces.
+            const std::uintptr_t HoleStart = LowArena::WindowBase;
+            const std::uintptr_t HoleStop = LowArena::WindowBase + LowArena::WindowSize;
+            const std::uintptr_t Pieces[2][2] = {
+                {Start, Stop < HoleStart ? Stop : HoleStart},
+                {Start > HoleStop ? Start : HoleStop, Stop},
+            };
+            for (const auto& Piece : Pieces)
+            {
+                if (Piece[0] < Piece[1] &&
+                    VirtualAlloc((void*)(Piece[0]), Piece[1] - Piece[0], MEM_RESERVE, PAGE_NOACCESS) != nullptr)
+                    Reserved = Reserved + (Piece[1] - Piece[0]);
+            }
         }
         Address = End;
     }
-    std::fprintf(stderr, "FL_HIGH_MEMORY: reserved %llu MB below 4 GB\n",
+    std::fprintf(stderr, "FL_HIGH_MEMORY: reserved %llu MB below 4 GB (LowArena window left free)\n",
                  (unsigned long long)(Reserved >> 20));
 }
 #else
