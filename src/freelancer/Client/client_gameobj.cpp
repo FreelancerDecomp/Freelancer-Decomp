@@ -88,7 +88,7 @@ namespace
         FGameobjEffectListHead* Prev;
         void* Companion[4];
     };
-    static_assert(sizeof(FGameobjEffectListHead) == 0x18, "effect list node 0x18");
+    FL_LAYOUT_ASSERT(sizeof(FGameobjEffectListHead) == 0x18, "effect list node 0x18");
 }
 
 // ===========================================================================
@@ -213,7 +213,7 @@ namespace
     constexpr int kHitEffectSlotCount = 3;
     // 0x0053a022: MOV [ESP+0x14],0x42c80000 -- the replace-by-lowest ceiling, 100.0f.
     constexpr float kHitEffectReplaceCeiling = 100.0f;
-    static_assert(sizeof(FClientGameobj::HitEffects) / sizeof(FClientGameobj::HitEffects[0]) ==
+    FL_LAYOUT_ASSERT(sizeof(FClientGameobj::HitEffects) / sizeof(FClientGameobj::HitEffects[0]) ==
                       kHitEffectSlotCount,
                   "HitEffects holds DAT_00613e60 slots");
 
@@ -1033,7 +1033,7 @@ namespace
         FEquipFxNode* Prev;
         INotify* Wrapper;
     };
-    static_assert(sizeof(FEquipFxNode) == 0xc, "equip-FX node 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FEquipFxNode) == 0xc, "equip-FX node 0xc");
 }
 
 FEquippedFuseList::FEquippedFuseList(unsigned char InAllocatorByte)
@@ -4374,8 +4374,8 @@ void FClientShipGameobj::AirlockIn(Vector const& Pos, Matrix const& Orient)
 
 // The launch camera's stack Csys: Matrix at +0x10, Vector at +0x34 of the frame, i.e. the
 // orientation followed directly by the position -- FUN_0054bb90's twelve floats.
-static_assert(offsetof(Transform, Translation) == 0x24, "Csys12: position after 3x3");
-static_assert(sizeof(Transform) == 0x30, "Csys12: twelve floats");
+FL_LAYOUT_ASSERT(offsetof(Transform, Translation) == 0x24, "Csys12: position after 3x3");
+FL_LAYOUT_ASSERT(sizeof(Transform) == 0x30, "Csys12: twelve floats");
 
 void FClientShipGameobj::LaunchFromDock(FClientGameobj* DockGo, int LaunchIndex)
 {

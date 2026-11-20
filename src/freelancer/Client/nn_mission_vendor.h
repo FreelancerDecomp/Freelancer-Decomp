@@ -157,15 +157,15 @@ private:
 // Retail's VC6 std::string is 0x10 bytes; everything after +0x34c moves by the difference.
 constexpr size_t MissionVendorStringDelta = sizeof(std::string) - 0x10;
 
-static_assert(offsetof(NnMissionVendor, BasePosition) == 0x330, "NN_MissionVendor +0x330");
-static_assert(offsetof(NnMissionVendor, MaterialGroup) == 0x348, "NN_MissionVendor +0x348");
-static_assert(offsetof(NnMissionVendor, VideoTexture) == 0x34c, "NN_MissionVendor +0x34c");
-static_assert(offsetof(NnMissionVendor, VideoMaterial) == 0x35c + MissionVendorStringDelta, "NN_MissionVendor +0x35c");
-static_assert(offsetof(NnMissionVendor, StatusText) == 0x37c + MissionVendorStringDelta, "NN_MissionVendor +0x37c");
-static_assert(offsetof(NnMissionVendor, AcceptButton) == 0x3a4 + MissionVendorStringDelta, "NN_MissionVendor +0x3a4");
-static_assert(offsetof(NnMissionVendor, SummaryIcons) == 0x3b0 + MissionVendorStringDelta, "NN_MissionVendor +0x3b0");
-static_assert(offsetof(NnMissionVendor, IconFrames) == 0x3c4 + MissionVendorStringDelta, "NN_MissionVendor +0x3c4");
-static_assert(offsetof(NnMissionVendor, SummaryScroll) == 0x428 + MissionVendorStringDelta, "NN_MissionVendor +0x428");
-static_assert(offsetof(NnMissionVendor, Hovered) == 0x448 + MissionVendorStringDelta, "NN_MissionVendor +0x448");
-static_assert(offsetof(NnMissionVendor, bNoMissions) == 0x458 + MissionVendorStringDelta, "NN_MissionVendor +0x458");
-static_assert(sizeof(NnMissionVendor) == 0x45c + MissionVendorStringDelta, "retail NN_MissionVendor is 0x45c bytes (operator_new 0x0048d638)");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, BasePosition) == 0x330, "NN_MissionVendor +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, MaterialGroup) == 0x348, "NN_MissionVendor +0x348");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, VideoTexture) == 0x34c, "NN_MissionVendor +0x34c");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, VideoMaterial) == 0x35c + MissionVendorStringDelta, "NN_MissionVendor +0x35c");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, StatusText) == 0x37c + MissionVendorStringDelta, "NN_MissionVendor +0x37c");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, AcceptButton) == 0x3a4 + MissionVendorStringDelta, "NN_MissionVendor +0x3a4");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, SummaryIcons) == 0x3b0 + MissionVendorStringDelta, "NN_MissionVendor +0x3b0");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, IconFrames) == 0x3c4 + MissionVendorStringDelta, "NN_MissionVendor +0x3c4");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, SummaryScroll) == 0x428 + MissionVendorStringDelta, "NN_MissionVendor +0x428");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, Hovered) == 0x448 + MissionVendorStringDelta, "NN_MissionVendor +0x448");
+FL_LAYOUT_ASSERT(offsetof(NnMissionVendor, bNoMissions) == 0x458 + MissionVendorStringDelta, "NN_MissionVendor +0x458");
+FL_LAYOUT_ASSERT(sizeof(NnMissionVendor) == 0x45c + MissionVendorStringDelta, "retail NN_MissionVendor is 0x45c bytes (operator_new 0x0048d638)");

@@ -59,7 +59,7 @@ private:
     WinObject& operator=(WinObject const&) = delete;
 };
 
-static_assert(sizeof(WinObject) == 0xac, "retail WinObject is 0xac bytes");
-static_assert(offsetof(WinObject, MeshHolder) == 0x7c, "WinObject +0x7c mesh holder");
-static_assert(offsetof(WinObject, DrawFlags) == 0xa4, "WinObject +0xa4 draw flags");
-static_assert(offsetof(WinObject, TintRgba) == 0xa5, "WinObject +0xa5 tint");
+FL_LAYOUT_ASSERT(sizeof(WinObject) == 0xac, "retail WinObject is 0xac bytes");
+FL_LAYOUT_ASSERT(offsetof(WinObject, MeshHolder) == 0x7c, "WinObject +0x7c mesh holder");
+FL_LAYOUT_ASSERT(offsetof(WinObject, DrawFlags) == 0xa4, "WinObject +0xa4 draw flags");
+FL_LAYOUT_ASSERT(offsetof(WinObject, TintRgba) == 0xa5, "WinObject +0xa5 tint");

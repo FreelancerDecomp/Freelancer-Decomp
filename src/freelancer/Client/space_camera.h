@@ -99,7 +99,7 @@ struct FSpaceCamera : ICamera
 // The base ctor's highest write is the byte at +0xbc, and the third-person camera derived from
 // it puts its own first field at +0xc0 (FUN_00518af0 reads the watched object from there), so
 // the base subobject is exactly 0xc0 bytes.
-static_assert(sizeof(FSpaceCamera) == 0xc0, "FSpaceCamera must be 0xc0");
+FL_LAYOUT_ASSERT(sizeof(FSpaceCamera) == 0xc0, "FSpaceCamera must be 0xc0");
 
 inline ICamera* AsCamera(FSpaceCamera* Cam) { return Cam; }
 

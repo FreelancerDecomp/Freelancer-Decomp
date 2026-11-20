@@ -129,7 +129,7 @@ namespace
         FEffectBase* Effect;   // +0x10
         void* SlotExplosion;   // +0x14
     };
-    static_assert(sizeof(FEffectListNode) == 0x18, "effect list node 0x18");
+    FL_LAYOUT_ASSERT(sizeof(FEffectListNode) == 0x18, "effect list node 0x18");
 
 }
 

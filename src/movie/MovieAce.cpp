@@ -11,11 +11,11 @@
 #include <stddef.h>
 #include <windows.h>
 
-static_assert(offsetof(FRngState, Buffer) == 0x20u, "rng pool");
-static_assert(offsetof(FRngState, Mode) == 0x14u, "rng mode");
-static_assert(offsetof(FMd4Context, Buffer) == 0x18u, "md4 buffer");
-static_assert(offsetof(FMd4Context, Digest) == 0x58u, "md4 digest");
-static_assert(sizeof(FSha1Context) == 0x74u, "sha context scrubbed as 29 dwords");
+FL_LAYOUT_ASSERT(offsetof(FRngState, Buffer) == 0x20u, "rng pool");
+FL_LAYOUT_ASSERT(offsetof(FRngState, Mode) == 0x14u, "rng mode");
+FL_LAYOUT_ASSERT(offsetof(FMd4Context, Buffer) == 0x18u, "md4 buffer");
+FL_LAYOUT_ASSERT(offsetof(FMd4Context, Digest) == 0x58u, "md4 digest");
+FL_LAYOUT_ASSERT(sizeof(FSha1Context) == 0x74u, "sha context scrubbed as 29 dwords");
 
 // 0x06ada920 through 0x06ada95f. First byte 0x80, the other 63 bytes are 0.
 // Md4Final copies at most 0x40 of these.

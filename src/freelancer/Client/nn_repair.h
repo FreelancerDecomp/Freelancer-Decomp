@@ -55,9 +55,9 @@ struct FRepairItem
     unsigned char Pad1d[3];     //       not written
 };
 
-static_assert(sizeof(FRepairItem) == 0x20, "NN_Repair list element stride 0x20");
-static_assert(offsetof(FRepairItem, Cost) == 0x0c, "FRepairItem +0x0c");
-static_assert(offsetof(FRepairItem, bSelected) == 0x1c, "FRepairItem +0x1c");
+FL_LAYOUT_ASSERT(sizeof(FRepairItem) == 0x20, "NN_Repair list element stride 0x20");
+FL_LAYOUT_ASSERT(offsetof(FRepairItem, Cost) == 0x0c, "FRepairItem +0x0c");
+FL_LAYOUT_ASSERT(offsetof(FRepairItem, bSelected) == 0x1c, "FRepairItem +0x1c");
 
 class NnRepair : public WinControl, public EventHandler
 {
@@ -141,7 +141,7 @@ private:
 // (negative when the current CRT's vector is smaller).
 constexpr ptrdiff_t RepairVectorDelta = static_cast<ptrdiff_t>(sizeof(std::vector<FRepairItem>)) - 0x10;
 
-static_assert(offsetof(NnRepair, Items) == 0x330, "NN_Repair +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnRepair, Items) == 0x330, "NN_Repair +0x330");
 static_assert(static_cast<ptrdiff_t>(offsetof(NnRepair, ScrollOffset)) == 0x340 + RepairVectorDelta, "NN_Repair +0x340");
 static_assert(static_cast<ptrdiff_t>(offsetof(NnRepair, CheckBoxes)) == 0x34c + RepairVectorDelta, "NN_Repair +0x34c");
 static_assert(static_cast<ptrdiff_t>(offsetof(NnRepair, ItemDamages)) == 0x448 + RepairVectorDelta, "NN_Repair +0x448");

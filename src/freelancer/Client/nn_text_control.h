@@ -164,28 +164,28 @@ public:
     unsigned char Pad39d[3];
 };
 
-static_assert(offsetof(NnTextControl, Width) == 0x32c, "TextControl +0x32c width");
-static_assert(offsetof(NnTextControl, FontString) == 0x334, "TextControl +0x334 Font::String");
-static_assert(offsetof(NnTextControl, TextColour) == 0x348, "TextControl +0x348 colour");
-static_assert(offsetof(NnTextControl, Dword358) == 0x358, "TextControl +0x358");
-static_assert(offsetof(NnTextControl, bColourOverride) == 0x35d, "TextControl +0x35d");
-static_assert(offsetof(NnTextControl, OverrideColour) == 0x35e, "TextControl +0x35e");
-static_assert(offsetof(NnTextControl, bTypewriter) == 0x362, "TextControl +0x362");
-static_assert(offsetof(NnTextControl, TypeInterval) == 0x36c, "TextControl +0x36c");
-static_assert(offsetof(NnTextControl, PendingText) == 0x370, "TextControl +0x370");
-static_assert(offsetof(NnTextControl, Byte378) == 0x378, "TextControl +0x378");
-static_assert(offsetof(NnTextControl, TypedCount) == 0x364, "TextControl +0x364");
-static_assert(offsetof(NnTextControl, TypeElapsed) == 0x368, "TextControl +0x368");
-static_assert(offsetof(NnTextControl, bBlink) == 0x379, "TextControl +0x379");
-static_assert(offsetof(NnTextControl, BlinkElapsed) == 0x37c, "TextControl +0x37c");
-static_assert(offsetof(NnTextControl, BlinkColourOn) == 0x381, "TextControl +0x381");
-static_assert(offsetof(NnTextControl, BlinkColourOff) == 0x385, "TextControl +0x385");
-static_assert(offsetof(NnTextControl, bTyping) == 0x389, "TextControl +0x389");
-static_assert(offsetof(NnTextControl, CachedX) == 0x38c, "TextControl +0x38c");
-static_assert(offsetof(NnTextControl, Byte394) == 0x394, "TextControl +0x394");
-static_assert(offsetof(NnTextControl, CachedSurfaceWidth) == 0x398, "TextControl +0x398");
-static_assert(offsetof(NnTextControl, bInCaptureList) == 0x39c, "TextControl +0x39c");
-static_assert(sizeof(NnTextControl) == 0x3a0, "retail TextControl is 0x3a0 bytes");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, Width) == 0x32c, "TextControl +0x32c width");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, FontString) == 0x334, "TextControl +0x334 Font::String");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, TextColour) == 0x348, "TextControl +0x348 colour");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, Dword358) == 0x358, "TextControl +0x358");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, bColourOverride) == 0x35d, "TextControl +0x35d");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, OverrideColour) == 0x35e, "TextControl +0x35e");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, bTypewriter) == 0x362, "TextControl +0x362");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, TypeInterval) == 0x36c, "TextControl +0x36c");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, PendingText) == 0x370, "TextControl +0x370");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, Byte378) == 0x378, "TextControl +0x378");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, TypedCount) == 0x364, "TextControl +0x364");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, TypeElapsed) == 0x368, "TextControl +0x368");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, bBlink) == 0x379, "TextControl +0x379");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, BlinkElapsed) == 0x37c, "TextControl +0x37c");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, BlinkColourOn) == 0x381, "TextControl +0x381");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, BlinkColourOff) == 0x385, "TextControl +0x385");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, bTyping) == 0x389, "TextControl +0x389");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, CachedX) == 0x38c, "TextControl +0x38c");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, Byte394) == 0x394, "TextControl +0x394");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, CachedSurfaceWidth) == 0x398, "TextControl +0x398");
+FL_LAYOUT_ASSERT(offsetof(NnTextControl, bInCaptureList) == 0x39c, "TextControl +0x39c");
+FL_LAYOUT_ASSERT(sizeof(NnTextControl) == 0x3a0, "retail TextControl is 0x3a0 bytes");
 
 // "TextControl" is the WINFACTORY<NnTextControl> static G_TextControlFactory (nn_text_control.cpp,
 // retail DAT_0067d88c, Create FUN_0058c120).
@@ -240,9 +240,9 @@ private:
     NnEditControl& operator=(NnEditControl const&) = delete;
 };
 
-static_assert(offsetof(NnEditControl, CursorTimer) == 0x3a0, "EditControl +0x3a0");
-static_assert(offsetof(NnEditControl, bCursorShown) == 0x3a4, "EditControl +0x3a4");
-static_assert(offsetof(NnEditControl, MaxLength) == 0x3a8, "EditControl +0x3a8");
-static_assert(offsetof(NnEditControl, bEditable) == 0x3ac, "EditControl +0x3ac");
-static_assert(offsetof(NnEditControl, bDigitsOnly) == 0x3ad, "EditControl +0x3ad");
-static_assert(sizeof(NnEditControl) == 0x3b0, "retail EditControl is 0x3b0 bytes");
+FL_LAYOUT_ASSERT(offsetof(NnEditControl, CursorTimer) == 0x3a0, "EditControl +0x3a0");
+FL_LAYOUT_ASSERT(offsetof(NnEditControl, bCursorShown) == 0x3a4, "EditControl +0x3a4");
+FL_LAYOUT_ASSERT(offsetof(NnEditControl, MaxLength) == 0x3a8, "EditControl +0x3a8");
+FL_LAYOUT_ASSERT(offsetof(NnEditControl, bEditable) == 0x3ac, "EditControl +0x3ac");
+FL_LAYOUT_ASSERT(offsetof(NnEditControl, bDigitsOnly) == 0x3ad, "EditControl +0x3ad");
+FL_LAYOUT_ASSERT(sizeof(NnEditControl) == 0x3b0, "retail EditControl is 0x3b0 bytes");

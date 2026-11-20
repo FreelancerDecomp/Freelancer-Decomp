@@ -795,7 +795,7 @@ namespace
         Vector Field_0x0c; // +0x0c  event +0x1c
         Vector Field_0x18; // +0x18  event +0x28
     };
-    static_assert(sizeof(FClientCollisionRecord) == 0x24, "collision record 0x24");
+    FL_LAYOUT_ASSERT(sizeof(FClientCollisionRecord) == 0x24, "collision record 0x24");
 
     // FUN_0052fe60 (cdecl): one side of a PhySys collision -> the Gameobj of the part's root
     // (FUN_005419a0) and the sub-object it was hit on.

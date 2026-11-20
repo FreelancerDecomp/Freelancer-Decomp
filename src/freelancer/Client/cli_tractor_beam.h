@@ -37,7 +37,7 @@ struct FCliTractorBeam : FEffectBase
     FTexShape* LineShape;  // +0x7c G_EffectShapeDB "line" record
     FTexShape* BulbShape;  // +0x80 G_EffectShapeDB "bulb" record
 };
-static_assert(sizeof(FCliTractorBeam) == 0x84, "CliTractorBeam 0x84");
+FL_LAYOUT_ASSERT(sizeof(FCliTractorBeam) == 0x84, "CliTractorBeam 0x84");
 
 // 0x0052fa2b..0x0052fa66 (FUN_0052fa10 inlined): EffectAlloc(0x84); non-null ->
 // EffectBaseConstruct(0x2d), +0x6c..+0x80 = 0, vtable PTR_LAB_005ddcec. Null when the

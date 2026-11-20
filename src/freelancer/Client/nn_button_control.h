@@ -136,13 +136,13 @@ private:
     NnButtonControl& operator=(NnButtonControl const&) = delete;
 };
 
-static_assert(offsetof(NnButtonControl, ToolTip2Ids) == 0x32c, "ButtonControl +0x32c");
-static_assert(offsetof(NnButtonControl, ButtonBits) == 0x330, "ButtonControl +0x330");
-static_assert(offsetof(NnButtonControl, bGlow) == 0x337, "ButtonControl +0x337");
-static_assert(offsetof(NnButtonControl, MontageTile) == 0x338, "ButtonControl +0x338");
-static_assert(offsetof(NnButtonControl, SpinSpeed) == 0x340, "ButtonControl +0x340");
-static_assert(offsetof(NnButtonControl, GlowArgb) == 0x348, "ButtonControl +0x348");
-static_assert(offsetof(NnButtonControl, CommandId) == 0x34c, "ButtonControl +0x34c");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, ToolTip2Ids) == 0x32c, "ButtonControl +0x32c");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, ButtonBits) == 0x330, "ButtonControl +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, bGlow) == 0x337, "ButtonControl +0x337");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, MontageTile) == 0x338, "ButtonControl +0x338");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, SpinSpeed) == 0x340, "ButtonControl +0x340");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, GlowArgb) == 0x348, "ButtonControl +0x348");
+FL_LAYOUT_ASSERT(offsetof(NnButtonControl, CommandId) == 0x34c, "ButtonControl +0x34c");
 
 // Retail ToggleButtonControl (RTTI .?AUToggleButtonControl@@ : ButtonControl) -- a
 // ButtonControl with a second state: its own mesh ("mesh2", drawn while the state is 1), its

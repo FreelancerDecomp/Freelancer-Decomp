@@ -41,7 +41,7 @@ namespace Archetype
         T* Capacity;
     };
 
-    static_assert(sizeof(FCliVc6Vector<void*>) == 0x10, "VC6 vector header 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliVc6Vector<void*>) == 0x10, "VC6 vector header 0x10");
 
     // MaterialLib path pair (stride 8). First dword is char* path into FUN_0041aa50 /
     // MaterialLib::Load — not a CreateID hash (RE doc correction). Arg is FUN_0041aa50's third
@@ -52,7 +52,7 @@ namespace Archetype
         unsigned Arg;
     };
 
-    static_assert(sizeof(FCliMaterialPathPair) == 8, "material path pair stride 8");
+    FL_LAYOUT_ASSERT(sizeof(FCliMaterialPathPair) == 8, "material path pair stride 8");
 
     // FUN_0040d830 insert-at-end for a material path list (stride 8).
     void PushMaterialPathPair(FCliVc6Vector<FCliMaterialPathPair>* Vec, char const* Path,

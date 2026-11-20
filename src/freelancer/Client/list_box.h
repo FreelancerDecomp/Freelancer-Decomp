@@ -94,17 +94,17 @@ private:
     ListBox& operator=(ListBox const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(ListBox) == 0x8b0,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(ListBox) == 0x8b0,
               "NN_LoadSave embeds ListBoxes at +0x5dc and +0xe98 with a Vector at +0xe8c");
-static_assert(offsetof(ListBox, HoverIndex) == 0x7c, "ListBox +0x7c");
-static_assert(offsetof(ListBox, Font) == 0x84, "ListBox +0x84 font");
-static_assert(offsetof(ListBox, ItemData) == 0x8c, "ListBox +0x8c item data");
-static_assert(offsetof(ListBox, Items) == 0x48c, "ListBox +0x48c rows");
-static_assert(offsetof(ListBox, FirstVisible) == 0x88c, "ListBox +0x88c");
-static_assert(offsetof(ListBox, Width) == 0x898, "ListBox +0x898");
-static_assert(offsetof(ListBox, bDrawFrame) == 0x8a0, "ListBox +0x8a0");
-static_assert(offsetof(ListBox, ItemCount) == 0x8a4, "ListBox +0x8a4");
-static_assert(offsetof(ListBox, SelectedIndex) == 0x8ac, "ListBox +0x8ac");
+FL_LAYOUT_ASSERT(offsetof(ListBox, HoverIndex) == 0x7c, "ListBox +0x7c");
+FL_LAYOUT_ASSERT(offsetof(ListBox, Font) == 0x84, "ListBox +0x84 font");
+FL_LAYOUT_ASSERT(offsetof(ListBox, ItemData) == 0x8c, "ListBox +0x8c item data");
+FL_LAYOUT_ASSERT(offsetof(ListBox, Items) == 0x48c, "ListBox +0x48c rows");
+FL_LAYOUT_ASSERT(offsetof(ListBox, FirstVisible) == 0x88c, "ListBox +0x88c");
+FL_LAYOUT_ASSERT(offsetof(ListBox, Width) == 0x898, "ListBox +0x898");
+FL_LAYOUT_ASSERT(offsetof(ListBox, bDrawFrame) == 0x8a0, "ListBox +0x8a0");
+FL_LAYOUT_ASSERT(offsetof(ListBox, ItemCount) == 0x8a4, "ListBox +0x8a4");
+FL_LAYOUT_ASSERT(offsetof(ListBox, SelectedIndex) == 0x8ac, "ListBox +0x8ac");
 
 // DAT_0067dd54 (LAB_005a1e70) and DAT_0067dd50 (LAB_005a1e90): the frame's dark and light
 // RGB bytes, handed to glColor3ubv (FUN_00421aa0).

@@ -42,7 +42,7 @@ struct FDebrisArch
     float LinearDrag;      // +0x14  linear_drag
     Vector AngularDrag;    // +0x18  angular_drag = x, y, z
 };
-static_assert(sizeof(FDebrisArch) == 0x24, "Debris archetype 0x24");
+FL_LAYOUT_ASSERT(sizeof(FDebrisArch) == 0x24, "Debris archetype 0x24");
 
 // FUN_00530a20 (cdecl) -- read one [Debris] section. A nicknamed section goes into the table;
 // a nickname already there is kept and, unless bQuiet, FDUMPs the duplicate warning. True

@@ -95,7 +95,7 @@ private:
     HUDItem& operator=(HUDItem const&) = delete;
 };
 
-static_assert(sizeof(HUDItem) == 0x38, "retail HUDItem is 0x38 bytes");
+FL_LAYOUT_ASSERT(sizeof(HUDItem) == 0x38, "retail HUDItem is 0x38 bytes");
 
 // Transitional name kept while the HUD-A lane (hud_targetable_objects / hud_target) moves over.
 using IHudElement = HUDItem;
@@ -182,7 +182,7 @@ struct HUD_Steer : public HUDItem
     FClientMeshHolder MeshHolder;  // +0x4c interface\hud\HUD_steeringarrow.3db
 };
 
-static_assert(sizeof(HUD_Steer) == 0x74, "retail HUD_Steer is 0x74 bytes");
+FL_LAYOUT_ASSERT(sizeof(HUD_Steer) == 0x74, "retail HUD_Steer is 0x74 bytes");
 
 // FUN_004c8400 -- UHUD_Steer::HUDFACTORY: the factory whose Create builds HUD_Steer. Retail
 // keeps a separate out-of-line copy of the base constructor for it (with the chain append

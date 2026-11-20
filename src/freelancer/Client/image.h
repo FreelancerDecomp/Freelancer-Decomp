@@ -62,7 +62,7 @@ private:
     Image& operator=(Image const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(Image) == 0x18, "retail Image is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(Image) == 0x18, "retail Image is 0x18 bytes");
 
 // FUN_00565d90 (cdecl): operator new(0x18); on success vptr + BigImage = 0. Caller FUN_00579220.
 Image* CreateImage();

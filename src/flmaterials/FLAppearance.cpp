@@ -338,7 +338,7 @@ namespace
         unsigned long RefCount_;
     };
 
-    static_assert(sizeof(FCameraBlob) == 0x88, "retail camera object is 0x88");
+    FL_LAYOUT_ASSERT(sizeof(FCameraBlob) == 0x88, "retail camera object is 0x88");
 
     void CopyVec3(float* Dest, const float* Source)
     {

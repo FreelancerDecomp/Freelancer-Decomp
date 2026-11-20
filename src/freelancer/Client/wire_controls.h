@@ -118,11 +118,11 @@ private:
     WireStaticControl& operator=(WireStaticControl const&) = delete;
 };
 
-static_assert(offsetof(WireStaticControl, WireOrientation) == 0x32c, "WireStaticControl +0x32c");
-static_assert(offsetof(WireStaticControl, WireCenter) == 0x350, "WireStaticControl +0x350");
-static_assert(offsetof(WireStaticControl, WireState) == 0x35c, "WireStaticControl +0x35c");
-static_assert(offsetof(WireStaticControl, BlinkTimer) == 0x360, "WireStaticControl +0x360");
-static_assert(offsetof(WireStaticControl, ToolTipAux) == 0x364, "WireStaticControl +0x364");
+FL_LAYOUT_ASSERT(offsetof(WireStaticControl, WireOrientation) == 0x32c, "WireStaticControl +0x32c");
+FL_LAYOUT_ASSERT(offsetof(WireStaticControl, WireCenter) == 0x350, "WireStaticControl +0x350");
+FL_LAYOUT_ASSERT(offsetof(WireStaticControl, WireState) == 0x35c, "WireStaticControl +0x35c");
+FL_LAYOUT_ASSERT(offsetof(WireStaticControl, BlinkTimer) == 0x360, "WireStaticControl +0x360");
+FL_LAYOUT_ASSERT(offsetof(WireStaticControl, ToolTipAux) == 0x364, "WireStaticControl +0x364");
 
 class WireButtonControl : public WireStaticControl
 {

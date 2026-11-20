@@ -117,16 +117,16 @@ struct FGameCamera : FSpaceCamera
 };
 
 // The HUDCamera ctor's first own write is the vptr at +0xf8, so FGameCamera is exactly 0xf8.
-static_assert(sizeof(FGameCamera) == 0x0f8, "FGameCamera must be 0xf8");
-static_assert(offsetof(FGameCamera, Watched) == 0x0c0, "GC +0x0c0");
-static_assert(offsetof(FGameCamera, BaseHalfFovXDeg) == 0x0c8, "GC +0x0c8");
-static_assert(offsetof(FGameCamera, VectorD0) == 0x0d0, "GC +0x0d0");
-static_assert(offsetof(FGameCamera, Velocity) == 0x0dc, "GC +0x0dc");
-static_assert(offsetof(FGameCamera, Flags) == 0x0e8, "GC +0x0e8");
-static_assert(offsetof(FGameCamera, FieldEC) == 0x0ec, "GC +0x0ec");
-static_assert(offsetof(FGameCamera, FieldF0) == 0x0f0, "GC +0x0f0");
-static_assert(offsetof(FGameCamera, bFlagF4) == 0x0f4, "GC +0x0f4");
-static_assert(offsetof(FGameCamera, bFlagF6) == 0x0f6, "GC +0x0f6");
+FL_LAYOUT_ASSERT(sizeof(FGameCamera) == 0x0f8, "FGameCamera must be 0xf8");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, Watched) == 0x0c0, "GC +0x0c0");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, BaseHalfFovXDeg) == 0x0c8, "GC +0x0c8");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, VectorD0) == 0x0d0, "GC +0x0d0");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, Velocity) == 0x0dc, "GC +0x0dc");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, Flags) == 0x0e8, "GC +0x0e8");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, FieldEC) == 0x0ec, "GC +0x0ec");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, FieldF0) == 0x0f0, "GC +0x0f0");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, bFlagF4) == 0x0f4, "GC +0x0f4");
+FL_LAYOUT_ASSERT(offsetof(FGameCamera, bFlagF6) == 0x0f6, "GC +0x0f6");
 
 // FUN_0051ca80. Adds a SECOND base whose vptr lives at +0xf8. That base has exactly one virtual
 // method -- the abstract table at .rdata 0x005cbed8 holds a single _purecall thunk -- and the
@@ -157,9 +157,9 @@ struct FHudCamera : FGameCamera, EventHandler
 };
 
 // The RearView ctor's first own write is +0x100, so FHudCamera is exactly 0x100.
-static_assert(sizeof(FHudCamera) == 0x100, "FHudCamera must be 0x100");
-static_assert(offsetof(FHudCamera, bFlagFC) == 0x0fc, "HC +0x0fc");
-static_assert(offsetof(FHudCamera, bFlagFE) == 0x0fe, "HC +0x0fe");
+FL_LAYOUT_ASSERT(sizeof(FHudCamera) == 0x100, "FHudCamera must be 0x100");
+FL_LAYOUT_ASSERT(offsetof(FHudCamera, bFlagFC) == 0x0fc, "HC +0x0fc");
+FL_LAYOUT_ASSERT(offsetof(FHudCamera, bFlagFE) == 0x0fe, "HC +0x0fe");
 
 // Single inheritance with the base first, so the subobject is always at offset zero. These
 // two spell that out where a chain of `.Base.Base` would only obscure the intent.

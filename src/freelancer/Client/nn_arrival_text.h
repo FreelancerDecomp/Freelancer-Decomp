@@ -74,11 +74,11 @@ private:
     NnArrivalText& operator=(NnArrivalText const&) = delete;
 };
 
-static_assert(sizeof(NnArrivalText) == 0x33c, "retail NN_ArrivalText is 0x33c bytes (0x0045b548)");
-static_assert(offsetof(NnArrivalText, Caption) == 0x32c, "NN_ArrivalText +0x32c caption");
-static_assert(offsetof(NnArrivalText, HoldTime) == 0x330, "NN_ArrivalText +0x330 hold");
-static_assert(offsetof(NnArrivalText, Delay) == 0x334, "NN_ArrivalText +0x334 delay");
-static_assert(offsetof(NnArrivalText, bWaitForLetterbox) == 0x338, "NN_ArrivalText +0x338");
+FL_LAYOUT_ASSERT(sizeof(NnArrivalText) == 0x33c, "retail NN_ArrivalText is 0x33c bytes (0x0045b548)");
+FL_LAYOUT_ASSERT(offsetof(NnArrivalText, Caption) == 0x32c, "NN_ArrivalText +0x32c caption");
+FL_LAYOUT_ASSERT(offsetof(NnArrivalText, HoldTime) == 0x330, "NN_ArrivalText +0x330 hold");
+FL_LAYOUT_ASSERT(offsetof(NnArrivalText, Delay) == 0x334, "NN_ArrivalText +0x334 delay");
+FL_LAYOUT_ASSERT(offsetof(NnArrivalText, bWaitForLetterbox) == 0x338, "NN_ArrivalText +0x338");
 
 // The cdecl entry points. Each "ensure" makes the window through the WinFactory
 // (FUN_0059db20("NN_ArrivalText", "NN_ArrivalText", 0, 0)) when DAT_0066d398 is null and gives up

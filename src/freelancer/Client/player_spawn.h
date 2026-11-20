@@ -27,7 +27,7 @@ struct FPlayerWaypointRecord
     unsigned ObjectId;   // +0x10
     int AutoId;          // +0x14  largest id + 1 at insert time
 };
-static_assert(sizeof(FPlayerWaypointRecord) == 0x18, "waypoint record 0x18");
+FL_LAYOUT_ASSERT(sizeof(FPlayerWaypointRecord) == 0x18, "waypoint record 0x18");
 
 int GetPlayerWaypointCountRetail();                    // FUN_004c4690
 FPlayerWaypointRecord* GetPlayerWaypointRetail(int Index); // FUN_004c46a0 (null out of range)

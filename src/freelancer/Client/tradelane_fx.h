@@ -63,13 +63,13 @@ struct FTradeLaneRingRuntime
     void* EffectSlot2;               // +0x38
     void* EffectSlot3;               // +0x3c
 };
-static_assert(sizeof(FTradeLaneRingRuntime) == 0x40, "TradeLaneRingRuntime 0x40");
-static_assert(offsetof(FTradeLaneRingRuntime, ShipListSentinel) == 0x0c, "ship list @+0x0c");
-static_assert(offsetof(FTradeLaneRingRuntime, RingWatcher) == 0x14, "watcher @+0x14");
-static_assert(offsetof(FTradeLaneRingRuntime, SideKey) == 0x1c, "side key @+0x1c");
-static_assert(offsetof(FTradeLaneRingRuntime, bActive) == 0x1d, "active @+0x1d");
-static_assert(offsetof(FTradeLaneRingRuntime, GlowScale) == 0x28, "glow scale @+0x28");
-static_assert(offsetof(FTradeLaneRingRuntime, EffectSlot0) == 0x30, "slots @+0x30");
+FL_LAYOUT_ASSERT(sizeof(FTradeLaneRingRuntime) == 0x40, "TradeLaneRingRuntime 0x40");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, ShipListSentinel) == 0x0c, "ship list @+0x0c");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, RingWatcher) == 0x14, "watcher @+0x14");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, SideKey) == 0x1c, "side key @+0x1c");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, bActive) == 0x1d, "active @+0x1d");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, GlowScale) == 0x28, "glow scale @+0x28");
+FL_LAYOUT_ASSERT(offsetof(FTradeLaneRingRuntime, EffectSlot0) == 0x30, "slots @+0x30");
 
 enum : unsigned
 {

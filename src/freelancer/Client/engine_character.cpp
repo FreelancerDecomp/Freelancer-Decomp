@@ -19,19 +19,19 @@
 #include <stdint.h>
 #include <string.h>
 
-static_assert(sizeof(FEngineCharacterPartPath) == 0x94, "EngineCharacter part path is 0x94");
-static_assert(sizeof(FDeformPartDesc) == 0x18, "EngineCharacter part entry is 0x18");
-static_assert(sizeof(FDeformLodDesc) == 0xc, "EngineCharacter part source is 0xc");
-static_assert(offsetof(FEngineCharacterBodyDesc, Entry) == 0x68, "BodyDesc entries at +0x68");
-static_assert(offsetof(FEngineCharacterBodyDesc, Part) == 0x128, "BodyDesc paths at +0x128");
-static_assert(sizeof(FEngineCharacterBodyDesc) == 0x5c8, "BodyDesc is 0x5c8");
-static_assert(sizeof(FEngineCharacterBody) == 0x298, "EngineCharacter body is 0x298");
-static_assert(offsetof(FEngineCharacterBody, AnimNames) == 0x44, "body anim names at +0x44");
-static_assert(offsetof(FEngineCharacterBody, AnimIds) == 0x254, "body anim ids at +0x254");
-static_assert(offsetof(FEngineCharacterBody, RootTransform) == 0x268, "body transform at +0x268");
-static_assert(offsetof(FEngineCharacterAccessoryLink, AccessoryHardpoint) == 0x84, "link +0x84");
-static_assert(offsetof(FEngineCharacterAccessoryLink, CharacterHardpoint) == 0xc8, "link +0xc8");
-static_assert(offsetof(FEngineCharacterAccessoryLink, MaterialPaths) == 0x10c, "link +0x10c");
+FL_LAYOUT_ASSERT(sizeof(FEngineCharacterPartPath) == 0x94, "EngineCharacter part path is 0x94");
+FL_LAYOUT_ASSERT(sizeof(FDeformPartDesc) == 0x18, "EngineCharacter part entry is 0x18");
+FL_LAYOUT_ASSERT(sizeof(FDeformLodDesc) == 0xc, "EngineCharacter part source is 0xc");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterBodyDesc, Entry) == 0x68, "BodyDesc entries at +0x68");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterBodyDesc, Part) == 0x128, "BodyDesc paths at +0x128");
+FL_LAYOUT_ASSERT(sizeof(FEngineCharacterBodyDesc) == 0x5c8, "BodyDesc is 0x5c8");
+FL_LAYOUT_ASSERT(sizeof(FEngineCharacterBody) == 0x298, "EngineCharacter body is 0x298");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterBody, AnimNames) == 0x44, "body anim names at +0x44");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterBody, AnimIds) == 0x254, "body anim ids at +0x254");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterBody, RootTransform) == 0x268, "body transform at +0x268");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterAccessoryLink, AccessoryHardpoint) == 0x84, "link +0x84");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterAccessoryLink, CharacterHardpoint) == 0xc8, "link +0xc8");
+FL_LAYOUT_ASSERT(offsetof(FEngineCharacterAccessoryLink, MaterialPaths) == 0x10c, "link +0x10c");
 
 namespace
 {

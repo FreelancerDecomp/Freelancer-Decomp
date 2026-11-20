@@ -62,7 +62,7 @@ struct FJumpGateGlowRing
         Hp.clear();
     }
 };
-static_assert(sizeof(FJumpGateGlowRing) == 0xc, "glow ring 0xc");
+FL_LAYOUT_ASSERT(sizeof(FJumpGateGlowRing) == 0xc, "glow ring 0xc");
 
 // The payload of one DAT_00674fd8 list node (the node is operator new(0x70): next, prev, then
 // this 0x68-byte record, filled by FUN_005020a0 from a [JumpGateEffect] section and copied in
@@ -84,7 +84,7 @@ struct FJumpEffectDesc
     unsigned char JumpBackgroundColor[3]; // +0x63 jump_background_color
     unsigned char Pad66[2];
 };
-static_assert(sizeof(FJumpEffectDesc) == 0x68, "jump effect desc 0x68 (list node 0x70)");
+FL_LAYOUT_ASSERT(sizeof(FJumpEffectDesc) == 0x68, "jump effect desc 0x68 (list node 0x70)");
 
 // JumpShipEffectDesc (retail name -- see FUN_00502b00's embedded warning string).
 // operator_new(0x14) = 5 consecutive ID_String fields, each ID_String::clear()'d by

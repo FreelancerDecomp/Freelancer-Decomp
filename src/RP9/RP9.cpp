@@ -84,10 +84,10 @@ static bool ParserEnumLine(IProfileParser* Parser, void* Section, int Index, cha
 // IRPTexture::GetImageInfo hands the caller's D3DX 8.1 D3DXIMAGE_INFO (d3dx8tex.h: Width, Height,
 // Depth, MipLevels, Format, ResourceType, ImageFileFormat) to D3DX9, whose record has the same
 // tag and the same seven dwords; D3DXIFF_DDS is 4 in both (Shading's load_dds_mips tests it).
-static_assert(sizeof(_D3DXIMAGE_INFO) == 0x1C, "D3DX9 D3DXIMAGE_INFO is the D3DX8 7-dword record");
-static_assert(offsetof(_D3DXIMAGE_INFO, Format) == 0x10, "D3DXIMAGE_INFO Format");
-static_assert(offsetof(_D3DXIMAGE_INFO, ResourceType) == 0x14, "D3DXIMAGE_INFO ResourceType");
-static_assert(offsetof(_D3DXIMAGE_INFO, ImageFileFormat) == 0x18, "D3DXIMAGE_INFO ImageFileFormat");
+FL_LAYOUT_ASSERT(sizeof(_D3DXIMAGE_INFO) == 0x1C, "D3DX9 D3DXIMAGE_INFO is the D3DX8 7-dword record");
+FL_LAYOUT_ASSERT(offsetof(_D3DXIMAGE_INFO, Format) == 0x10, "D3DXIMAGE_INFO Format");
+FL_LAYOUT_ASSERT(offsetof(_D3DXIMAGE_INFO, ResourceType) == 0x14, "D3DXIMAGE_INFO ResourceType");
+FL_LAYOUT_ASSERT(offsetof(_D3DXIMAGE_INFO, ImageFileFormat) == 0x18, "D3DXIMAGE_INFO ImageFileFormat");
 static_assert(D3DXIFF_DDS == 4 && D3DXIFF_DIB == 6, "D3DXIMAGE_FILEFORMAT ids 0..6 match D3DX8");
 
 namespace
@@ -740,7 +740,7 @@ namespace
         ~FRp9LightRecord();
     };
 
-    static_assert(sizeof(FRp9LightRecord) == 0x10, "light record 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FRp9LightRecord) == 0x10, "light record 0x10");
 
     // The three globals in static-initializer order (table 06d64004/06d64008/06d6400c), so they
     // are destroyed in reverse, as retail's atexit entries run: the map first (its records
@@ -2608,7 +2608,7 @@ static void Rp9NormalizeInPlace(FVector& Vector)
     Vector.Z = (float)((double)Vector.Z * Inverse);
 }
 
-static_assert(sizeof(FTransform) == 12 * sizeof(float), "FTransform is the 12-float DA transform");
+FL_LAYOUT_ASSERT(sizeof(FTransform) == 12 * sizeof(float), "FTransform is the 12-float DA transform");
 
 // RP8: FDirectX8::MulZFlip12
 void FDirectX9::MulZFlip12(float* Out12, const float* In12)

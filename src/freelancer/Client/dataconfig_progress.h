@@ -24,7 +24,7 @@ struct FIntroPathString
     unsigned Length;  // +0x00
     char Text[0x44];  // +0x04  (FUN_00417c50 capacity 0x40)
 };
-static_assert(sizeof(FIntroPathString) == 0x48, "intro.ini string field stride is 0x48");
+FL_LAYOUT_ASSERT(sizeof(FIntroPathString) == 0x48, "intro.ini string field stride is 0x48");
 
 // FUN_00564b30 ([Images] of intro.ini). Retail keeps these as separate .data globals; the port
 // groups them. ScreenType/ScreenExit/ScreenReset/Screen1-4 are write-only in the PE: each has

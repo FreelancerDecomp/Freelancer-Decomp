@@ -23,24 +23,24 @@
 #include <stddef.h>
 #include <stdint.h>
 
-static_assert(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Field32c) == 0x32c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Field32c) == 0x32c,
               "LoadingProgressBar +0x32c");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Phase) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Phase) == 0x330,
               "LoadingProgressBar +0x330");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Text) == 0x33c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Text) == 0x33c,
               "LoadingProgressBar +0x33c");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Caption) == 0x340,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Caption) == 0x340,
               "LoadingProgressBar +0x340");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Bar) == 0x380,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingProgressBar, Bar) == 0x380,
               "LoadingProgressBar +0x380");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingScreen, Screen) == 0x04, "LoadingScreen +0x04");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingScreen, ResetTicks) == 0x10,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingScreen, Screen) == 0x04, "LoadingScreen +0x04");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingScreen, ResetTicks) == 0x10,
               "LoadingScreen +0x10");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingScreen, LastUpdateTicks) == 0x18,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingScreen, LastUpdateTicks) == 0x18,
               "LoadingScreen +0x18");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingScreen, bBeginEnd) == 0x20,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingScreen, bBeginEnd) == 0x20,
               "LoadingScreen +0x20");
-static_assert(sizeof(void*) != 4 || offsetof(LoadingScreen, bDisabled) == 0x23,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(LoadingScreen, bDisabled) == 0x23,
               "LoadingScreen +0x23");
 
 unsigned char G_LoadingScreenStarted = 0; // DAT_0067c3e0

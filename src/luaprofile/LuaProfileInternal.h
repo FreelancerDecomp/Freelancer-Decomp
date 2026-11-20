@@ -33,9 +33,9 @@ struct FLuaAggDesc
     void* Extra;
 };
 
-static_assert(sizeof(FLuaAggDesc) == kAggDescSize, "retail AGGDESC size 0x14");
-static_assert(sizeof(Iids::ComponentFactory) == kIidComponentFactoryBytes, "cmpsb ECX=0x17");
-static_assert(sizeof(kComponentName) == 5, "ILua + NUL");
+FL_LAYOUT_ASSERT(sizeof(FLuaAggDesc) == kAggDescSize, "retail AGGDESC size 0x14");
+FL_LAYOUT_ASSERT(sizeof(Iids::ComponentFactory) == kIidComponentFactoryBytes, "cmpsb ECX=0x17");
+FL_LAYOUT_ASSERT(sizeof(kComponentName) == 5, "ILua + NUL");
 
 struct FSectionHandle
 {
@@ -43,4 +43,4 @@ struct FSectionHandle
     int LuaRef;
 };
 
-static_assert(sizeof(FSectionHandle) == 8, "section handle extent");
+FL_LAYOUT_ASSERT(sizeof(FSectionHandle) == 8, "section handle extent");

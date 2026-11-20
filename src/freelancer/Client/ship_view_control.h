@@ -231,9 +231,9 @@ private:
     ShipViewControl& operator=(ShipViewControl const&) = delete;
 };
 
-static_assert(offsetof(ShipViewControl, ShipId) == 0x32c, "ShipViewControl +0x32c");
-static_assert(offsetof(ShipViewControl, ShipHolder) == 0x330, "ShipViewControl +0x330");
-static_assert(offsetof(ShipViewControl, Camera) == 0x388, "ShipViewControl +0x388");
-static_assert(offsetof(ShipViewControl, Lights) == 0x44c, "ShipViewControl +0x44c");
-static_assert(offsetof(ShipViewControl, Instance) == 0x4b8, "ShipViewControl +0x4b8");
-static_assert(offsetof(ShipViewControl, Equipment) == 0x4c8, "ShipViewControl +0x4c8");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, ShipId) == 0x32c, "ShipViewControl +0x32c");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, ShipHolder) == 0x330, "ShipViewControl +0x330");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, Camera) == 0x388, "ShipViewControl +0x388");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, Lights) == 0x44c, "ShipViewControl +0x44c");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, Instance) == 0x4b8, "ShipViewControl +0x4b8");
+FL_LAYOUT_ASSERT(offsetof(ShipViewControl, Equipment) == 0x4c8, "ShipViewControl +0x4c8");

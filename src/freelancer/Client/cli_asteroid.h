@@ -45,7 +45,7 @@ struct FAsteroidBillboardRock
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FAsteroidBillboardRock) == 0x20, "billboard rock stride 0x20");
+FL_LAYOUT_ASSERT(sizeof(FAsteroidBillboardRock) == 0x20, "billboard rock stride 0x20");
 
 // Billboard subobject at FCliAsteroid+0x19C (FUN_0054dbe0 this). Size through Flag7C+pad = 0x80,
 // so Flag21C of the parent sits immediately after at +0x21C. Retail source:
@@ -90,18 +90,18 @@ struct FAsteroidBillboardBlock
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FAsteroidBillboardBlock) == 0x80, "Billboard block 0x80");
-static_assert(offsetof(FAsteroidBillboardBlock, Rocks) == 0x0C, "billboard Rocks +0x0C");
-static_assert(offsetof(FAsteroidBillboardBlock, Up) == 0x34, "billboard Up +0x34");
-static_assert(offsetof(FAsteroidBillboardBlock, MaxLights) == 0x48, "billboard MaxLights +0x48");
-static_assert(offsetof(FAsteroidBillboardBlock, TintedDiffuse0) == 0x4C, "billboard diffuse +0x4C");
-static_assert(offsetof(FAsteroidBillboardBlock, AmbientIntensity) == 0x70, "billboard amb +0x70");
+FL_LAYOUT_ASSERT(sizeof(FAsteroidBillboardBlock) == 0x80, "Billboard block 0x80");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBlock, Rocks) == 0x0C, "billboard Rocks +0x0C");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBlock, Up) == 0x34, "billboard Up +0x34");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBlock, MaxLights) == 0x48, "billboard MaxLights +0x48");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBlock, TintedDiffuse0) == 0x4C, "billboard diffuse +0x4C");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBlock, AmbientIntensity) == 0x70, "billboard amb +0x70");
 
 // FUN_0051feb0 fills the vertex-source descriptor at FCliAsteroid+0x30 (0x70 bytes): the
 // published FRpVertexSrcDesc (render/IRenderPipeline.h), flags 2, five streams into the
 // merged 0x2C-byte vertices -- position +0 (0xc), normal +0xc (0xc), diffuse +0x18 (4),
 // texcoord 0 +0x1c (8), texcoord 1 +0x24 (8) -- FVF 0x252 (XYZ | NORMAL | DIFFUSE | TEX2).
-static_assert(sizeof(FRpVertexSrcDesc) == 0x70, "MeshDesc 0x70 at +0x30");
+FL_LAYOUT_ASSERT(sizeof(FRpVertexSrcDesc) == 0x70, "MeshDesc 0x70 at +0x30");
 
 #pragma pack(push, 1)
 struct FCliAsteroid
@@ -164,33 +164,33 @@ struct FCliAsteroid
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FCliAsteroid) == 0x238, "FCliAsteroid must match retail operator_new(0x238)");
-static_assert(offsetof(FCliAsteroid, CmnField) == 0x04, "CmnField +0x04");
-static_assert(offsetof(FCliAsteroid, Zone) == 0x1C, "Zone +0x1C");
-static_assert(offsetof(FCliAsteroid, CubeSize) == 0x20, "CubeSize +0x20");
-static_assert(offsetof(FCliAsteroid, FillDistAt24) == 0x24, "FillDistAt24 +0x24");
-static_assert(offsetof(FCliAsteroid, EmptyCubeFreq) == 0x28, "EmptyCubeFreq +0x28");
-static_assert(offsetof(FCliAsteroid, Flag2C) == 0x2C, "Flag2C +0x2C");
-static_assert(offsetof(FCliAsteroid, MeshDesc) == 0x30, "MeshDesc +0x30");
-static_assert(offsetof(FCliAsteroid, Material) == 0xA0, "Material +0xA0");
-static_assert(offsetof(FCliAsteroid, MeshVerts) == 0xA4, "MeshVerts +0xA4");
-static_assert(offsetof(FCliAsteroid, MeshIndices) == 0xA8, "MeshIndices +0xA8");
-static_assert(offsetof(FCliAsteroid, MeshIndexCount) == 0xAC, "MeshIndexCount +0xAC");
-static_assert(offsetof(FCliAsteroid, TintB4) == 0xB4, "TintB4 +0xB4");
-static_assert(offsetof(FCliAsteroid, ScaleCC) == 0xCC, "ScaleCC +0xCC");
-static_assert(offsetof(FCliAsteroid, FlagF8) == 0xF8, "FlagF8 +0xF8");
-static_assert(offsetof(FCliAsteroid, BandBlob) == 0xFC, "BandBlob +0xFC");
-static_assert(offsetof(FCliAsteroid, Flag180) == 0x180, "Flag180 +0x180");
-static_assert(offsetof(FCliAsteroid, BandBegin) == 0x188, "BandBegin +0x188");
-static_assert(offsetof(FCliAsteroid, Flag198) == 0x198, "Flag198 +0x198");
-static_assert(offsetof(FCliAsteroid, Billboard) == 0x19C, "Billboard +0x19C");
-static_assert(offsetof(FCliAsteroid, Billboard.StartDist) == 0x1A4, "StartDist +0x1A4");
-static_assert(offsetof(FCliAsteroid, Billboard.Count) == 0x1AC, "Count +0x1AC");
-static_assert(offsetof(FCliAsteroid, Billboard.ColorShift0) == 0x200, "ColorShift +0x200");
-static_assert(offsetof(FCliAsteroid, Flag21C) == 0x21C, "Flag21C +0x21C");
-static_assert(offsetof(FCliAsteroid, DynBegin) == 0x224, "DynBegin +0x224");
-static_assert(offsetof(FCliAsteroid, Scale230) == 0x230, "Scale230 +0x230");
-static_assert(offsetof(FCliAsteroid, Flag234) == 0x234, "Flag234 +0x234");
+FL_LAYOUT_ASSERT(sizeof(FCliAsteroid) == 0x238, "FCliAsteroid must match retail operator_new(0x238)");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, CmnField) == 0x04, "CmnField +0x04");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Zone) == 0x1C, "Zone +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, CubeSize) == 0x20, "CubeSize +0x20");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, FillDistAt24) == 0x24, "FillDistAt24 +0x24");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, EmptyCubeFreq) == 0x28, "EmptyCubeFreq +0x28");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Flag2C) == 0x2C, "Flag2C +0x2C");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, MeshDesc) == 0x30, "MeshDesc +0x30");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Material) == 0xA0, "Material +0xA0");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, MeshVerts) == 0xA4, "MeshVerts +0xA4");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, MeshIndices) == 0xA8, "MeshIndices +0xA8");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, MeshIndexCount) == 0xAC, "MeshIndexCount +0xAC");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, TintB4) == 0xB4, "TintB4 +0xB4");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, ScaleCC) == 0xCC, "ScaleCC +0xCC");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, FlagF8) == 0xF8, "FlagF8 +0xF8");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, BandBlob) == 0xFC, "BandBlob +0xFC");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Flag180) == 0x180, "Flag180 +0x180");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, BandBegin) == 0x188, "BandBegin +0x188");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Flag198) == 0x198, "Flag198 +0x198");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Billboard) == 0x19C, "Billboard +0x19C");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Billboard.StartDist) == 0x1A4, "StartDist +0x1A4");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Billboard.Count) == 0x1AC, "Count +0x1AC");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Billboard.ColorShift0) == 0x200, "ColorShift +0x200");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Flag21C) == 0x21C, "Flag21C +0x21C");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, DynBegin) == 0x224, "DynBegin +0x224");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Scale230) == 0x230, "Scale230 +0x230");
+FL_LAYOUT_ASSERT(offsetof(FCliAsteroid, Flag234) == 0x234, "Flag234 +0x234");
 
 class FCliDynamicAsteroidGameobj; // cli_asteroid_dynamic.h
 struct IMaterial;                 // render/IMaterial.h
@@ -204,7 +204,7 @@ struct FCliDynamicAsteroidMesh
     unsigned short* Indices;   // +0x08  operator new(IndexCount * 2); IRenderableMesh slot 6
     int IndexCount;            // +0x0c  IRenderableMesh slot 5
 };
-static_assert(sizeof(FCliDynamicAsteroidMesh) == 0x10, "dynamic asteroid mesh block 0x10");
+FL_LAYOUT_ASSERT(sizeof(FCliDynamicAsteroidMesh) == 0x10, "dynamic asteroid mesh block 0x10");
 
 // Client DynamicAsteroids manager — operator_new(0xE8), ctor FUN_005256a0.
 // Distinct from Archetype::DynamicAsteroid (0x5C Root) and CDynamicAsteroid (CObject).
@@ -247,27 +247,27 @@ struct FCliDynamicAsteroid
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FCliDynamicAsteroid) == 0xE8, "FCliDynamicAsteroid must be 0xE8");
-static_assert(offsetof(FCliDynamicAsteroid, CmnField) == 0x04, "Dyn CmnField +0x04");
-static_assert(offsetof(FCliDynamicAsteroid, Arch) == 0x08, "Dyn Arch +0x08");
-static_assert(offsetof(FCliDynamicAsteroid, SlotPtrs) == 0x0C, "Dyn SlotPtrs +0x0C");
-static_assert(offsetof(FCliDynamicAsteroid, CountIni) == 0x10, "Dyn CountIni +0x10");
-static_assert(offsetof(FCliDynamicAsteroid, SlotCount) == 0x14, "Dyn SlotCount +0x14");
-static_assert(offsetof(FCliDynamicAsteroid, MaxVelocity) == 0x18, "Dyn MaxVelocity +0x18");
-static_assert(offsetof(FCliDynamicAsteroid, PlacementRadius) == 0x20, "Dyn PlacementRadius +0x20");
-static_assert(offsetof(FCliDynamicAsteroid, CameraPos) == 0x28, "Dyn CameraPos +0x28");
-static_assert(offsetof(FCliDynamicAsteroid, bSpawnAllowed) == 0x34, "Dyn +0x34");
-static_assert(offsetof(FCliDynamicAsteroid, bAnyVisible) == 0x35, "Dyn +0x35");
-static_assert(offsetof(FCliDynamicAsteroid, MeshDesc) == 0x38, "Dyn MeshDesc +0x38");
-static_assert(offsetof(FCliDynamicAsteroid, Material) == 0xA8, "Dyn Material +0xA8");
-static_assert(offsetof(FCliDynamicAsteroid, PrimitiveType) == 0xAC, "Dyn PrimitiveType +0xAC");
-static_assert(offsetof(FCliDynamicAsteroid, Mesh) == 0xB0, "Dyn Mesh +0xB0");
-static_assert(offsetof(FCliDynamicAsteroid, MeshVertTotal) == 0xB4, "Dyn +0xB4");
-static_assert(offsetof(FCliDynamicAsteroid, MeshIndexTotal) == 0xB8, "Dyn +0xB8");
-static_assert(offsetof(FCliDynamicAsteroid, TintedDiffuse0) == 0xBC, "Dyn TintedDiffuse +0xBC");
-static_assert(offsetof(FCliDynamicAsteroid, ColorShift0) == 0xD4, "Dyn ColorShift +0xD4");
-static_assert(offsetof(FCliDynamicAsteroid, DetailScale) == 0xE0, "Dyn DetailScale +0xE0");
-static_assert(offsetof(FCliDynamicAsteroid, InvDetailScale) == 0xE4, "Dyn InvDetailScale +0xE4");
+FL_LAYOUT_ASSERT(sizeof(FCliDynamicAsteroid) == 0xE8, "FCliDynamicAsteroid must be 0xE8");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, CmnField) == 0x04, "Dyn CmnField +0x04");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, Arch) == 0x08, "Dyn Arch +0x08");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, SlotPtrs) == 0x0C, "Dyn SlotPtrs +0x0C");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, CountIni) == 0x10, "Dyn CountIni +0x10");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, SlotCount) == 0x14, "Dyn SlotCount +0x14");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, MaxVelocity) == 0x18, "Dyn MaxVelocity +0x18");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, PlacementRadius) == 0x20, "Dyn PlacementRadius +0x20");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, CameraPos) == 0x28, "Dyn CameraPos +0x28");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, bSpawnAllowed) == 0x34, "Dyn +0x34");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, bAnyVisible) == 0x35, "Dyn +0x35");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, MeshDesc) == 0x38, "Dyn MeshDesc +0x38");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, Material) == 0xA8, "Dyn Material +0xA8");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, PrimitiveType) == 0xAC, "Dyn PrimitiveType +0xAC");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, Mesh) == 0xB0, "Dyn Mesh +0xB0");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, MeshVertTotal) == 0xB4, "Dyn +0xB4");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, MeshIndexTotal) == 0xB8, "Dyn +0xB8");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, TintedDiffuse0) == 0xBC, "Dyn TintedDiffuse +0xBC");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, ColorShift0) == 0xD4, "Dyn ColorShift +0xD4");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, DetailScale) == 0xE0, "Dyn DetailScale +0xE0");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, InvDetailScale) == 0xE4, "Dyn InvDetailScale +0xE4");
 
 FCliAsteroid* CliAsteroidConstruct(FCliAsteroid* This);
 // FUN_0051ff50(file, zone) — caller: the [Asteroids] arm of the system INI load FUN_00553740.
