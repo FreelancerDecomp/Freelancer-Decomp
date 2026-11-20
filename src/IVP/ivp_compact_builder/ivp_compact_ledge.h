@@ -128,7 +128,7 @@ public:
     // --- Vertex Helper ---
     inline const IVP_U_Float_Point* GetStartPoint() const;
 };
-static_assert(sizeof(IVP_Compact_Edge) == 4, "IVP_Compact_Edge must be 4 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Edge) == 4, "IVP_Compact_Edge must be 4 bytes");
 
 // 16-byte triangle representation
 class alignas(16) IVP_Compact_Triangle
@@ -183,7 +183,7 @@ public:
     inline const IVP_Compact_Ledge* GetCompactLedge() const;
     inline IVP_Compact_Ledge* GetCompactLedge();
 };
-static_assert(sizeof(IVP_Compact_Triangle) == 16, "IVP_Compact_Triangle must be 16 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Triangle) == 16, "IVP_Compact_Triangle must be 16 bytes");
 
 // Variable-length compact ledge (convex sub-mesh / hull)
 class alignas(16) IVP_Compact_Ledge
@@ -268,7 +268,7 @@ public:
         return GetPointArray() + Edge->GetStartPointIndex();
     }
 };
-static_assert(sizeof(IVP_Compact_Ledge) == 16, "IVP_Compact_Ledge header must be 16 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Ledge) == 16, "IVP_Compact_Ledge header must be 16 bytes");
 
 // --- Late Inline Definitions ---
 

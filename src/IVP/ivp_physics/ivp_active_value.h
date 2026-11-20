@@ -99,7 +99,7 @@ public:
     // slot 0: FUN_06361e30 (deleting) -> FUN_06361e50.
     virtual ~IVP_U_Active_Value();
 };
-static_assert(sizeof(IVP_U_Active_Value) == 0x0c, "IVP_U_Active_Value is operator_new(0xc)");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Value) == 0x0c, "IVP_U_Active_Value is operator_new(0xc)");
 
 class IVP_U_Active_Float : public IVP_U_Active_Value
 {
@@ -123,10 +123,10 @@ public:
     // FUN_06362060: calls every listener, highest index first.
     void FireListeners();
 };
-static_assert(offsetof(IVP_U_Active_Float, Listeners) == 0x0c, "IVP_U_Active_Float+0x0c");
-static_assert(offsetof(IVP_U_Active_Float, Manager) == 0x14, "IVP_U_Active_Float+0x14");
-static_assert(offsetof(IVP_U_Active_Float, DoubleValue) == 0x1c, "IVP_U_Active_Float+0x1c");
-static_assert(sizeof(IVP_U_Active_Float) == 0x20, "IVP_U_Active_Float is 0x20 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Float, Listeners) == 0x0c, "IVP_U_Active_Float+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Float, Manager) == 0x14, "IVP_U_Active_Float+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Float, DoubleValue) == 0x1c, "IVP_U_Active_Float+0x1c");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Float) == 0x20, "IVP_U_Active_Float is 0x20 bytes");
 
 class IVP_U_Active_Int : public IVP_U_Active_Value
 {
@@ -146,9 +146,9 @@ public:
     // FUN_06362060 (the same body as the float version, folded by the linker).
     void FireListeners();
 };
-static_assert(offsetof(IVP_U_Active_Int, Manager) == 0x14, "IVP_U_Active_Int+0x14");
-static_assert(offsetof(IVP_U_Active_Int, IntValue) == 0x1c, "IVP_U_Active_Int+0x1c");
-static_assert(sizeof(IVP_U_Active_Int) == 0x20, "IVP_U_Active_Int is 0x20 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Int, Manager) == 0x14, "IVP_U_Active_Int+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Int, IntValue) == 0x1c, "IVP_U_Active_Int+0x1c");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Int) == 0x20, "IVP_U_Active_Int is 0x20 bytes");
 
 class IVP_U_Active_Terminal_Double : public IVP_U_Active_Float, public IVP_U_Active_Float_Delayed
 {
@@ -166,8 +166,8 @@ public:
     // secondary slot 0: LAB_06362160 (this adjusted by -0x20).
     virtual void FireIfChanged() override;
 };
-static_assert(sizeof(IVP_U_Active_Terminal_Double) == 0x28, "IVP_U_Active_Terminal_Double is operator_new(0x28)");
-static_assert(offsetof(IVP_U_Active_Terminal_Double, LastFiredValue) == 0x24, "IVP_U_Active_Terminal_Double+0x24");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Terminal_Double) == 0x28, "IVP_U_Active_Terminal_Double is operator_new(0x28)");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Terminal_Double, LastFiredValue) == 0x24, "IVP_U_Active_Terminal_Double+0x24");
 
 class IVP_U_Active_Terminal_Int : public IVP_U_Active_Int, public IVP_U_Active_Int_Delayed
 {
@@ -185,8 +185,8 @@ public:
     // secondary slot 0: LAB_06362180.
     virtual void FireIfChanged() override;
 };
-static_assert(sizeof(IVP_U_Active_Terminal_Int) == 0x28, "IVP_U_Active_Terminal_Int is operator_new(0x28)");
-static_assert(offsetof(IVP_U_Active_Terminal_Int, LastFiredValue) == 0x24, "IVP_U_Active_Terminal_Int+0x24");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Terminal_Int) == 0x28, "IVP_U_Active_Terminal_Int is operator_new(0x28)");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Terminal_Int, LastFiredValue) == 0x24, "IVP_U_Active_Terminal_Int+0x24");
 
 // The name-keyed set both manager hashes use (one vtable for both).
 class IVP_U_Active_Value_Hash : public IVP_VHash
@@ -207,7 +207,7 @@ public:
     // value's name | 0x80000000.
     unsigned GetHashIndex(IVP_U_Active_Value* Value);
 };
-static_assert(sizeof(IVP_U_Active_Value_Hash) == 0x10, "IVP_U_Active_Value_Hash is operator_new(0x10)");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Value_Hash) == 0x10, "IVP_U_Active_Value_Hash is operator_new(0x10)");
 
 class IVP_U_Active_Value_Manager
 {
@@ -258,7 +258,7 @@ public:
     // slot 14: LAB_06361cc0 (RET 8). PORT-LOCAL NAME.
     virtual IVP_U_Active_Int* CreateActiveInt(const char* Name, int32_t Value);
 };
-static_assert(offsetof(IVP_U_Active_Value_Manager, DeleteOnEnvDelete) == 0x04, "Manager+0x04");
-static_assert(offsetof(IVP_U_Active_Value_Manager, DelayedFloats) == 0x10, "Manager+0x10");
-static_assert(offsetof(IVP_U_Active_Value_Manager, CurrentTime) == 0x20, "Manager+0x20");
-static_assert(sizeof(IVP_U_Active_Value_Manager) == 0x28, "IVP_U_Active_Value_Manager is operator_new(0x28)");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Value_Manager, DeleteOnEnvDelete) == 0x04, "Manager+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Value_Manager, DelayedFloats) == 0x10, "Manager+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Active_Value_Manager, CurrentTime) == 0x20, "Manager+0x20");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Active_Value_Manager) == 0x28, "IVP_U_Active_Value_Manager is operator_new(0x28)");

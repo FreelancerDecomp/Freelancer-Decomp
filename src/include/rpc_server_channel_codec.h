@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "x87_portable.h"
 #include "rpc_packet_codec.h"
 #include "common_misc.h"
 #include <cstring>
@@ -27,12 +28,16 @@ struct FmtStr;
 // senders, encoders and receivers do for float fields: bit-exact except that a
 // signaling NaN is quietened.
 inline void RpcServerX87CopyFloat(float* Destination, const float* Source) {
+#if defined(_M_IX86)
     __asm {
         mov eax, Source
         mov edx, Destination
         fld dword ptr [eax]
         fstp dword ptr [edx]
     }
+#else
+    X87CopyFloat(Destination, Source);
+#endif
 }
 
 // The length-prefixed block decoder (RC 06b4eb30 / RS 06bec240) and the FmtStr flattened

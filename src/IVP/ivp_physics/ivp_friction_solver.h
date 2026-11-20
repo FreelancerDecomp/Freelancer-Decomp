@@ -79,8 +79,8 @@ public:
     void DoResultingPushes(IVP_ListManager* FrictionSystem);
 };
 
-static_assert(offsetof(IVP_Friction_Solver, ImpulseScale) == 0x18, "IVP_Friction_Solver+0x18");
-static_assert(offsetof(IVP_Friction_Solver, Environment) == 0x1c, "IVP_Friction_Solver+0x1c");
-static_assert(offsetof(IVP_Friction_Solver, EventSim) == 0x20, "IVP_Friction_Solver+0x20");
-static_assert(offsetof(IVP_Friction_Solver, DistsOfSystem) == 0x24, "IVP_Friction_Solver+0x24");
-static_assert(sizeof(IVP_Friction_Solver) == 0x82c, "IVP_Friction_Solver is 0x82c bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_Friction_Solver, ImpulseScale) == 0x18, "IVP_Friction_Solver+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_Friction_Solver, Environment) == 0x1c, "IVP_Friction_Solver+0x1c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Friction_Solver, EventSim) == 0x20, "IVP_Friction_Solver+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Friction_Solver, DistsOfSystem) == 0x24, "IVP_Friction_Solver+0x24");
+FL_LAYOUT_ASSERT(sizeof(IVP_Friction_Solver) == 0x82c, "IVP_Friction_Solver is 0x82c bytes");

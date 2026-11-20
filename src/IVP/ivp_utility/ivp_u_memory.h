@@ -246,9 +246,9 @@ struct IVP_U_Memory
     }
 };
 
-static_assert(sizeof(IVP_U_Memory) == 0x14, "IVP_U_Memory must be 0x14 bytes");
-static_assert(offsetof(IVP_U_Memory, ChunkListHead) == 0x04, "IVP_U_Memory+0x04");
-static_assert(offsetof(IVP_U_Memory, Cursor) == 0x08, "IVP_U_Memory+0x08");
-static_assert(offsetof(IVP_U_Memory, End) == 0x0C, "IVP_U_Memory+0x0C");
-static_assert(offsetof(IVP_U_Memory, State) == 0x10, "IVP_U_Memory+0x10");
-static_assert(offsetof(IVP_U_Memory, UsableSize) == 0x12, "IVP_U_Memory+0x12");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Memory) == 0x14, "IVP_U_Memory must be 0x14 bytes");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Memory, ChunkListHead) == 0x04, "IVP_U_Memory+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Memory, Cursor) == 0x08, "IVP_U_Memory+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Memory, End) == 0x0C, "IVP_U_Memory+0x0C");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Memory, State) == 0x10, "IVP_U_Memory+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_U_Memory, UsableSize) == 0x12, "IVP_U_Memory+0x12");

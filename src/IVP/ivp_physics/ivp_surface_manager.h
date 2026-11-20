@@ -117,9 +117,9 @@ struct IVP_SurfaceManager_OutList
     int32_t Count;    // +0x04
     void**  Elems;    // +0x08
 };
-static_assert(offsetof(IVP_SurfaceManager_OutList, Capacity) == 0x00, "IVP_SurfaceManager_OutList+0x00");
-static_assert(offsetof(IVP_SurfaceManager_OutList, Count) == 0x04, "IVP_SurfaceManager_OutList+0x04");
-static_assert(offsetof(IVP_SurfaceManager_OutList, Elems) == 0x08, "IVP_SurfaceManager_OutList+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_SurfaceManager_OutList, Capacity) == 0x00, "IVP_SurfaceManager_OutList+0x00");
+FL_LAYOUT_ASSERT(offsetof(IVP_SurfaceManager_OutList, Count) == 0x04, "IVP_SurfaceManager_OutList+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_SurfaceManager_OutList, Elems) == 0x08, "IVP_SurfaceManager_OutList+0x08");
 
 // Abstract base. vtable .rdata:063a56ac, 11 slots, 9 of them _purecall.
 // sizeof == 4 (vptr only): the base adds no data members -- FUN_0635d440,
@@ -226,8 +226,8 @@ public:
     // this project's placeholder policy.
     void* GeometryBlock;
 };
-static_assert(sizeof(IVP_SurfaceManager) == 0x04, "IVP_SurfaceManager size mismatch (vptr only)");
-static_assert(sizeof(IVP_SurfaceManager_Default) == 0x08, "IVP_SurfaceManager_Default size mismatch");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceManager) == 0x04, "IVP_SurfaceManager size mismatch (vptr only)");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceManager_Default) == 0x08, "IVP_SurfaceManager_Default size mismatch");
 
 // Size of the block IVP_SurfaceManager_Default::GeometryBlock points at, and
 // the alignment it is allocated with -- the literal `PUSH 0x10; PUSH 0x20`

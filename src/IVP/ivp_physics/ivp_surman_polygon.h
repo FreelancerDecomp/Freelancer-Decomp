@@ -75,6 +75,6 @@ public:
 
     const IVP_Compact_Surface* compact_surface; // +0x04
 };
-static_assert(sizeof(IVP_SurfaceManager_Polygon) == 0x08, "IVP_SurfaceManager_Polygon size");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceManager_Polygon) == 0x08, "IVP_SurfaceManager_Polygon size");
 
 #pragma pack(pop)

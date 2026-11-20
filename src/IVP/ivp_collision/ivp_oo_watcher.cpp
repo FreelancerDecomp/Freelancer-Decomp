@@ -18,11 +18,11 @@
 #include <cstddef>
 #include <cstdlib>
 
-static_assert(offsetof(IVP_Synapse_OO, HullPoolSlot) == 0x04, "IVP_Synapse_OO+0x04");
-static_assert(offsetof(IVP_Synapse_OO, object) == 0x08, "IVP_Synapse_OO+0x08");
-static_assert(offsetof(IVP_Synapse_OO, watcher) == 0x0c, "IVP_Synapse_OO+0x0c");
-static_assert(offsetof(IVP_OO_Watcher, synapses) == 0x18, "IVP_OO_Watcher+0x18");
-static_assert(offsetof(IVP_OO_Watcher, mindists) == 0x38, "IVP_OO_Watcher+0x38");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_OO, HullPoolSlot) == 0x04, "IVP_Synapse_OO+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_OO, object) == 0x08, "IVP_Synapse_OO+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_OO, watcher) == 0x0c, "IVP_Synapse_OO+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_OO_Watcher, synapses) == 0x18, "IVP_OO_Watcher+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_OO_Watcher, mindists) == 0x38, "IVP_OO_Watcher+0x38");
 
 namespace
 {

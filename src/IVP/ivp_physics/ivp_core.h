@@ -43,7 +43,7 @@ public:
     float time_base;
     float time_offset;
 };
-static_assert(sizeof(IVP_Time) == 0x08, "IVP_Time size");
+FL_LAYOUT_ASSERT(sizeof(IVP_Time) == 0x08, "IVP_Time size");
 
 // ============================================================================
 // IVP_Core_AxisLock -- PORT-LOCAL NAME. Retail's own class identity for this
@@ -104,12 +104,12 @@ struct IVP_Core_AxisLock
     IVP_Time     LastUpdateTime;  // +0x5c: copied verbatim from Environment::current_time (+0xF8)
     void*        Field_0x64;      // +0x64: pointer/flag; non-null selects FUN_06354120's scaled branch
 };
-static_assert(offsetof(IVP_Core_AxisLock, Owner) == 0x04, "IVP_Core_AxisLock+0x04");
-static_assert(offsetof(IVP_Core_AxisLock, LockFrame) == 0x08, "IVP_Core_AxisLock+0x08");
-static_assert(offsetof(IVP_Core_AxisLock, ContactPoint) == 0x48, "IVP_Core_AxisLock+0x48");
-static_assert(offsetof(IVP_Core_AxisLock, ContactImpulse) == 0x58, "IVP_Core_AxisLock+0x58");
-static_assert(offsetof(IVP_Core_AxisLock, LastUpdateTime) == 0x5c, "IVP_Core_AxisLock+0x5c");
-static_assert(offsetof(IVP_Core_AxisLock, Field_0x64) == 0x64, "IVP_Core_AxisLock+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, Owner) == 0x04, "IVP_Core_AxisLock+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, LockFrame) == 0x08, "IVP_Core_AxisLock+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, ContactPoint) == 0x48, "IVP_Core_AxisLock+0x48");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, ContactImpulse) == 0x58, "IVP_Core_AxisLock+0x58");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, LastUpdateTime) == 0x5c, "IVP_Core_AxisLock+0x5c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core_AxisLock, Field_0x64) == 0x64, "IVP_Core_AxisLock+0x64");
 
 // Complete full retail IVP_Core structure (0x1BC = 444 bytes)
 class IVP_Core
@@ -891,29 +891,29 @@ public:
     void ensure_objects_in_simulation();
 };
 
-static_assert(sizeof(IVP_Core) == 0x1BC, "IVP_Core size must be 0x1BC (444 bytes)");
-static_assert(offsetof(IVP_Core, Flags) == 0x00, "IVP_Core+0x00");
-static_assert(offsetof(IVP_Core, RotInertia) == 0x14, "IVP_Core+0x14");
-static_assert(offsetof(IVP_Core, Mass) == 0x20, "IVP_Core+0x20");
-static_assert(offsetof(IVP_Core, RotSpeedDamp) == 0x24, "IVP_Core+0x24");
-static_assert(offsetof(IVP_Core, InvRotInertia) == 0x34, "IVP_Core+0x34");
-static_assert(offsetof(IVP_Core, InvMass) == 0x40, "IVP_Core+0x40");
-static_assert(offsetof(IVP_Core, SpeedDamp) == 0x44, "IVP_Core+0x44");
-static_assert(offsetof(IVP_Core, Objects) == 0x50, "IVP_Core+0x50");
-static_assert(offsetof(IVP_Core, ObjectHashMap) == 0x5C, "IVP_Core+0x5C");
-static_assert(offsetof(IVP_Core, MovementState) == 0x60, "IVP_Core+0x60");
-static_assert(offsetof(IVP_Core, RotSpeed) == 0x94, "IVP_Core+0x94");
-static_assert(offsetof(IVP_Core, Speed) == 0xA4, "IVP_Core+0xA4");
-static_assert(offsetof(IVP_Core, PosWorldFCore) == 0xB4, "IVP_Core+0xB4");
-static_assert(offsetof(IVP_Core, DeltaWorldFCore) == 0xC4, "IVP_Core+0xC4");
-static_assert(offsetof(IVP_Core, QWorldFCore) == 0xD4, "IVP_Core+0xD4");
-static_assert(offsetof(IVP_Core, QWorldFCoreNext) == 0xE4, "IVP_Core+0xE4");
-static_assert(offsetof(IVP_Core, MWorldFCore) == 0xF4, "IVP_Core+0xF4");
-static_assert(offsetof(IVP_Core, Margin) == 0x144, "IVP_Core+0x144");
-static_assert(offsetof(IVP_Core, BoundingRadius) == 0x14C, "IVP_Core+0x14C");
-static_assert(offsetof(IVP_Core, Controllers) == 0x150, "IVP_Core+0x150");
-static_assert(offsetof(IVP_Core, OwningSimUnit) == 0x15C, "IVP_Core+0x15C");
-static_assert(offsetof(IVP_Core, Unconfirmed_0x1B8) == 0x1B8, "IVP_Core+0x1B8");
+FL_LAYOUT_ASSERT(sizeof(IVP_Core) == 0x1BC, "IVP_Core size must be 0x1BC (444 bytes)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Flags) == 0x00, "IVP_Core+0x00");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, RotInertia) == 0x14, "IVP_Core+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Mass) == 0x20, "IVP_Core+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, RotSpeedDamp) == 0x24, "IVP_Core+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, InvRotInertia) == 0x34, "IVP_Core+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, InvMass) == 0x40, "IVP_Core+0x40");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, SpeedDamp) == 0x44, "IVP_Core+0x44");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Objects) == 0x50, "IVP_Core+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, ObjectHashMap) == 0x5C, "IVP_Core+0x5C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, MovementState) == 0x60, "IVP_Core+0x60");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, RotSpeed) == 0x94, "IVP_Core+0x94");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Speed) == 0xA4, "IVP_Core+0xA4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, PosWorldFCore) == 0xB4, "IVP_Core+0xB4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, DeltaWorldFCore) == 0xC4, "IVP_Core+0xC4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, QWorldFCore) == 0xD4, "IVP_Core+0xD4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, QWorldFCoreNext) == 0xE4, "IVP_Core+0xE4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, MWorldFCore) == 0xF4, "IVP_Core+0xF4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Margin) == 0x144, "IVP_Core+0x144");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, BoundingRadius) == 0x14C, "IVP_Core+0x14C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Controllers) == 0x150, "IVP_Core+0x150");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, OwningSimUnit) == 0x15C, "IVP_Core+0x15C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Core, Unconfirmed_0x1B8) == 0x1B8, "IVP_Core+0x1B8");
 
 // FUN_063557c0: IVP_Core::get_master_core() equivalent, defined in
 // ivp_core.cpp (decomp-tracker Common.dll item 3227). Declared here (rather

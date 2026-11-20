@@ -43,7 +43,7 @@ public:
     // 0636bdc0: sum of the squared edge lengths (x87, returned unrounded).
     double get_qlen_of_all_edges() const;
 };
-static_assert(sizeof(IVP_SurMan_PS_Plane) == 0x18, "IVP_SurMan_PS_Plane is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurMan_PS_Plane) == 0x18, "IVP_SurMan_PS_Plane is 0x18 bytes");
 
 class IVP_SurfaceBuilder_Pointsoup
 {

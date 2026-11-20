@@ -55,4 +55,4 @@ public:
     IVP_Compact_Ledge* compact_ledge;                // +0x28
     IVP_U_Vector<IVP_Triangle>* triangles;           // +0x2c
 };
-static_assert(sizeof(IVP_Compact_Ledge_Generator) == 0x30, "IVP_Compact_Ledge_Generator is 0x30 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Compact_Ledge_Generator) == 0x30, "IVP_Compact_Ledge_Generator is 0x30 bytes");

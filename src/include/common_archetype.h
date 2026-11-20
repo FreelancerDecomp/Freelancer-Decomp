@@ -415,7 +415,7 @@ namespace Archetype
         // std::map<unsigned int, PhyArch::Part>&). A modern std::map is smaller than retail's
         // 0x14-byte span here, so the pad keeps every derived archetype's offsets unchanged.
         std::map<unsigned int, PhyArch::Part> PhyParts;
-        unsigned char PhyPartsPad[0x14 - sizeof(std::map<unsigned int, PhyArch::Part>)];
+        unsigned char PhyPartsPad[FL_LAYOUT_PAD(0x14 - sizeof(std::map<unsigned int, PhyArch::Part>))];
 
     protected:
         // Retail 0x90be0: distinct from load() -- returns false if not yet loaded (does NOT

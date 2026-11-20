@@ -90,4 +90,4 @@ private:
     // 0636e030 (thiscall, RET 4): appends every front triangle (is_back_side == 0).
     void add_triangles_to_vector(IVP_U_Vector<IVP_Triangle>* Triangles);
 };
-static_assert(sizeof(IVP_SurfaceBuilder_Polygon_Convex) == 0xc, "IVP_SurfaceBuilder_Polygon_Convex is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_SurfaceBuilder_Polygon_Convex) == 0xc, "IVP_SurfaceBuilder_Polygon_Convex is 0xc bytes");

@@ -585,7 +585,7 @@ public:
         }
     };
     std::set<CacheString, FCacheStringLess> AttachedDamageObjs; // +0xbc
-    unsigned char PadBcSet[0x14 - sizeof(std::set<CacheString, FCacheStringLess>)]; // keeps +0xd0
+    unsigned char PadBcSet[FL_LAYOUT_PAD(0x14 - sizeof(std::set<CacheString, FCacheStringLess>))]; // keeps +0xd0
     // +0xd0 / +0xdc: already identified and consumed elsewhere in this port (predates this
     // pass) as the lazily-cached center-of-mass/radius pair -- CSimple::cache_physical_props
     // (common_csimple.cpp, Common.dll.c 0x55ed0) writes both via raw `this+0xd0`/`this+0xdc`

@@ -105,14 +105,14 @@ public:
     // slot 3, LAB_0634f9c0 (RET 8): get_mindist()->hull_manager_is_reset(DeltaTime, CenterDeltaTime).
     void hull_manager_is_reset(float DeltaTime, float CenterDeltaTime) override;
 };
-static_assert(offsetof(IVP_Synapse_Real, HullPoolSlot) == 0x04, "IVP_Synapse_Real+0x04 -- 06350050 :063500b4");
-static_assert(offsetof(IVP_Synapse_Real, next) == 0x08, "IVP_Synapse_Real+0x08 -- 0634fec0 :0634ff06");
-static_assert(offsetof(IVP_Synapse_Real, prev) == 0x0C, "IVP_Synapse_Real+0x0c");
-static_assert(offsetof(IVP_Synapse_Real, l_obj) == 0x10, "IVP_Synapse_Real+0x10 -- 0634e070 :0634e07e");
-static_assert(offsetof(IVP_Synapse_Real, edge) == 0x14, "IVP_Synapse_Real+0x14 -- 0634e090");
-static_assert(offsetof(IVP_Synapse_Real, mindist_offset) == 0x18, "IVP_Synapse_Real+0x18 -- 0634e070 :0634e07a");
-static_assert(offsetof(IVP_Synapse_Real, status) == 0x1A, "IVP_Synapse_Real+0x1a -- 0634e090");
-static_assert(sizeof(IVP_Synapse_Real) == 0x1C, "IVP_Synapse_Real stride -- mindist holds two at +0x18/+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, HullPoolSlot) == 0x04, "IVP_Synapse_Real+0x04 -- 06350050 :063500b4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, next) == 0x08, "IVP_Synapse_Real+0x08 -- 0634fec0 :0634ff06");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, prev) == 0x0C, "IVP_Synapse_Real+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, l_obj) == 0x10, "IVP_Synapse_Real+0x10 -- 0634e070 :0634e07e");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, edge) == 0x14, "IVP_Synapse_Real+0x14 -- 0634e090");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, mindist_offset) == 0x18, "IVP_Synapse_Real+0x18 -- 0634e070 :0634e07a");
+FL_LAYOUT_ASSERT(offsetof(IVP_Synapse_Real, status) == 0x1A, "IVP_Synapse_Real+0x1a -- 0634e090");
+FL_LAYOUT_ASSERT(sizeof(IVP_Synapse_Real) == 0x1C, "IVP_Synapse_Real stride -- mindist holds two at +0x18/+0x34");
 
 // D110 pass (2026-09-09): resolved the D104/D107 class-identity question for
 // the IVP mindist candidate-winner-selection / impact-dispatch cluster
@@ -308,7 +308,7 @@ struct IVP_Mindist_PadVec : public Vector
 {
     float _Pad; // retail's unused 4th float lane; not independently confirmed to hold anything meaningful
 };
-static_assert(sizeof(IVP_Mindist_PadVec) == 0x10, "IVP_Mindist_PadVec must be a padded-to-16-byte Vector slot");
+FL_LAYOUT_ASSERT(sizeof(IVP_Mindist_PadVec) == 0x10, "IVP_Mindist_PadVec must be a padded-to-16-byte Vector slot");
 
 // Collision pair / minimum distance tracker
 class alignas(16) IVP_Impact_Solver_Long_Term
@@ -511,24 +511,24 @@ public:
     // confirmed retail allocation size, with no trailing bytes left over.
     IVP_Mindist_PadVec CoordOSCrossNormal[2]; // +0xB8 / +0xC8
 };
-static_assert(sizeof(IVP_Impact_Solver_Long_Term) >= 0xD8, "IVP_Impact_Solver_Long_Term must be at least as large as its confirmed retail fields (D-item3301 pass, 2026-09-10: FUN_0635a1e0's own operator_new(0xd8) call site confirms the real retail alloc size)");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, SolverContactPointWS) == 0x20, "IVP_Impact_Solver_Long_Term+0x20");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, Feature0) == 0x38, "IVP_Impact_Solver_Long_Term+0x38");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, Feature1) == 0x3C, "IVP_Impact_Solver_Long_Term+0x3C");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, Materials) == 0x40, "IVP_Impact_Solver_Long_Term+0x40");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, LastImpactTimeStep) == 0x58, "IVP_Impact_Solver_Long_Term+0x58");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, TangentAxis0) == 0x78, "IVP_Impact_Solver_Long_Term+0x78");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, TangentAxis1) == 0x88, "IVP_Impact_Solver_Long_Term+0x88");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, CoordOS) == 0x98, "IVP_Impact_Solver_Long_Term+0x98");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, EffectiveMassDenomRecip) == 0x68, "IVP_Impact_Solver_Long_Term+0x68");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, EffectiveMassDenom) == 0x6C, "IVP_Impact_Solver_Long_Term+0x6C");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, ChildCandidate) == 0x70, "IVP_Impact_Solver_Long_Term+0x70");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, CoordOSCrossNormal) == 0xB8, "IVP_Impact_Solver_Long_Term+0xB8");
+FL_LAYOUT_ASSERT(sizeof(IVP_Impact_Solver_Long_Term) >= 0xD8, "IVP_Impact_Solver_Long_Term must be at least as large as its confirmed retail fields (D-item3301 pass, 2026-09-10: FUN_0635a1e0's own operator_new(0xd8) call site confirms the real retail alloc size)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, SolverContactPointWS) == 0x20, "IVP_Impact_Solver_Long_Term+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, Feature0) == 0x38, "IVP_Impact_Solver_Long_Term+0x38");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, Feature1) == 0x3C, "IVP_Impact_Solver_Long_Term+0x3C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, Materials) == 0x40, "IVP_Impact_Solver_Long_Term+0x40");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, LastImpactTimeStep) == 0x58, "IVP_Impact_Solver_Long_Term+0x58");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, TangentAxis0) == 0x78, "IVP_Impact_Solver_Long_Term+0x78");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, TangentAxis1) == 0x88, "IVP_Impact_Solver_Long_Term+0x88");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, CoordOS) == 0x98, "IVP_Impact_Solver_Long_Term+0x98");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, EffectiveMassDenomRecip) == 0x68, "IVP_Impact_Solver_Long_Term+0x68");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, EffectiveMassDenom) == 0x6C, "IVP_Impact_Solver_Long_Term+0x6C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, ChildCandidate) == 0x70, "IVP_Impact_Solver_Long_Term+0x70");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, CoordOSCrossNormal) == 0xB8, "IVP_Impact_Solver_Long_Term+0xB8");
 // Upper bound: retail allocates exactly 0xD8 bytes for this class
 // (Common.dll.txt:0635a1f9, `PUSH 0xd8` into FUN_06347380). A field declared
 // PAST the end of the retail object is a real, shipped-before bug class, so the
 // size is pinned from both sides now that the trailing span is named.
-static_assert(sizeof(IVP_Impact_Solver_Long_Term) <= 0xE0, "IVP_Impact_Solver_Long_Term must fit retail's 0xD8-byte allocation (rounded up to this class's own 16-byte alignment)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Impact_Solver_Long_Term) <= 0xE0, "IVP_Impact_Solver_Long_Term must fit retail's 0xD8-byte allocation (rounded up to this class's own 16-byte alignment)");
 
 // Complete IVP_Impact_Solver context structure (size ~0x110 = 272 bytes)
 class alignas(16) IVP_Impact_Solver
@@ -827,33 +827,33 @@ public:
     // are now disasm-exact.
     void FinalizeImpact(IVP_Core* CoresOut[2]);
 };
-static_assert(sizeof(IVP_Impact_Solver) == 0x110, "IVP_Impact_Solver size must be 0x110 (272 bytes), per the class's own top-of-file comment");
-static_assert(offsetof(IVP_Impact_Solver, EffectiveMass0) == 0x04, "IVP_Impact_Solver+0x04");
-static_assert(offsetof(IVP_Impact_Solver, EffectiveMass1) == 0x08, "IVP_Impact_Solver+0x08");
-static_assert(offsetof(IVP_Impact_Solver, bAllowDeferredCommit) == 0x0C, "IVP_Impact_Solver+0x0C");
-static_assert(offsetof(IVP_Impact_Solver, Unread_0x10) == 0x10, "IVP_Impact_Solver+0x10");
-static_assert(offsetof(IVP_Impact_Solver, MWorldFCore) == 0x1C, "IVP_Impact_Solver+0x1C");
-static_assert(offsetof(IVP_Impact_Solver, RotSpeed0) == 0x24, "IVP_Impact_Solver+0x24");
-static_assert(offsetof(IVP_Impact_Solver, RotSpeed1) == 0x34, "IVP_Impact_Solver+0x34");
-static_assert(offsetof(IVP_Impact_Solver, Speed0) == 0x44, "IVP_Impact_Solver+0x44");
-static_assert(offsetof(IVP_Impact_Solver, Speed1) == 0x54, "IVP_Impact_Solver+0x54");
-static_assert(offsetof(IVP_Impact_Solver, AngularDelta0Scratch) == 0x64, "IVP_Impact_Solver+0x64");
-static_assert(offsetof(IVP_Impact_Solver, RotDelta0) == 0x74, "IVP_Impact_Solver+0x74");
-static_assert(offsetof(IVP_Impact_Solver, SpeedDelta0) == 0x84, "IVP_Impact_Solver+0x84");
-static_assert(offsetof(IVP_Impact_Solver, RotDelta1) == 0x94, "IVP_Impact_Solver+0x94");
-static_assert(offsetof(IVP_Impact_Solver, SpeedDelta1) == 0xA4, "IVP_Impact_Solver+0xA4");
-static_assert(offsetof(IVP_Impact_Solver, PushDirection) == 0xB4, "IVP_Impact_Solver+0xB4");
-static_assert(offsetof(IVP_Impact_Solver, FrictionImpulse) == 0xC4, "IVP_Impact_Solver+0xC4");
-static_assert(offsetof(IVP_Impact_Solver, UseFrictionConeBlend) == 0xD4, "IVP_Impact_Solver+0xD4");
-static_assert(offsetof(IVP_Impact_Solver, ConeBlendScale) == 0xD8, "IVP_Impact_Solver+0xD8");
-static_assert(offsetof(IVP_Impact_Solver, FrictionReferenceAxis) == 0xDC, "IVP_Impact_Solver+0xDC");
-static_assert(offsetof(IVP_Impact_Solver, Cores) == 0xEC, "IVP_Impact_Solver+0xEC");
-static_assert(offsetof(IVP_Impact_Solver, ContactCoordsOS) == 0xF4, "IVP_Impact_Solver+0xF4");
-static_assert(offsetof(IVP_Impact_Solver, Restitution) == 0xFC, "IVP_Impact_Solver+0xFC");
-static_assert(offsetof(IVP_Impact_Solver, NormalCoeff) == 0x100, "IVP_Impact_Solver+0x100");
-static_assert(offsetof(IVP_Impact_Solver, TangentCoeff) == 0x104, "IVP_Impact_Solver+0x104");
-static_assert(offsetof(IVP_Impact_Solver, NormalVectorWS) == 0x108, "IVP_Impact_Solver+0x108");
-static_assert(offsetof(IVP_Impact_Solver, FrictionVectorWS) == 0x10C, "IVP_Impact_Solver+0x10C");
+FL_LAYOUT_ASSERT(sizeof(IVP_Impact_Solver) == 0x110, "IVP_Impact_Solver size must be 0x110 (272 bytes), per the class's own top-of-file comment");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, EffectiveMass0) == 0x04, "IVP_Impact_Solver+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, EffectiveMass1) == 0x08, "IVP_Impact_Solver+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, bAllowDeferredCommit) == 0x0C, "IVP_Impact_Solver+0x0C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, Unread_0x10) == 0x10, "IVP_Impact_Solver+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, MWorldFCore) == 0x1C, "IVP_Impact_Solver+0x1C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, RotSpeed0) == 0x24, "IVP_Impact_Solver+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, RotSpeed1) == 0x34, "IVP_Impact_Solver+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, Speed0) == 0x44, "IVP_Impact_Solver+0x44");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, Speed1) == 0x54, "IVP_Impact_Solver+0x54");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, AngularDelta0Scratch) == 0x64, "IVP_Impact_Solver+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, RotDelta0) == 0x74, "IVP_Impact_Solver+0x74");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, SpeedDelta0) == 0x84, "IVP_Impact_Solver+0x84");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, RotDelta1) == 0x94, "IVP_Impact_Solver+0x94");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, SpeedDelta1) == 0xA4, "IVP_Impact_Solver+0xA4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, PushDirection) == 0xB4, "IVP_Impact_Solver+0xB4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, FrictionImpulse) == 0xC4, "IVP_Impact_Solver+0xC4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, UseFrictionConeBlend) == 0xD4, "IVP_Impact_Solver+0xD4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, ConeBlendScale) == 0xD8, "IVP_Impact_Solver+0xD8");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, FrictionReferenceAxis) == 0xDC, "IVP_Impact_Solver+0xDC");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, Cores) == 0xEC, "IVP_Impact_Solver+0xEC");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, ContactCoordsOS) == 0xF4, "IVP_Impact_Solver+0xF4");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, Restitution) == 0xFC, "IVP_Impact_Solver+0xFC");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, NormalCoeff) == 0x100, "IVP_Impact_Solver+0x100");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, TangentCoeff) == 0x104, "IVP_Impact_Solver+0x104");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, NormalVectorWS) == 0x108, "IVP_Impact_Solver+0x108");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver, FrictionVectorWS) == 0x10C, "IVP_Impact_Solver+0x10C");
 
 // ---------------------------------------------------------------------------
 // Complex-ledge mindist spawn limiter
@@ -1396,39 +1396,39 @@ struct IVP_Contact_Point
     void ShiftTimeStamp(float DeltaBase, float DeltaOffset);
 };
 #pragma pack(pop)
-static_assert(sizeof(IVP_Contact_Point) == 0x74, "retail operator_new(0x74), FUN_0635a950/FUN_063539d0");
-static_assert(offsetof(IVP_Contact_Point, Next1) == 0x08, "IVP_Contact_Point+0x08");
-static_assert(offsetof(IVP_Contact_Point, Prev1) == 0x0C, "IVP_Contact_Point+0x0C");
-static_assert(offsetof(IVP_Contact_Point, MassFactor) == 0x30, "IVP_Contact_Point+0x30");
-static_assert(offsetof(IVP_Contact_Point, Object1) == 0x10, "IVP_Contact_Point+0x10");
-static_assert(offsetof(IVP_Contact_Point, Delta1) == 0x14, "IVP_Contact_Point+0x14");
-static_assert(offsetof(IVP_Contact_Point, Feature1) == 0x18, "IVP_Contact_Point+0x18");
-static_assert(offsetof(IVP_Contact_Point, Next2) == 0x1C, "IVP_Contact_Point+0x1C");
-static_assert(offsetof(IVP_Contact_Point, Prev2) == 0x20, "IVP_Contact_Point+0x20");
-static_assert(offsetof(IVP_Contact_Point, Object2) == 0x24, "IVP_Contact_Point+0x24");
-static_assert(offsetof(IVP_Contact_Point, Delta2) == 0x28, "IVP_Contact_Point+0x28");
-static_assert(offsetof(IVP_Contact_Point, Feature2) == 0x2C, "IVP_Contact_Point+0x2C");
-static_assert(offsetof(IVP_Contact_Point, Owner) == 0x40, "IVP_Contact_Point+0x40 -- the resolved Owner field");
-static_assert(offsetof(IVP_Contact_Point, ListManagerListNext) == 0x00, "IVP_Contact_Point+0x00");
-static_assert(offsetof(IVP_Contact_Point, SolverMode) == 0x34, "IVP_Contact_Point+0x34");
-static_assert(offsetof(IVP_Contact_Point, SpanFrictionS) == 0x38, "IVP_Contact_Point+0x38");
-static_assert(offsetof(IVP_Contact_Point, FrictionCoefficient) == 0x44, "IVP_Contact_Point+0x44");
-static_assert(offsetof(IVP_Contact_Point, FrictionCorrection) == 0x48, "IVP_Contact_Point+0x48");
-static_assert(offsetof(IVP_Contact_Point, TangentWork) == 0x50, "IVP_Contact_Point+0x50");
-static_assert(offsetof(IVP_Contact_Point, NowFrictionPressure) == 0x54, "IVP_Contact_Point+0x54");
-static_assert(offsetof(IVP_Contact_Point, _field4c) == 0x4C, "IVP_Contact_Point+0x4C");
-static_assert(offsetof(IVP_Contact_Point, GapDistance) == 0x58, "IVP_Contact_Point+0x58");
-static_assert(offsetof(IVP_Contact_Point, _const5c) == 0x5C, "IVP_Contact_Point+0x5C");
-static_assert(offsetof(IVP_Contact_Point, _flags60) == 0x60, "IVP_Contact_Point+0x60");
-static_assert(offsetof(IVP_Contact_Point, HasNegativePullSince) == 0x64, "IVP_Contact_Point+0x64");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, IndexInFs) == 0x50, "IVP_Impact_Solver_Long_Term+0x50");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, FrictionIsBroken) == 0x55, "IVP_Impact_Solver_Long_Term+0x55");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, FrictionInfos) == 0x58, "IVP_Impact_Solver_Long_Term+0x58");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, HasNegativePullSince) == 0x60, "IVP_Impact_Solver_Long_Term+0x60");
-static_assert(offsetof(IVP_Impact_Solver_Long_Term, GapDistance) == 0x64, "IVP_Impact_Solver_Long_Term+0x64");
-static_assert(offsetof(IVP_Contact_Point, _envTick68) == 0x68, "IVP_Contact_Point+0x68");
-static_assert(offsetof(IVP_Contact_Point, _envTick6c) == 0x6C, "IVP_Contact_Point+0x6C");
-static_assert(offsetof(IVP_Contact_Point, ListManagerOwner) == 0x70, "IVP_Contact_Point+0x70");
+FL_LAYOUT_ASSERT(sizeof(IVP_Contact_Point) == 0x74, "retail operator_new(0x74), FUN_0635a950/FUN_063539d0");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Next1) == 0x08, "IVP_Contact_Point+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Prev1) == 0x0C, "IVP_Contact_Point+0x0C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, MassFactor) == 0x30, "IVP_Contact_Point+0x30");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Object1) == 0x10, "IVP_Contact_Point+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Delta1) == 0x14, "IVP_Contact_Point+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Feature1) == 0x18, "IVP_Contact_Point+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Next2) == 0x1C, "IVP_Contact_Point+0x1C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Prev2) == 0x20, "IVP_Contact_Point+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Object2) == 0x24, "IVP_Contact_Point+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Delta2) == 0x28, "IVP_Contact_Point+0x28");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Feature2) == 0x2C, "IVP_Contact_Point+0x2C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, Owner) == 0x40, "IVP_Contact_Point+0x40 -- the resolved Owner field");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, ListManagerListNext) == 0x00, "IVP_Contact_Point+0x00");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, SolverMode) == 0x34, "IVP_Contact_Point+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, SpanFrictionS) == 0x38, "IVP_Contact_Point+0x38");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, FrictionCoefficient) == 0x44, "IVP_Contact_Point+0x44");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, FrictionCorrection) == 0x48, "IVP_Contact_Point+0x48");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, TangentWork) == 0x50, "IVP_Contact_Point+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, NowFrictionPressure) == 0x54, "IVP_Contact_Point+0x54");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _field4c) == 0x4C, "IVP_Contact_Point+0x4C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, GapDistance) == 0x58, "IVP_Contact_Point+0x58");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _const5c) == 0x5C, "IVP_Contact_Point+0x5C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _flags60) == 0x60, "IVP_Contact_Point+0x60");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, HasNegativePullSince) == 0x64, "IVP_Contact_Point+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, IndexInFs) == 0x50, "IVP_Impact_Solver_Long_Term+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, FrictionIsBroken) == 0x55, "IVP_Impact_Solver_Long_Term+0x55");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, FrictionInfos) == 0x58, "IVP_Impact_Solver_Long_Term+0x58");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, HasNegativePullSince) == 0x60, "IVP_Impact_Solver_Long_Term+0x60");
+FL_LAYOUT_ASSERT(offsetof(IVP_Impact_Solver_Long_Term, GapDistance) == 0x64, "IVP_Impact_Solver_Long_Term+0x64");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _envTick68) == 0x68, "IVP_Contact_Point+0x68");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, _envTick6c) == 0x6C, "IVP_Contact_Point+0x6C");
+FL_LAYOUT_ASSERT(offsetof(IVP_Contact_Point, ListManagerOwner) == 0x70, "IVP_Contact_Point+0x70");
 
 // ---------------------------------------------------------------------------
 // "ListManager": per-(SimUnit-or-Core-group) IVP_Contact_Point registry
@@ -1528,7 +1528,7 @@ struct IVP_Friction_Info_For_Core
     IVP_U_Vector<IVP_Contact_Point> FrDists; // +0x00
     IVP_ListManager* FrictionSystem;              // +0x08
 };
-static_assert(sizeof(IVP_Friction_Info_For_Core) == 0xc, "IVP_Friction_Info_For_Core is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Friction_Info_For_Core) == 0xc, "IVP_Friction_Info_For_Core is 0xc bytes");
 
 #pragma pack(push, 4)
 struct IVP_ListManager_CorePairEntry
@@ -1580,12 +1580,12 @@ struct IVP_ListManager_CorePairEntry
     IVP_ListManager_CorePairEntry() {}
 };
 #pragma pack(pop)
-static_assert(sizeof(IVP_ListManager_CorePairEntry) == 0x30, "retail operator_new(0x30), FUN_0634b900/FUN_06356240");
-static_assert(offsetof(IVP_ListManager_CorePairEntry, MergeCacheCountdown) == 0x18, "IVP_ListManager_CorePairEntry+0x18");
-static_assert(offsetof(IVP_ListManager_CorePairEntry, LastImpactTime) == 0x1C, "IVP_ListManager_CorePairEntry+0x1C");
-static_assert(offsetof(IVP_ListManager_CorePairEntry, _field24) == 0x24, "IVP_ListManager_CorePairEntry+0x24");
-static_assert(offsetof(IVP_ListManager_CorePairEntry, CoreA) == 0x28, "IVP_ListManager_CorePairEntry+0x28");
-static_assert(offsetof(IVP_ListManager_CorePairEntry, CoreB) == 0x2C, "IVP_ListManager_CorePairEntry+0x2C");
+FL_LAYOUT_ASSERT(sizeof(IVP_ListManager_CorePairEntry) == 0x30, "retail operator_new(0x30), FUN_0634b900/FUN_06356240");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager_CorePairEntry, MergeCacheCountdown) == 0x18, "IVP_ListManager_CorePairEntry+0x18");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager_CorePairEntry, LastImpactTime) == 0x1C, "IVP_ListManager_CorePairEntry+0x1C");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager_CorePairEntry, _field24) == 0x24, "IVP_ListManager_CorePairEntry+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager_CorePairEntry, CoreA) == 0x28, "IVP_ListManager_CorePairEntry+0x28");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager_CorePairEntry, CoreB) == 0x2C, "IVP_ListManager_CorePairEntry+0x2C");
 
 // ---------------------------------------------------------------------------
 // The friction system's two embedded controller handles (2026-10-08,
@@ -1631,7 +1631,7 @@ public:
     // when it is out of range.
     void DoSimulationSingleFriction(IVP_Event_Sim* EventSim);
 };
-static_assert(sizeof(IVP_Friction_Sys_Static) == 0x8, "static friction handle: vptr + back pointer");
+FL_LAYOUT_ASSERT(sizeof(IVP_Friction_Sys_Static) == 0x8, "static friction handle: vptr + back pointer");
 
 // IVP_ListManager+0x10. vtable .rdata:063a54e4:
 //   +0x00 062ed730  IVP_Controller's `RET 4`
@@ -1657,7 +1657,7 @@ public:
     // 0634b690
     virtual IVP_CONTROLLER_PRIORITY get_controller_priority() override { return IVP_CP_ENERGY_FRICTION; }
 };
-static_assert(sizeof(IVP_Friction_Sys_Energy) == 0x8, "energy friction handle: vptr + back pointer");
+FL_LAYOUT_ASSERT(sizeof(IVP_Friction_Sys_Energy) == 0x8, "energy friction handle: vptr + back pointer");
 
 // IVP_ListManager itself (Ipion's IVP_Friction_System). vtable .rdata:063a54c8:
 //   +0x00 062ed730  IVP_Controller's `RET 4` (core_is_going_to_be_deleted_event default)
@@ -1859,18 +1859,18 @@ public:
     double MaxEnergyGain() const;
 };
 #pragma pack(pop)
-static_assert(sizeof(IVP_ListManager) == 0x4c, "retail operator_new(0x4c), FUN_0634b600/item 2992");
-static_assert(offsetof(IVP_ListManager, Environment) == 0x04, "IVP_ListManager+0x04");
-static_assert(offsetof(IVP_ListManager, ComplexNotNecessaryNumber) == 0x40, "IVP_ListManager+0x40");
-static_assert(offsetof(IVP_ListManager, StaticFsHandle) == 0x08, "IVP_ListManager+0x08 static handle (vtable 063a5500)");
-static_assert(offsetof(IVP_ListManager, EnergyFsHandle) == 0x10, "IVP_ListManager+0x10 energy handle (vtable 063a54e4)");
-static_assert(offsetof(IVP_ListManager, CtxListHead) == 0x20, "IVP_ListManager+0x20");
-static_assert(offsetof(IVP_ListManager, RegisteredCores) == 0x24, "IVP_ListManager+0x24");
-static_assert(offsetof(IVP_ListManager, RegisteredDynamicCores) == 0x2C, "IVP_ListManager+0x2C");
-static_assert(offsetof(IVP_ListManager, CorePairEntries) == 0x34, "IVP_ListManager+0x34");
-static_assert(offsetof(IVP_ListManager, RegisterCoreCallCount) == 0x3C, "IVP_ListManager+0x3C");
-static_assert(offsetof(IVP_ListManager, CtxListCount) == 0x3E, "IVP_ListManager+0x3E");
-static_assert(offsetof(IVP_ListManager, _pad48) == 0x48, "IVP_ListManager+0x44 bit-field dword ends at +0x48");
+FL_LAYOUT_ASSERT(sizeof(IVP_ListManager) == 0x4c, "retail operator_new(0x4c), FUN_0634b600/item 2992");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, Environment) == 0x04, "IVP_ListManager+0x04");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, ComplexNotNecessaryNumber) == 0x40, "IVP_ListManager+0x40");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, StaticFsHandle) == 0x08, "IVP_ListManager+0x08 static handle (vtable 063a5500)");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, EnergyFsHandle) == 0x10, "IVP_ListManager+0x10 energy handle (vtable 063a54e4)");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, CtxListHead) == 0x20, "IVP_ListManager+0x20");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, RegisteredCores) == 0x24, "IVP_ListManager+0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, RegisteredDynamicCores) == 0x2C, "IVP_ListManager+0x2C");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, CorePairEntries) == 0x34, "IVP_ListManager+0x34");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, RegisterCoreCallCount) == 0x3C, "IVP_ListManager+0x3C");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, CtxListCount) == 0x3E, "IVP_ListManager+0x3E");
+FL_LAYOUT_ASSERT(offsetof(IVP_ListManager, _pad48) == 0x48, "IVP_ListManager+0x44 bit-field dword ends at +0x48");
 
 // Forward declaration: IVP_Complex_Mindist is declared in full further below,
 // but IVP_Ledge_Mindist::AttachAsPendingSynapse (D227 pass, 2026-09-10, see
@@ -1985,11 +1985,11 @@ public:
     void GetLedges(const IVP_Compact_Ledge* Out[2]) const;
 };
 #pragma pack(pop)
-static_assert(offsetof(IVP_Mindist_Base, StateFlags) == 0x14, "IVP_Mindist_Base+0x14 (0634db70 :0634dbdb)");
-static_assert(offsetof(IVP_Mindist_Base, synapse) == 0x18, "IVP_Mindist_Base::synapse[0] at +0x18 (0634db70 :0634dbb1)");
-static_assert(offsetof(IVP_Mindist_Base, CombinedRadius) == 0x50, "IVP_Mindist_Base+0x50");
-static_assert(offsetof(IVP_Mindist_Base, CombinedHullSpread) == 0x5c, "IVP_Mindist_Base+0x5c (0634db70 :0634dbde)");
-static_assert(sizeof(IVP_Mindist_Base) == 0x70, "IVP_Ledge_Mindist's own fields start at +0x70 (0634dd10 :0634dd1f)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Base, StateFlags) == 0x14, "IVP_Mindist_Base+0x14 (0634db70 :0634dbdb)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Base, synapse) == 0x18, "IVP_Mindist_Base::synapse[0] at +0x18 (0634db70 :0634dbb1)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Base, CombinedRadius) == 0x50, "IVP_Mindist_Base+0x50");
+FL_LAYOUT_ASSERT(offsetof(IVP_Mindist_Base, CombinedHullSpread) == 0x5c, "IVP_Mindist_Base+0x5c (0634db70 :0634dbde)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Mindist_Base) == 0x70, "IVP_Ledge_Mindist's own fields start at +0x70 (0634dd10 :0634dd1f)");
 
 #pragma pack(push, 4)
 class IVP_Ledge_Mindist : public IVP_Mindist_Base
@@ -2132,8 +2132,8 @@ public:
     void UpdatePerTick();
 };
 #pragma pack(pop)
-static_assert(offsetof(IVP_Ledge_Mindist, LastDispatchTick) == 0x70, "IVP_Ledge_Mindist+0x70 (0634dd10 :0634dd1f)");
-static_assert(sizeof(IVP_Ledge_Mindist) == 0x80,
+FL_LAYOUT_ASSERT(offsetof(IVP_Ledge_Mindist, LastDispatchTick) == 0x70, "IVP_Ledge_Mindist+0x70 (0634dd10 :0634dd1f)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Ledge_Mindist) == 0x80,
               "IVP_Ledge_Mindist must be retail's 0x80 bytes: IVP_Complex_Mindist's delegator vptr sits at +0x80");
 
 // Derived: the library's IVP_Mindist_Recursive (retail 0x94 bytes, vtable

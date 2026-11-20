@@ -11,10 +11,16 @@
 // port-only x64 build (docs/x64.md) has 8-byte pointers, and with them other sizes and
 // offsets; there the macro checks nothing. It still expands to a declaration, so it is valid
 // wherever static_assert is, followed by the same semicolon.
+//
+// FL_LAYOUT_PAD(bytes): the size of a padding array that brings a member to its retail size,
+// e.g. `unsigned char Pad[FL_LAYOUT_PAD(0x14 - sizeof(std::map<...>))];`. On x64 the
+// container is larger than the retail span, so the pad is a single unused byte instead.
 #if defined(__cplusplus)
 #if defined(_WIN64)
 #define FL_LAYOUT_ASSERT(...) static_assert(true, "")
+#define FL_LAYOUT_PAD(Bytes) 1
 #else
 #define FL_LAYOUT_ASSERT(...) static_assert(__VA_ARGS__)
+#define FL_LAYOUT_PAD(Bytes) (Bytes)
 #endif
 #endif

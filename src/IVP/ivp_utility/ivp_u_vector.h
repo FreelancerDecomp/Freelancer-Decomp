@@ -191,7 +191,7 @@ protected:
     }
 };
 
-static_assert(sizeof(IVP_U_Vector<void>) == 0x8, "IVP_U_Vector size must be 0x8");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Vector<void>) == 0x8, "IVP_U_Vector size must be 0x8");
 
 template <class T, int FIXED_SIZE>
 class IVP_U_Vector_Fixed : public IVP_U_Vector<T>
@@ -217,4 +217,4 @@ public:
     }
 };
 
-static_assert(sizeof(IVP_U_Vector_Fixed<void, 8>) == 0x28, "IVP_U_Vector_Fixed<8> size must be 0x28");
+FL_LAYOUT_ASSERT(sizeof(IVP_U_Vector_Fixed<void, 8>) == 0x28, "IVP_U_Vector_Fixed<8> size must be 0x28");

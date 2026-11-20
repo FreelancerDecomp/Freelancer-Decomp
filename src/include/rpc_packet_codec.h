@@ -13,6 +13,7 @@
 #include "common_physys.h" // Quaternion; shared Common math type.
 #include "common_server_types.h" // CHARACTER_ID has one canonical declaration.
 #include <cstring>
+#include "x87_portable.h"
 #include <intrin.h> // __movsd/__movsb: native REP MOVS encode block copies.
 #include <new>
 #include <list>
@@ -145,12 +146,16 @@ public:
         const float* Source = &Value;
         const unsigned int Cached = Packet.MarshalPtr;
         float* Destination = reinterpret_cast<float*>(Cached);
+#if defined(_M_IX86)
         __asm {
             mov eax, Source
             mov edx, Destination
             fld dword ptr [eax]
             fstp dword ptr [edx]
         }
+#else
+        X87CopyFloat(Destination, Source);
+#endif
         Packet.MarshalPtr = Cached + 4u;
         return true;
     }

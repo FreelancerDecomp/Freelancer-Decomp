@@ -15,6 +15,7 @@
 #include <cstring>
 #include <iterator>
 #include <string>
+#include "x87_portable.h"
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
 static constexpr unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
@@ -1242,12 +1243,16 @@ namespace
         {
             if (bFloat)
             {
+#if defined(_M_IX86)
                 __asm
                 {
                     fld dword ptr ReadValue
                     mov eax, Output
                     fstp dword ptr [eax]
                 }
+#else
+                X87CopyFloat(Output, &ReadValue);
+#endif
             }
             else
                 *Output = ReadValue;

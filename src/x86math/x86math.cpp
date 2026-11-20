@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstring>
 #include <new>
+#include <utility>
 
 int CallDacomStricmp(const char* Left, const char* Right);
 
@@ -89,6 +90,7 @@ namespace
         float* ResultVector = &Dst.X;
         const float* MatrixValues = &Matrix.D[0][0];
         const float* SourceVector = &Source.X;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, MatrixValues
@@ -123,6 +125,36 @@ namespace
             faddp st(1), st(0)
             fstp dword ptr [edx + 8]
         }
+#else
+        double X0 = 0.0, X1 = 0.0;
+        X0 = static_cast<double>(MatrixValues[2]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[1]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[0]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        ResultVector[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(MatrixValues[5]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[3]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[4]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        ResultVector[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(MatrixValues[8]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[6]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[7]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        ResultVector[2] = static_cast<float>(X0);
+#endif
     }
 
     // LAB_06f718f0: shared InverseRotate/TransposeTransform body. Each
@@ -132,6 +164,7 @@ namespace
         float* ResultVector = &Dst.X;
         const float* MatrixValues = &Matrix.D[0][0];
         const float* SourceVector = &Source.X;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, MatrixValues
@@ -166,6 +199,36 @@ namespace
             faddp st(1), st(0)
             fstp dword ptr [edx + 8]
         }
+#else
+        double X0 = 0.0, X1 = 0.0;
+        X0 = static_cast<double>(MatrixValues[6]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[3]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[0]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        ResultVector[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(MatrixValues[7]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[1]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[4]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        ResultVector[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(MatrixValues[8]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(MatrixValues[2]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(MatrixValues[5]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        ResultVector[2] = static_cast<float>(X0);
+#endif
     }
 
     void TransposeMatrix(FMatrix& Dst, const FMatrix& Source)
@@ -794,6 +857,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         float* ResultTransform = &Dst.Rotation.D[0][0];
         const float* LeftTransform = &A.Rotation.D[0][0];
         const float* RightTransform = &B.Rotation.D[0][0];
+#if defined(_M_IX86)
         __asm
         {
             mov eax, LeftTransform
@@ -912,6 +976,120 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             xor eax, eax
             fstp dword ptr [edx + 02ch]
         }
+#else
+        double X0 = 0.0, X1 = 0.0;
+        X0 = static_cast<double>(LeftTransform[0]);
+        X0 = X0 * static_cast<double>(RightTransform[0]);
+        X1 = static_cast<double>(LeftTransform[1]);
+        X1 = X1 * static_cast<double>(RightTransform[3]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[6]);
+        X1 = X1 * static_cast<double>(LeftTransform[2]);
+        X0 = X0 + X1;
+        ResultTransform[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[1]);
+        X0 = X0 * static_cast<double>(RightTransform[4]);
+        X1 = static_cast<double>(RightTransform[7]);
+        X1 = X1 * static_cast<double>(LeftTransform[2]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[1]);
+        X1 = X1 * static_cast<double>(LeftTransform[0]);
+        X0 = X0 + X1;
+        ResultTransform[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[1]);
+        X0 = X0 * static_cast<double>(RightTransform[5]);
+        X1 = static_cast<double>(RightTransform[8]);
+        X1 = X1 * static_cast<double>(LeftTransform[2]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[2]);
+        X1 = X1 * static_cast<double>(LeftTransform[0]);
+        X0 = X0 + X1;
+        ResultTransform[2] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[1]);
+        X0 = X0 * static_cast<double>(RightTransform[10]);
+        X1 = static_cast<double>(RightTransform[11]);
+        X1 = X1 * static_cast<double>(LeftTransform[2]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[9]);
+        X1 = X1 * static_cast<double>(LeftTransform[0]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(LeftTransform[9]);
+        ResultTransform[9] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[4]);
+        X0 = X0 * static_cast<double>(RightTransform[3]);
+        X1 = static_cast<double>(LeftTransform[3]);
+        X1 = X1 * static_cast<double>(RightTransform[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(LeftTransform[5]);
+        X1 = X1 * static_cast<double>(RightTransform[6]);
+        X0 = X0 + X1;
+        ResultTransform[3] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[5]);
+        X0 = X0 * static_cast<double>(RightTransform[7]);
+        X1 = static_cast<double>(LeftTransform[4]);
+        X1 = X1 * static_cast<double>(RightTransform[4]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(LeftTransform[3]);
+        X1 = X1 * static_cast<double>(RightTransform[1]);
+        X0 = X0 + X1;
+        ResultTransform[4] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[5]);
+        X0 = X0 * static_cast<double>(RightTransform[8]);
+        X1 = static_cast<double>(LeftTransform[4]);
+        X1 = X1 * static_cast<double>(RightTransform[5]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(LeftTransform[3]);
+        X1 = X1 * static_cast<double>(RightTransform[2]);
+        X0 = X0 + X1;
+        ResultTransform[5] = static_cast<float>(X0);
+        X0 = static_cast<double>(RightTransform[11]);
+        X0 = X0 * static_cast<double>(LeftTransform[5]);
+        X1 = static_cast<double>(RightTransform[10]);
+        X1 = X1 * static_cast<double>(LeftTransform[4]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[9]);
+        X1 = X1 * static_cast<double>(LeftTransform[3]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(LeftTransform[10]);
+        ResultTransform[10] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[7]);
+        X0 = X0 * static_cast<double>(RightTransform[3]);
+        X1 = static_cast<double>(LeftTransform[8]);
+        X1 = X1 * static_cast<double>(RightTransform[6]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[0]);
+        X1 = X1 * static_cast<double>(LeftTransform[6]);
+        X0 = X0 + X1;
+        ResultTransform[6] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[8]);
+        X0 = X0 * static_cast<double>(RightTransform[7]);
+        X1 = static_cast<double>(LeftTransform[7]);
+        X1 = X1 * static_cast<double>(RightTransform[4]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[1]);
+        X1 = X1 * static_cast<double>(LeftTransform[6]);
+        X0 = X0 + X1;
+        ResultTransform[7] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[8]);
+        X0 = X0 * static_cast<double>(RightTransform[8]);
+        X1 = static_cast<double>(LeftTransform[7]);
+        X1 = X1 * static_cast<double>(RightTransform[5]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[2]);
+        X1 = X1 * static_cast<double>(LeftTransform[6]);
+        X0 = X0 + X1;
+        ResultTransform[8] = static_cast<float>(X0);
+        X0 = static_cast<double>(LeftTransform[8]);
+        X0 = X0 * static_cast<double>(RightTransform[11]);
+        X1 = static_cast<double>(LeftTransform[7]);
+        X1 = X1 * static_cast<double>(RightTransform[10]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(RightTransform[9]);
+        X1 = X1 * static_cast<double>(LeftTransform[6]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(LeftTransform[11]);
+        ResultTransform[11] = static_cast<float>(X0);
+#endif
         return GR_OK;
     }
 
@@ -922,6 +1100,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         float* ResultMatrix = &Dst.D[0][0];
         const float* LeftMatrix = &A.D[0][0];
         const float* RightMatrix = &B.D[0][0];
+#if defined(_M_IX86)
         __asm
         {
             mov edx, ResultMatrix
@@ -964,6 +1143,27 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             fstp dword ptr [edx - 4]
             jnz MatrixRowLoop
         }
+#else
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            // One pass of the loop: LeftRow is EAX-4 at the pass's start, every source word is
+            // read after the previous output store.
+            const float* const LeftRow = LeftMatrix + Row * 3;
+            float* const OutRow = ResultMatrix + Row * 3;
+            double Sum = static_cast<double>(LeftRow[2]) * static_cast<double>(RightMatrix[6]);
+            Sum = Sum + static_cast<double>(RightMatrix[3]) * static_cast<double>(LeftRow[1]);
+            Sum = Sum + static_cast<double>(LeftRow[0]) * static_cast<double>(RightMatrix[0]);
+            OutRow[0] = static_cast<float>(Sum);
+            Sum = static_cast<double>(RightMatrix[1]) * static_cast<double>(LeftRow[0]);
+            Sum = Sum + static_cast<double>(LeftRow[2]) * static_cast<double>(RightMatrix[7]);
+            Sum = Sum + static_cast<double>(RightMatrix[4]) * static_cast<double>(LeftRow[1]);
+            OutRow[1] = static_cast<float>(Sum);
+            Sum = static_cast<double>(RightMatrix[2]) * static_cast<double>(LeftRow[0]);
+            Sum = Sum + static_cast<double>(LeftRow[2]) * static_cast<double>(RightMatrix[8]);
+            Sum = Sum + static_cast<double>(RightMatrix[5]) * static_cast<double>(LeftRow[1]);
+            OutRow[2] = static_cast<float>(Sum);
+        }
+#endif
         return GR_OK;
     }
 
@@ -988,6 +1188,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         float* ResultVector = &Dst.X;
         const float* TransformValues = &Xform.Rotation.D[0][0];
         const float* SourceVector = &Source.X;
+#if defined(_M_IX86)
         __asm
         {
             mov eax, TransformValues
@@ -1024,6 +1225,39 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             fadd dword ptr [eax + 2ch]
             fstp dword ptr [edx + 8]
         }
+#else
+        double X0 = 0.0, X1 = 0.0;
+        X0 = static_cast<double>(TransformValues[2]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(TransformValues[1]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(TransformValues[0]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(TransformValues[9]);
+        ResultVector[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(TransformValues[5]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(TransformValues[3]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(TransformValues[4]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(TransformValues[10]);
+        ResultVector[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(TransformValues[8]);
+        X0 = X0 * static_cast<double>(SourceVector[2]);
+        X1 = static_cast<double>(TransformValues[6]);
+        X1 = X1 * static_cast<double>(SourceVector[0]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(TransformValues[7]);
+        X1 = X1 * static_cast<double>(SourceVector[1]);
+        X0 = X0 + X1;
+        X0 = X0 + static_cast<double>(TransformValues[11]);
+        ResultVector[2] = static_cast<float>(X0);
+#endif
         return GR_OK;
     }
 
@@ -1109,6 +1343,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         // only the four destination writes round to float. AND EAX,4100/JNZ
         // takes the not-greater (including unordered) branch in all three tests.
         // Keep the branch-specific store/read order for aliased source/output.
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, SourceMatrix
@@ -1203,6 +1438,41 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             fstp st(0)
         MatrixQuatDone:
         }
+#else
+        const float* const M = reinterpret_cast<const float*>(SourceMatrix);
+        float* const Q = reinterpret_cast<float*>(DestinationQuat);
+        double Trace = static_cast<double>(M[4]);
+        Trace = Trace + static_cast<double>(M[0]);
+        Trace = Trace + static_cast<double>(M[8]);
+        if (Trace > static_cast<double>(Zero))
+        {
+            double Root = std::sqrt(Trace + static_cast<double>(One));
+            Q[0] = static_cast<float>(static_cast<double>(Half) * Root);
+            Root = static_cast<double>(Half) / Root;
+            Q[1] = static_cast<float>((static_cast<double>(M[7]) - static_cast<double>(M[5])) * Root);
+            Q[2] = static_cast<float>((static_cast<double>(M[2]) - static_cast<double>(M[6])) * Root);
+            Q[3] = static_cast<float>((static_cast<double>(M[3]) - static_cast<double>(M[1])) * Root);
+        }
+        else
+        {
+            int I = 0;
+            if (M[4] > M[0])
+                I = 1;
+            if (M[8] > M[I * 4])
+                I = 2;
+            const int J = NextAxis[I];
+            const int K = NextAxis[J];
+            double Root = static_cast<double>(M[K * 4]);
+            Root = Root + static_cast<double>(M[J * 4]);
+            Root = static_cast<double>(M[I * 4]) - Root;
+            Root = std::sqrt(Root + static_cast<double>(One));
+            Q[I + 1] = static_cast<float>(static_cast<double>(Half) * Root);
+            Root = static_cast<double>(Half) / Root;
+            Q[0] = static_cast<float>((static_cast<double>(M[K * 3 + J]) - static_cast<double>(M[J * 3 + K])) * Root);
+            Q[J + 1] = static_cast<float>((static_cast<double>(M[I * 3 + J]) + static_cast<double>(M[J * 3 + I])) * Root);
+            Q[K + 1] = static_cast<float>((static_cast<double>(M[I * 3 + K]) + static_cast<double>(M[K * 3 + I])) * Root);
+        }
+#endif
         return GR_OK;
     }
 
@@ -1214,6 +1484,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         float Zs;
         const float One = 1.0f;
         const float Two = 2.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov eax, Quat
@@ -1301,6 +1572,87 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             fstp dword ptr [eax + 20h]
             fstp st(0)
         }
+#else
+        const float* const QuatF = reinterpret_cast<const float*>(&Quat);
+        float* const DstF = reinterpret_cast<float*>(&Dst);
+        double X0 = 0.0, X1 = 0.0, X2 = 0.0, X3 = 0.0, X4 = 0.0, X5 = 0.0;
+        X0 = static_cast<double>(QuatF[3]);
+        X1 = static_cast<double>(QuatF[2]);
+        X2 = static_cast<double>(QuatF[1]);
+        X3 = static_cast<double>(QuatF[0]);
+        X4 = X3;
+        X4 = X4 * X3;
+        X5 = X2;
+        X5 = X5 * X2;
+        X4 = X4 + X5;
+        X5 = X1;
+        X5 = X5 * X1;
+        X4 = X4 + X5;
+        X5 = X0;
+        X5 = X5 * X0;
+        X4 = X4 + X5;
+        X4 = static_cast<double>(Two) / X4;
+        X0 = X4;
+        X1 = X0;
+        X1 = X1 * static_cast<double>(QuatF[1]);
+        X2 = X0;
+        X2 = X2 * static_cast<double>(QuatF[2]);
+        Scratch[0] = static_cast<float>(X2);
+        std::swap(X1, X0);
+        X1 = X1 * static_cast<double>(QuatF[3]);
+        Zs = static_cast<float>(X1);
+        X1 = X0;
+        X1 = X1 * static_cast<double>(QuatF[0]);
+        Scratch[3] = static_cast<float>(X1);
+        X1 = static_cast<double>(Scratch[0]);
+        X1 = X1 * static_cast<double>(QuatF[0]);
+        Scratch[2] = static_cast<float>(X1);
+        X1 = static_cast<double>(Zs);
+        X1 = X1 * static_cast<double>(QuatF[0]);
+        Scratch[1] = static_cast<float>(X1);
+        X0 = X0 * static_cast<double>(QuatF[1]);
+        X1 = static_cast<double>(Scratch[0]);
+        X1 = X1 * static_cast<double>(QuatF[1]);
+        X2 = static_cast<double>(Zs);
+        X2 = X2 * static_cast<double>(QuatF[1]);
+        X3 = static_cast<double>(Scratch[0]);
+        X3 = X3 * static_cast<double>(QuatF[2]);
+        Scratch[4] = static_cast<float>(X3);
+        X3 = static_cast<double>(Zs);
+        X3 = X3 * static_cast<double>(QuatF[2]);
+        Scratch[0] = static_cast<float>(X3);
+        X3 = static_cast<double>(Zs);
+        X3 = X3 * static_cast<double>(QuatF[3]);
+        X4 = static_cast<double>(Scratch[4]);
+        X4 = X4 + X3;
+        X4 = static_cast<double>(One) - X4;
+        DstF[0] = static_cast<float>(X4);
+        X4 = X1;
+        X4 = X4 - static_cast<double>(Scratch[1]);
+        DstF[1] = static_cast<float>(X4);
+        X4 = X2;
+        X4 = X4 + static_cast<double>(Scratch[2]);
+        DstF[2] = static_cast<float>(X4);
+        std::swap(X3, X1);
+        X3 = X3 + static_cast<double>(Scratch[1]);
+        DstF[3] = static_cast<float>(X3);
+        std::swap(X2, X1);
+        X2 = X2 + X0;
+        X2 = static_cast<double>(One) - X2;
+        DstF[4] = static_cast<float>(X2);
+        X2 = static_cast<double>(Scratch[0]);
+        X2 = X2 - static_cast<double>(Scratch[3]);
+        DstF[5] = static_cast<float>(X2);
+        X1 = X1 - static_cast<double>(Scratch[2]);
+        DstF[6] = static_cast<float>(X1);
+        X1 = static_cast<double>(Scratch[0]);
+        X1 = X1 + static_cast<double>(Scratch[3]);
+        DstF[7] = static_cast<float>(X1);
+        X1 = static_cast<double>(Scratch[4]);
+        X1 = X1 + X0;
+        X1 = static_cast<double>(One) - X1;
+        DstF[8] = static_cast<float>(X1);
+#endif
         return GR_OK;
     }
 
@@ -1315,6 +1667,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         // component store order and NaN hemisphere selection. Inputs may alias Dst.
         static constexpr float Zero = 0.0f;
         static constexpr float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov esi, T
@@ -1413,6 +1766,98 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
             fmul dword ptr [eax + 0ch]
             fstp dword ptr [eax + 0ch]
         }
+#else
+        const float* const AF = reinterpret_cast<const float*>(&A);
+        const float* const BF = reinterpret_cast<const float*>(&B);
+        float* const DstF = reinterpret_cast<float*>(&Dst);
+        double X0 = 0.0, X1 = 0.0, X2 = 0.0, X3 = 0.0, X4 = 0.0, X5 = 0.0;
+        double XCmpA = 0.0, XCmpB = 0.0;
+        X0 = static_cast<double>(AF[2]);
+        X0 = X0 * static_cast<double>(BF[2]);
+        X1 = static_cast<double>(AF[1]);
+        X1 = X1 * static_cast<double>(BF[1]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(BF[3]);
+        X1 = X1 * static_cast<double>(AF[3]);
+        X0 = X0 + X1;
+        X1 = static_cast<double>(AF[0]);
+        X1 = X1 * static_cast<double>(BF[0]);
+        X0 = X0 + X1;
+        XCmpA = X0;
+        XCmpB = static_cast<double>(Zero);
+        if (!(XCmpA < XCmpB)) goto X_QuatForwardHemisphere;
+        X0 = static_cast<double>(AF[0]);
+        X0 = X0 + static_cast<double>(BF[0]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = static_cast<double>(AF[0]) - X0;
+        DstF[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(AF[1]);
+        X0 = X0 + static_cast<double>(BF[1]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = static_cast<double>(AF[1]) - X0;
+        DstF[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(AF[2]);
+        X0 = X0 + static_cast<double>(BF[2]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = static_cast<double>(AF[2]) - X0;
+        DstF[2] = static_cast<float>(X0);
+        X0 = static_cast<double>(BF[3]);
+        X0 = X0 + static_cast<double>(AF[3]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = static_cast<double>(AF[3]) - X0;
+        goto X_QuatNormalize;
+        X_QuatForwardHemisphere:
+        X0 = static_cast<double>(BF[0]);
+        X0 = X0 - static_cast<double>(AF[0]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = X0 + static_cast<double>(AF[0]);
+        DstF[0] = static_cast<float>(X0);
+        X0 = static_cast<double>(BF[1]);
+        X0 = X0 - static_cast<double>(AF[1]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = X0 + static_cast<double>(AF[1]);
+        DstF[1] = static_cast<float>(X0);
+        X0 = static_cast<double>(BF[2]);
+        X0 = X0 - static_cast<double>(AF[2]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = X0 + static_cast<double>(AF[2]);
+        DstF[2] = static_cast<float>(X0);
+        X0 = static_cast<double>(BF[3]);
+        X0 = X0 - static_cast<double>(AF[3]);
+        X0 = X0 * static_cast<double>(T[0]);
+        X0 = X0 + static_cast<double>(AF[3]);
+        X_QuatNormalize:
+        DstF[3] = static_cast<float>(X0);
+        X0 = static_cast<double>(DstF[3]);
+        X1 = static_cast<double>(DstF[2]);
+        X2 = static_cast<double>(DstF[1]);
+        X3 = static_cast<double>(DstF[0]);
+        X4 = X3;
+        X4 = X4 * X3;
+        X5 = X2;
+        X5 = X5 * X2;
+        X4 = X4 + X5;
+        X5 = X1;
+        X5 = X5 * X1;
+        X4 = X4 + X5;
+        X5 = X0;
+        X5 = X5 * X0;
+        X4 = X4 + X5;
+        X4 = std::sqrt(X4);
+        X0 = X4;
+        X0 = static_cast<double>(One) / X0;
+        X1 = X0;
+        X1 = X1 * static_cast<double>(DstF[0]);
+        DstF[0] = static_cast<float>(X1);
+        X1 = X0;
+        X1 = X1 * static_cast<double>(DstF[1]);
+        DstF[1] = static_cast<float>(X1);
+        X1 = X0;
+        X1 = X1 * static_cast<double>(DstF[2]);
+        DstF[2] = static_cast<float>(X1);
+        X0 = X0 * static_cast<double>(DstF[3]);
+        DstF[3] = static_cast<float>(X0);
+#endif
         return GR_OK;
     }
 

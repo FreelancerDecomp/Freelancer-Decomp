@@ -1348,6 +1348,7 @@ unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommi
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Source
         fld dword ptr [ecx]
@@ -1366,18 +1367,28 @@ unsigned char RpcUpdateQuantize(const float& Value, unsigned int* PointerToCommi
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    if (PointerToCommit != nullptr) *PointerToCommit = CommittedPointer;
+    Quantized = X87TruncateToInt64(static_cast<double>(*Source) * GFireSmallScale);
+#endif
     return static_cast<unsigned char>(Quantized);
 }
 
 void RpcUpdateExpand(signed char Encoded, float& Value) {
     const int Quantized = Encoded;
     float* Destination = &Value;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Destination
         fild dword ptr Quantized
         fmul qword ptr GUpdateInverseScale
         fstp dword ptr [ecx]
     }
+#else
+    *Destination = static_cast<float>(static_cast<double>(Quantized) * GUpdateInverseScale);
+#endif
 }
 
 // TEST AH,5 + JP takes the equal/greater/unordered side, while fall-through
@@ -1385,6 +1396,7 @@ void RpcUpdateExpand(signed char Encoded, float& Value) {
 unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
     const float* Source = &Value;
     unsigned char Tier;
+#if defined(_M_IX86)
     if (bHasMediumTier) {
         __asm {
             mov ecx, Source
@@ -1422,6 +1434,16 @@ unsigned char RpcFirePickTier(const float& Value, bool bHasMediumTier) {
             mov Tier, dl
         }
     }
+#else
+    // TEST AH,5 + JP: "taken" means not strictly less (or unordered).
+    const double Magnitude = static_cast<double>(*Source < 0.0f ? -*Source : *Source);
+    Tier = 0;
+    if (!(Magnitude < GFireSmallLimit)) {
+        if (bHasMediumTier && Magnitude < GFireMediumLimit) Tier = 2;
+    } else {
+        Tier = 1;
+    }
+#endif
     return Tier;
 }
 
@@ -1434,6 +1456,7 @@ unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
     unsigned short OldControl;
     unsigned short TruncateControl;
     __int64 Quantized;
+#if defined(_M_IX86)
     __asm {
         mov ecx, Source
         mov eax, PreScale
@@ -1449,6 +1472,12 @@ unsigned int RpcFireQuantize(const float& Value, bool bMedium) {
         fistp qword ptr Quantized
         fldcw OldControl
     }
+#else
+    (void)OldControl;
+    (void)TruncateControl;
+    // The float product is exact in a double (24 + 24 significant bits).
+    Quantized = X87TruncateToInt64(static_cast<double>(*Source) * static_cast<double>(*PreScale) * *Scale);
+#endif
     return static_cast<unsigned int>(Quantized);
 }
 
@@ -1492,6 +1521,7 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
     }
     if (bCommitBefore) Stream.CommitReadPointer(Width);
     float* Destination = &Value;
+#if defined(_M_IX86)
     __asm {
         mov eax, Scale
         mov ecx, Destination
@@ -1499,6 +1529,9 @@ bool RpcFireGetComponent(FRpcWireStream& Stream, float& Value,
         fmul qword ptr [eax]
         fstp dword ptr [ecx]
     }
+#else
+    *Destination = static_cast<float>(static_cast<double>(Quantized) * *Scale);
+#endif
     if (!bCommitBefore) Stream.CommitReadPointer(Width);
     return true;
 }

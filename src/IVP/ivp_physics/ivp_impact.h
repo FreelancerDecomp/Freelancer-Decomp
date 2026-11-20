@@ -37,9 +37,9 @@ struct IVP_Old_Sync_Rot_Z
     // FUN_063591a0 and FUN_063596b0 test it as a dword.
     int32_t WasPushedDuringImpactSystem;
 };
-static_assert(sizeof(IVP_Old_Sync_Rot_Z) == 0x24, "retail allocation size, .text:06347251 PUSH 0x24");
-static_assert(offsetof(IVP_Old_Sync_Rot_Z, OldSyncQWorldFCore) == 0x10, "IVP_Old_Sync_Rot_Z+0x10");
-static_assert(offsetof(IVP_Old_Sync_Rot_Z, WasPushedDuringImpactSystem) == 0x20, "IVP_Old_Sync_Rot_Z+0x20");
+FL_LAYOUT_ASSERT(sizeof(IVP_Old_Sync_Rot_Z) == 0x24, "retail allocation size, .text:06347251 PUSH 0x24");
+FL_LAYOUT_ASSERT(offsetof(IVP_Old_Sync_Rot_Z, OldSyncQWorldFCore) == 0x10, "IVP_Old_Sync_Rot_Z+0x10");
+FL_LAYOUT_ASSERT(offsetof(IVP_Old_Sync_Rot_Z, WasPushedDuringImpactSystem) == 0x20, "IVP_Old_Sync_Rot_Z+0x20");
 
 // The impact system. Retail builds it on do_impact's stack (`&local_30`,
 // FUN_06358680 .text:063588d7-06358930): the three vectors are constructed with

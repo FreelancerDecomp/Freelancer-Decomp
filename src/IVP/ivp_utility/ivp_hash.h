@@ -51,7 +51,7 @@ private:
     unsigned DefaultValue;  // +0x08 returned by Find on a miss
     IVP_Hash_Elem** Buckets; // +0x0c chain heads
 };
-static_assert(sizeof(IVP_Hash) == 0x10, "IVP_Hash is 0x10 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Hash) == 0x10, "IVP_Hash is 0x10 bytes");
 
 // FUN_063569e0 (item 3257; defined in ivp_hash.cpp): three-way compare of two
 // null-checked strings (-1 / 0 / 1), a null first string sorting after a

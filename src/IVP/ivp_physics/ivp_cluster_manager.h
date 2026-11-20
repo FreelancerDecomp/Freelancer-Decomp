@@ -59,7 +59,7 @@ public:
     IVP_Real_Object* real_object;                 // +0x00
     IVP_U_Vector<IVP_Listener_Object> listeners;  // +0x04
 };
-static_assert(sizeof(IVP_Object_Callback_Table) == 0xc, "IVP_Object_Callback_Table is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Object_Callback_Table) == 0xc, "IVP_Object_Callback_Table is 0xc bytes");
 
 class IVP_Collision_Callback_Table
 {
@@ -67,7 +67,7 @@ public:
     IVP_Real_Object* real_object;                   // +0x00
     IVP_U_Vector<IVP_Listener_Collision> listeners; // +0x04
 };
-static_assert(sizeof(IVP_Collision_Callback_Table) == 0xc, "IVP_Collision_Callback_Table is 0xc bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Collision_Callback_Table) == 0xc, "IVP_Collision_Callback_Table is 0xc bytes");
 
 // The two hashes. Built by the cluster manager's ctor (0634ad70) as
 // IVP_VHash(0x10) (063522a0) with their own vtables:
@@ -153,7 +153,7 @@ public:
     IVP_Object* an_object_to_be_checked;                        // +0x10 round-robin cursor of check_for_unused_objects
     int32_t number_of_real_objects;                             // +0x14
 };
-static_assert(sizeof(IVP_Cluster_Manager) == 0x18, "IVP_Cluster_Manager is 0x18 bytes (operator new(0x18) at .text:0634c2a9)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Cluster_Manager) == 0x18, "IVP_Cluster_Manager is 0x18 bytes (operator new(0x18) at .text:0634c2a9)");
 
 // FUN_06345e40: IVP_Real_Object method -- -1 when the object has no OV element
 // (+0x90), else the element's collision count (word at element+0x2a, the

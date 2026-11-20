@@ -25,7 +25,7 @@ struct IVP_Template_Line
 {
     uint16_t p[2];
 };
-static_assert(sizeof(IVP_Template_Line) == 4, "IVP_Template_Line is 4 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Template_Line) == 4, "IVP_Template_Line is 4 bytes");
 
 // 0x20 bytes, allocated as an array by the eh vector constructor iterator
 // (0636b98e) with 0636d9c0 / 0636da20 as element ctor / dtor.
@@ -46,7 +46,7 @@ public:
     // 0636da10: (this - templ->surfaces) >> 5.
     int32_t get_surface_index() const;
 };
-static_assert(sizeof(IVP_Template_Surface) == 0x20, "IVP_Template_Surface is 0x20 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Template_Surface) == 0x20, "IVP_Template_Surface is 0x20 bytes");
 
 // 0x18 bytes (operator new at 0636b84c).
 class IVP_Template_Polygon
@@ -64,4 +64,4 @@ public:
     // 0636d960.
     ~IVP_Template_Polygon();
 };
-static_assert(sizeof(IVP_Template_Polygon) == 0x18, "IVP_Template_Polygon is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(IVP_Template_Polygon) == 0x18, "IVP_Template_Polygon is 0x18 bytes");

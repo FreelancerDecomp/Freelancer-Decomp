@@ -89,11 +89,11 @@ public:
     // LAB_0634bf20: `MOV EAX,s_Simple_material_063edca8; RET`.
     virtual const char* get_name() override { return "Simple material"; }
 };
-static_assert(sizeof(IVP_Material_Simple) == 0x1c, "IVP_Material_Simple is operator_new(0x1c)");
-static_assert(offsetof(IVP_Material_Simple, SecondFrictionXEnabled) == 0x08, "IVP_Material+0x08");
-static_assert(offsetof(IVP_Material_Simple, FrictionFactor) == 0x0c, "IVP_Material_Simple+0x0c");
-static_assert(offsetof(IVP_Material_Simple, Elasticity) == 0x14, "IVP_Material_Simple+0x14");
-static_assert(offsetof(IVP_Material_Simple, Adhesion) == 0x18, "IVP_Material_Simple+0x18");
+FL_LAYOUT_ASSERT(sizeof(IVP_Material_Simple) == 0x1c, "IVP_Material_Simple is operator_new(0x1c)");
+FL_LAYOUT_ASSERT(offsetof(IVP_Material_Simple, SecondFrictionXEnabled) == 0x08, "IVP_Material+0x08");
+FL_LAYOUT_ASSERT(offsetof(IVP_Material_Simple, FrictionFactor) == 0x0c, "IVP_Material_Simple+0x0c");
+FL_LAYOUT_ASSERT(offsetof(IVP_Material_Simple, Elasticity) == 0x14, "IVP_Material_Simple+0x14");
+FL_LAYOUT_ASSERT(offsetof(IVP_Material_Simple, Adhesion) == 0x18, "IVP_Material_Simple+0x18");
 
 // The pair-interaction side. Slots 1-3 take the contact (the IVP_Impact_Solver_Long_Term a
 // friction dist owns, whose +0x40/+0x44 hold the two sides' materials) and
@@ -124,4 +124,4 @@ public:
     // slot 5, LAB_0634bda0 (RET 4): `if (+4) delete this`.
     virtual void environment_will_be_deleted(IVP_Environment* Environment);
 };
-static_assert(sizeof(IVP_Material_Manager) == 0x8, "IVP_Material_Manager is operator_new(8)");
+FL_LAYOUT_ASSERT(sizeof(IVP_Material_Manager) == 0x8, "IVP_Material_Manager is operator_new(8)");
