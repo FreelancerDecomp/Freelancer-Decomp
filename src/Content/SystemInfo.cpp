@@ -12,7 +12,7 @@
 #include "Cargo.h"              // GetHostileFactionShares (TU44 FUN_06f35190)
 #include "ContentInternal.h"
 #include "ContentPlayerState.h"
-#include "ContentSort.h"        // ContentSort (VC6 _Sort_0; TU58 instance FUN_06f7f370)
+#include "vc6_sort.h"           // Vc6Sort::Sort (VC6 _Sort_0; TU58 instance FUN_06f7f370)
 #include "ContentStaticIds.h"   // TU58 static-init thunks 06f71fc0-06f721a0
 #include "DockQueues.h"         // CollectFormationMembers (TU53 FUN_06f66220)
 #include "Encounters.h"
@@ -1119,9 +1119,9 @@ int FSystemInfo::BuildPatrolPaths(std::vector<FZonePathLabel>* Labels)
 {
     // 06f763a0-06f763b9: FUN_06f7f370, retail's std::sort instance (_Sort_0 with _Sort
     // FUN_06f7f990, _Median FUN_06f7fea0, _Unguarded_insert FUN_06f7fba0, _Insertion_sort
-    // FUN_06f7fc80: threshold 16, median of first/mid/last-1). ContentSort keeps its order of
+    // FUN_06f7fc80: threshold 16, median of first/mid/last-1). Vc6Sort::Sort keeps its order of
     // labels with equal ids -- the zones of one path_label reach the FPatrolPath ctor in it.
-    ContentSort(Labels->data(), Labels->data() + Labels->size(), PathLabelLess);
+    Vc6Sort::Sort(Labels->data(), Labels->data() + Labels->size(), PathLabelLess);
 
     // 06f763be-06f763d2: erase(begin, end) on +0x50.
     Paths.clear();

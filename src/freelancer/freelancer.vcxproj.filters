@@ -858,7 +858,7 @@
     <ClInclude Include="Client\reg_key_stack.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Client\vc6_sort.h">
+    <ClInclude Include="..\include\vc6_sort.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Client\anim_script_set.h">

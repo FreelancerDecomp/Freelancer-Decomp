@@ -21,7 +21,7 @@
 #include "ContentInternal.h"    // GContentNextUniqueId, GSpaceSupportControllerId, game time
 #include "ContentPlayerState.h" // FindContentPlayerStateByShip (FUN_06f49bc0)
 #include "DockQueues.h"         // FGcsLaunchEvent, CollectFormationMembers (FUN_06f66220)
-#include "ContentSort.h"        // ContentSort (the VC6 std::sort of FUN_06f66440)
+#include "vc6_sort.h"           // Vc6Sort::Sort (the VC6 std::sort of FUN_06f66440)
 #include "ContentStaticIds.h"   // TU25's 16 static ids (06ed5a70-06ed5c50)
 #include "FactionProps.h"       // GetFactionProps (FUN_06f50650)
 #include "Guides.h"             // FContentGuide::GetTargets (slot +0x34)
@@ -2951,11 +2951,11 @@ namespace
             }
         }
 
-        ContentSort(Out->data(), Out->data() + Out->size(),
-                    [](FContentShipBase* A, FContentShipBase* B)
-                    {
-                        return static_cast<int>(A->FormationSlot) < static_cast<int>(B->FormationSlot);
-                    });
+        Vc6Sort::Sort(Out->data(), Out->data() + Out->size(),
+                      [](FContentShipBase* A, FContentShipBase* B)
+                      {
+                          return static_cast<int>(A->FormationSlot) < static_cast<int>(B->FormationSlot);
+                      });
     }
 }
 

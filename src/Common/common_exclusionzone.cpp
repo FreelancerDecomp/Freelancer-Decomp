@@ -11,6 +11,7 @@
 #include "common_id.h" // CreateID for NebulaExclusionZone::set_zone_shell_name
 
 #include "dacom.h"
+#include "vc6_sort.h" // Vc6Sort::Sort (ZoneSort)
 
 #include <cmath>
 #include <cstdlib>
@@ -354,97 +355,9 @@ namespace
     // pieces: _Unguarded_insert FUN_062bcf70, _Unguarded_partition FUN_062bcfa0 and the
     // recursive _Sort FUN_062bcd70 / FUN_062bce70 (one per zone type).
     template <typename TZone>
-    void ZoneUnguardedInsert(TZone** Last, TZone* Value)
-    {
-        // FUN_062bcf70: shift right while Value sorts before the previous element.
-        for (TZone** Prev = Last; ZoneCloser(Value, *--Prev); Last = Prev)
-            *Last = *Prev;
-        *Last = Value;
-    }
-
-    template <typename TZone>
-    void ZoneInsertionSort(TZone** First, TZone** Last)
-    {
-        if (First == Last)
-            return;
-        for (TZone** It = First; ++It != Last;)
-        {
-            TZone* const Value = *It;
-            if (ZoneCloser(Value, *First))
-            {
-                for (TZone** Move = It; Move != First; --Move)
-                    *Move = *(Move - 1);
-                *First = Value;
-            }
-            else
-            {
-                ZoneUnguardedInsert(It, Value);
-            }
-        }
-    }
-
-    template <typename TZone>
-    TZone* ZoneMedian(TZone* X, TZone* Y, TZone* Z)
-    {
-        if (ZoneCloser(X, Y))
-            return ZoneCloser(Y, Z) ? Y : (ZoneCloser(X, Z) ? Z : X);
-        return ZoneCloser(X, Z) ? X : (ZoneCloser(Y, Z) ? Z : Y);
-    }
-
-    template <typename TZone>
-    TZone** ZoneUnguardedPartition(TZone** First, TZone** Last, TZone* Pivot)
-    {
-        // FUN_062bcfa0.
-        for (;; ++First)
-        {
-            for (; ZoneCloser(*First, Pivot); ++First)
-            {
-            }
-            for (; ZoneCloser(Pivot, *--Last);)
-            {
-            }
-            if (!(Last > First))
-                return First;
-            TZone* const Swap = *First;
-            *First = *Last;
-            *Last = Swap;
-        }
-    }
-
-    template <typename TZone>
-    void ZoneSortRange(TZone** First, TZone** Last)
-    {
-        // FUN_062bcd70 / FUN_062bce70: while more than 16 elements, partition around the
-        // median of first / middle / last-1 and recurse into the side that is not longer.
-        while ((Last - First) > 16)
-        {
-            TZone** const Mid = ZoneUnguardedPartition(
-                First, Last, ZoneMedian(*First, *(First + (Last - First) / 2), *(Last - 1)));
-            if ((Last - Mid) <= (Mid - First))
-            {
-                ZoneSortRange(Mid, Last);
-                Last = Mid;
-            }
-            else
-            {
-                ZoneSortRange(First, Mid);
-                First = Mid;
-            }
-        }
-    }
-
-    template <typename TZone>
     void ZoneSort(TZone** First, TZone** Last)
     {
-        if ((Last - First) <= 16)
-        {
-            ZoneInsertionSort(First, Last);
-            return;
-        }
-        ZoneSortRange(First, Last);
-        ZoneInsertionSort(First, First + 16);
-        for (TZone** It = First + 16; It != Last; ++It)
-            ZoneUnguardedInsert(It, *It);
+        Vc6Sort::Sort(First, Last, &ZoneCloser<TZone>);
     }
 }
 

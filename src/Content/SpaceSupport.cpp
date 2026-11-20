@@ -15,7 +15,7 @@
 #include "ContentInternal.h"
 #include "ContentMessageRouter.h"
 #include "ContentPlayerState.h"
-#include "ContentSort.h"        // ContentSort (the VC6 std::sort FUN_06f6ab00)
+#include "vc6_sort.h"           // Vc6Sort::Sort (the VC6 std::sort FUN_06f6ab00)
 #include "DockQueues.h"
 #include "FactionProps.h"       // HandleFactionNameTimer (FUN_06f513c0)
 #include "Gcs.h"                // GGcsHandlers, GGcsConversations, the category setters
@@ -358,8 +358,8 @@ namespace
     {
         // 06f5cfbe-06f5cfd0: FUN_06f6ab00 = the VC6 std::sort of vector<EquipDesc> with
         // LAB_06f5cf80 (CMP [A+4],[B+4]; SBB; NEG: A.ArchId < B.ArchId, unsigned).
-        ContentSort(Items->data(), Items->data() + Items->size(),
-                    [](EquipDesc const& A, EquipDesc const& B) { return A.ArchId < B.ArchId; });
+        Vc6Sort::Sort(Items->data(), Items->data() + Items->size(),
+                      [](EquipDesc const& A, EquipDesc const& B) { return A.ArchId < B.ArchId; });
 
         // 06f5cfd5-06f5d072: runs of one arch id fold into their first item -- set_count(own
         // + next) and the next erased (copy-down, Common's vector<EquipDesc>::_Destroy of the

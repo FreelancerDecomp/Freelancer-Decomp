@@ -882,6 +882,9 @@
     <ClInclude Include="..\include\common_id.h">
       <Filter>Public headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\vc6_sort.h">
+      <Filter>Public headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\common_idea.h">
       <Filter>Public headers</Filter>
     </ClInclude>

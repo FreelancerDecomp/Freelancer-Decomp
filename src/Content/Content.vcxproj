@@ -108,7 +108,7 @@
     <ClInclude Include="DockQueues.h" />
     <ClInclude Include="Cargo.h" />
     <ClInclude Include="MissionObjList.h" />
-    <ClInclude Include="ContentSort.h" />
+    <ClInclude Include="..\include\vc6_sort.h" />
     <ClInclude Include="Gcs.h" />
     <ClInclude Include="SpacePaths.h" />
     <ClInclude Include="NpcNames.h" />
