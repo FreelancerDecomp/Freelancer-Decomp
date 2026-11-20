@@ -17,6 +17,10 @@
 #include <windows.h>
 #include <mstcpip.h>
 
+#ifndef SIO_UDP_CONNRESET
+#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR, 12)
+#endif
+
 #include "DPNetAdapter.h"
 #include "dpnet_session.h"
 
@@ -305,7 +309,8 @@ namespace
             bHasDevice = true;
             return S_OK;
         }
-        STDMETHOD(BuildFromDirectPlay4Address)(LPVOID, DWORD) override { return DPNERR_UNSUPPORTED; }
+        // BuildFromDirectPlay4Address in later SDKs.
+        STDMETHOD(BuildFromDPADDRESS)(LPVOID, DWORD) override { return DPNERR_UNSUPPORTED; }
 
         // The hostname and port components of a UDP endpoint, on the TCP/IP service provider.
         static FAddressObject* ForEndpoint(const DPNet::FAddress& Endpoint)
