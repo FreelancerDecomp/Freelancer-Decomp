@@ -64,6 +64,7 @@
 //   06d92b7f `ff15 5c30db06` -> [06db305c]   SinglePlayer
 #include "common_goods.h"
 #include "common_misc.h" // SinglePlayer
+#include "float_bits.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -959,21 +960,10 @@ unsigned int RpcDecodeServerSendComm(FPacketBase& Packet, const unsigned char* B
 // ===========================================================================
 // The orientation quadruple below lives in payload fields the port declares as raw
 // dwords (the payload-level marshallers copy argument dwords into them), while the
-// codec really does FLD / FMUL / ftol on them. These two turn one into the other; it is
-// the same reinterpretation retail gets for free by putting an FLD where a MOV would
-// have gone. Kept file-local: rpc_containers.cpp has its own static pair.
+// codec really does FLD / FMUL / ftol on them. FloatFromBits / BitsFromFloat turn one into
+// the other; it is the same reinterpretation retail gets for free by putting an FLD where a
+// MOV would have gone.
 // ===========================================================================
-static float RpcCreateBitsToFloat(unsigned int Bits) {
-    float Value = 0.0f;
-    memcpy(&Value, &Bits, sizeof(Value));
-    return Value;
-}
-
-static unsigned int RpcCreateFloatToBits(float Value) {
-    unsigned int Bits = 0;
-    memcpy(&Bits, &Value, sizeof(Bits));
-    return Bits;
-}
 
 // ===========================================================================
 // ch2 0x37 FLPACKET_SERVER_CREATEGUIDED -- Encode LAB_06da84e0, Decode FUN_06da8810
@@ -1037,13 +1027,13 @@ unsigned int RpcEncodeServerCreateGuided(FPacketBase& Packet, unsigned char** Bu
     Stream.PutWord(Wire->Field_0x14);                                 // 06da8618
     Stream.PutDword(Wire->Field_0x18);                                // 06da8645
     Stream.PutBytes(&Wire->Field_0x1c, 12);                           // 06da868a
-    Stream.PutQuantized(RpcCreateBitsToFloat(Wire->Field_0x2c),
+    Stream.PutQuantized(FloatFromBits(Wire->Field_0x2c),
                         FRpcMarshalStream::kOrientationScale);        // 06da868f -> 06da8709
-    Stream.PutQuantized(RpcCreateBitsToFloat(Wire->Field_0x30),
+    Stream.PutQuantized(FloatFromBits(Wire->Field_0x30),
                         FRpcMarshalStream::kOrientationScale);        // 06da86a3 -> 06da8738
-    Stream.PutQuantized(RpcCreateBitsToFloat(Wire->Field_0x34),
+    Stream.PutQuantized(FloatFromBits(Wire->Field_0x34),
                         FRpcMarshalStream::kOrientationScale);        // 06da86b5 -> 06da8767
-    Stream.PutQuantized(RpcCreateBitsToFloat(Wire->Field_0x28),
+    Stream.PutQuantized(FloatFromBits(Wire->Field_0x28),
                         FRpcMarshalStream::kOrientationScale);        // 06da86c7 -> 06da8792
 
     // 06da87a0 FUN_06da13c0 -- `XOR EAX,EAX ; RET 0xc`, emits nothing.
@@ -1090,19 +1080,19 @@ unsigned int RpcDecodeServerCreateGuided(FPacketBase& Packet, const unsigned cha
     if (!Stream.GetQuantizedSigned(Quantized, FRpcMarshalStream::kOrientationInvScale)) {
         return Stream.GetError();
     }
-    Wire->Field_0x2c = RpcCreateFloatToBits(Quantized);               // 06da8a46
+    Wire->Field_0x2c = BitsFromFloat(Quantized);                      // 06da8a46
     if (!Stream.GetQuantizedSigned(Quantized, FRpcMarshalStream::kOrientationInvScale)) {
         return Stream.GetError();
     }
-    Wire->Field_0x30 = RpcCreateFloatToBits(Quantized);               // 06da8a5e
+    Wire->Field_0x30 = BitsFromFloat(Quantized);                      // 06da8a5e
     if (!Stream.GetQuantizedSigned(Quantized, FRpcMarshalStream::kOrientationInvScale)) {
         return Stream.GetError();
     }
-    Wire->Field_0x34 = RpcCreateFloatToBits(Quantized);               // 06da8a71
+    Wire->Field_0x34 = BitsFromFloat(Quantized);                      // 06da8a71
     if (!Stream.GetQuantizedSigned(Quantized, FRpcMarshalStream::kOrientationInvScale)) {
         return Stream.GetError();
     }
-    Wire->Field_0x28 = RpcCreateFloatToBits(Quantized);               // 06da8a7e
+    Wire->Field_0x28 = BitsFromFloat(Quantized);                      // 06da8a7e
 
     // 06da8a81 FUN_06da13c0 -- consumes nothing.
     if (Stream.Failed()) {

@@ -95,16 +95,3 @@ bool NnMainButtonHasActivePanel();
 // it WM_LBUTTONDOWN for an unclaimed left press). With the cursor drawn and no NeuroNet screen up:
 // in space it goes to the mouse-flight hook FUN_004c80f0; docked, NN_MainButton handles it.
 void NnMainButtonOnUnclaimedMouse(unsigned Msg, unsigned WParam, unsigned LParam);
-
-// The dialogs' Create bodies push their layout floats as raw immediates (e.g. PUSH 0x3cf5c28f);
-// this turns such an immediate back into the float it encodes, bit for bit.
-inline float NnFloatBits(unsigned Bits)
-{
-    union
-    {
-        unsigned U;
-        float F;
-    } Value;
-    Value.U = Bits;
-    return Value.F;
-}

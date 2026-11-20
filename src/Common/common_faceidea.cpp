@@ -44,7 +44,7 @@ FaceIdea::FaceIdea()
     , Vector58{}
     , Field64(0)
     , Opaque65{}
-    , FacingTolerance(BitsToFloat(0x3dc90fdbu))
+    , FacingTolerance(FloatFromBits(0x3dc90fdbu))
     // 062d67af-062d67eb: retail really does call FUN_062e5ba0(this->Object, 1.0f)
     // here and FSTP the result into +0x90 -- with Object still null, because the
     // BaseIdea sub-object zeroed it two instructions earlier. That helper's whole
@@ -56,8 +56,8 @@ FaceIdea::FaceIdea()
     // transcription slip; see the setter's declaration comment.
     , Field90(Behavior_InvokeManagerSlotF8(ObjInspectOf(Object), 1.0f))   // FUN_062e5ba0
     , TurnThrottle(1.0f)               // 0x3f800000
-    , AngleWeight98(BitsToFloat(0x3f1c28f6u))
-    , AngleWeight9c(BitsToFloat(0x3e490fdbu))
+    , AngleWeight98(FloatFromBits(0x3f1c28f6u))
+    , AngleWeight9c(FloatFromBits(0x3e490fdbu))
     , TargetKind(0)
     , OpaqueA4{}
     , RemainingAngle(3.14159274f)        // 0x40490fdb
@@ -66,7 +66,7 @@ FaceIdea::FaceIdea()
                        // marathon's documented "safe over-init" convention.
     , PadAe{}
     , UpB0{}
-    , ThresholdBc(BitsToFloat(0x3f7ae148u))
+    , ThresholdBc(FloatFromBits(0x3f7ae148u))
 {
 }
 
@@ -93,7 +93,7 @@ bool FaceIdea::SetContext(void* InObject, void* InHandle, void* InContext)
     (void)Behavior_InvokeManagerSlotF4(Obj, 1.0f);
 
     // 062d688e-062d6898: AngleWeight9c = 0x3e490fdb (0.19634955f, pi/16), bUpValid = 0.
-    AngleWeight9c = BitsToFloat(0x3e490fdbu);
+    AngleWeight9c = FloatFromBits(0x3e490fdbu);
     bUpValid = 0;
     return true;
 }

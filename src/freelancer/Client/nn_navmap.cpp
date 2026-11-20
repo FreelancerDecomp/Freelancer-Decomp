@@ -15,7 +15,8 @@
 #include "hud_command_dispatch.h"    // HudPostCommand (FUN_005763b0)
 #include "ids_strings.h"             // GetIdsStringWWithRawFallback (FUN_004347e0)
 #include "login_mgr.h"               // G_Server (DAT_0067ecd0)
-#include "nn_modal.h"                // NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"
 #include "nn_text_control.h"         // NnTextControl (+0x334 Font::String)
 #include "nn_text_scratch.h"         // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
 #include "nn_ui_pulse.h"             // palette colours DAT_00679ba4 / DAT_00679bb0
@@ -798,7 +799,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
     }
     {
         float const X = kNavMapPanelBaseB - 0.686f;
-        float const Position1[3] = {X, NnFloatBits(0x3e808313), 0.0f}; // 0.251 (listing bits)
+        float const Position1[3] = {X, FloatFromBits(0x3e808313), 0.0f}; // 0.251 (listing bits)
         ObjectiveText[0] = CreateTextControl("NavMapMissionObjectiveText1", "NewsMission",
                                              Position1, nullptr, 0.285f, 0.03f, 1.4f, 0, 0, 0, 1);
         ObjectiveText[0]->SetProperty(0x22, 0, 5);
@@ -808,7 +809,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
                                              Position2, nullptr, 0.285f, 0.03f, 1.4f, 0, 0, 0, 1);
         ObjectiveText[1]->SetProperty(0x22, 0, 5);
         SetObjectiveTextMultiLine(ObjectiveText[1]);
-        float const Position3[3] = {X, NnFloatBits(0xbc9ba5e4), 0.0f}; // -0.019 (DAT bits)
+        float const Position3[3] = {X, FloatFromBits(0xbc9ba5e4), 0.0f}; // -0.019 (DAT bits)
         ObjectiveText[2] = CreateTextControl("NavMapMissionObjectiveText3", "NewsMission",
                                              Position3, nullptr, 0.285f, 0.03f, 1.4f, 0, 0, 0, 1);
         ObjectiveText[2]->SetProperty(0x22, 0, 5);
@@ -1233,7 +1234,7 @@ void NeuroNetNavMap::BuildUniverseItems()
         Vector const* const Pos = System->GetPos();
         float const PosX = Pos->x;
         float const PosY = Pos->y;
-        float const ScaleK = NnFloatBits(0x3d888889); // DAT_005d3d30, 1/15
+        float const ScaleK = FloatFromBits(0x3d888889); // DAT_005d3d30, 1/15
         float const ScaledY = PosY * ScaleK;
         float const X =
             static_cast<float>(static_cast<double>(PosX) * ScaleK * 200000.0f - 100000.0f);

@@ -16,7 +16,8 @@
 #include "misc_util.h"              // FormatGroupedNumber (FUN_004779a0)
 #include "nav_bar.h"                // NavBarHasServiceWindow (FUN_00442720), NavBarIsAnimating (FUN_00442790)
 #include "nn_inventory.h"           // IsPlayerDockedRetail (FUN_004c4810)
-#include "nn_modal.h"               // NnFloatBits, NnMainButtonHasActivePanel, G_bNnScreenUp
+#include "float_bits.h"
+#include "nn_modal.h"               // NnMainButtonHasActivePanel, G_bNnScreenUp
 #include "nn_navmap.h"              // NavMapRequestFocus (FUN_004a2aa0)
 #include "nn_text_scratch.h"        // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
 #include "nn_ui_pulse.h"            // NnUiPulseBlendArgb (FUN_00561da0), palette colours
@@ -399,10 +400,10 @@ bool NnCommodityByBase::Create(Win3D* /*NewParent*/, void* Data)
     WinControlHalfExtentsFromMesh(HalfExtents, &MeshHolder);
 
     // 0046efc7..0046f002: the title.
-    float const TitlePosition[3] = {NnFloatBits(0xbed58106), NnFloatBits(0x3e841893), 0.0f};
+    float const TitlePosition[3] = {FloatFromBits(0xbed58106), FloatFromBits(0x3e841893), 0.0f};
     WinControl* const Title = CreateTextControl(
-        "CommodityByBaseTitle", "PageHeader", TitlePosition, nullptr, NnFloatBits(0x3f5645a2),
-        NnFloatBits(0x3d75c28f), NnFloatBits(0x3fc00000), 0, 1, 0, 1);
+        "CommodityByBaseTitle", "PageHeader", TitlePosition, nullptr, FloatFromBits(0x3f5645a2),
+        FloatFromBits(0x3d75c28f), FloatFromBits(0x3fc00000), 0, 1, 0, 1);
 
     // 0046f007..0046f07b: ids 0x3d5, then " - " (DAT_005d01f4) and the equipment's name when
     // the archetype is equipment.
@@ -426,8 +427,8 @@ bool NnCommodityByBase::Create(Win3D* /*NewParent*/, void* Data)
 
     // 0046f09c..0046f0fe: the close button -> +0x334.
     {
-        float const Position[3] = {NnFloatBits(0x3ecd4fdf), NnFloatBits(0x3e72b021), 0.0f};
-        float const Extents[3] = {NnFloatBits(0x3c9374bc), NnFloatBits(0x3c9374bc), 0.0f};
+        float const Position[3] = {FloatFromBits(0x3ecd4fdf), FloatFromBits(0x3e72b021), 0.0f};
+        float const Extents[3] = {FloatFromBits(0x3c9374bc), FloatFromBits(0x3c9374bc), 0.0f};
         CloseButton = CreateButtonControl("CommodityByBaseCloseButton", kCommodityByBaseCloseMesh,
                                           nullptr, "ui_select_item", nullptr, Position, nullptr,
                                           Extents, 0, 0, 0, 0, 0x409, 0, 0);
@@ -436,39 +437,39 @@ bool NnCommodityByBase::Create(Win3D* /*NewParent*/, void* Data)
     // 0046f103..0046f283: the four column titles, each then SetProperty(0x24, 1, 0) without a
     // null test.
     {
-        float const Position[3] = {NnFloatBits(0xbec7ae14), NnFloatBits(0x3e428f5c), 0.0f};
+        float const Position[3] = {FloatFromBits(0xbec7ae14), FloatFromBits(0x3e428f5c), 0.0f};
         PriceTitle = CreateTextControl("CommodityByBasePriceTitle", "SubHeader", Position, nullptr,
-                                       NnFloatBits(0x3dcccccd), NnFloatBits(0x3cf5c28f),
-                                       NnFloatBits(0x3ff33333), 0x3d6, 0, 0, 1);
+                                       FloatFromBits(0x3dcccccd), FloatFromBits(0x3cf5c28f),
+                                       FloatFromBits(0x3ff33333), 0x3d6, 0, 0, 1);
         PriceTitle->SetProperty(0x24, 1, 0);
     }
     {
-        float const Position[3] = {NnFloatBits(0xbdcac083), NnFloatBits(0x3e428f5c), 0.0f};
+        float const Position[3] = {FloatFromBits(0xbdcac083), FloatFromBits(0x3e428f5c), 0.0f};
         BaseTitle = CreateTextControl("CommodityByBaseBaseTitle", "SubHeader", Position, nullptr,
-                                      NnFloatBits(0x3e851eb8), NnFloatBits(0x3cf5c28f),
-                                      NnFloatBits(0x3ff33333), 0x3cc, 0, 0, 1);
+                                      FloatFromBits(0x3e851eb8), FloatFromBits(0x3cf5c28f),
+                                      FloatFromBits(0x3ff33333), 0x3cc, 0, 0, 1);
         BaseTitle->SetProperty(0x24, 1, 0);
     }
     {
-        float const Position[3] = {NnFloatBits(0x3e343958), NnFloatBits(0x3e428f5c), 0.0f};
+        float const Position[3] = {FloatFromBits(0x3e343958), FloatFromBits(0x3e428f5c), 0.0f};
         SystemTitle = CreateTextControl("CommodityByBaseSystemTitle", "SubHeader", Position,
-                                        nullptr, NnFloatBits(0x3e4ccccd), NnFloatBits(0x3cf5c28f),
-                                        NnFloatBits(0x3ff33333), 0x3cd, 0, 0, 1);
+                                        nullptr, FloatFromBits(0x3e4ccccd), FloatFromBits(0x3cf5c28f),
+                                        FloatFromBits(0x3ff33333), 0x3cd, 0, 0, 1);
         SystemTitle->SetProperty(0x24, 1, 0);
     }
     {
-        float const Position[3] = {NnFloatBits(0xbe8b4396), NnFloatBits(0x3e428f5c), 0.0f};
+        float const Position[3] = {FloatFromBits(0xbe8b4396), FloatFromBits(0x3e428f5c), 0.0f};
         BuySellTitle = CreateTextControl("CommodityByBaseBuySellTitle", "SubHeader", Position,
-                                         nullptr, NnFloatBits(0x3dcccccd), NnFloatBits(0x3cf5c28f),
-                                         NnFloatBits(0x3ff33333), 0x3d8, 0, 0, 1);
+                                         nullptr, FloatFromBits(0x3dcccccd), FloatFromBits(0x3cf5c28f),
+                                         FloatFromBits(0x3ff33333), 0x3d8, 0, 0, 1);
         BuySellTitle->SetProperty(0x24, 1, 0);
     }
 
     // 0046f289..0046f462: 13 lines. Y = DAT_005d0118 - i * DAT_005d011c (FILD / FMUL / FSUBR,
     // one rounding at the FST); the product and the difference are exact in double, so the
     // port's one rounding gives the same float. Each control gets SetProperty(0x24, 1, 0).
-    float const LineTop = NnFloatBits(0x3e1cac08);   // DAT_005d0118 0.153
-    float const LineStep = NnFloatBits(0x3cf5c28f);  // DAT_005d011c 0.03
+    float const LineTop = FloatFromBits(0x3e1cac08);   // DAT_005d0118 0.153
+    float const LineStep = FloatFromBits(0x3cf5c28f);  // DAT_005d011c 0.03
     for (int Line = 0; Line < 13; ++Line)
     {
         float const Y = static_cast<float>(static_cast<double>(LineTop) -
@@ -478,40 +479,40 @@ bool NnCommodityByBase::Create(Win3D* /*NewParent*/, void* Data)
         FCommodityByBaseRowControls& Controls = Rows[Line];
 
         sprintf(Name, "CommodityByBasePrice%d", Line);
-        float const PricePosition[3] = {NnFloatBits(0xbec7ae14), Y, 0.0f};
+        float const PricePosition[3] = {FloatFromBits(0xbec7ae14), Y, 0.0f};
         Controls.Price = CreateTextControl(Name, "ItemName", PricePosition, nullptr,
-                                           NnFloatBits(0x3dcccccd), NnFloatBits(0x3cf5c28f),
-                                           NnFloatBits(0x3ff33333), 0, 0, 0, 1);
+                                           FloatFromBits(0x3dcccccd), FloatFromBits(0x3cf5c28f),
+                                           FloatFromBits(0x3ff33333), 0, 0, 0, 1);
         Controls.Price->SetProperty(0x24, 1, 0);
 
         sprintf(Name, "CommodityByBuySellPrice%d", Line);
-        float const BuySellPosition[3] = {NnFloatBits(0xbe8b4396), Y, 0.0f};
+        float const BuySellPosition[3] = {FloatFromBits(0xbe8b4396), Y, 0.0f};
         Controls.BuySell = CreateTextControl(Name, "ItemName", BuySellPosition, nullptr,
-                                             NnFloatBits(0x3dcccccd), NnFloatBits(0x3cf5c28f),
-                                             NnFloatBits(0x3ff33333), 0, 0, 0, 1);
+                                             FloatFromBits(0x3dcccccd), FloatFromBits(0x3cf5c28f),
+                                             FloatFromBits(0x3ff33333), 0, 0, 0, 1);
         Controls.BuySell->SetProperty(0x24, 1, 0);
 
         sprintf(Name, "CommodityByBaseBase%d", Line);
-        float const BasePosition[3] = {NnFloatBits(0xbdcac083), Y, 0.0f};
+        float const BasePosition[3] = {FloatFromBits(0xbdcac083), Y, 0.0f};
         Controls.Base = CreateTextControl(Name, "ItemName", BasePosition, nullptr,
-                                          NnFloatBits(0x3e851eb8), NnFloatBits(0x3cf5c28f),
-                                          NnFloatBits(0x3ff33333), 0, 0, 0, 1);
+                                          FloatFromBits(0x3e851eb8), FloatFromBits(0x3cf5c28f),
+                                          FloatFromBits(0x3ff33333), 0, 0, 0, 1);
         Controls.Base->SetProperty(0x24, 1, 0);
 
         sprintf(Name, "CommodityByBaseSystem%d", Line);
-        float const SystemPosition[3] = {NnFloatBits(0x3e343958), Y, 0.0f};
+        float const SystemPosition[3] = {FloatFromBits(0x3e343958), Y, 0.0f};
         Controls.System = CreateTextControl(Name, "ItemName", SystemPosition, nullptr,
-                                            NnFloatBits(0x3e4ccccd), NnFloatBits(0x3cf5c28f),
-                                            NnFloatBits(0x3ff33333), 0, 0, 0, 1);
+                                            FloatFromBits(0x3e4ccccd), FloatFromBits(0x3cf5c28f),
+                                            FloatFromBits(0x3ff33333), 0, 0, 0, 1);
         Controls.System->SetProperty(0x24, 1, 0);
     }
 
     // 0046f468..0046f4aa: the scroll bar (FUN_005a17e0: range 0..5, page 3, vertical).
     {
-        float const Position[3] = {NnFloatBits(0x3ec83127), NnFloatBits(0x3e6d9168),
-                                   NnFloatBits(0xbfa4dd2f)};
-        Scroll = CreateUIScroll("CommodityByBaseScroll", Position, NnFloatBits(0x3c9ba5e3),
-                                NnFloatBits(0x3ecfdf3b), 0, 5, 3, 0);
+        float const Position[3] = {FloatFromBits(0x3ec83127), FloatFromBits(0x3e6d9168),
+                                   FloatFromBits(0xbfa4dd2f)};
+        Scroll = CreateUIScroll("CommodityByBaseScroll", Position, FloatFromBits(0x3c9ba5e3),
+                                FloatFromBits(0x3ecfdf3b), 0, 5, 3, 0);
     }
 
     // 0046f4a3..0046f4d8: the rows for the archetype, sorted by price, then shown.
@@ -526,7 +527,7 @@ bool NnCommodityByBase::Create(Win3D* /*NewParent*/, void* Data)
     // 0046f4dd..0046f52a: event 0xf, slot 31 SetOffset(0, 0x3d9ba5e3, 0xbfa4dd2f), slot 5
     // SetPosition(+0x60).
     RegisterEvent(0xf);
-    SetOffset(0.0f, NnFloatBits(0x3d9ba5e3), NnFloatBits(0xbfa4dd2f));
+    SetOffset(0.0f, FloatFromBits(0x3d9ba5e3), FloatFromBits(0xbfa4dd2f));
     SetPosition(Position);
 
     // 0046f52d..0046f53f: FUN_004b5060(+0x04, 0) -- the window's current parent and no data,

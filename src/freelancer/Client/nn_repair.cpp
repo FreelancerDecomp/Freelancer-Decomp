@@ -33,6 +33,7 @@
 #include "common_archetype.h"
 #include "common_goods.h"           // EquipDesc, EquipDescList, GoodInfo, BaseData, Arch2Good
 #include "common_id.h"              // CreateID
+#include "float_bits.h"
 
 #include <list>
 #include <stdio.h>
@@ -75,9 +76,7 @@ namespace
     // 0x004b3ab8 / 0x004b4564), not the value.
     bool IsOneBits(float Value)
     {
-        uint32_t Bits = 0;
-        memcpy(&Bits, &Value, sizeof(Bits));
-        return Bits == 0x3f800000u;
+        return BitsFromFloat(Value) == 0x3f800000u;
     }
 
     // The first material path of an equipment archetype's companion, 0 when it has none

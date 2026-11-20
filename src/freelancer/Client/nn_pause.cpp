@@ -20,7 +20,8 @@
 #include "nav_bar.h"               // NavBarCloseService (FUN_004424f0)
 #include "nn_confirm.h"            // NnConfirmOpen (FUN_004889e0)
 #include "nn_inventory.h"          // IsPlayerDockedRetail (FUN_004c4810)
-#include "nn_modal.h"              // G_bNnScreenUp, NnMainButtonOnModalOpen, NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"              // G_bNnScreenUp, NnMainButtonOnModalOpen
 #include "nn_rollover.h"           // NnRolloverHideGlobal (FUN_004b65a0)
 #include "player_behavior.h"       // GetPlayerObjRW (FUN_0054baf0)
 #include "win3d.h"
@@ -89,16 +90,16 @@ bool NnPause::Create(Win3D* NewParent, void* Data)
                         0, 0, 1, 1, 0, 1, 0, 0, 0, Zero);
 
     // 0x004a6c23..0x004a6c78: the same flags, at {0, 0x3c1374c0 (0.009), -1}.
-    float const FramePosition[3] = {0.0f, NnFloatBits(0x3c1374c0), -1.0f};
+    float const FramePosition[3] = {0.0f, FloatFromBits(0x3c1374c0), -1.0f};
     CreateStaticControl("PauseFrame", kPauseFrameMesh, FramePosition, nullptr, Zero, 0, 0, 0, 1, 1,
                         0, 1, 0, 0, 0, Zero);
 
     // 0x004a6c7d..0x004a6cc0: FUN_005a0e30("PauseTitle", "PageHeader", {0xb2800000, 0.22, -1},
     // 0, 0.35, 0.03, 2.7, 0, 1, 0, 0) -> +0x334.
-    float const TitlePosition[3] = {NnFloatBits(0xb2800000), NnFloatBits(0x3e6147af), -1.0f};
+    float const TitlePosition[3] = {FloatFromBits(0xb2800000), FloatFromBits(0x3e6147af), -1.0f};
     Title = CreateTextControl("PauseTitle", "PageHeader", TitlePosition, nullptr,
-                              NnFloatBits(0x3eb33333), NnFloatBits(0x3cf5c28f),
-                              NnFloatBits(0x402ccccd), 0, 1, 0, 0);
+                              FloatFromBits(0x3eb33333), FloatFromBits(0x3cf5c28f),
+                              FloatFromBits(0x402ccccd), 0, 1, 0, 0);
 
     // 0x004a6cc6..0x004a6d52: the button actions. +0x360 is always 1 (resume).
     //   single player, docked (DAT_0066873c != 0) and FUN_004568a0 true: 1, 2, 3, 4, 5
@@ -138,12 +139,12 @@ bool NnPause::Create(Win3D* NewParent, void* Data)
 
     // 0x004a6d5c..0x004a6d76: row origin / step -- 0.149 / 0.0825, or 0.128375 / 0.09625 for
     // four rows.
-    float RowOrigin = NnFloatBits(0x3e189375);
-    float RowStep = NnFloatBits(0x3da8f5c3);
+    float RowOrigin = FloatFromBits(0x3e189375);
+    float RowStep = FloatFromBits(0x3da8f5c3);
     if (Count == 4)
     {
-        RowOrigin = NnFloatBits(0x3e0374bd);
-        RowStep = NnFloatBits(0x3dc51eb9);
+        RowOrigin = FloatFromBits(0x3e0374bd);
+        RowStep = FloatFromBits(0x3dc51eb9);
     }
 
     // 0x004a6d7e..0x004a6e8b: one row per action. Y = origin - i * step (FILD / FMUL / FSUB in
@@ -158,7 +159,7 @@ bool NnPause::Create(Win3D* NewParent, void* Data)
         // FUN_005a0d00(name, 0, {0, Y, -1}, {0.175, 0.028, 0}, 0, 0, 0, 0, 0) -> +0x338[i].
         sprintf(Name, "PauseButtonBox%d", Index);
         float const BoxPosition[3] = {0.0f, RowY, -1.0f};
-        float const BoxExtents[3] = {NnFloatBits(0x3e333333), NnFloatBits(0x3ce56042), 0.0f};
+        float const BoxExtents[3] = {FloatFromBits(0x3e333333), FloatFromBits(0x3ce56042), 0.0f};
         ButtonBox[Index] = CreateWireButtonControl(Name, nullptr, BoxPosition, BoxExtents, 0, 0, 0,
                                                    0, 0);
         // 0x004a6e0c..0x004a6e16: the last box gets +0x35d |= 1 (no null test).
@@ -172,11 +173,11 @@ bool NnPause::Create(Win3D* NewParent, void* Data)
         // 1, 0, 0) -> +0x34c[i]. The 0.005 is DAT_005d3e44 (FADD float).
         sprintf(Name, "PauseButtonText%d", Index);
         float const TextY = static_cast<float>(static_cast<double>(RowY) +
-                                               static_cast<double>(NnFloatBits(0x3ba3d70a)));
-        float const TextPosition[3] = {NnFloatBits(0x32300000), TextY, -1.0f};
+                                               static_cast<double>(FloatFromBits(0x3ba3d70a)));
+        float const TextPosition[3] = {FloatFromBits(0x32300000), TextY, -1.0f};
         ButtonText[Index] = CreateTextControl(Name, "ButtonText", TextPosition, nullptr,
-                                              NnFloatBits(0x3e8a3d71), NnFloatBits(0x3cf5c28f),
-                                              NnFloatBits(0x3fc00000), 0, 1, 0, 0);
+                                              FloatFromBits(0x3e8a3d71), FloatFromBits(0x3cf5c28f),
+                                              FloatFromBits(0x3fc00000), 0, 1, 0, 0);
     }
 
     // 0x004a6e93..0x004a6eb2: the unused rows are zeroed (box, text, action).

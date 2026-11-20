@@ -33,6 +33,7 @@
 #include "render/rendcomp.h"
 #include "render/shading.h"
 #include "x86math.h"
+#include "float_bits.h"
 
 #include <algorithm>
 #include <list>
@@ -75,13 +76,6 @@ namespace
     float G_NebulaDetailEase = 0.707f;   // DAT_006132e0
     float G_NebulaDetailMix = 0.35f;     // DAT_006132e4
     float G_NebulaDetailFog = 0.5f;      // DAT_006132e8
-
-    float BitsToFloat(unsigned Bits)
-    {
-        float V = 0.0f;
-        memcpy(&V, &Bits, sizeof(float));
-        return V;
-    }
 
     // The "color" keys of FUN_00504e60 and FUN_00550240: three values, each * 1/255 (float
     // 0x005c7f68) and stored as float, into Out[0..2].
@@ -968,9 +962,9 @@ namespace
             reinterpret_cast<float*>(R + 0x48)[I] = 1.0f; // REP STOSD with 0x3f800000
         *reinterpret_cast<float*>(R + 0xe4) = 50.0f;
         *reinterpret_cast<float*>(R + 0xe8) = 100.0f;
-        *reinterpret_cast<float*>(R + 0x104) = BitsToFloat(0x3dcccccd);
-        *reinterpret_cast<float*>(R + 0x108) = BitsToFloat(0x3e99999a);
-        *reinterpret_cast<float*>(R + 0x10c) = BitsToFloat(0x3e99999a);
+        *reinterpret_cast<float*>(R + 0x104) = FloatFromBits(0x3dcccccd);
+        *reinterpret_cast<float*>(R + 0x108) = FloatFromBits(0x3e99999a);
+        *reinterpret_cast<float*>(R + 0x10c) = FloatFromBits(0x3e99999a);
         *reinterpret_cast<int*>(R + 0xf0) = 0;
 
         // [ESP+0x14]: how many puff_colora / puff_colorb keys were taken (at most two).
@@ -2578,50 +2572,50 @@ FNebulaEffect::FNebulaEffect()
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0xc8) = 1.0f;
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0xcc) = 1.0f;
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0xd4) =
-        BitsToFloat(0x3f400000);
+        FloatFromBits(0x3f400000);
     *reinterpret_cast<unsigned*>(reinterpret_cast<unsigned char*>(This) + 0xd8) = 1;
 
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x50) =
-        BitsToFloat(0x3dcccccd);
+        FloatFromBits(0x3dcccccd);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x54) =
-        BitsToFloat(0x41200000);
+        FloatFromBits(0x41200000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x58) =
-        BitsToFloat(0x3e4ccccd);
+        FloatFromBits(0x3e4ccccd);
 
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x250) =
-        BitsToFloat(0x41200000);
+        FloatFromBits(0x41200000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x254) =
-        BitsToFloat(0x3f000000);
+        FloatFromBits(0x3f000000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x258) =
-        BitsToFloat(0xbf800000);
+        FloatFromBits(0xbf800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x25c) =
-        BitsToFloat(0x3e800000);
+        FloatFromBits(0x3e800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x260) =
-        BitsToFloat(0x3e800000);
+        FloatFromBits(0x3e800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x264) =
-        BitsToFloat(0x3e800000);
+        FloatFromBits(0x3e800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x268) = 1.0f;
 
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x274) =
-        BitsToFloat(0x40400000);
+        FloatFromBits(0x40400000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x278) =
-        BitsToFloat(0x3f000000);
+        FloatFromBits(0x3f000000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x27c) =
-        BitsToFloat(0xbf800000);
+        FloatFromBits(0xbf800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x280) = 1.0f;
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x284) = 1.0f;
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x288) = 1.0f;
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x28c) =
-        BitsToFloat(0x3e800000);
+        FloatFromBits(0x3e800000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x290) =
-        BitsToFloat(0x3f400000);
+        FloatFromBits(0x3f400000);
 
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x2c4) =
-        BitsToFloat(0x3f000000);
+        FloatFromBits(0x3f000000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x2c8) =
-        BitsToFloat(0x3fe00000);
+        FloatFromBits(0x3fe00000);
     *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(This) + 0x2bc) =
-        BitsToFloat(0x459c4000);
+        FloatFromBits(0x459c4000);
 
 }
 

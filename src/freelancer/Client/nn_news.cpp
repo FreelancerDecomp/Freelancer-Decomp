@@ -44,6 +44,7 @@
 #include "dacom.h"                  // FDUMP
 #include "font.h"                   // IFont::GetCharWidths (slot 10)
 #include "render/shading.h"         // IMaterialLibrary::DeleteGroup
+#include "float_bits.h"
 
 #include <list>
 #include <math.h>
@@ -97,13 +98,6 @@ namespace
     uintptr_t PointerArg(void const* Pointer)
     {
         return reinterpret_cast<uintptr_t>(Pointer);
-    }
-
-    uintptr_t FloatArg(float Value)
-    {
-        unsigned Bits = 0;
-        memcpy(&Bits, &Value, sizeof(Bits));
-        return static_cast<uintptr_t>(Bits);
     }
 
     // The icon of a news category (RefreshRows 0x004a534e..0x004a5369, ShowSelected
@@ -702,7 +696,7 @@ void NnNews::TickerShow(int Start, float Offset)
     float const Overhang = static_cast<float>(X - Limit);
     Ticker->SetProperty(0x1d, PointerArg(TickerView), 0);
     Ticker->SetProperty(0x22, 0, 1);
-    Ticker->SetProperty(0x23, FloatArg(Offset), FloatArg(Overhang));
+    Ticker->SetProperty(0x23, BitsFromFloat(Offset), BitsFromFloat(Overhang));
 }
 
 void NnNews::Draw()

@@ -14,7 +14,8 @@
 #include "ids_rdl.h"            // LoadIdsIntoRdl (FUN_0057da40), RdlAppendNode
 #include "input_manager.h"      // MouseSetCursor (FUN_0041dde0)
 #include "login_mgr.h"          // G_Server (DAT_0067ecd0)
-#include "nn_modal.h"           // NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"
 #include "rich_text_win.h"
 #include "win3d.h"
 #include "win3d_renderables.h"  // Win3DFlushBeforeOverlayDraw (FUN_0045a9f0)
@@ -81,14 +82,14 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
     // 00472b04..00472b7e: FUN_005a0db0 "PromptFrame" at (0, 0, 0xbfd9999a), the NN_Error frame
     // mesh and argument list.
     float const Zero[3] = {0.0f, 0.0f, 0.0f}; // local_48 / local_3c
-    float FramePosition[3] = {0.0f, 0.0f, NnFloatBits(0xbfd9999a)};
+    float FramePosition[3] = {0.0f, 0.0f, FloatFromBits(0xbfd9999a)};
     CreateStaticControl("PromptFrame", kPromptFrameMesh, FramePosition, nullptr, Zero, 0, 0, 0, 1,
                         1, 0, 1, 0, 0, 0, Zero);
 
     // 00472b83..00472bbf: FUN_005a10e0("PromptText", 0.7f, 0.15f, {-0.35, 0.12, -1}, 1).
-    float TextOffset[3] = {NnFloatBits(0xbeb33333), NnFloatBits(0x3df5c28f), -1.0f};
-    PromptText = CreateRichTextWin("PromptText", NnFloatBits(0x3f333333),
-                                   NnFloatBits(0x3e19999a), TextOffset, true);
+    float TextOffset[3] = {FloatFromBits(0xbeb33333), FloatFromBits(0x3df5c28f), -1.0f};
+    PromptText = CreateRichTextWin("PromptText", FloatFromBits(0x3f333333),
+                                   FloatFromBits(0x3e19999a), TextOffset, true);
 
     // 00472bc5..00472bef: only mode 0 gets the edit box.
     if (Mode == 0)
@@ -100,8 +101,8 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
     if (PromptEdit != nullptr)
     {
         // 00472bfd..00472c42: FUN_00579cc0, FUN_00579c40 {-0.3, -0.015, -1}, FUN_00579860(0).
-        PromptEdit->SetNormSize(NnFloatBits(0x3f19999a), NnFloatBits(0x3cf5c28f));
-        float EditOffset[3] = {NnFloatBits(0xbe99999a), NnFloatBits(0xbc75c28f), -1.0f};
+        PromptEdit->SetNormSize(FloatFromBits(0x3f19999a), FloatFromBits(0x3cf5c28f));
+        float EditOffset[3] = {FloatFromBits(0xbe99999a), FloatFromBits(0xbc75c28f), -1.0f};
         PromptEdit->SetAttachOffset(EditOffset);
         PromptEdit->SetDrawFrame(false);
         // 00472c47..00472c68: password mode on, fixed style on, IME off (EBP = 0).
@@ -151,11 +152,11 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
 
     // The boxes: FUN_005a1950(name, "ui_select_item", pos, {0.05, 0.017, 0}, 0, 0, tip,
     // caption, 0, 0).
-    float const ButtonExtents[3] = {NnFloatBits(0x3d4ccccd), NnFloatBits(0x3c8b4396), 0.0f};
+    float const ButtonExtents[3] = {FloatFromBits(0x3d4ccccd), FloatFromBits(0x3c8b4396), 0.0f};
     if (Mode == 0)
     {
         // 00472e16..00472e6b: "PromptOk" centred, caption 0x411 -> +0x350.
-        float OkPosition[3] = {0.0f, NnFloatBits(0xbd851eb8), -1.0f};
+        float OkPosition[3] = {0.0f, FloatFromBits(0xbd851eb8), -1.0f};
         PromptYes = static_cast<RichTextWireButtonControl*>(CreateRichTextWireButtonControl(
             "PromptOk", "ui_select_item", OkPosition, ButtonExtents, 0, 0, YesToolTip, 0x411, 0,
             0));
@@ -164,7 +165,7 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
     {
         // 00472e7b..00472ee3 / 00472ef5..00472f50: "PromptYes" on the left -> +0x350, caption
         // 0x4dc in mode 1 and none in mode 2.
-        float YesPosition[3] = {NnFloatBits(0xbd8f5c29), NnFloatBits(0xbd851eb8), -1.0f};
+        float YesPosition[3] = {FloatFromBits(0xbd8f5c29), FloatFromBits(0xbd851eb8), -1.0f};
         unsigned const YesCaption = (Mode == 1) ? 0x4dcu : 0u;
         PromptYes = static_cast<RichTextWireButtonControl*>(CreateRichTextWireButtonControl(
             "PromptYes", "ui_select_item", YesPosition, ButtonExtents, 0, 0, YesToolTip,
@@ -172,7 +173,7 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
 
         // 00472ed0..00472f9d: "PromptNo" on the right -> +0x34c, caption 0x4dd in mode 1 and
         // none in mode 2.
-        float NoPosition[3] = {NnFloatBits(0x3d8f5c29), NnFloatBits(0xbd851eb8), -1.0f};
+        float NoPosition[3] = {FloatFromBits(0x3d8f5c29), FloatFromBits(0xbd851eb8), -1.0f};
         unsigned const NoCaption = (Mode == 1) ? 0x4ddu : 0u;
         PromptNo = static_cast<RichTextWireButtonControl*>(CreateRichTextWireButtonControl(
             "PromptNo", "ui_select_item", NoPosition, ButtonExtents, 0, 0, NoToolTip, NoCaption,
@@ -181,8 +182,8 @@ bool NnPrompt::Create(Win3D* NewParent, void* Data)
 
     // 00472fa3..00473006: FUN_005a0c90 "PromptExit", the X mesh, sound "ui_select_item", at
     // (0.345, 0.105, -1), half extents (0.02, 0.02, 0), every flag 0 -> +0x348.
-    float ExitPosition[3] = {NnFloatBits(0x3eb0a3d7), NnFloatBits(0x3dd70a3d), -1.0f};
-    float ExitExtents[3] = {NnFloatBits(0x3ca3d70a), NnFloatBits(0x3ca3d70a), 0.0f};
+    float ExitPosition[3] = {FloatFromBits(0x3eb0a3d7), FloatFromBits(0x3dd70a3d), -1.0f};
+    float ExitExtents[3] = {FloatFromBits(0x3ca3d70a), FloatFromBits(0x3ca3d70a), 0.0f};
     PromptExit = CreateButtonControl("PromptExit", kPromptExitMesh, nullptr, "ui_select_item",
                                      nullptr, ExitPosition, nullptr, ExitExtents, 0, 0, 0, 0, 0,
                                      0, 0);

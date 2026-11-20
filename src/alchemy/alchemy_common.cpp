@@ -22,6 +22,7 @@
 // The concrete ramp classes the node-lib readers construct with `new`, as retail does
 // (FUN_06229eb0 / FUN_06229f00 children, the FUN_06227c70 IAnimatedSingle children).
 #include "alchemy_ramp.h"
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstdio>
@@ -1411,13 +1412,6 @@ namespace AlchemyImpl
         Context.IndexCount = static_cast<unsigned short>(Context.IndexCount + 3);
         Context.PrimCount = static_cast<unsigned short>(Context.PrimCount + 1);
         Context.LockedIndices = Index + 3;
-    }
-
-    static float FloatFromBits(unsigned long Bits)
-    {
-        float Value;
-        std::memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
     }
 
     // FUN_0623f590. Scalar SSE intrinsics preserve each MULSS/ADDSS store

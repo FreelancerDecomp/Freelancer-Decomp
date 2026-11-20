@@ -10,7 +10,8 @@
 
 #include "font_string.h"        // FFontString (+0x28 LayoutGen, +0x30 bMultiLine)
 #include "ids_strings.h"        // GetIdsStringWWithRawFallback (FUN_004347e0)
-#include "nn_modal.h"           // NnFloatBits
+#include "float_bits.h"
+#include "nn_modal.h"
 #include "nn_text_control.h"
 #include "win3d.h"
 #include "win3d_renderables.h"  // Win3DFlushBeforeOverlayDraw (FUN_0045a9f0)
@@ -60,8 +61,8 @@ bool NnConfirm::Create(Win3D* NewParent, void* Data)
 
     // 0x004883bd..0x00488433: FUN_00423b30(&local_c, &{-0.018, 0, -1}, &{0.02, 0.015, 0}) --
     // the frame position, component-wise sum.
-    float const Base[3] = {NnFloatBits(0xbc9374bc), 0.0f, -1.0f};             // local_3c
-    float const Delta[3] = {NnFloatBits(0x3ca3d70a), NnFloatBits(0x3c75c28f), 0.0f}; // local_30
+    float const Base[3] = {FloatFromBits(0xbc9374bc), 0.0f, -1.0f};             // local_3c
+    float const Delta[3] = {FloatFromBits(0x3ca3d70a), FloatFromBits(0x3c75c28f), 0.0f}; // local_30
     float const Zero[3] = {0.0f, 0.0f, 0.0f};                                  // local_24 / local_18
 
     float const FramePosition[3] = {Base[0] + Delta[0], Base[1] + Delta[1], Base[2] + Delta[2]};
@@ -70,16 +71,16 @@ bool NnConfirm::Create(Win3D* NewParent, void* Data)
     Frame = CreateStaticControl("Confirm_deleteBox", kConfirmFrameMesh, FramePosition, nullptr,
                                 Zero, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, Zero);
 
-    float const kRowOffsetY = NnFloatBits(0x3d4ccccd);  // DAT_005cb88c 0.05
-    float const kTextOffsetX = NnFloatBits(0x3ccccccd); // DAT_005d15b4 0.025
-    float const kYesOffsetX = NnFloatBits(0x3dae147b);  // DAT_005d1f84 0.085
-    float const kNoOffsetX = NnFloatBits(0x3e051eb8);   // DAT_005d0434 0.13
+    float const kRowOffsetY = FloatFromBits(0x3d4ccccd);  // DAT_005cb88c 0.05
+    float const kTextOffsetX = FloatFromBits(0x3ccccccd); // DAT_005d15b4 0.025
+    float const kYesOffsetX = FloatFromBits(0x3dae147b);  // DAT_005d1f84 0.085
+    float const kNoOffsetX = FloatFromBits(0x3e051eb8);   // DAT_005d0434 0.13
 
     // 0x0048846c..0x004884cf: FUN_00422b80(Base.x + 0.025, Base.y + 0.05, Base.z), then
     // FUN_005a0e30("Confirm_delTxt", Style, pos, 0, 0.4, 0.12, 1.0, 0x4ad, 1, 0, 0) -> +0x334.
     float const TextPosition[3] = {Base[0] + kTextOffsetX, Base[1] + kRowOffsetY, Base[2]};
     Text = CreateTextControl("Confirm_delTxt", Payload->Style, TextPosition, nullptr,
-                             NnFloatBits(0x3ecccccd), NnFloatBits(0x3df5c28f), 1.0f, 0x4ad, 1, 0,
+                             FloatFromBits(0x3ecccccd), FloatFromBits(0x3df5c28f), 1.0f, 0x4ad, 1, 0,
                              0);
 
     // 0x004884d5..0x004884e9: the text's Font::String (+0x334) goes multi-line (+0x30 = 1, and
@@ -95,7 +96,7 @@ bool NnConfirm::Create(Win3D* NewParent, void* Data)
 
     // 0x004884ff..0x00488583: "Confirm_delBtnYes" at (Base.x - 0.085, Base.y - 0.05, Base.z),
     // half extents {0.09, 0.021, 0}, no sound -> +0x338.
-    float const ButtonExtents[3] = {NnFloatBits(0x3db851ec), NnFloatBits(0x3cac0831), 0.0f};
+    float const ButtonExtents[3] = {FloatFromBits(0x3db851ec), FloatFromBits(0x3cac0831), 0.0f};
     float const YesPosition[3] = {Base[0] - kYesOffsetX, Base[1] - kRowOffsetY, Base[2]};
     YesBox = CreateWireButtonControl("Confirm_delBtnYes", nullptr, YesPosition, ButtonExtents, 0,
                                      0, 0, 0, 0);
@@ -109,10 +110,10 @@ bool NnConfirm::Create(Win3D* NewParent, void* Data)
     // 0x004885d1..0x00488669: the captions on the boxes' positions -- "ButtonText", 0.27 x 0.03,
     // 1.0, ids 0x4dc (yes) / 0x4dd (no), 1, 0, 0 -> +0x340 / +0x344.
     YesText = CreateTextControl("Confirm_delBtnYesText", "ButtonText", YesPosition, nullptr,
-                                NnFloatBits(0x3e8a3d71), NnFloatBits(0x3cf5c28f), 1.0f, 0x4dc, 1,
+                                FloatFromBits(0x3e8a3d71), FloatFromBits(0x3cf5c28f), 1.0f, 0x4dc, 1,
                                 0, 0);
     NoText = CreateTextControl("Confirm_delBtnNoText", "ButtonText", NoPosition, nullptr,
-                               NnFloatBits(0x3e8a3d71), NnFloatBits(0x3cf5c28f), 1.0f, 0x4dd, 1, 0,
+                               FloatFromBits(0x3e8a3d71), FloatFromBits(0x3cf5c28f), 1.0f, 0x4dd, 1, 0,
                                0);
 
     // 0x0048869b..0x004886a8

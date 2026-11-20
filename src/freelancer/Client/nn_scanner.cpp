@@ -11,6 +11,7 @@
 #include "globals.h"         // IsClientServerTickPaused (FUN_0042d730)
 #include "hud_target.h"      // HudIsMousePickBlocked (FUN_0045a740)
 #include "menu_ui_init.h"    // PlayOrRewindUiSoundSlot (FUN_005645c0)
+#include "float_bits.h"
 #include "nn_modal.h"        // NnMainButtonOnModalOpen, NnMainButtonHasActivePanel, G_bNnScreenUp
 #include "player_behavior.h" // GetPlayerObjRW (FUN_0054baf0)
 #include "space_letterbox.h" // IsLetterboxVisible (FUN_0041a3e0)
@@ -273,7 +274,7 @@ void OpenNnScanner(EquipDescList const* Cargo, unsigned ShipArchId)
         return;
 
     // 0x004b6bf7..0x004b6c18: slot 5 {0, 0x3d9ba5e3 (0.076), 0xbfa4dd2f (-1.288)}.
-    float const Position[3] = {0.0f, NnFloatBits(0x3d9ba5e3), NnFloatBits(0xbfa4dd2f)};
+    float const Position[3] = {0.0f, FloatFromBits(0x3d9ba5e3), FloatFromBits(0xbfa4dd2f)};
     Window->SetPosition(Position);
 
     // 0x004b6c1b..0x004b6c3b: slot 42 (0x49, Cargo, ShipArchId), then (0x4a, 0, 0).

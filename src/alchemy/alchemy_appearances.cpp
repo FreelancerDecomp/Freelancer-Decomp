@@ -11,6 +11,7 @@
 #include "alchemy_ramp.h"
 #include "common_misc.h"
 #include "render/shading.h"
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstdint>
@@ -291,13 +292,6 @@ namespace AlchemyImpl
         // replaced 2026-09-26 by MergeListBoundsSphere below.)
 
         // ---- FxBasicAppearance fill helpers (FUN_06216550 / FUN_06216f20) ----
-
-        float FloatFromBits(unsigned long Bits)
-        {
-            float Value = 0.0f;
-            std::memcpy(&Value, &Bits, sizeof(Value));
-            return Value;
-        }
 
         // 0x3d088880 (DAT_0624cdd8, ~1/30): the streak's backward shift per unit of
         // camera-space speed along the screen axis.

@@ -41,13 +41,13 @@ DodgeIdea::DodgeIdea()
     , Picker()
     , IntervalTime(5.0f)                      // 0x40a00000, 062d781f
     , IntervalTimeVariancePercent(0.0f)                      // 062d7826 (dword 0)
-    , ConeAngle(BitsToFloat(0x3f860a92u))  // 062d7829 -- NOT pi/3, see the header
+    , ConeAngle(FloatFromBits(0x3f860a92u))  // 062d7829 -- NOT pi/3, see the header
     , ConeAngleVariancePercent(0.0f)                      // 062d7830 (dword 0)
     , WaggleAxisConeAngle(0.0f)                      // 062d7833 (dword 0)
     , RollAngle(0.0f)                      // 062d7836 (dword 0)
     , DodgeDistance(150.0f)                    // 0x43160000, 062d7839
     , Field50(0.0f)                      // 062d7840 (dword 0)
-    , Field54(BitsToFloat(0x3e4ccccdu))  // 0.2f, 062d7843
+    , Field54(FloatFromBits(0x3e4ccccdu))  // 0.2f, 062d7843
     , Field58{}                          // not written by retail's ctor
     , Field64(0)                         // 062d7850
     , Pad65{}
@@ -63,7 +63,7 @@ DodgeIdea::DodgeIdea()
     , VectorB8{}                         // 062d7888-062d7897, three zeroed dwords
     , FieldC4(30.0f)                     // 0x41f00000, 062d7905
     , SlideThrottle(1.0f)                      // 062d78d4
-    , VectorCc{ BitsToFloat(0x3dcccccdu), 0.0f, 1.0f } // 062d789a-062d78e0: 0.1f, 0, 1.0f
+    , VectorCc{ FloatFromBits(0x3dcccccdu), 0.0f, 1.0f } // 062d789a-062d78e0: 0.1f, 0, 1.0f
     , bRollFlipDirection(0)                          // 062d78e3
     , FlagD9(0)                          // 062d78e9
     , FlagDa(0)                          // 062d78ef

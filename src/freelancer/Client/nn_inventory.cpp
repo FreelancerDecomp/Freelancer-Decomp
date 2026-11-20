@@ -31,6 +31,7 @@
 #include "nn_dealer.h"
 #include "nn_main_button.h"         // NN_MainButton::FreeScaledBackground (FUN_0045dc60)
 #include "nn_messaging.h"           // NnVoiceEnqueue (FUN_00489e80)
+#include "float_bits.h"
 #include "nn_modal.h"              // NnMainButtonSetPanelOrigin (FUN_0045a780),
                                     // NnMainButtonOnModalOpen (FUN_0045a460)
 #include "nn_text_scratch.h"        // DAT_0066dc60 / DAT_0066fc60 / DAT_006119f8
@@ -998,7 +999,7 @@ NnInventory::~NnInventory()
 
     // 00477e2e..00477e4d: FUN_0045a780(0x66, {0, 0x3d9ba5e3, 0xbfa4dd2f}) -- hand the
     // NN_MainButton the origin of panel 0x66.
-    float const PanelOrigin[3] = {0.0f, NnFloatBits(0x3d9ba5e3), NnFloatBits(0xbfa4dd2f)};
+    float const PanelOrigin[3] = {0.0f, FloatFromBits(0x3d9ba5e3), FloatFromBits(0xbfa4dd2f)};
     NnMainButtonSetPanelOrigin(0x66, PanelOrigin);
 
     // 00477e52..00477ec3: the +0x3a8 list, FUN_004c6200 on +0x330 and FUN_0059fa50 run as the
@@ -4725,8 +4726,8 @@ void NnInventoryOpenDealer(int TradeMode, FNnInventoryResultFn ResultFn, void* R
     }
 
     // 0x00477b14..0x00477b33: FUN_0045a780(0x66, {-0.64, 0.33, -1.288}).
-    float const PanelOrigin[3] = {NnFloatBits(0xbf23d70a), NnFloatBits(0x3ea8f5c3),
-                                  NnFloatBits(0xbfa4dd2f)};
+    float const PanelOrigin[3] = {FloatFromBits(0xbf23d70a), FloatFromBits(0x3ea8f5c3),
+                                  FloatFromBits(0xbfa4dd2f)};
     NnMainButtonSetPanelOrigin(0x66, PanelOrigin);
     // 0x00477b38..0x00477b41: FUN_0045dcb0 on DAT_0066d3f0 (not null-tested).
     G_NnMainButton->SetInfoCardLayout();
