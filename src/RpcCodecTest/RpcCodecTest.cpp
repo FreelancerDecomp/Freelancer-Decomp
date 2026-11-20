@@ -10,7 +10,8 @@
 //
 // Usage (from bin\):  RpcCodecTest.exe [--out <file>]
 // Exit code: 0 when the test ran, 1 when the packet types could not be registered, 2 on bad
-// arguments. Codec results never fail the run by themselves: the file comparison does.
+// arguments, 3 when a case makes no progress for 30 seconds (the type and case are printed).
+// Codec results never fail the run by themselves: the file comparison does.
 
 #include <windows.h>
 
@@ -96,8 +97,37 @@ namespace
     const unsigned int ResultException = 0xffffffffu;
 
     // The case in progress, printed if the process is ending abnormally.
-    const char* GCurrentCase = "";
-    unsigned int GCurrentType = 0;
+    const char* volatile GCurrentCase = "";
+    volatile unsigned int GCurrentType = 0;
+    // Bumped by every case; the watchdog ends the run when it stops moving.
+    volatile LONG GProgress = 0;
+    const DWORD StallSeconds = 30;
+
+    void SetCase(const char* Name)
+    {
+        GCurrentCase = Name;
+        InterlockedIncrement(&GProgress);
+    }
+
+    DWORD WINAPI WatchdogThread(LPVOID)
+    {
+        LONG Last = -1;
+        DWORD Stalled = 0;
+        for (;;)
+        {
+            Sleep(1000);
+            const LONG Now = GProgress;
+            Stalled = Now == Last ? Stalled + 1 : 0;
+            Last = Now;
+            if (Stalled >= StallSeconds)
+            {
+                fprintf(stderr, "RpcCodecTest: no progress for %lu s in type %05x, case %s\n",
+                    StallSeconds, GCurrentType, (const char*)GCurrentCase);
+                fflush(stderr);
+                TerminateProcess(GetCurrentProcess(), 3);
+            }
+        }
+    }
 
     // Cases that corrupt the heap in the codec itself, as they do in retail RemoteClient.dll.
     // The process cannot survive them (the CRT ends it on heap corruption), so they are listed
@@ -338,7 +368,7 @@ namespace
         FCounts& Counts)
     {
         ++Counts.Cases;
-        GCurrentCase = Input.Name;
+        SetCase(Input.Name);
         if (const FKnownOverflow* Overflow = FindKnownOverflow(PacketId, Input.Name))
         {
             ++Counts.Skipped;
@@ -427,7 +457,7 @@ namespace
     {
         fprintf(Out, "type %05x %s\n", PacketId, Info.Name.c_str());
         GCurrentType = PacketId;
-        GCurrentCase = "fresh";
+        SetCase("fresh");
 
         // A freshly constructed packet, encoded as is.
         {
@@ -466,12 +496,13 @@ namespace
 
         // Decode of every prefix of the "small" input: where each codec stops and which error
         // it reports for a short packet.
-        GCurrentCase = "prefixes";
+        SetCase("prefixes");
         const std::vector<unsigned char> Small = SmallDwords(MaxTruncatedLength);
         std::string Line;
         for (unsigned int Length = 0; Length <= MaxTruncatedLength; ++Length)
         {
             ++Counts.Cases;
+            InterlockedIncrement(&GProgress);
             FCodecResult Allocation;
             FPacketBase* Packet = NewPacket(Info, Allocation);
             FCodecResult Decode;
@@ -567,6 +598,7 @@ int main(int Argc, char** Argv)
 
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
     SetUnhandledExceptionFilter(ReportUnhandledException);
+    CloseHandle(CreateThread(nullptr, 0, WatchdogThread, nullptr, 0, nullptr));
     // The server thread's FPU setup (FLServer SetupServerFpu): 53-bit precision, all masked.
     _control87(0x9001f, 0xfffff);
 
