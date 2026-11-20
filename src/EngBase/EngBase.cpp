@@ -541,6 +541,16 @@ static unsigned long DACOM_API AnimationRelease(FAnimationObject* This)
 
 static FAnimationObject* AnimationFromNested(void* Nested, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // Offset names a retail facet; x64 has the facets at other offsets (facet_offset.h).
+    switch (Offset)
+    {
+    case 4: Offset = FL_FACET_OFFSET(4, FAnimationObject, IAggregateComponent); break;
+    case 8: Offset = FL_FACET_OFFSET(8, FAnimationObject, FAnimationChannelFacet); break;
+    case 0xC: Offset = FL_FACET_OFFSET(0xC, FAnimationObject, IRootData); break;
+    default: break;
+    }
+#endif
     return (FAnimationObject*)((unsigned char*)Nested - Offset);
 }
 
@@ -2957,6 +2967,11 @@ static unsigned long DACOM_API HardpointRelease(FHardpointObject* This)
 
 static FHardpointObject* HardpointFromNested(void* Nested, unsigned long Offset)
 {
+#if defined(_WIN64)
+    // 4 is the retail IEngineComponent facet; x64 has it at another offset (facet_offset.h).
+    if (Offset == 4)
+        Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);
+#endif
     return (FHardpointObject*)((unsigned char*)Nested - Offset);
 }
 
