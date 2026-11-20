@@ -64,7 +64,7 @@ public:
         : Packet(InPacket) {
         Packet.MarshalCursor = 0;
         Packet.MarshalLimit = Capacity;
-        Packet.MarshalPtr = reinterpret_cast<unsigned int>(Buffer);
+        Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(Buffer);
         Packet.MarshalError = 0;
     }
 
@@ -74,7 +74,7 @@ public:
     FRpcWireStream(FPacketBase& InPacket, unsigned char** BufferHolder, unsigned int Capacity)
         : Packet(InPacket) {
         Packet.MarshalLimit = Capacity;
-        Packet.MarshalPtr = reinterpret_cast<unsigned int>(*BufferHolder);
+        Packet.MarshalPtr = reinterpret_cast<std::uintptr_t>(*BufferHolder);
         Packet.MarshalCursor = 0;
         Packet.MarshalError = 0;
     }
@@ -87,7 +87,7 @@ public:
     void PutHeader() {
         const unsigned short Header = static_cast<unsigned short>(
             (Packet.PacketId & 0xfffu) | (((Packet.PacketId >> 16) & 0xffu) << 8));
-        const unsigned int Destination = Packet.MarshalPtr;
+        const std::uintptr_t Destination = Packet.MarshalPtr;
         std::memcpy(reinterpret_cast<void*>(Destination), &Header, 2u);
         Packet.MarshalCursor = 2u;
         Packet.MarshalPtr = Destination + 2u;
@@ -98,7 +98,7 @@ public:
     // destination, copy, and commit Ptr=cached+Width. The cursor is never restored.
     bool Put(const void* Value, unsigned int Width) {
         if (!Advance(Width, 0x16u)) return false;
-        const unsigned int Destination = Packet.MarshalPtr;
+        const std::uintptr_t Destination = Packet.MarshalPtr;
         if (Width != 0) std::memcpy(reinterpret_cast<void*>(Destination), Value, Width);
         Packet.MarshalPtr = Destination + Width;
         return true;
@@ -113,7 +113,7 @@ public:
     // source and destination overlap), then commit Ptr=cached+Width. A zero width
     // performs no access.
     void PutReserved(const void* Value, unsigned int Width) {
-        const unsigned int Destination = Packet.MarshalPtr;
+        const std::uintptr_t Destination = Packet.MarshalPtr;
         const unsigned int DwordBytes = Width & ~3u;
         __movsd(reinterpret_cast<unsigned long*>(Destination),
             static_cast<const unsigned long*>(Value), Width >> 2);
@@ -144,7 +144,7 @@ public:
     bool PutFloat(const float& Value) {
         if (!Advance(4u, 0x16u)) return false;
         const float* Source = &Value;
-        const unsigned int Cached = Packet.MarshalPtr;
+        const std::uintptr_t Cached = Packet.MarshalPtr;
         float* Destination = reinterpret_cast<float*>(Cached);
 #if defined(_M_IX86)
         __asm {

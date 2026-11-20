@@ -1167,7 +1167,7 @@ unsigned int FRpcServerCharSelectVerifiedPacket::Encode(unsigned char** BufferHo
     if (!Stream.Put(&RepInstance, 4u)) return 0x16u;                   // 06b5ff45
     if (!Stream.Reserve(8u, 0x16u)) return 0x16u;                      // 06b5ff4c..06b5ff6c
     const double* Source = &Time;
-    const unsigned int Cached = MarshalPtr;                            // 06b5ff75
+    const std::uintptr_t Cached = MarshalPtr;                            // 06b5ff75
     double* Destination = reinterpret_cast<double*>(Cached);
 #if defined(_M_IX86)
     __asm {
@@ -3217,7 +3217,7 @@ unsigned int FRpcServerSetDirectivePacket::Encode(unsigned char** BufferHolder,
     FRpcWireStream Stream(*this, BufferHolder, Capacity);
     Stream.PutHeader();
     if (!Stream.Reserve(0x94u, 0x16u)) return 0x16u;
-    const unsigned int Cached = MarshalPtr;
+    const std::uintptr_t Cached = MarshalPtr;
     RpcServerCopyDirectiveFields(reinterpret_cast<void*>(Cached), &Directive);
     MarshalPtr = Cached + 0x94u;
     return Stream.FinishEncodeSuccess(OutLength);                      // 06b4345e

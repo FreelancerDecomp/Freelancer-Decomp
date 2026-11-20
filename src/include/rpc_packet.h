@@ -18,6 +18,7 @@
 // Ground truth: docs/re/rpclocal.md, EXE/Disasm/rpclocal.dll.txt.
 #pragma once
 
+#include <cstdint>
 #include <iosfwd>
 #include <map>
 #include <string>
@@ -92,9 +93,10 @@ public:
     unsigned int GetChannel() const { return PacketId >> 16; }
     unsigned int GetOpcode() const { return PacketId & 0xfff; }
 
-    // Payload starts at +0x20 and belongs to the concrete packet class.
-    unsigned char* Payload() { return reinterpret_cast<unsigned char*>(this) + 0x20; }
-    const unsigned char* Payload() const { return reinterpret_cast<const unsigned char*>(this) + 0x20; }
+    // Payload starts right after this base (+0x20 on Win32, as retail) and belongs to the
+    // concrete packet class.
+    unsigned char* Payload();
+    const unsigned char* Payload() const;
     unsigned int* PayloadDwords() { return reinterpret_cast<unsigned int*>(Payload()); }
     const unsigned int* PayloadDwords() const { return reinterpret_cast<const unsigned int*>(Payload()); }
 
@@ -121,13 +123,18 @@ public:
     // and +0x1c and leaves +0x14 / +0x18 alone, as retail's does.
     unsigned int MarshalCursor;   // +0x10  bytes emitted/consumed so far
     unsigned int MarshalLimit;    // +0x14  capacity of the caller's buffer
-    unsigned int MarshalPtr;      // +0x18  moving read/write pointer into that buffer
+    std::uintptr_t MarshalPtr;    // +0x18  moving read/write pointer into that buffer (a dword on Win32)
     unsigned int MarshalError;    // +0x1c  0 = ok, 0x16 = encode overflow, 0x17 = decode overrun
 };
 
 // The compiler must place the vptr first and pack the seven dwords behind it, so the
 // payload really does begin at +0x20 exactly as retail's does.
 FL_LAYOUT_ASSERT(sizeof(FPacketBase) == 0x20, "FPacketBase must match the retail CDAPacket base");
+
+inline unsigned char* FPacketBase::Payload() { return reinterpret_cast<unsigned char*>(this) + sizeof(FPacketBase); }
+inline const unsigned char* FPacketBase::Payload() const {
+    return reinterpret_cast<const unsigned char*>(this) + sizeof(FPacketBase);
+}
 
 // ===========================================================================
 // The retail packet factory -- one per registered class.
