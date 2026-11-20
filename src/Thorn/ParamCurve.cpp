@@ -6,6 +6,9 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#if !defined(_M_IX86)
+#include "ThornX87.h"
+#endif
 
 #include <cmath>
 #include <cstring>
@@ -55,8 +58,21 @@ namespace
         }
     };
 
+#if !defined(_M_IX86)
+    // PF after TEST AH,mask: set when the masked condition bits hold an even number of ones.
+    // JP / SETP take the branch on true, JNP / SETNP on false.
+    inline bool X87ParityEven(unsigned int Masked)
+    {
+        unsigned int Ones = 0;
+        for (; Masked != 0; Masked &= Masked - 1)
+            ++Ones;
+        return (Ones & 1u) == 0;
+    }
+#endif
+
     void StoreParamFloat(FThornExtendedProgress* Output, const float* Value)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Value
@@ -64,6 +80,9 @@ namespace
             mov ecx, Output
             fstp tbyte ptr [ecx]
         }
+#else
+        ThornStoreExtended(Output, static_cast<double>(*Value));
+#endif
     }
 
     typedef std::list<FParamKey> FParamEvaluationList;
@@ -72,6 +91,7 @@ namespace
     {
         // FLD/FCOMP; TEST AH,05; JP takes equal/greater/unordered.
         unsigned char bLess;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Left
@@ -82,6 +102,10 @@ namespace
             test ah, 05h
             setnp bLess
         }
+#else
+        // SETNP: odd parity of AH & 05h, i.e. ordered less only.
+        bLess = X87ParityEven(X87CompareFlags(*Left, *Right) & 0x05) ? 0 : 1;
+#endif
         return bLess != 0;
     }
 
@@ -186,6 +210,7 @@ namespace
     // 2f2f0: preserve the complete extended x87 value in typed output, including
     // the caller-supplied nullable outside values. A C++ float polynomial
     // would round U²/U³ and the intermediate sums before the retail stores.
+#if defined(_M_IX86)
     __declspec(naked) void __cdecl CatmullRom1D(const float* P0, const float* P1,
                                                const float* P2, const float* P3, float U, FThornExtendedProgress* Output)
     {
@@ -243,7 +268,36 @@ namespace
             ret
         }
     }
+#else
+    void CatmullRom1D(const float* P0, const float* P1,
+                      const float* P2, const float* P3, float U, FThornExtendedProgress* Output)
+    {
+        const double UU = static_cast<double>(U) * U;
+        const double UUU = static_cast<double>(U) * UU;
+        // A missing outside value falls back to its neighbour.
+        const float* Left = P0 != nullptr ? P0 : P1;
+        const float* Right = P3 != nullptr ? P3 : P2;
+        // (2*P0 - 5*P1 + 4*P2 - P3) * U²
+        double Square = static_cast<double>(*Left) + static_cast<double>(*Left);
+        Square = Square - static_cast<double>(*P1) * static_cast<double>(G_ScalarFive);
+        Square = Square + static_cast<double>(*P2) * static_cast<double>(G_ScalarFour);
+        Square = Square - static_cast<double>(*Right);
+        const double SquareTerm = UU * Square;
+        // (3*P1 - P0 - 3*P2 + P3) * U³
+        double Cube = static_cast<double>(*P1) * static_cast<double>(G_ScalarThree) - static_cast<double>(*Left);
+        Cube = Cube - static_cast<double>(*P2) * static_cast<double>(G_ScalarThree);
+        Cube = Cube + static_cast<double>(*Right);
+        Cube = Cube * UUU;
+        double Sum = SquareTerm + Cube;
+        // (P2 - P0) * U
+        Sum = Sum + (static_cast<double>(*P2) - static_cast<double>(*Left)) * static_cast<double>(U);
+        // + 2*P1, then * 0.5
+        Sum = Sum + (static_cast<double>(*P1) + static_cast<double>(*P1));
+        ThornStoreExtended(Output, Sum * G_ScalarHalf);
+    }
+#endif
 
+#if defined(_M_IX86)
     __declspec(naked) void __cdecl ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
     {
         // 2f948..2f961: extended subtraction/divide/product/add to 80-bit output.
@@ -270,6 +324,16 @@ namespace
             ret
         }
     }
+#else
+    void ParamLerp(const FParamKey* Left, const FParamKey* Right, const float* T, FThornExtendedProgress* Output)
+    {
+        const double LeftValue = Left->Value;
+        const double Fraction = (static_cast<double>(*T) - static_cast<double>(Left->T)) /
+                                (static_cast<double>(Right->T) - static_cast<double>(Left->T));
+        const double Span = static_cast<double>(Right->Value) - LeftValue;
+        ThornStoreExtended(Output, LeftValue + Fraction * Span);
+    }
+#endif
 
     // FUN_06f21000: shared exact x87 arithmetic including helper float stores.
     GENRESULT ThornEvalCatmullRom3D(const float* P0, const float* P1, const float* P2,
@@ -289,6 +353,7 @@ namespace
 
     // FUN_06f33df0: construction copies Value/T raw, but tangent values pass
     // through FLD/FSTP in reverse load order. Assignment is a different path.
+#if defined(_M_IX86)
     __declspec(naked) void __cdecl ConstructHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
     {
         __asm
@@ -309,10 +374,30 @@ namespace
             ret
         }
     }
+#else
+    void ConstructHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
+    {
+        if (Destination == nullptr)
+            return;
+        unsigned int Word;
+        std::memcpy(&Word, &Source->Value, sizeof(Word));
+        std::memcpy(&Destination->Value, &Word, sizeof(Word));
+        std::memcpy(&Word, &Source->T, sizeof(Word));
+        std::memcpy(&Destination->T, &Word, sizeof(Word));
+        // Both tangents are loaded (FLD quiets a signaling NaN) before either store.
+        unsigned int OutBits;
+        unsigned int InBits;
+        X87CopyFloat(&OutBits, &Source->MOut);
+        X87CopyFloat(&InBits, &Source->MIn);
+        std::memcpy(&Destination->MIn, &InBits, sizeof(InBits));
+        std::memcpy(&Destination->MOut, &OutBits, sizeof(OutBits));
+    }
+#endif
 
     // 33160/331b0 assign four DWORDs, without loading tangent floats.
     void AssignHermiteRecord(FHermiteKnot* Destination, const FHermiteKnot* Source)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov eax, Destination
@@ -326,9 +411,21 @@ namespace
             mov edx, dword ptr [ecx + 0ch]
             mov dword ptr [eax + 0ch], edx
         }
+#else
+        unsigned int Word;
+        std::memcpy(&Word, &Source->Value, sizeof(Word));
+        std::memcpy(&Destination->Value, &Word, sizeof(Word));
+        std::memcpy(&Word, &Source->T, sizeof(Word));
+        std::memcpy(&Destination->T, &Word, sizeof(Word));
+        std::memcpy(&Word, &Source->MIn, sizeof(Word));
+        std::memcpy(&Destination->MIn, &Word, sizeof(Word));
+        std::memcpy(&Word, &Source->MOut, sizeof(Word));
+        std::memcpy(&Destination->MOut, &Word, sizeof(Word));
+#endif
     }
 
     // FUN_06f30480: all 60 instructions; only normalized S is stored as float.
+#if defined(_M_IX86)
     __declspec(naked) void __cdecl Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
     {
         __asm
@@ -405,6 +502,54 @@ namespace
             ret
         }
     }
+#else
+    void Hermite1D(const FHermiteKnot& A, const FHermiteKnot& B, const float* T, FThornExtendedProgress* Output)
+    {
+        // The argument's bits are copied once; S is that scratch float.
+        float S;
+        std::memcpy(&S, T, sizeof(S));
+        // TEST AH,44h / JP falls through only on ordered equality.
+        if (!X87ParityEven(X87CompareFlags(A.T, S) & 0x44))
+        {
+            ThornStoreExtended(Output, static_cast<double>(A.Value));
+            return;
+        }
+        if (!X87ParityEven(X87CompareFlags(B.T, S) & 0x44))
+        {
+            ThornStoreExtended(Output, static_cast<double>(B.Value));
+            return;
+        }
+        const double D = static_cast<double>(B.T) - static_cast<double>(A.T);
+        // FSTP dword into the scratch argument: the one float rounding.
+        S = static_cast<float>((static_cast<double>(S) - static_cast<double>(A.T)) / D);
+        unsigned int MOutBits;
+        std::memcpy(&MOutBits, &A.MOut, sizeof(MOutBits));
+        if (MOutBits == 0xffffffffu)
+        {
+            ThornStoreExtended(Output, static_cast<double>(A.Value));
+            return;
+        }
+        const double S2 = static_cast<double>(S) * static_cast<double>(S);
+        const double S3 = static_cast<double>(S) * S2;
+        const double TwoS3 = S3 + S3;
+        const double ThreeS2 = S2 * static_cast<double>(G_ScalarThree);
+        // (S³ - 2S² + S) * MOut * D
+        double Outgoing = S3 - (S2 + S2);
+        Outgoing = Outgoing + static_cast<double>(S);
+        Outgoing = Outgoing * static_cast<double>(A.MOut);
+        Outgoing = Outgoing * D;
+        // (S³ - S²) * MIn * D
+        double Incoming = S3 - S2;
+        Incoming = Incoming * static_cast<double>(B.MIn);
+        Incoming = Incoming * D;
+        double Sum = Outgoing + Incoming;
+        // (2S³ - 3S² + 1) * A.Value
+        Sum = Sum + ((TwoS3 - ThreeS2) + static_cast<double>(G_ScalarOne)) * static_cast<double>(A.Value);
+        // (3S² - 2S³) * B.Value
+        Sum = Sum + (ThreeS2 - TwoS3) * static_cast<double>(B.Value);
+        ThornStoreExtended(Output, Sum);
+    }
+#endif
 
     // FUN_06f30520: exact endpoint/seed/walk arithmetic, followed by an
     // ordinary typed kernel call. No C++ function is invoked inside asm.
@@ -419,6 +564,7 @@ namespace
         unsigned short ChopControl;
         long long Seed;
         unsigned char bEndpoint = 0;
+#if defined(_M_IX86)
         __asm
         {
             mov esi, Begin
@@ -527,6 +673,78 @@ namespace
             mov bEndpoint, 1
         HermitePhaseDone:
         }
+#else
+        const int Available = Begin != nullptr ? Count : 0;
+        if (Available == 1)
+        {
+            ThornStoreExtended(Output, static_cast<double>(Begin->Value));
+            bEndpoint = 1;
+        }
+        else
+        {
+            LastIndex = Available - 1;
+            const FHermiteKnot* Last = Begin + LastIndex;
+            // Raw DWORD copies of the endpoint times, without an FP load.
+            std::memcpy(&FirstTime, &Begin->T, sizeof(FirstTime));
+            std::memcpy(&LastTime, &Last->T, sizeof(LastTime));
+            if (!X87ParityEven(X87CompareFlags(*T, FirstTime) & 0x05))
+            {
+                // TEST AH,05h / JP not taken: T < first (ordered).
+                ThornStoreExtended(Output, static_cast<double>(Begin->Value));
+                bEndpoint = 1;
+            }
+            else if ((X87CompareFlags(*T, LastTime) & 0x41) == 0)
+            {
+                // TEST AH,41h / JNZ not taken: T > last (ordered).
+                ThornStoreExtended(Output, static_cast<double>(Last->Value));
+                bEndpoint = 1;
+            }
+            else
+            {
+                const double Fraction = (static_cast<double>(*T) - static_cast<double>(FirstTime)) /
+                                        (static_cast<double>(LastTime) - static_cast<double>(FirstTime));
+                // FIMUL, then FISTP qword with the rounding control set to chop.
+                Seed = X87TruncateToInt64(Fraction * static_cast<double>(LastIndex));
+                // Only the low DWORD of the seed indexes the records.
+                const int SeedIndex = static_cast<int>(static_cast<unsigned int>(static_cast<unsigned long long>(Seed)));
+                const FHermiteKnot* Cursor = Begin + SeedIndex;
+                if ((X87CompareFlags(Cursor->T, *T) & 0x41) == 0)
+                {
+                    // Knot time > T (ordered): walk backward while not strictly less.
+                    if (Cursor > Begin)
+                    {
+                        do
+                        {
+                            // TEST AH,05h / JNP taken: knot time < T (ordered).
+                            if (!X87ParityEven(X87CompareFlags(Cursor->T, *T) & 0x05))
+                                break;
+                            --Cursor;
+                        }
+                        while (Cursor > Begin);
+                    }
+                    Right = Cursor + 1;
+                    Left = Cursor;
+                }
+                else
+                {
+                    // Less, equal or unordered: walk forward to the first greater knot.
+                    if (Cursor <= Last)
+                    {
+                        do
+                        {
+                            // TEST AH,41h / JZ taken: knot time > T (ordered).
+                            if ((X87CompareFlags(Cursor->T, *T) & 0x41) == 0)
+                                break;
+                            ++Cursor;
+                        }
+                        while (Cursor <= Last);
+                    }
+                    Right = Cursor;
+                    Left = Cursor - 1;
+                }
+            }
+        }
+#endif
         if (!bEndpoint)
             Hermite1D(*Left, *Right, T, Output);
     }
@@ -544,6 +762,7 @@ namespace
             float DeltaV;
             // 300e5..30110: both differences are stored before the clamp,
             // even for a mode whose branch does not calculate a slope.
+#if defined(_M_IX86)
             __asm
             {
                 mov edx, Next
@@ -562,16 +781,34 @@ namespace
                 mov dword ptr DeltaT, 38d1b717h
             TangentDispatch:
             }
+#else
+            DeltaT = static_cast<float>(static_cast<double>(Next->T) - static_cast<double>(Current->T));
+            DeltaV = static_cast<float>(static_cast<double>(Next->Value) - static_cast<double>(Current->Value));
+            // TEST AH,05h / JP not taken: DeltaT < G_MinDeltaT (ordered).
+            if (!X87ParityEven(X87CompareFlags(DeltaT, G_MinDeltaT) & 0x05))
+            {
+                const unsigned int MinBits = 0x38d1b717u;
+                std::memcpy(&DeltaT, &MinBits, sizeof(DeltaT));
+            }
+#endif
             switch (TangentMode)
             {
             case 0:
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, Current
                     mov dword ptr [ecx + 0ch], 0ffffffffh
                 }
+#else
+                {
+                    const unsigned int StepBits = 0xffffffffu;
+                    std::memcpy(&Current->MOut, &StepBits, sizeof(StepBits));
+                }
+#endif
                 break;
             case 1:
+#if defined(_M_IX86)
                 __asm
                 {
                     mov edx, Next
@@ -581,8 +818,16 @@ namespace
                     fst dword ptr [edx + 8]
                     fstp dword ptr [ecx + 0ch]
                 }
+#else
+                {
+                    const float Slope = static_cast<float>(static_cast<double>(DeltaV) / static_cast<double>(DeltaT));
+                    Next->MIn = Slope;
+                    Current->MOut = Slope;
+                }
+#endif
                 break;
             case 4:
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, Current
@@ -590,10 +835,15 @@ namespace
                     mov dword ptr [ecx + 0ch], 0
                     mov dword ptr [edx + 8], 0
                 }
+#else
+                Current->MOut = 0.0f;
+                Next->MIn = 0.0f;
+#endif
                 break;
             case 5:
                 // TEST AH,41/JNZ takes not-greater, including unordered.
                 // FNSTSW follows the half-product exactly as in retail.
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, Current
@@ -614,12 +864,32 @@ namespace
                     mov dword ptr [edx + 8], 0
                 TangentDone:
                 }
+#else
+                {
+                    const unsigned char Flags = X87CompareFlags(Current->Value, Next->Value);
+                    // DeltaV / (DeltaT * 0.5), FDIVR.
+                    const float Slope = static_cast<float>(static_cast<double>(DeltaV) /
+                                                           (static_cast<double>(DeltaT) * static_cast<double>(G_ScalarHalfFloat)));
+                    if ((Flags & 0x41) == 0)
+                    {
+                        // JNZ not taken: Current->Value > Next->Value (ordered).
+                        Current->MOut = 0.0f;
+                        Next->MIn = Slope;
+                    }
+                    else
+                    {
+                        Current->MOut = Slope;
+                        Next->MIn = 0.0f;
+                    }
+                }
+#endif
                 break;
             case 2:
             case 3:
             case 6:
                 // Mode6 TEST AH,05/JP selects mode3 on equal, greater or
                 // unordered; the strictly-less fall-through selects mode2.
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, Current
@@ -648,6 +918,32 @@ namespace
                     mov dword ptr [edx + 8], 0
                 TangentPairDone:
                 }
+#else
+                {
+                    // Mode 6: TEST AH,05h / JP not taken (Current->Value < Next->Value,
+                    // ordered) selects the incoming tangent.
+                    bool bIncoming;
+                    if (TangentMode == 2)
+                        bIncoming = true;
+                    else if (TangentMode == 3)
+                        bIncoming = false;
+                    else
+                        bIncoming = !X87ParityEven(X87CompareFlags(Current->Value, Next->Value) & 0x05);
+                    // DeltaV / (DeltaT * 0.5), FDIVR.
+                    const float Slope = static_cast<float>(static_cast<double>(DeltaV) /
+                                                           (static_cast<double>(DeltaT) * static_cast<double>(G_ScalarHalfFloat)));
+                    if (bIncoming)
+                    {
+                        Current->MOut = 0.0f;
+                        Next->MIn = Slope;
+                    }
+                    else
+                    {
+                        Current->MOut = Slope;
+                        Next->MIn = 0.0f;
+                    }
+                }
+#endif
                 break;
             default:
                 break;
@@ -779,7 +1075,12 @@ namespace
             // The typed worker preserves its result in 80-bit output storage.
             // Pass the original argument address: no FP load before worker comparisons.
             EvaluateExtended(&T, &Result);
+#if defined(_M_IX86)
             __asm { fld tbyte ptr Result }
+#else
+            // The x64 ABI returns a float in XMM0: the value is rounded to float here.
+            return static_cast<float>(ThornLoadExtended(Result));
+#endif
         }
 #pragma warning(pop)
 
@@ -795,6 +1096,7 @@ namespace
             int Remainder;
             float Normalized;
             // Same 2f810 signed division and mandatory argument rounding.
+#if defined(_M_IX86)
             __asm
             {
                 mov eax, A
@@ -805,6 +1107,10 @@ namespace
                 fidiv B
                 fstp dword ptr Normalized
             }
+#else
+            Remainder = A % B;
+            Normalized = static_cast<float>(static_cast<double>(Remainder) / static_cast<double>(B));
+#endif
             EvaluateToExtended(&Normalized, Output);
         }
 
@@ -824,6 +1130,7 @@ namespace
             // Match the parity branches, including unordered. TEST AH,05/JP
             // retains unordered; TEST AH,44/JP bypasses the endpoint-ID gate
             // on unequal OR unordered. A NaN time is not rejected here.
+#if defined(_M_IX86)
             __asm
             {
                 mov ecx, Id
@@ -873,6 +1180,39 @@ namespace
                 mov bAccepted, 0
             ReplaceTimeDone:
             }
+#else
+            double Time;
+            if (Id == 0)
+            {
+                Time = Zero;
+            }
+            else if (Id == 1)
+            {
+                Time = One;
+            }
+            else
+            {
+                Time = F0;
+                if ((X87CompareFlags(Time, One) & 0x41) == 0)
+                {
+                    // TEST AH,41h / JNZ not taken: F0 > 1 (ordered).
+                    Time = One;
+                }
+                else if (!X87ParityEven(X87CompareFlags(Time, Zero) & 0x05))
+                {
+                    // TEST AH,05h / JP not taken: F0 < 0 (ordered).
+                    Time = Zero;
+                }
+            }
+            // TEST AH,44h / JP not taken: ordered equality with the endpoint.
+            bAccepted = 1;
+            if (!X87ParityEven(X87CompareFlags(Time, EndpointZero) & 0x44) && Id != 0)
+                bAccepted = 0;
+            else if (!X87ParityEven(X87CompareFlags(Time, EndpointOne) & 0x44) && Id != 1)
+                bAccepted = 0;
+            if (bAccepted)
+                TargetT = static_cast<float>(Time);
+#endif
             if (!bAccepted)
                 return 0;
             Key->T = TargetT;
@@ -909,6 +1249,7 @@ namespace
             int TimeClass;
             // 2f560..2f5f0: reject strictly outside, select only ordered
             // endpoint equality; unordered reaches new-key construction.
+#if defined(_M_IX86)
             __asm
             {
                 fld F0
@@ -943,6 +1284,18 @@ namespace
                 mov TimeClass, 1
             AddTimeDone:
             }
+#else
+            if (!X87ParityEven(X87CompareFlags(F0, Zero) & 0x05))
+                TimeClass = -1; // TEST AH,05h / JNP: F0 < 0
+            else if ((X87CompareFlags(F0, One) & 0x41) == 0)
+                TimeClass = -1; // TEST AH,41h / JZ: F0 > 1
+            else if (!X87ParityEven(X87CompareFlags(F0, Zero) & 0x44))
+                TimeClass = 0; // TEST AH,44h / JNP: F0 == 0
+            else if (!X87ParityEven(X87CompareFlags(F0, One) & 0x44))
+                TimeClass = 1; // TEST AH,44h / JNP: F0 == 1
+            else
+                TimeClass = 3;
+#endif
             if (TimeClass < 0)
                 return -1;
 
@@ -1036,6 +1389,7 @@ namespace
             float Normalized;
             // 2f810: signed IDIV (including both hardware fault cases), then
             // integer x87 normalization and ONE float store before slot3.
+#if defined(_M_IX86)
             __asm
             {
                 mov eax, A
@@ -1046,6 +1400,10 @@ namespace
                 fidiv B
                 fstp dword ptr Normalized
             }
+#else
+            Remainder = A % B;
+            Normalized = static_cast<float>(static_cast<double>(Remainder) / static_cast<double>(B));
+#endif
             return Evaluate(Normalized);
         }
 #pragma warning(pop)
@@ -1114,6 +1472,7 @@ namespace
                 unsigned char bInsertBefore;
                 // TEST AH,41/JNP breaks on less/equal. Greater/unordered
                 // have even parity and advance; no C++ float comparison.
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, NewTime
@@ -1124,6 +1483,9 @@ namespace
                     test ah, 41h
                     setnp bInsertBefore
                 }
+#else
+                bInsertBefore = X87ParityEven(X87CompareFlags(*NewTime, *ExistingTime) & 0x41) ? 0 : 1;
+#endif
                 if (bInsertBefore)
                     break;
                 InsertAt = InsertAt + 1;
@@ -1244,6 +1606,7 @@ namespace
                 const float* KeyTime = &Key->T;
                 unsigned char bGreater;
                 unsigned char bEqual;
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, KeyTime
@@ -1254,6 +1617,9 @@ namespace
                     test ah, 41h
                     setz bGreater
                 }
+#else
+                bGreater = (X87CompareFlags(*KeyTime, *T) & 0x41) == 0 ? 1 : 0;
+#endif
                 if (bGreater)
                 {
                     if (Previous == EvaluationKeys_.end())
@@ -1261,6 +1627,7 @@ namespace
                     EvaluateCatmull(Previous, Key, T, Output);
                     return;
                 }
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, KeyTime
@@ -1271,6 +1638,9 @@ namespace
                     test ah, 44h
                     setnp bEqual
                 }
+#else
+                bEqual = X87ParityEven(X87CompareFlags(*KeyTime, *T) & 0x44) ? 0 : 1;
+#endif
                 if (bEqual)
                 {
                     StoreParamFloat(Output, &Key->Value);
@@ -1293,6 +1663,7 @@ namespace
             {
                 const float* KeyTime = &Key->T;
                 unsigned char bGreater;
+#if defined(_M_IX86)
                 __asm
                 {
                     mov ecx, KeyTime
@@ -1303,6 +1674,9 @@ namespace
                     test ah, 41h
                     setz bGreater
                 }
+#else
+                bGreater = (X87CompareFlags(*KeyTime, *T) & 0x41) == 0 ? 1 : 0;
+#endif
                 if (bGreater)
                 {
                     if (Previous == EvaluationKeys_.end())
@@ -1327,6 +1701,7 @@ namespace
             const float* T1 = &Right->T;
             float U;
             // 2f266..2f285: extended subtracts/divide, then one FSTP DWORD.
+#if defined(_M_IX86)
             __asm
             {
                 mov eax, T0
@@ -1339,6 +1714,10 @@ namespace
                 fdivp st(1), st(0)
                 fstp U
             }
+#else
+            U = static_cast<float>((static_cast<double>(*T) - static_cast<double>(*T0)) /
+                                   (static_cast<double>(*T1) - static_cast<double>(*T0)));
+#endif
             const float* P0 = nullptr;
             const float* P3 = nullptr;
             FParamEvaluationList::const_iterator Outside = Left;

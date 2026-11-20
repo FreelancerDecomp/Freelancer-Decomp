@@ -274,6 +274,7 @@ static int real_constant (FuncState *fs, const real *Number) {
   while (--c >= lim) {
     if (ttype(&cnt[c]) == LUA_T_NUMBER) {
       const real *ExistingNumber = &nvalue(&cnt[c]);
+#if defined(_M_IX86)
       unsigned short ComparisonStatus;
       /* Retail 06f53ff1 returns on C3 after one signaling FCOMP.
          Two C comparisons add a waiting FLD before this return. */
@@ -286,6 +287,12 @@ static int real_constant (FuncState *fs, const real *Number) {
       }
       if (ComparisonStatus & 0x4000)
         return c;
+#else
+      /* C3: equal, or unordered (a NaN on either side). */
+      if (*ExistingNumber == *Number || *ExistingNumber != *ExistingNumber ||
+          *Number != *Number)
+        return c;
+#endif
     }
   }
   /* not found; create a new entry */
@@ -300,6 +307,7 @@ static int real_constant (FuncState *fs, const real *Number) {
 /* Actual Debug/Release ordinary C candidates changed the recovered waiting
    reload and collapsed the equality stages. These three owned x87 regions
    preserve 53f11..59; every compiler/CRT/parser call remains ordinary C. */
+#if defined(_M_IX86)
 static void code_number (LexState *ls, const real *Number) {
   static const real Zero = 0;
   static const real Maximum = (real)MAX_WORD;
@@ -361,6 +369,27 @@ static void code_number (LexState *ls, const real *Number) {
   }
   code_constant(ls, real_constant(ls->fs, Number));
 }
+#else
+static void code_number (LexState *ls, const real *Number) {
+  static const real Maximum = (real)MAX_WORD;
+  const real Value = *Number;
+  /* FCOMP zero / TEST AH,01: negative or unordered takes FCHS. */
+  const int bNegativeOrNaN = (Value < 0.0 || Value != Value);
+  const real Absolute = bNegativeOrNaN ? -Value : Value;
+  /* Each TEST AH,41h / JZ rejects only an ordered "greater"; a NaN passes. */
+  if (!(0.0 > Absolute) && !(Absolute > Maximum)) {
+    /* A NaN truncates to the qword indefinite, whose low DWORD is zero. */
+    const __int64 Integral = (Absolute != Absolute) ? 0 : (__int64)Absolute;
+    const int Converted = (int)(unsigned int)Integral;
+    /* C3: equal, or unordered. */
+    if ((real)Converted == Absolute || Absolute != Absolute) {
+      code_oparg(ls, bNegativeOrNaN ? PUSHNUMBERNEG : PUSHNUMBER, Converted, 1);
+      return;
+    }
+  }
+  code_constant(ls, real_constant(ls->fs, Number));
+}
+#endif
 
 
 static void flush_record (LexState *ls, int n) {

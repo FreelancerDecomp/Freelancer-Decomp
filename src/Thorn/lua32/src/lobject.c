@@ -156,7 +156,9 @@ __declspec(noinline) int LuaParseSignedNumberObject (char *Text, int Sign,
   /* Retail 06f4ce3e discards its retained operand with waiting FSTP ST0.
   ** Optimized C consumes that operand earlier and otherwise returns before
   ** an unmasked payload-store trap.  Preserve this proved waiting boundary. */
+#if defined(_M_IX86)
   __asm { fwait }
+#endif
   return 0;
 }
 

@@ -509,6 +509,7 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
             real *LeftNumber = &nvalue(l);
             /* Retail loads right before FSUBR. Optimized C loads/quietens left
                first and changes NaN payloads and unmasked invalid state. */
+#if defined(_M_IX86)
             __asm {
               mov eax, RightNumber
               mov ecx, LeftNumber
@@ -516,6 +517,9 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
               fsubr qword ptr [ecx]
               fstp qword ptr [ecx]
             }
+#else
+            *LeftNumber = *LeftNumber - *RightNumber;
+#endif
           --S->top;
         }
         break;
@@ -543,6 +547,7 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
             real *LeftNumber = &nvalue(l);
             /* Same right-load requirement as retail 06f4db47; C/volatile C
                retain the demonstrated optimized operand-order mismatch. */
+#if defined(_M_IX86)
             __asm {
               mov eax, RightNumber
               mov ecx, LeftNumber
@@ -550,6 +555,9 @@ StkId luaV_execute (Closure *cl, TProtoFunc *tf, StkId base) {
               fdivr qword ptr [ecx]
               fstp qword ptr [ecx]
             }
+#else
+            *LeftNumber = *LeftNumber / *RightNumber;
+#endif
           --S->top;
         }
         break;

@@ -6,12 +6,19 @@
 
 #pragma once
 
+#if !defined(_M_IX86)
+// Port-only x64 build (docs/x64.md): portable versions of the x87 blocks below. Each value the
+// x87 keeps on its stack is a double; it becomes a float only where the asm stores it.
+#include <cmath>
+#endif
+
 // Private Thorn arithmetic. FUN_06f21000 and its vector helpers retain
 // extended x87 values only where the retail listing omits a float store.
 namespace ThornSplineMath
 {
     inline void Scale(float* Dst, const float* Src, float Factor)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Src
@@ -26,10 +33,20 @@ namespace ThornSplineMath
             fstp dword ptr [eax + 4]
             fstp dword ptr [eax + 8]
         }
+#else
+        // All three products are formed before the first store.
+        const double ProductZ = static_cast<double>(Factor) * Src[2];
+        const double ProductY = static_cast<double>(Factor) * Src[1];
+        const double ProductX = static_cast<double>(Factor) * Src[0];
+        Dst[0] = static_cast<float>(ProductX);
+        Dst[1] = static_cast<float>(ProductY);
+        Dst[2] = static_cast<float>(ProductZ);
+#endif
     }
 
     inline void Add(float* Dst, const float* A, const float* B)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -45,10 +62,19 @@ namespace ThornSplineMath
             fstp dword ptr [eax + 4]
             fstp dword ptr [eax + 8]
         }
+#else
+        const double SumZ = static_cast<double>(A[2]) + B[2];
+        const double SumY = static_cast<double>(A[1]) + B[1];
+        const double SumX = static_cast<double>(A[0]) + B[0];
+        Dst[0] = static_cast<float>(SumX);
+        Dst[1] = static_cast<float>(SumY);
+        Dst[2] = static_cast<float>(SumZ);
+#endif
     }
 
     inline void SubtractVector(float* Dst, const float* A, const float* B)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -64,10 +90,19 @@ namespace ThornSplineMath
             fstp dword ptr [eax + 4]
             fstp dword ptr [eax + 8]
         }
+#else
+        const double DifferenceZ = static_cast<double>(A[2]) - B[2];
+        const double DifferenceY = static_cast<double>(A[1]) - B[1];
+        const double DifferenceX = static_cast<double>(A[0]) - B[0];
+        Dst[0] = static_cast<float>(DifferenceX);
+        Dst[1] = static_cast<float>(DifferenceY);
+        Dst[2] = static_cast<float>(DifferenceZ);
+#endif
     }
 
     inline void DoubleStored(float* Dst, const float* Src)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Src
@@ -82,11 +117,20 @@ namespace ThornSplineMath
             fadd st(0), st(0)
             fstp dword ptr [eax]
         }
+#else
+        const double SourceZ = Src[2];
+        Dst[2] = static_cast<float>(SourceZ + SourceZ);
+        const double SourceY = Src[1];
+        Dst[1] = static_cast<float>(SourceY + SourceY);
+        const double SourceX = Src[0];
+        Dst[0] = static_cast<float>(SourceX + SourceX);
+#endif
     }
 
     // Inlined operations in 21000 evaluate/store Z, Y, X in that order.
     inline void Subtract(float* Dst, const float* A, const float* B)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -102,10 +146,16 @@ namespace ThornSplineMath
             fsub dword ptr [edx]
             fstp dword ptr [eax]
         }
+#else
+        Dst[2] = static_cast<float>(static_cast<double>(A[2]) - B[2]);
+        Dst[1] = static_cast<float>(static_cast<double>(A[1]) - B[1]);
+        Dst[0] = static_cast<float>(static_cast<double>(A[0]) - B[0]);
+#endif
     }
 
     inline void AddStored(float* Dst, const float* A, const float* B)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -121,10 +171,16 @@ namespace ThornSplineMath
             fadd dword ptr [edx]
             fstp dword ptr [eax]
         }
+#else
+        Dst[2] = static_cast<float>(static_cast<double>(A[2]) + B[2]);
+        Dst[1] = static_cast<float>(static_cast<double>(A[1]) + B[1]);
+        Dst[0] = static_cast<float>(static_cast<double>(A[0]) + B[0]);
+#endif
     }
 
     inline void Negate(float* Dst, const float* Src)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Src
@@ -139,10 +195,19 @@ namespace ThornSplineMath
             fstp dword ptr [eax + 4]
             fstp dword ptr [eax + 8]
         }
+#else
+        const double NegatedZ = -static_cast<double>(Src[2]);
+        const double NegatedY = -static_cast<double>(Src[1]);
+        const double NegatedX = -static_cast<double>(Src[0]);
+        Dst[0] = static_cast<float>(NegatedX);
+        Dst[1] = static_cast<float>(NegatedY);
+        Dst[2] = static_cast<float>(NegatedZ);
+#endif
     }
 
     inline void ScaleStored(float* Dst, const float* Src, float Factor)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Src
@@ -157,10 +222,16 @@ namespace ThornSplineMath
             fmul Factor
             fstp dword ptr [eax]
         }
+#else
+        Dst[2] = static_cast<float>(static_cast<double>(Src[2]) * Factor);
+        Dst[1] = static_cast<float>(static_cast<double>(Src[1]) * Factor);
+        Dst[0] = static_cast<float>(static_cast<double>(Src[0]) * Factor);
+#endif
     }
 
     inline void NegateStored(float* Dst, const float* Src)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Src
@@ -175,6 +246,11 @@ namespace ThornSplineMath
             fchs
             fstp dword ptr [eax]
         }
+#else
+        Dst[2] = static_cast<float>(-static_cast<double>(Src[2]));
+        Dst[1] = static_cast<float>(-static_cast<double>(Src[1]));
+        Dst[0] = static_cast<float>(-static_cast<double>(Src[0]));
+#endif
     }
 
     inline void CatmullRom3D(const float* P0, const float* P1, const float* P2,
@@ -182,6 +258,7 @@ namespace ThornSplineMath
     {
         float U2;
         float U3;
+#if defined(_M_IX86)
         __asm
         {
             fld U
@@ -190,6 +267,12 @@ namespace ThornSplineMath
             fmul U
             fstp U3
         }
+#else
+        // FST U2 rounds a copy; U^3 is formed from the unrounded U^2.
+        const double USquared = static_cast<double>(U) * U;
+        U2 = static_cast<float>(USquared);
+        U3 = static_cast<float>(USquared * U);
+#endif
         float TwiceP1[3], MinusP0[3], Delta[3], Linear[3];
         float FourP2[3], FiveP1[3], TwiceP0[3], Quadratic[3];
         float ThreeP2[3], ThreeP1[3], Cubic[3], Sum[3];
@@ -215,6 +298,7 @@ namespace ThornSplineMath
         AddStored(Sum, Linear, Sum);         // 2132b..21352
         const float Half = 0.5f;
         float RoundedZ;
+#if defined(_M_IX86)
         __asm
         {
             lea ecx, TwiceP1
@@ -236,6 +320,15 @@ namespace ThornSplineMath
             fmul Half
             fstp dword ptr [eax + 8]
         }
+#else
+        const double SumX = static_cast<double>(TwiceP1[0]) + Sum[0];
+        const double SumY = static_cast<double>(TwiceP1[1]) + Sum[1];
+        const double SumZ = static_cast<double>(TwiceP1[2]) + Sum[2];
+        RoundedZ = static_cast<float>(SumZ);
+        ResultVector[0] = static_cast<float>(SumX * Half);
+        ResultVector[1] = static_cast<float>(SumY * Half);
+        ResultVector[2] = static_cast<float>(static_cast<double>(RoundedZ) * Half);
+#endif
     }
     // 23145/23181, 232c5/23301, and 2347c/234b8 zero-extend the
     // sample-index dword before FILD qword, then store the float product.
@@ -243,12 +336,16 @@ namespace ThornSplineMath
     {
         const unsigned long long UnsignedIndex = static_cast<unsigned int>(Index);
         float Result;
+#if defined(_M_IX86)
         __asm
         {
             fild qword ptr UnsignedIndex
             fmul Step
             fstp Result
         }
+#else
+        Result = static_cast<float>(static_cast<double>(UnsignedIndex) * Step);
+#endif
         return Result;
     }
 
@@ -260,6 +357,7 @@ namespace ThornSplineMath
         float XResult;
         float YResult;
         float ZResult;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -296,6 +394,24 @@ namespace ThornSplineMath
             mov dword ptr [eax + 8], edx
             fstp st(0)
         }
+#else
+        const double DifferenceX = static_cast<double>(B[0]) - A[0];
+        const double DifferenceY = static_cast<double>(B[1]) - A[1];
+        const double DifferenceZ = static_cast<double>(B[2]) - A[2];
+        ZDifference = static_cast<float>(DifferenceZ);
+        XProduct = static_cast<float>(DifferenceX * Fraction);
+        const double YProduct = DifferenceY * Fraction;
+        const double ZProduct = static_cast<double>(ZDifference) * Fraction;
+        XResult = static_cast<float>(static_cast<double>(A[0]) + XProduct);
+        // Each A element is loaded before the previous result word is published.
+        const double AY = A[1];
+        ResultVector[0] = XResult;
+        YResult = static_cast<float>(AY + YProduct);
+        const double AZ = A[2];
+        ResultVector[1] = YResult;
+        ZResult = static_cast<float>(AZ + ZProduct);
+        ResultVector[2] = ZResult;
+#endif
     }
 
     inline void CatmullRomTangent3D(const float* P0, const float* P1, const float* P2,
@@ -312,6 +428,7 @@ namespace ThornSplineMath
         Add(Quadratic, Quadratic, FourP2);   // 21491
         Subtract(Quadratic, Quadratic, P3);  // 21496..214c3
         // 214cb..21501 keeps 2U extended across all three products.
+#if defined(_M_IX86)
         __asm
         {
             lea eax, Quadratic
@@ -328,6 +445,12 @@ namespace ThornSplineMath
             fstp dword ptr [eax]
             fstp st(0)
         }
+#else
+        const double TwiceU = static_cast<double>(U) + U;
+        Quadratic[2] = static_cast<float>(Quadratic[2] * TwiceU);
+        Quadratic[1] = static_cast<float>(Quadratic[1] * TwiceU);
+        Quadratic[0] = static_cast<float>(Quadratic[0] * TwiceU);
+#endif
         ScaleStored(ThreeP2, P2, 3.0f);      // 21508..21531
         ScaleStored(ThreeP1, P1, 3.0f);      // 21539..21566
         NegateStored(MinusP0, P0);           // 2156e..2158b
@@ -336,6 +459,7 @@ namespace ThornSplineMath
         AddStored(Cubic, Cubic, P3);         // 21609..21635
         const float Three = 3.0f;
         // 2163d..2167b never stores U^2 or 3U^2 before multiplication.
+#if defined(_M_IX86)
         __asm
         {
             lea eax, Cubic
@@ -353,10 +477,17 @@ namespace ThornSplineMath
             fstp dword ptr [eax]
             fstp st(0)
         }
+#else
+        const double ThreeUSquared = static_cast<double>(U) * U * Three;
+        Cubic[2] = static_cast<float>(Cubic[2] * ThreeUSquared);
+        Cubic[1] = static_cast<float>(Cubic[1] * ThreeUSquared);
+        Cubic[0] = static_cast<float>(Cubic[0] * ThreeUSquared);
+#endif
         AddStored(Sum, Quadratic, Cubic);    // 21682..216a9
         AddStored(Sum, Delta, Sum);          // 216b1..216d8
         const float Half = 0.5f;
         const float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             lea ecx, Sum
@@ -397,5 +528,17 @@ namespace ThornSplineMath
             fmul dword ptr [eax + 8]
             fstp dword ptr [eax + 8]
         }
+#else
+        ResultVector[0] = static_cast<float>(static_cast<double>(Sum[0]) * Half);
+        ResultVector[1] = static_cast<float>(static_cast<double>(Sum[1]) * Half);
+        ResultVector[2] = static_cast<float>(static_cast<double>(Sum[2]) * Half);
+        const double X = ResultVector[0];
+        const double Y = ResultVector[1];
+        const double Z = ResultVector[2];
+        const double Inverse = One / std::sqrt((X * X + Y * Y) + Z * Z);
+        ResultVector[0] = static_cast<float>(Inverse * ResultVector[0]);
+        ResultVector[1] = static_cast<float>(Inverse * ResultVector[1]);
+        ResultVector[2] = static_cast<float>(Inverse * ResultVector[2]);
+#endif
     }
 }
