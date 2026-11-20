@@ -551,7 +551,10 @@ namespace
             LARGE_INTEGER Counter;
             QueryPerformanceCounter(&Counter);
             const uint64_t Seed = (uint64_t)Counter.QuadPart ^ ((uint64_t)GetCurrentProcessId() << 32);
-            Server = std::make_unique<DPNet::FServer>(*this, *this);
+            // The callback bases are private; convert here, where they are accessible.
+            DPNet::ITransport& Transport = *this;
+            DPNet::IServerEvents& Events = *this;
+            Server = std::make_unique<DPNet::FServer>(Transport, Events);
             if (!Server->Host(ToAppDesc(*Desc), NowMs(), Seed))
             {
                 Server.reset();
