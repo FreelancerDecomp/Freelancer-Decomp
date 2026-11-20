@@ -62,6 +62,9 @@
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\content.h" />
