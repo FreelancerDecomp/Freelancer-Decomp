@@ -325,3 +325,61 @@ jobs:
               throw "RpcCodecTest output differs from the base commit. If the change is intended, add the label 'codecs: expected change'."
             }
           }
+
+  dedicated:
+    name: Dedicated server (FLDedicated)
+    needs: [build, data]
+    runs-on: windows-2022
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore game data
+        uses: actions/cache/restore@v4
+        with:
+          path: DATA
+          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          fail-on-cache-miss: true
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-win32
+          path: bin
+
+      # RemoteClient hosts through DirectPlay 8, an optional Windows component that Windows
+      # Server does not install by default.
+      - name: Enable DirectPlay
+        shell: pwsh
+        run: |
+          $feature = Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue
+          if ($feature -and -not $feature.Installed) {
+            Install-WindowsFeature -Name Direct-Play | Format-List | Out-String | Write-Host
+          } elseif (-not $feature) {
+            Enable-WindowsOptionalFeature -Online -FeatureName DirectPlay -All -NoRestart | Out-Null
+          }
+          Write-Host "DirectPlay: $((Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue).InstallState)"
+
+      # Starts the server, lets it run for 20 seconds, stops it and checks the log for the
+      # startup and shutdown lines.
+      - name: Start, run and stop
+        shell: pwsh
+        working-directory: bin
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $proc = Start-Process -FilePath .\FLDedicated.exe -PassThru -NoNewWindow `
+            -ArgumentList '--name', 'CI', '--max-players', '4', '--run-for', '20' `
+            -RedirectStandardOutput dedicated_out.txt -RedirectStandardError dedicated_err.txt
+          $null = $proc.Handle  # keeps ExitCode readable after the process ends
+          if (-not $proc.WaitForExit(300000)) {
+            $proc.Kill()
+            Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
+            throw 'FLDedicated did not stop within 5 minutes'
+          }
+          Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
+          if ($proc.ExitCode -ne 0) { throw "FLDedicated exited with code $($proc.ExitCode)" }
+          $log = Get-Content -Raw dedicated_out.txt
+          foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
+            if (-not $log.Contains($line)) { throw "missing from the log: $line" }
+          }

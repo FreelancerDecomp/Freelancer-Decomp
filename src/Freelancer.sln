@@ -92,6 +92,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLRegress", "FLRegress\FLRe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RpcCodecTest", "RpcCodecTest\RpcCodecTest.vcxproj", "{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLDedicated", "FLDedicated\FLDedicated.vcxproj", "{F5B79638-C977-4E81-BD1B-11325F3F0F59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -345,6 +347,12 @@ Global
 		{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}.DebugASan|Win32.Build.0 = DebugASan|Win32
 		{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}.Release|Win32.ActiveCfg = Release|Win32
 		{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}.Release|Win32.Build.0 = Release|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.Debug|Win32.Build.0 = Debug|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.DebugASan|Win32.ActiveCfg = DebugASan|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.DebugASan|Win32.Build.0 = DebugASan|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.Release|Win32.ActiveCfg = Release|Win32
+		{F5B79638-C977-4E81-BD1B-11325F3F0F59}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
