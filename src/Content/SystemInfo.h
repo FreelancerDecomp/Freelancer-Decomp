@@ -20,9 +20,11 @@
 #include "NpcCreate.h"      // FSolarNpc (FSystemInfo +0x88)
 #include "EncounterParams.h" // FZoneEncounter (zone +0x38), FEncounterParameters (+0x120)
 
+#include <concepts>
 #include <cstdlib>
 #include <list>
 #include <map>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -272,6 +274,8 @@ bool __cdecl IsPointInViewCone(Vector const* Point, FSpaceObjPlacement const* Vi
 // equal) is taken. An empty range, a zero sum or no match give End, which the retail callers
 // dereference as it is.
 template <typename T, typename WeightFn>
+    requires std::invocable<WeightFn&, T&> &&
+             std::convertible_to<std::invoke_result_t<WeightFn&, T&>, double>
 T* PickByWeight(T* Begin, T* End, WeightFn GetWeight)
 {
     double Sum = 0.0;

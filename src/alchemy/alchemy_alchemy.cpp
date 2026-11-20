@@ -11,6 +11,7 @@
 #include "alchemy_genericfx.h"
 
 #include <cstdio>
+#include <concepts>
 #include <cstdlib>
 #include <cstring>
 #include <new>
@@ -31,6 +32,7 @@ namespace AlchemyImpl
         // (stopping at StartNode) looking for an uncle sibling. Shared here
         // so each gap only supplies its own per-node dispatch.
         template <typename VisitFn>
+            requires std::predicate<VisitFn&, IDAComponent*>
         void WalkNodePreOrder(IDAComponent* StartNode, VisitFn&& Visit)
         {
             IDAComponent* Node = StartNode;
