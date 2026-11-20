@@ -6,6 +6,9 @@
 
 #include "Thorn.h"
 #include "SplineMath.h"
+#if !defined(_M_IX86)
+#include "ThornX87.h"
+#endif
 
 #include <cmath>
 #include <cstdio>
@@ -97,6 +100,7 @@ namespace
     void QuatInverseScaleRetail(const FQuat& Q, float& Scale)
     {
         const float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Scale
@@ -115,6 +119,14 @@ namespace
             fdivr One
             fstp dword ptr [ecx]
         }
+#else
+        const double X = Q.X;
+        const double Y = Q.Y;
+        const double Z = Q.Z;
+        const double W = Q.W;
+        const double SumSquares = ((X * X + Y * Y) + Z * Z) + W * W;
+        Scale = static_cast<float>(One / SumSquares);
+#endif
     }
 
     // Debug C++ rounds Product to double before doubling: actual PC64
@@ -123,6 +135,7 @@ namespace
     {
         const float One = 1.0f;
         float Blend;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, T
@@ -132,6 +145,10 @@ namespace
             fadd st(0), st(0)
             fstp Blend
         }
+#else
+        const double Product = (One - static_cast<double>(T[0])) * T[0];
+        Blend = static_cast<float>(Product + Product);
+#endif
         return Blend;
     }
 
@@ -145,6 +162,7 @@ namespace
         std::memcpy(Scratch + 3, &Tangent, sizeof(Tangent));
         const float One = 1.0f;
         const float Zero = 0.0f;
+#if defined(_M_IX86)
         __asm
         {
             lea edx, Scratch
@@ -247,6 +265,48 @@ namespace
             fstp dword ptr [edx + 40h]
             fstp dword ptr [edx + 4ch]
         }
+#else
+        // Scratch[n] is the dword at [edx + 4n]; double locals are the x87 stack.
+        const double Inverse = One / std::sqrt((static_cast<double>(Scratch[5]) * Scratch[5] +
+                                                static_cast<double>(Scratch[4]) * Scratch[4]) +
+                                               static_cast<double>(Scratch[3]) * Scratch[3]);
+        Scratch[3] = static_cast<float>(Scratch[3] * Inverse);
+        Scratch[4] = static_cast<float>(Scratch[4] * Inverse);
+        Scratch[5] = static_cast<float>(Scratch[5] * Inverse);
+        Scratch[3] = static_cast<float>(-static_cast<double>(Scratch[3]));
+        Scratch[4] = static_cast<float>(-static_cast<double>(Scratch[4]));
+        Scratch[5] = static_cast<float>(-static_cast<double>(Scratch[5]));
+        const double ZeroY = static_cast<double>(Scratch[4]) * Zero;
+        Scratch[6] = static_cast<float>(Scratch[5] - ZeroY);
+        const double ZeroX = static_cast<double>(Scratch[3]) * Zero;
+        const double ZeroZ = static_cast<double>(Scratch[5]) * Zero;
+        Scratch[7] = static_cast<float>(ZeroX - ZeroZ);
+        const double CrossZ = ZeroY - Scratch[3];
+        Scratch[8] = static_cast<float>(CrossZ);
+        const double CrossInverse = One / std::sqrt((CrossZ * Scratch[8] +
+                                                     static_cast<double>(Scratch[7]) * Scratch[7]) +
+                                                    static_cast<double>(Scratch[6]) * Scratch[6]);
+        Scratch[26] = static_cast<float>(CrossInverse);
+        const double RightX = static_cast<double>(Scratch[6]) * Scratch[26];
+        const double RightY = static_cast<double>(Scratch[7]) * Scratch[26];
+        Scratch[8] = static_cast<float>(static_cast<double>(Scratch[8]) * Scratch[26]);
+        const double UpX = static_cast<double>(Scratch[4]) * Scratch[8] - Scratch[5] * RightY;
+        Scratch[10] = static_cast<float>(Scratch[5] * RightX -
+                                         static_cast<double>(Scratch[3]) * Scratch[8]);
+        const double UpZ = Scratch[3] * RightY - Scratch[4] * RightX;
+        Scratch[11] = static_cast<float>(UpZ);
+        const double UpInverse = One / std::sqrt((UpZ * Scratch[11] +
+                                                  static_cast<double>(Scratch[10]) * Scratch[10]) +
+                                                 UpX * UpX);
+        Scratch[26] = static_cast<float>(UpInverse);
+        const double ScaledUpX = UpX * Scratch[26];
+        const double ScaledUpY = static_cast<double>(Scratch[10]) * Scratch[26];
+        Scratch[23] = static_cast<float>(static_cast<double>(Scratch[11]) * Scratch[26]);
+        Scratch[17] = static_cast<float>(ScaledUpX);
+        Scratch[20] = static_cast<float>(ScaledUpY);
+        Scratch[16] = static_cast<float>(RightX);
+        Scratch[19] = static_cast<float>(RightY);
+#endif
         std::memcpy(Scratch + 18, Scratch + 3, sizeof(float));
         std::memcpy(Scratch + 21, Scratch + 4, sizeof(float));
         std::memcpy(Scratch + 24, Scratch + 5, sizeof(float));
@@ -409,6 +469,7 @@ namespace
                                        const float& GlobalOffset, float& SegmentLength,
                                        float& SampleTime)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Cur
@@ -445,6 +506,20 @@ namespace
             mov edx, SampleTime
             fstp dword ptr [edx]
         }
+#else
+        const double DifferenceX = static_cast<double>(Cur.X) - Prev.X;
+        const double DifferenceY = static_cast<double>(Cur.Y) - Prev.Y;
+        const double CurZ = Cur.Z;
+        std::memcpy(&Prev.X, &Cur.X, sizeof(float));
+        const double DifferenceZ = CurZ - Prev.Z;
+        std::memcpy(&Prev.Z, &Cur.Z, sizeof(float));
+        std::memcpy(&Prev.Y, &Cur.Y, sizeof(float));
+        const double Norm = std::sqrt((DifferenceZ * DifferenceZ + DifferenceY * DifferenceY) +
+                                      DifferenceX * DifferenceX);
+        const double Length = Norm + SegmentLength;
+        SegmentLength = static_cast<float>(Length);
+        SampleTime = static_cast<float>(Length + GlobalOffset);
+#endif
     }
 
     // Observe pending exceptions after Total is stored and before Time is published.
@@ -460,6 +535,7 @@ namespace
     {
         const float One = 1.0f;
         const int Count = G_SamplesPerSegment;
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Table
@@ -475,6 +551,11 @@ namespace
             jnz NormalizeSample
             fstp st(0)
         }
+#else
+        const double Inverse = One / static_cast<double>(Total);
+        for (int Index = 0; Index < Count; ++Index)
+            Table[Index] = static_cast<float>(Inverse * Table[Index]);
+#endif
     }
 
     void LerpVec3(const FVec3& A, const FVec3& B, float F, FVec3& Out)
@@ -499,6 +580,7 @@ namespace
         // The intrinsic C++ candidate changes PC24/RC_DOWN output bits and
         // spills Inverse to qword in Debug. 341cc..34215 retains it through
         // all three float stores; 342b5..342f7 uses the same arithmetic.
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Vector
@@ -523,6 +605,14 @@ namespace
             fstp dword ptr [edx + 8]
             fstp st(0)
         }
+#else
+        const double Inverse = One / std::sqrt((static_cast<double>(Vector.Z) * Vector.Z +
+                                                static_cast<double>(Vector.Y) * Vector.Y) +
+                                               static_cast<double>(Vector.X) * Vector.X);
+        Vector.X = static_cast<float>(Vector.X * Inverse);
+        Vector.Y = static_cast<float>(Vector.Y * Inverse);
+        Vector.Z = static_cast<float>(Vector.Z * Inverse);
+#endif
     }
 
     void CrossLookAtVector(FVec3& Result, const FVec3& A, const FVec3& B, bool bReverseOrder)
@@ -532,6 +622,7 @@ namespace
         // changes operand stages and output before an unmasked exception.
         // A direct output reference also avoids Release NRVO losing the
         // local aggregate written through an asm LEA.
+#if defined(_M_IX86)
         __asm
         {
             mov edx, A
@@ -588,6 +679,24 @@ namespace
             fstp st(0)
         LookAtCrossDone:
         }
+#else
+        // All of B is loaded first; A is read as each component is formed.
+        const double BX = B.X;
+        const double BY = B.Y;
+        const double BZ = B.Z;
+        if (!bReverseOrder)
+        {
+            Result.X = static_cast<float>(A.Z * BY - A.Y * BZ);
+            Result.Y = static_cast<float>(A.X * BZ - A.Z * BX);
+            Result.Z = static_cast<float>(A.Y * BX - A.X * BY);
+        }
+        else
+        {
+            Result.Z = static_cast<float>(A.X * BY - A.Y * BX);
+            Result.Y = static_cast<float>(A.Z * BX - A.X * BZ);
+            Result.X = static_cast<float>(A.Y * BZ - A.Z * BY);
+        }
+#endif
     }
 
     void BuildLookAtFromTangent(const FVec3& Tangent, float* OutXform)
@@ -622,6 +731,7 @@ namespace
         // 3435d..343d2: the Z product precedes the first caller store, its
         // float store follows it. Ordinary Release publishes output before
         // its unmasked invalid exception; retain this arithmetic/store span.
+#if defined(_M_IX86)
         __asm
         {
             lea edx, AxisZ
@@ -674,12 +784,37 @@ namespace
             mov eax, dword ptr [edx + 8]
             mov dword ptr [ecx + 32], eax
         }
+#else
+        const double Inverse = One / std::sqrt((static_cast<double>(AxisZ.X) * AxisZ.X +
+                                                static_cast<double>(AxisZ.Y) * AxisZ.Y) +
+                                               static_cast<double>(AxisZ.Z) * AxisZ.Z);
+        AxisZ.X = static_cast<float>(AxisZ.X * Inverse);
+        AxisZ.Y = static_cast<float>(AxisZ.Y * Inverse);
+        const double ProductZ = AxisZ.Z * Inverse;
+        std::memcpy(OutXform, &Forward.X, sizeof(float));
+        AxisZ.Z = static_cast<float>(ProductZ);
+        std::memcpy(OutXform + 1, &AxisY.X, sizeof(float));
+        std::memcpy(OutXform + 3, &Forward.Y, sizeof(float));
+        std::memcpy(OutXform + 6, &Forward.Z, sizeof(float));
+        std::memcpy(OutXform + 4, &AxisY.Y, sizeof(float));
+        std::memcpy(OutXform + 7, &AxisY.Z, sizeof(float));
+        const double NegatedZ = -static_cast<double>(AxisZ.Z);
+        const double NegatedY = -static_cast<double>(AxisZ.Y);
+        const double NegatedX = -static_cast<double>(AxisZ.X);
+        AxisZ.X = static_cast<float>(NegatedX);
+        AxisZ.Y = static_cast<float>(NegatedY);
+        AxisZ.Z = static_cast<float>(NegatedZ);
+        std::memcpy(OutXform + 5, &AxisZ.Y, sizeof(float));
+        std::memcpy(OutXform + 2, &AxisZ.X, sizeof(float));
+        std::memcpy(OutXform + 8, &AxisZ.Z, sizeof(float));
+#endif
     }
 
     void QuatAdd(FQuat& Dst, const FQuat& A, const FQuat& B)
     {
         // Ordinary double temporaries spill to qword in Debug. At PC64,
         // 1 + 2^-60 then traps on that spill before the retail W publication.
+#if defined(_M_IX86)
         __asm
         {
             mov edx, A
@@ -698,6 +833,16 @@ namespace
             fstp dword ptr [edx + 8]
             fstp dword ptr [edx + 12]
         }
+#else
+        const double SumZ = static_cast<double>(A.Z) + B.Z;
+        const double SumY = static_cast<double>(A.Y) + B.Y;
+        const double SumX = static_cast<double>(A.X) + B.X;
+        const double SumW = static_cast<double>(A.W) + B.W;
+        Dst.W = static_cast<float>(SumW);
+        Dst.X = static_cast<float>(SumX);
+        Dst.Y = static_cast<float>(SumY);
+        Dst.Z = static_cast<float>(SumZ);
+#endif
     }
 
     void QuatScale(FQuat& Dst, const FQuat& Q, float S)
@@ -708,6 +853,7 @@ namespace
         float Z;
         // Release C++ retained S and reversed the first three FMUL operands:
         // the differential probe found NaN payload and denormal flag changes.
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Q
@@ -733,6 +879,17 @@ namespace
             mov eax, Z
             mov dword ptr [edx + 12], eax
         }
+#else
+        W = static_cast<float>(static_cast<double>(S) * Q.W);
+        X = static_cast<float>(static_cast<double>(S) * Q.X);
+        Y = static_cast<float>(static_cast<double>(S) * Q.Y);
+        const double ProductZ = static_cast<double>(S) * Q.Z;
+        Dst.W = W;
+        Dst.X = X;
+        Z = static_cast<float>(ProductZ);
+        Dst.Y = Y;
+        Dst.Z = Z;
+#endif
     }
 
     // FUN_06f24070 is conjugation, with a raw retained W and negated XYZ.
@@ -784,6 +941,7 @@ namespace
         // The intrinsic candidate spills Z before publishing X/Y: with a
         // denormal Z and unmasked DE, both builds trap before those stores.
         // 241ce..241f0 publishes X/Y between the Z product and its float store.
+#if defined(_M_IX86)
         __asm
         {
             fld Angle
@@ -828,6 +986,34 @@ namespace
             mov bFallback, 1
         LogArithmeticDone:
         }
+#else
+        const double Sine = X87Sin(Angle);
+        // FCOM Epsilon; FNSTSW AX; TEST AH,1; JNZ: C0 is set for "less" and for unordered.
+        if ((X87CompareFlags(Sine, Epsilon) & 0x01) != 0)
+        {
+            bFallback = true;
+        }
+        else
+        {
+            const double Ratio = Angle / Sine;
+            if (bRoundScale)
+            {
+                Scale = static_cast<float>(Ratio);
+            }
+            else
+            {
+                X = static_cast<float>(Ratio * Q.X);
+                Y = static_cast<float>(Ratio * Q.Y);
+                const double ProductZ = Ratio * Q.Z;
+                Dst.X = X;
+                Dst.Y = Y;
+                Z = static_cast<float>(ProductZ);
+                const unsigned int Zero = 0;
+                std::memcpy(&Dst.W, &Zero, sizeof(Zero));
+                Dst.Z = Z;
+            }
+        }
+#endif
         if (bFallback)
         {
             const unsigned int Zero = 0;
@@ -864,6 +1050,7 @@ namespace
         bool bScaleVector = false;
         // Intrinsic C++ changes FSIN/FCOS results and drops the float scale
         // boundary in Release; the root PC/RC probe confirms numeric cases.
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Q
@@ -890,6 +1077,20 @@ namespace
             fstp st(0)
         FirstExpVectorReady:
         }
+#else
+        const double X = Q.X;
+        const double Y = Q.Y;
+        const double Z = Q.Z;
+        const double RetainedNorm = std::sqrt((X * X + Y * Y) + Z * Z);
+        Norm = static_cast<float>(RetainedNorm);
+        const double Sine = X87Sin(RetainedNorm);
+        // FCOM Epsilon; FNSTSW AX; TEST AH,1; JNZ: C0 is set for "less" and for unordered.
+        if ((X87CompareFlags(Sine, Epsilon) & 0x01) == 0)
+        {
+            Scale = static_cast<float>(Sine / Norm);
+            bScaleVector = true;
+        }
+#endif
         FQuat Result;
         if (bScaleVector)
             ThornSplineMath::Scale(&Result.X, &Q.X, Scale);
@@ -900,12 +1101,16 @@ namespace
             std::memcpy(&Result.Z, &Q.Z, sizeof(float));
         }
         // FCOS follows Scale3D, and consumes its explicit float norm.
+#if defined(_M_IX86)
         __asm
         {
             fld Norm
             fcos
             fstp Result.W
         }
+#else
+        Result.W = X87CosF(Norm);
+#endif
         std::memcpy(&Dst, &Result, sizeof(Result));
     }
 
@@ -920,6 +1125,7 @@ namespace
         Result.X = Q.X;
         Result.Y = Q.Y;
         Result.Z = Q.Z;
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Q
@@ -978,6 +1184,35 @@ namespace
             fstp dword ptr [ecx]
         ExpDone:
         }
+#else
+        const double X = Q.X;
+        const double Y = Q.Y;
+        const double Z = Q.Z;
+        const double RetainedNorm = std::sqrt((X * X + Y * Y) + Z * Z);
+        Norm = static_cast<float>(RetainedNorm);
+        const double Sine = X87Sin(bKeepNormForSin ? RetainedNorm : static_cast<double>(Norm));
+        // FCOM Epsilon; FNSTSW AX; TEST AH,1; JNZ: C0 is set for "less" and for unordered.
+        if ((X87CompareFlags(Sine, Epsilon) & 0x01) == 0)
+        {
+            const double Ratio = Sine / Norm;
+            Result.X = static_cast<float>(Ratio * Q.X);
+            Result.Y = static_cast<float>(Ratio * Q.Y);
+            Result.Z = static_cast<float>(Ratio * Q.Z);
+            Result.W = X87CosF(Norm);
+        }
+        else if (bKeepNormForSin)
+        {
+            Result.W = X87CosF(Norm);
+        }
+        else
+        {
+            // FLD/FSTP copy: a signaling NaN comes out quiet.
+            Result.W = X87CosF(Norm);
+            X87CopyFloat(&Result.X, &Q.X);
+            X87CopyFloat(&Result.Y, &Q.Y);
+            X87CopyFloat(&Result.Z, &Q.Z);
+        }
+#endif
         Dst = Result;
     }
 
@@ -1939,6 +2174,7 @@ namespace
         // before a signalling Y; retail instead reaches Y and traps invalid.
         static void SubtractGhostVector(FVec3& OutputVector, const FVec3& A, const FVec3& B)
         {
+#if defined(_M_IX86)
             __asm
             {
                 mov eax, A
@@ -1954,6 +2190,14 @@ namespace
                 fstp dword ptr [edx + 4]
                 fstp dword ptr [edx + 8]
             }
+#else
+            const double DifferenceZ = static_cast<double>(A.Z) - B.Z;
+            const double DifferenceY = static_cast<double>(A.Y) - B.Y;
+            const double DifferenceX = static_cast<double>(A.X) - B.X;
+            OutputVector.X = static_cast<float>(DifferenceX);
+            OutputVector.Y = static_cast<float>(DifferenceY);
+            OutputVector.Z = static_cast<float>(DifferenceZ);
+#endif
         }
 
         // OPEN construction uses CR at 0.1/0.9, with different endpoint staging.
@@ -1981,6 +2225,7 @@ namespace
             // Release reassociates the ordinary C++ additions and selects
             // different NaN payloads (58 concrete probe mismatches).
             // Keep only this arithmetic/publication sequence bounded here.
+#if defined(_M_IX86)
             __asm
             {
                 mov ecx, LastPoint
@@ -2007,6 +2252,18 @@ namespace
                 mov eax, Z
                 mov dword ptr [edx + 8], eax
             }
+#else
+            const double DifferenceX = static_cast<double>(LastPoint->X) - GhostPoint->X;
+            const double DifferenceY = static_cast<double>(LastPoint->Y) - GhostPoint->Y;
+            DifferenceZ = static_cast<float>(static_cast<double>(LastPoint->Z) - GhostPoint->Z);
+            X = static_cast<float>(DifferenceX + LastPoint->X);
+            Y = static_cast<float>(DifferenceY + LastPoint->Y);
+            const double SumZ = static_cast<double>(DifferenceZ) + LastPoint->Z;
+            GhostPoint->X = X;
+            GhostPoint->Y = Y;
+            Z = static_cast<float>(SumZ);
+            GhostPoint->Z = Z;
+#endif
         }
 
         void ApplyLoadedQuats(const FQuat* Quats, int Count)

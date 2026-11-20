@@ -1128,6 +1128,26 @@ Vector INI_Reader::get_vector()
     return Result;
 }
 
+#if !defined(_M_IX86)
+namespace
+{
+    // x64 versions of get_state / set_state's pointer <-> offset conversion (see there).
+    int BiniStateOffset(void const* Pointer, std::uintptr_t Base)
+    {
+        if (Pointer == nullptr)
+            return -1;
+        return (int)((std::uintptr_t)Pointer - Base);
+    }
+
+    void const* BiniStatePointer(int Offset, std::uintptr_t Base)
+    {
+        if (Offset < 0)
+            return nullptr;
+        return (void const*)(Base + (std::uintptr_t)Offset);
+    }
+}
+#endif
+
 void INI_Reader::get_state(State& Out) const
 {
     // .text:06310f00. BINI writes five fields over the start of State: +0 tell(), +4 block -
@@ -1139,10 +1159,19 @@ void INI_Reader::get_state(State& Out) const
         // Pointer -> offset as integer arithmetic: a null pointer gives a negative offset.
         std::uintptr_t const Base = (std::uintptr_t)Bini.View;
         Out.Cursor = Bini.tell();
+#if defined(_M_IX86)
         Out.Bini.BlockOffset = (int)((std::uintptr_t)Bini.Block - Base);
         Out.Bini.ValueIndex = Bini.ValueIndex;
         Out.Bini.ValueOffset = (int)((std::uintptr_t)Bini.Value - Base);
         Out.Bini.ParamsOffset = (int)((std::uintptr_t)Bini.Params - Base);
+#else
+        // x64: "null minus the view" only wraps back to null in a 32-bit address space, so a
+        // null pointer is saved as -1 (a pointer into the view is never below it).
+        Out.Bini.BlockOffset = BiniStateOffset(Bini.Block, Base);
+        Out.Bini.ValueIndex = Bini.ValueIndex;
+        Out.Bini.ValueOffset = BiniStateOffset(Bini.Value, Base);
+        Out.Bini.ParamsOffset = BiniStateOffset(Bini.Params, Base);
+#endif
         return;
     }
 
@@ -1163,10 +1192,17 @@ void INI_Reader::set_state(State const& In)
         // Offset -> pointer as integer arithmetic (also without a view, as in retail).
         std::uintptr_t const Base = (std::uintptr_t)Bini.View;
         Bini.seek(In.Cursor);
+#if defined(_M_IX86)
         Bini.Block = (BINI_Block const*)(Base + In.Bini.BlockOffset);
         Bini.ValueIndex = In.Bini.ValueIndex;
         Bini.Value = (BINI_Value const*)(Base + In.Bini.ValueOffset);
         Bini.Params = (FBiniParam const*)(Base + In.Bini.ParamsOffset);
+#else
+        Bini.Block = (BINI_Block const*)BiniStatePointer(In.Bini.BlockOffset, Base);
+        Bini.ValueIndex = In.Bini.ValueIndex;
+        Bini.Value = (BINI_Value const*)BiniStatePointer(In.Bini.ValueOffset, Base);
+        Bini.Params = (FBiniParam const*)BiniStatePointer(In.Bini.ParamsOffset, Base);
+#endif
         return;
     }
 

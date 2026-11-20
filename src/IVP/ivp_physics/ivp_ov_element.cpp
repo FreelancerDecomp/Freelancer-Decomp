@@ -1540,7 +1540,7 @@ void IVP_Mindist_Manager::RebuildOvElement(IVP_Real_Object* Object)
 
     Object->ov_element = nullptr; // :0634f1b0
 
-    void* Raw = ::operator new(0x30);                    // :0634f1ae-:0634f1ba
+    void* Raw = ::operator new(FL_RETAIL_NEW_SIZE(0x30, IVP_OV_Element));                    // :0634f1ae-:0634f1ba
     Object->ov_element = (Raw != nullptr)                 // :0634f1c6/:0634f1d0
                        ? new (Raw) IVP_OV_Element(Object) // :0634f1d5
                        : nullptr;                         // LAB_0634f1dc

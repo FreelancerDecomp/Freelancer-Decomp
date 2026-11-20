@@ -20,6 +20,10 @@
 #include <string>
 #include <cstdint>
 
+#if !defined(_M_IX86)
+#include "ThornX87.h"
+#endif
+
 extern "C"
 {
 #include "lua.h"
@@ -96,10 +100,13 @@ namespace
     int LuaMillisecondsToRetailInt(lua_Object Object)
     {
         const double Scale = 1000.0;
+#if defined(_M_IX86)
         unsigned short OldControl;
         unsigned short ChopControl;
+#endif
         long long Result;
         const double Number = lua_getnumber(Object);
+#if defined(_M_IX86)
         __asm {
             fld qword ptr Number
             fmul qword ptr Scale
@@ -111,6 +118,9 @@ namespace
             fistp qword ptr Result
             fldcw OldControl
         }
+#else
+        Result = X87TruncateToInt64(Number * Scale);
+#endif
         return static_cast<int>(static_cast<unsigned int>(Result));
     }
 
@@ -127,10 +137,13 @@ namespace
 
     int LuaNumberToRetailInt(lua_Object Object)
     {
+#if defined(_M_IX86)
         unsigned short OldControl;
         unsigned short ChopControl;
+#endif
         long long Result;
         const double Number = lua_getnumber(Object);
+#if defined(_M_IX86)
         __asm {
             fld qword ptr Number
             fwait
@@ -143,6 +156,9 @@ namespace
             fistp qword ptr Result
             fldcw OldControl
         }
+#else
+        Result = X87TruncateToInt64(Number);
+#endif
         return static_cast<int>(static_cast<unsigned int>(Result));
     }
 
@@ -155,6 +171,7 @@ namespace
     // 2819c..281bf loads the next float before publishing the preceding int.
     void StoreLightColorIntegers(const float* Source, int* Output)
     {
+#if defined(_M_IX86)
         unsigned short OldControl;
         unsigned short ChopControl;
         long long Result;
@@ -198,6 +215,14 @@ namespace
             mov eax, dword ptr Result
             mov dword ptr [edx + 8], eax
         }
+#else
+        // FLD dword is exact; each FISTP qword under chop publishes its low DWORD.
+        for (int Index = 0; Index < 3; ++Index)
+        {
+            const long long Result = X87TruncateToInt64(static_cast<double>(Source[Index]));
+            Output[Index] = static_cast<int>(static_cast<unsigned int>(Result));
+        }
+#endif
     }
 
     void ScaleLightAngle(const float* Source, float* Destination)
@@ -680,6 +705,7 @@ namespace
         const unsigned long long ZeroBits = 0;
         unsigned char Result;
         const double Number = lua_getnumber(Object);
+#if defined(_M_IX86)
         __asm {
             fld qword ptr Number
             fcomp qword ptr ZeroBits
@@ -693,6 +719,11 @@ namespace
         FogByteStore:
             mov Result, al
         }
+#else
+        // JNP is taken when exactly one of C2/C3 is set: ordered equality.
+        (void)ZeroBits;
+        Result = (X87CompareFlags(Number, 0.0) & 0x44) == 0x40 ? 0 : 1;
+#endif
         return Result;
     }
 
@@ -774,10 +805,14 @@ namespace
         lua_pushobject(Table);
         const unsigned long long IntegerIndex = Index;
         double Number;
+#if defined(_M_IX86)
         __asm {
             fild qword ptr IntegerIndex
             fstp qword ptr Number
         }
+#else
+        Number = static_cast<double>(static_cast<long long>(IntegerIndex));
+#endif
         lua_pushnumber(Number);
         return lua_gettable();
     }
@@ -801,10 +836,14 @@ namespace
     {
         const unsigned long long IntegerIndex = Index;
         float FloatIndex;
+#if defined(_M_IX86)
         __asm {
             fild qword ptr IntegerIndex
             fstp dword ptr FloatIndex
         }
+#else
+        FloatIndex = static_cast<float>(static_cast<long long>(IntegerIndex));
+#endif
         return GetLightFloatIndex(Table, &FloatIndex);
     }
 
@@ -825,6 +864,7 @@ namespace
         StoreLuaNumberFloat(GetIndexOrNil(Table, 2.0), &Coordinates[1]);
         const lua_Object Z = GetIndexOrNil(Table, 3.0);
         const double Number = lua_getnumber(Z);
+#if defined(_M_IX86)
         __asm {
             fld qword ptr Number
             fld dword ptr Coordinates[0]
@@ -834,6 +874,12 @@ namespace
             fstp dword ptr [edx + 8]
             mov dword ptr [edx + 4], ecx
         }
+#else
+        // X goes through FLD/FSTP dword; Y is a raw DWORD copy.
+        X87CopyFloat(&Output[0], &Coordinates[0]);
+        Output[2] = static_cast<float>(Number);
+        std::memcpy(&Output[1], &Coordinates[1], sizeof(float));
+#endif
         return true;
     }
 
@@ -1120,6 +1166,7 @@ namespace
             // Actual C++ Debug/Release publishes R/G before FILD blue and
             // B/alpha before mask800. Retail24b80..95 instead publishes R/G
             // after FILD blue, then mask800 before its waiting FSTP32.
+#if defined(_M_IX86)
             __asm
             {
                 mov ecx, Colors
@@ -1148,6 +1195,20 @@ namespace
                 mov esi, dword ptr [ebx + 0ch]
                 mov dword ptr [edx + 0ch], esi
             }
+#else
+            float ColorScale;
+            std::memcpy(&ColorScale, &ColorScaleBits, sizeof(ColorScale));
+            ColorBits[3] = 0x3f800000u;
+            for (int Index = 0; Index < 3; ++Index)
+            {
+                const float Scaled = static_cast<float>(
+                    static_cast<double>(Colors[Index]) * static_cast<double>(ColorScale));
+                std::memcpy(&ColorBits[Index], &Scaled, sizeof(Scaled));
+            }
+            std::memcpy(&Diffuse[0], &ColorBits[0], 2 * sizeof(float));
+            *Mask = EntryMask | 0x800;
+            std::memcpy(&Diffuse[2], &ColorBits[2], 2 * sizeof(float));
+#endif
         }
         const int InfiniteMask = *Mask;
         if ((InfiniteMask & kThornLightBitInfinite) != 0)
@@ -1166,6 +1227,7 @@ namespace
             // Actual optimized C++ compares zero to cutoff and executes a
             // waiting FSTP on the unordered return path. Retail24be4..c10
             // has no waiting instruction after FNSTSW/TEST AH,05/JP.
+#if defined(_M_IX86)
             __asm
             {
                 mov ecx, Cutoff
@@ -1175,6 +1237,11 @@ namespace
                 test ah, 05h
                 setnp bOrderedNegative
             }
+#else
+            // SETNP: exactly one of C0/C2 set, i.e. ordered less than zero.
+            const unsigned char Flags = X87CompareFlags(static_cast<double>(*Cutoff), 0.0) & 0x05;
+            bOrderedNegative = (Flags == 0x01 || Flags == 0x04) ? 1 : 0;
+#endif
             if (bOrderedNegative != 0)
             {
                 Props->Type = 1;
@@ -1227,6 +1294,7 @@ namespace
         // Actual Debug emits FUCOMPP for C++ !=, even with local /fp:except:
         // that omits retail's invalid flag for quiet NaN. Only this ordered
         // comparison is explicit; the Lua function call remains ordinary C++.
+#if defined(_M_IX86)
         __asm
         {
             fld qword ptr Number
@@ -1235,6 +1303,10 @@ namespace
             test ah, 44h
             setp bResult
         }
+#else
+        // SETP: none or both of C2/C3 set, i.e. anything but ordered equality.
+        bResult = (X87CompareFlags(Number, Zero) & 0x44) != 0x40 ? 1 : 0;
+#endif
         return bResult != 0;
     }
 
@@ -1336,10 +1408,13 @@ namespace
     {
         const int bNil = lua_isnil(Object);
         const unsigned int ScaleBits = 0x447a0000u;
+#if defined(_M_IX86)
         unsigned short OldControl;
         unsigned short ChopControl;
+#endif
         long long Result;
         const double Number = bNil != 0 ? 0.0 : lua_getnumber(Object);
+#if defined(_M_IX86)
         __asm {
             fld qword ptr Number
             fmul dword ptr ScaleBits
@@ -1353,6 +1428,11 @@ namespace
             fistp qword ptr Result
             fldcw OldControl
         }
+#else
+        float Scale;
+        std::memcpy(&Scale, &ScaleBits, sizeof(Scale));
+        Result = X87TruncateToInt64(Number * static_cast<double>(Scale));
+#endif
         return static_cast<int>(static_cast<unsigned int>(Result));
     }
 
@@ -1360,6 +1440,7 @@ namespace
     // before publishing X; the third conversion consumes the retained Z.
     void StoreSceneAmbientIntegers(const float* Source, void* Output)
     {
+#if defined(_M_IX86)
         unsigned short OldControl;
         unsigned short ChopControl;
         long long Result;
@@ -1403,6 +1484,16 @@ namespace
             mov eax, dword ptr Result
             mov dword ptr [edx + 8], eax
         }
+#else
+        // Output may be unaligned packet storage; publish X, Y, then the retained Z.
+        unsigned char* const Bytes = static_cast<unsigned char*>(Output);
+        for (int Index = 0; Index < 3; ++Index)
+        {
+            const long long Result = X87TruncateToInt64(static_cast<double>(Source[Index]));
+            const unsigned int Bits = static_cast<unsigned int>(Result);
+            std::memcpy(Bytes + Index * 4, &Bits, sizeof(Bits));
+        }
+#endif
     }
 
     void LoadSceneEntityDesc(lua_Object Table, FThornEntitySnap* Descriptor)

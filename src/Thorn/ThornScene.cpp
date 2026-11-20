@@ -24,6 +24,22 @@
 #include <vector>
 #include <windows.h>
 
+#if !defined(_M_IX86)
+#include "ThornX87.h"
+
+namespace
+{
+    // PF after FNSTSW AX; TEST AH,mask: set when the masked condition bits have even parity.
+    bool X87ParityEven(unsigned int Masked)
+    {
+        unsigned int Count = 0;
+        for (; Masked != 0; Masked &= Masked - 1)
+            ++Count;
+        return (Count & 1u) == 0;
+    }
+}
+#endif
+
 // Playback: slots 19/22/23/26 + Start types 1РІР‚вЂњ19. docs/re/thorn.md.
 
 namespace
@@ -160,6 +176,7 @@ namespace
     // FUN_06f2ecc0: keep Z/Y/X differences on x87 until every input is read.
     void Cross3(float* Result, const float* A, const float* B)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, A
@@ -184,12 +201,22 @@ namespace
             fstp dword ptr [eax+4]
             fstp dword ptr [eax+8]
         }
+#else
+        // All inputs are read before the first store.
+        const double Z = static_cast<double>(A[0]) * B[1] - static_cast<double>(A[1]) * B[0];
+        const double Y = static_cast<double>(A[2]) * B[0] - static_cast<double>(B[2]) * A[0];
+        const double X = static_cast<double>(A[1]) * B[2] - static_cast<double>(A[2]) * B[1];
+        Result[0] = static_cast<float>(X);
+        Result[1] = static_cast<float>(Y);
+        Result[2] = static_cast<float>(Z);
+#endif
     }
 
     // FUN_06f2ec80: (X*X + Y*Y) + Z*Z, then extended reciprocal.
     void Normalize3(float* V)
     {
         const float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, V
@@ -219,11 +246,21 @@ namespace
             fmul dword ptr [eax+8]
             fstp dword ptr [eax+8]
         }
+#else
+        const double X = V[0];
+        const double Y = V[1];
+        const double Z = V[2];
+        const double Scale = static_cast<double>(One) / std::sqrt((X * X + Y * Y) + Z * Z);
+        V[0] = static_cast<float>(Scale * V[0]);
+        V[1] = static_cast<float>(Scale * V[1]);
+        V[2] = static_cast<float>(Scale * V[2]);
+#endif
     }
 
     // FUN_06f23090: separate input/output, all FLD/FCHS before stores.
     void NegateVector3(float* Result, const float* Source)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Source
@@ -238,6 +275,14 @@ namespace
             fstp dword ptr [eax+4]
             fstp dword ptr [eax+8]
         }
+#else
+        const double Z = -static_cast<double>(Source[2]);
+        const double Y = -static_cast<double>(Source[1]);
+        const double X = -static_cast<double>(Source[0]);
+        Result[0] = static_cast<float>(X);
+        Result[1] = static_cast<float>(Y);
+        Result[2] = static_cast<float>(Z);
+#endif
     }
 
     char* DupHeapString(const char* Src)
@@ -289,6 +334,7 @@ namespace
     void ReadColumn(const float* M9, int Col, float* V)
     {
         const float* Source = M9 + Col;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Source
@@ -300,6 +346,14 @@ namespace
             fstp dword ptr [eax+4]
             fstp dword ptr [eax+8]
         }
+#else
+        const double Z = Source[6];
+        const double Y = Source[3];
+        const double X = Source[0];
+        V[0] = static_cast<float>(X);
+        V[1] = static_cast<float>(Y);
+        V[2] = static_cast<float>(Z);
+#endif
     }
 
     // FUN_06f3b670: load all eight FP words before output; word3 is raw.
@@ -307,6 +361,7 @@ namespace
     void Transpose9(float* Out9, const float* In9)
     {
         unsigned int RawWord;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, In9
@@ -332,6 +387,27 @@ namespace
             fstp dword ptr [eax+1ch]
             fstp dword ptr [eax+20h]
         }
+#else
+        // All eight FP words and the raw word 3 are read before any output.
+        const double W8 = In9[8];
+        std::memcpy(&RawWord, In9 + 3, sizeof(RawWord));
+        const double W5 = In9[5];
+        const double W2 = In9[2];
+        const double W7 = In9[7];
+        const double W4 = In9[4];
+        const double W1 = In9[1];
+        const double W6 = In9[6];
+        const double W0 = In9[0];
+        Out9[0] = static_cast<float>(W0);
+        std::memcpy(Out9 + 1, &RawWord, sizeof(RawWord));
+        Out9[2] = static_cast<float>(W6);
+        Out9[3] = static_cast<float>(W1);
+        Out9[4] = static_cast<float>(W4);
+        Out9[5] = static_cast<float>(W7);
+        Out9[6] = static_cast<float>(W2);
+        Out9[7] = static_cast<float>(W5);
+        Out9[8] = static_cast<float>(W8);
+#endif
     }
 
     // FUN_06f3b9a0: math +0x38 transpose_transform(out, csys.orient, csys.pos).
@@ -568,6 +644,7 @@ namespace
     void NormalizeAxis3(float* V)
     {
         const float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, V
@@ -599,6 +676,15 @@ namespace
             fstp dword ptr [eax+8]
             fstp st(0)
         }
+#else
+        const double X = V[0];
+        const double Y = V[1];
+        const double Z = V[2];
+        const double Scale = static_cast<double>(One) / std::sqrt((X * X + Y * Y) + Z * Z);
+        V[0] = static_cast<float>(static_cast<double>(V[0]) * Scale);
+        V[1] = static_cast<float>(static_cast<double>(V[1]) * Scale);
+        V[2] = static_cast<float>(static_cast<double>(V[2]) * Scale);
+#endif
     }
 
     // Inlined 2e53d/2e7c7/2e737: Up cross Front, Z/Y/X float stores.
@@ -607,6 +693,7 @@ namespace
     {
         const float* LastLeft = bInitial ? Front + 1 : Up + 2;
         const float* LastRight = bInitial ? Up + 2 : Front + 1;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Up
@@ -633,11 +720,19 @@ namespace
             fsubp st(1), st(0)
             fstp dword ptr [eax]
         }
+#else
+        // Each component is stored before the next one's inputs are read.
+        Result[2] = static_cast<float>(static_cast<double>(Front[1]) * Up[0] - static_cast<double>(Up[1]) * Front[0]);
+        Result[1] = static_cast<float>(static_cast<double>(Up[2]) * Front[0] - static_cast<double>(Front[2]) * Up[0]);
+        const double Left = static_cast<double>(Front[2]) * Up[1];
+        Result[0] = static_cast<float>(Left - static_cast<double>(*LastLeft) * *LastRight);
+#endif
     }
 
     // Inlined 2e687/2e85f: Dir cross Side, Z/Y/X float stores.
     void CrossAxisUp3(float* Result, const float* Dir, const float* Side)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Dir
@@ -662,6 +757,12 @@ namespace
             fsubp st(1), st(0)
             fstp dword ptr [eax]
         }
+#else
+        // Each component is stored before the next one's inputs are read.
+        Result[2] = static_cast<float>(static_cast<double>(Side[1]) * Dir[0] - static_cast<double>(Dir[1]) * Side[0]);
+        Result[1] = static_cast<float>(static_cast<double>(Dir[2]) * Side[0] - static_cast<double>(Side[2]) * Dir[0]);
+        Result[0] = static_cast<float>(static_cast<double>(Side[2]) * Dir[1] - static_cast<double>(Side[1]) * Dir[2]);
+#endif
     }
 
     bool AxisDotNotGreater(const float* Up, const float* Dir)
@@ -669,6 +770,7 @@ namespace
         // Raw DAT_06f5a248 = 3fefae147ae147ae (double 0.99).
         const double Threshold = 0.99;
         unsigned char bNotGreater;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Up
@@ -687,6 +789,12 @@ namespace
             test ah, 41h
             setnz bNotGreater
         }
+#else
+        const double Dot = (static_cast<double>(Up[2]) * Dir[2] + static_cast<double>(Up[1]) * Dir[1]) +
+                           static_cast<double>(Up[0]) * Dir[0];
+        // FCOMP qword Threshold; TEST AH,41h; SETNZ.
+        bNotGreater = (X87CompareFlags(std::fabs(Dot), Threshold) & 0x41) != 0 ? 1 : 0;
+#endif
         // TEST AH41/JNZ selects not-greater, including unordered; greater
         // falls through to the near-parallel fallback in the retail listing.
         return bNotGreater != 0;
@@ -838,6 +946,7 @@ namespace
 
     float Lerp1(float A, float B, float T) { return A + (B - A) * T; }
 
+#if defined(_M_IX86)
     // AUDIO 4745e..47588: the private caller keeps one owned progress below
     // capture/result. Ordinary C++ changed FADDP/store and final-pop stages.
     void AudioLerpFloat(const float* From, const float* To, float* Output)
@@ -874,10 +983,29 @@ namespace
         }
     }
 #pragma warning(pop)
+#else
+    // x64: the progress the Win32 caller keeps in ST(0) below these helpers is a parameter.
+    void AudioLerpFloat(double Progress, const float* From, const float* To, float* Output)
+    {
+        const double FromValue = *From;
+        const double Difference = static_cast<double>(*To) - FromValue;
+        *Output = static_cast<float>(Difference * Progress + FromValue);
+    }
+
+    // 47500/47534: wrapped32 SUB zero-extends into FILD qword; FIADD reads signed capture.
+    __declspec(noinline) double ComputeAudioLerpInteger(double Progress, int From, int To)
+    {
+        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
+                                            static_cast<unsigned int>(From);
+        const unsigned long long Difference = DifferenceBits;
+        return static_cast<double>(static_cast<long long>(Difference)) * Progress + static_cast<double>(From);
+    }
+#endif
 
     // 45ce4/45d10/45d35: signed low32 difference, FMUL float U, FIADD From.
     // Actual C++ Debug/Release spilled these operands to double. Only the
     // arithmetic is explicit; the ordinary caller performs the modern cast.
+#if defined(_M_IX86)
 #pragma warning(push)
 #pragma warning(disable: 4716) // The x86 double result is left in ST(0).
     __declspec(noinline) double ComputeLightColor(int From, int To, const float* U)
@@ -894,6 +1022,15 @@ namespace
         }
     }
 #pragma warning(pop)
+#else
+    __declspec(noinline) double ComputeLightColor(int From, int To, const float* U)
+    {
+        const unsigned int DifferenceBits = static_cast<unsigned int>(To) -
+                                            static_cast<unsigned int>(From);
+        const int Difference = static_cast<int>(DifferenceBits);
+        return static_cast<double>(Difference) * *U + static_cast<double>(From);
+    }
+#endif
 
     // FOG 48eb3..48f0c retains both inputs on x87 before FSUB/FMUL/FADD.
     // Normal C++ pointer expressions reload From for FSUB/FADD; float locals
@@ -901,6 +1038,7 @@ namespace
     // ordering. Keep this existing arithmetic-only kernel; it has no calls.
     void FogLerpFloat(const float* From, const float* To, const float* U, float* ResultValue)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov eax, From
@@ -915,6 +1053,11 @@ namespace
             fstp dword ptr [eax]
             fstp st(0)
         }
+#else
+        const double FromValue = *From;
+        const double Difference = static_cast<double>(*To) - FromValue;
+        *ResultValue = static_cast<float>(Difference * *U + FromValue);
+#endif
     }
 
     // FOG 48f17..48f98 wraps SUB as an int32, FILDs that value, then
@@ -925,6 +1068,7 @@ namespace
         long long Result;
         unsigned short OldControl;
         unsigned short ChopControl;
+#if defined(_M_IX86)
         __asm
         {
             mov eax, To
@@ -942,6 +1086,11 @@ namespace
             fistp qword ptr Result
             fldcw OldControl
         }
+#else
+        Difference = static_cast<int>(static_cast<unsigned int>(To) - static_cast<unsigned int>(From));
+        // FISTP qword under the chop control word.
+        Result = X87TruncateToInt64(static_cast<double>(Difference) * *U + static_cast<double>(From));
+#endif
         return static_cast<int>(static_cast<unsigned int>(Result));
     }
 
@@ -1002,6 +1151,7 @@ namespace
         const unsigned int Constant_6f5a250 = 0x3e800000u;
         const unsigned int Constant_6f5a1b8 = 0x3f800000u;
         float Scratch[4];
+#if defined(_M_IX86)
         __asm
         {
             mov edx, Source
@@ -1105,6 +1255,81 @@ namespace
             jmp CompactDone
         CompactDone:
         }
+#else
+        const auto FloatBits = [](unsigned int Bits)
+        {
+            float Value;
+            std::memcpy(&Value, &Bits, sizeof(Value));
+            return Value;
+        };
+        const auto DoubleBits = [](unsigned long long Bits)
+        {
+            double Value;
+            std::memcpy(&Value, &Bits, sizeof(Value));
+            return Value;
+        };
+        // TEST AH,05h: PF is set when the masked bits have even parity (greater, equal,
+        // unordered); only "less" leaves it clear.
+        const auto LessByParity = [](double A, double B)
+        {
+            return (X87CompareFlags(A, B) & 0x05) == 0x01;
+        };
+        const float ByteScale = FloatBits(Constant_6f5a1e8);
+        if (ReadRetailInt(Source, 0x24) != 0)
+        {
+            WriteRetailInt(Target, 0x00, 3);
+        }
+        else if (LessByParity(ReadRetailFloat(Source, 0x1c), FloatBits(Constant_6f5a1d4)))
+        {
+            // JP not taken: strict less.
+            WriteRetailInt(Target, 0x00, 1);
+            WriteRetailInt(Target, 0x60, 0x40490fdb);
+            WriteRetailInt(Target, 0x64, 0x40490fdb);
+        }
+        else
+        {
+            WriteRetailInt(Target, 0x00, 2);
+            double Angle = static_cast<double>(ReadRetailFloat(Source, 0x1c)) * FloatBits(Constant_6f5a230);
+            // JNP skips the clamp only for "less".
+            if (!LessByParity(Angle, DoubleBits(Constant_6f5a270)))
+                Angle = DoubleBits(Constant_6f5a270);
+            WriteRetailFloat(Target, 0x60, static_cast<float>(Angle));
+            Angle = Angle * FloatBits(Constant_6f5a26c);
+            if (!LessByParity(Angle, FloatBits(Constant_6f5a268)))
+                Angle = FloatBits(Constant_6f5a268);
+            WriteRetailFloat(Target, 0x64, static_cast<float>(Angle));
+        }
+        // Compact_6f2eba2: colour bytes through the scratch words, then the fixed fields.
+        WriteRetailInt(reinterpret_cast<unsigned char*>(Scratch), 0x0c, 0x3f800000);
+        Scratch[0] = static_cast<float>(static_cast<double>(ReadRetailInt(Source, 0x00)) * ByteScale);
+        Scratch[1] = static_cast<float>(static_cast<double>(ReadRetailInt(Source, 0x04)) * ByteScale);
+        std::memcpy(Target + 0x04, &Scratch[0], sizeof(float));
+        std::memcpy(Target + 0x08, &Scratch[1], sizeof(float));
+        Scratch[2] = static_cast<float>(static_cast<double>(ReadRetailInt(Source, 0x08)) * ByteScale);
+        std::memcpy(Target + 0x0c, &Scratch[2], sizeof(float));
+        std::memcpy(Target + 0x10, &Scratch[3], sizeof(float));
+        std::memset(Target + 0x14, 0, 0x10);
+        std::memset(Target + 0x24, 0, 0x10);
+        WriteRetailInt(Target, 0x50, 0x3f800000);
+        if (LessByParity(ReadRetailFloat(Source, 0x18), DoubleBits(Constant_6f5a260)))
+        {
+            // JP not taken: strict less.
+            const double Range = std::sqrt(DoubleBits(Constant_6f5a258));
+            WriteRetailInt(Target, 0x58, 0x38d1b717);
+            WriteRetailInt(Target, 0x54, 0);
+            WriteRetailInt(Target, 0x5c, 0);
+            WriteRetailFloat(Target, 0x4c, static_cast<float>(Range));
+        }
+        else
+        {
+            WriteRetailInt(Target, 0x54, 0x3f800000);
+            WriteRetailInt(Target, 0x58, 0);
+            const double Range = ReadRetailFloat(Source, 0x18);
+            const double Attenuation = FloatBits(Constant_6f5a1b8) / (Range * Range * FloatBits(Constant_6f5a250));
+            WriteRetailFloat(Target, 0x5c, static_cast<float>(Attenuation));
+            WriteRetailFloat(Target, 0x4c, static_cast<float>(Range + Range));
+        }
+#endif
     }
 
     void ConvertCompactLight(FThornLightProps* Blob)
@@ -1201,6 +1426,7 @@ namespace
     {
         static constexpr float One = 1.0f;
         unsigned short Status;
+#if defined(_M_IX86)
         __asm
         {
             mov eax, U
@@ -1208,6 +1434,10 @@ namespace
             fcomp dword ptr One
             fnstsw Status
         }
+#else
+        // FCOMP dword One; FNSTSW: the condition bits land in the status word's high byte.
+        Status = static_cast<unsigned short>(X87CompareFlags(*U, One) << 8);
+#endif
         // TEST AH,01 + JNZ skips for less/unordered; equal/greater continue.
         return (Status & 0x0100u) == 0;
     }
@@ -1221,6 +1451,7 @@ namespace
         float DifferenceZ;
         float DeltaX;
         float Result[3];
+#if defined(_M_IX86)
         __asm
         {
             mov eax, To
@@ -1261,6 +1492,25 @@ namespace
             mov eax, dword ptr Result[8]
             mov dword ptr [ecx + 8], eax
         }
+#else
+        std::memcpy(&Capture[0], From, sizeof(float));
+        const double DifferenceX = static_cast<double>(To[0]) - Capture[0];
+        std::memcpy(&Capture[1], From + 1, sizeof(float));
+        std::memcpy(&Capture[2], From + 2, sizeof(float));
+        const double DifferenceY = static_cast<double>(To[1]) - Capture[1];
+        DifferenceZ = static_cast<float>(static_cast<double>(To[2]) - Capture[2]);
+        DeltaX = static_cast<float>(DifferenceX * *U);
+        const double DeltaY = DifferenceY * *U;
+        const double DeltaZ = static_cast<double>(DifferenceZ) * *U;
+        Result[0] = static_cast<float>(static_cast<double>(DeltaX) + Capture[0]);
+        const double SumY = DeltaY + Capture[1];
+        std::memcpy(Out, &Result[0], sizeof(float));
+        Result[1] = static_cast<float>(SumY);
+        const double SumZ = DeltaZ + Capture[2];
+        std::memcpy(Out + 1, &Result[1], sizeof(float));
+        Result[2] = static_cast<float>(SumZ);
+        std::memcpy(Out + 2, &Result[2], sizeof(float));
+#endif
     }
 
     // LAB_06f45890 FPU mask loop. Out starts as live primary; To is target (or secondary live).
@@ -1397,6 +1647,7 @@ namespace
     // final float store; the inputs are current event-owned positions.
     void LerpSpatialPosition(float* ResultPosition, const float* From, const float* To, const float* Scale)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov eax, ResultPosition
@@ -1419,12 +1670,21 @@ namespace
             fadd dword ptr [ecx+8]
             fstp dword ptr [eax+8]
         }
+#else
+        // Each component is stored before the next one's inputs are read.
+        for (int Index = 0; Index < 3; ++Index)
+        {
+            const double Difference = static_cast<double>(To[Index]) - From[Index];
+            ResultPosition[Index] = static_cast<float>(Difference * *Scale + From[Index]);
+        }
+#endif
     }
 
     // 46e6d..46ed8 stores the delta as float, but adds old Applied to the
     // still-extended delta before storing the new accumulator.
     void AccumulateAxisDelta(const float* AnimT, const float* Angle, float* Applied, float* Delta)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov eax, Applied
@@ -1438,6 +1698,12 @@ namespace
             fadd dword ptr [eax]
             fstp dword ptr [eax]
         }
+#else
+        const double Value = static_cast<double>(*AnimT) * *Angle - *Applied;
+        *Delta = static_cast<float>(Value);
+        // FADD reloads Applied after the FST to Delta.
+        *Applied = static_cast<float>(Value + *Applied);
+#endif
     }
 
     // 46eef..46fd7: FCOS is stored to float, FSIN remains on x87 through
@@ -1454,6 +1720,7 @@ namespace
         if (Kind <= 5u)
         {
             float CosValue;
+#if defined(_M_IX86)
             __asm
             {
                 mov eax, DeltaDeg
@@ -1538,6 +1805,47 @@ namespace
             AxisColumnsDone:
                 fstp st(0)
             }
+#else
+            float PiOver180;
+            std::memcpy(&PiOver180, &PiOver180Bits, sizeof(PiOver180));
+            const double Radians = static_cast<double>(*DeltaDeg) * PiOver180;
+            CosValue = X87CosF(Radians);
+            const double SinValue = X87Sin(Radians);
+            const double Cos = CosValue;
+            if (Kind == 0u || Kind == 3u)
+            {
+                // AxisXLoop: rows 1 and 2.
+                for (int Index = 0; Index < 3; ++Index)
+                {
+                    const double Row1 = Rot[3 + Index];
+                    Rot[3 + Index] = static_cast<float>(Cos * Row1 - SinValue * Rot[6 + Index]);
+                    const double Product = Row1 * SinValue;
+                    Rot[6 + Index] = static_cast<float>(Product + Cos * Rot[6 + Index]);
+                }
+            }
+            else if (Kind == 1u || Kind == 4u)
+            {
+                // AxisYLoop: rows 0 and 2.
+                for (int Index = 0; Index < 3; ++Index)
+                {
+                    const double Row0 = Rot[Index];
+                    Rot[Index] = static_cast<float>(SinValue * Rot[6 + Index] + Row0 * Cos);
+                    const double Product = Cos * Rot[6 + Index];
+                    Rot[6 + Index] = static_cast<float>(Product - Row0 * SinValue);
+                }
+            }
+            else
+            {
+                // AxisZLoop: rows 0 and 1.
+                for (int Index = 0; Index < 3; ++Index)
+                {
+                    const double Row0 = Rot[Index];
+                    Rot[Index] = static_cast<float>(Cos * Row0 - SinValue * Rot[3 + Index]);
+                    const double Product = Cos * Rot[3 + Index];
+                    Rot[3 + Index] = static_cast<float>(Product + Row0 * SinValue);
+                }
+            }
+#endif
         }
 
         I3DMathEngine* Math = AcquireSceneEventMathEngine();
@@ -1816,6 +2124,40 @@ namespace
         return Word;
     }
 
+#if !defined(_M_IX86)
+    template <typename T>
+    int ThornFieldAsWord(const T& Field)
+    {
+        static_assert(sizeof(T) == sizeof(int), "an event descriptor word is four bytes");
+        int Word;
+        std::memcpy(&Word, &Field, sizeof(Word));
+        return Word;
+    }
+
+    // START_MOTION's +0x40 byte: retail reads the whole word and keeps its low byte.
+    int ThornFieldAsWord(unsigned char Field)
+    {
+        return Field;
+    }
+#endif
+
+    // Event descriptor reads. Win32 keeps the retail word/byte offsets verbatim; elsewhere
+    // the pointer fields widen and FThornEventDesc grows, so the named field of the typed
+    // struct (thorn_iface.h) is read instead. Arguments are not parenthesized on purpose:
+    // the Win32 expansion is token-for-token the expression it replaced.
+#if defined(_M_IX86)
+#define THORN_EVENT_WORD(Desc, WordIndex, Struct, Field) ReadEventWord(Desc, WordIndex)
+#define THORN_EVENT_POINTER(Desc, WordIndex, Struct, Field) \
+    reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(Desc, WordIndex)))
+#define THORN_EVENT_BYTES(Desc, ByteOffset, Struct, Field) static_cast<const unsigned char*>(Desc) + ByteOffset
+#else
+#define THORN_EVENT_WORD(Desc, WordIndex, Struct, Field) \
+    ThornFieldAsWord(static_cast<const Struct*>(Desc)->Field)
+#define THORN_EVENT_POINTER(Desc, WordIndex, Struct, Field) static_cast<const Struct*>(Desc)->Field
+#define THORN_EVENT_BYTES(Desc, ByteOffset, Struct, Field) \
+    reinterpret_cast<const unsigned char*>(&static_cast<const Struct*>(Desc)->Field)
+#endif
+
     void ApplyMotionPathDesc(FThornEntity* Entity, const FThornMotionPathDesc* Desc)
     {
         // 42900 has one string owner (+d4) and a separate descriptor pointer
@@ -1932,6 +2274,7 @@ namespace
     {
         unsigned char bUseDirection;
         const float Zero = 0.0f;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Target
@@ -1962,6 +2305,21 @@ namespace
             fstp st(0)
             setp bUseDirection
         }
+#else
+        // All six inputs are read before the first store.
+        const double DifferenceZ = static_cast<double>(Target[2]) - Origin[2];
+        const double DifferenceY = static_cast<double>(Target[1]) - Origin[1];
+        const double DifferenceX = static_cast<double>(Target[0]) - Origin[0];
+        DirectionOut[0] = static_cast<float>(DifferenceX);
+        DirectionOut[1] = static_cast<float>(DifferenceY);
+        DirectionOut[2] = static_cast<float>(DifferenceZ);
+        // X is reloaded from the stored float; Y and Z stay unrounded.
+        const double StoredX = DirectionOut[0];
+        const double LengthSquared = (StoredX * DirectionOut[0] + DifferenceY * DifferenceY) +
+                                     DifferenceZ * DifferenceZ;
+        // FCOMP Zero; TEST AH,44h; SETP.
+        bUseDirection = X87ParityEven(X87CompareFlags(LengthSquared, Zero) & 0x44) ? 1 : 0;
+#endif
         return bUseDirection != 0;
     }
 
@@ -2135,6 +2493,7 @@ namespace
     {
         float Argument;
         float* Runtime = &Entity->PsysRuntimeSparam;
+#if defined(_M_IX86)
         __asm {
             mov eax, Value
             fld dword ptr [eax]
@@ -2142,6 +2501,11 @@ namespace
             mov edx, Runtime
             fstp dword ptr [edx]
         }
+#else
+        const double Loaded = *Value;
+        Argument = static_cast<float>(Loaded);
+        *Runtime = static_cast<float>(Loaded);
+#endif
         // The pointer is read only after the runtime float has been published.
         IPSysControl* Control = Entity->PsysControl;
         if (Control != nullptr)
@@ -2161,6 +2525,7 @@ namespace
         float T;
         float Delta;
         float Scale;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Last
@@ -2210,6 +2575,38 @@ namespace
             mov Scale, 0
         SpatialScaleDone:
         }
+#else
+        const double ProgressValue = ThornLoadExtended(*Progress);
+        T = static_cast<float>(ProgressValue);
+        const double Difference = ProgressValue - *Last;
+        Delta = static_cast<float>(Difference);
+        if (!X87ParityEven(X87CompareFlags(Difference, Zero) & 0x44))
+        {
+            // JNP: equal.
+            Scale = 0.0f;
+        }
+        else if (X87ParityEven(X87CompareFlags(T, OneDouble) & 0x05))
+        {
+            // JP: greater, equal or unordered.
+            Scale = 1.0f;
+        }
+        else
+        {
+            const double Remain = static_cast<double>(One) - *Last;
+            if (X87ParityEven(X87CompareFlags(Remain, Zero) & 0x44))
+            {
+                // JP: nonzero or unordered.
+                const double Quotient = static_cast<double>(Delta) / Remain;
+                std::memcpy(Last, &T, sizeof(T));
+                Scale = static_cast<float>(Quotient);
+            }
+            else
+            {
+                Scale = 1.0f;
+                std::memcpy(Last, &T, sizeof(T));
+            }
+        }
+#endif
         // Retail retains exactly the initial FST dword for the later axis pass.
         std::memcpy(RoundedProgress, &T, sizeof(T));
         std::memcpy(ResultScale, &Scale, sizeof(Scale));
@@ -2225,6 +2622,7 @@ namespace
         const double OneDouble = 1.0;
         float Delta;
         float Scale;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Last
@@ -2270,6 +2668,36 @@ namespace
             fstp st(0)
         FloorScaleDone:
         }
+#else
+        const double T = ThornLoadExtended(*Progress);
+        const double Difference = T - *Last;
+        Delta = static_cast<float>(Difference);
+        if (!X87ParityEven(X87CompareFlags(Difference, Zero) & 0x44))
+        {
+            // JNP: equal.
+            Scale = 0.0f;
+        }
+        else if (X87ParityEven(X87CompareFlags(T, OneDouble) & 0x05))
+        {
+            // JP: greater, equal or unordered.
+            Scale = 1.0f;
+        }
+        else
+        {
+            const double Remain = static_cast<double>(One) - *Last;
+            if (X87ParityEven(X87CompareFlags(Remain, Zero) & 0x44))
+            {
+                // JP: nonzero or unordered.
+                Scale = static_cast<float>(static_cast<double>(Delta) / Remain);
+                *Last = static_cast<float>(T);
+            }
+            else
+            {
+                Scale = 1.0f;
+                *Last = static_cast<float>(T);
+            }
+        }
+#endif
         // Transport the stored DWORD without an early x87 denormal load.
         std::memcpy(ScaleOutput, &Scale, sizeof(Scale));
     }
@@ -2278,6 +2706,7 @@ namespace
     {
         // 49b31..49b4a: Capture remains below the unrounded difference/product.
         float Height;
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Capture
@@ -2291,6 +2720,11 @@ namespace
             fstp Height
             fstp st(0)
         }
+#else
+        const double CaptureValue = *Capture;
+        const double Difference = static_cast<double>(*Target) - CaptureValue;
+        Height = static_cast<float>(Difference * *ScaleSource + CaptureValue);
+#endif
         std::memcpy(HeightOutput, &Height, sizeof(Height));
     }
 
@@ -2313,6 +2747,7 @@ namespace
     // Write the final float directly; returning it would add a reload/store.
     void StoreAnimTValue(const FThornExtendedProgress* Progress, float* Output)
     {
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Progress
@@ -2320,6 +2755,9 @@ namespace
             mov ecx, Output
             fstp dword ptr [ecx]
         }
+#else
+        *Output = static_cast<float>(ThornLoadExtended(*Progress));
+#endif
     }
 
     float StoreAnimT(const FThornExtendedProgress* Progress)
@@ -2366,6 +2804,7 @@ namespace
     {
         // 46318..46374: preserve one extended curve result under each pair
         // of loads. Only the final interpolated field receives a float store.
+#if defined(_M_IX86)
         __asm
         {
             mov ecx, Progress
@@ -2416,6 +2855,21 @@ namespace
         CameraInterpolationDone:
             fstp st(0)
         }
+#else
+        const double ProgressValue = ThornLoadExtended(*Progress);
+        // Mask bits in retail order: fov, aspect, near, far.
+        static const int Bits[4] = {1, 8, 2, 4};
+        static const int Fields[4] = {0, 3, 1, 2};
+        for (int Index = 0; Index < 4; ++Index)
+        {
+            if ((Mask & Bits[Index]) == 0)
+                continue;
+            const int Field = Fields[Index];
+            const double Captured = CapturedValues[Field];
+            const double Difference = static_cast<double>(TargetValues[Field]) - Captured;
+            ResultValues[Field] = static_cast<float>(Difference * ProgressValue + Captured);
+        }
+#endif
     }
 
     void CaptureCameraProps(FThornEntity* Entity, float* Out4)
@@ -2830,9 +3284,9 @@ void FThornEvent::ApplyFloorHeightDesc(const void* DescIn)
     TargetType = 0;
     if (ReadEventWord(DescIn, 0) == kThornTypeFloorHeightAnim)
     {
-        std::memcpy(&FloorTarget, static_cast<const unsigned char*>(DescIn) + 44, sizeof(FloorTarget));
-        SetFloorTargetPart(reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 12))));
-        TargetType = ReadEventWord(DescIn, 13);
+        std::memcpy(&FloorTarget, THORN_EVENT_BYTES(DescIn, 44, FThornFloorEventDesc, FloorHeight), sizeof(FloorTarget));
+        SetFloorTargetPart(THORN_EVENT_POINTER(DescIn, 12, FThornFloorEventDesc, TargetPart));
+        TargetType = THORN_EVENT_WORD(DescIn, 13, FThornFloorEventDesc, TargetType);
     }
     // 49677..49696 mirrors common timing/endpoints after the payload work.
     FinalizeDesc();
@@ -3035,7 +3489,7 @@ FThornEvent::FThornEvent(int Type, const void* Desc)
     else if (Type == kThornTypeStartSubScene)
     {
         float StartTimeValue = 0.0f;
-        std::memcpy(&StartTimeValue, static_cast<const unsigned char*>(Desc) + 44, sizeof(StartTimeValue));
+        std::memcpy(&StartTimeValue, THORN_EVENT_BYTES(Desc, 44, FThornSubSceneEventDesc, StartTime), sizeof(StartTimeValue));
         Event->ApplySubSceneDesc(Desc, StartTimeValue);
         // Own constructor publishes the independent ID after the setter.
         Event->Desc.UniqueId = Event->UniqueId;
@@ -3301,7 +3755,7 @@ void FThornEvent::ApplyUserEventDesc(const void* DescIn)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeUserEvent;
     UserEventDesc.ExternalPayloadWord = ReadEventWord(DescIn, 0) == kThornTypeUserEvent
-        ? static_cast<unsigned int>(ReadEventWord(DescIn, 11)) : 0u;
+        ? static_cast<unsigned int>(THORN_EVENT_WORD(DescIn, 11, FThornUserEventDesc, ExternalPayloadWord)) : 0u;
     FinalizeDesc();
 }
 
@@ -3312,7 +3766,7 @@ void FThornEvent::ApplySubtitleDesc(const void* DescIn)
     // FUN_06f49d00 preserves the existing subtitle id on a mismatched
     // descriptor, while the matching type copies dword 11.
     if (ReadEventWord(DescIn, 0) == kThornTypeSubtitle)
-        std::memcpy(&Strid, static_cast<const unsigned char*>(DescIn) + 44, sizeof(Strid));
+        std::memcpy(&Strid, THORN_EVENT_BYTES(DescIn, 44, FThornSubtitleEventDesc, Strid), sizeof(Strid));
     FinalizeDesc();
 }
 
@@ -3322,7 +3776,7 @@ void FThornEvent::ApplySubSceneDesc(const void* DescIn, float StartTimeValue)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeStartSubScene;
     if (ReadEventWord(DescIn, 0) == kThornTypeStartSubScene)
-        std::memcpy(&SubSceneStartTime, static_cast<const unsigned char*>(DescIn) + 44, sizeof(SubSceneStartTime));
+        std::memcpy(&SubSceneStartTime, THORN_EVENT_BYTES(DescIn, 44, FThornSubSceneEventDesc, StartTime), sizeof(SubSceneStartTime));
     else
         SubSceneStartTime = 0.0f;
     FinalizeDesc();
@@ -3353,12 +3807,12 @@ void FThornEvent::ApplyConnectDesc(const void* DescIn)
     if (bMatchingType)
     {
         const char* HardpointName =
-            reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 11)));
+            THORN_EVENT_POINTER(DescIn, 11, FThornConnectEventDesc, Hardpoint);
         if (HardpointName != nullptr)
             SetConnectHardpoint(HardpointName);
         // 48237 reads the second argument after the first string operation.
         const char* ParentHardpointName =
-            reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 12)));
+            THORN_EVENT_POINTER(DescIn, 12, FThornConnectEventDesc, ParentHardpoint);
         if (ParentHardpointName != nullptr)
             SetConnectParentHardpoint(ParentHardpointName);
     }
@@ -3373,11 +3827,11 @@ void FThornEvent::ApplyAttachDesc(const void* DescIn)
     TargetPart = nullptr;
     if (ReadEventWord(DescIn, 0) == kThornTypeAttachEntity)
     {
-        std::memcpy(PathOffset, static_cast<const unsigned char*>(DescIn) + 44, sizeof(PathOffset));
-        TargetType = ReadEventWord(DescIn, 14);
-        LookAtUpAxis = ReadEventWord(DescIn, 15);
-        LookAtFrontAxis = ReadEventWord(DescIn, 16);
-        const char* TargetPartName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 17)));
+        std::memcpy(PathOffset, THORN_EVENT_BYTES(DescIn, 44, FThornAttachEventDesc, Offset), sizeof(PathOffset));
+        TargetType = THORN_EVENT_WORD(DescIn, 14, FThornAttachEventDesc, TargetType);
+        LookAtUpAxis = THORN_EVENT_WORD(DescIn, 15, FThornAttachEventDesc, UpAxis);
+        LookAtFrontAxis = THORN_EVENT_WORD(DescIn, 16, FThornAttachEventDesc, FrontAxis);
+        const char* TargetPartName = THORN_EVENT_POINTER(DescIn, 17, FThornAttachEventDesc, TargetPart);
         if (TargetPartName != nullptr)
         {
             AttachTargetPartStorage.Assign(TargetPartName);
@@ -3407,12 +3861,12 @@ void FThornEvent::ApplyPathAnimDesc(const void* DescIn)
         // DescIn[11..16] are raw IEEE-754 float bit patterns, not integers to
         // convert -- memcpy preserves the bits (same convention as the other
         // float payloads carried past dword 11 in this descriptor format).
-        std::memcpy(&StartPercent, static_cast<const unsigned char*>(DescIn) + 44, sizeof(StartPercent));
-        std::memcpy(&StopPercent, static_cast<const unsigned char*>(DescIn) + 48, sizeof(StopPercent));
-        std::memcpy(&PercentDelta, static_cast<const unsigned char*>(DescIn) + 52, sizeof(PercentDelta));
-        std::memcpy(PathOffset, static_cast<const unsigned char*>(DescIn) + 56, sizeof(PathOffset));
-        LookAtUpAxis = ReadEventWord(DescIn, 17);
-        LookAtFrontAxis = ReadEventWord(DescIn, 18);
+        std::memcpy(&StartPercent, THORN_EVENT_BYTES(DescIn, 44, FThornPathEventDesc, StartPercent), sizeof(StartPercent));
+        std::memcpy(&StopPercent, THORN_EVENT_BYTES(DescIn, 48, FThornPathEventDesc, StopPercent), sizeof(StopPercent));
+        std::memcpy(&PercentDelta, THORN_EVENT_BYTES(DescIn, 52, FThornPathEventDesc, PercentDelta), sizeof(PercentDelta));
+        std::memcpy(PathOffset, THORN_EVENT_BYTES(DescIn, 56, FThornPathEventDesc, Offset), sizeof(PathOffset));
+        LookAtUpAxis = THORN_EVENT_WORD(DescIn, 17, FThornPathEventDesc, LookAtUpAxis);
+        LookAtFrontAxis = THORN_EVENT_WORD(DescIn, 18, FThornPathEventDesc, LookAtFrontAxis);
     }
     else
     {
@@ -3435,11 +3889,11 @@ void FThornEvent::ApplyLightEventDesc(const void* DescIn)
     Desc.Type = kThornTypeLightPropAnim;
     if (ReadEventWord(DescIn, 0) == kThornTypeLightPropAnim)
     {
-        LightMask = ReadEventWord(DescIn, 11);
+        LightMask = THORN_EVENT_WORD(DescIn, 11, FThornLightEventDesc, Mask);
         // 456ac forward REP MOVSD: preserve each DWORD, including any alias
         // with the destination rather than imposing memcpy's non-overlap rule.
         unsigned char* Destination = reinterpret_cast<unsigned char*>(&LightTarget);
-        const unsigned char* Source = reinterpret_cast<const unsigned char*>(static_cast<const unsigned char*>(DescIn) + 48);
+        const unsigned char* Source = reinterpret_cast<const unsigned char*>(THORN_EVENT_BYTES(DescIn, 48, FThornLightEventDesc, Target));
         for (int Index = 0; Index < 0x24; ++Index)
         {
             unsigned int Word;
@@ -3466,21 +3920,21 @@ void FThornEvent::ApplyMotionDesc(const void* DescIn)
     if (ReadEventWord(DescIn, 0) == kThornTypeStartMotion)
     {
         // 43b36..43b63 stores every scalar before either string operation.
-        std::memcpy(&Heading, static_cast<const unsigned char*>(DescIn) + 68, sizeof(Heading));
-        Field_0x40 = static_cast<unsigned char>(ReadEventWord(DescIn, 16));
-        std::memcpy(&MotionStartTime, static_cast<const unsigned char*>(DescIn) + 44, sizeof(MotionStartTime));
-        std::memcpy(&TimeScale, static_cast<const unsigned char*>(DescIn) + 52, sizeof(TimeScale));
-        Field_0x50 = ReadEventWord(DescIn, 20);
-        std::memcpy(&TransTime, static_cast<const unsigned char*>(DescIn) + 48, sizeof(TransTime));
-        std::memcpy(&TransScale, static_cast<const unsigned char*>(DescIn) + 76, sizeof(TransScale));
-        std::memcpy(&Weight, static_cast<const unsigned char*>(DescIn) + 56, sizeof(Weight));
-        const char* AnimationName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 15)));
+        std::memcpy(&Heading, THORN_EVENT_BYTES(DescIn, 68, FThornMotionEventDesc, Heading), sizeof(Heading));
+        Field_0x40 = static_cast<unsigned char>(THORN_EVENT_WORD(DescIn, 16, FThornMotionEventDesc, Field40));
+        std::memcpy(&MotionStartTime, THORN_EVENT_BYTES(DescIn, 44, FThornMotionEventDesc, StartTime), sizeof(MotionStartTime));
+        std::memcpy(&TimeScale, THORN_EVENT_BYTES(DescIn, 52, FThornMotionEventDesc, TimeScale), sizeof(TimeScale));
+        Field_0x50 = THORN_EVENT_WORD(DescIn, 20, FThornMotionEventDesc, Field50);
+        std::memcpy(&TransTime, THORN_EVENT_BYTES(DescIn, 48, FThornMotionEventDesc, TransTime), sizeof(TransTime));
+        std::memcpy(&TransScale, THORN_EVENT_BYTES(DescIn, 76, FThornMotionEventDesc, TransScale), sizeof(TransScale));
+        std::memcpy(&Weight, THORN_EVENT_BYTES(DescIn, 56, FThornMotionEventDesc, Weight), sizeof(Weight));
+        const char* AnimationName = THORN_EVENT_POINTER(DescIn, 15, FThornMotionEventDesc, Animation);
         if (AnimationName != nullptr)
         {
             MotionAnimationStorage.Assign(AnimationName);
             Animation = MotionAnimationStorage.GetPublishedData();
         }
-        const char* BoneName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 18)));
+        const char* BoneName = THORN_EVENT_POINTER(DescIn, 18, FThornMotionEventDesc, LockedBone);
         if (BoneName != nullptr)
         {
             MotionLockedBoneStorage.Assign(BoneName);
@@ -3531,19 +3985,19 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         FinalizeDesc();
         return;
     }
-    SpatialMask = ReadEventWord(DescIn, 11);
+    SpatialMask = THORN_EVENT_WORD(DescIn, 11, FThornSpatialEventDesc, Mask);
     const bool bQuaternionOrientation = (Desc.Flags & kThornFlagQuatOrient) != 0;
     // 46665 copies twelve words forwards; retain the store boundaries if the
     // incoming descriptor aliases the owner's orientation/position storage.
     for (int Index = 0; Index < 9; ++Index)
-        std::memcpy(TargetOrient + Index, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+        std::memcpy(TargetOrient + Index, THORN_EVENT_BYTES(DescIn, 48, FThornSpatialEventDesc, Orient) + Index * 4, 4);
     for (int Index = 0; Index < 3; ++Index)
-        std::memcpy(TargetPos + Index, static_cast<const unsigned char*>(DescIn) + 84 + Index * 4, 4);
+        std::memcpy(TargetPos + Index, THORN_EVENT_BYTES(DescIn, 84, FThornSpatialEventDesc, Position) + Index * 4, 4);
     if (bQuaternionOrientation)
     {
         for (int Index = 0; Index < 4; ++Index)
             std::memcpy(reinterpret_cast<unsigned char*>(&TargetQuat) + Index * 4,
-                        static_cast<const unsigned char*>(DescIn) + 96 + Index * 4, 4);
+                        THORN_EVENT_BYTES(DescIn, 96, FThornSpatialEventDesc, Quaternion) + Index * 4, 4);
     }
     else
     {
@@ -3552,9 +4006,9 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         if (G_SceneEventMathEngine == nullptr)
             G_SceneEventMathEngine = ThornAcquire3DMathEngine();
         SpatialMatrixToQuaternion(G_SceneEventMathEngine, TargetQuat,
-            static_cast<const unsigned char*>(DescIn) + 48);
+            THORN_EVENT_BYTES(DescIn, 48, FThornSpatialEventDesc, Orient));
     }
-    const char* TargetPartName = reinterpret_cast<const char*>(static_cast<INT_PTR>(ReadEventWord(DescIn, 30)));
+    const char* TargetPartName = THORN_EVENT_POINTER(DescIn, 30, FThornSpatialEventDesc, TargetPart);
     // 46636 already cleared exposure before the math callback. Null input
     // skips assignment entirely; do not clear a callback's later publication.
     if (TargetPartName != nullptr)
@@ -3563,9 +4017,9 @@ void FThornEvent::ApplySpatialPropAnimDesc(const void* DescIn)
         TargetPart = SpatialTargetPartStorage.GetPublishedData();
     }
     // Read these only after the string call, matching 46773..46788.
-    TargetType = ReadEventWord(DescIn, 31);
-    std::memcpy(&AxisRotAngle, static_cast<const unsigned char*>(DescIn) + 112, sizeof(AxisRotAngle));
-    AxisRotAxis = ReadEventWord(DescIn, 29);
+    TargetType = THORN_EVENT_WORD(DescIn, 31, FThornSpatialEventDesc, TargetType);
+    std::memcpy(&AxisRotAngle, THORN_EVENT_BYTES(DescIn, 112, FThornSpatialEventDesc, AxisRotAngle), sizeof(AxisRotAngle));
+    AxisRotAxis = THORN_EVENT_WORD(DescIn, 29, FThornSpatialEventDesc, AxisRotAxis);
     FinalizeDesc();
 }
 
@@ -3574,7 +4028,8 @@ void FThornEvent::ApplyStartSoundDesc(const void* DescIn)
     ApplyCommonDesc(DescIn);
     Desc.Type = kThornTypeStartSound;
     // 449e1 rereads the input after common callbacks and the forced store.
-    SoundStartTime = ReadEventWord(DescIn, 0) == kThornTypeStartSound ? ReadEventWord(DescIn, 11) : 0;
+    SoundStartTime = ReadEventWord(DescIn, 0) == kThornTypeStartSound
+        ? THORN_EVENT_WORD(DescIn, 11, FThornSoundEventDesc, SoundStartTime) : 0;
     FinalizeDesc();
 }
 
@@ -3593,9 +4048,9 @@ void FThornEvent::ApplyCameraPropAnimDesc(const void* DescIn)
     // 46091 reads the current input type after the common curve callbacks.
     if (ReadEventWord(DescIn, 0) == kThornTypeCameraPropAnim)
     {
-        CamMask = ReadEventWord(DescIn, 11);
+        CamMask = THORN_EVENT_WORD(DescIn, 11, FThornCameraEventDesc, Mask);
         for (int Index = 0; Index < 4; ++Index)
-            std::memcpy(CamTarget + Index, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+            std::memcpy(CamTarget + Index, THORN_EVENT_BYTES(DescIn, 48, FThornCameraEventDesc, Target) + Index * 4, 4);
     }
     else
         CamMask = 0; // 460c0 retains the four target words on mismatch.
@@ -3636,10 +4091,10 @@ void FThornEvent::ApplyPsysPropAnimDesc(const void* DescIn)
     // 48951 rereads the input after common callbacks and the forced store.
     if (ReadEventWord(DescIn, 0) == kThornTypePsysPropAnim)
     {
-        PsysMask = ReadEventWord(DescIn, 11);
+        PsysMask = THORN_EVENT_WORD(DescIn, 11, FThornPsysPropEventDesc, Mask);
         // 48961/48964 reads a DWORD before its store, including self input.
         unsigned int TargetBits;
-        std::memcpy(&TargetBits, static_cast<const unsigned char*>(DescIn) + 48, sizeof(TargetBits));
+        std::memcpy(&TargetBits, THORN_EVENT_BYTES(DescIn, 48, FThornPsysPropEventDesc, Sparam), sizeof(TargetBits));
         std::memcpy(&SparamTarget, &TargetBits, sizeof(TargetBits));
     }
     else
@@ -3675,12 +4130,12 @@ void FThornEvent::ApplyFogPropAnimDesc(const void* DescIn)
     // 48cf1 reads the input type only after common curve callbacks return.
     if (ReadEventWord(DescIn, 0) == kThornTypeFogPropAnim)
     {
-        FogMask = ReadEventWord(DescIn, 11);
+        FogMask = THORN_EVENT_WORD(DescIn, 11, FThornFogEventDesc, Mask);
         // 48d0c is a forward DWORD copy, preserving flags and padding.
         for (int Index = 0; Index < 8; ++Index)
         {
             unsigned int Word;
-            std::memcpy(&Word, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, sizeof(Word));
+            std::memcpy(&Word, THORN_EVENT_BYTES(DescIn, 48, FThornFogEventDesc, Target) + Index * 4, sizeof(Word));
             std::memcpy(reinterpret_cast<unsigned char*>(&FogTarget) + Index * 4, &Word, sizeof(Word));
         }
     }
@@ -3696,10 +4151,10 @@ void FThornEvent::ApplyReverbPropAnimDesc(const void* DescIn)
     // 49181 rereads type; 49194..491ab copies four raw words in order.
     if (ReadEventWord(DescIn, 0) == kThornTypeReverbPropAnim)
     {
-        ReverbMask = ReadEventWord(DescIn, 11);
+        ReverbMask = THORN_EVENT_WORD(DescIn, 11, FThornReverbEventDesc, Mask);
         for (int Index = 0; Index < 4; ++Index)
             std::memcpy(reinterpret_cast<unsigned char*>(&ReverbTarget) + Index * 4,
-                        static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+                        THORN_EVENT_BYTES(DescIn, 48, FThornReverbEventDesc, Target) + Index * 4, 4);
     }
     else
         ReverbMask = 0;
@@ -3759,12 +4214,12 @@ void FThornEvent::ApplyAudioPropAnimDesc(const void* DescIn)
     // 472d1 rereads input type after callbacks; mismatch clears only mask.
     if (ReadEventWord(DescIn, 0) == kThornTypeAudioPropAnim)
     {
-        AudioMask = ReadEventWord(DescIn, 11);
+        AudioMask = THORN_EVENT_WORD(DescIn, 11, FThornAudioPropEventDesc, Mask);
         // Exact DWORD-forward transport, including self/overlapping input.
         for (int Index = 0; Index < 8; ++Index)
         {
             unsigned int Word;
-            std::memcpy(&Word, static_cast<const unsigned char*>(DescIn) + 48 + Index * 4, 4);
+            std::memcpy(&Word, THORN_EVENT_BYTES(DescIn, 48, FThornAudioPropEventDesc, Target) + Index * 4, 4);
             std::memcpy(reinterpret_cast<unsigned char*>(&AudioTarget) + Index * 4, &Word, 4);
         }
     }
@@ -3877,6 +4332,7 @@ void FThornEvent::ReleaseMotionOwnedState()
     MotionAnimationStorage.Reset();
 }
 
+#if defined(_M_IX86)
 #pragma warning(push)
 #pragma warning(disable: 4716) // Preserve the retail extended ST(0) return.
 #pragma float_control(precise, off, push) // Keep the complete curve FMUL/FADD result in ST(0).
@@ -3939,6 +4395,40 @@ float FThornEvent::EvaluateControlBackedCurve(float Scale, int TimeMs)
 }
 #pragma float_control(pop)
 #pragma warning(pop)
+#else
+float FThornEvent::EvaluateControlBackedCurve(float Scale, int TimeMs)
+{
+    // Full454f0..4556f: TEST AH,44h / JNP takes only ordered equality.
+    const float Zero = 0.0f;
+    const float One = 1.0f;
+    const bool bScaleZero = !X87ParityEven(X87CompareFlags(Scale, Zero) & 0x44);
+    if (bScaleZero)
+        return One;
+    const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
+                                     static_cast<unsigned int>(Desc.StartMs);
+    const long long ExtendedElapsed = ElapsedBits;
+    const int Duration = Desc.DurationMs;
+    IParamCurve* Curve = ParamCurve;
+    // 4551b..45527 always computes/stores the ratio, even before Slot12; the
+    // unbound path keeps the unrounded quotient.
+    const double Quotient = static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration);
+    const float Ratio = static_cast<float>(Quotient);
+    if (Curve != nullptr)
+    {
+        const int Period = PcurvePeriod;
+        // Win32 keeps the curve's unrounded ST(0) result through both operations, which the
+        // extended-output slots carry as a double on x64. StartPercent is read after the callback.
+        FThornExtendedProgress Extended;
+        if (Period > 0)
+            Curve->WrapEvaluateToExtended(static_cast<int>(ElapsedBits), Period, &Extended);
+        else
+            Curve->EvaluateToExtended(&Ratio, &Extended);
+        const double Value = ThornLoadExtended(Extended);
+        return static_cast<float>(Value * Scale + StartPercent);
+    }
+    return static_cast<float>(Quotient * Scale + StartPercent);
+}
+#endif
 
 namespace
 {
@@ -4179,6 +4669,7 @@ void FThornEvent::PackMotionDesc()
     MotionDesc.Field50 = Field_0x50;
 }
 
+#if defined(_M_IX86)
 #pragma warning(push)
 #pragma warning(disable: 4716) // The retail result is returned explicitly in ST(0).
 float FThornEvent::EvaluateProgress(int TimeMs) const
@@ -4232,7 +4723,37 @@ float FThornEvent::EvaluateProgress(int TimeMs) const
     }
 }
 #pragma warning(pop)
+#else
+float FThornEvent::EvaluateProgress(int TimeMs) const
+{
+    // 06f4a450: USER_EVENT's fixed progress slot returns +0.
+    if (bUserDescriptorOwner)
+        return 0.0f;
+    // 06f4a490: SET MONITOR's fixed progress slot returns +0 without a curve call.
+    if (&Desc == &SetCameraDesc)
+        return 0.0f;
+    const int Duration = Desc.DurationMs;
+    const float One = 1.0f;
+    if (Duration == 0)
+        return One;
+    const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
+                                      static_cast<unsigned int>(Desc.StartMs);
+    const long long ExtendedElapsed = ElapsedBits;
+    IParamCurve* Curve = ParamCurve;
+    if (Curve != nullptr)
+    {
+        const int Period = PcurvePeriod;
+        if (Period > 0)
+            return Curve->Slot12WrapEvaluate(static_cast<int>(ElapsedBits), Period);
+        const float Ratio = static_cast<float>(static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration));
+        return Curve->Evaluate(Ratio);
+    }
+    // Win32 returns the unrounded quotient in ST(0).
+    return static_cast<float>(static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration));
+}
+#endif
 
+#if defined(_M_IX86)
 #pragma warning(push)
 #pragma warning(disable: 4716) // Return the reloaded ratio or curve's original ST(0).
 float FThornEvent::EvaluateProgressNoPeriodWrap(int TimeMs) const
@@ -4269,6 +4790,25 @@ float FThornEvent::EvaluateProgressNoPeriodWrap(int TimeMs) const
     }
 }
 #pragma warning(pop)
+#else
+float FThornEvent::EvaluateProgressNoPeriodWrap(int TimeMs) const
+{
+    // Full493e0..49437: this copy ALWAYS stores the quotient as float,
+    // including the unbound path. Bound output returns directly from typed call.
+    const int Duration = Desc.DurationMs;
+    const float One = 1.0f;
+    if (Duration == 0)
+        return One;
+    const unsigned int ElapsedBits = static_cast<unsigned int>(TimeMs) -
+                                      static_cast<unsigned int>(Desc.StartMs);
+    const long long ExtendedElapsed = ElapsedBits;
+    IParamCurve* Curve = ParamCurve;
+    const float Ratio = static_cast<float>(static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration));
+    if (Curve != nullptr)
+        return Curve->Evaluate(Ratio);
+    return Ratio;
+}
+#endif
 
 void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* Result,
                                            bool bNoPeriodWrap) const
@@ -4277,12 +4817,16 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
     if (Duration == 0)
     {
         const float One = 1.0f;
+#if defined(_M_IX86)
         __asm
         {
             fld One
             mov edx, Result
             fstp tbyte ptr [edx]
         }
+#else
+        ThornStoreExtended(Result, One);
+#endif
         return;
     }
     IParamCurve* Curve = ParamCurve;
@@ -4301,6 +4845,7 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
     }
     if (!bNoPeriodWrap && Curve == nullptr)
     {
+#if defined(_M_IX86)
         __asm
         {
             fild qword ptr ExtendedElapsed
@@ -4308,17 +4853,24 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
             mov edx, Result
             fstp tbyte ptr [edx]
         }
+#else
+        ThornStoreExtended(Result, static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration));
+#endif
         return;
     }
     // Both ordinary Evaluate branches require one float argument store.
     // NoPeriodWrap also requires that store in the unbound path (493e0).
     float Ratio;
+#if defined(_M_IX86)
     __asm
     {
         fild qword ptr ExtendedElapsed
         fidiv Duration
         fstp Ratio
     }
+#else
+    Ratio = static_cast<float>(static_cast<double>(ExtendedElapsed) / static_cast<double>(Duration));
+#endif
     if (Curve != nullptr)
     {
         // No return-value capture: the typed worker publishes its original80.
@@ -4326,12 +4878,16 @@ void FThornEvent::EvaluateProgressExtended(int TimeMs, FThornExtendedProgress* R
     }
     else
     {
+#if defined(_M_IX86)
         __asm
         {
             fld Ratio
             mov edx, Result
             fstp tbyte ptr [edx]
         }
+#else
+        ThornStoreExtended(Result, Ratio);
+#endif
     }
 }
 
@@ -4520,6 +5076,7 @@ unsigned char FThornEvent::StartAttachEntity(FThornScene* Scene)
     const float* PositionSource = TransformedPosition;
     float* PositionResult = NegativePosition;
     // 47b63..47b84: each Z/Y/X word is rounded immediately after FCHS.
+#if defined(_M_IX86)
     __asm {
         mov ecx, PositionSource
         mov eax, PositionResult
@@ -4533,6 +5090,10 @@ unsigned char FThornEvent::StartAttachEntity(FThornScene* Scene)
         fchs
         fstp dword ptr [eax]
     }
+#else
+    for (int Index = 2; Index >= 0; --Index)
+        PositionResult[Index] = static_cast<float>(-static_cast<double>(PositionSource[Index]));
+#endif
     // 47b8c..47bc0/428b0 pass raw DWORDs in transpose order. In contrast to
     // FUN_3b670, this path has no x87 load/store of the nine matrix words.
     float InverseChild[12];
@@ -4721,6 +5282,7 @@ unsigned char FThornEvent::StartAudioPropAnim(FThornScene* Scene)
     return 1;
 }
 
+#if defined(_M_IX86)
 unsigned char FThornEvent::TickAudioPropAnim(int TimeMs, FThornScene* Scene)
 {
     // Full186 LAB_06f473a0: snapshot target before either lookup or curve.
@@ -4783,6 +5345,63 @@ unsigned char FThornEvent::TickAudioPropAnim(int TimeMs, FThornScene* Scene)
     }
     return RetailStillRunningPredicate(TimeMs, EndTimeMs);
 }
+#else
+unsigned char FThornEvent::TickAudioPropAnim(int TimeMs, FThornScene* Scene)
+{
+    // Full186 LAB_06f473a0: snapshot target before either lookup or curve.
+    if (AudioMask != 0)
+    {
+        FThornAudio8 To;
+        std::memcpy(&To, &AudioTarget, sizeof(To));
+        if (SecondaryIndex != -1)
+        {
+            FThornEntity* Secondary = Scene->EntityAt(SecondaryIndex);
+            if (Secondary != nullptr && Secondary->Snap.Type == kThornEntitySound)
+                std::memcpy(&To, Secondary->Audio, sizeof(To)); // no foreign GET
+        }
+        FThornEntity** PrimaryEntry = Scene->FindEntityEntry(PrimaryIndex);
+        if (PrimaryEntry != nullptr)
+        {
+            FThornExtendedProgress Progress;
+            EvaluateProgressExtended(TimeMs, &Progress, false);
+            // Win32 keeps this value in ST(0) below every selected term.
+            const double ProgressValue = ThornLoadExtended(Progress);
+            // 47438..47448 selects the current payload AFTER the curve callback.
+            FThornEntity* Primary = *PrimaryEntry;
+            const int Mask = AudioMask;
+            FThornAudio8 Out;
+            std::memcpy(&Out, Primary->Audio, sizeof(Out));
+            if ((Mask & 1) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+            if ((Mask & 2) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Pan, &To.Pan, &Out.Pan);
+            // 4748d..474b9 repeats these two stores.
+            if ((Mask & 1) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Attenuation, &To.Attenuation, &Out.Attenuation);
+            if ((Mask & 2) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Pan, &To.Pan, &Out.Pan);
+            if ((Mask & 4) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Dmin, &To.Dmin, &Out.Dmin);
+            if ((Mask & 8) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Dmax, &To.Dmax, &Out.Dmax);
+            if ((Mask & 0x10) != 0)
+                Out.Ain = static_cast<int>(static_cast<unsigned int>(X87TruncateToInt64(
+                    ComputeAudioLerpInteger(ProgressValue, AudioCapture.Ain, To.Ain))));
+            if ((Mask & 0x20) != 0)
+                Out.Aout = static_cast<int>(static_cast<unsigned int>(X87TruncateToInt64(
+                    ComputeAudioLerpInteger(ProgressValue, AudioCapture.Aout, To.Aout))));
+            if ((Mask & 0x40) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Atout, &To.Atout, &Out.Atout);
+            if ((Mask & 0x80) != 0)
+                AudioLerpFloat(ProgressValue, &AudioCapture.Rmix, &To.Rmix, &Out.Rmix);
+            float OutWords[8];
+            std::memcpy(OutWords, &Out, sizeof(Out));
+            ApplyAudioProps(Primary, OutWords);
+        }
+    }
+    return RetailStillRunningPredicate(TimeMs, EndTimeMs);
+}
+#endif
 
 unsigned char FThornEvent::StartFloorHeightAnim(FThornScene* Scene)
 {
@@ -5218,6 +5837,7 @@ unsigned char FThornEvent::TickPsysPropAnim(int TimeMs, FThornScene* Scene)
                 if ((PsysMask & 1) != 0)
                 {
                     const float* Capture = &SparamCapture;
+#if defined(_M_IX86)
                     __asm {
                         mov edx, Capture
                         fld dword ptr [edx]
@@ -5228,6 +5848,11 @@ unsigned char FThornEvent::TickPsysPropAnim(int TimeMs, FThornScene* Scene)
                         fstp dword ptr Result
                         fstp st(0)
                     }
+#else
+                    const double CaptureValue = *Capture;
+                    const double Difference = static_cast<double>(Target) - CaptureValue;
+                    Result = static_cast<float>(Difference * Scale + CaptureValue);
+#endif
                 }
                 ApplyPsysSparam(Primary, &Result);
             }
@@ -7166,10 +7791,10 @@ GENRESULT FThornScene::AddEventFromDesc(const void* Desc, int* OutId)
 {
     // LAB_06f39b50: *out=-1; primary in map; secondary in map unless <0 and table allows.
     *OutId = -1;
-    const int Primary = ReadEventWord(Desc, 7);
+    const int Primary = THORN_EVENT_WORD(Desc, 7, FThornEventDesc, PrimaryIndex);
     if (!EntityExists(Primary))
         return GR_GENERIC;
-    const int Secondary = ReadEventWord(Desc, 8);
+    const int Secondary = THORN_EVENT_WORD(Desc, 8, FThornEventDesc, SecondaryIndex);
     if (Secondary < 0)
     {
         if (!EventAllowsMissingSecondary(ReadEventWord(Desc, 0)))
@@ -8006,6 +8631,7 @@ namespace
     {
         const float Zero = 0.0f;
         unsigned char Emit;
+#if defined(_M_IX86)
         __asm {
             mov edx, Value
             fld dword ptr [edx]
@@ -8015,6 +8641,10 @@ namespace
             setp al
             mov Emit, al
         }
+#else
+        // FCOMP Zero; TEST AH,44h; SETP.
+        Emit = X87ParityEven(X87CompareFlags(*Value, Zero) & 0x44) ? 1 : 0;
+#endif
         // TEST AH,44h / JNP skips equality; unordered and nonzero emit.
         return Emit != 0;
     }

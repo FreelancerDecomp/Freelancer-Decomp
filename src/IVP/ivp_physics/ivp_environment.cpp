@@ -1967,7 +1967,7 @@ IVP_Environment* IVP_Environment_Construct(IVP_Environment* env,
     // ---- controller_manager (+0x90): 4 bytes holding `this` ----------------
     {
         IVP_Controller_Manager* const ControllerManager =
-            static_cast<IVP_Controller_Manager*>(::operator new(4)); // 0634c285
+            static_cast<IVP_Controller_Manager*>(::operator new(FL_RETAIL_NEW_SIZE(4, IVP_Controller_Manager))); // 0634c285
         ControllerManager->environment = env;                         // 0634c291
         env->controller_manager = ControllerManager;                  // 0634c29e
     }
@@ -1980,7 +1980,7 @@ IVP_Environment* IVP_Environment_Construct(IVP_Environment* env,
     env->cluster_manager = new IVP_Cluster_Manager(env);           // 0634c2a9-0634c2dc (ctor 0634ad70)
     env->sim_units_manager = new IVP_Sim_Units_Manager(env);       // 0634c2cf-0634c30d (ctor 06349380)
     {
-        void* p = ::operator new(0x1C);                            // 0634c303
+        void* p = ::operator new(FL_RETAIL_NEW_SIZE(0x1C, IVP_Sim_Unit_Manager));                            // 0634c303
         IVP_SimUnitManager_Construct(p);                           // 0634c32a, FUN_063608a0
         env->sim_unit_manager = static_cast<IVP_Sim_Unit_Manager*>(p); // 0634c33d
     }
