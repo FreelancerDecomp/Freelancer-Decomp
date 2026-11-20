@@ -747,7 +747,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPSTR cmd, int /*show
         CoInitialize(nullptr);
         atexit(ClientAtExitTeardown);
         g_client.instance = instance;
-        g_client.resources = Platform::ModuleLoad("resources.dll");
+        g_client.resources = Platform::ResourceModuleLoad("resources.dll");
         RegisterIdsResourceModule(g_client.resources); // FUN_0057d800
 
         unsigned int Major;
