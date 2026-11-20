@@ -452,28 +452,41 @@ jobs:
           }
           Write-Host "DirectPlay: $((Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue).InstallState)"
 
-      # Starts the server, lets it run for 20 seconds, stops it and checks the log for the
+      # Starts the server, joins it with Microsoft's DirectPlay 8 client (DPNetCheck, the client
+      # side of a retail Freelancer), lets it stop after 45 seconds and checks the log for the
       # startup and shutdown lines.
-      - name: Start, run and stop
+      - name: Start, join, run and stop
         shell: pwsh
         working-directory: bin
         run: |
           $ErrorActionPreference = 'Stop'
           $proc = Start-Process -FilePath .\FLDedicated.exe -PassThru -NoNewWindow `
-            -ArgumentList '--name', 'CI', '--max-players', '4', '--run-for', '20' `
+            -ArgumentList '--name', 'CI', '--max-players', '4', '--port', '2302', '--run-for', '45' `
             -RedirectStandardOutput dedicated_out.txt -RedirectStandardError dedicated_err.txt
           $null = $proc.Handle  # keeps ExitCode readable after the process ends
+          # A client joins once the server is up: Microsoft's DirectPlay 8 client, as in retail.
+          $deadline = (Get-Date).AddSeconds(120)
+          while (-not $proc.HasExited -and (Get-Date) -lt $deadline) {
+            if ((Test-Path dedicated_out.txt) -and (Get-Content -Raw dedicated_out.txt) -match 'Server running, ready for log in\.') { break }
+            Start-Sleep -Milliseconds 500
+          }
+          $check = 1
+          if (-not $proc.HasExited) {
+            & .\DPNetCheck.exe --host 127.0.0.1 --port 2302 --timeout 15000
+            $check = $LASTEXITCODE
+          }
           if (-not $proc.WaitForExit(300000)) {
             $proc.Kill()
             Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
             throw 'FLDedicated did not stop within 5 minutes'
           }
           Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
-          if ($proc.ExitCode -ne 0) { throw "FLDedicated exited with code $($proc.ExitCode)" }
+          if ($proc.ExitCode -ne 0) { throw ("FLDedicated exited with code 0x{0:x8}" -f $proc.ExitCode) }
           $log = Get-Content -Raw dedicated_out.txt
           foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
             if (-not $log.Contains($line)) { throw "missing from the log: $line" }
           }
+          if ($check -ne 0) { throw "DPNetCheck failed (exit code $check)" }
 
   # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
   # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
@@ -589,7 +602,7 @@ jobs:
           retention-days: 14
 
       # Report-only until the x64 server runs (docs/x64.md: Thorn is not built for x64 yet).
-      - name: FLDedicated x64, start, run and stop
+      - name: FLDedicated x64 (DPNet), start, join with Microsoft's client, run and stop
         id: dedicated_x64
         if: always()
         continue-on-error: true
@@ -598,9 +611,20 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $proc = Start-Process -FilePath .\FLDedicated.exe -PassThru -NoNewWindow `
-            -ArgumentList '--name', 'CI', '--max-players', '4', '--run-for', '20' `
+            -ArgumentList '--name', 'CI', '--max-players', '4', '--port', '2302', '--run-for', '45' `
             -RedirectStandardOutput dedicated_out.txt -RedirectStandardError dedicated_err.txt
-          $null = $proc.Handle
+          $null = $proc.Handle  # keeps ExitCode readable after the process ends
+          # A client joins once the server is up: Microsoft's DirectPlay 8 client, as in retail.
+          $deadline = (Get-Date).AddSeconds(120)
+          while (-not $proc.HasExited -and (Get-Date) -lt $deadline) {
+            if ((Test-Path dedicated_out.txt) -and (Get-Content -Raw dedicated_out.txt) -match 'Server running, ready for log in\.') { break }
+            Start-Sleep -Milliseconds 500
+          }
+          $check = 1
+          if (-not $proc.HasExited) {
+            & ..\bin\DPNetCheck.exe --host 127.0.0.1 --port 2302 --timeout 15000
+            $check = $LASTEXITCODE
+          }
           if (-not $proc.WaitForExit(300000)) {
             $proc.Kill()
             Get-Content dedicated_out.txt, dedicated_err.txt | Write-Host
@@ -612,6 +636,7 @@ jobs:
           foreach ($line in 'Server running, ready for log in.', 'Server stopped.') {
             if (-not $log.Contains($line)) { throw "missing from the log: $line" }
           }
+          if ($check -ne 0) { throw "DPNetCheck failed (exit code $check)" }
 
       # The game-state dump: x64 floating point (SSE2) rounds some results differently from
       # Win32's x87, so the two are compared but a difference is reported, not failed. The

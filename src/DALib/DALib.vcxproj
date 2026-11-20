@@ -66,6 +66,24 @@
       <AdditionalDependencies>dacom.lib;zlib.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <!-- Port-only (docs/dpnet.md): the x64 build hosts through DPNet, the port's own DirectPlay 8,
+       instead of Microsoft's dpnet.dll. Win32 keeps Microsoft's, as retail. -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>FREELANCER_DPNET;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);..\DPNet</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <ClInclude Include="DPNetAdapter.h" />
+    <ClCompile Include="DPNetAdapter.cpp" />
+    <ClCompile Include="..\DPNet\dpnet_wire.cpp" />
+    <ClCompile Include="..\DPNet\dpnet_link.cpp" />
+    <ClCompile Include="..\DPNet\dpnet_session.cpp" />
+  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\DALib.h" />
     <ClInclude Include="..\include\dacom.h" />

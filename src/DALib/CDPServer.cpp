@@ -6,6 +6,9 @@
 
 #include "dalib_net.h"
 #include "platform.h"
+#if defined(FREELANCER_DPNET)
+#include "DPNetAdapter.h"
+#endif
 
 #include <list>
 
@@ -42,8 +45,13 @@ CDPServer::CDPServer()
 {
     m_pServer = this;
 
+#if defined(FREELANCER_DPNET)
+    // Port-only: the port's own DirectPlay (docs/dpnet.md) instead of Microsoft's dpnet.dll.
+    const HRESULT Hr = DPNetAdapter::CreateServer(&Server);
+#else
     const HRESULT Hr = CoCreateInstance(CLSID_DirectPlay8Server, nullptr, CLSCTX_INPROC_SERVER,
                                          IID_IDirectPlay8Server, (void**)(&Server));
+#endif
     if (FAILED(Hr))
     {
         (*CriticalWarningFn)(0xd4, nullptr);
@@ -196,8 +204,12 @@ bool CDPServer::BeginHosting(unsigned int Port)
         return true;
 
     IDirectPlay8Address* DeviceAddr = nullptr;
+#if defined(FREELANCER_DPNET)
+    DPNetAdapter::CreateAddress(&DeviceAddr);
+#else
     CoCreateInstance(CLSID_DirectPlay8Address, nullptr, CLSCTX_INPROC_SERVER, IID_IDirectPlay8Address,
                       (void**)(&DeviceAddr));
+#endif
     if (DeviceAddr == nullptr)
         return false;
     DeviceAddr->SetSP(&CLSID_DP8SP_TCPIP);
