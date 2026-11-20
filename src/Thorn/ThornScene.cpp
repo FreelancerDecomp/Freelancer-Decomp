@@ -6854,7 +6854,7 @@ bool FThornScene::EntityExists(int Index) const
 {
     if (static_cast<unsigned int>(Index) >= static_cast<unsigned int>(EntityCount_))
         return false;
-    return Entities_.find(Index) != Entities_.end();
+    return Entities_.contains(Index);
 }
 
 void FThornScene::DestroyEntity(FThornEntity* Entity)
@@ -7640,7 +7640,7 @@ void FThornScene::DispatchWindow(int OldTime, int NewTime)
             FThornEvent* Event = *PendingSlot;
 
             DrainTimedStops(&Event->StartTimeMs, true, &UpdatedTimes);
-            if (UpdatedTimes.find(Event->StartTimeMs) == UpdatedTimes.end())
+            if (!UpdatedTimes.contains(Event->StartTimeMs))
             {
                 UpdateActive(Event->StartTimeMs);
                 UpdatedTimes.insert(Event->StartTimeMs);

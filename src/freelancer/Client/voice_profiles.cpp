@@ -320,7 +320,7 @@ int LoadClientVoicesIni(char const* FullPath)
                               kVoiceSource, 0x250, Current->GetName());
                         Reader.log_link(""); // 0x004310a6
                     }
-                    else if (Current->Messages.find(Msg.Id.Id) == Current->Messages.end())
+                    else if (!Current->Messages.contains(Msg.Id.Id))
                     {
                         // Retail inserts a default-constructed VoiceMsg, then FUN_00431690
                         // copies +4..+0x13 over it. First entry wins; duplicates are dropped.

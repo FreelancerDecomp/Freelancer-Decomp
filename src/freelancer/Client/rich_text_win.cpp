@@ -1502,7 +1502,7 @@ bool RichTextEditWin::OnChar(FHudCmdRecord const* Record)
     // 0x0057cf12..0x0057cf8f: the filter -- an allow list replaces what it does not hold, a
     // deny list what it does. Only the low word is replaced.
     wchar_t const Lookup = static_cast<wchar_t>(Ch & 0xffffu);
-    bool const bInSet = FilterChars.find(Lookup) != FilterChars.end();
+    bool const bInSet = FilterChars.contains(Lookup);
     if (bFilterIsAllowList != 0 ? !bInSet : bInSet)
         Ch = (Ch & 0xffff0000u) | static_cast<unsigned short>(ReplacementChar);
 
@@ -1661,7 +1661,7 @@ void RichTextEditWin::SetText(wchar_t const* Text, TextRenderAttributes const* A
             Ch = static_cast<wchar_t>(towupper(static_cast<wint_t>(*P)));
         else
             Ch = static_cast<wchar_t>(towlower(static_cast<wint_t>(*P)));
-        bool const bInSet = FilterChars.find(Ch) != FilterChars.end();
+        bool const bInSet = FilterChars.contains(Ch);
         if (bFilterIsAllowList != 0 ? !bInSet : bInSet)
             Ch = ReplacementChar;
         FRichEditCell Cell;

@@ -311,7 +311,7 @@ void LoadMissionTriggerSection(FMissionScript* Script, INI_Reader* Reader)
         {
             TriggerId = CreateID(Reader->get_value_string(0));
             // 06eb8580-06eb858f: FUN_06f7b0f0 (find); a known nickname is skipped.
-            if (Script->TriggerMap.find(TriggerId) != Script->TriggerMap.end())
+            if (Script->TriggerMap.contains(TriggerId))
                 continue;
             // 06eb8595-06eb85e6: the stack trigger (State INACTIVE, no condition, empty
             // lists, mission = this, repeatable 0, id).

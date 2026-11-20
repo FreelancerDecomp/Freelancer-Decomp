@@ -4696,7 +4696,7 @@ bool CPlayerGroup::DelMember(unsigned int PlayerId) {
 // lower_bound on m_Members, then SETNZ against end() (0x06d5bbc5).
 // ---------------------------------------------------------------------------
 bool CPlayerGroup::IsMember(unsigned int PlayerId) {
-    return m_Members.find(PlayerId) != m_Members.end();
+    return m_Members.contains(PlayerId);
 }
 
 // ---------------------------------------------------------------------------
@@ -4727,7 +4727,7 @@ bool CPlayerGroup::DelInvite(unsigned int PlayerId) {
 // CPlayerGroup::IsInvited — retail 0x7bd00 (0x06d5bd00), ordinal 315
 // ---------------------------------------------------------------------------
 bool CPlayerGroup::IsInvited(unsigned int PlayerId) {
-    return m_Invites.find(PlayerId) != m_Invites.end();
+    return m_Invites.contains(PlayerId);
 }
 
 // ---------------------------------------------------------------------------

@@ -4384,13 +4384,13 @@ bool __cdecl IsGcsCommAllowed(int Category, FSystemInfo* System, unsigned int Sp
     // category opened by EnableGcsSpeakerCategory / EnableGcsListenerCategory.
     FContentSpaceObj* Object = System->FindSpaceObj(Speaker);
     if (Object != nullptr && !static_cast<FContentNpcShip*>(Object)->IsSpacePopShip() &&
-        GGcsSpeakerCategories.find(Category) == GGcsSpeakerCategories.end())
+        !GGcsSpeakerCategories.contains(Category))
     {
         return false;
     }
     Object = System->FindSpaceObj(Listener);
     if (Object != nullptr && !static_cast<FContentNpcShip*>(Object)->IsSpacePopShip() &&
-        GGcsListenerCategories.find(Category) == GGcsListenerCategories.end())
+        !GGcsListenerCategories.contains(Category))
     {
         return false;
     }

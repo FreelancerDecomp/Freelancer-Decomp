@@ -405,7 +405,7 @@ namespace AlchemyImpl
 
     unsigned char FFxEffectLibrary::ContainsHash(unsigned long Hash) const
     {
-        return Entries_->find(Hash) != Entries_->end() ? 1 : 0;
+        return Entries_->contains(Hash) ? 1 : 0;
     }
 
     void FFxEffectLibrary::DetachEffectList()

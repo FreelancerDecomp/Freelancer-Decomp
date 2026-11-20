@@ -545,7 +545,7 @@ namespace
     {
         // listing 0633bb20 / 06336666. CreateID + GBases find. Miss → WARNING 0xbff, 0.
         unsigned NicknameId = CreateID(Nickname);
-        if (GBases.find(NicknameId) == GBases.end())
+        if (!GBases.contains(NicknameId))
         {
             FDUMP(0x100002, "%s(%d) : *** WARNING: get_base(%s) failed.\n", kSystemsSource, 0xbff,
                   Nickname);
@@ -1147,7 +1147,7 @@ namespace Universe
     unsigned __cdecl get_system_id(char const* Nickname)
     {
         unsigned NicknameId = CreateID(Nickname);
-        if (GSystems.find(NicknameId) == GSystems.end())
+        if (!GSystems.contains(NicknameId))
         {
             FDUMP(0x100002, "%s(%d) : *** WARNING: get_system(%s) failed.\n", kSystemsSource, 0xbe4,
                   Nickname);
@@ -1216,7 +1216,7 @@ namespace Universe
     unsigned __cdecl get_base_id(char const* Nickname)
     {
         unsigned NicknameId = CreateID(Nickname);
-        if (GBases.find(NicknameId) == GBases.end())
+        if (!GBases.contains(NicknameId))
         {
             FDUMP(0x100002, "%s(%d) : *** WARNING: get_base(%s) failed.\n", kSystemsSource, 0xbff,
                   Nickname);

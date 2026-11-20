@@ -980,7 +980,7 @@ static unsigned long DACOM_API AnimationHasScriptName(FAnimationObject* This, FA
         return 0xFFFFFFFF;
 
     const unsigned long Crc = DACOM_CRC::GetCRC32(Name);
-    if (Script->Names.find(Crc) != Script->Names.end())
+    if (Script->Names.contains(Crc))
         return 0;
     return 0xFFFFFFFF;
 }

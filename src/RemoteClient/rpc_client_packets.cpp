@@ -313,7 +313,7 @@ FPacketSerializer::~FPacketSerializer() {
 }
 
 int FPacketSerializer::RegisterType(unsigned int PacketId, const char* Name, FPacketFactoryFn Factory) {
-    if (Types.find(PacketId) != Types.end()) {
+    if (Types.contains(PacketId)) {
         return kPacketRegisterDuplicate;
     }
 

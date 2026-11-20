@@ -1577,7 +1577,7 @@ void FRandomMissionObject::OnPlayerLeftGroup(unsigned int const* InPlayerId)
 // (0xa empty, 8 the description, not broadcast).
 void FRandomMissionObject::AddGroupMember(unsigned int InPlayerId)
 {
-    if (PlayerStateMap.find(InPlayerId) != PlayerStateMap.end())
+    if (PlayerStateMap.contains(InPlayerId))
         return;
     if (PlayerStates.empty())
         return;
@@ -1638,7 +1638,7 @@ bool FRandomMissionObject::Slot2(SMEventData const* Event, int const& State)
         static_cast<EMessage>(Message->ControllerId) == EMessage::SpaceEnter)
     {
         unsigned int const* Parms = static_cast<unsigned int const*>(Message->DataPtr);
-        if (PlayerStateMap.find(Parms[1]) != PlayerStateMap.end())
+        if (PlayerStateMap.contains(Parms[1]))
         {
             GetOrCreatePlayer(Parms[1])->ClearObjectives();
             RefreshObjectives(Parms[1]);
@@ -1682,7 +1682,7 @@ bool FRandomMissionObject::Slot2(SMEventData const* Event, int const& State)
         static_cast<EMessage>(Message->ControllerId) == EMessage::ObjectDestroyed)
     {
         unsigned int const* Parms = static_cast<unsigned int const*>(Message->DataPtr);
-        if (PlayerStateMap.find(Parms[3]) == PlayerStateMap.end())
+        if (!PlayerStateMap.contains(Parms[3]))
             return true;
         if (DecrementPlayerCount() > 0)
             return true;
@@ -1699,7 +1699,7 @@ bool FRandomMissionObject::Slot2(SMEventData const* Event, int const& State)
         static_cast<EMessage>(Message->ControllerId) == EMessage::PlayerLoad)
     {
         unsigned int const* Parms = static_cast<unsigned int const*>(Message->DataPtr);
-        if (PlayerStateMap.find(Parms[0]) == PlayerStateMap.end())
+        if (!PlayerStateMap.contains(Parms[0]))
             return true;
         RejoinPlayer(Parms[0]);
         return true;
@@ -1714,7 +1714,7 @@ bool FRandomMissionObject::Slot2(SMEventData const* Event, int const& State)
         static_cast<EMessage>(Message->ControllerId) == EMessage::PlayerLogout)
     {
         unsigned int const Leaving = *static_cast<unsigned int const*>(Message->DataPtr);
-        if (PlayerStateMap.find(Leaving) != PlayerStateMap.end())
+        if (PlayerStateMap.contains(Leaving))
             RemoveMissionPlayer(Leaving, 0xe);
         FMissionObject::HandleMissionMessage(static_cast<EMessage>(Message->ControllerId),
                                              Message->DataPtr);
@@ -1724,7 +1724,7 @@ bool FRandomMissionObject::Slot2(SMEventData const* Event, int const& State)
         static_cast<EMessage>(Message->ControllerId) == EMessage::GroupMemberLeft)
     {
         unsigned int const Leaving = *static_cast<unsigned int const*>(Message->DataPtr);
-        if (PlayerStateMap.find(Leaving) != PlayerStateMap.end())
+        if (PlayerStateMap.contains(Leaving))
             RemoveMissionPlayer(Leaving, 1);
         FMissionObject::HandleMissionMessage(static_cast<EMessage>(Message->ControllerId),
                                              Message->DataPtr);
