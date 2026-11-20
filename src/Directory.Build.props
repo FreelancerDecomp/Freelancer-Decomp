@@ -39,7 +39,10 @@
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='DebugASan'">MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreadedDLL</RuntimeLibrary>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- /std:c++20 implies /permissive-; keep /permissive (the C++17 default) so the
+           decompiled sources compile unchanged. Opting into conformance is separate work. -->
+      <ConformanceMode>false</ConformanceMode>
       <!-- x87 floating point (/arch:IA32), as the VC6-built retail modules. Retail leaves
            FPU_PRESERVE off (EXE\dacom.ini; rp8.dll reads the key at .text:06d06bb4), so
            Direct3D 8 CreateDevice drops the main thread's x87 precision control to 24-bit and
