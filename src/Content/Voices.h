@@ -21,7 +21,7 @@ struct FVoiceLine
     unsigned int MsgId;                                      // +0x04 pub::GetNicknameId of msg
     float Duration;                                          // +0x08
 };
-static_assert(sizeof(FVoiceLine) == 0xc, "retail voice line is 12 bytes");
+FL_LAYOUT_ASSERT(sizeof(FVoiceLine) == 0xc, "retail voice line is 12 bytes");
 
 // DAT_06fd1ba8: constructed by LAB_06f5cbf0, freed by the atexit FUN_06f5cc20.
 extern std::vector<FVoiceLine> GVoiceLines;

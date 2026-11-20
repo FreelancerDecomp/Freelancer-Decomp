@@ -605,7 +605,7 @@ void FRandEncTLParams::Spawn(bool bForced)
     pub::SpaceObj::GetLocation(TargetObjectId, TargetPosition, TargetRotation);
     std::list<FRandEncPosition> FreePositions(Positions);
     FMatrix TargetMatrix;
-    static_assert(sizeof(Matrix) == sizeof(FMatrix), "Matrix is 3x3 floats");
+    FL_LAYOUT_ASSERT(sizeof(Matrix) == sizeof(FMatrix), "Matrix is 3x3 floats");
     std::memcpy(&TargetMatrix, &TargetRotation, sizeof(FMatrix));
 
     // 06f83b6e-06f83bb1: rows {cos, 0, sin}, {0, 1, 0}, {-sin, 0, cos}.

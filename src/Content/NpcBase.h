@@ -54,7 +54,7 @@ struct FContentSpaceObjParams
     FContentSpaceObjParams& operator=(FContentSpaceObjParams const&) = delete;
 };
 
-static_assert(sizeof(FContentSpaceObjParams) == 0x44, "FContentSpaceObjParams size");
+FL_LAYOUT_ASSERT(sizeof(FContentSpaceObjParams) == 0x44, "FContentSpaceObjParams size");
 
 // One of the eight attacker slots at +0x14 (0x18 bytes). FUN_06eb7280 finds or recycles a
 // slot; TU56 FUN_06f6ff90 (06f70203 onwards, CombatReputation.cpp) fills it on the ATTACKING
@@ -72,7 +72,7 @@ struct FSpaceObjAttacker
     unsigned char bProvoked;   // +0x15 TU56: Hostility >= 50 reported (word 0 = 1)
 };
 
-static_assert(sizeof(FSpaceObjAttacker) == 0x18, "FSpaceObjAttacker size");
+FL_LAYOUT_ASSERT(sizeof(FSpaceObjAttacker) == 0x18, "FSpaceObjAttacker size");
 
 // +0x108 vector element (0x10 bytes): one line of a mission dialog (TU28, MissionDialogs.h:
 // the +0x6c part of a dialog line). FUN_06eb6e00 matches Key and hands TargetId / TextId to
@@ -86,7 +86,7 @@ struct FSpaceObjPendingComm
     unsigned int Field_0x0c;   // +0x0c not read by TU20 (TU28 loader writes 0)
 };
 
-static_assert(sizeof(FSpaceObjPendingComm) == 0x10, "FSpaceObjPendingComm size");
+FL_LAYOUT_ASSERT(sizeof(FSpaceObjPendingComm) == 0x10, "FSpaceObjPendingComm size");
 
 // Message 0x1001 sent to controller 0 by the ContentCallback combat_state_notification
 // overrides of the solar NPC (TU24 06ed5a00) and the NPC ship (TU43 06f34090): the three
@@ -99,7 +99,7 @@ struct FSpaceObjCombatStateMsg
     unsigned int SystemId;     // +0x0c
 };
 
-static_assert(sizeof(FSpaceObjCombatStateMsg) == 0x10, "FSpaceObjCombatStateMsg size");
+FL_LAYOUT_ASSERT(sizeof(FSpaceObjCombatStateMsg) == 0x10, "FSpaceObjCombatStateMsg size");
 
 // FUN_06eb70a0 output (0x30 bytes): orientation first, then position.
 struct FSpaceObjPlacement
@@ -108,7 +108,7 @@ struct FSpaceObjPlacement
     Vector Position;           // +0x24
 };
 
-static_assert(sizeof(FSpaceObjPlacement) == 0x30, "FSpaceObjPlacement size");
+FL_LAYOUT_ASSERT(sizeof(FSpaceObjPlacement) == 0x30, "FSpaceObjPlacement size");
 
 class FContentSpaceObj
 {

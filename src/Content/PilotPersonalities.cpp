@@ -49,7 +49,7 @@ namespace
         ID_String Job;               // +0x40 job_id
     };
 
-    static_assert(sizeof(FPilotRefs) == 0x44, "FPilotRefs: 0x11 dwords (MOVSD 0x11)");
+    FL_LAYOUT_ASSERT(sizeof(FPilotRefs) == 0x44, "FPilotRefs: 0x11 dwords (MOVSD 0x11)");
 
     // Retail construction order (_initterm 06fcdca0.., one construct/atexit
     // thunk pair per map, 06f38f40..06f39f70): pilots first, Job last.

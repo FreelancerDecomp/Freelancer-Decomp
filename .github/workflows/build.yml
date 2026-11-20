@@ -150,7 +150,7 @@ jobs:
         if: failure() && matrix.platform == 'x64'
         shell: pwsh
         run: |
-          foreach ($p in 'dacom','DALib','zlib','qhull','Common','Server','rpclocal','RemoteClient','ReadFile','EngBase','RendComp','x86math','system','Shading','FLDedicated','FLRegress','RpcCodecTest') {
+          foreach ($p in 'dacom','DALib','zlib','qhull','Common','Server','rpclocal','RemoteClient','ReadFile','EngBase','RendComp','x86math','system','Shading','FLDedicated','FLRegress','RpcCodecTest','Content') {
             $f = Get-ChildItem "src/$p/*.vcxproj" | Select-Object -First 1
             msbuild $f.FullName -t:ClCompile -nologo -v:q -m -p:Configuration=Release -p:Platform=x64 -p:BuildProjectReferences=false -p:SolutionDir="$PWD\src\" | Select-String -Pattern ' error ' | ForEach-Object { "$p :: $($_.Line)" } | Out-File -Append census.txt
           }

@@ -25,7 +25,7 @@ struct FLootProps
     // TODO: meaning of each value is set by the readers (FUN_06f5d14f area, TU53).
     int DropProperties[5];
 };
-static_assert(sizeof(FLootProps) == 0x1c, "retail mLootProps record is 0x1c bytes");
+FL_LAYOUT_ASSERT(sizeof(FLootProps) == 0x1c, "retail mLootProps record is 0x1c bytes");
 
 // [PhantomLoot] record, 0x18 bytes (vector DAT_06fd05d4..DAT_06fd05e0).
 struct FPhantomLoot
@@ -37,7 +37,7 @@ struct FPhantomLoot
     int NumToDropMin;                                         // +0x10 num_to_drop[0]
     int NumToDropMax;                                         // +0x14 num_to_drop[1]
 };
-static_assert(sizeof(FPhantomLoot) == 0x18, "retail PhantomLoot record is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(FPhantomLoot) == 0x18, "retail PhantomLoot record is 0x18 bytes");
 
 // FUN_06f04cb0: append one record per [mLootProps] section.
 void __cdecl LoadLootProps(INI_Reader* Reader);

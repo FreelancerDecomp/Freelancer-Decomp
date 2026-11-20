@@ -30,7 +30,7 @@ namespace
     template <typename T>
     void StoreFloatBits(T* Destination, float Value)
     {
-        static_assert(sizeof(T) == sizeof(float), "4-byte field");
+        FL_LAYOUT_ASSERT(sizeof(T) == sizeof(float), "4-byte field");
         memcpy(Destination, &Value, sizeof(float));
     }
 
