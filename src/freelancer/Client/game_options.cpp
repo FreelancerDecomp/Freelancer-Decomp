@@ -14,6 +14,7 @@
 #include "common_server.h" // IServer::SetInterfaceState (slot 77)
 
 #include <cstring>
+#include <iterator>
 
 // The values themselves live in the options object: DisplaySettings::options (globals.h), .data
 // 0x00679be8 = 0x00679bc0 + 0x28. FUN_005621a0 (LoadStartupConfig) scatters the table below into
@@ -117,11 +118,11 @@ const FGameOptionDesc GGameOptionDescs[] =
     {0x45, "COPY_TO_DYN_VB",                    1, 1},
 };
 
-const int GGameOptionDescCount = static_cast<int>(sizeof(GGameOptionDescs) / sizeof(GGameOptionDescs[0]));
+const int GGameOptionDescCount = static_cast<int>(std::size(GGameOptionDescs));
 
 // Retail's loop bound is a byte count: `while (Off < 0x470)` over 0x10-byte records, so exactly
 // 0x470 / 0x10 = 71 rows. If this ever fires, a row was lost or gained in transcription.
-static_assert(sizeof(GGameOptionDescs) / sizeof(GGameOptionDescs[0]) == 0x470 / 0x10,
+static_assert(std::size(GGameOptionDescs) == 0x470 / 0x10,
               "the option descriptor table must have 71 rows, as retail's 0x470 byte span does");
 
 // FUN_005792b0 (.text:005792b0-005792c3): `CMP EAX,0x46; JGE -> return 0; MOV EAX,[EAX*4 +

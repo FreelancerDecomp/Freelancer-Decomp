@@ -40,6 +40,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <new>
@@ -342,7 +343,7 @@ namespace
         SetGcsCategoryInterval(0x10, 3.0f);
 
         int const Categories[] = {6, 7, 8, 0xa, 0xb, 0xd, 0xe, 0xf, 0x10};
-        for (int Index = 0; Index < static_cast<int>(sizeof(Categories) / sizeof(Categories[0]));
+        for (int Index = 0; Index < static_cast<int>(std::size(Categories));
              ++Index)
         {
             EnableGcsSpeakerCategory(Categories[Index]);

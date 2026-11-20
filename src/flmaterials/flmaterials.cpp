@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <new>
 
 #pragma comment(lib, "dacom.lib")
@@ -81,7 +82,7 @@ namespace
         {G_NamePlanetWaterMaterial, KindPlanetWater},
     };
 
-    const int kMaterialCount = (int)(sizeof(G_MaterialSpecs) / sizeof(G_MaterialSpecs[0]));
+    const int kMaterialCount = (int)(std::size(G_MaterialSpecs));
 
     class FMaterialFactory final : public IComponentFactory
     {

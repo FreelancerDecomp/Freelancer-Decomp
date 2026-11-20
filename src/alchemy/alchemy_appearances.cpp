@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <new>
 
 // alchemy.dll — DACOM particle FX scaffolding.
@@ -848,36 +849,30 @@ namespace AlchemyImpl
             {nullptr, 0, 0, 0.0f, 0.0f},
         };
 
-        template <typename T, unsigned long N>
-        constexpr unsigned long CountOf(const T (&)[N])
-        {
-            return N;
-        }
-
         // +0x50: basic / rect / perp / dust are FUN_0623fb50 itself; oriented FUN_0622e640
         // (0xF0004D58) and beam FUN_0620db40 (0x0BA0B3BB) hand out LocalTransform first.
         const FBillboardPropertyClass kBasicClass = {
-            kBasicFlags, CountOf(kBasicFlags), kBasicSingleRamps, CountOf(kBasicSingleRamps),
-            kBasicAnimatedRamps, CountOf(kBasicAnimatedRamps), 0, kBasicPropertyRows};
+            kBasicFlags, std::size(kBasicFlags), kBasicSingleRamps, std::size(kBasicSingleRamps),
+            kBasicAnimatedRamps, std::size(kBasicAnimatedRamps), 0, kBasicPropertyRows};
         const FBillboardPropertyClass kRectClass = {
-            kRectFlags, CountOf(kRectFlags), kRectSingleRamps, CountOf(kRectSingleRamps),
-            kCommonTexFrameAnimatedRamps, CountOf(kCommonTexFrameAnimatedRamps), 0,
+            kRectFlags, std::size(kRectFlags), kRectSingleRamps, std::size(kRectSingleRamps),
+            kCommonTexFrameAnimatedRamps, std::size(kCommonTexFrameAnimatedRamps), 0,
             kRectPropertyRows};
         const FBillboardPropertyClass kPerpClass = {
-            kPerpFlags, CountOf(kPerpFlags), kPerpSingleRamps, CountOf(kPerpSingleRamps),
-            kAxisOverrideAnimatedRamps, CountOf(kAxisOverrideAnimatedRamps), 0,
+            kPerpFlags, std::size(kPerpFlags), kPerpSingleRamps, std::size(kPerpSingleRamps),
+            kAxisOverrideAnimatedRamps, std::size(kAxisOverrideAnimatedRamps), 0,
             kPerpPropertyRows};
         const FBillboardPropertyClass kOrientedClass = {
-            kOrientedFlags, CountOf(kOrientedFlags), kOrientedSingleRamps,
-            CountOf(kOrientedSingleRamps), kCommonTexFrameAnimatedRamps,
-            CountOf(kCommonTexFrameAnimatedRamps), 0xF0004D58u, kOrientedPropertyRows};
+            kOrientedFlags, std::size(kOrientedFlags), kOrientedSingleRamps,
+            std::size(kOrientedSingleRamps), kCommonTexFrameAnimatedRamps,
+            std::size(kCommonTexFrameAnimatedRamps), 0xF0004D58u, kOrientedPropertyRows};
         const FBillboardPropertyClass kDustClass = {
-            kDustFlags, CountOf(kDustFlags), kPerpSingleRamps, CountOf(kPerpSingleRamps),
-            kAxisOverrideAnimatedRamps, CountOf(kAxisOverrideAnimatedRamps), 0,
+            kDustFlags, std::size(kDustFlags), kPerpSingleRamps, std::size(kPerpSingleRamps),
+            kAxisOverrideAnimatedRamps, std::size(kAxisOverrideAnimatedRamps), 0,
             kDustPropertyRows};
         const FBillboardPropertyClass kBeamClass = {
-            kBeamFlags, CountOf(kBeamFlags), kBeamSingleRamps, CountOf(kBeamSingleRamps),
-            kAxisOverrideAnimatedRamps, CountOf(kAxisOverrideAnimatedRamps), 0x0BA0B3BBu,
+            kBeamFlags, std::size(kBeamFlags), kBeamSingleRamps, std::size(kBeamSingleRamps),
+            kAxisOverrideAnimatedRamps, std::size(kAxisOverrideAnimatedRamps), 0x0BA0B3BBu,
             kBeamPropertyRows};
 
         // Particle FUN_06231930 / FUN_06231980 and the names FUN_06231ad0 / FUN_06231b20.

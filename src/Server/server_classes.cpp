@@ -40,6 +40,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <iterator>
 #include <list>
 #include <map>
 #include <set>
@@ -222,7 +223,7 @@ PlayerData::PlayerData()
     }
     for (size_t Index = 1; Index < sizeof(voice); ++Index)
         voice[Index] = '\0';
-    for (size_t Index = 0; Index < sizeof(AccountName) / sizeof(AccountName[0]); ++Index)
+    for (size_t Index = 0; Index < std::size(AccountName); ++Index)
         AccountName[Index] = L'\0';
     // +0x350..+0x37c: zero Vector, identity 3x3.
     for (int Axis = 0; Axis < 3; ++Axis)

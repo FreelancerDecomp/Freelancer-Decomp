@@ -22,6 +22,7 @@
 #include "dacom.h"
 
 #include <cstring>
+#include <iterator>
 
 using CmnGoods::kPathChars;
 
@@ -409,11 +410,11 @@ bool __cdecl ReadConstants(char const* RelPath)
                     }
                     continue;
                 }
-                if (ApplyFloatKey(Reader, ConstantsFloats, sizeof(ConstantsFloats) / sizeof(ConstantsFloats[0])))
+                if (ApplyFloatKey(Reader, ConstantsFloats, std::size(ConstantsFloats)))
                     continue;
-                if (ApplyUintCreateId(Reader, ConstantsIds, sizeof(ConstantsIds) / sizeof(ConstantsIds[0])))
+                if (ApplyUintCreateId(Reader, ConstantsIds, std::size(ConstantsIds)))
                     continue;
-                if (ApplyIntFtol(Reader, ConstantsInts, sizeof(ConstantsInts) / sizeof(ConstantsInts[0])))
+                if (ApplyIntFtol(Reader, ConstantsInts, std::size(ConstantsInts)))
                     continue;
                 DumpUnknownConstant(Reader, 0x86);
             }
@@ -422,7 +423,7 @@ bool __cdecl ReadConstants(char const* RelPath)
         {
             while (Reader.read_value())
             {
-                if (ApplyFloatKey(Reader, EngineFloats, sizeof(EngineFloats) / sizeof(EngineFloats[0])))
+                if (ApplyFloatKey(Reader, EngineFloats, std::size(EngineFloats)))
                     continue;
                 DumpUnknownConstant(Reader, 0x9f);
             }
@@ -431,7 +432,7 @@ bool __cdecl ReadConstants(char const* RelPath)
         {
             while (Reader.read_value())
             {
-                if (ApplyFloatKey(Reader, ShieldFloats, sizeof(ShieldFloats) / sizeof(ShieldFloats[0])))
+                if (ApplyFloatKey(Reader, ShieldFloats, std::size(ShieldFloats)))
                     continue;
                 DumpUnknownConstant(Reader, 0xa8);
             }
@@ -440,9 +441,9 @@ bool __cdecl ReadConstants(char const* RelPath)
         {
             while (Reader.read_value())
             {
-                if (ApplyUintCreateId(Reader, ThrusterIds, sizeof(ThrusterIds) / sizeof(ThrusterIds[0])))
+                if (ApplyUintCreateId(Reader, ThrusterIds, std::size(ThrusterIds)))
                     continue;
-                if (ApplyFloatKey(Reader, ThrusterFloats, sizeof(ThrusterFloats) / sizeof(ThrusterFloats[0])))
+                if (ApplyFloatKey(Reader, ThrusterFloats, std::size(ThrusterFloats)))
                     continue;
                 DumpUnknownConstant(Reader, 0xb8);
             }
@@ -472,11 +473,11 @@ bool __cdecl ReadConstants(char const* RelPath)
                     PhySys::GOLEM_MAX_TRANSLATION_FORCE.z = Reader.get_value_float(2);
                     continue;
                 }
-                if (ApplyFloatKey(Reader, PhyFloats, sizeof(PhyFloats) / sizeof(PhyFloats[0])))
+                if (ApplyFloatKey(Reader, PhyFloats, std::size(PhyFloats)))
                     continue;
-                if (ApplyDoubleKey(Reader, PhyDoubles, sizeof(PhyDoubles) / sizeof(PhyDoubles[0])))
+                if (ApplyDoubleKey(Reader, PhyDoubles, std::size(PhyDoubles)))
                     continue;
-                if (ApplyIntFtol(Reader, PhyInts, sizeof(PhyInts) / sizeof(PhyInts[0])))
+                if (ApplyIntFtol(Reader, PhyInts, std::size(PhyInts)))
                     continue;
                 DumpUnknownConstant(Reader, 0xe8);
             }
@@ -485,9 +486,9 @@ bool __cdecl ReadConstants(char const* RelPath)
         {
             while (Reader.read_value())
             {
-                if (ApplyFloatKey(Reader, CommFloats, sizeof(CommFloats) / sizeof(CommFloats[0])))
+                if (ApplyFloatKey(Reader, CommFloats, std::size(CommFloats)))
                     continue;
-                if (ApplyIntFtol(Reader, CommInts, sizeof(CommInts) / sizeof(CommInts[0])))
+                if (ApplyIntFtol(Reader, CommInts, std::size(CommInts)))
                     continue;
                 DumpUnknownConstant(Reader, 0xfa);
             }

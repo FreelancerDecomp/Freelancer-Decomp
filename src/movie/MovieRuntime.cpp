@@ -9,6 +9,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdexcept>
+#include <iterator>
 #include <windows.h>
 
 // movie.dll CRT helpers. Addresses are EXE/Disasm/movie.dll.txt.
@@ -1994,7 +1995,7 @@ static int MovieRuntimeMessageBox(const char* Text, const char* Caption, unsigne
 // FUN_06ad2df1. MessageBox, or WriteFile when the error mode asks for the console.
 static void MovieRuntimeError(unsigned int Code)
 {
-    int Count = (int)(sizeof(GMovieRuntimeErrors) / sizeof(GMovieRuntimeErrors[0]));
+    int Count = (int)(std::size(GMovieRuntimeErrors));
     int Index = 0;
     while (Index < Count && GMovieRuntimeErrors[Index].Code != Code)
     {

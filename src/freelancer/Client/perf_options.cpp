@@ -30,6 +30,7 @@
 #include "star_sphere.h"
 #include "star_sys.h"
 
+#include <iterator>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -346,7 +347,7 @@ namespace
         { "max_submitted_sounds",     0x687, 0, 0.f, -1.f, ApplyMaxSubmittedSounds },
     };
 
-    unsigned const kOptionCount = sizeof(G_Options) / sizeof(G_Options[0]);
+    unsigned const kOptionCount = std::size(G_Options);
 }
 
     // FUN_004a92a0 — hardware graphics score in [0.25, 1.0]. Listing freelancer.exe.txt

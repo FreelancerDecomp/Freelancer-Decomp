@@ -21,6 +21,7 @@
 #include "common_server.h"
 
 #include <cstring>
+#include <iterator>
 
 namespace
 {
@@ -218,7 +219,7 @@ void __cdecl LoadObjList(INI_Reader* Reader, std::list<FObjListDirective*>* List
             continue;
 
         int Type = -1;
-        for (int Index = 0; Index < static_cast<int>(sizeof(GObjListKeys) / sizeof(GObjListKeys[0]));
+        for (int Index = 0; Index < static_cast<int>(std::size(GObjListKeys));
              ++Index)
         {
             if (Reader->is_value(GObjListKeys[Index].Key))

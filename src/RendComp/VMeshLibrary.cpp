@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iterator>
 #include <list>
 #include <map>
 #include <new>
@@ -61,7 +62,7 @@ static const FVmeshFvfChannel G_FvfChannelTable[] = {
 };
 
 static const unsigned int G_FvfChannelCount =
-    (unsigned int)(sizeof(G_FvfChannelTable) / sizeof(G_FvfChannelTable[0]));
+    (unsigned int)(std::size(G_FvfChannelTable));
 
 bool VMeshChannelPresent(unsigned long Fvf, unsigned int ChannelId)
 {

@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <string>
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
@@ -283,7 +284,7 @@ bool IsSinglePassPropertySchemaFamily(const char* FactoryName)
                                         "DcDtOcOtTwo", "DcDtEcOcOtTwo"};
     if (FactoryName == nullptr)
         return false;
-    for (unsigned long Index = 0; Index < sizeof(Names) / sizeof(Names[0]); ++Index)
+    for (unsigned long Index = 0; Index < std::size(Names); ++Index)
     {
         if (std::strcmp(FactoryName, Names[Index]) == 0)
             return true;
@@ -3757,7 +3758,7 @@ FMaterial* CreateMaterialInstance(const char* FactoryName)
 {
     if (FactoryName == nullptr)
         return nullptr;
-    const int Count = (int)(sizeof(kMaterialTypes) / sizeof(kMaterialTypes[0]));
+    const int Count = (int)(std::size(kMaterialTypes));
     for (int Index = 0; Index < Count; ++Index)
     {
         if (std::strcmp(kMaterialTypes[Index].FactoryName, FactoryName) == 0)
@@ -3784,7 +3785,7 @@ FMaterial* AsShadingFMaterial(IMaterial* Material)
     const char* ClassName = Material->ClassName();
     if (ClassName == nullptr)
         return nullptr;
-    const int Count = (int)(sizeof(kMaterialTypes) / sizeof(kMaterialTypes[0]));
+    const int Count = (int)(std::size(kMaterialTypes));
     for (int Index = 0; Index < Count; ++Index)
     {
         if (std::strcmp(kMaterialTypes[Index].ClassName, ClassName) == 0 ||

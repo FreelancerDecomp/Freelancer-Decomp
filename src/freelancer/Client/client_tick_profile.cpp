@@ -15,6 +15,7 @@
 
 #if FREELANCER_ENABLE_TICK_PROFILE
 #include <charconv>
+#include <iterator>
 #include <windows.h>
 
 #include "platform.h"
@@ -75,7 +76,7 @@ namespace
                 L"->->->Find beam hits:", L"->->->Dispatch hits:", L"->->World / FX:",
                 L"->->Sound:", L"->->Render:", L"->->Present:"
             };
-            static_assert(sizeof(Names) / sizeof(Names[0]) == G_SectionCount,
+            static_assert(std::size(Names) == G_SectionCount,
                           "one label per profiling section");
             FontStringSetFont(&Units, SmallFont);
             FontStringSetText(&Units, L"ms.");
@@ -178,7 +179,7 @@ void FClientPhysicsProfileScope::Stop()
         EClientTickSection::PhysicsSimUnits, EClientTickSection::PhysicsCommitHulls,
         EClientTickSection::PhysicsContacts, EClientTickSection::PhysicsSync
     };
-    static_assert(sizeof(Destinations) / sizeof(Destinations[0]) ==
+    static_assert(std::size(Destinations) ==
                   static_cast<int>(EPhysicsTickSection::Count), "physics profile mapping");
     for (int Index = 0; Index < static_cast<int>(EPhysicsTickSection::Count); ++Index)
         G_SectionTicks[static_cast<int>(Destinations[Index])] += Counters.Ticks[Index];

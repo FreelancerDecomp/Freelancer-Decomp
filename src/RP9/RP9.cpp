@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ddraw.h>
+#include <iterator>
 #include <map>
 #include <new>
 #include <string>
@@ -305,12 +306,12 @@ namespace
         Map->clear();
         if (bFirstStage)
             FillPropertyMap(Map, kStageOpsFirstStage,
-                            sizeof(kStageOpsFirstStage) / sizeof(kStageOpsFirstStage[0]), false);
+                            std::size(kStageOpsFirstStage), false);
         else
             FillPropertyMap(Map, kStageOpsOtherStage,
-                            sizeof(kStageOpsOtherStage) / sizeof(kStageOpsOtherStage[0]), false);
+                            std::size(kStageOpsOtherStage), false);
         FillPropertyMap(Map, kStageStateProperties,
-                        sizeof(kStageStateProperties) / sizeof(kStageStateProperties[0]), false);
+                        std::size(kStageStateProperties), false);
     }
 
     // DAT_06d73580 / DAT_06d739a0 / DAT_06d73dc0: the three static 0x400-byte buffers startup and
@@ -424,7 +425,7 @@ namespace
     // by fmt 0) for the given depth format; its z / stencil bits, 0 when absent.
     int DepthFormatZBits(D3DFORMAT Format)
     {
-        for (unsigned int Index = 0; Index < sizeof(kZTable) / sizeof(kZTable[0]); ++Index)
+        for (unsigned int Index = 0; Index < std::size(kZTable); ++Index)
         {
             if (kZTable[Index].Format == Format)
                 return kZTable[Index].ZBits;
@@ -433,7 +434,7 @@ namespace
     }
     int DepthFormatStencilBits(D3DFORMAT Format)
     {
-        for (unsigned int Index = 0; Index < sizeof(kZTable) / sizeof(kZTable[0]); ++Index)
+        for (unsigned int Index = 0; Index < std::size(kZTable); ++Index)
         {
             if (kZTable[Index].Format == Format)
                 return kZTable[Index].StencilBits;
@@ -1414,7 +1415,7 @@ void FDirectX9::ReadAdapterIdentifier8(UINT Adapter, FRp9Identifier8* Out)
 UINT FDirectX9::AdapterModeCount(UINT Adapter)
 {
     UINT Count = 0;
-    for (unsigned int Format = 0; Format < sizeof(kRp9ModeFormats) / sizeof(kRp9ModeFormats[0]);
+    for (unsigned int Format = 0; Format < std::size(kRp9ModeFormats);
          ++Format)
         Count += D3d_->GetAdapterModeCount(Adapter, kRp9ModeFormats[Format]);
     return Count;
@@ -1425,7 +1426,7 @@ UINT FDirectX9::AdapterModeCount(UINT Adapter)
 HRESULT FDirectX9::EnumAdapterMode(UINT Adapter, UINT Index, D3DDISPLAYMODE* Out)
 {
     UINT Remaining = Index;
-    for (unsigned int Format = 0; Format < sizeof(kRp9ModeFormats) / sizeof(kRp9ModeFormats[0]);
+    for (unsigned int Format = 0; Format < std::size(kRp9ModeFormats);
          ++Format)
     {
         const UINT Count = D3d_->GetAdapterModeCount(Adapter, kRp9ModeFormats[Format]);
@@ -1741,7 +1742,7 @@ D3DFORMAT FDirectX9::PickDepthFormat(D3DFORMAT AdapterFormat, D3DFORMAT BackBuff
     const FZFormatRow* Best = nullptr;
     int BestSDelta = 0x64;
     int BestZDelta = 0x64;
-    for (unsigned int Index = 0; Index < sizeof(kZTable) / sizeof(kZTable[0]); ++Index)
+    for (unsigned int Index = 0; Index < std::size(kZTable); ++Index)
     {
         const FZFormatRow* Row = &kZTable[Index];
         const int ZDelta = *WantedZ - Row->ZBits;
@@ -1891,7 +1892,7 @@ unsigned int FDirectX9::ResolvePixelFormatByComponents(unsigned int Bpp, unsigne
                                                        unsigned int GBits, unsigned int BBits,
                                                        unsigned int AlphaBits)
 {
-    for (unsigned int Index = 0; Index < sizeof(kPfDescriptors) / sizeof(kPfDescriptors[0]); ++Index)
+    for (unsigned int Index = 0; Index < std::size(kPfDescriptors); ++Index)
     {
         const FPixelFormatDescriptor& D = kPfDescriptors[Index];
         if (D.Bpp == Bpp && D.RBits == RBits && D.RBits == BBits && D.GBits == GBits &&
@@ -3004,13 +3005,13 @@ GENRESULT DACOM_API FDirectX9::Initialize()
     Rp9MathEngine();
     // 06d01ced..06d02032: the pipeline-state property map.
     FillPropertyMap(&PropertyMap_, kPipelineProperties,
-                    sizeof(kPipelineProperties) / sizeof(kPipelineProperties[0]), true);
+                    std::size(kPipelineProperties), true);
     // 06d02037: FUN_06d19530, the ability map.
     FillPropertyMap(&AbilityMap_, kAbilityProperties,
-                    sizeof(kAbilityProperties) / sizeof(kAbilityProperties[0]), true);
+                    std::size(kAbilityProperties), true);
     // 06d02049: FUN_06d176e0, the render-state map.
     FillPropertyMap(&RenderStateMap_, kRenderStateProperties,
-                    sizeof(kRenderStateProperties) / sizeof(kRenderStateProperties[0]), true);
+                    std::size(kRenderStateProperties), true);
     // 06d0205b: FUN_06d19c30(stage 0, 1), then 06d0206e..06d020a1 FUN_06d19c30(stage i, 0) for
     // i = 0..7 -- stage 0 is rebuilt with the flag clear, so every stage ends up COLOROP 1 /
     // ALPHAOP 1.

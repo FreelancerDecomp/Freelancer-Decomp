@@ -21,6 +21,7 @@
 #include "dacom.h"
 #include "readfile.h"
 
+#include <iterator>
 #include <list>
 #include <map>
 #include <math.h>
@@ -272,7 +273,7 @@ namespace
             char const* Name = Record.Nickname;
             bool bListed = false;
             unsigned Index = 0;
-            for (; Index < sizeof(kSystemsWithoutPrefix) / sizeof(kSystemsWithoutPrefix[0]); ++Index)
+            for (; Index < std::size(kSystemsWithoutPrefix); ++Index)
             {
                 if (strcmp(Name, kSystemsWithoutPrefix[Index]) == 0)
                 {

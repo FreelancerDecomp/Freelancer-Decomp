@@ -14,6 +14,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <math.h>
 #include <mmreg.h>
 #include <msacm.h>
@@ -88,7 +89,7 @@ namespace
         DSSPEAKER_5POINT1,                          // 9
         7,                                          // 10 DSSPEAKER_7POINT1
     };
-    const unsigned long kSpeakerCount = sizeof(kSpeakerTable) / sizeof(kSpeakerTable[0]);
+    const unsigned long kSpeakerCount = std::size(kSpeakerTable);
 
     // FUN_06ee71c0 cdecl (buffer, fmt, ...): _vsnprintf(buffer, 0x2000, fmt, args), returns
     // the buffer. No terminator is forced. Every retail message is formatted through it

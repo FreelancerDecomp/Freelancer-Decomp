@@ -55,6 +55,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <vector>
 #include <windows.h>
 
@@ -739,7 +740,7 @@ namespace
 
     bool ApplySettingKey(FNebulaVolumeSettings* Settings, INI_Reader& Reader)
     {
-        const size_t Count = sizeof(kSettingKeys) / sizeof(kSettingKeys[0]);
+        const size_t Count = std::size(kSettingKeys);
         for (size_t Index = 0; Index < Count; ++Index)
         {
             if (Reader.is_value(kSettingKeys[Index].Key))
@@ -748,7 +749,7 @@ namespace
                 return true;
             }
         }
-        const size_t VectorCount = sizeof(kSettingVectorKeys) / sizeof(kSettingVectorKeys[0]);
+        const size_t VectorCount = std::size(kSettingVectorKeys);
         for (size_t Index = 0; Index < VectorCount; ++Index)
         {
             if (Reader.is_value(kSettingVectorKeys[Index].Key))

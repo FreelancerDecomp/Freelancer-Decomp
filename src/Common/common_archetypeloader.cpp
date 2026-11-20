@@ -14,6 +14,7 @@
 #include "common_misc.h"   // SinglePlayer, SUBOBJ_ID_NONE
 #include "dacom.h"         // FDUMP
 
+#include <iterator>
 #include <map>
 #include <utility>
 
@@ -60,7 +61,7 @@ namespace
 
     FEquipmentKind const* MatchEquipmentKind(INI_Reader& Reader)
     {
-        unsigned Count = sizeof(kEquipmentKinds) / sizeof(kEquipmentKinds[0]);
+        unsigned Count = std::size(kEquipmentKinds);
         for (unsigned Index = 0; Index < Count; ++Index)
         {
             if (Reader.is_header(kEquipmentKinds[Index].Name))

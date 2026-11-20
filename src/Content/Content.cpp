@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <iterator>
 #include <string.h>
 
 HMODULE G_ContentModule = nullptr;
@@ -111,7 +112,7 @@ namespace
         { "GenericMission", &CreateGenericMission },
     };
 
-    int const G_FactoryCount = sizeof(G_Factories) / sizeof(G_Factories[0]);
+    int const G_FactoryCount = std::size(G_Factories);
     static_assert(G_FactoryCount == 23, "retail CreateInstance has 23 names");
 }
 

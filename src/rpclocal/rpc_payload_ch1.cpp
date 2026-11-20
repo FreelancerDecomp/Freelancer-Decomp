@@ -24,6 +24,7 @@
 #include "rpc_containers.h"
 #include "common_goods.h"
 
+#include <iterator>
 #include <new>
 
 // ---------------------------------------------------------------------------
@@ -709,7 +710,7 @@ const FRpcPayloadCodec GChannel1Codecs[] = {
 };
 
 const unsigned int GChannel1CodecCount =
-    (unsigned int)(sizeof(GChannel1Codecs) / sizeof(GChannel1Codecs[0]));
+    (unsigned int)(std::size(GChannel1Codecs));
 
 extern "C" __declspec(dllexport) const FRpcPayloadCodec* RpcFindPayloadCodec(unsigned int Channel, unsigned int Opcode) {
     if (Channel == 1u) {
