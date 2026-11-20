@@ -8,6 +8,7 @@
 #include "readfile.h"
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
+#include "vc6_sort.h" // Vc6Sort::Sort (SortMasterEvents, SortActiveEventTypes)
 
 #include <cmath>
 #include <cstdarg>
@@ -51,80 +52,6 @@ namespace
         return Left != nullptr && Right != nullptr && Left->Type < Right->Type;
     }
 
-    // FUN_06f400e0: the sorted first sixteen entries provide the sentinel.
-    void InsertActiveEventType(FThornEvent** Slot, FThornEvent* Event)
-    {
-        while (Event != nullptr)
-        {
-            FThornEvent* Previous = Slot[-1];
-            if (Previous == nullptr || Event->Type >= Previous->Type)
-                break;
-            *Slot = Previous;
-            --Slot;
-        }
-        *Slot = Event;
-    }
-
-    // FUN_06f40290: signed Type insertion sort, including the front shift.
-    void SortActiveEventTypes(FThornEvent** Begin, FThornEvent** End)
-    {
-        if (Begin == End)
-            return;
-        for (FThornEvent** Slot = Begin + 1; Slot != End; ++Slot)
-        {
-            FThornEvent* Event = *Slot;
-            if (Event != nullptr && *Begin != nullptr && Event->Type < (*Begin)->Type)
-            {
-                FThornEvent** Write = Slot;
-                while (Write != Begin)
-                {
-                    *Write = Write[-1];
-                    --Write;
-                }
-                *Begin = Event;
-            }
-            else
-                InsertActiveEventType(Slot, Event);
-        }
-    }
-
-    // FUN_06f3ff10: the already sorted prefix supplies the first sentinel.
-    void InsertMasterEvent(FThornEvent** Slot, FThornEvent* Event)
-    {
-        while (Event != nullptr && Slot[-1] != nullptr &&
-               static_cast<unsigned int>(Event->StartTimeMs) <
-                   static_cast<unsigned int>(Slot[-1]->StartTimeMs))
-        {
-            *Slot = Slot[-1];
-            --Slot;
-        }
-        *Slot = Event;
-    }
-
-    // FUN_06f40120: unsigned-time insertion sort, including the front shift.
-    void SortRetailNodesByKey(FThornEvent** Nodes, int Count)
-    {
-        if (Count == 0)
-            return;
-        for (int Index = 1; Index < Count; ++Index)
-        {
-            FThornEvent* Event = Nodes[Index];
-            FThornEvent** Slot = Nodes + Index;
-            if (Event == nullptr || Nodes[0] == nullptr ||
-                static_cast<unsigned int>(Nodes[0]->StartTimeMs) <=
-                    static_cast<unsigned int>(Event->StartTimeMs))
-            {
-                InsertMasterEvent(Slot, Event);
-            }
-            else
-            {
-                for (; Slot != Nodes; --Slot)
-                    *Slot = Slot[-1];
-                *Nodes = Event;
-            }
-        }
-    }
-
     // FUN_06f3fee0: AL-only unsigned event-time predicate.
     bool MasterEventPrecedes(const FThornEvent* Left, const FThornEvent* Right)
     {
@@ -133,172 +60,21 @@ namespace
                    static_cast<unsigned int>(Right->StartTimeMs);
     }
 
-    // Retail FUN_06f401b0: select the median node by the unsigned key at
-    // +0x08. The branch order is intentional; it also preserves retail's
-    // null fallbacks instead of imposing a modern total-order policy.
-    FThornEvent* SelectRetailMedianNode(FThornEvent* First, FThornEvent* Second, FThornEvent* Third)
-    {
-        if (First != nullptr)
-        {
-            if (Second != nullptr)
-            {
-                const unsigned int FirstKey = static_cast<unsigned int>(First->StartTimeMs);
-                const unsigned int SecondKey = static_cast<unsigned int>(Second->StartTimeMs);
-                if (FirstKey < SecondKey)
-                {
-                    if (Third == nullptr)
-                        return First;
-                    const unsigned int ThirdKey = static_cast<unsigned int>(Third->StartTimeMs);
-                    if (SecondKey < ThirdKey)
-                        return Second;
-                    if (ThirdKey <= FirstKey)
-                        return First;
-                    return Third;
-                }
-            }
-            if (Third != nullptr)
-            {
-                if (MasterEventPrecedes(First, Third))
-                    return First;
-            }
-        }
-        if (Second != nullptr && Third != nullptr)
-        {
-            if (MasterEventPrecedes(Second, Third))
-                return Third;
-        }
-        return Second;
-    }
-
-    // Retail FUN_06f40230: Hoare-style partition over [Begin, End), using
-    // the unsigned +0x08 key and retaining the retail null-stop branches.
-    FThornEvent** PartitionRetailNodes(FThornEvent** Begin, FThornEvent** End, FThornEvent* Pivot)
-    {
-        FThornEvent** Left = Begin;
-        FThornEvent** Right = End;
-        while (true)
-        {
-            FThornEvent* LeftNode = *Left;
-            while (LeftNode != nullptr && Pivot != nullptr &&
-                   static_cast<unsigned int>(LeftNode->StartTimeMs) <
-                   static_cast<unsigned int>(Pivot->StartTimeMs))
-            {
-                Left = Left + 1;
-                LeftNode = *Left;
-            }
-
-            do
-            {
-                Right = Right - 1;
-                if (Pivot == nullptr || *Right == nullptr)
-                    break;
-            }
-            while (static_cast<unsigned int>(Pivot->StartTimeMs) <
-                   static_cast<unsigned int>((*Right)->StartTimeMs));
-
-            if (Right <= Left)
-                return Left;
-            *Left = *Right;
-            *Right = LeftNode;
-            Left = Left + 1;
-        }
-    }
-
-    // FUN_06f3fd80: partition only; insertion follows in the load caller.
-    void SortMasterPartitions(FThornEvent** Begin, FThornEvent** End)
-    {
-        while (End - Begin > 16)
-        {
-            const int Count = static_cast<int>(End - Begin);
-            FThornEvent* Pivot = SelectRetailMedianNode(Begin[0], Begin[Count / 2], End[-1]);
-            FThornEvent** Middle = PartitionRetailNodes(Begin, End, Pivot);
-            if (End - Middle <= Middle - Begin)
-            {
-                SortMasterPartitions(Middle, End);
-                End = Middle;
-            }
-            else
-            {
-                SortMasterPartitions(Begin, Middle);
-                Begin = Middle;
-            }
-        }
-    }
-
-    // Slot4_Load, 06f3833f-06f38414: restore the complete original range
-    // before sorting the first 16 entries and inserting the remaining entries.
+    // Slot4_Load, 06f3833f-06f38414: VC6 std::sort of MASTER by MasterEventPrecedes --
+    // _Sort FUN_06f3fd80 (median FUN_06f401b0, partition FUN_06f40230), _Insertion_sort
+    // FUN_06f40120 and _Unguarded_insert FUN_06f3ff10. Their null branches are the
+    // predicate's "either null means false", so retail's null fallbacks are kept.
     void SortMasterEvents(FThornEvent** Events, int Count)
     {
-        if (Count <= 16)
-        {
-            SortRetailNodesByKey(Events, Count);
-            return;
-        }
-        SortMasterPartitions(Events, Events + Count);
-        SortRetailNodesByKey(Events, 16);
-        for (int Index = 16; Index < Count; ++Index)
-            InsertMasterEvent(Events + Index, Events[Index]);
+        Vc6Sort::Sort(Events, Events + Count, MasterEventPrecedes);
     }
 
-    // FUN_06f3ff50: literal signed-Type median/Hoare partitions.
-    void PartitionActiveEventTypes(FThornEvent** Begin, FThornEvent** End)
+    // EmitActiveGroup's inlined VC6 std::sort of a group by ActiveEventTypePrecedes --
+    // _Sort FUN_06f3ff50 (median and partition inlined), _Insertion_sort FUN_06f40290 and
+    // _Unguarded_insert FUN_06f400e0, with the same null semantics as above.
+    void SortActiveEventTypes(FThornEvent** Begin, FThornEvent** End)
     {
-        while (End - Begin > 16)
-        {
-            FThornEvent* First = Begin[0];
-            FThornEvent* Middle = Begin[(End - Begin) / 2];
-            FThornEvent* Last = End[-1];
-            FThornEvent* Pivot;
-            if (ActiveEventTypePrecedes(First, Middle))
-            {
-                if (Last == nullptr)
-                    Pivot = First;
-                else if (Middle->Type < Last->Type)
-                    Pivot = Middle;
-                else if (First->Type < Last->Type)
-                    Pivot = Last;
-                else
-                    Pivot = First;
-            }
-            else if (ActiveEventTypePrecedes(First, Last))
-                Pivot = First;
-            else if (ActiveEventTypePrecedes(Middle, Last))
-                Pivot = Last;
-            else
-                Pivot = Middle;
-
-            FThornEvent** Left = Begin;
-            FThornEvent** Right = End;
-            while (true)
-            {
-                FThornEvent* Event = *Left;
-                while (ActiveEventTypePrecedes(Event, Pivot))
-                {
-                    ++Left;
-                    Event = *Left;
-                }
-                do
-                {
-                    --Right;
-                }
-                while (Pivot != nullptr && *Right != nullptr && Pivot->Type < (*Right)->Type);
-                if (Right <= Left)
-                    break;
-                *Left = *Right;
-                *Right = Event;
-                ++Left;
-            }
-            if (End - Left <= Left - Begin)
-            {
-                PartitionActiveEventTypes(Left, End);
-                End = Left;
-            }
-            else
-            {
-                PartitionActiveEventTypes(Begin, Left);
-                Begin = Left;
-            }
-        }
+        Vc6Sort::Sort(Begin, End, ActiveEventTypePrecedes);
     }
 
     void IdentityOrient(float* Out9)
@@ -7735,15 +7511,7 @@ void FThornScene::EmitActiveGroup(std::map<int, FActiveGroup>& Groups,
     FThornEvent** Begin = Events.data();
     FThornEvent** End = Events.empty() ? Begin : Begin + Events.size();
     Group->second.bVisited = true;
-    if (Events.size() <= 16)
-        SortActiveEventTypes(Begin, End);
-    else
-    {
-        PartitionActiveEventTypes(Begin, End);
-        SortActiveEventTypes(Begin, Begin + 16);
-        for (FThornEvent** Slot = Begin + 16; Slot != End; ++Slot)
-            InsertActiveEventType(Slot, *Slot);
-    }
+    SortActiveEventTypes(Begin, End);
 
     // 3ac74 retains Event across dependency recursion and output allocation.
     FThornEvent** Slot = Events.data();

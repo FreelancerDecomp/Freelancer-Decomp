@@ -8,7 +8,7 @@
 
 #include "Voices.h"
 
-#include "ContentSort.h"   // ContentSort (the VC6 std::sort of LoadVoiceLines)
+#include "vc6_sort.h"      // Vc6Sort::Sort (the VC6 std::sort of LoadVoiceLines)
 #include "common_ini.h"
 #include "common_server.h"
 
@@ -71,10 +71,10 @@ int __cdecl LoadVoiceLines(INI_Reader* Reader)
         }
     }
 
-    // 06f6798a-06f67b87: VC6 std::sort of the whole table = ContentSort (median FUN_06f6b6f0,
+    // 06f6798a-06f67b87: VC6 std::sort of the whole table = Vc6Sort::Sort (median FUN_06f6b6f0,
     // partition FUN_06f6b790, _Sort FUN_06f6b140, insertion sort FUN_06f6b600 and the
     // unguarded tail FUN_06f6b3d0), so equal keys keep retail's order.
-    ContentSort(GVoiceLines.data(), GVoiceLines.data() + GVoiceLines.size(), VoiceLineLess);
+    Vc6Sort::Sort(GVoiceLines.data(), GVoiceLines.data() + GVoiceLines.size(), VoiceLineLess);
     return static_cast<int>(GVoiceLines.size());
 }
 

@@ -52,6 +52,7 @@
   <ItemGroup>
     <ClInclude Include="Thorn.h" />
     <ClInclude Include="..\include\thorn_iface.h" />
+    <ClInclude Include="..\include\vc6_sort.h" />
     <ClInclude Include="ThornScene.h" />
     <ClInclude Include="ThornControlCalls.h" />
     <ClInclude Include="SplineMath.h" />

@@ -11,7 +11,7 @@
 #include "ContentInternal.h"
 #include "ContentMessageRouter.h"
 #include "ContentPlayerState.h"
-#include "ContentSort.h"        // ContentSort (VC6 std::sort, FUN_06f4a9f0's tail)
+#include "vc6_sort.h"           // Vc6Sort::Sort (VC6 std::sort, FUN_06f4a9f0's tail)
 #include "ContentStageNames.h"
 #include "ContentStaticIds.h"
 #include "Cargo.h"              // PickFactionShipLineArch (TU44)
@@ -174,14 +174,14 @@ void __cdecl LoadRankDifficulties(INI_Reader* Reader)
 
     // 06f4ab2c-06f4ad27: VC6 std::sort (_Sort_0 with the first _Sort pass, the partition and
     // the insertion sort inlined; _Median FUN_06f4ece0, _Sort FUN_06f4eb70, _Unguarded_insert
-    // FUN_06f4eca0), ordered by the int Stage only (CMP / JL on the first dword). ContentSort
+    // FUN_06f4eca0), ordered by the int Stage only (CMP / JL on the first dword). Vc6Sort::Sort
     // runs the same steps, so records with an equal Stage keep retail's order.
     FRmRankDifficulty* const First = GRmRankDifficulties.data();
-    ContentSort(First, First + GRmRankDifficulties.size(),
-                [](FRmRankDifficulty const& Left, FRmRankDifficulty const& Right)
-                {
-                    return Left.Stage < Right.Stage;
-                });
+    Vc6Sort::Sort(First, First + GRmRankDifficulties.size(),
+                  [](FRmRankDifficulty const& Left, FRmRankDifficulty const& Right)
+                  {
+                      return Left.Stage < Right.Stage;
+                  });
 }
 
 // FUN_06f4ad30: end = begin (records are trivially destructible).

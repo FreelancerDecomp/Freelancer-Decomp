@@ -28,6 +28,7 @@
 #include "common_misc.h"
 #include "game_options.h"   // GetGameOption (FUN_005792b0)
 #include "sound_archetype.h"
+#include "vc6_sort.h"        // Vc6Sort::Sort (MixerSortRanked)
 
 #include <cstdint>
 #include <float.h>
@@ -1554,132 +1555,14 @@ namespace
         return A != nullptr && B != nullptr && B->MixerScale < A->MixerScale;
     }
 
-    // FUN_0042a9a0 -- VC6 _Unguarded_insert(Last, Value): every predecessor Value ranks before
-    // moves up one place; the first one it does not rank before stops the walk (unguarded:
-    // the caller guarantees one), and Value takes the hole.
-    void MixerUnguardedInsert(FSoundSource** Last, FSoundSource* Value)
-    {
-        FSoundSource** Hole = Last;
-        FSoundSource** Prev = Last;
-        for (;;)
-        {
-            --Prev;
-            if (!MixerRanksBefore(Value, *Prev))
-                break;
-            *Hole = *Prev;
-            Hole = Prev;
-        }
-        *Hole = Value;
-    }
-
-    // FUN_0042a9e0 -- VC6 _Insertion_sort(First, Last): an entry that ranks before the first
-    // shifts the whole prefix up (copy_backward) and goes to the front; any other one takes the
-    // unguarded insert.
-    void MixerInsertionSort(FSoundSource** First, FSoundSource** Last)
-    {
-        if (First == Last)
-            return;
-        for (FSoundSource** Mid = First + 1; Mid != Last; ++Mid)
-        {
-            FSoundSource* const Value = *Mid;
-            if (MixerRanksBefore(Value, *First))
-            {
-                for (FSoundSource** Move = Mid; Move != First; --Move)
-                    *Move = *(Move - 1);
-                *First = Value;
-            }
-            else
-            {
-                MixerUnguardedInsert(Mid, Value);
-            }
-        }
-    }
-
-    // FUN_0042a810 -- VC6 _Sort(First, Last): while more than 16 entries remain, partition
-    // around the median of the first, middle (count / 2) and last entries (VC6 _Median, the
-    // predicate order of 0x0042a855..0x0042a8cc) with the unguarded partition
-    // (0x0042a8d4..0x0042a91b), recurse into the part that is not larger -- the byte distances
-    // compared signed (JG) -- and loop on the other.
-    void MixerIntroSort(FSoundSource** First, FSoundSource** Last)
-    {
-        int Count = static_cast<int>(Last - First);
-        while (Count > 16)
-        {
-            FSoundSource* const A = *First;
-            FSoundSource* const B = First[Count / 2];
-            FSoundSource* const C = *(Last - 1);
-            FSoundSource* Pivot = nullptr;
-            if (MixerRanksBefore(A, B))
-            {
-                if (MixerRanksBefore(B, C))
-                    Pivot = B;
-                else if (MixerRanksBefore(A, C))
-                    Pivot = C;
-                else
-                    Pivot = A;
-            }
-            else if (MixerRanksBefore(A, C))
-            {
-                Pivot = A;
-            }
-            else if (MixerRanksBefore(B, C))
-            {
-                Pivot = C;
-            }
-            else
-            {
-                Pivot = B;
-            }
-
-            FSoundSource** Lo = First;
-            FSoundSource** Hi = Last;
-            for (;;)
-            {
-                while (MixerRanksBefore(*Lo, Pivot))
-                    ++Lo;
-                do
-                {
-                    --Hi;
-                } while (MixerRanksBefore(Pivot, *Hi));
-                if (Hi <= Lo)
-                    break;
-                FSoundSource* const Swap = *Lo;
-                *Lo = *Hi;
-                *Hi = Swap;
-                ++Lo;
-            }
-
-            FSoundSource** const Mid = Lo;
-            if ((Last - Mid) > (Mid - First))
-            {
-                MixerIntroSort(First, Mid);
-                First = Mid;
-            }
-            else
-            {
-                MixerIntroSort(Mid, Last);
-                Last = Mid;
-            }
-            Count = static_cast<int>(Last - First);
-        }
-    }
-
     // 0x004282fb..0x00428372 of FUN_00428040: VC6 std::sort over DAT_00667a58[0..count) --
-    // above 16 entries (byte span > 0x40, signed JG) FUN_0042a810, FUN_0042a9e0 on the first
-    // 16 and FUN_0042a9a0 for each of the rest; otherwise FUN_0042a9e0 alone.
+    // above 16 entries (byte span > 0x40, signed JG) _Sort FUN_0042a810 (the median, the
+    // predicate order of 0x0042a855..0x0042a8cc, and the unguarded partition
+    // 0x0042a8d4..0x0042a91b inlined), _Insertion_sort FUN_0042a9e0 on the first 16 and
+    // _Unguarded_insert FUN_0042a9a0 for each of the rest; otherwise FUN_0042a9e0 alone.
     void MixerSortRanked(FSoundSource** First, FSoundSource** Last)
     {
-        if ((Last - First) > 16)
-        {
-            MixerIntroSort(First, Last);
-            MixerInsertionSort(First, First + 16);
-            for (FSoundSource** It = First + 16; It != Last; ++It)
-                MixerUnguardedInsert(It, *It);
-        }
-        else
-        {
-            MixerInsertionSort(First, Last);
-        }
+        Vc6Sort::Sort(First, Last, MixerRanksBefore);
     }
 
     // LAB_004278a0 -- the static initializer: the head node from operator new(0xc), linked to

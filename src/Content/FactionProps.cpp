@@ -17,7 +17,7 @@
 #include "FactionProps.h"
 
 #include "ContentInternal.h"    // OpenContentDataIni, GContentNextUniqueId
-#include "ContentSort.h"        // ContentSort (VC6 std::sort)
+#include "vc6_sort.h"           // Vc6Sort::Sort (VC6 std::sort)
 #include "ContentStaticIds.h"
 #include "NpcShips.h"           // ParseSpaceCostume
 #include "RandomMissionGen.h"   // FindVoiceProperties, FVoiceProperties
@@ -989,7 +989,7 @@ void __cdecl LoadFactionEmpathy(char const* RelativePath)
         if (!Empathy.EmpathyRates.empty())
         {
             FFactionEmpathyRate* First = &Empathy.EmpathyRates[0];
-            ContentSort(First, First + Empathy.EmpathyRates.size(), &EmpathyRateLess);
+            Vc6Sort::Sort(First, First + Empathy.EmpathyRates.size(), &EmpathyRateLess);
         }
 
         GFactionEmpathy.insert(std::make_pair(Group, Empathy));                // FUN_06f53590

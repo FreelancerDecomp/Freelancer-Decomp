@@ -80,6 +80,7 @@
     <ClInclude Include="common_physys_internal.h" />
     <ClInclude Include="..\include\common_id.h" />
     <ClInclude Include="..\include\common_ini.h" />
+    <ClInclude Include="..\include\vc6_sort.h" />
     <ClInclude Include="..\include\common_archetype.h" />
     <ClInclude Include="..\include\common_universe.h" />
     <ClInclude Include="..\include\common_spatial.h" />

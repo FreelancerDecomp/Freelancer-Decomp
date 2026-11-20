@@ -127,7 +127,7 @@
     <ClInclude Include="Client\ui_text_edit.h" />
     <ClInclude Include="Client\ui_win_deform.h" />
     <ClInclude Include="Client\ui_ship_view_control.h" />
-    <ClInclude Include="Client\vc6_sort.h" />
+    <ClInclude Include="..\include\vc6_sort.h" />
     <ClInclude Include="Client\ui_win_object.h" />
     <ClInclude Include="Client\ui_table.h" />
     <ClInclude Include="Client\ui_fast_table.h" />

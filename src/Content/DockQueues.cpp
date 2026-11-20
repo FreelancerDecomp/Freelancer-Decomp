@@ -16,7 +16,7 @@
 #include "BaseDB.h"              // FindContentBaseInfo, FContentBase::FindFaction
 #include "ContentInternal.h"
 #include "ContentPlayerState.h"
-#include "ContentSort.h"         // ContentSort (the VC6 std::sort of CollectFormationMembers)
+#include "vc6_sort.h"            // Vc6Sort::Sort (the VC6 std::sort of CollectFormationMembers)
 #include "Encounters.h"          // FFormation::GetSlotPosition
 #include "Guides.h"              // FContentGuide::Clone / Release (BreakFormationAtDock)
 #include "MissionObjList.h"      // CreateObjListDirective, FObjListDelay, FObjListLaunch
@@ -182,7 +182,7 @@ std::list<FDockQueueEntry>::iterator __cdecl FindDockQueueEntry(std::list<FDockQ
 // FUN_06f66220 (06f66220-06f66438). For each SystemInfo of the map (FUN_06f75f20) its space
 // objects (+0xdc) whose +0x154 is FormationId, then every player state's ship (+0x10, when
 // set) with the same test -- all appended (FUN_06f937c0). Then the whole vector is sorted by
-// +0x14c (signed `<`, JL): retail's inlined VC6 std::sort = ContentSort -- up to 16 elements
+// +0x14c (signed `<`, JL): retail's inlined VC6 std::sort = Vc6Sort::Sort -- up to 16 elements
 // the insertion sort 06f66322 (unguarded insert FUN_06f6b0f0); above, the first _Sort pass
 // inlined (median FUN_06f6b550 of first/mid/last-1, partition FUN_06f6b5a0, _Sort
 // FUN_06f6aff0 into the not-larger side, loop while > 16), then insertion FUN_06f6b4c0 of the
@@ -216,11 +216,11 @@ void __cdecl CollectFormationMembers(std::vector<FContentShipBase*>* Out, unsign
             Out->push_back(Ship);
     }
 
-    ContentSort(Out->data(), Out->data() + Out->size(),
-                [](FContentShipBase* A, FContentShipBase* B)
-                {
-                    return static_cast<int>(A->FormationSlot) < static_cast<int>(B->FormationSlot);
-                });
+    Vc6Sort::Sort(Out->data(), Out->data() + Out->size(),
+                  [](FContentShipBase* A, FContentShipBase* B)
+                  {
+                      return static_cast<int>(A->FormationSlot) < static_cast<int>(B->FormationSlot);
+                  });
 }
 
 // FUN_06f67660 (06f67660-06f67733). The player walk sits inside the system loop: for each
