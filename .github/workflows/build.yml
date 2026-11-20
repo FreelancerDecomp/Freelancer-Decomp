@@ -181,6 +181,7 @@ jobs:
           path: |
             bin_x64/*.exe
             bin_x64/*.dll
+            bin_x64/*.pdb
           if-no-files-found: error
           retention-days: 14
 
@@ -656,3 +657,20 @@ jobs:
           $diff = Compare-Object $a $b
           Write-Host "differing lines: $(@($diff).Count)"
           $diff | Select-Object -First 40 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
+
+      # TEMP(x64): the stack of a crash, from the console debugger.
+      - name: x64 crash stacks
+        if: failure()
+        shell: pwsh
+        working-directory: bin_x64
+        run: |
+          $cdb = 'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\cdb.exe'
+          if (-not (Test-Path $cdb)) { Write-Host 'cdb not found'; exit 0 }
+          $env:_NT_SYMBOL_PATH = (Get-Location).Path
+          foreach ($run in @(@('FLRegress.exe', '--out', 'regress_cdb.txt', '--timeout', '120'),
+                             @('FLDedicated.exe', '--name', 'CI', '--run-for', '10'))) {
+            Write-Host "=== $($run -join ' ')"
+            & $cdb -lines -G -c 'sxd -c2 ".ecxr;kn 40;q" av; g; q' @run 2>&1 |
+              Select-String -Pattern '^\s*[0-9a-f]{2} |Access violation|ExceptionAddress|^\w+!|\.(cpp|h)' |
+              Select-Object -First 80 | ForEach-Object { Write-Host $_.Line }
+          }
