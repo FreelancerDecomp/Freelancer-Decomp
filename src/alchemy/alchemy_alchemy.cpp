@@ -460,7 +460,7 @@ namespace AlchemyImpl
             FdumpAlchemyWarning(0x12C, kMsgDrawWithoutBegin);
             return GR_GENERIC;
         }
-        G_DrawCookie = static_cast<unsigned long>(reinterpret_cast<unsigned int>(Cookie));
+        G_DrawCookie = reinterpret_cast<std::uintptr_t>(Cookie);
         IDAComponent* Start = static_cast<IDAComponent*>(StartNode);
         if (Start == nullptr)
             Start = G_RootNode;
