@@ -270,3 +270,13 @@ Rule for new code: a port of a call to `MSVCRT.DLL::atoi`/`atol`/`_wtoi`/`_wtol`
 **Retail.** `WinMain` starts with `CreateMutexA(NULL, FALSE, "FreelancerClient")` (.text:005b2f87..005b2fac); a null handle or `GetLastError() == ERROR_ALREADY_EXISTS` (0xb7) jumps to the exit (LAB_005b3385) and returns 1, so only one client runs per machine.
 **Port.** The same code, compiled only when `FL_SINGLE_INSTANCE` is defined. Nothing defines it, so by default the client creates no mutex and any number of instances start.
 **Why.** The owner tests multiplayer by running several local clients against one FLServer.
+
+## RemoteClient: client slot released once (REMOTECLIENT-SLOT-LIFECYCLE, 2026-11-20)
+
+> **Status:** OPEN (retail defect fixed; owner's request to scale the dedicated server)
+> **Owner:** RemoteClient (`src/RemoteClient/RemoteClient_transport.cpp`: `CClientImpl::DisconnectClient`, `CRemoteClientProxy::OnConnect` / `OnDisconnect` / destructor) and FLServer (`src/FLServer/MainFrm.cpp`, `GClientStats`)
+> **Removal condition:** none planned; the retail behaviour corrupts the client table.
+
+**Retail.** `CClientImpl::DisconnectClient` always decrements `NumClients`, disconnects the proxy it finds, calls `IServer::DisConnect` and clears slot `ClientId - 1`. A server-side kick (`PlayerDB::LockAccountAccess` and the account-delete path, IClient slot 17) runs it once directly and once more from `OnDisconnect` when DirectPlay's `DESTROY_PLAYER` is dispatched, so `NumClients` drifts below the real count, Server.dll gets a second `DisConnect`, and the second clear (and the proxy's destructor) can empty a slot a new client has taken in between. With every one of the 128 slots taken, `OnConnect` carries on with id 0. FLServer's `GClientStats[0x10]` is filled by `GetClientStats` with one record per connected proxy, guarded only by the drifting `GetNumClients() > 0x10` sampled on the UI thread.
+**Port.** Only a `DisconnectClient` that finds the live proxy decrements the count and releases the slot; the proxy is then marked released (it keeps its id for packets still in flight) and its `OnDisconnect` and destructor leave the slot alone. Every `IClient::DisconnectClient` call still reaches `IServer::DisConnect`. `OnConnect` with no free slot disconnects the proxy instead of using id 0 (unreachable while the DirectPlay session is no larger than the table). FLServer's two stats buffers hold 0x80 records; only the first 16 are logged, as in retail.
+**Why.** The double release breaks the client count and can detach a live client; both get worse as the player limit is raised.

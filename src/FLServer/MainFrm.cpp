@@ -26,9 +26,12 @@ namespace
 
 	// .data:00427d98 / .data:00428528 — RemoteClient's per-client counters at the last and the
 	// previous 1 s sample (16 records of 0x78 bytes each); OnTimer zeroes both once, guarded by
-	// .data:00428cb0.
-	FClientStats GClientStats[0x10];
-	FClientStats GPrevClientStats[0x10];
+	// .data:00428cb0. Port: 0x80 records, one per RemoteClient slot. GetClientStats writes one
+	// record per connected client, and the client count it is guarded by is sampled on this
+	// thread while clients connect on the server thread, so 16 could overflow
+	// (deviations.md, REMOTECLIENT-SLOT-LIFECYCLE). Only the first 16 are logged, as in retail.
+	FClientStats GClientStats[0x80];
+	FClientStats GPrevClientStats[0x80];
 	bool GbClientStatsCleared = false;
 
 	// .rdata:0041dea8 (1/1024: bytes to KB) and .rdata:0041deb0 (0.001: bits to kbit).
