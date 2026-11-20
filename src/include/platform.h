@@ -279,6 +279,20 @@ namespace Platform
     // LoadLibraryA: nullptr on failure.
     inline Module ModuleLoad(char const* Path) { return ::LoadLibraryA(Path); }
 
+    // A DLL loaded only for its resources (string tables, dialogs, icons): the retail
+    // resources.dll / infocards.dll and the [Resources] DLLs that data and mods list. Win32 uses
+    // LoadLibraryA, as retail. Those DLLs are 32-bit images, which a 64-bit process cannot load
+    // as code, so x64 maps them as image resources: LoadString, FindResource, DialogBoxParam and
+    // FreeLibrary work on the handle; GetProcAddress does not. nullptr on failure.
+    inline Module ResourceModuleLoad(char const* Path)
+    {
+#if defined(_WIN64)
+        return ::LoadLibraryExA(Path, nullptr, LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+#else
+        return ::LoadLibraryA(Path);
+#endif
+    }
+
     // FreeLibrary.
     inline bool ModuleFree(Module Library) { return ::FreeLibrary(Library) != FALSE; }
 
