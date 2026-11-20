@@ -797,7 +797,13 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         if (Info == nullptr || Info->InterfaceName == nullptr)
             return GR_INVALID_PARMS;
 
+#if defined(_M_IX86)
         if (Info->Size != sizeof(FMathDesc) ||
+#else
+        // x64: every caller passes the retail size 0xC (Common, Server, RendComp, Thorn); the
+        // x64 descriptor is larger, with the same members in the same order.
+        if ((Info->Size != 0xC && Info->Size != sizeof(FMathDesc)) ||
+#endif
             std::memcmp(Info->InterfaceName, G_ComponentName, G_ComponentNameBytes) != 0)
             return GR_INTERFACE_UNSUPPORTED;
 
