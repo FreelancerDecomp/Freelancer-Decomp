@@ -38,7 +38,7 @@ void __cdecl MovieAbortRuntime();
 uint8_t g_movieAtexitGuard;
 
 // DAT_06ada238 is four zero bytes. MCIWndCreateA reads it as an empty C string.
-static const char GApproach2EmptyFile[4] = { 0, 0, 0, 0 };
+static constexpr char GApproach2EmptyFile[4] = { 0, 0, 0, 0 };
 
 // PTR_LAB_06ada20c slots after the scalar delete. Retail stores one __amsg_exit address in every slot.
 static void Approach2BaseAbort()

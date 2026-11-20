@@ -25,7 +25,7 @@ namespace CmnText
     // Every TextRenderContext-family ctor (TextRenderContext itself, both DeviceTRC ctors, TRANode
     // -- see 0xc7380/0xc7b40/0xc7bf0/0xc8658) copies its CURRENT value into its own attrs field(s)
     // at construction.
-    static const unsigned long GDefaultTextAttribsPacked = 0xFFFFFF00u;
+    static constexpr unsigned long GDefaultTextAttribsPacked = 0xFFFFFF00u;
 
     // DAT_063ed66c, the rich-text scale InitializeRichText / ReinitializeRichTextFonts set.
     // Defined in common_textrender.cpp; DeviceTRC::execute_image and ImageNode::GetVisualSize

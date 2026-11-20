@@ -14,7 +14,7 @@
 
 // movie.dll CRT helpers. Addresses are EXE/Disasm/movie.dll.txt.
 
-static const int GMovieLockCount = 0x30;
+static constexpr int GMovieLockCount = 0x30;
 static CRITICAL_SECTION* GMovieLockTable[GMovieLockCount];
 static CRITICAL_SECTION GMovieLockIo;
 static CRITICAL_SECTION GMovieLockHeap;

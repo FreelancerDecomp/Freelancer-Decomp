@@ -46,10 +46,10 @@ static GENRESULT MathQuatSlerp(I3DMathEngine* Math, float* Dst, const float* A, 
 }
 
 
-static const int kFdumpNotice = 0x100003;
-static const int kFdumpError = 0x100001;
-static const int kFdumpWarning = 0x100002;
-static const int kFdumpFatal = 0x100000;
+static constexpr int kFdumpNotice = 0x100003;
+static constexpr int kFdumpError = 0x100001;
+static constexpr int kFdumpWarning = 0x100002;
+static constexpr int kFdumpFatal = 0x100000;
 static const char* const G_FdumpFmtNotice = "%s(%d) : NOTICE:General:%s";
 static const char* const G_FdumpFmtError = "%s(%d) : ERROR:General:%s";
 static const char* const G_FdumpFmtWarning = "%s(%d) : WARNING:General:%s";
@@ -4206,8 +4206,8 @@ static GENRESULT DACOM_API ChannelArchetypeGetFrame(FChannelArchetypeObject* Thi
 }
 
 // .rdata:06629560 / 06629564 (PE bytes 95 BF D6 B3 / 95 BF D6 33): -1e-7f and +1e-7f.
-static const float G_ChannelTimeEpsNeg = -1.0000000116860974e-07f;
-static const float G_ChannelTimeEpsPos = 1.0000000116860974e-07f;
+static constexpr float G_ChannelTimeEpsNeg = -1.0000000116860974e-07f;
+static constexpr float G_ChannelTimeEpsPos = 1.0000000116860974e-07f;
 
 // FUN_0661e3d0, thiscall RET 0x4 (Index), 0661e3d0..ee: *(dword*)FUN_0661d7a0(Index) +
 // Frames (+0x10) + Stride (+0x14) * FrameCount (+4). No checks (the port used to return 0
@@ -5063,16 +5063,16 @@ static GENRESULT LinkCmpndPartHandle(FEngineObject* Engine, const char* Name, vo
     return GR_OK;
 }
 
-static const unsigned long G_JointTypeFix = 0;
-static const unsigned long G_JointTypePris = 1;
-static const unsigned long G_JointTypeRev = 2;
-static const unsigned long G_JointTypeCyl = 3;
-static const unsigned long G_JointTypeSphere = 4;
-static const unsigned long G_JointTypeTrans = 5;
-static const unsigned long G_JointTypeLoose = 6;
-static const unsigned long G_JointUtfNameBytes = 0x40;
-static const unsigned long G_JointUtfHeaderBytes = 0x80;
-static const unsigned long G_JointUtfMaxBytes = 0xD8;
+static constexpr unsigned long G_JointTypeFix = 0;
+static constexpr unsigned long G_JointTypePris = 1;
+static constexpr unsigned long G_JointTypeRev = 2;
+static constexpr unsigned long G_JointTypeCyl = 3;
+static constexpr unsigned long G_JointTypeSphere = 4;
+static constexpr unsigned long G_JointTypeTrans = 5;
+static constexpr unsigned long G_JointTypeLoose = 6;
+static constexpr unsigned long G_JointUtfNameBytes = 0x40;
+static constexpr unsigned long G_JointUtfHeaderBytes = 0x80;
+static constexpr unsigned long G_JointUtfMaxBytes = 0xD8;
 
 static unsigned long JointTypeFromName(const char* Name)
 {
@@ -5594,7 +5594,7 @@ static unsigned char EngineInvalidateExtentChain(FEngineInstance* This, unsigned
 // FUN_06625560: this=inst+0x5C, dest=inst+0x2C, force. Jumptable PTR_LAB_0662aa84.
 // Relative: [0] type, [1..3] rest pos, [4..6] T @ +0x10, [7..15] 3x3 @ +0x1C, [16..18] axis @ +0x40.
 // DAT_06629510 = 0.5f (half-angle). 3DMath +0x20/+0x2C/+0x54 only — no invented IK.
-static const float G_JointHalfAngle = 0.5f;
+static constexpr float G_JointHalfAngle = 0.5f;
 
 static void CopyRelative3x3(float* Dest, const float* Rel)
 {

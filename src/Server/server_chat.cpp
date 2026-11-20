@@ -61,11 +61,11 @@ void Server_RdlAppend(RenderDisplayList& Rdl, const RDLNode& Node);
 // Byte 2 is the "channel" flag: a CHAT_ID whose byte 2 is zero names a player.
 // Every comparison in SubmitChat is a full-dword CMP against these.
 // ---------------------------------------------------------------------------
-static const unsigned int GChatIdConsole  = 0x00000000u;
-static const unsigned int GChatIdUniverse = 0x00010000u;
-static const unsigned int GChatIdSystem   = 0x00010001u;
-static const unsigned int GChatIdLocal    = 0x00010002u;
-static const unsigned int GChatIdGroup    = 0x00010003u;
+static constexpr unsigned int GChatIdConsole  = 0x00000000u;
+static constexpr unsigned int GChatIdUniverse = 0x00010000u;
+static constexpr unsigned int GChatIdSystem   = 0x00010001u;
+static constexpr unsigned int GChatIdLocal    = 0x00010002u;
+static constexpr unsigned int GChatIdGroup    = 0x00010003u;
 // server_classes.cpp's CPlayerGroup senders use the same global, hence extern.
 extern const unsigned int GGroupChatSourceId = 0x00010004u;
 
@@ -123,7 +123,7 @@ static bool PlayerData_HasSelectedCharacter(const PlayerData& Slot)
 // r = Reputation::Vibe::GetName(slot+0x318, fmt1, fmt2, DisplayName),
 // DisplayName re-forced to the fallback when r == -2, FmtStrs destroyed,
 // DisplayName returned (it aliases the vibe's own name buffer).
-static const wchar_t GChatBadName[] = L">>>BAD   NAME<<<";
+static constexpr wchar_t GChatBadName[] = L">>>BAD   NAME<<<";
 
 static const wchar_t* PlayerData_GetCharacterName(const PlayerData& Slot)
 {

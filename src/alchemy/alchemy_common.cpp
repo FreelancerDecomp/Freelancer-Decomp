@@ -68,7 +68,7 @@ namespace AlchemyImpl
     // dacom.dll DAT_065b8530 (NOT IEEE poly 0xEDB88320). Case-preserving —
     // unlike DACOM_CRC::GetCRC32 which lowercases. VisEffect effect_crc and
     // InsertArchetype keys are this hash of the ALE effect name.
-    static const unsigned long kAlchemyCrc32Table[256] = {
+    static constexpr unsigned long kAlchemyCrc32Table[256] = {
         0x00000000u, 0x09073096u, 0x120E612Cu, 0x1B0951BAu, 0xFF6DC419u, 0xF66AF48Fu, 0xED63A535u, 0xE46495A3u,
         0xFEDB8832u, 0xF7DCB8A4u, 0xECD5E91Eu, 0xE5D2D988u, 0x01B64C2Bu, 0x08B17CBDu, 0x13B82D07u, 0x1ABF1D91u,
         0xFDB71064u, 0xF4B020F2u, 0xEFB97148u, 0xE6BE41DEu, 0x02DAD47Du, 0x0BDDE4EBu, 0x10D4B551u, 0x19D385C7u,
@@ -2301,7 +2301,7 @@ namespace AlchemyImpl
         return Kind;
     }
 
-    static const char kFxNodeLibraryCppPath[] =
+    static constexpr char kFxNodeLibraryCppPath[] =
         "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\Alchemy\\FxNodeLibrary.cpp";
 
     // FUN_062291a0: one property; its caller ignores EAX and continues the stream.

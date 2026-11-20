@@ -30,9 +30,9 @@ static const char* const G_FileSystemName = "FileSystem";
 static const char* const G_Name3DMathEngine = "3DMathEngine";
 
 // ReadFile UTF header (0x38). Deformable2 walks IFileSystem nodes, not this dword.
-static const unsigned long G_UtfMagic = 0x20465455u; // "UTF "
-static const unsigned long G_UtfVersion = 0x101u;
-static const int G_MaxBoneCount = 150;
+static constexpr unsigned long G_UtfMagic = 0x20465455u; // "UTF "
+static constexpr unsigned long G_UtfVersion = 0x101u;
+static constexpr int G_MaxBoneCount = 150;
 
 struct FUtfHeader
 {
@@ -441,9 +441,9 @@ struct FLodHolder
 static_assert(sizeof(FLodHolder) == 0x10, "LOD holder must be 0x10");
 
 // FUN_065f9f00 / FUN_065fadb0: 12-stride Golub SVD (IK Jacobian ≤ 4×3).
-static const int G_SvdMaxDim = 12;
-static const int G_SvdMaxIter = 30;
-static const int G_IkMaxJoints = 4;
+static constexpr int G_SvdMaxDim = 12;
+static constexpr int G_SvdMaxIter = 30;
+static constexpr int G_IkMaxJoints = 4;
 
 struct FSvdMatrix
 {

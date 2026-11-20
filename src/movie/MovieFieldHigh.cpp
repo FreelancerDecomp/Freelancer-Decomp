@@ -22,7 +22,7 @@ unsigned int __stdcall Movie_DrawBoundedLimb(unsigned int Minuend, unsigned int 
 int __stdcall Movie_ExponentiateByWindow(unsigned int* Base, unsigned int* Exponent, unsigned int Count, unsigned int* Dest, unsigned int* Context);
 
 // DAT_06ada800. Powers of three consumed by FillWindowTable.
-static const unsigned int GPowersOfThree[8] =
+static constexpr unsigned int GPowersOfThree[8] =
 {
     0x00000001u, 0x00000003u, 0x00000009u, 0x0000001Bu,
     0x00000051u, 0x000000F3u, 0x000002D9u, 0x0000088Bu

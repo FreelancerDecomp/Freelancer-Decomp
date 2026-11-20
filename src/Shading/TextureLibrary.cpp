@@ -17,16 +17,16 @@
 
 namespace
 {
-    static const unsigned long kFourCcDxt1 = 0x31545844u;
-    static const unsigned long kFourCcDxt2 = 0x32545844u;
-    static const unsigned long kFourCcDxt3 = 0x33545844u;
-    static const unsigned long kFourCcDxt4 = 0x34545844u;
-    static const unsigned long kFourCcDxt5 = 0x35545844u;
-    static const unsigned long kFourCcDaop = 0x504F4144u;
-    static const unsigned long kFourCcDaot = 0x544F4144u;
-    static const unsigned long kFourCcDaa1 = 0x31414144u;
-    static const unsigned long kFourCcDaa4 = 0x34414144u;
-    static const unsigned long kFourCcDaa8 = 0x38414144u;
+    static constexpr unsigned long kFourCcDxt1 = 0x31545844u;
+    static constexpr unsigned long kFourCcDxt2 = 0x32545844u;
+    static constexpr unsigned long kFourCcDxt3 = 0x33545844u;
+    static constexpr unsigned long kFourCcDxt4 = 0x34545844u;
+    static constexpr unsigned long kFourCcDxt5 = 0x35545844u;
+    static constexpr unsigned long kFourCcDaop = 0x504F4144u;
+    static constexpr unsigned long kFourCcDaot = 0x544F4144u;
+    static constexpr unsigned long kFourCcDaa1 = 0x31414144u;
+    static constexpr unsigned long kFourCcDaa4 = 0x34414144u;
+    static constexpr unsigned long kFourCcDaa8 = 0x38414144u;
 
     // DAT_06ed57c4 stride 0x34. FUN_06ebea90 pairs (value, mask=-1 if set).
     struct FTextureFormatMap

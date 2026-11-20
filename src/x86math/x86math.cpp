@@ -1104,7 +1104,7 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         const float Zero = 0.0f;
         const float One = 1.0f;
         const float Half = 0.5f;
-        static const int NextAxis[3] = {1, 2, 0};
+        static constexpr int NextAxis[3] = {1, 2, 0};
         // LAB_06f72290..723b1 keeps the trace, root and reciprocal on x87;
         // only the four destination writes round to float. AND EAX,4100/JNZ
         // takes the not-greater (including unordered) branch in all three tests.
@@ -1313,8 +1313,8 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
     {
         // 724d0..725cb: normalized linear interpolation, literal x87 terms,
         // component store order and NaN hemisphere selection. Inputs may alias Dst.
-        static const float Zero = 0.0f;
-        static const float One = 1.0f;
+        static constexpr float Zero = 0.0f;
+        static constexpr float One = 1.0f;
         __asm
         {
             mov esi, T

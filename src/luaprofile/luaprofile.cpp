@@ -107,11 +107,11 @@ static char kGetTableLine[] =
 static_assert(sizeof(kGetTableLine) == 0xF8, "PE __get_table_line 0xF7 + NUL");
 static_assert(sizeof(kGetProfileLine) == 0xEB, "PE __get_profile_line 0xEA + NUL");
 
-static const char kFdumpPath[] =
+static constexpr char kFdumpPath[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\LuaProfile\\LuaProfile.cpp";
-static const char kFdumpFmt[] = "%s(%d) : ERROR:General:%s";
-static const int kFdumpLine = 0x167;
-static const int kFdumpError = 0x100001;
+static constexpr char kFdumpFmt[] = "%s(%d) : ERROR:General:%s";
+static constexpr int kFdumpLine = 0x167;
+static constexpr int kFdumpError = 0x100001;
 
 // LAB_06801120: FDUMP is called through the import with no null test.
 extern "C" static void LuaErrorMessage(void)

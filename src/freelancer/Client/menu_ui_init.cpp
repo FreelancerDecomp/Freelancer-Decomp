@@ -26,7 +26,7 @@
 
 namespace
 {
-    static const int kUiSoundTableCount = 0x2d;
+    static constexpr int kUiSoundTableCount = 0x2d;
 
     // DAT_006149e8 — 0x2d nicknames (listing .data:006149e8..00614a98).
     static const char* kUiSoundNames[kUiSoundTableCount] = {

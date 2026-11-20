@@ -87,7 +87,7 @@ extern const unsigned int GGroupChatSourceId;
 // (`MOV word ptr [DAT_06d9042c],0x3` / `MOV byte ptr [DAT_06d9042c+2],0x1`),
 // i.e. 0x00010003 -- the group chat channel, the same value as SubmitChat's
 // DAT_06d8f5e0.
-static const unsigned int GDeliverChatSourceId = 0x00010003u;
+static constexpr unsigned int GDeliverChatSourceId = 0x00010003u;
 
 // FUN_06d19180: builds a CHAT_ID out of a player/session id -- word0 = (ushort)Id,
 // bytes 2 and 3 zeroed. Every IChatClient call in this file goes through it.
@@ -3100,7 +3100,7 @@ const wchar_t* PlayerDB::GetActiveCharacterName(unsigned int SessionId) const {
     // display-name buffer (or the static fallback). The port's narrow
     // character_name copied into a function-local `static wchar_t[64]` by
     // mbstowcs_s was wrong on both counts: wrong source and a shared buffer.
-    static const wchar_t BadName[] = L">>>BAD   NAME<<<";
+    static constexpr wchar_t BadName[] = L">>>BAD   NAME<<<";
     const wchar_t* DisplayName = BadName;
     FmtStr Name1;
     FmtStr Name2;

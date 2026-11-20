@@ -131,7 +131,7 @@ struct FCObject {
 void* Server_LookupObject(unsigned int obj_id);
 
 // Minimum allocation size for FCObject
-static const unsigned int COBJECT_MIN_SIZE = 0x1B0;
+static constexpr unsigned int COBJECT_MIN_SIZE = 0x1B0;
 
 // Helper to check if object is a game object (type flags & 3 == 3)
 inline bool IsGameObject(const FCObject* obj) {

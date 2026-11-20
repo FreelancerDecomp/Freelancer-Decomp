@@ -17,72 +17,72 @@ namespace Render
 namespace Factory
 {
     // RP8
-    static const char DirectX8[] = "DirectX8";
+    static constexpr char DirectX8[] = "DirectX8";
     // RP9 (port-only Direct3D 9 mirror of RP8; docs/re/rp9.md)
-    static const char DirectX9[] = "DirectX9";
+    static constexpr char DirectX9[] = "DirectX9";
 
     // Shading libraries / services
-    static const char TextureLibrary[] = "TextureLibrary";
-    static const char MaterialLibrary[] = "MaterialLibrary";
-    static const char MaterialBatcher[] = "MaterialBatcher";
-    static const char MaterialAnimation[] = "MaterialAnimation";
-    static const char BatchedMaterial[] = "BatchedMaterial";
+    static constexpr char TextureLibrary[] = "TextureLibrary";
+    static constexpr char MaterialLibrary[] = "MaterialLibrary";
+    static constexpr char MaterialBatcher[] = "MaterialBatcher";
+    static constexpr char MaterialAnimation[] = "MaterialAnimation";
+    static constexpr char BatchedMaterial[] = "BatchedMaterial";
 
     // Shading IMaterial types
-    static const char DcDt[] = "DcDt";
-    static const char DcDtEc[] = "DcDtEc";
-    static const char DcDtOcOt[] = "DcDtOcOt";
-    static const char DcDtEcOcOt[] = "DcDtEcOcOt";
-    static const char DcDtTwo[] = "DcDtTwo";
-    static const char DcDtEcTwo[] = "DcDtEcTwo";
-    static const char DcDtOcOtTwo[] = "DcDtOcOtTwo";
-    static const char DcDtEcOcOtTwo[] = "DcDtEcOcOtTwo";
-    static const char DcDtEt[] = "DcDtEt";
-    static const char EcEt[] = "EcEt";
-    static const char EcEtTwo[] = "EcEtTwo";
-    static const char AtmosphereMaterial[] = "AtmosphereMaterial";
-    static const char Nebula[] = "Nebula";
-    static const char NebulaTwo[] = "NebulaTwo";
-    static const char NullMaterial[] = "NullMaterial";
-    static const char LightMap[] = "LightMap";
-    static const char DetailMapMaterial[] = "DetailMapMaterial";
-    static const char DetailMap2Dm1Msk2PassMaterial[] = "DetailMap2Dm1Msk2PassMaterial";
-    static const char IllumDetailMapMaterial[] = "IllumDetailMapMaterial";
-    static const char Masked2DetailMapMaterial[] = "Masked2DetailMapMaterial";
-    static const char BtDetailMapMaterial[] = "BtDetailMapMaterial";
-    static const char BtDetailMapTwoMaterial[] = "BtDetailMapTwoMaterial";
+    static constexpr char DcDt[] = "DcDt";
+    static constexpr char DcDtEc[] = "DcDtEc";
+    static constexpr char DcDtOcOt[] = "DcDtOcOt";
+    static constexpr char DcDtEcOcOt[] = "DcDtEcOcOt";
+    static constexpr char DcDtTwo[] = "DcDtTwo";
+    static constexpr char DcDtEcTwo[] = "DcDtEcTwo";
+    static constexpr char DcDtOcOtTwo[] = "DcDtOcOtTwo";
+    static constexpr char DcDtEcOcOtTwo[] = "DcDtEcOcOtTwo";
+    static constexpr char DcDtEt[] = "DcDtEt";
+    static constexpr char EcEt[] = "EcEt";
+    static constexpr char EcEtTwo[] = "EcEtTwo";
+    static constexpr char AtmosphereMaterial[] = "AtmosphereMaterial";
+    static constexpr char Nebula[] = "Nebula";
+    static constexpr char NebulaTwo[] = "NebulaTwo";
+    static constexpr char NullMaterial[] = "NullMaterial";
+    static constexpr char LightMap[] = "LightMap";
+    static constexpr char DetailMapMaterial[] = "DetailMapMaterial";
+    static constexpr char DetailMap2Dm1Msk2PassMaterial[] = "DetailMap2Dm1Msk2PassMaterial";
+    static constexpr char IllumDetailMapMaterial[] = "IllumDetailMapMaterial";
+    static constexpr char Masked2DetailMapMaterial[] = "Masked2DetailMapMaterial";
+    static constexpr char BtDetailMapMaterial[] = "BtDetailMapMaterial";
+    static constexpr char BtDetailMapTwoMaterial[] = "BtDetailMapTwoMaterial";
 
     // RendComp
-    static const char RenderManager[] = "RenderManager";
-    static const char TriMesh[] = "TriMesh";
-    static const char SphereMesh[] = "SphereMesh";
-    static const char VMesh[] = "VMesh";
-    static const char VMeshLibrary[] = "VMeshLibrary";
-    static const char VMeshWire[] = "VMeshWire";
+    static constexpr char RenderManager[] = "RenderManager";
+    static constexpr char TriMesh[] = "TriMesh";
+    static constexpr char SphereMesh[] = "SphereMesh";
+    static constexpr char VMesh[] = "VMesh";
+    static constexpr char VMeshLibrary[] = "VMeshLibrary";
+    static constexpr char VMeshWire[] = "VMeshWire";
 
     // ximage
-    static const char BigImage[] = "BigImage";
+    static constexpr char BigImage[] = "BigImage";
 
     // flmaterials
-    static const char BackdropMaterial[] = "BackdropMaterial";
-    static const char StarsphereMaterial[] = "StarsphereMaterial";
-    static const char CloakMaterial[] = "CloakMaterial";
-    static const char ColorizeMaterial[] = "ColorizeMaterial";
-    static const char EngineGlowMaterial[] = "EngineGlowMaterial";
-    static const char EnvMapMaterial[] = "EnvMapMaterial";
-    static const char ExclusionZoneMaterial[] = "ExclusionZoneMaterial";
-    static const char GlassMaterial[] = "GlassMaterial";
-    static const char HighGlassMaterial[] = "HighGlassMaterial";
-    static const char GfGlassMaterial[] = "GFGlassMaterial";
-    static const char HudIconMaterial[] = "HUDIconMaterial";
-    static const char HudAnimMaterial[] = "HUDAnimMaterial";
-    static const char NomadMaterial[] = "NomadMaterial";
-    static const char NomadMaterialNoBendy[] = "NomadMaterialNoBendy";
-    static const char PlanetWaterMaterial[] = "PlanetWaterMaterial";
-    static const char ShadowMaterial[] = "ShadowMaterial";
-    static const char VisibleCounterMaterial[] = "VisibleCounterMaterial";
-    static const char WireMaterial[] = "WireMaterial";
-    static const char WireMaterial2[] = "WireMaterial2";
-    static const char FlAppearance[] = "FLAppearance";
+    static constexpr char BackdropMaterial[] = "BackdropMaterial";
+    static constexpr char StarsphereMaterial[] = "StarsphereMaterial";
+    static constexpr char CloakMaterial[] = "CloakMaterial";
+    static constexpr char ColorizeMaterial[] = "ColorizeMaterial";
+    static constexpr char EngineGlowMaterial[] = "EngineGlowMaterial";
+    static constexpr char EnvMapMaterial[] = "EnvMapMaterial";
+    static constexpr char ExclusionZoneMaterial[] = "ExclusionZoneMaterial";
+    static constexpr char GlassMaterial[] = "GlassMaterial";
+    static constexpr char HighGlassMaterial[] = "HighGlassMaterial";
+    static constexpr char GfGlassMaterial[] = "GFGlassMaterial";
+    static constexpr char HudIconMaterial[] = "HUDIconMaterial";
+    static constexpr char HudAnimMaterial[] = "HUDAnimMaterial";
+    static constexpr char NomadMaterial[] = "NomadMaterial";
+    static constexpr char NomadMaterialNoBendy[] = "NomadMaterialNoBendy";
+    static constexpr char PlanetWaterMaterial[] = "PlanetWaterMaterial";
+    static constexpr char ShadowMaterial[] = "ShadowMaterial";
+    static constexpr char VisibleCounterMaterial[] = "VisibleCounterMaterial";
+    static constexpr char WireMaterial[] = "WireMaterial";
+    static constexpr char WireMaterial2[] = "WireMaterial2";
+    static constexpr char FlAppearance[] = "FLAppearance";
 }
 }

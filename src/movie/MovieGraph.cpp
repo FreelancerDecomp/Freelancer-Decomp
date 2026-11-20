@@ -54,12 +54,12 @@ int GMovieGraphCode = 0;
 
 // Five dwords at .rdata:06ada788, 06ada79c, 06ada7b0, 06ada7c4, 06ada7d8, 06ada7ec.
 // 06ada7ec is 20 bytes; Ghidra split the tail into DAT_06ada7f8 / DAT_06ada7fc.
-static const unsigned int GLimbs788[5] = { 0x141424F7u, 0x31415926u, 0x27182818u, 0x01234567u, 0x89ABCDEFu };
-static const unsigned int GLimbs79c[5] = { 0x28C2A675u, 0xEC149044u, 0x2716B26Eu, 0x01234567u, 0x89ABCDEFu };
-static const unsigned int GLimbs7b0[5] = { 0xEBE41497u, 0x4780C009u, 0x7632FF3Du, 0xD277BCE8u, 0x37A5ABCCu };
-static const unsigned int GLimbs7c4[5] = { 0x9328239Eu, 0xD78FDEDFu, 0x28E85F1Au, 0x725E2F32u, 0x0DD8DABFu };
-static const unsigned int GLimbs7d8[5] = { 0x109FA120u, 0xBA38DAF0u, 0x3510C07Du, 0xD6A3A1E5u, 0x8723947Fu };
-static const unsigned int GLimbs7ec[5] = { 0xA379936Fu, 0xD4ED7ACDu, 0x8C3C5856u, 0x1075522Du, 0x44574491u };
+static constexpr unsigned int GLimbs788[5] = { 0x141424F7u, 0x31415926u, 0x27182818u, 0x01234567u, 0x89ABCDEFu };
+static constexpr unsigned int GLimbs79c[5] = { 0x28C2A675u, 0xEC149044u, 0x2716B26Eu, 0x01234567u, 0x89ABCDEFu };
+static constexpr unsigned int GLimbs7b0[5] = { 0xEBE41497u, 0x4780C009u, 0x7632FF3Du, 0xD277BCE8u, 0x37A5ABCCu };
+static constexpr unsigned int GLimbs7c4[5] = { 0x9328239Eu, 0xD78FDEDFu, 0x28E85F1Au, 0x725E2F32u, 0x0DD8DABFu };
+static constexpr unsigned int GLimbs7d8[5] = { 0x109FA120u, 0xBA38DAF0u, 0x3510C07Du, 0xD6A3A1E5u, 0x8723947Fu };
+static constexpr unsigned int GLimbs7ec[5] = { 0xA379936Fu, 0xD4ED7ACDu, 0x8C3C5856u, 0x1075522Du, 0x44574491u };
 
 // NEG / SBB / AND 0x7fffbffb / ADD 0x80004005. Nonzero -> 0, zero -> 0x80004005.
 static long Movie_CodeFromFlag(unsigned int Flag)

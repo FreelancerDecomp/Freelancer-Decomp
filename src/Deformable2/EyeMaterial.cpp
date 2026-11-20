@@ -17,17 +17,17 @@ static const char* const G_FdumpFileMaterialImpl =
     "C:\\work\\builds\\dalibs\\DALIBS~1\\build\\include\\imaterialimpl.h";
 
 // .data:066031ac: four zero bytes, the Description of every EyeMaterial parameter.
-static const char G_ParamNoDescription[4] = {0, 0, 0, 0};
+static constexpr char G_ParamNoDescription[4] = {0, 0, 0, 0};
 // .data:06602b30.
 static const char* const G_TextureNameNone = "(None)";
 // .rdata:066013fc and .rdata:0660140c: the defaults / ranges LAB_065ff750 hands FUN_065ffab0
 // by address.
-static const float G_ParamZeros[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-static const float G_ParamOnes[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+static constexpr float G_ParamZeros[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+static constexpr float G_ParamOnes[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 // .rdata:06601578: FLT_EPSILON, the slack of LAB_065ff470's range test.
-static const float G_ParamRangeSlack = 1.1920928955078125e-07f;
+static constexpr float G_ParamRangeSlack = 1.1920928955078125e-07f;
 // .rdata:06601580 (a double): FUN_066001c0's dead zone.
-static const double G_EyeUvDeadZone = 1.0e-4;
+static constexpr double G_EyeUvDeadZone = 1.0e-4;
 
 static void* DwordToPointer(unsigned long Value)
 {

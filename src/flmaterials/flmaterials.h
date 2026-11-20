@@ -18,9 +18,9 @@
 // Registration uses this opaque token; callers remove const explicitly.
 static const void* kRegisterPriority = (void*)0x80000000;
 
-static const int kFdumpError = 0x100001;
-static const int kFdumpNotice = 0x100003; // "%s(%d) : NOTICE:General:%s" (Slot24's own use)
-static const int kFdumpTrace1 = 0x100004;
+static constexpr int kFdumpError = 0x100001;
+static constexpr int kFdumpNotice = 0x100003; // "%s(%d) : NOTICE:General:%s" (Slot24's own use)
+static constexpr int kFdumpTrace1 = 0x100004;
 
 
 static const char* const G_NameGlassMaterial = "GlassMaterial";

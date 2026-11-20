@@ -17,71 +17,71 @@
 #include <string>
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed18ac, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed18ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed18ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed18dc, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed18dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed18dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1914, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1914[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1914[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed194c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed194c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed194c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed1e7c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1e7c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1e7c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1e9c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1e9c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1e9c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed1ecc, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1ecc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1ecc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1f04, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1f04[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1f04[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed1f3c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1f3c[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1f3c[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1f74, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed1f74[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed1f74[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed220c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed220c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed220c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed222c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed222c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed222c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed225c, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed225c[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed225c[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed2294, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed2294[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed2294[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed22cc, bytes read from EXE/Shading.dll.
-static const unsigned long GDetailTable_06ed22cc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GDetailTable_06ed22cc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
 // LAB_06eb81e0: all four tables decoded from their own retail PE bytes.
-static const unsigned long GDetailMapTable_06ed1a9c[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0, 0};
-static const unsigned long GDetailMapTable_06ed1abc[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
-static const unsigned long GDetailMapTable_06ed1af4[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0, 0};
-static const unsigned long GDetailMapTable_06ed1b2c[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
+static constexpr unsigned long GDetailMapTable_06ed1a9c[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0, 0};
+static constexpr unsigned long GDetailMapTable_06ed1abc[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
+static constexpr unsigned long GDetailMapTable_06ed1af4[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0, 0};
+static constexpr unsigned long GDetailMapTable_06ed1b2c[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
 
 // Own retail PE state tables for material Bind callbacks.
-static const unsigned long GBindTable_06ed209c[] = {0x8D, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed20ac[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed20e4[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static const unsigned long GBindTable_06ed206c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x9, 0x14, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed209c[] = {0x8D, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed20ac[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed20e4[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed206c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x9, 0x14, 0x1, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static const unsigned long GBindTable_06ed26dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed2714[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static const unsigned long GBindTable_06ed26ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
-static const unsigned long GBindTable_06ed268c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed26dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed2714[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed26ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed268c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static const unsigned long GBindTable_06ed1484[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed14a4[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed14dc[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static const unsigned long GBindTable_06ed1514[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1484[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed14a4[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed14dc[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1514[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static const unsigned long GBindTable_06ed16cc[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed16ec[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed1724[] = {0x1, 0x7, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static const unsigned long GBindTable_06ed175c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed16cc[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed16ec[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1724[] = {0x1, 0x7, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed175c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
-static const unsigned long GBindTable_06ed1c84[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static const unsigned long GBindTable_06ed1cbc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static const unsigned long GBindTable_06ed1c54[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x2, 0x14, 0x2, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1c84[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1cbc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr unsigned long GBindTable_06ed1c54[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x2, 0x14, 0x2, 0x0, 0x0};
 
 // FUN_06eb7120: one texture block, four calls in the original order.
 static void BindDetailTexture(IRenderPipeline* Pipeline, const FTexBlock& Block,
@@ -240,13 +240,13 @@ bool FMaterial::ApplyMaskedDetailPassState(unsigned long Pass)
 }
 
 // Raw retail tables at 06ed1140/1178 and 06ed23fc/2434 are identical.
-static const unsigned long GAtmosphereNebulaTss0[] = {
+static constexpr unsigned long GAtmosphereNebulaTss0[] = {
     1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
-static const unsigned long GAtmosphereNebulaTss1[] = {
+static constexpr unsigned long GAtmosphereNebulaTss1[] = {
     1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
 // Raw retail RS tables 06ed1100 and 06ed23cc.
-static const unsigned long GAtmosphereRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0, 0};
-static const unsigned long GNebulaRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 2, 0, 0};
+static constexpr unsigned long GAtmosphereRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0, 0};
+static constexpr unsigned long GNebulaRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 2, 0, 0};
 
 namespace
 {
@@ -411,14 +411,14 @@ void InitializeAtmospherePropertySchema()
     if (GAtmospherePropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static const unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[2], 0x0, "Dt_name", "Fade 1D Texture Name",
@@ -429,19 +429,19 @@ void InitializeAtmospherePropertySchema()
                                 9, (void*)2, 9, nullptr, 9, nullptr);
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[5], 0x40000, "Dt_flags", "Fade 1D Texture V Address Mode",
                                 9, (void*)2, 9, nullptr, 9, nullptr);
-    static const unsigned long Payload_6_0[] = {0x3F800000};
-    static const unsigned long Payload_6_1[] = {0xFF7FFFFF};
-    static const unsigned long Payload_6_2[] = {0x7F7FFFFF};
+    static constexpr unsigned long Payload_6_0[] = {0x3F800000};
+    static constexpr unsigned long Payload_6_1[] = {0xFF7FFFFF};
+    static constexpr unsigned long Payload_6_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[6], 0x0, "Fade", "Fade Off",
                                 2, Payload_6_0, 2, Payload_6_1, 2, Payload_6_2);
-    static const unsigned long Payload_7_0[] = {0x3F400000};
-    static const unsigned long Payload_7_1[] = {0xFF7FFFFF};
-    static const unsigned long Payload_7_2[] = {0x7F7FFFFF};
+    static constexpr unsigned long Payload_7_0[] = {0x3F400000};
+    static constexpr unsigned long Payload_7_1[] = {0xFF7FFFFF};
+    static constexpr unsigned long Payload_7_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[7], 0x0, "Alpha", "Alpha",
                                 2, Payload_7_0, 2, Payload_7_1, 2, Payload_7_2);
-    static const unsigned long Payload_8_0[] = {0x3F833333};
-    static const unsigned long Payload_8_1[] = {0xFF7FFFFF};
-    static const unsigned long Payload_8_2[] = {0x7F7FFFFF};
+    static constexpr unsigned long Payload_8_0[] = {0x3F833333};
+    static constexpr unsigned long Payload_8_1[] = {0xFF7FFFFF};
+    static constexpr unsigned long Payload_8_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[8], 0x0, "Scale", "Scale",
                                 2, Payload_8_0, 2, Payload_8_1, 2, Payload_8_2);
 }
@@ -457,34 +457,34 @@ void InitializeSinglePassPropertySchema()
     if (GSinglePassPropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static const unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
-    static const unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[2], 0x0, "Ec", "Emissive Color",
                                 3, Payload_2_0, 3, Payload_2_1, 3, Payload_2_2);
-    static const unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[3], 0x0, "Sc", "Specular Color",
                                 3, Payload_3_0, 3, Payload_3_1, 3, Payload_3_2);
-    static const unsigned long Payload_4_0[] = {0x00000000};
-    static const unsigned long Payload_4_1[] = {0x00000000};
-    static const unsigned long Payload_4_2[] = {0x3F800000};
+    static constexpr unsigned long Payload_4_0[] = {0x00000000};
+    static constexpr unsigned long Payload_4_1[] = {0x00000000};
+    static constexpr unsigned long Payload_4_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[4], 0x0, "Sp", "Specular Power",
                                 2, Payload_4_0, 2, Payload_4_1, 2, Payload_4_2);
-    static const unsigned long Payload_5_0[] = {0x3F800000};
-    static const unsigned long Payload_5_1[] = {0x00000000};
-    static const unsigned long Payload_5_2[] = {0x3F800000};
+    static constexpr unsigned long Payload_5_0[] = {0x3F800000};
+    static constexpr unsigned long Payload_5_1[] = {0x00000000};
+    static constexpr unsigned long Payload_5_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[5], 0x0, "Oc", "Opacity ",
                                 2, Payload_5_0, 2, Payload_5_1, 2, Payload_5_2);
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[6], 0x0, "Dt_name", "Texture Name",
@@ -499,11 +499,11 @@ void InitializeSinglePassPropertySchema()
 
 void InitializeDetailPropertyRecords(FShadingPropertyRecord* Records)
 {
-    static const unsigned long kZero3[3] = {0, 0, 0};
-    static const unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long kFourBits = 0x40800000;
-    static const unsigned long kFloatMinBits = 0xFF7FFFFF;
-    static const unsigned long kFloatMaxBits = 0x7F7FFFFF;
+    static constexpr unsigned long kZero3[3] = {0, 0, 0};
+    static constexpr unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long kFourBits = 0x40800000;
+    static constexpr unsigned long kFloatMinBits = 0xFF7FFFFF;
+    static constexpr unsigned long kFloatMaxBits = 0x7F7FFFFF;
 
     SetSinglePassPropertyRecord(Records[0], 0, "Ac", "Ambient Color", 3,
                                 kWhite3, 3, kZero3, 3, kWhite3);
@@ -591,12 +591,12 @@ void InitializeMaskedDetailPropertySchema()
 
 void InitializeDetail2PassPropertyRecords(FShadingPropertyRecord* Records)
 {
-    static const unsigned long kZero3[3] = {0, 0, 0};
-    static const unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long kTen3[3] = {0x41200000, 0x41200000, 0x41200000};
-    static const unsigned long kFourBits = 0x40800000;
-    static const unsigned long kFloatMinBits = 0xFF7FFFFF;
-    static const unsigned long kFloatMaxBits = 0x7F7FFFFF;
+    static constexpr unsigned long kZero3[3] = {0, 0, 0};
+    static constexpr unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long kTen3[3] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr unsigned long kFourBits = 0x40800000;
+    static constexpr unsigned long kFloatMinBits = 0xFF7FFFFF;
+    static constexpr unsigned long kFloatMaxBits = 0x7F7FFFFF;
 
     SetSinglePassPropertyRecord(Records[0], 0, "Ac", "Ambient Color", 3,
                                 kWhite3, 3, kZero3, 3, kWhite3);
@@ -670,14 +670,14 @@ void InitializeDetailMapPropertySchema()
     if (GDetailMapPropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static const unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[2], 0x0, "Dt_name", "Diffuse Texture Name",
@@ -700,9 +700,9 @@ void InitializeDetailMapPropertySchema()
                                 9, nullptr, 9, nullptr, 9, nullptr);
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[11], 0x40000, "Dm_flags", "Detail Texture V Address Mode",
                                 9, nullptr, 9, nullptr, 9, nullptr);
-    static const unsigned long Payload_12_0[] = {0x40800000};
-    static const unsigned long Payload_12_1[] = {0xFF7FFFFF};
-    static const unsigned long Payload_12_2[] = {0x7F7FFFFF};
+    static constexpr unsigned long Payload_12_0[] = {0x40800000};
+    static constexpr unsigned long Payload_12_1[] = {0xFF7FFFFF};
+    static constexpr unsigned long Payload_12_2[] = {0x7F7FFFFF};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[12], 0x0, "TileRate", "Tile Rate ",
                                 2, Payload_12_0, 2, Payload_12_1, 2, Payload_12_2);
 }
@@ -751,34 +751,34 @@ void InitializeBtDetailPropertySchema()
     if (GBtDetailPropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static const unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
-    static const unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[2], 0x0, "Ec", "Emissive Color",
                                 3, Payload_2_0, 3, Payload_2_1, 3, Payload_2_2);
-    static const unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[3], 0x0, "Sc", "Specular Color",
                                 3, Payload_3_0, 3, Payload_3_1, 3, Payload_3_2);
-    static const unsigned long Payload_4_0[] = {0x00000000};
-    static const unsigned long Payload_4_1[] = {0x00000000};
-    static const unsigned long Payload_4_2[] = {0x3F800000};
+    static constexpr unsigned long Payload_4_0[] = {0x00000000};
+    static constexpr unsigned long Payload_4_1[] = {0x00000000};
+    static constexpr unsigned long Payload_4_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[4], 0x0, "Sp", "Specular Power",
                                 2, Payload_4_0, 2, Payload_4_1, 2, Payload_4_2);
-    static const unsigned long Payload_5_0[] = {0x3F800000};
-    static const unsigned long Payload_5_1[] = {0x00000000};
-    static const unsigned long Payload_5_2[] = {0x3F800000};
+    static constexpr unsigned long Payload_5_0[] = {0x3F800000};
+    static constexpr unsigned long Payload_5_1[] = {0x00000000};
+    static constexpr unsigned long Payload_5_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[5], 0x0, "Oc", "Opacity ",
                                 2, Payload_5_0, 2, Payload_5_1, 2, Payload_5_2);
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[6], 0x0, "Dt_name", "Texture Name",
@@ -870,9 +870,9 @@ void InitializeEcEtPropertySchema()
     if (GEcEtPropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GEcEtPropertySchema[0], 0x4, "Ec", "Emissive Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
     SetSinglePassPropertyRecord(GEcEtPropertySchema[1], 0x0, "Et_name", "Emissive Texture Name",
@@ -896,9 +896,9 @@ void InitializeDcDtEtPropertySchema()
     if (GDcDtEtPropertySchema[0].Current.Type != 0)
         return;
 
-    static const unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static const unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static const unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GDcDtEtPropertySchema[0], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
     SetSinglePassPropertyRecord(GDcDtEtPropertySchema[1], 0x0, "Dt_name", "Diffuse Texture Name",
@@ -1110,9 +1110,9 @@ void FMaterial::SetInstanceName(const char* Name)
     SetName(Name);
 }
 
-static const float kAtmosphereOne = 1.0f;
-static const float kAtmosphereHalf = 0.5f;
-static const unsigned long kAtmosphereEpsBits = 0x33D6BF95;
+static constexpr float kAtmosphereOne = 1.0f;
+static constexpr float kAtmosphereHalf = 0.5f;
+static constexpr unsigned long kAtmosphereEpsBits = 0x33D6BF95;
 
 static_assert(offsetof(FMaterial, Pipeline) == 0x04, "Pipeline +4");
 static_assert(offsetof(FMaterial, TexLib) == 0x08, "TexLib +8");
@@ -2073,7 +2073,7 @@ GENRESULT FMaterial::SubmitDcDtTwoSecondPass(void* Context, unsigned long PrimTy
 }
 
 // DAT_06ed44cc aliases the Ec string as word zero of this cull lookup.
-static const unsigned long GBtDetailTwoCullFlip[4] = {0x00006345, 1, 3, 2};
+static constexpr unsigned long GBtDetailTwoCullFlip[4] = {0x00006345, 1, 3, 2};
 
 GENRESULT FMaterial::SubmitBtDetailTwoSecondPass(void* Context, unsigned long PrimType,
                                                 unsigned long Start, unsigned long Count,
@@ -2827,7 +2827,7 @@ static bool IsShadingPropertyValueWithinRange(unsigned long ValueBits, unsigned 
                                               unsigned long MaximumBits)
 {
     // Compare widened bounds against the stored float without rounding the bounds.
-    static const unsigned long kRangeEpsilonBits = 0x34000000;
+    static constexpr unsigned long kRangeEpsilonBits = 0x34000000;
     const double Value = ShadingPropertyFloat(ValueBits);
     const double Epsilon = ShadingPropertyFloat(kRangeEpsilonBits);
     const double Upper = (double)(ShadingPropertyFloat(MaximumBits)) + Epsilon;

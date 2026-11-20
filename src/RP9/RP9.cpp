@@ -490,7 +490,7 @@ namespace
     // named members VbList_, IbList_, ScratchIb_ and PipelineStates_ of FDirectX9 (RP9.h).
 
     // FUN_06d1b480(0x200): Flags = 0x200|8 (D3DUSAGE_DYNAMIC|WRITEONLY).
-    static const unsigned long kVbPoolUsage = 0x208;
+    static constexpr unsigned long kVbPoolUsage = 0x208;
 
     // ---- Direct3D 8 numbering kept by the caches (dx8/include/d3d8types.h) ----
     //

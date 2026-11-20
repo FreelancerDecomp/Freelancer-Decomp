@@ -18,9 +18,9 @@
 namespace
 {
     // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
-    static const unsigned long kFvfScreen = 0x1C4u;
-    static const unsigned long kPrimTriangleStrip = 5;
-    static const unsigned long kPrimTriangleList = 4;
+    static constexpr unsigned long kFvfScreen = 0x1C4u;
+    static constexpr unsigned long kPrimTriangleStrip = 5;
+    static constexpr unsigned long kPrimTriangleList = 4;
 
     struct FScreenVertex
     {

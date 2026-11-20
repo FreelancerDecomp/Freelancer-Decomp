@@ -55,7 +55,7 @@ struct IMaterial : IDAComponent
     virtual unsigned long DACOM_API InnerAddRef() = 0;
     virtual unsigned long DACOM_API InnerRelease() = 0;
 };
-static const unsigned long kMaterialParamDescSize = 0x4C;
+static constexpr unsigned long kMaterialParamDescSize = 0x4C;
 // Descriptor shared by material factories and their controlling outer component.
 struct FMaterialAggregateDesc
 {

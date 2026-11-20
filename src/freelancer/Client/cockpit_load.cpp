@@ -21,13 +21,13 @@
 
 namespace
 {
-    static const unsigned kShipObjectClassFlags = 0x503U;
+    static constexpr unsigned kShipObjectClassFlags = 0x503U;
 
     // .rdata 0x005e07bc -- the fallback when the ship archetype names no cockpit.
-    static const char kDefaultCockpitIniRel[] = "cockpits\\cockpit.ini";
+    static constexpr char kDefaultCockpitIniRel[] = "cockpits\\cockpit.ini";
     // .rdata 0x005e0704 and the line FUN_0054ab40 reports the fallback from.
-    static const char kSpaceCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\space.cpp";
-    static const int kNoCockpitWarningLine = 0x5d5;
+    static constexpr char kSpaceCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\space.cpp";
+    static constexpr int kNoCockpitWarningLine = 0x5d5;
 
     // Same `- 8` as everywhere else: the watcher holds the Watchable, eight bytes into the
     // IObjRW.

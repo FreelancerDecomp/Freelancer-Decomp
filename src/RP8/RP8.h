@@ -16,9 +16,9 @@
 #include <map>
 #include <vector>
 
-static const unsigned long kRp8ObjectSize = 0x230C;
-static const unsigned long kRp8RegisterPriority = 0x40000000;
-static const unsigned int kAbilityCount = 21;
+static constexpr unsigned long kRp8ObjectSize = 0x230C;
+static constexpr unsigned long kRp8RegisterPriority = 0x40000000;
+static constexpr unsigned int kAbilityCount = 21;
 
 struct FRp8AggDesc
 {

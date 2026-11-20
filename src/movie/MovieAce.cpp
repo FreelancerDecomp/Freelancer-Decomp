@@ -19,7 +19,7 @@ static_assert(sizeof(FSha1Context) == 0x74u, "sha context scrubbed as 29 dwords"
 
 // 0x06ada920 through 0x06ada95f. First byte 0x80, the other 63 bytes are 0.
 // Md4Final copies at most 0x40 of these.
-static const unsigned char Md4Padding[64] = { 0x80 };
+static constexpr unsigned char Md4Padding[64] = { 0x80 };
 
 static unsigned int RotateLeft(unsigned int Value, unsigned int Bits)
 {
@@ -73,15 +73,15 @@ static void Md4Step(unsigned int& A, unsigned int& B, unsigned int& C, unsigned 
 // Round 3 adds 0x6ED9EBA1. The four state words are added back at 0x06acf346.
 void __stdcall Md4Transform(unsigned int* State, const unsigned int* Block)
 {
-    static const unsigned int Round2Index[16] = {
+    static constexpr unsigned int Round2Index[16] = {
         0u, 4u, 8u, 12u, 1u, 5u, 9u, 13u, 2u, 6u, 10u, 14u, 3u, 7u, 11u, 15u
     };
-    static const unsigned int Round3Index[16] = {
+    static constexpr unsigned int Round3Index[16] = {
         0u, 8u, 4u, 12u, 2u, 10u, 6u, 14u, 1u, 9u, 5u, 13u, 3u, 11u, 7u, 15u
     };
-    static const unsigned int Round1Shift[4] = { 3u, 7u, 11u, 19u };
-    static const unsigned int Round2Shift[4] = { 3u, 5u, 9u, 13u };
-    static const unsigned int Round3Shift[4] = { 3u, 9u, 11u, 15u };
+    static constexpr unsigned int Round1Shift[4] = { 3u, 7u, 11u, 19u };
+    static constexpr unsigned int Round2Shift[4] = { 3u, 5u, 9u, 13u };
+    static constexpr unsigned int Round3Shift[4] = { 3u, 9u, 11u, 15u };
     unsigned int A = State[0];
     unsigned int B = State[1];
     unsigned int C = State[2];

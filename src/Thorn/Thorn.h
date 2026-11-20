@@ -18,10 +18,10 @@
 static const char* const G_NameScriptEngine = "IScriptEngine";
 static const char* const G_Name3DMathEngine = "3DMathEngine";
 
-static const unsigned long G_ThornRegisterPriority = 0x40000000;
-static const unsigned long G_FactoryIidCompareBytes = 0x17; // "1.11_IComponentFactory" + NUL
-static const unsigned long G_AggDescSizeThorn = 0x14;
-static const unsigned long G_AggDescSizeMath = 0xC;
+static constexpr unsigned long G_ThornRegisterPriority = 0x40000000;
+static constexpr unsigned long G_FactoryIidCompareBytes = 0x17; // "1.11_IComponentFactory" + NUL
+static constexpr unsigned long G_AggDescSizeThorn = 0x14;
+static constexpr unsigned long G_AggDescSizeMath = 0xC;
 
 // x86math.h's FVector, which Thorn and SoundManager each used to redeclare.
 typedef FVector FVec3;

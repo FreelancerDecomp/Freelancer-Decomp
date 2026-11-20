@@ -21,10 +21,10 @@ struct _D3DXIMAGE_INFO;
 // declared in dacom.h, so nothing here is shared with render/shading.h any more.
 
 
-static const char kRp8ComponentName[] = "DirectX8";
-static const char kRp8DefaultSection[] = "RenderPipeline";
+static constexpr char kRp8ComponentName[] = "DirectX8";
+static constexpr char kRp8DefaultSection[] = "RenderPipeline";
 // RP9.dll: the Direct3D 9 mirror of RP8 (same IIDs, same default section). See docs/re/rp9.md.
-static const char kRp9ComponentName[] = "DirectX9";
+static constexpr char kRp9ComponentName[] = "DirectX9";
 
 
 // The C++ type is IRenderPipeline; its IID string is "1.11_IRenderPipeline8B" (Iids::RenderPipeline8B).

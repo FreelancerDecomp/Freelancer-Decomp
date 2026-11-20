@@ -70,53 +70,53 @@ static const char* const G_NameChildName = "Child name";
 static const char* const G_NameRootHeight = "Root height";
 
 // ChannelArchetype Header flags (LAB_0661d8d0 stride).
-static const unsigned long G_ChannelFlagScalar = 0x1;
-static const unsigned long G_ChannelFlagPosition = 0x2;
-static const unsigned long G_ChannelFlagQuat = 0x4;
-static const unsigned long G_ChannelFlagScalarOnly = 0x8;
-static const unsigned long G_ChannelFlagZeroPos = 0x10;
-static const unsigned long G_ChannelFlagIdentQuat = 0x20;
-static const unsigned long G_ChannelFlagCompQuat3 = 0x40;
-static const unsigned long G_ChannelFlagCompAxis = 0x80;
-static const unsigned long G_ChannelFlagCompQuat4 = 0x100;
-static const unsigned long G_ChannelCompressMask = 0x1F0;
-static const unsigned long G_MixKindScalar = 1;
-static const unsigned long G_MixKindVec3 = 3;
-static const unsigned long G_MixKindQuat = 4;
-static const unsigned long G_MixKindPosQuat = 7;
-static const float G_ShortToUnit = 3.051851e-05f;
-static const unsigned long G_MixerTypeLeaf = 0;
-static const unsigned long G_MixerTypeBlend = 1;
-static const unsigned long G_MixerTypeOverlay = 2;
-static const unsigned long G_MixerFlagKeep = 0x1;
-static const unsigned long G_MixerFlagPose = 0x2;
-static const unsigned long G_ChannelPlayFlag = 0x1;
-static const unsigned long G_ChannelBlendFlag = 0x2;
-static const unsigned long G_ChannelHoldFlag = 0x4;
+static constexpr unsigned long G_ChannelFlagScalar = 0x1;
+static constexpr unsigned long G_ChannelFlagPosition = 0x2;
+static constexpr unsigned long G_ChannelFlagQuat = 0x4;
+static constexpr unsigned long G_ChannelFlagScalarOnly = 0x8;
+static constexpr unsigned long G_ChannelFlagZeroPos = 0x10;
+static constexpr unsigned long G_ChannelFlagIdentQuat = 0x20;
+static constexpr unsigned long G_ChannelFlagCompQuat3 = 0x40;
+static constexpr unsigned long G_ChannelFlagCompAxis = 0x80;
+static constexpr unsigned long G_ChannelFlagCompQuat4 = 0x100;
+static constexpr unsigned long G_ChannelCompressMask = 0x1F0;
+static constexpr unsigned long G_MixKindScalar = 1;
+static constexpr unsigned long G_MixKindVec3 = 3;
+static constexpr unsigned long G_MixKindQuat = 4;
+static constexpr unsigned long G_MixKindPosQuat = 7;
+static constexpr float G_ShortToUnit = 3.051851e-05f;
+static constexpr unsigned long G_MixerTypeLeaf = 0;
+static constexpr unsigned long G_MixerTypeBlend = 1;
+static constexpr unsigned long G_MixerTypeOverlay = 2;
+static constexpr unsigned long G_MixerFlagKeep = 0x1;
+static constexpr unsigned long G_MixerFlagPose = 0x2;
+static constexpr unsigned long G_ChannelPlayFlag = 0x1;
+static constexpr unsigned long G_ChannelBlendFlag = 0x2;
+static constexpr unsigned long G_ChannelHoldFlag = 0x4;
 
 // FUN_06616c10 06616d32: the first playback id IAnimation2::PlayScript hands out.
-static const unsigned long G_AnimFirstPlaybackId = 0xED;
+static constexpr unsigned long G_AnimFirstPlaybackId = 0xED;
 
-static const unsigned long G_EngineInstanceSize = 0xEC;
-static const unsigned long G_TransformObjectSize = 0x48;
-static const unsigned long G_InstanceFlagOwnedTransform = 2;
-static const unsigned long G_AggDescSizeMath = 0xC;
+static constexpr unsigned long G_EngineInstanceSize = 0xEC;
+static constexpr unsigned long G_TransformObjectSize = 0x48;
+static constexpr unsigned long G_InstanceFlagOwnedTransform = 2;
+static constexpr unsigned long G_AggDescSizeMath = 0xC;
 
-static const unsigned long G_PriorityEngine = 0x40000000;
-static const unsigned long G_PriorityAnimation = 0x40000000;
-static const unsigned long G_PriorityHardpoint = 0x80000000;
-static const unsigned long G_PriorityChannelArchetype = 0x80000000;
+static constexpr unsigned long G_PriorityEngine = 0x40000000;
+static constexpr unsigned long G_PriorityAnimation = 0x40000000;
+static constexpr unsigned long G_PriorityHardpoint = 0x80000000;
+static constexpr unsigned long G_PriorityChannelArchetype = 0x80000000;
 
-static const unsigned long G_AggDescSizeEngine = 0x8;
-static const unsigned long G_AggDescSizeSearchPath = 0x8;
-static const unsigned long G_AggDescSizeChannelArchetype = 0x8;
-static const unsigned long G_AggDescSizeAnimation = 0x18;
-static const unsigned long G_AggDescSizeHardpoint = 0x18;
+static constexpr unsigned long G_AggDescSizeEngine = 0x8;
+static constexpr unsigned long G_AggDescSizeSearchPath = 0x8;
+static constexpr unsigned long G_AggDescSizeChannelArchetype = 0x8;
+static constexpr unsigned long G_AggDescSizeAnimation = 0x18;
+static constexpr unsigned long G_AggDescSizeHardpoint = 0x18;
 
-static const unsigned long G_EngineObjectSize = 0x64;
-static const unsigned long G_AnimationObjectSize = 0x60;
-static const unsigned long G_HardpointObjectSize = 0x44;
-static const unsigned long G_ChannelArchetypeObjectSize = 0x20;
+static constexpr unsigned long G_EngineObjectSize = 0x64;
+static constexpr unsigned long G_AnimationObjectSize = 0x60;
+static constexpr unsigned long G_HardpointObjectSize = 0x44;
+static constexpr unsigned long G_ChannelArchetypeObjectSize = 0x20;
 
 struct FAggDesc8
 {

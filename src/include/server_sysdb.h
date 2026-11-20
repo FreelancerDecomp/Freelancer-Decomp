@@ -1741,7 +1741,7 @@ public:
     void shutdown();
 };
 
-static const unsigned int STARSYSTEM_SIZE = 0x100;
+static constexpr unsigned int STARSYSTEM_SIZE = 0x100;
 
 static_assert(sizeof(StarSystem) == 0x100, "StarSystem is retail's 0x100 bytes");
 static_assert(offsetof(StarSystem, SystemInfo) == 0x04, "StarSystem+0x04 SystemInfo");

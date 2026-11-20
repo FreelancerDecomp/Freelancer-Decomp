@@ -50,9 +50,9 @@ namespace
     // s_E:\FL\Scratch\Source\Client\cmn\SoundArch.cpp (the FDUMP file of every SoundArch.cpp
     // message).
     char const kSoundArchCpp[] = "E:\\FL\\Scratch\\Source\\Client\\cmn\\SoundArch.cpp";
-    static const float kDefaultRangeMin = 50.f;
-    static const float kDefaultRangeMax = 300.f;
-    static const unsigned kDefaultFlags = 0x10000000u;
+    static constexpr float kDefaultRangeMin = 50.f;
+    static constexpr float kDefaultRangeMax = 300.f;
+    static constexpr unsigned kDefaultFlags = 0x10000000u;
 
     // Archetype::SoundImpl (vtable 0x005ca36c, 15 slots of Archetype::ISound). The slot bodies
     // are the ArchSlotN functions below; the overrides only forward to them.
@@ -404,7 +404,7 @@ namespace
     int G_DuckRefCount = 0;       // DAT_00667ca8
     float G_DuckTimer = -1.f;     // _DAT_00610904
     float G_MixerListener[3] = {0.f, 0.f, 0.f}; // _DAT_00667c5c/60/64
-    static const unsigned kMixerMaxEntries = 0x80;
+    static constexpr unsigned kMixerMaxEntries = 0x80;
     FSoundSource* G_MixerRanked[kMixerMaxEntries] = {}; // DAT_00667a58
     unsigned G_MixerRankedCount = 0;                    // DAT_00667cb8
 
@@ -413,7 +413,7 @@ namespace
     // DAT_00667c58 / DAT_00667a20 (FUN_00429020 writes 0x7f7fffff).
     static const float kMixerNoScore = FLT_MAX;
     // DAT_005ca16c / DAT_005ca210 — the silence floor every dB path clamps to.
-    static const float kSilenceDb = -96.f;
+    static constexpr float kSilenceDb = -96.f;
 
     FClientSoundArch* ArchFrom(void* Arch);
     FClientSoundArch* ArchGetLinked(FClientSoundArch* Arch);
@@ -2178,7 +2178,7 @@ namespace
         // Retail table (PTR_s_normal_00610988): id order matches the audio_* category
         // mapping (sfx=0/interface=1/voice=2/music=3/ambient=4) documented above.
         static const char* const kTypes[] = {"normal", "interface", "voice", "music", "ambience"};
-        static const unsigned kTypeIds[] = {0, 1, 2, 3, 4};
+        static constexpr unsigned kTypeIds[] = {0, 1, 2, 3, 4};
         int Index = 0;
         for (Index = 0; Index < 5; ++Index)
         {

@@ -4378,7 +4378,7 @@ namespace AlchemyImpl
     #pragma float_control(except, on, push)
     void FLBeamAppearance::FillRibbon()
     {
-        static const char kBeamFieldName[12] = "FLBeamField";
+        static constexpr char kBeamFieldName[12] = "FLBeamField";
         FPooledParticle* Head = InstanceListHead_;
         ++G_DrawCounters[7];
 

@@ -431,7 +431,7 @@ bool HudCameraActivate(FHudCamera* Cam, const int* ViewRect4)
 
     // 0x0051caec..0x0051cb50: the nine ids from a stack table, in this order, each through
     // FUN_005760d0 on the face at +0xf8.
-    static const unsigned kCockpitEvents[9] = {0x5c, 0x2a, 0x2b, 0x2c, 0x2d,
+    static constexpr unsigned kCockpitEvents[9] = {0x5c, 0x2a, 0x2b, 0x2c, 0x2d,
                                                0x2e, 0x2f, 0xc7, 0xc8};
     FHudCmdHandler* const Face = Cam->AsHudCmdHandler();
     for (unsigned Index = 0; Index < 9; ++Index)
