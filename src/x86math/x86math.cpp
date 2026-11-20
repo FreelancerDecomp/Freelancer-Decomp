@@ -1926,7 +1926,7 @@ BOOL WINAPI DllMain(HINSTANCE Module, DWORD Reason, LPVOID /*Reserved*/)
     {
         DisableThreadLibraryCalls(Module);
         // FUN_06f71090: PUSH 8 / operator_new. Null → DAT=0, RET TRUE, no InvSqrt table.
-        void* Memory = ::operator new(8, std::nothrow);
+        void* Memory = ::operator new(FL_RETAIL_NEW_SIZE(8, FMathEngine), std::nothrow);
         if (Memory == nullptr)
         {
             G_Engine = nullptr;

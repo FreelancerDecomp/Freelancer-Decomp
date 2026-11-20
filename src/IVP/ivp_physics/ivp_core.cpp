@@ -1100,7 +1100,7 @@ void IVP_Core::register_object_hash_entry(void* Candidate)
         {
             // :06347caa-06347cd3: MSVCRT operator new (NULL on failure), the
             // ctor only on a non-null block, else the field gets 0.
-            void* Map = ::operator new(0x14, std::nothrow);
+            void* Map = ::operator new(FL_RETAIL_NEW_SIZE(0x14, IVP_VHash_Store), std::nothrow);
             this->ObjectHashMap = (Map != nullptr) ? new (Map) IVP_VHash_Store(2) : nullptr; // FUN_063525f0
         }
 
