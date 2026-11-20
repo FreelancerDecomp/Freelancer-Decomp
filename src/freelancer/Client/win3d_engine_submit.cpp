@@ -384,7 +384,7 @@ bool Win3DRayHitsAabbHalfExtents(float const HalfExtents[3], float const Matrix3
 
     // The listing hands Matrix3x4 itself to the engine: nine rotation floats then the
     // translation, which is FTransform's layout.
-    static_assert(sizeof(FTransform) == 12 * sizeof(float), "FTransform is the 3x4 transform");
+    FL_LAYOUT_ASSERT(sizeof(FTransform) == 12 * sizeof(float), "FTransform is the 3x4 transform");
     FVector Out;
     G_RayBoxMathEngine->InverseTransform(Out, *reinterpret_cast<FTransform const*>(Matrix3x4),
                                          *reinterpret_cast<FVector const*>(RayDir));

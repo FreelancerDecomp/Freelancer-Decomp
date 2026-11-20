@@ -56,7 +56,7 @@ struct FNnPlayerStatsBlock
     int NextLevelRequirement;   // +0x2c -- ids 0x61f; 0x7fffffff = max level, <= 0 = mission
     int ReputationCount;        // +0x30 -- entries of the second table
 };
-static_assert(sizeof(FNnPlayerStatsBlock) == 0x34, "player-stats block head is 0x34 bytes");
+FL_LAYOUT_ASSERT(sizeof(FNnPlayerStatsBlock) == 0x34, "player-stats block head is 0x34 bytes");
 
 // One entry of the block's first table: kills per ship archetype.
 struct FNnPlayerStatsShipKills
@@ -64,7 +64,7 @@ struct FNnPlayerStatsShipKills
     unsigned ShipArchId; // +0x00 -- Archetype::GetShip
     int Count;           // +0x04
 };
-static_assert(sizeof(FNnPlayerStatsShipKills) == 8, "ship-kill entry is 8 bytes");
+FL_LAYOUT_ASSERT(sizeof(FNnPlayerStatsShipKills) == 8, "ship-kill entry is 8 bytes");
 
 struct FPlayerStatsRepEntry; // nn_dealer.h
 
@@ -142,18 +142,18 @@ private:
 
 // Retail's offsets up to the vector; the port's std::vector is not retail's 12 bytes (no retail
 // ABI), so the fields after it and the class size are not asserted.
-static_assert(offsetof(NnPlayerInfo, CloseButton) == 0x32c, "NN_PlayerInfo +0x32c");
-static_assert(offsetof(NnPlayerInfo, PlayerStatsTitle) == 0x330, "NN_PlayerInfo +0x330");
-static_assert(offsetof(NnPlayerInfo, FactionFrames) == 0x334, "NN_PlayerInfo +0x334");
-static_assert(offsetof(NnPlayerInfo, FactionNames) == 0x34c, "NN_PlayerInfo +0x34c");
-static_assert(offsetof(NnPlayerInfo, UnfriendlyBars) == 0x364, "NN_PlayerInfo +0x364");
-static_assert(offsetof(NnPlayerInfo, FriendlyBars) == 0x37c, "NN_PlayerInfo +0x37c");
-static_assert(offsetof(NnPlayerInfo, Scroll) == 0x394, "NN_PlayerInfo +0x394");
-static_assert(offsetof(NnPlayerInfo, StatValues) == 0x398, "NN_PlayerInfo +0x398");
-static_assert(offsetof(NnPlayerInfo, StatHeadings) == 0x3cc, "NN_PlayerInfo +0x3cc");
-static_assert(offsetof(NnPlayerInfo, FactionInfoCard) == 0x400, "NN_PlayerInfo +0x400");
-static_assert(offsetof(NnPlayerInfo, CloseInfocardText) == 0x408, "NN_PlayerInfo +0x408");
-static_assert(offsetof(NnPlayerInfo, Field_0x40c) == 0x40c, "NN_PlayerInfo +0x40c");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, CloseButton) == 0x32c, "NN_PlayerInfo +0x32c");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, PlayerStatsTitle) == 0x330, "NN_PlayerInfo +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, FactionFrames) == 0x334, "NN_PlayerInfo +0x334");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, FactionNames) == 0x34c, "NN_PlayerInfo +0x34c");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, UnfriendlyBars) == 0x364, "NN_PlayerInfo +0x364");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, FriendlyBars) == 0x37c, "NN_PlayerInfo +0x37c");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, Scroll) == 0x394, "NN_PlayerInfo +0x394");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, StatValues) == 0x398, "NN_PlayerInfo +0x398");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, StatHeadings) == 0x3cc, "NN_PlayerInfo +0x3cc");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, FactionInfoCard) == 0x400, "NN_PlayerInfo +0x400");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, CloseInfocardText) == 0x408, "NN_PlayerInfo +0x408");
+FL_LAYOUT_ASSERT(offsetof(NnPlayerInfo, Field_0x40c) == 0x40c, "NN_PlayerInfo +0x40c");
 
 // WINFACTORY<NN_PlayerInfo> (DAT_00672180). Its one slot FUN_004a9100 is not the generic
 // WINFACTORY<T>::Create: the ctor takes the payload's low byte.

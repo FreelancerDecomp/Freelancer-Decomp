@@ -84,10 +84,10 @@ private:
     CargoBarControl& operator=(CargoBarControl const&) = delete;
 };
 
-static_assert(offsetof(CargoBarControl, ToolTip2Ids) == 0x32c, "CargoBarControl +0x32c");
-static_assert(offsetof(CargoBarControl, Color) == 0x340, "CargoBarControl +0x340");
-static_assert(offsetof(CargoBarControl, bShow) == 0x34d, "CargoBarControl +0x34d");
-static_assert(sizeof(CargoBarControl) == 0x350, "retail CargoBarControl is 0x350 bytes");
+FL_LAYOUT_ASSERT(offsetof(CargoBarControl, ToolTip2Ids) == 0x32c, "CargoBarControl +0x32c");
+FL_LAYOUT_ASSERT(offsetof(CargoBarControl, Color) == 0x340, "CargoBarControl +0x340");
+FL_LAYOUT_ASSERT(offsetof(CargoBarControl, bShow) == 0x34d, "CargoBarControl +0x34d");
+FL_LAYOUT_ASSERT(sizeof(CargoBarControl) == 0x350, "retail CargoBarControl is 0x350 bytes");
 
 // The tooltip hover record (tooltip_hover.h) as retail inlines it at each hover site: the
 // per-site start values after construction and the caption copy (FUN_004142a0 + wcsncpy). The

@@ -41,7 +41,7 @@ struct FUiWidgetEntry
     FUiWidgetEntry** NestedChildren;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(FUiWidgetEntry) == 0x20, "FUiWidgetEntry is 0x20");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(FUiWidgetEntry) == 0x20, "FUiWidgetEntry is 0x20");
 
 // UIStaticText / UITextEdit payload — operator_new(0x0C)
 struct FUiPayloadText

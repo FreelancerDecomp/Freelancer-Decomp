@@ -176,10 +176,10 @@ namespace
         unsigned long Value2[4];
     };
 
-    static_assert(sizeof(FFlmMaterialParamDesc) == sizeof(FShadingPropertyRecord), "shared property descriptor size");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type0) == offsetof(FShadingPropertyRecord, Current), "current value boundary");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type1) == offsetof(FShadingPropertyRecord, Default), "default value boundary");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type2) == offsetof(FShadingPropertyRecord, Saved), "saved value boundary");
+    FL_LAYOUT_ASSERT(sizeof(FFlmMaterialParamDesc) == sizeof(FShadingPropertyRecord), "shared property descriptor size");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type0) == offsetof(FShadingPropertyRecord, Current), "current value boundary");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type1) == offsetof(FShadingPropertyRecord, Default), "default value boundary");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type2) == offsetof(FShadingPropertyRecord, Saved), "saved value boundary");
 
     void FlmSetDescriptorEntry(FFlmMaterialParamDesc* Entry, int Type,
                                 unsigned long Flags, const char* Tag, const char* Name,
@@ -221,7 +221,7 @@ namespace
             }
         }
     };
-    static_assert(sizeof(FFlmOwnedDescriptor) == kFlmParamDescSize, "Descriptor stride");
+    FL_LAYOUT_ASSERT(sizeof(FFlmOwnedDescriptor) == kFlmParamDescSize, "Descriptor stride");
 
 
     void FlmReleaseTypedValue(unsigned long* Slot);
@@ -345,7 +345,7 @@ namespace
             {0, nullptr, "Colorize Options", "flcopt",
              1, {0, 0, 0, 0}, 1, {0, 0, 0, 0}, 1, {0, 0, 0, 0}},
         };
-        static_assert(sizeof(FFlmMaterialParamDesc) == kFlmParamDescSize,
+        FL_LAYOUT_ASSERT(sizeof(FFlmMaterialParamDesc) == kFlmParamDescSize,
                       "FFlmMaterialParamDesc must match the confirmed 0x4C stride");
         if (bCloak)
         {

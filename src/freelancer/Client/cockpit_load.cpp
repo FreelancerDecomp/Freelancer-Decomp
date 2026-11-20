@@ -43,8 +43,8 @@ namespace
         Archetype::Root* Archetype;
     };
 
-    static_assert(offsetof(FPlayerShipView, FlagsAt4c) == 0x4c, "CEqObj+0x4c class flags");
-    static_assert(offsetof(FPlayerShipView, Archetype) == 0x88, "CObject+0x88 archetype");
+    FL_LAYOUT_ASSERT(offsetof(FPlayerShipView, FlagsAt4c) == 0x4c, "CEqObj+0x4c class flags");
+    FL_LAYOUT_ASSERT(offsetof(FPlayerShipView, Archetype) == 0x88, "CObject+0x88 archetype");
 
     // Archetype::CliShip companion — cockpit ini path at retail +0x60.
     struct FCliShipCompanionView
@@ -54,7 +54,7 @@ namespace
         char* CockpitIniPath;
     };
 
-    static_assert(offsetof(FCliShipCompanionView, CockpitIniPath) == 0x60,
+    FL_LAYOUT_ASSERT(offsetof(FCliShipCompanionView, CockpitIniPath) == 0x60,
                   "CliShip+0x60 cockpit ini path");
 
     // player_spawn.cpp's fallback when it has no manager object; never bound.

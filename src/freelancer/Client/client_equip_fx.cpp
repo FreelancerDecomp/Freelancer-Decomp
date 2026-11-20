@@ -83,7 +83,7 @@ namespace
         float FlareConeCos[2];   // +0x8c cos(second value), +0x90 cos(first value)
         float LightsourceCone;   // +0x94 "lightsource_cone"
     };
-    static_assert(sizeof(FCliEQLightView) == 0x98 - 0x54, "CliEQLight tail +0x54..+0x98");
+    FL_LAYOUT_ASSERT(sizeof(FCliEQLightView) == 0x98 - 0x54, "CliEQLight tail +0x54..+0x98");
 
     // Every reader dereferences the companion without a test (0x004fda41, 0x004fdb3b,
     // 0x004fddc4, 0x004fe06b).
@@ -130,9 +130,9 @@ namespace
         unsigned long TexFrame[5];          // +0x84 TextureLib slot +0x58 frame of "shine"
         FCliEquipGameLight* EngineLight;    // +0x98 the real light (player-owned only)
     };
-    static_assert(sizeof(FCliEquipLight) == 0x9c, "CliEquipLight 0x9c");
-    static_assert(offsetof(FCliEquipLight, Companion) == 0x6c, "Companion");
-    static_assert(offsetof(FCliEquipLight, EngineLight) == 0x98, "EngineLight");
+    FL_LAYOUT_ASSERT(sizeof(FCliEquipLight) == 0x9c, "CliEquipLight 0x9c");
+    FL_LAYOUT_ASSERT(offsetof(FCliEquipLight, Companion) == 0x6c, "Companion");
+    FL_LAYOUT_ASSERT(offsetof(FCliEquipLight, EngineLight) == 0x98, "EngineLight");
 
     // The real light FUN_004fda00 creates for a player-owned CliEquipLight: FUN_00537a90(0x130),
     // GameLight constructor FUN_005374e0, +0x12c = the owner, vtable PTR_FUN_005da424 =
@@ -142,7 +142,7 @@ namespace
         void Tick(float Dt) override;
         FCliEquipLight* Owner;              // +0x12c
     };
-    static_assert(sizeof(FCliEquipGameLight) == 0x130, "CliEquipLight GameLight 0x130");
+    FL_LAYOUT_ASSERT(sizeof(FCliEquipGameLight) == 0x130, "CliEquipLight GameLight 0x130");
 
     // EquippedObj+0xb8 list node (FUN_0042a7e0 operator_new(0xc)), published as FEquipFxListNode.
     using FCliEquipFxListNode = FEquipFxListNode;
@@ -258,8 +258,8 @@ namespace
         void* Companion[4];
     };
 
-    static_assert(sizeof(FCliLightEquipFx) == 0x20, "CliLightEquipFx 0x20");
-    static_assert(offsetof(FCliLightEquipFx, Companion) == 0x10, "CliLightEquipFx +0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliLightEquipFx) == 0x20, "CliLightEquipFx 0x20");
+    FL_LAYOUT_ASSERT(offsetof(FCliLightEquipFx, Companion) == 0x10, "CliLightEquipFx +0x10");
 
     // FUN_00536100 / FUN_00536170 are ExplosionArchAddRef / ExplosionArchRelease
     // (client_gameobj.h); this file used to carry its own copies.
@@ -801,7 +801,7 @@ namespace
     // The ClientEquip base is published as FClientEquip (client_equip_fx.h); its members are
     // defined at the end of this file.
     using FCliEquipFxBase = FClientEquip;
-    static_assert(sizeof(FCliEquipFxBase) == 0x10, "CliEquipFxBase 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliEquipFxBase) == 0x10, "CliEquipFxBase 0x10");
 
     // The code-0xa "the player lost this" test the equipment notifies inline (shield generator
     // 0x0052eb6e..0x0052ebc3, engine 0x00527f0b..0x00527f68, thruster, the launcher family):
@@ -842,7 +842,7 @@ namespace
         // FUN_0052eb60 (RET 8).
         void notify(Event Code, void* Param) override;
     };
-    static_assert(sizeof(FCliShieldGenEquipFx) == 0x10, "ShieldGenFx 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliShieldGenEquipFx) == 0x10, "ShieldGenFx 0x10");
 
     void FCliShieldGenEquipFx::notify(Event Code, void* Param)
     {
@@ -864,7 +864,7 @@ namespace
         // LAB_00532010 (RET 8).
         void notify(Event Code, void* Param) override;
     };
-    static_assert(sizeof(FCliCloakEquipFx) == 0x10, "CloakFx 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliCloakEquipFx) == 0x10, "CloakFx 0x10");
 
     FCliCloakEquipFx::~FCliCloakEquipFx()
     {
@@ -970,7 +970,7 @@ namespace
         void* CollapseSound; // +0x10  CliEQShieldGenerator +0x58 (FUN_0042ae40, Acquire'd)
         void* RebuiltSound;  // +0x14  CliEQShieldGenerator +0x5c
     };
-    static_assert(sizeof(FCliShieldEquipFx) == 0x18, "ShieldFx 0x18");
+    FL_LAYOUT_ASSERT(sizeof(FCliShieldEquipFx) == 0x18, "ShieldFx 0x18");
 
     // The dominant generator's companion as every shield slot reads it: the equipment (+4),
     // its +0x70 (CEShield::DominantGenArch, read with no cast) and that archetype's +4
@@ -1259,8 +1259,8 @@ namespace
         // FUN_00503070 fills with the exhaust particle (0x0052ed40 passes &this+0x10).
         void* Companion[4];
     };
-    static_assert(sizeof(FCliThrusterEquipFx) == 0x20, "ThrusterFx 0x20");
-    static_assert(offsetof(FCliThrusterEquipFx, Companion) == 0x10, "Thruster +0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliThrusterEquipFx) == 0x20, "ThrusterFx 0x20");
+    FL_LAYOUT_ASSERT(offsetof(FCliThrusterEquipFx, Companion) == 0x10, "Thruster +0x10");
 
     // Retail Archetype::CliEQAttachedFX (vtable 005c7fe0, 0x5c) is private to client_cliobj.cpp
     // (FCliEQAttachedFX); this is its tail from +0x54 as EquippedObj.cpp reads it.
@@ -1289,8 +1289,8 @@ namespace
         // FUN_00503070 fills (0x0053235b passes &this+0x10 as its out-param).
         void* Companion[4];
     };
-    static_assert(sizeof(FCliAttachedFxEquipFx) == 0x20, "AttachedFx 0x20");
-    static_assert(offsetof(FCliAttachedFxEquipFx, Companion) == 0x10, "AttachedFx +0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliAttachedFxEquipFx) == 0x20, "AttachedFx 0x20");
+    FL_LAYOUT_ASSERT(offsetof(FCliAttachedFxEquipFx, Companion) == 0x10, "AttachedFx +0x10");
 
     // The repair droid's client wrapper: operator new(0x20), constructor FUN_00532800 (the base
     // FUN_00531a30 inlined), vtable PTR_LAB_005de18c {notify LAB_00532980, scalar deleting dtor
@@ -1306,8 +1306,8 @@ namespace
         // FUN_00503070 fills on activation (0x00532b17 passes &this+0x10).
         void* Companion[4];
     };
-    static_assert(sizeof(FCliRepairDroidEquipFx) == 0x20, "RepairDroidFx 0x20");
-    static_assert(offsetof(FCliRepairDroidEquipFx, Companion) == 0x10, "RepairDroid +0x10");
+    FL_LAYOUT_ASSERT(sizeof(FCliRepairDroidEquipFx) == 0x20, "RepairDroidFx 0x20");
+    FL_LAYOUT_ASSERT(offsetof(FCliRepairDroidEquipFx, Companion) == 0x10, "RepairDroid +0x10");
 
     // The internal-FX equipment's client wrapper: operator new(0x14), constructor FUN_00532530,
     // vtable PTR_LAB_005de17c {notify LAB_005327d0, scalar deleting dtor FUN_00532720 (body
@@ -1321,7 +1321,7 @@ namespace
 
         ISoundSource* Voice; // +0x10 Source3D looping on the companion's +0x54 sound
     };
-    static_assert(sizeof(FCliInternalFxEquipFx) == 0x14, "InternalFx 0x14");
+    FL_LAYOUT_ASSERT(sizeof(FCliInternalFxEquipFx) == 0x14, "InternalFx 0x14");
 
     // The tractor's client wrapper: operator new(0x38), constructor FUN_0052f540, vtable
     // PTR_LAB_005ddcdc {notify LAB_0052f740, scalar deleting dtor FUN_0052f640 (body
@@ -1343,10 +1343,10 @@ namespace
         FEffectArch* OperatingEffect; // +0x30 CliEQTractor +0x58, FUN_0040e960(..., 1)
         void* CompleteSound;          // +0x34 CliEQTractor +0x5c, FUN_0042ae40 + vt+0xc
     };
-    static_assert(sizeof(FCliTractorEquipFx) == 0x38, "TractorFx 0x38");
-    static_assert(offsetof(FCliTractorEquipFx, BeamCompanion) == 0x10, "Tractor +0x10");
-    static_assert(offsetof(FCliTractorEquipFx, OperatingCompanion) == 0x20, "Tractor +0x20");
-    static_assert(offsetof(FCliTractorEquipFx, OperatingEffect) == 0x30, "Tractor +0x30");
+    FL_LAYOUT_ASSERT(sizeof(FCliTractorEquipFx) == 0x38, "TractorFx 0x38");
+    FL_LAYOUT_ASSERT(offsetof(FCliTractorEquipFx, BeamCompanion) == 0x10, "Tractor +0x10");
+    FL_LAYOUT_ASSERT(offsetof(FCliTractorEquipFx, OperatingCompanion) == 0x20, "Tractor +0x20");
+    FL_LAYOUT_ASSERT(offsetof(FCliTractorEquipFx, OperatingEffect) == 0x30, "Tractor +0x30");
 
     struct FCliEngineNozzleSlot
     {
@@ -1355,7 +1355,7 @@ namespace
         FParticleEffect* TrailFx;   // +0x04  companion+0x9c
         FParticleEffect* CruiseFx;  // +0x08  companion+0xa0/+0xa4
     };
-    static_assert(sizeof(FCliEngineNozzleSlot) == 0xc, "Engine nozzle slot 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FCliEngineNozzleSlot) == 0xc, "Engine nozzle slot 0xc");
 
     // The engine wrapper's VC6 std::vector<nozzle slot> at +0x10 {allocator byte, first, last,
     // end}, held as a std::vector: retail's own member functions on it are the VC6 template
@@ -1804,7 +1804,7 @@ namespace
         int ChildIndex;                         // +0x04
         FCliTradeLaneEquipFx* Owner;            // +0x08 set by FUN_00516af0
     };
-    static_assert(sizeof(FTradeLaneRingChannel) == 0xc, "TLR channel 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FTradeLaneRingChannel) == 0xc, "TLR channel 0xc");
 
     // FUN_00516c30 layout 0x34, vtable PTR_FUN_005db904 {notify FUN_00531b20 (the base's),
     // scalar deleting dtor FUN_00516c10 (body FUN_00516bb0), Update LAB_00516ea0}.
@@ -1824,11 +1824,11 @@ namespace
         // spins the rings up while it is 0 and down otherwise.
         int ShipsUsingLane;
     };
-    static_assert(sizeof(FCliTradeLaneEquipFx) == 0x34, "TradeLaneFx 0x34");
-    static_assert(offsetof(FCliTradeLaneEquipFx, TlrLeft) == 0x10, "TLR left @+0x10");
-    static_assert(offsetof(FCliTradeLaneEquipFx, TlrRight) == 0x1c, "TLR right @+0x1c");
-    static_assert(offsetof(FCliTradeLaneEquipFx, SpinAngle) == 0x28, "TradeLane +0x28");
-    static_assert(offsetof(FCliTradeLaneEquipFx, ShipsUsingLane) == 0x30, "TradeLane +0x30");
+    FL_LAYOUT_ASSERT(sizeof(FCliTradeLaneEquipFx) == 0x34, "TradeLaneFx 0x34");
+    FL_LAYOUT_ASSERT(offsetof(FCliTradeLaneEquipFx, TlrLeft) == 0x10, "TLR left @+0x10");
+    FL_LAYOUT_ASSERT(offsetof(FCliTradeLaneEquipFx, TlrRight) == 0x1c, "TLR right @+0x1c");
+    FL_LAYOUT_ASSERT(offsetof(FCliTradeLaneEquipFx, SpinAngle) == 0x28, "TradeLane +0x28");
+    FL_LAYOUT_ASSERT(offsetof(FCliTradeLaneEquipFx, ShipsUsingLane) == 0x30, "TradeLane +0x30");
 
     // DAT_005c77f4.
     float const kTradeLaneDegToRad = 0.01745329238474369f;
@@ -3120,7 +3120,7 @@ namespace
         unsigned CharacterSounds[2];  // +0x74 / +0x78 (ID_Strings, not read here)
         int CharacterPitchRange[2];   // +0x7c "character_pitch_range"
     };
-    static_assert(sizeof(FCliEQEngineRangesView) == 0x84 - 0x64, "CliEQEngine +0x64..+0x84");
+    FL_LAYOUT_ASSERT(sizeof(FCliEQEngineRangesView) == 0x84 - 0x64, "CliEQEngine +0x64..+0x84");
 
     FCliEQEngineRangesView const* CompanionAsEngineRanges(Archetype::ICliObj* Companion)
     {

@@ -42,7 +42,7 @@ struct FMaterialParamValue
     void Set(int InType, unsigned long Arg);
 };
 
-static_assert(sizeof(FMaterialParamValue) == 0x14, "material parameter cell is 0x14 bytes");
+FL_LAYOUT_ASSERT(sizeof(FMaterialParamValue) == 0x14, "material parameter cell is 0x14 bytes");
 
 // One entry of a material's parameter table (0x4C bytes, the stride of IMaterial slots
 // 17/18/19 and kMaterialParamDescSize).
@@ -70,10 +70,10 @@ struct FMaterialParamDesc
               unsigned long InMax);
 };
 
-static_assert(sizeof(FMaterialParamDesc) == 0x4C, "material parameter descriptor is 0x4C bytes");
-static_assert(offsetof(FMaterialParamDesc, Value) == 0x10, "descriptor value cell +0x10");
-static_assert(offsetof(FMaterialParamDesc, Min) == 0x24, "descriptor min cell +0x24");
-static_assert(offsetof(FMaterialParamDesc, Max) == 0x38, "descriptor max cell +0x38");
+FL_LAYOUT_ASSERT(sizeof(FMaterialParamDesc) == 0x4C, "material parameter descriptor is 0x4C bytes");
+FL_LAYOUT_ASSERT(offsetof(FMaterialParamDesc, Value) == 0x10, "descriptor value cell +0x10");
+FL_LAYOUT_ASSERT(offsetof(FMaterialParamDesc, Min) == 0x24, "descriptor min cell +0x24");
+FL_LAYOUT_ASSERT(offsetof(FMaterialParamDesc, Max) == 0x38, "descriptor max cell +0x38");
 
 // One texture row (0x2C bytes), one per type-7 parameter (FUN_065fe1b0 counts them).
 struct FMaterialTextureRow
@@ -97,12 +97,12 @@ struct FMaterialTextureRow
     FMaterialTextureRow& operator=(const FMaterialTextureRow&) = delete;
 };
 
-static_assert(sizeof(FMaterialTextureRow) == 0x2C, "texture row is 0x2C bytes");
-static_assert(offsetof(FMaterialTextureRow, Name) == 0x00, "row name +0x00");
-static_assert(offsetof(FMaterialTextureRow, WrapMode) == 0x1C, "row wrap mode +0x1C");
-static_assert(offsetof(FMaterialTextureRow, AddressU) == 0x20, "row address U +0x20");
-static_assert(offsetof(FMaterialTextureRow, AddressV) == 0x24, "row address V +0x24");
-static_assert(offsetof(FMaterialTextureRow, bSingleFrame) == 0x28, "row single-frame +0x28");
+FL_LAYOUT_ASSERT(sizeof(FMaterialTextureRow) == 0x2C, "texture row is 0x2C bytes");
+FL_LAYOUT_ASSERT(offsetof(FMaterialTextureRow, Name) == 0x00, "row name +0x00");
+FL_LAYOUT_ASSERT(offsetof(FMaterialTextureRow, WrapMode) == 0x1C, "row wrap mode +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FMaterialTextureRow, AddressU) == 0x20, "row address U +0x20");
+FL_LAYOUT_ASSERT(offsetof(FMaterialTextureRow, AddressV) == 0x24, "row address V +0x24");
+FL_LAYOUT_ASSERT(offsetof(FMaterialTextureRow, bSingleFrame) == 0x28, "row single-frame +0x28");
 
 // RGBA colours and shininess share the D3DMATERIAL8 storage layout.
 struct FMaterialColors
@@ -114,12 +114,12 @@ struct FMaterialColors
     float Power;        // +0x40
 };
 
-static_assert(sizeof(FMaterialColors) == 0x44, "D3DMATERIAL8 is 0x44 bytes");
-static_assert(offsetof(FMaterialColors, Diffuse) == 0x00, "material diffuse +0x00");
-static_assert(offsetof(FMaterialColors, Ambient) == 0x10, "material ambient +0x10");
-static_assert(offsetof(FMaterialColors, Specular) == 0x20, "material specular +0x20");
-static_assert(offsetof(FMaterialColors, Emissive) == 0x30, "material emissive +0x30");
-static_assert(offsetof(FMaterialColors, Power) == 0x40, "material power +0x40");
+FL_LAYOUT_ASSERT(sizeof(FMaterialColors) == 0x44, "D3DMATERIAL8 is 0x44 bytes");
+FL_LAYOUT_ASSERT(offsetof(FMaterialColors, Diffuse) == 0x00, "material diffuse +0x00");
+FL_LAYOUT_ASSERT(offsetof(FMaterialColors, Ambient) == 0x10, "material ambient +0x10");
+FL_LAYOUT_ASSERT(offsetof(FMaterialColors, Specular) == 0x20, "material specular +0x20");
+FL_LAYOUT_ASSERT(offsetof(FMaterialColors, Emissive) == 0x30, "material emissive +0x30");
+FL_LAYOUT_ASSERT(offsetof(FMaterialColors, Power) == 0x40, "material power +0x40");
 
 // Retail vtable 06601598.
 class FEyeMaterialImpl : public IMaterial
@@ -189,7 +189,7 @@ struct FEyeMaterialInner : IDAComponent
     unsigned long DACOM_API Release() override;
 };
 
-static_assert(sizeof(FEyeMaterialInner) == 0xC, "EyeMaterial inner unknown is 0xC bytes");
+FL_LAYOUT_ASSERT(sizeof(FEyeMaterialInner) == 0xC, "EyeMaterial inner unknown is 0xC bytes");
 
 // Retail vtable 066014f8.
 class FEyeMaterial : public FEyeMaterialImpl
@@ -214,18 +214,18 @@ public:
     FEyeMaterialInner Inner;    // +0x6C
 };
 
-static_assert(sizeof(FEyeMaterial) == 0x78, "EyeMaterial is operator new(0x78)");
-static_assert(offsetof(FEyeMaterial, Pipeline) == 0x04, "EyeMaterial pipeline +0x04");
-static_assert(offsetof(FEyeMaterial, TextureLib) == 0x08, "EyeMaterial texture library +0x08");
-static_assert(offsetof(FEyeMaterial, VertexBufferMgr) == 0x0C, "EyeMaterial VB manager +0x0C");
-static_assert(offsetof(FEyeMaterial, Draw) == 0x10, "EyeMaterial IRPDraw +0x10");
-static_assert(offsetof(FEyeMaterial, Name) == 0x14, "EyeMaterial name +0x14");
-static_assert(offsetof(FEyeMaterial, TextureRows) == 0x18, "EyeMaterial texture rows +0x18");
-static_assert(offsetof(FEyeMaterial, TextureRowCount) == 0x1C, "EyeMaterial row count +0x1C");
-static_assert(offsetof(FEyeMaterial, Colors) == 0x20, "EyeMaterial D3DMATERIAL8 +0x20");
-static_assert(offsetof(FEyeMaterial, bTranslucent) == 0x64, "EyeMaterial translucent +0x64");
-static_assert(offsetof(FEyeMaterial, bOneBitAlpha) == 0x65, "EyeMaterial 1-bit alpha +0x65");
-static_assert(offsetof(FEyeMaterial, Controlling) == 0x68, "EyeMaterial controlling +0x68");
-static_assert(offsetof(FEyeMaterial, Inner) == 0x6C, "EyeMaterial inner +0x6C");
+FL_LAYOUT_ASSERT(sizeof(FEyeMaterial) == 0x78, "EyeMaterial is operator new(0x78)");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Pipeline) == 0x04, "EyeMaterial pipeline +0x04");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, TextureLib) == 0x08, "EyeMaterial texture library +0x08");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, VertexBufferMgr) == 0x0C, "EyeMaterial VB manager +0x0C");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Draw) == 0x10, "EyeMaterial IRPDraw +0x10");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Name) == 0x14, "EyeMaterial name +0x14");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, TextureRows) == 0x18, "EyeMaterial texture rows +0x18");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, TextureRowCount) == 0x1C, "EyeMaterial row count +0x1C");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Colors) == 0x20, "EyeMaterial D3DMATERIAL8 +0x20");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, bTranslucent) == 0x64, "EyeMaterial translucent +0x64");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, bOneBitAlpha) == 0x65, "EyeMaterial 1-bit alpha +0x65");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Controlling) == 0x68, "EyeMaterial controlling +0x68");
+FL_LAYOUT_ASSERT(offsetof(FEyeMaterial, Inner) == 0x6C, "EyeMaterial inner +0x6C");
 
 bool RegisterEyeMaterialFactory();

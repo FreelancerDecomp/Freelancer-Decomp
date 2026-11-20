@@ -30,7 +30,7 @@
 struct FGfScript;
 struct ICamera;
 
-static_assert(sizeof(void*) == 4, "the facet offsets of the QI table (0x005cca20) are x86 offsets");
+FL_LAYOUT_ASSERT(sizeof(void*) == 4, "the facet offsets of the QI table (0x005cca20) are x86 offsets");
 
 // The "not implemented" answer of every default slot (LAB_00454190, LAB_0044fcc0..LAB_0044fcf0:
 // MOV EAX,0xfffffff9). dacom.h has no name for it.

@@ -23,13 +23,13 @@
 #include <string.h>
 #include <cstring>
 
-static_assert(sizeof(FGfCameraSlot) == 0x40, "pool slot stride 0x40");
-static_assert(offsetof(FGfCameraSlot, Orient) == 0x10, "slot orientation +0x10");
-static_assert(offsetof(FGfCameraSlot, HalfFovXDeg) == 0x34, "slot fov +0x34");
-static_assert(offsetof(FGfCameraPool, Priority) == 0x4000, "pool priorities +0x4000");
-static_assert(offsetof(FGfCameraPool, bCanBeActive) == 0x4400, "pool flags +0x4400");
-static_assert(offsetof(FGfCameraPool, bOccupied) == 0x4500, "pool occupancy +0x4500");
-static_assert(offsetof(FGfCameraPool, ActiveIndex) == 0x4600, "pool active +0x4600");
+FL_LAYOUT_ASSERT(sizeof(FGfCameraSlot) == 0x40, "pool slot stride 0x40");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraSlot, Orient) == 0x10, "slot orientation +0x10");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraSlot, HalfFovXDeg) == 0x34, "slot fov +0x34");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraPool, Priority) == 0x4000, "pool priorities +0x4000");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraPool, bCanBeActive) == 0x4400, "pool flags +0x4400");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraPool, bOccupied) == 0x4500, "pool occupancy +0x4500");
+FL_LAYOUT_ASSERT(offsetof(FGfCameraPool, ActiveIndex) == 0x4600, "pool active +0x4600");
 
 namespace
 {

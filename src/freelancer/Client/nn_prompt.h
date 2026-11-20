@@ -101,16 +101,16 @@ private:
     void Close();
 };
 
-static_assert(sizeof(NnPrompt) == 0x354, "retail NN_Prompt is 0x354 bytes (operator_new 00474a49)");
-static_assert(offsetof(NnPrompt, Byte331) == 0x331, "NN_Prompt +0x331");
-static_assert(offsetof(NnPrompt, Result) == 0x334, "NN_Prompt +0x334 result slot");
-static_assert(offsetof(NnPrompt, EditText) == 0x338, "NN_Prompt +0x338 edit text");
-static_assert(offsetof(NnPrompt, Mode) == 0x33c, "NN_Prompt +0x33c mode");
-static_assert(offsetof(NnPrompt, PromptText) == 0x340, "NN_Prompt +0x340 PromptText");
-static_assert(offsetof(NnPrompt, PromptEdit) == 0x344, "NN_Prompt +0x344 PromptEdit");
-static_assert(offsetof(NnPrompt, PromptExit) == 0x348, "NN_Prompt +0x348 PromptExit");
-static_assert(offsetof(NnPrompt, PromptNo) == 0x34c, "NN_Prompt +0x34c PromptNo");
-static_assert(offsetof(NnPrompt, PromptYes) == 0x350, "NN_Prompt +0x350 PromptOk / PromptYes");
+FL_LAYOUT_ASSERT(sizeof(NnPrompt) == 0x354, "retail NN_Prompt is 0x354 bytes (operator_new 00474a49)");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, Byte331) == 0x331, "NN_Prompt +0x331");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, Result) == 0x334, "NN_Prompt +0x334 result slot");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, EditText) == 0x338, "NN_Prompt +0x338 edit text");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, Mode) == 0x33c, "NN_Prompt +0x33c mode");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, PromptText) == 0x340, "NN_Prompt +0x340 PromptText");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, PromptEdit) == 0x344, "NN_Prompt +0x344 PromptEdit");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, PromptExit) == 0x348, "NN_Prompt +0x348 PromptExit");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, PromptNo) == 0x34c, "NN_Prompt +0x34c PromptNo");
+FL_LAYOUT_ASSERT(offsetof(NnPrompt, PromptYes) == 0x350, "NN_Prompt +0x350 PromptOk / PromptYes");
 
 // FUN_00473f70 (cdecl) -- mode 0. Raise (or reuse) the NN_Prompt, centre it, show Ids in style
 // 0x5c12, seed the edit with *Text, point the dialog at *Text and at a local result, capture the

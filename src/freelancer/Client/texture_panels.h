@@ -28,7 +28,7 @@ struct FTexturePanelPiece
     float Center[3];  // +0x08  (bbox max + bbox min) * 0.5 -- slot 7 GetPiece
     float Radius;     // +0x14  |bbox max - Center| -- slot 8 GetPieceFloat
 };
-static_assert(sizeof(FTexturePanelPiece) == 0x18, "planet ring piece record 0x18");
+FL_LAYOUT_ASSERT(sizeof(FTexturePanelPiece) == 0x18, "planet ring piece record 0x18");
 
 struct FTexturePanelsListNode
 {
@@ -106,13 +106,13 @@ struct FTexturePanels : IPlanetRing
     unsigned char Pad75[3];
 };
 
-static_assert(sizeof(FShapeDB) < 0x18, "ShapeDB leaves room for reserved owner bytes");
-static_assert(sizeof(FTexturePanels) == 0x78, "TexturePanels 0x78");
-static_assert(offsetof(FTexturePanels, Shapes) == 0x04, "ShapeDB +0x04");
-static_assert(offsetof(FTexturePanels, Zone) == 0x1c, "Zone +0x1c");
-static_assert(offsetof(FTexturePanels, Shape) == 0x54, "Shape +0x54");
-static_assert(offsetof(FTexturePanels, ListSentinel) == 0x68, "list +0x68");
-static_assert(offsetof(FTexturePanels, bLoaded) == 0x74, "bLoaded +0x74");
+FL_LAYOUT_ASSERT(sizeof(FShapeDB) < 0x18, "ShapeDB leaves room for reserved owner bytes");
+FL_LAYOUT_ASSERT(sizeof(FTexturePanels) == 0x78, "TexturePanels 0x78");
+FL_LAYOUT_ASSERT(offsetof(FTexturePanels, Shapes) == 0x04, "ShapeDB +0x04");
+FL_LAYOUT_ASSERT(offsetof(FTexturePanels, Zone) == 0x1c, "Zone +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FTexturePanels, Shape) == 0x54, "Shape +0x54");
+FL_LAYOUT_ASSERT(offsetof(FTexturePanels, ListSentinel) == 0x68, "list +0x68");
+FL_LAYOUT_ASSERT(offsetof(FTexturePanels, bLoaded) == 0x74, "bLoaded +0x74");
 
 FTexturePanels* TexturePanelsCreate(); // FUN_0050bfa0
 

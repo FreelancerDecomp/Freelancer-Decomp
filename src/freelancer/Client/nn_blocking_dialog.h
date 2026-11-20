@@ -46,9 +46,9 @@ public:
     unsigned char Pad32d[3];       // +0x32d
 };
 
-static_assert(sizeof(BlockingDialog) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(BlockingDialog) == 0x330,
               "retail BlockingDialog is 0x330 bytes (operator_new 004747d8)");
-static_assert(offsetof(BlockingDialog, bCursorDrawFlag) == 0x32c, "BlockingDialog +0x32c");
+FL_LAYOUT_ASSERT(offsetof(BlockingDialog, bCursorDrawFlag) == 0x32c, "BlockingDialog +0x32c");
 
 // FUN_00474520 (cdecl) -- unless one is registered, build a BlockingDialog, send it SetProperty
 // 0x42 with {0,0,0} (WinControl's switch ignores 0x42) and capture the mouse.

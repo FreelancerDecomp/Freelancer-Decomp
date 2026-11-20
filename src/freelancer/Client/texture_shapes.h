@@ -72,11 +72,11 @@ struct FTexShape : FTextureRef
     float OffsetV; // +0x2c
 };
 
-static_assert(sizeof(FTextureRef) == 0x08, "retail texture reference is 8 bytes");
-static_assert(offsetof(FTexShape, U0) == 0x08, "shape U0 at +0x08");
-static_assert(offsetof(FTexShape, PixelW) == 0x18, "shape pixel width at +0x18");
-static_assert(offsetof(FTexShape, ScaleU) == 0x20, "shape scale at +0x20");
-static_assert(sizeof(FTexShape) == 0x30, "retail shape record is 0x30 bytes");
+FL_LAYOUT_ASSERT(sizeof(FTextureRef) == 0x08, "retail texture reference is 8 bytes");
+FL_LAYOUT_ASSERT(offsetof(FTexShape, U0) == 0x08, "shape U0 at +0x08");
+FL_LAYOUT_ASSERT(offsetof(FTexShape, PixelW) == 0x18, "shape pixel width at +0x18");
+FL_LAYOUT_ASSERT(offsetof(FTexShape, ScaleU) == 0x20, "shape scale at +0x20");
+FL_LAYOUT_ASSERT(sizeof(FTexShape) == 0x30, "retail shape record is 0x30 bytes");
 
 // FUN_004255c0 -- release the current record, then look Name up through Slot12 with its CRC32;
 // FDUMP an error when it is not defined. Returns whether a record is now held.

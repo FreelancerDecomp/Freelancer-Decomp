@@ -73,10 +73,10 @@ private:
     NnHelp& operator=(NnHelp const&) = delete;
 };
 
-static_assert(offsetof(NnHelp, CloseButton) == 0x32c, "NN_Help +0x32c");
-static_assert(offsetof(NnHelp, Text) == 0x330, "NN_Help +0x330");
-static_assert(offsetof(NnHelp, Title) == 0x334, "NN_Help +0x334");
-static_assert(sizeof(NnHelp) == 0x33c, "retail NN_Help is 0x33c bytes (operator_new 0x004770f8)");
+FL_LAYOUT_ASSERT(offsetof(NnHelp, CloseButton) == 0x32c, "NN_Help +0x32c");
+FL_LAYOUT_ASSERT(offsetof(NnHelp, Text) == 0x330, "NN_Help +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnHelp, Title) == 0x334, "NN_Help +0x334");
+FL_LAYOUT_ASSERT(sizeof(NnHelp) == 0x33c, "retail NN_Help is 0x33c bytes (operator_new 0x004770f8)");
 
 // FUN_00476080 (cdecl) -- the base goods sections of an info card, appended to Card for BaseId
 // (nothing, not even the style, when no flag is set): a StyleNode 0x9ca4, then

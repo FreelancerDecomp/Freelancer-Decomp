@@ -66,7 +66,7 @@ namespace
     I3DMathEngine* G_GateTunnelMath = nullptr;
 
     // The draw-side face of the csys transform the tunnel keeps at +0x230 (same 0x30 layout).
-    static_assert(sizeof(Transform) == sizeof(FTransform), "Transform and FTransform share 0x30");
+    FL_LAYOUT_ASSERT(sizeof(Transform) == sizeof(FTransform), "Transform and FTransform share 0x30");
     FTransform const* AsFTransform(Transform const* Xform)
     {
         return reinterpret_cast<FTransform const*>(Xform);

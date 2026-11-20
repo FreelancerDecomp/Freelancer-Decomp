@@ -109,7 +109,7 @@ namespace
         FTlShipListNode* Prev;
         unsigned ShipId;
     };
-    static_assert(sizeof(FTlShipListNode) == 0xc, "ship list node 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FTlShipListNode) == 0xc, "ship list node 0xc");
 
     FTlShipListNode* TlShipListHead(FTradeLaneRingRuntime* Ring)
     {

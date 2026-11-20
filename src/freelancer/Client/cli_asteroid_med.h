@@ -56,7 +56,7 @@ public:
     virtual unsigned short* Slot1bc(unsigned short* Out, unsigned A, unsigned B, unsigned C,
                                     unsigned D);
 };
-static_assert(sizeof(FCliMedAsteroidGameobj) == 0xac, "MedAsteroid sizeof 0xac (operator new(0xac))");
+FL_LAYOUT_ASSERT(sizeof(FCliMedAsteroidGameobj) == 0xac, "MedAsteroid sizeof 0xac (operator new(0xac))");
 
 // LAB_005250f0 -- the slot-111 body MedAsteroid and DynamicAsteroid share.
 unsigned short* CliAsteroidSlot1bcBody(unsigned short* Out);

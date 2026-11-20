@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <wchar.h>
 
-static_assert(sizeof(HUD_CruiseProgress) == 0x42c, "retail HUD_CruiseProgress is 0x42c bytes");
+FL_LAYOUT_ASSERT(sizeof(HUD_CruiseProgress) == 0x42c, "retail HUD_CruiseProgress is 0x42c bytes");
 
 HUD_CruiseProgress::HUD_CruiseProgress(INI_Reader& /*Reader*/)
     : CruiseProgressText(nullptr)

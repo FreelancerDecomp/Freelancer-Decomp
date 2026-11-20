@@ -17,7 +17,7 @@ struct FIMEToolbarVertex
     unsigned Color;
     unsigned Reserved[3];
 };
-static_assert(sizeof(FIMEToolbarVertex) == 0x20, "IME draw-fan vertex stride");
+FL_LAYOUT_ASSERT(sizeof(FIMEToolbarVertex) == 0x20, "IME draw-fan vertex stride");
 
 static double GToolbarLastTick = 0.0; // DAT_0671cee0; written only by this function.
 static unsigned GToolbarPhase = 0;   // DAT_0671cfc0; zero-initialized retail .data.

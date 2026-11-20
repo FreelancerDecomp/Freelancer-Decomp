@@ -108,22 +108,22 @@ private:
     SpaceApp& operator=(SpaceApp const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(SpaceApp) == 0xbac, "SpaceApp is 0xbac");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Events) == 0x004, "SpaceApp +0x004");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, bCameraReady) == 0x008, "SpaceApp +0x008");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, bInitInProgress) == 0x00b, "SpaceApp +0x00b");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, FirstPerson) == 0x00c, "SpaceApp +0x00c");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, ThirdPerson) == 0x1b0, "SpaceApp +0x1b0");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Turret) == 0x3c8, "SpaceApp +0x3c8");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, RearView) == 0x500, "SpaceApp +0x500");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Death) == 0x60c, "SpaceApp +0x60c");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Script) == 0x760, "SpaceApp +0x760");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Static) == 0x9a4, "SpaceApp +0x9a4");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, Docking) == 0xa9c, "SpaceApp +0xa9c");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, ActiveCamera) == 0xba0, "SpaceApp +0xba0");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, PlayerPreference) == 0xba4, "SpaceApp +0xba4");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, bScriptCameraLatch) == 0xba8, "SpaceApp +0xba8");
-static_assert(sizeof(void*) != 4 || offsetof(SpaceApp, bDockingActive) == 0xbab, "SpaceApp +0xbab");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(SpaceApp) == 0xbac, "SpaceApp is 0xbac");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Events) == 0x004, "SpaceApp +0x004");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, bCameraReady) == 0x008, "SpaceApp +0x008");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, bInitInProgress) == 0x00b, "SpaceApp +0x00b");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, FirstPerson) == 0x00c, "SpaceApp +0x00c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, ThirdPerson) == 0x1b0, "SpaceApp +0x1b0");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Turret) == 0x3c8, "SpaceApp +0x3c8");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, RearView) == 0x500, "SpaceApp +0x500");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Death) == 0x60c, "SpaceApp +0x60c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Script) == 0x760, "SpaceApp +0x760");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Static) == 0x9a4, "SpaceApp +0x9a4");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, Docking) == 0xa9c, "SpaceApp +0xa9c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, ActiveCamera) == 0xba0, "SpaceApp +0xba0");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, PlayerPreference) == 0xba4, "SpaceApp +0xba4");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, bScriptCameraLatch) == 0xba8, "SpaceApp +0xba8");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(SpaceApp, bDockingActive) == 0xbab, "SpaceApp +0xbab");
 
 // DAT_00678b98 (space_state.cpp).
 extern SpaceApp G_SpaceApp;

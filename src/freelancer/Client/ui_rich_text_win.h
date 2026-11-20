@@ -27,4 +27,4 @@ public:
     bool Create(Win3D* NewParent, void* Data) override;
 };
 
-static_assert(sizeof(UiRichTextWin) == 0x498, "FUN_0059cbd0 allocates 0x498");
+FL_LAYOUT_ASSERT(sizeof(UiRichTextWin) == 0x498, "FUN_0059cbd0 allocates 0x498");

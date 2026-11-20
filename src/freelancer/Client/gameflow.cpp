@@ -606,8 +606,8 @@ namespace
 
     // DAT_006686a0. Its static initializer LAB_00437140 only stamps the vptr 0x005cae24.
     GF G_Gameflow;
-    static_assert(sizeof(void*) != 4 || offsetof(GF, bFirstFramePending) == 0x04, "GF +0x04");
-    static_assert(sizeof(void*) != 4 || offsetof(GF, bFromIntro) == 0x06, "GF +0x06");
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(GF, bFirstFramePending) == 0x04, "GF +0x04");
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(GF, bFromIntro) == 0x06, "GF +0x06");
 
     // DAT_00667e50 (0x804 bytes). See ResetEngineInstanceCache in gameflow.h.
     struct FEngineInstanceCache

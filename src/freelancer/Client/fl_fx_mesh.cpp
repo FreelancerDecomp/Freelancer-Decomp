@@ -48,7 +48,7 @@ namespace
         unsigned Length; // +0x00
         char Text[32];   // +0x04
     };
-    static_assert(sizeof(FFxMeshPath) == 0x24, "FUN_004f6ac0 string is 0x24 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FFxMeshPath) == 0x24, "FUN_004f6ac0 string is 0x24 bytes");
 
     // s_fx\misc\%s.3db_005d98d0.
     char const kFxMeshPathFormat[] = "fx\\misc\\%s.3db";
@@ -102,8 +102,8 @@ namespace
         GENRESULT DACOM_API Slot7() override;
         GENRESULT DACOM_API Slot8(void* Arg) override;
     };
-    static_assert(offsetof(FLFxMesh, EngineInstance) == 0x08, "FLFxMesh +0x04 ObjectHandle base");
-    static_assert(sizeof(FLFxMesh) == 0x14, "FLFxMesh base is 0x14");
+    FL_LAYOUT_ASSERT(offsetof(FLFxMesh, EngineInstance) == 0x08, "FLFxMesh +0x04 ObjectHandle base");
+    FL_LAYOUT_ASSERT(sizeof(FLFxMesh) == 0x14, "FLFxMesh base is 0x14");
 
     struct FLFxMeshComponent : FLFxMesh
     {
@@ -115,9 +115,9 @@ namespace
         unsigned long DACOM_API AddRef() override;
         unsigned long DACOM_API Release() override;
     };
-    static_assert(offsetof(FLFxMeshComponent, EngineInstance) == 0x08, "FLFxMeshComponent instance +0x08");
-    static_assert(offsetof(FLFxMeshComponent, RefCount) == 0x14, "FLFxMeshComponent reference count +0x14");
-    static_assert(sizeof(FLFxMeshComponent) == 0x18, "FLFxMeshComponent is operator new(0x18)");
+    FL_LAYOUT_ASSERT(offsetof(FLFxMeshComponent, EngineInstance) == 0x08, "FLFxMeshComponent instance +0x08");
+    FL_LAYOUT_ASSERT(offsetof(FLFxMeshComponent, RefCount) == 0x14, "FLFxMeshComponent reference count +0x14");
+    FL_LAYOUT_ASSERT(sizeof(FLFxMeshComponent) == 0x18, "FLFxMeshComponent is operator new(0x18)");
 
     FLFxMesh::~FLFxMesh()
     {
@@ -229,7 +229,7 @@ namespace
         GENRESULT DACOM_API Slot3(void* ArgA, void* ArgB, float const* Position,
                                   IFxMesh** Out) override;
     };
-    static_assert(sizeof(FLFxMeshFactory) == 0x4, "FLFxMeshFactory abstract base is 0x4");
+    FL_LAYOUT_ASSERT(sizeof(FLFxMeshFactory) == 0x4, "FLFxMeshFactory abstract base is 0x4");
 
     struct FLFxMeshFactoryComponent : FLFxMeshFactory
     {
@@ -241,8 +241,8 @@ namespace
         unsigned long DACOM_API AddRef() override;
         unsigned long DACOM_API Release() override;
     };
-    static_assert(offsetof(FLFxMeshFactoryComponent, RefCount) == 0x4, "FLFxMeshFactoryComponent reference count +0x4");
-    static_assert(sizeof(FLFxMeshFactoryComponent) == 0x8, "FLFxMeshFactoryComponent is operator new(8)");
+    FL_LAYOUT_ASSERT(offsetof(FLFxMeshFactoryComponent, RefCount) == 0x4, "FLFxMeshFactoryComponent reference count +0x4");
+    FL_LAYOUT_ASSERT(sizeof(FLFxMeshFactoryComponent) == 0x8, "FLFxMeshFactoryComponent is operator new(8)");
 
     GENRESULT DACOM_API FLFxMeshFactoryComponent::QueryInterface(const char* Iid, void** Out)
     {

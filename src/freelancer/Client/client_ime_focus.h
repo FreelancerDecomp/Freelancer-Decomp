@@ -31,9 +31,9 @@ struct ClientIMEFocus : public IMEFocus
 };
 #pragma pack(pop)
 
-static_assert(sizeof(IMEFocus) == 0x18, "IMEFocus base 0x18");
-static_assert(offsetof(ClientIMEFocus, ConfirmText) == 0x18, "Confirm at +0x18");
-static_assert(sizeof(ClientIMEFocus) == 0x1c, "client wrapper 0x1c");
+FL_LAYOUT_ASSERT(sizeof(IMEFocus) == 0x18, "IMEFocus base 0x18");
+FL_LAYOUT_ASSERT(offsetof(ClientIMEFocus, ConfirmText) == 0x18, "Confirm at +0x18");
+FL_LAYOUT_ASSERT(sizeof(ClientIMEFocus) == 0x1c, "client wrapper 0x1c");
 
 IMEFocus* EnsureClientIMEFocus();
 

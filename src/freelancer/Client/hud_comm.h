@@ -87,11 +87,11 @@ struct FCommMessage
     CommResult Result;        // +0x94 -- what CommComplete reports
 };
 
-static_assert(offsetof(FCommMessage, VoiceId) == 0x3c, "comm message +0x3c voice");
-static_assert(offsetof(FCommMessage, TextIds) == 0x44, "comm message +0x44 text ids");
-static_assert(offsetof(FCommMessage, TextCount) == 0x84, "comm message +0x84 count");
-static_assert(offsetof(FCommMessage, Result) == 0x94, "comm message +0x94 result");
-static_assert(sizeof(FCommMessage) == 0x98, "retail comm message is 0x98 bytes");
+FL_LAYOUT_ASSERT(offsetof(FCommMessage, VoiceId) == 0x3c, "comm message +0x3c voice");
+FL_LAYOUT_ASSERT(offsetof(FCommMessage, TextIds) == 0x44, "comm message +0x44 text ids");
+FL_LAYOUT_ASSERT(offsetof(FCommMessage, TextCount) == 0x84, "comm message +0x84 count");
+FL_LAYOUT_ASSERT(offsetof(FCommMessage, Result) == 0x94, "comm message +0x94 result");
+FL_LAYOUT_ASSERT(sizeof(FCommMessage) == 0x98, "retail comm message is 0x98 bytes");
 
 // A fixed 16-record queue (0x984 bytes).
 struct FCommInbox

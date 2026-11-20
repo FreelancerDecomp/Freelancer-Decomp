@@ -262,7 +262,7 @@ struct FWin3DFuzzyLine
     float JitterScale;       // +0x48 RandomVector radius = JitterScale * Width
     float SideScale;         // +0x4c straight line only: the quad's side-vector scale
 };
-static_assert(sizeof(FWin3DFuzzyLine) == 0x50, "FUN_00423be0 argument is 0x50 bytes");
+FL_LAYOUT_ASSERT(sizeof(FWin3DFuzzyLine) == 0x50, "FUN_00423be0 argument is 0x50 bytes");
 
 // FUN_00423be0 (cdecl Line). A jittered line from Start to End in segments of about Width: a
 // line strip when Texture is null, otherwise one camera-facing textured quad per segment

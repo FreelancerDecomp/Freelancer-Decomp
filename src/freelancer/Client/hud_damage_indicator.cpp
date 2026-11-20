@@ -26,8 +26,8 @@
 #include <math.h>
 #include <string.h>
 
-static_assert(sizeof(FHudDamageIndicatorPart) == 0x2c, "retail damage-indicator part is 0x2c");
-static_assert(sizeof(HUD_DamageIndicator) == 0x414, "retail HUD_DamageIndicator is 0x414 bytes");
+FL_LAYOUT_ASSERT(sizeof(FHudDamageIndicatorPart) == 0x2c, "retail damage-indicator part is 0x2c");
+FL_LAYOUT_ASSERT(sizeof(HUD_DamageIndicator) == 0x414, "retail HUD_DamageIndicator is 0x414 bytes");
 
 namespace
 {

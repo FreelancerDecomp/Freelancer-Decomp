@@ -84,7 +84,7 @@ struct FRp9Mode
     unsigned char Pad26[2];
 };
 
-static_assert(sizeof(FRp9Mode) == 0x28, "mode 10 dword");
+FL_LAYOUT_ASSERT(sizeof(FRp9Mode) == 0x28, "mode 10 dword");
 
 // Profile property metadata and the value read at startup.
 struct FRp9Property
@@ -131,10 +131,10 @@ struct FRp9Adapter
     unsigned long ModeCount;           // +0x51C display-mode count (RP9 mode list)
 };
 
-static_assert(sizeof(FRp9Adapter) == 0x520, "get_device_info copies a 0x520-byte record");
-static_assert(offsetof(FRp9Adapter, DisplayMode) == 0x42C, "adapter record display mode");
-static_assert(offsetof(FRp9Adapter, Caps) == 0x43C, "adapter record caps");
-static_assert(offsetof(FRp9Adapter, CanRenderWindowed) == 0x514, "adapter record windowed flag");
+FL_LAYOUT_ASSERT(sizeof(FRp9Adapter) == 0x520, "get_device_info copies a 0x520-byte record");
+FL_LAYOUT_ASSERT(offsetof(FRp9Adapter, DisplayMode) == 0x42C, "adapter record display mode");
+FL_LAYOUT_ASSERT(offsetof(FRp9Adapter, Caps) == 0x43C, "adapter record caps");
+FL_LAYOUT_ASSERT(offsetof(FRp9Adapter, CanRenderWindowed) == 0x514, "adapter record windowed flag");
 
 // A vertex-buffer node: create_vb's list buffers and the values of the VB pool map.
 struct FRp9Vb

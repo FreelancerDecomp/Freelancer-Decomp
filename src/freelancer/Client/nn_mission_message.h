@@ -78,17 +78,17 @@ private:
     NeuroNetMissionMessage& operator=(NeuroNetMissionMessage const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(NeuroNetMissionMessage) == 0x36c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(NeuroNetMissionMessage) == 0x36c,
               "retail NeuroNetMissionMessage is 0x36c bytes (0x0048b1d8)");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, CloseButton) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, CloseButton) == 0x330,
               "NeuroNetMissionMessage +0x330");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, DropCargoButton) == 0x340,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, DropCargoButton) == 0x340,
               "NeuroNetMissionMessage +0x340");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, OkButton) == 0x35c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, OkButton) == 0x35c,
               "NeuroNetMissionMessage +0x35c");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, Kind) == 0x360,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, Kind) == 0x360,
               "NeuroNetMissionMessage +0x360");
-static_assert(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, bPausedGame) == 0x368,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NeuroNetMissionMessage, bPausedGame) == 0x368,
               "NeuroNetMissionMessage +0x368");
 
 // FUN_0048a180 (cdecl) -- the scan notice: ScannerId (DAT_00671f78) is scanning the player's

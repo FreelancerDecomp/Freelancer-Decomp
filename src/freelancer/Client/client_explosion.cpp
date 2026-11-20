@@ -27,7 +27,7 @@
 #include <cstdlib>
 #include <cstring>
 
-static_assert(sizeof(Action_Explode) == 0x28, "Action_Explode is IAction::operator new(0x28)");
+FL_LAYOUT_ASSERT(sizeof(Action_Explode) == 0x28, "Action_Explode is IAction::operator new(0x28)");
 
 namespace
 {

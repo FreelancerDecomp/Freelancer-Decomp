@@ -145,11 +145,11 @@ struct FAuthorizer : IWMAuthorizer
 	void* Inner;
 };
 
-static_assert(sizeof(FServiceProvider) == 8, "operator new(8)");
-static_assert(offsetof(FServiceProvider, RefCount) == 4, "refcount");
-static_assert(sizeof(FAuthorizer) == 0xC, "operator new(0xC)");
-static_assert(offsetof(FAuthorizer, RefCount) == 4, "refcount");
-static_assert(offsetof(FAuthorizer, Inner) == 8, "inner");
+FL_LAYOUT_ASSERT(sizeof(FServiceProvider) == 8, "operator new(8)");
+FL_LAYOUT_ASSERT(offsetof(FServiceProvider, RefCount) == 4, "refcount");
+FL_LAYOUT_ASSERT(sizeof(FAuthorizer) == 0xC, "operator new(0xC)");
+FL_LAYOUT_ASSERT(offsetof(FAuthorizer, RefCount) == 4, "refcount");
+FL_LAYOUT_ASSERT(offsetof(FAuthorizer, Inner) == 8, "inner");
 
 static bool GuidsMatch(const GUID* Left, const GUID* Right)
 {

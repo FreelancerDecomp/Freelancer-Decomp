@@ -256,23 +256,23 @@ namespace
 
     // DAT_0067a598. The retail IntroFocus offsets hold on the 32-bit build.
     IntroFocus G_IntroFocus;
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.CurrentState) == 0x04,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.CurrentState) == 0x04,
                   "IntroFocus +0x04 current state");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.PrevState) == 0x08,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.PrevState) == 0x08,
                   "IntroFocus +0x08 previous state");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.CharacterId) == 0x0c,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.CharacterId) == 0x0c,
                   "IntroFocus +0x0c CHARACTER_ID");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag20c) == 0x20c,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag20c) == 0x20c,
                   "IntroFocus +0x20c");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.LogoImage) == 0x210,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.LogoImage) == 0x210,
                   "IntroFocus +0x210 logo Image");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.ActivePage) == 0x228,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.ActivePage) == 0x228,
                   "IntroFocus +0x228 active page");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag22c) == 0x22c,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag22c) == 0x22c,
                   "IntroFocus +0x22c");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag22d) == 0x22d,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Flag22d) == 0x22d,
                   "IntroFocus +0x22d");
-    static_assert(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Field230) == 0x230,
+    FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(IntroFocus, Nav.Field230) == 0x230,
                   "IntroFocus +0x230");
 
     // The previous state's slot 13 as every case of FUN_005b2a30 sends it: TEST ESI,ESI / JZ,

@@ -84,13 +84,13 @@ public:
     WinControl* CloseText;           // +0x360
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(NnOfferDialog) == 0x364,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(NnOfferDialog) == 0x364,
               "retail NN_OfferDialog is 0x364 bytes (operator_new 004a69e8)");
-static_assert(sizeof(void*) != 4 || offsetof(NnOfferDialog, Callback) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnOfferDialog, Callback) == 0x330,
               "NN_OfferDialog +0x330 callback");
-static_assert(sizeof(void*) != 4 || offsetof(NnOfferDialog, bSingleButton) == 0x338,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnOfferDialog, bSingleButton) == 0x338,
               "NN_OfferDialog +0x338 single-button byte");
-static_assert(sizeof(void*) != 4 || offsetof(NnOfferDialog, AcceptButton) == 0x33c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnOfferDialog, AcceptButton) == 0x33c,
               "NN_OfferDialog +0x33c accept button");
-static_assert(sizeof(void*) != 4 || offsetof(NnOfferDialog, CloseText) == 0x360,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnOfferDialog, CloseText) == 0x360,
               "NN_OfferDialog +0x360 close text");

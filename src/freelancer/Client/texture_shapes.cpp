@@ -695,7 +695,7 @@ int FShapeDB::Load(char const* Path, IFileSystem* BaseDir)
 
 // ---------------------------------------------------------------- in-place storage
 
-static_assert(sizeof(FShapeDB) <= kShapeDbStorageBytes,
+FL_LAYOUT_ASSERT(sizeof(FShapeDB) <= kShapeDbStorageBytes,
               "FShapeDB must fit the 0x18 bytes retail's owners reserve for it");
 
 FShapeDB* ShapeDBConstructAt(void* Storage)

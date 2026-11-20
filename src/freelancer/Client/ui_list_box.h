@@ -49,5 +49,5 @@ private:
     UiListBox& operator=(UiListBox const&) = delete;
 };
 
-static_assert(sizeof(UiListBox) == 0x8b8, "FUN_0059c810 allocates 0x8b8");
-static_assert(offsetof(UiListBox, LocalWidth) == 0x8b0, "UIListBox +0x8b0");
+FL_LAYOUT_ASSERT(sizeof(UiListBox) == 0x8b8, "FUN_0059c810 allocates 0x8b8");
+FL_LAYOUT_ASSERT(offsetof(UiListBox, LocalWidth) == 0x8b0, "UIListBox +0x8b0");

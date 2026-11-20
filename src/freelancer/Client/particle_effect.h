@@ -45,11 +45,11 @@ struct FParticleEffect : FEffectBase
     float Float80;                 // +0x80  = 1.0; the ALCHEMY_LOD blend (FUN_0042dcd0)
 };
 
-static_assert(sizeof(FParticleEffect) == 0x84, "ParticleEffect 0x84");
-static_assert(offsetof(FParticleEffect, Vis) == 0x04, "Vis @ +0x04");
-static_assert(offsetof(FParticleEffect, FxEffect) == 0x6c, "FxEffect @ +0x6c");
-static_assert(offsetof(FParticleEffect, FxNode) == 0x70, "FxNode @ +0x70");
-static_assert(offsetof(FParticleEffect, Flags7C) == 0x7c, "Flags7C @ +0x7c");
+FL_LAYOUT_ASSERT(sizeof(FParticleEffect) == 0x84, "ParticleEffect 0x84");
+FL_LAYOUT_ASSERT(offsetof(FParticleEffect, Vis) == 0x04, "Vis @ +0x04");
+FL_LAYOUT_ASSERT(offsetof(FParticleEffect, FxEffect) == 0x6c, "FxEffect @ +0x6c");
+FL_LAYOUT_ASSERT(offsetof(FParticleEffect, FxNode) == 0x70, "FxNode @ +0x70");
+FL_LAYOUT_ASSERT(offsetof(FParticleEffect, Flags7C) == 0x7c, "Flags7C @ +0x7c");
 
 // NPC cruise exhaust (FUN_00528980 local_58): sizeof 0x90 = ParticleEffect + float@+0x84.
 // Vtable PTR_FUN_005dd144 — Start/ArmDeath shared with trail; destroy = FUN_00528cc0
@@ -64,8 +64,8 @@ struct FParticleEffectCruise : FParticleEffect
     unsigned char Pad88[8];    // +0x88 … +0x8f — retail alloc 0x90
 };
 
-static_assert(sizeof(FParticleEffectCruise) == 0x90, "ParticleEffectCruise 0x90");
-static_assert(offsetof(FParticleEffectCruise, CruiseScale) == 0x84, "CruiseScale @ +0x84");
+FL_LAYOUT_ASSERT(sizeof(FParticleEffectCruise) == 0x90, "ParticleEffectCruise 0x90");
+FL_LAYOUT_ASSERT(offsetof(FParticleEffectCruise, CruiseScale) == 0x84, "CruiseScale @ +0x84");
 
 struct FJumpParticleEffect : FParticleEffect
 {
@@ -189,10 +189,10 @@ struct FCameraParticles : FEffectBase
     unsigned char Pad71[3];
     void* Camera;                  // +0x74  ctor 0; Start: FUN_0040f130 (the listener camera)
 };
-static_assert(sizeof(FCameraParticles) == 0x78, "CameraParticles 0x78 (LAB_004f6e40)");
-static_assert(offsetof(FCameraParticles, Timer) == 0x6c, "Timer @ +0x6c");
-static_assert(offsetof(FCameraParticles, bStartOpaque) == 0x70, "bStartOpaque @ +0x70");
-static_assert(offsetof(FCameraParticles, Camera) == 0x74, "Camera @ +0x74");
+FL_LAYOUT_ASSERT(sizeof(FCameraParticles) == 0x78, "CameraParticles 0x78 (LAB_004f6e40)");
+FL_LAYOUT_ASSERT(offsetof(FCameraParticles, Timer) == 0x6c, "Timer @ +0x6c");
+FL_LAYOUT_ASSERT(offsetof(FCameraParticles, bStartOpaque) == 0x70, "bStartOpaque @ +0x70");
+FL_LAYOUT_ASSERT(offsetof(FCameraParticles, Camera) == 0x74, "Camera @ +0x74");
 
 // FUN_004f8d00 (thiscall, no args) -- the CameraParticles constructor.
 void CameraParticlesConstruct(FCameraParticles* This);

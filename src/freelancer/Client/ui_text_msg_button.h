@@ -70,9 +70,9 @@ private:
     UiTextMsgButton& operator=(UiTextMsgButton const&) = delete;
 };
 
-static_assert(sizeof(UiTextMsgButton) == 0x4c8, "FUN_0059c580 allocates 0x4c8");
-static_assert(offsetof(UiTextMsgButton, bInteractive) == 0x498, "UITextMsgButton +0x498");
-static_assert(offsetof(UiTextMsgButton, MessageArg) == 0x4a4, "UITextMsgButton +0x4a4");
-static_assert(offsetof(UiTextMsgButton, CaptionBodyList) == 0x4a8, "UITextMsgButton +0x4a8");
-static_assert(offsetof(UiTextMsgButton, TextBodyList) == 0x4b4, "UITextMsgButton +0x4b4");
-static_assert(offsetof(UiTextMsgButton, CaptionAttrs) == 0x4c0, "UITextMsgButton +0x4c0");
+FL_LAYOUT_ASSERT(sizeof(UiTextMsgButton) == 0x4c8, "FUN_0059c580 allocates 0x4c8");
+FL_LAYOUT_ASSERT(offsetof(UiTextMsgButton, bInteractive) == 0x498, "UITextMsgButton +0x498");
+FL_LAYOUT_ASSERT(offsetof(UiTextMsgButton, MessageArg) == 0x4a4, "UITextMsgButton +0x4a4");
+FL_LAYOUT_ASSERT(offsetof(UiTextMsgButton, CaptionBodyList) == 0x4a8, "UITextMsgButton +0x4a8");
+FL_LAYOUT_ASSERT(offsetof(UiTextMsgButton, TextBodyList) == 0x4b4, "UITextMsgButton +0x4b4");
+FL_LAYOUT_ASSERT(offsetof(UiTextMsgButton, CaptionAttrs) == 0x4c0, "UITextMsgButton +0x4c0");

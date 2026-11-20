@@ -28,11 +28,11 @@
 
 int G_DrawCallCount = 0;
 
-static_assert(sizeof(FImmedVertex) == 0x10, "FImmedVertex is 0x10 bytes");
-static_assert(offsetof(FImmedBatcher, VertBase) == 0x0c, "immed VertBase");
-static_assert(offsetof(FImmedBatcher, VertCount) == 0x1c, "immed VertCount");
-static_assert(offsetof(FImmedBatcher, Dirty) == 0x24, "immed Dirty");
-static_assert(sizeof(FImmedBatcher) == 0x28, "FImmedBatcher is 0x28 bytes");
+FL_LAYOUT_ASSERT(sizeof(FImmedVertex) == 0x10, "FImmedVertex is 0x10 bytes");
+FL_LAYOUT_ASSERT(offsetof(FImmedBatcher, VertBase) == 0x0c, "immed VertBase");
+FL_LAYOUT_ASSERT(offsetof(FImmedBatcher, VertCount) == 0x1c, "immed VertCount");
+FL_LAYOUT_ASSERT(offsetof(FImmedBatcher, Dirty) == 0x24, "immed Dirty");
+FL_LAYOUT_ASSERT(sizeof(FImmedBatcher) == 0x28, "FImmedBatcher is 0x28 bytes");
 
 // Static initializers LAB_005a28c0 / LAB_005a2900: +0x00..+0x18 = 0, Dirty (+0x24) = 1,
 // +0x25 = 0; +0x1c / +0x20 are not written (zero .bss).

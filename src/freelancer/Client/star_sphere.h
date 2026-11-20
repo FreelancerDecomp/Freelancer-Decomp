@@ -38,14 +38,14 @@ struct FStarGlowDesc
     unsigned char Field4C;   // +0x4c
     unsigned char Pad4D[3];
 };
-static_assert(sizeof(FStarGlowDesc) == 0x50, "star_glow desc 0x50");
+FL_LAYOUT_ASSERT(sizeof(FStarGlowDesc) == 0x50, "star_glow desc 0x50");
 
 // SunEffect body at StarSphere+0x14 (operator_new 0x30c, FUN_0050d300).
 struct FSunEffectBody
 {
     unsigned char Raw[0x30c];
 };
-static_assert(sizeof(FSunEffectBody) == 0x30c, "SunEffect body 0x30c");
+FL_LAYOUT_ASSERT(sizeof(FSunEffectBody) == 0x30c, "SunEffect body 0x30c");
 
 // Lens-flare / spines child shell (0x40). Load parsers FUN_0050f3a0 / 0050fba0 fill
 // the element ranges; draw (FUN_0050f850 / 00510160) walks [Begin, End).
@@ -94,11 +94,11 @@ struct FStarSphere
     float ScreenZFlat;               // +0x84  forced 0 for 2D corona
     float PixelScale;                // +0x88  znear·xscale / depth
 };
-static_assert(offsetof(FStarSphere, SunBody) == 0x14, "SunBody +0x14");
-static_assert(offsetof(FStarSphere, Dt) == 0x60, "Dt +0x60");
-static_assert(offsetof(FStarSphere, Intensity) == 0x64, "Intensity +0x64");
-static_assert(offsetof(FStarSphere, WorldPos) == 0x68, "WorldPos +0x68");
-static_assert(offsetof(FStarSphere, PixelScale) == 0x88, "PixelScale +0x88");
+FL_LAYOUT_ASSERT(offsetof(FStarSphere, SunBody) == 0x14, "SunBody +0x14");
+FL_LAYOUT_ASSERT(offsetof(FStarSphere, Dt) == 0x60, "Dt +0x60");
+FL_LAYOUT_ASSERT(offsetof(FStarSphere, Intensity) == 0x64, "Intensity +0x64");
+FL_LAYOUT_ASSERT(offsetof(FStarSphere, WorldPos) == 0x68, "WorldPos +0x68");
+FL_LAYOUT_ASSERT(offsetof(FStarSphere, PixelScale) == 0x88, "PixelScale +0x88");
 
 // DAT_0067509c — SunEffect perf quality (LAB_00510bf0). Draw/DrawFlare gate on > 0.
 extern float G_SunEffectQuality;

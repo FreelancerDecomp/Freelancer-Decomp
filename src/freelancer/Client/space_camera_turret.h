@@ -47,12 +47,12 @@ struct FTurretCamera : FHudCamera
 };
 
 // The rear-view camera sits at controller + 0x500 and this one at + 0x3c8.
-static_assert(sizeof(FTurretCamera) == 0x138, "FTurretCamera must be 0x138");
-static_assert(offsetof(FTurretCamera, Tether) == 0x100, "TC +0x100");
-static_assert(offsetof(FTurretCamera, Field124) == 0x124, "TC +0x124");
-static_assert(offsetof(FTurretCamera, YawRotateSpeed) == 0x128, "TC +0x128");
-static_assert(offsetof(FTurretCamera, PitchRotateSpeed) == 0x12c, "TC +0x12c");
-static_assert(offsetof(FTurretCamera, AccelSpeed) == 0x130, "TC +0x130");
+FL_LAYOUT_ASSERT(sizeof(FTurretCamera) == 0x138, "FTurretCamera must be 0x138");
+FL_LAYOUT_ASSERT(offsetof(FTurretCamera, Tether) == 0x100, "TC +0x100");
+FL_LAYOUT_ASSERT(offsetof(FTurretCamera, Field124) == 0x124, "TC +0x124");
+FL_LAYOUT_ASSERT(offsetof(FTurretCamera, YawRotateSpeed) == 0x128, "TC +0x128");
+FL_LAYOUT_ASSERT(offsetof(FTurretCamera, PitchRotateSpeed) == 0x12c, "TC +0x12c");
+FL_LAYOUT_ASSERT(offsetof(FTurretCamera, AccelSpeed) == 0x130, "TC +0x130");
 
 // FUN_0051a210. Chains to the HUDCamera ctor, then plants the defaults; note that it writes the
 // tether's Z first (0x41c80000) and only then X and Y, and that +0x124 gets 0.75f while no ini
