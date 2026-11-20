@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstring>
 
+#include "common_cobject.h"
 #include "common_universe.h"
 
 void FRegressWriter::Line(const char* Format, ...)
@@ -37,6 +38,54 @@ void FRegressWriter::FormatVector(char* Out, size_t Size, const Vector& Value)
 
 namespace
 {
+    struct FObjectClassInfo
+    {
+        CObject::Class Class;
+        const char* Name;
+        bool bDetailed;
+    };
+
+    const FObjectClassInfo ObjectClasses[] = {
+        { CObject::ClassShip, "ship", true },
+        { CObject::ClassSolar, "solar", true },
+        { CObject::ClassLoot, "loot", true },
+        { CObject::ClassMine, "mine", true },
+        { CObject::ClassGuided, "guided", true },
+        { CObject::ClassCounterMeasure, "countermeasure", true },
+        { CObject::ClassBeam, "beam", true },
+        { CObject::ClassAsteroid, "asteroid", false },
+        { CObject::ClassDynamicAsteroid, "dynamic_asteroid", false },
+        { CObject::ClassEquipmentObj, "equipment", false },
+        { CObject::ClassObject, "object", false },
+    };
+
+    void DumpObject(FRegressWriter& Out, const char* ClassName, CObject* Object)
+    {
+        // Every detailed class is CSimple-derived (Common's ClassHasSimpleId).
+        const CSimple* Simple = static_cast<const CSimple*>(Object);
+        const Archetype::Root* Arch = Object->get_archetype();
+        const unsigned int ArchId = Arch != nullptr ? Arch->get_id() : 0;
+
+        char HitPts[40];
+        char Pos[128];
+        char Velocity[128];
+        char Rows[3][128];
+        FRegressWriter::FormatFloat(HitPts, sizeof(HitPts), Simple->HitPts);
+        FRegressWriter::FormatVector(Pos, sizeof(Pos), Object->WorldPosition);
+        const Vector Speed = Object->get_velocity();
+        FRegressWriter::FormatVector(Velocity, sizeof(Velocity), Speed);
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            Vector Values;
+            Values.x = Object->Orientation.E[Row][0];
+            Values.y = Object->Orientation.E[Row][1];
+            Values.z = Object->Orientation.E[Row][2];
+            FRegressWriter::FormatVector(Rows[Row], sizeof(Rows[Row]), Values);
+        }
+        Out.Line("  %s id=%08x arch=%08x owner=%u hit_pts=%s pos=%s orient=%s;%s;%s vel=%s", ClassName,
+            Simple->Id, ArchId, Simple->OwnerPlayer, HitPts, Pos, Rows[0], Rows[1], Rows[2], Velocity);
+    }
+
     const char* OrEmpty(const char* Text)
     {
         return Text != nullptr ? Text : "";
@@ -112,4 +161,35 @@ void DumpUniverse(FRegressWriter& Out)
             Base->GetId(), OrEmpty(Base->GetNickname()), Base->GetSystem(), OrEmpty(Base->GetFile()),
             Base->GetStridName(), Base->IsAutosaveForbidden() ? 1 : 0);
     }
+}
+
+void DumpObjects(FRegressWriter& Out)
+{
+    for (const FObjectClassInfo& Info : ObjectClasses)
+    {
+        Out.Line("objects class=%s count=%d", Info.Name, CObject::Count(Info.Class));
+        if (!Info.bDetailed)
+        {
+            continue;
+        }
+        // FindFirst / FindNext share one cursor in Common; nothing below starts another walk.
+        for (CObject* Object = CObject::FindFirst(Info.Class); Object != nullptr; Object = CObject::FindNext())
+        {
+            DumpObject(Out, Info.Name, Object);
+        }
+    }
+}
+
+void DumpObjectCounts(FRegressWriter& Out, unsigned int Frame)
+{
+    char Line[512];
+    int Length = snprintf(Line, sizeof(Line), "tick frame=%u", Frame);
+    for (const FObjectClassInfo& Info : ObjectClasses)
+    {
+        if (Length > 0 && Length < (int)sizeof(Line))
+        {
+            Length += snprintf(Line + Length, sizeof(Line) - Length, " %s=%d", Info.Name, CObject::Count(Info.Class));
+        }
+    }
+    Out.Line("%s", Line);
 }

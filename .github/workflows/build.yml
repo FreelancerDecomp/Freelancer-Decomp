@@ -155,7 +155,8 @@ jobs:
     name: Regression (FLRegress)
     needs: [build, data]
     runs-on: windows-2022
-    # Stage A takes seconds; FLRegress's own watchdog ends a stuck run after 5 minutes.
+    # Stage A (startup) and stage B (930 server frames on a virtual clock) run in one process;
+    # FLRegress's own watchdog ends a stuck run after 5 minutes.
     timeout-minutes: 15
 
     steps:
@@ -197,6 +198,8 @@ jobs:
           Write-Host "run a: $a ($((Get-Item regress_a.txt).Length) bytes)"
           Write-Host "run b: $b"
           Get-Content regress_a.txt -TotalCount 3
+          # Stage B's script progress and object counts (ids and counts only, no game text).
+          Select-String -Path regress_a.txt -Pattern '^(stage_b|player |tick |objects )' | ForEach-Object { $_.Line } | Select-Object -Last 60 | Write-Host
           if ($a -ne $b) {
             Compare-Object (Get-Content regress_a.txt) (Get-Content regress_b.txt) | Select-Object -First 20 | Format-Table -AutoSize | Out-String -Width 400 | Write-Host
             throw 'FLRegress is not deterministic: the two runs differ'
