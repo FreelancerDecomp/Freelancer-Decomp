@@ -91,6 +91,7 @@ it prints the block and both results, so a rounding difference can be read off t
   - compression into DXT2 or DXT4. Shading never targets those formats, and what D3DX does
     when compressing into them is not understood yet.
 
-CI runs it in a report-only job. Exit code 0 means everything was identical, 1 means a
-difference (it prints the first differing bytes), and 2 means nothing was compared: no
-Direct3D 8 device, or no case could run.
+CI runs it in the "Texture conversion (TexConvertTest)" job, which fails the build on any
+counted difference. Exit code 0 means nothing counted differed, 1 means a counted difference
+(it prints the first differing bytes), and 2 means nothing was compared with D3DX (no
+Direct3D 8 device). In that last case only the self-checks ran, and the job passes.
