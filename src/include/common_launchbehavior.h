@@ -156,12 +156,12 @@ public:
     // common_dockbehavior.cpp's DockBehavior::SetContext for the fully-traced
     // shared body); if it returns false, returns false immediately (no other
     // side effect). Otherwise:
-    //   - calls SubObjectA's own vtbl slot 0 with args (ThreatSourcePtr14,
+    //   - calls SubObjectA's own vtbl slot 0 with args (OwnerContextPtr14,
     //     NavHelperPtr24, <this function's own raw Param2>) -- WIRED FOR REAL
     //     2026-09-11 (d285:common-port), now that SubObjectA is identified as
     //     MoveIdea (see field declaration below). Argument order re-verified
     //     directly from Common.dll.txt 202985-202994 byte-for-byte (push
-    //     order: ThreatSourcePtr14 pushed last = 1st param, matching
+    //     order: OwnerContextPtr14 pushed last = 1st param, matching
     //     SetContext(InObject, InHandle, InContext)); Param2 is captured into
     //     a register BEFORE the FUN_062d2090 call above and never reloaded
     //     from a field afterward, same pattern as DockBehavior's own
@@ -347,7 +347,7 @@ private:
     //     .text:062cda42-062cda5f, last push first, giving
     //     (Index = DirectiveField178, Type = null, XformA = ESP+0x38, XformB = ESP+0x94,
     //     XformC = ESP+0x60, Distance = null). Six-for-six.
-    //   * "ThreatSourcePtr14 vtbl+0xc0 hpmount lookup" -- slot +0x0C0 is IObjInspect
+    //   * "OwnerContextPtr14 vtbl+0xc0 hpmount lookup" -- slot +0x0C0 is IObjInspect
     //     slot 48, `get_hardpoint(char const* Name, Vector* Pos, Matrix* Orient)`, and
     //     the pushed string at .text:062cdb0d IS "hpmount" (s_hpmount_0639e5b8).
     //   * "NavHelper nested +0x14fc/+0x84 ... unidentified singleton" -- the
@@ -478,29 +478,7 @@ public:
     // sizeof()-asserted the way DockBehavior is -- only offsets this pass's
     // ported methods actually touch are asserted.
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.       // +0x08. Set by SetContext() via the shared FUN_062d2090 effect.
-    int ModeSelector0xc;        // +0x0c. Written by Engage() (=1) and SetModeFromFlags() (0/2/3).
-    int UpdateResult10;         // +0x10. Update()'s own tri-state result (documented, not ported).
-    void* ThreatSourcePtr14;    // +0x14. Set by SetContext() (Param1).
-    IObjDB* Field18;            // +0x18. The manager's object database, stored by Behavior's
-                                 // own vtable slot 2 (Behavior::Slot2, 0629afd0 `MOV [ECX+0x18],
-                                 // EAX`) from ConnectBehaviorManagerObjectDb (FUN_062d2830).
-                                 // Engage()/Update() read Field18->GetZoneDb()->GetId().
-    float DeltaTime1c;           // +0x1c. Per-tick delta time; read (never written) by Update()'s
-                                  // own state machine (Field184/Field188 accumulation, and passed
-                                  // as the "advance by DeltaTime1c" argument to SubObjectA/B's own
-                                  // vtbl slot 1 calls). Same offset/role LootBehavior's own
-                                  // Update() reads too (common_lootbehavior.h).
-    void* BehaviorMgrPtr20;     // +0x20. Set by SetContext() (Param2); read by Disengage().
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3).
-    unsigned char Flags28;      // +0x28. Bit 0x2 tested by SetModeFromFlags()/ApplyDirective();
-                                 // bit 0x1 set, bit 0x2 cleared by Disengage().
-    unsigned char Flag29;       // +0x29. Read by SetModeFromFlags().
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // +0x2c. IDENTIFIED 2026-09-11 (d285:common-port): real, already-ported
     // MoveIdea (common_idea.h) -- ctor FUN_062d4e60 (same ctor function as
@@ -522,7 +500,7 @@ public:
     BaseWatcher Watcher168;     // +0x168 (8 bytes, ends +0x170). Zeroed by ctor (both dwords in
                                  // one instruction pair, matching DockBehavior::Watcher324's own
                                  // ctor pattern); dtor clears it via BaseWatcher::set_pointer(nullptr).
-    unsigned CachedSystemId170; // +0x170. Engage(): Field18->GetZoneDb()->GetId() (the current
+    unsigned CachedSystemId170; // +0x170. Engage(): ObjectDb->GetZoneDb()->GetId() (the current
                                  // system's id); Update() aborts with 2 when it changes.
     unsigned TargetType174;     // +0x174. Engage(): FUN_062e6200 == GetObjectTypeOrZero on the
                                  // watched launch target (target - 8).
@@ -575,15 +553,6 @@ public:
     unsigned char Flag231;       // +0x231. Zeroed by ctor.
 };
 
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, CachedHandle08) == 0x08, "LaunchBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ModeSelector0xc) == 0x0c, "LaunchBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, UpdateResult10) == 0x10, "LaunchBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ThreatSourcePtr14) == 0x14, "LaunchBehavior::ThreatSourcePtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Field18) == 0x18, "LaunchBehavior::Field18 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, BehaviorMgrPtr20) == 0x20, "LaunchBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, NavHelperPtr24) == 0x24, "LaunchBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flags28) == 0x28, "LaunchBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, Flag29) == 0x29, "LaunchBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, SubObjectA) == 0x2c, "LaunchBehavior::SubObjectA offset");
 FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, SubObjectB) == 0xa4, "LaunchBehavior::SubObjectB offset");
 FL_LAYOUT_ASSERT(offsetof(LaunchBehavior, ModeState164) == 0x164, "LaunchBehavior::ModeState164 offset");

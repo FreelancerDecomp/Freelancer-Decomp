@@ -9,7 +9,7 @@
 #include "common_aisteer.h" // GetIfacePositionOrZero, IsWithinInterceptRangeOfIface,
                              // GetInterceptClearanceOfIface, GetIfaceVectorMagnitude,
                              // GetObjectTypeOrZero, SetFollowLeader
-#include "common_systemmanager.h" // SystemManager::GunConvergenceStateBytes (NavHelper+0x1364)
+#include "common_systemmanager.h" // SystemManager::GunConvergenceStateBytes (NavHelperPtr24+0x1364)
 #include "common_csys.h"  // Matrix, Transform, MatrixSetIdentity, Acquire3DMathEngine
 #include "x86math.h"      // I3DMathEngine::TransformMatrix (vtable +0x2c), FVector, FMatrix
 
@@ -46,9 +46,9 @@ void FollowBehavior::Slot3()
     if (Lead == nullptr)
         return;
     // 062ccca4-062cccad: IObjAffect slot 11 (+0x2c) on Lead+4, add_follow_follower(Owner).
-    (void)ObjAffectOf(Lead)->add_follow_follower(static_cast<IObjRW*>(OwnerContext));
+    (void)ObjAffectOf(Lead)->add_follow_follower(static_cast<IObjRW*>(OwnerContextPtr14));
     // 062cccb0-062cccd7: the watcher re-read, then FUN_062ec970 on Sys+0x1364.
-    NavHelper->GunConvergenceStateBytes.SetFollowLeader(
+    NavHelperPtr24->GunConvergenceStateBytes.SetFollowLeader(
         ObjRwFromWatchable(const_cast<Watchable*>(LeadWatcher.target())));
 }
 
@@ -60,8 +60,8 @@ void FollowBehavior::Slot4()
     if (Lead == nullptr)
         return;
     // 062ccd04-062ccd0d: IObjAffect slot 12 (+0x30), remove_follow_follower(Owner).
-    (void)ObjAffectOf(Lead)->remove_follow_follower(static_cast<IObjRW*>(OwnerContext));
-    NavHelper->GunConvergenceStateBytes.SetFollowLeader(nullptr);   // 062ccd1b FUN_062ec970(0)
+    (void)ObjAffectOf(Lead)->remove_follow_follower(static_cast<IObjRW*>(OwnerContextPtr14));
+    NavHelperPtr24->GunConvergenceStateBytes.SetFollowLeader(nullptr);   // 062ccd1b FUN_062ec970(0)
 }
 
 // Slot 5, FUN_062ccb70 (.text:062ccb70-062ccc07, RET 4, argument unread).
@@ -75,7 +75,7 @@ int FollowBehavior::Slot5(float Value)
         return ModeSelector0xc;
     }
     // 062ccb9b-062ccbad: FUN_062e4500(Sys+0x14fc, Lead, Field2b4).
-    if (IsWithinInterceptRangeOfIface(&NavHelper->SelfTarget, Lead, Field2b4))
+    if (IsWithinInterceptRangeOfIface(&NavHelperPtr24->SelfTarget, Lead, Field2b4))
         ModeSelector0xc = (Flag29 != 0) ? 3 : 1;
     else
         ModeSelector0xc = (Flag29 != 0) ? 3 : 0;
@@ -87,11 +87,11 @@ EvaluateResult FollowBehavior::evaluate(unsigned int Context)
 {
     (void)Context;
     IObjRW* Target = nullptr;
-    (void)ObjInspectOf(OwnerContext)->get_target(Target);           // 062ccc28 slot 0x74
+    (void)ObjInspectOf(OwnerContextPtr14)->get_target(Target);           // 062ccc28 slot 0x74
     if (Target == nullptr)
         return EvalSkip;
     bool bInLane = false;
-    (void)ObjInspectOf(OwnerContext)->is_using_tradelane(&bInLane); // 062ccc42 slot 0x134
+    (void)ObjInspectOf(OwnerContextPtr14)->is_using_tradelane(&bInLane); // 062ccc42 slot 0x134
     if (bInLane)
         return EvalSkip;
     // 062ccc55 FUN_062e6200: any ship-class bit -> 1.
@@ -107,14 +107,14 @@ bool FollowBehavior::Slot10(void* Param)
     {
         unsigned char* P = static_cast<unsigned char*>(Param);
 
-        // 062cd3e1-062cd405: `FUN_062e74a0(NavHelper+0x34, Param+0xc)` -- the object whose id
+        // 062cd3e1-062cd405: `FUN_062e74a0(NavHelperPtr24+0x34, Param+0xc)` -- the object whose id
         // Param+0xc holds, looked up through the IObjDB SystemManager::Timers keeps at +0x00, and
         // only if the found object reports that same id. The watcher then points at its
         // Watchable (`Candidate ? Candidate + 8 : 0`), set_pointer only when that differs.
         // Until 2026-09-24 the lookup was a hardcoded null ("item 1798 is unprocessed" -- it
         // has been ported since 2026-09-1x, now SystemManagerTimerTable::FindVerifiedObject in common_sysmgr_timertable.cpp), and the null was passed to
         // set() without the +8.
-        IObjRW* const Candidate = NavHelper->Timers.FindVerifiedObject((unsigned const*)(P + 0xc));
+        IObjRW* const Candidate = NavHelperPtr24->Timers.FindVerifiedObject((unsigned const*)(P + 0xc));
         LeadWatcher.set(static_cast<Watchable*>(Candidate));
 
         if (ObjRwFromWatchable(const_cast<Watchable*>(LeadWatcher.target())) != nullptr)
@@ -133,11 +133,11 @@ bool FollowBehavior::Slot10(void* Param)
 
             // 062cd441-062cd473: IObjAffect slot 10 (+0x28) on Owner+4, set_follow_offset, no
             // null test.
-            (void)ObjAffectOf(OwnerContext)->set_follow_offset(Offset290);
+            (void)ObjAffectOf(OwnerContextPtr14)->set_follow_offset(Offset290);
 
-            // 062cd476-062cd48e: the watcher is re-read, then FUN_062ec970 on NavHelper+0x1364
+            // 062cd476-062cd48e: the watcher is re-read, then FUN_062ec970 on NavHelperPtr24+0x1364
             // with `Watched ? Watched - 8 : 0` (SetFollowLeader, common_gunconvergence.cpp).
-            NavHelper->GunConvergenceStateBytes.SetFollowLeader(
+            NavHelperPtr24->GunConvergenceStateBytes.SetFollowLeader(
                 ObjRwFromWatchable(const_cast<Watchable*>(LeadWatcher.target())));
 
             Flags28 = static_cast<unsigned char>(Flags28 | 0x2);
@@ -169,7 +169,7 @@ IObjRW* LeaderObjectOf(BaseWatcher const& Watcher)
 }
 
 // Common.dll.txt 062cd236-062cd251 and 062cd2cc-062cd2f3 -- the SAME lazy per-frame refill,
-// inlined twice into Slot27: when Flags1578[2] (NavHelper+0x14fc+0x7e) is clear, set it FIRST
+// inlined twice into Slot27: when Flags1578[2] (NavHelperPtr24+0x14fc+0x7e) is clear, set it FIRST
 // (062cd24a / 062cd2ec) and then ExternalIface (+0x14fc+0x84) slot 0x2c,
 // IObjInspect::get_physical_radius(+0x14fc+0x18 Radius, +0x14fc+0xc Center). No null tests
 // in retail.
@@ -193,7 +193,7 @@ void FollowBehavior::UpdateInterceptEngageState()
     // 062ccf83-062ccfa5: FUN_062e4500 (IsWithinInterceptRangeOfIface) with the float
     // Field2b8 + SpeedParam2a0 (`FLD; FADD; FSTP [ESP]` -- one float rounding).
     bool const bInRange = IsWithinInterceptRangeOfIface(
-        &NavHelper->SelfTarget, LeaderObjectOf(LeadWatcher),
+        &NavHelperPtr24->SelfTarget, LeaderObjectOf(LeadWatcher),
         Field2b8 + SpeedParam2a0);
 
     if (bInRange)
@@ -203,14 +203,14 @@ void FollowBehavior::UpdateInterceptEngageState()
             return;
         Enabled2a4 = 1;                                                    // 062ccfb7
         IObjRW* const Leader = LeaderObjectOf(LeadWatcher);                // 062ccfbe-062ccfca
-        // 062ccfcc-062ccfde: NavHelper+0x14fc+0x84 == ExternalIface, slot 8 get_id().
-        unsigned const OwnId = NavHelper->SelfTarget.Iface->get_id();
+        // 062ccfcc-062ccfde: NavHelperPtr24+0x14fc+0x84 == ExternalIface, slot 8 get_id().
+        unsigned const OwnId = NavHelperPtr24->SelfTarget.Iface->get_id();
         // 062ccfe1-062ccff9: the float and the status are pushed for FUN_062d29c0 BEFORE the
         // leader's own zero-argument slot 8 get_id() runs; they stay on the stack under it.
         float const Range = Field2b8 + SpeedParam2a0;
         unsigned const LeaderId = ObjInspectOf(Leader)->get_id();
-        // 062cd03e-062cd043: BehaviorMgrPtr (+0x20), FUN_062d29c0, result discarded.
-        (void)BehaviorMgrPtr->NotifyFollowEvent(OwnId, LeaderId,
+        // 062cd03e-062cd043: BehaviorMgrPtr20 (+0x20), FUN_062d29c0, result discarded.
+        (void)BehaviorMgrPtr20->NotifyFollowEvent(OwnId, LeaderId,
                                                 pub::AI::ContentCallback::FollowStatus1, Range);
         return;
     }
@@ -220,10 +220,10 @@ void FollowBehavior::UpdateInterceptEngageState()
         return;
     Enabled2a4 = 0;                                                        // 062cd002
     IObjRW* const Leader = LeaderObjectOf(LeadWatcher);                    // 062cd009-062cd015
-    unsigned const OwnId = NavHelper->SelfTarget.Iface->get_id(); // 062cd017-062cd029
+    unsigned const OwnId = NavHelperPtr24->SelfTarget.Iface->get_id(); // 062cd017-062cd029
     unsigned const LeaderId = ObjInspectOf(Leader)->get_id();             // 062cd02c-062cd03b
     // 062cd030-062cd037: raw SpeedParam2a0 dword and status 2.
-    (void)BehaviorMgrPtr->NotifyFollowEvent(OwnId, LeaderId,
+    (void)BehaviorMgrPtr20->NotifyFollowEvent(OwnId, LeaderId,
                                             pub::AI::ContentCallback::FollowStatus2,
                                             SpeedParam2a0);
 }
@@ -240,11 +240,11 @@ void FollowBehavior::Slot27()
     if (LeaderObjectOf(LeadWatcher) == nullptr)
         return;
 
-    // 062ccd4f-062ccd5e: OwnerContext (+0x14) slot 24 (+0x60), IObjInspect::is_cruise_active
+    // 062ccd4f-062ccd5e: OwnerContextPtr14 (+0x14) slot 24 (+0x60), IObjInspect::is_cruise_active
     // (bool&), on a stack byte zeroed first. Nothing reads the byte afterwards; the call is
     // issued for whatever it does, and its int result is dropped.
     bool bCruiseActive = false;
-    (void)ObjInspectOf(OwnerContext)->is_cruise_active(bCruiseActive);
+    (void)ObjInspectOf(OwnerContextPtr14)->is_cruise_active(bCruiseActive);
 
     // 062ccd61-062ccd94: FUN_062e61f0 (Behavior_InvokeNodeSlotC == the leader's
     // get_transform()) and `MOVSD.REP` of nine dwords -- the 3x3 only -- into S+0x3c.
@@ -276,11 +276,11 @@ void FollowBehavior::Slot27()
     bool bWatchBlock = false; // AL at LAB_062ccf6a
 
     // 062cce2e-062cce4f: only with a zero offset -- the leader's slot 79 (+0x13c),
-    // IObjInspect::generate_follow_offset(OwnerContext, Probe).
+    // IObjInspect::generate_follow_offset(OwnerContextPtr14, Probe).
     bool const bGenerated =
         !bHasOffset &&
         ObjInspectOf(LeaderObjectOf(LeadWatcher))
-            ->generate_follow_offset(ObjInspectOf(OwnerContext), Probe);
+            ->generate_follow_offset(ObjInspectOf(OwnerContextPtr14), Probe);
 
     if (bGenerated)
     {
@@ -331,7 +331,7 @@ void FollowBehavior::Slot27()
         // clearance on the left. `TEST AH,0x5; JP LAB_062cd38d` leaves the fall-through only
         // for clearance < Distance2a8 + 100.
         double const Clearance = GetInterceptClearanceOfIface(
-            &NavHelper->SelfTarget, LeaderObjectOf(LeadWatcher));
+            &NavHelperPtr24->SelfTarget, LeaderObjectOf(LeadWatcher));
         if (!(Clearance < static_cast<double>(Distance2a8) + 100.0))
         {
             // LAB_062cd38d: FUN_062d7560 on Face with &TargetPoint; JMP LAB_062cd375.
@@ -358,13 +358,13 @@ void FollowBehavior::Slot27()
             // 062cd215-062cd232: column 2 of LeaderBasis (S+0x44 / S+0x50 / S+0x5c) to S+0x0.
             Vector const Forward{ LeaderBasis.E[0][2], LeaderBasis.E[1][2], LeaderBasis.E[2][2] };
 
-            RefreshNavPhysicalBounds(NavHelper); // 062cd219-062cd251
+            RefreshNavPhysicalBounds(NavHelperPtr24); // 062cd219-062cd251
 
             // 062cd254-062cd287: Delta = CachedPhysicalCenter - TargetPoint (`FLD; FSUB; FSTP`
             // per component), FUN_062e1730 (VecCosineProject3)(S+0x90, &Delta, &Forward).
-            Vector const Delta{ NavHelper->SelfTarget.CachedPos.x - TargetPoint.x,
-                                NavHelper->SelfTarget.CachedPos.y - TargetPoint.y,
-                                NavHelper->SelfTarget.CachedPos.z - TargetPoint.z };
+            Vector const Delta{ NavHelperPtr24->SelfTarget.CachedPos.x - TargetPoint.x,
+                                NavHelperPtr24->SelfTarget.CachedPos.y - TargetPoint.y,
+                                NavHelperPtr24->SelfTarget.CachedPos.z - TargetPoint.z };
             Vector Projected;
             Vector const* const ProjectedOut = VecCosineProject3(&Projected, &Delta, &Forward);
 
@@ -377,14 +377,14 @@ void FollowBehavior::Slot27()
             if (Speed < 0.0f)
                 Speed = 0.0f;
 
-            RefreshNavPhysicalBounds(NavHelper); // 062cd2cc-062cd2f3
+            RefreshNavPhysicalBounds(NavHelperPtr24); // 062cd2cc-062cd2f3
 
             // 062cd2f6-062cd368, off the x87 stack: Scalar = (Weight * Field2b0 +
             // CachedPhysicalRadius) + Speed stays unrounded. The x and y products (-col2 *
             // Scalar) are stored to float (S+0x20 / S+0x24) before TargetPoint is added; the z
             // product stays on the stack and is added unrounded. FUN_062d7560 on Face.
             double const Scalar =
-                (static_cast<double>(Weight) * Field2b0 + NavHelper->SelfTarget.CachedRadius) + Speed;
+                (static_cast<double>(Weight) * Field2b0 + NavHelperPtr24->SelfTarget.CachedRadius) + Speed;
             float const ProductX = static_cast<float>(-static_cast<double>(Forward.x) * Scalar);
             float const ProductY = static_cast<float>(-static_cast<double>(Forward.y) * Scalar);
             double const ProductZ = -static_cast<double>(Forward.z) * Scalar;
@@ -395,16 +395,16 @@ void FollowBehavior::Slot27()
         }
     }
 
-    // LAB_062cd375 (062cd371-062cd37d): MatchThrottle's slot 1 Update(DeltaTime +0x1c) unless
+    // LAB_062cd375 (062cd371-062cd37d): MatchThrottle's slot 1 Update(DeltaTime1c +0x1c) unless
     // BL was cleared; the int result is dropped.
     if (bUpdateMatchThrottle)
-        (void)MatchThrottle.Update(DeltaTime);
+        (void)MatchThrottle.Update(DeltaTime1c);
 
     // 062cd380-062cd3b3: FUN_062e4bb0 again with the re-read leader; `FSTP ST0` drops it.
-    (void)GetInterceptClearanceOfIface(&NavHelper->SelfTarget,
+    (void)GetInterceptClearanceOfIface(&NavHelperPtr24->SelfTarget,
                                        LeaderObjectOf(LeadWatcher));
-    // 062cd3b5-062cd3c0: Face's slot 1 Update(DeltaTime).
-    (void)Face.Update(DeltaTime);
+    // 062cd3b5-062cd3c0: Face's slot 1 Update(DeltaTime1c).
+    (void)Face.Update(DeltaTime1c);
 }
 
 // Own vtable slot 28 (offset 0x70) -- LAB_062cd4c0, item 1409, Common.dll.txt 202640-202681.

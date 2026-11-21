@@ -78,19 +78,7 @@ public:
     // FUN_062ce870 (RET 4, non-virtual): pick the nearest collectable loot into Slot.
     bool AcquireLootTarget(FLootTarget* Slot);
 
-    // ---- Behavior's own +0x04..+0x2b block, still declared per class ----
-    int TypeId;                     // +0x04
-    unsigned CachedHandle08;        // +0x08
-    int ModeSelector0xc;            // +0x0c, Slot5's result.
-    int UpdateResult10;             // +0x10, Slot7's result.
-    void* OwnerContext;             // +0x14, the owner IObjRW* (binder).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime;                // +0x1c
-    IBehaviorManager* BehaviorMgrPtr; // +0x20 (binder)
-    SystemManager* NavHelper;       // +0x24 (binder)
-    unsigned char Flags28;          // +0x28
-    unsigned char Flag29;           // +0x29
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // ---- LootBehavior's own fields ----
     MoveIdea Move;                  // +0x2c
@@ -105,15 +93,6 @@ public:
 };
 
 FL_LAYOUT_ASSERT(sizeof(LootBehavior::FLootTarget) == 0x0c, "LootBehavior::FLootTarget size");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, TypeId) == 0x04, "LootBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, ModeSelector0xc) == 0x0c, "LootBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, UpdateResult10) == 0x10, "LootBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, OwnerContext) == 0x14, "LootBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, DeltaTime) == 0x1c, "LootBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, BehaviorMgrPtr) == 0x20, "LootBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, NavHelper) == 0x24, "LootBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, Flags28) == 0x28, "LootBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(LootBehavior, Flag29) == 0x29, "LootBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(LootBehavior, Move) == 0x2c, "LootBehavior::Move offset");
 FL_LAYOUT_ASSERT(offsetof(LootBehavior, Face) == 0xa4, "LootBehavior::Face offset");
 FL_LAYOUT_ASSERT(offsetof(LootBehavior, bHasTractor164) == 0x164, "LootBehavior::bHasTractor164 offset");

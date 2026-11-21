@@ -146,48 +146,11 @@ public:
     void Slot4() override {}                                   // 4 .text:062a8920 RET
     int Slot5(float) override { return 1; }                    // 5 LAB_062d1730
 
-    // ---- Behavior's own +0x04..+0x29 block, ADDED 2026-09-17 (claude:common-factory) -----
-    // This class used to declare no storage at all, which made `sizeof(NullBehavior)` 4 while
-    // retail's factory allocates 0x2c. That was harmless only for as long as nothing could
-    // construct one. It stops being harmless the moment CREATE_BEHAVIOR works, because
-    // Behavior::SetTickDelta writes a float at raw offset +0x1c through a bare `Behavior*`
-    // (IBehaviorManager::UpdateBehaviorTick does exactly that, .text:062d335d-062d336a, on
-    // every behavior including this one) -- twenty-four bytes past the end of a four-byte
-    // object, on every tick.
-    //
-    // The block is not invented for this class: FUN_062d2020, the shared base constructor
-    // retail's NULL factory calls directly at .text:062d170a, writes +0x04, +0x08, +0x0c (=2),
-    // +0x10 (=1), +0x14, +0x18, +0x1c, +0x24 and the two flag bytes +0x28/+0x29 on whatever
-    // object it is handed. Every other class in this family already declares the same block at
-    // the same offsets; this class was the one exception. It stays HERE rather than on
-    // Behavior for the reason common_behavior.h spells out at length -- hoisting it has to
-    // retire every duplicate in one commit.
-    int TypeId;                  // +0x04, the ctor argument (id 0, "NULL").
-    unsigned CachedHandle08;     // +0x08, zeroed by FUN_062d2020.
-    int ModeSelector0xc;         // +0x0c, set to 2 by FUN_062d2020.
-    int UpdateResult10;          // +0x10, set to 1 by FUN_062d2020.
-    void* OwnerContext;          // +0x14, zeroed.
-    unsigned char Opaque18[0x1c - 0x18]; // +0x18, zeroed as a dword.
-    float DeltaTime;             // +0x1c, zeroed; the slot SetTickDelta writes.
-    void* BehaviorMgrPtr;        // +0x20. NOT written by FUN_062d2020 -- the family's shared
-                                 // context binder FUN_062d2090 is what fills it, and this
-                                 // class's SetContext (LAB_062d76a0) deliberately does not
-                                 // call it. Declared for layout; left null.
-    SystemManager* NavHelper;    // +0x24, zeroed by FUN_062d2020.
-    unsigned char Flags28;       // +0x28, bits 0 and 1 cleared by FUN_062d2020 (`AND CL,0xfc`).
-    unsigned char Flag29;        // +0x29, zeroed.
-    unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only.
+    // Retail's NULL factory allocates 0x2c bytes (see below): Behavior's +0x04..+0x29 block and
+    // nothing of its own. Until 2026-09-17 this class declared no storage, so `sizeof` was 4 and
+    // Behavior::SetTickDelta wrote past the end of the object on every tick. The block is
+    // declared once on Behavior now (common_behavior.h); this class adds no fields.
 };
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, TypeId) == 0x04, "NullBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, CachedHandle08) == 0x08, "NullBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, ModeSelector0xc) == 0x0c, "NullBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, UpdateResult10) == 0x10, "NullBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, OwnerContext) == 0x14, "NullBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, DeltaTime) == 0x1c, "NullBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, BehaviorMgrPtr) == 0x20, "NullBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, NavHelper) == 0x24, "NullBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, Flags28) == 0x28, "NullBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(NullBehavior, Flag29) == 0x29, "NullBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(sizeof(NullBehavior) == 0x2c, "NullBehavior size == retail operator_new argument at .text:062d16e8");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x2c`

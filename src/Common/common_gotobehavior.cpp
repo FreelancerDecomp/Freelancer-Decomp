@@ -37,7 +37,6 @@
 
 // FUN_062fd620 forwards its own type-id argument to FUN_062d2020 at .text:062fd644.
 GotoBehaviorFields::GotoBehaviorFields(int InTypeId)
-    : TypeId(InTypeId)
 {
     ConstructBase(InTypeId);   // FUN_062d2020 -- Behavior's own field initialisation
 }
@@ -504,7 +503,7 @@ namespace
     // identical triple-check.
     IObjRW* OwnerObjOf(SystemManager* Sys)
     {
-        return ObjRwFromWatchable(*reinterpret_cast<void**>(reinterpret_cast<unsigned char*>(Sys) + 0x8));
+        return ObjRwFromWatchable(const_cast<Watchable*>(Sys->Watcher.target()));   // Sys+0x8
     }
 
     // .text:062ec05c-062ec083, repeated verbatim at .text:062ec154-062ec17b.

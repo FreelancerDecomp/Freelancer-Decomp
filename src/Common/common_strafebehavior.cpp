@@ -8,7 +8,7 @@
 
 #include "common_csys.h"           // Transform, Matrix, Acquire3DMathEngine
 #include "common_iface.h"          // IObjInspect, IObjRW, ObjRwFromWatchable, ObjInspectOf
-#include "common_systemmanager.h"  // SystemManager -- what NavHelper actually points at
+#include "common_systemmanager.h"  // SystemManager -- what NavHelperPtr24 actually points at
 #include "common_misc.h"           // random_sphere_constrained_2
 #include "common_behavior.h"       // Behavior_GetIfaceMaxScalarAttribute and friends
 #include "common_aisteer.h"        // GetIfacePositionOrZero, GetObjectTypeOrZero, FAiTarget,
@@ -74,18 +74,6 @@ namespace
 // ----------------------------------------------------------------------------
 StrafeBehavior::StrafeBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContext(nullptr)
-    , Opaque18{}
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , TriggerRange2c(0.0f)
     , Opaque30{}
     , StrafeDistance34(0.0f)
@@ -141,7 +129,7 @@ bool StrafeBehavior::Slot10(void* DirectiveOp)
     if (DirectiveOp != nullptr)
     {
         unsigned const* const OpTarget = (unsigned const*)(static_cast<char*>(DirectiveOp) + 0xc);
-        if (NavHelper->Timers.FindVerifiedObject(OpTarget) != nullptr)
+        if (NavHelperPtr24->Timers.FindVerifiedObject(OpTarget) != nullptr)
         {
             Flags28 = static_cast<unsigned char>(Flags28 | 0x2);
             return true;
@@ -157,7 +145,7 @@ bool StrafeBehavior::Slot10(void* DirectiveOp)
 int StrafeBehavior::Slot5(float Unused)
 {
     (void)Unused;
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     int Result = 2;                                                 // EBX
     if (!Sys->GunConvergenceStateBytes.FollowerDirectiveGateA())   // 062c9735 FUN_062ecb20
     {
@@ -202,8 +190,8 @@ void StrafeBehavior::Slot3()
     Behavior::Slot3();                                              // 062ca1e6 FUN_062d20d0
     SetCruiseLock(1, 3);                                            // 062ca1f1 FUN_062d21d0
 
-    IObjInspect const* const Owner = ObjInspectOf(OwnerContext);
-    SystemManager* const Sys = NavHelper;
+    IObjInspect const* const Owner = ObjInspectOf(OwnerContextPtr14);
+    SystemManager* const Sys = NavHelperPtr24;
 
     // 062ca1f6-062ca246. Step = 0.1f (0x3dcccccd), advanced by 0.1f (DAT_0639d20c) after
     // each call; the FCOMP against 10.0 (`TEST AH,0x41; JZ` exits when greater) runs
@@ -266,7 +254,7 @@ void StrafeBehavior::Slot4()
 // ----------------------------------------------------------------------------
 int StrafeBehavior::Slot7()
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
 
     // 062c9d2a-062c9d42: no target -> 3.
     IObjRW* const Target = Sys->Targeting.GetTarget();
@@ -308,7 +296,7 @@ int StrafeBehavior::Slot7()
     {
         // LAB_062c9f31: MoveIdea scale by the bearing to the target (pi/8 split,
         // `TEST AH,0x5; JP` takes the far value when >=).
-        double const Bearing = BearingAngleToIface(OwnerContext, Target); // unrounded ST0, FCOMP at 062c9f3b
+        double const Bearing = BearingAngleToIface(OwnerContextPtr14, Target); // unrounded ST0, FCOMP at 062c9f3b
         if (Bearing < 0.39269909262657166)
             SubObjectA.SetScale40(ScaleNear58);
         else
@@ -405,20 +393,20 @@ int StrafeBehavior::Slot7()
     }
 
     // LAB_062ca17a: tick the MoveIdea and the FaceIdea (slot 1) with the delta.
-    (void)SubObjectA.Update(DeltaTime);
-    (void)SubObjectB.Update(DeltaTime);
+    (void)SubObjectA.Update(DeltaTime1c);
+    (void)SubObjectB.Update(DeltaTime1c);
     UpdateResult10 = Result;
     return Result;
 }
 
 // ----------------------------------------------------------------------------
 // FUN_062c9810 (.text:062c9810-062c9d10), decomp-tracker item 1365, 387 instructions
-// (Common.dll.txt 197165-197561). Re-checked 2026-10-08: the port's null tests on NavHelper,
+// (Common.dll.txt 197165-197561). Re-checked 2026-10-08: the port's null tests on NavHelperPtr24,
 // the watched object and its sub-object-centre receiver were not retail's and are gone.
 // ----------------------------------------------------------------------------
 void StrafeBehavior::SelectStrafePoint(int Mode, IObjInspect const* Target)
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
 
     if (Mode == 1)
     {

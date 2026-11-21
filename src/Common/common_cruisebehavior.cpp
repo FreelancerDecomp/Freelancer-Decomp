@@ -19,17 +19,6 @@
 // zeroed, no sub-object is constructed. Every field is left to SetContext().
 CruiseBehavior::CruiseBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)   // retail leaves this uninitialized until SetContext(); zeroed
-                                 // here for well-defined C++ semantics (documented deviation).
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContextPtr14(nullptr)
-    , Opaque18{}
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
 {
     ConstructBase(InTypeId);   // FUN_062d2020 -- Behavior's own field initialisation
 }

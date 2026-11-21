@@ -36,18 +36,6 @@
 // Field1bc/Field1c0/Flag1d4/Field1d8).
 FaceBehavior::FaceBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , ThreatSourcePtr14(nullptr)
-    , Opaque18{}
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , TargetKind2c(0)
     , Watcher30()
     , OrientMatrix38()
@@ -114,7 +102,7 @@ FaceBehavior::~FaceBehavior()
 bool FaceBehavior::SetContext(void* Param1, void* Param2, void* Param3)
 {
     // .text:062c8ad5: `CALL FUN_062d2090(Param1, Param2, Param3)` -- Behavior::BindContext.
-    // It writes +0x14 (ThreatSourcePtr14), +0x08, +0x24 (NavHelperPtr24) and +0x20
+    // It writes +0x14 (OwnerContextPtr14), +0x08, +0x24 (NavHelperPtr24) and +0x20
     // (BehaviorMgrPtr20); on false the function returns the binder's AL.
     if (!BindContext(Param1, Param2, Param3))
         return false;
@@ -144,9 +132,9 @@ bool FaceBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     // .text:062c8b0d-062c8b1a:
     //     PUSH 0x3f800000            ; 1.0f, pushed FIRST => LAST argument
     //     PUSH 0x0                   ; 0.0f
-    //     PUSH ECX                   ; ThreatSourcePtr14, pushed LAST => FIRST argument
+    //     PUSH ECX                   ; OwnerContextPtr14, pushed LAST => FIRST argument
     //     CALL FUN_062e5b20 / FSTP float ptr [ESI+0x1cc] / ADD ESP,0xc
-    Field1cc = Behavior_InvokeManagerSlotF0(ObjInspectOf(ThreatSourcePtr14), 0.0f, 1.0f);
+    Field1cc = Behavior_InvokeManagerSlotF0(ObjInspectOf(OwnerContextPtr14), 0.0f, 1.0f);
 
     return true;
 }
@@ -267,7 +255,7 @@ EvaluateResult FaceBehavior::evaluate(unsigned int Context)
     // 062c8d8d-062c8db9: the owner's own target (get_target +0x74 into a zeroed local)
     // handed to the ship's TargetManager with SUBOBJ_ID_NONE (zero-extended).
     IObjRW* Target = nullptr;
-    static_cast<IObjRW*>(ThreatSourcePtr14)->get_target(Target);
+    static_cast<IObjRW*>(OwnerContextPtr14)->get_target(Target);
     NavHelperPtr24->Targeting.RetargetOwner(Target, SUBOBJ_ID_NONE);
     return EvalBlocked;                                             // 062c8dbe, 1
 }
@@ -417,10 +405,10 @@ int FaceBehavior::Update()
                     // OPPOSITE of the second BearingAngleToIface call at
                     // 062c8f8d below: here `PUSH EAX(block)` comes first and
                     // `PUSH [EBP+0x14]` second, so the LAST push -- and hence
-                    // the FIRST argument, Self -- is ThreatSourcePtr14, and the
+                    // the FIRST argument, Self -- is OwnerContextPtr14, and the
                     // watched block is Target. This measures how far the threat
                     // source is off the watched object's bearing.
-                    double const Bearing = BearingAngleToIface(ThreatSourcePtr14, WatchedBlock); // unrounded ST0
+                    double const Bearing = BearingAngleToIface(OwnerContextPtr14, WatchedBlock); // unrounded ST0
 
                     // `TEST AH,0x41; JNZ`: C0|C3 is set for less-or-equal, so
                     // the JNZ is the else-branch and the FALL-THROUGH taken
@@ -498,11 +486,11 @@ int FaceBehavior::Update()
             // -- unreachable, and not reproduced. What survives is one call.
             //
             // ARGUMENT ORDER IS REVERSED relative to 062c8e8c: here
-            // `PUSH ECX(ThreatSourcePtr14)` comes first and `PUSH EAX(block)`
+            // `PUSH ECX(OwnerContextPtr14)` comes first and `PUSH EAX(block)`
             // second, so Self is the WATCHED BLOCK and Target is
-            // ThreatSourcePtr14. Two calls to the same helper, opposite
+            // OwnerContextPtr14. Two calls to the same helper, opposite
             // operands, twelve instructions apart.
-            double const Angle = BearingAngleToIface(FreshBlock, ThreatSourcePtr14); // unrounded ST0
+            double const Angle = BearingAngleToIface(FreshBlock, OwnerContextPtr14); // unrounded ST0
 
             // 062c8fae-062c8fb9: `TEST AH,0x41; JNZ LAB_062c8fec`. JNZ fires on
             // less-or-equal, so a SMALL angle (inside pi/16) is the "locked on"

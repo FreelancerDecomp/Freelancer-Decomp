@@ -241,44 +241,7 @@ public:
     // are GotoOp.Field_0C and GotoOp.Destination, reached through the embed), and the rest
     // are named below.
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.      // +0x08. Set by SetContext() via the shared FUN_062d2090 effect.
-    int ModeSelector0xc;       // +0x0c. Written by the GAP'd Engage() (=1) and SetModeFromFlags() (0/2/3).
-    int UpdateResult10;        // +0x10. The GAP'd Update()'s own tri-state result.
-    void* OwnerContextPtr14;   // +0x14. Set by SetContext() (Param1).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;         // +0x1c. Zeroed by the shared FUN_062d20d0 reset effect inside the
-                                // GAP'd Engage(). Update() accumulates it into Field108 and copies
-                                // it into whichever of CachedPtr60/64 is driving, at that object's
-                                // OWN +0x1c -- the same per-tick delta slot BaseFollowerBehavior
-                                // already names DeltaTime at +0x1c (common_behavior.h), which is
-                                // what makes the float typing here evidence rather than a guess.
-    // +0x20. Set by SetContext() (Param2). TYPED 2026-09-17 (claude:common-behavior-fields)
-    // from GuideBehavior's OWN call sites, not by carrying TrailBehavior's proof across:
-    //   * .text:062cf9ae/062cfa04/062cfb1a/062cfb9d -- `MOV ECX,dword ptr [ESI + 0x20]`
-    //     immediately followed by `CALL FUN_062d2a70`, i.e. the field goes straight into ECX as
-    //     a __thiscall receiver. FUN_062d2a70's own body opens `MOV EAX,[ECX+0x8];
-    //     MOV EDX,[EAX+0x1434]` and then `CMP dword ptr [ECX+0xc0],0xe` -- +0x08 is the field
-    //     the NAMED retail symbol `IBehaviorManager::get_scan_response` dereferences the same
-    //     way (`MOV ECX,[ECX+0x8]; ADD ECX,0x142c`), and +0xc0 is the field the NAMED symbols
-    //     `update_current_behavior_throttle` / `reset_current_behavior_direction` /
-    //     `update_current_behavior_cruise` all read as the current-behavior index. Two
-    //     independent confirmed IBehaviorManager offsets in one eight-instruction prologue.
-    //   * .text:062cf56a/062cf64b/062cfc35 -- same `MOV ECX,[ESI+0x20]` shape into
-    //     `CALL FUN_062d29a0`, which writes +0x118/+0x11c: exactly the pair the big
-    //     IBehaviorManager tick function writes on its OWN `this` at .text:062d2ea9-062d2eb3.
-    //   * .text:062cf3fc -- `MOV EAX,[ESI+0x20]; MOV ECX,[EAX+0x17c]; MOV EDX,[EAX+0x1b8]`,
-    //     entries 2 and 18 of IBehaviorManager::BehaviorDispatchTable (+0x174, common_iface.h).
-    // The shared writer FUN_062d2090 was deliberately NOT used as evidence (fourteen callers,
-    // so Param2's type has to come from each class's own dereferences, as here).
-    IBehaviorManager* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3).
-    unsigned char Flags28;     // +0x28. Tested by SetModeFromFlags().
-    unsigned char Flag29;      // +0x29. Tested by SetModeFromFlags().
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     BaseWatcher WatcherA;       // +0x2c (8 bytes, ends +0x34). Zeroed by ctor; cleared by dtor;
                                  // read by SetModeFromFlags()/ReleaseWatcherAIfIdMatches()/GetRawBlockA().
@@ -358,15 +321,6 @@ public:
                                           // Seeded from Flag38 by the GAP'd Engage().
 };
 
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, CachedHandle08) == 0x08, "GuideBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, ModeSelector0xc) == 0x0c, "GuideBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, UpdateResult10) == 0x10, "GuideBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, OwnerContextPtr14) == 0x14, "GuideBehavior::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, DeltaTime1c) == 0x1c, "GuideBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, BehaviorMgrPtr20) == 0x20, "GuideBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, NavHelperPtr24) == 0x24, "GuideBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flags28) == 0x28, "GuideBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flag29) == 0x29, "GuideBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(GuideBehavior, WatcherA) == 0x2c, "GuideBehavior::WatcherA offset");
 FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Field34) == 0x34, "GuideBehavior::Field34 offset");
 FL_LAYOUT_ASSERT(offsetof(GuideBehavior, Flag38) == 0x38, "GuideBehavior::Flag38 offset");

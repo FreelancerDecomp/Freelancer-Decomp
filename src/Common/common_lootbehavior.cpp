@@ -12,7 +12,7 @@
 #include "common_cobject.h"        // CObject, CShip, CLoot, CEqObj::get_behavior_interface
 #include "common_iface.h"          // IObjInspect, IObjAffect, IObjRW, IBehaviorManager, EquipmentVal
 #include "common_misc.h"           // SUBOBJ_ID_NONE
-#include "common_systemmanager.h"  // SystemManager -- what NavHelper points at
+#include "common_systemmanager.h"  // SystemManager -- what NavHelperPtr24 points at
 
 #include <cstring>
 
@@ -113,18 +113,6 @@ namespace
 // ----------------------------------------------------------------------------
 LootBehavior::LootBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContext(nullptr)
-    , Opaque18{}
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , Move()                        // 062ce431 FUN_062d4e60
     , Face()                        // 062ce441 FUN_062d6750
     , bHasTractor164(0)             // not written by retail's ctor; SetContext writes it
@@ -151,8 +139,8 @@ bool LootBehavior::SetContext(void* Owner, void* Manager, void* Sys)
     bool const bOk = BindContext(Owner, Manager, Sys);              // 062ce565 FUN_062d2090
     if (bOk)
     {
-        Move.SetContext(OwnerContext, NavHelper, Manager);          // 062ce581
-        Face.SetContext(OwnerContext, NavHelper, Manager);          // 062ce598
+        Move.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);          // 062ce581
+        Face.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);          // 062ce598
     }
 
     // LAB_062ce59a -- runs whether or not the binder accepted the context.
@@ -168,11 +156,11 @@ bool LootBehavior::SetContext(void* Owner, void* Manager, void* Sys)
     Tractor.Value = 0.0f;
     Tractor.EquipId = SUBOBJ_ID_NONE;
     Tractor.Pad = 0;
-    IObjRW* const Ship = OwnShip(NavHelper);
+    IObjRW* const Ship = OwnShip(NavHelperPtr24);
     if (Ship->find_equipment(&Tractor.EquipId, 1, 0x100000) == 0)  // [+0x114], tractor class
     {
         bHasTractor164 = 1;                                         // 062ce606
-        if (OwnShip(NavHelper)->get_equipment_val(Tractor, Tractor.EquipId,
+        if (OwnShip(NavHelperPtr24)->get_equipment_val(Tractor, Tractor.EquipId,
                                                   static_cast<EquipmentValType>(5), 0.0f) == 0)   // [+0x11c]
         {
             // 062ce638-062ce643: FMUL double 0.75 (.rdata:0639fe28), FSTP float.
@@ -199,7 +187,7 @@ void LootBehavior::Slot4()
     Target.bDirected = 0;                                           // 062ce680
     Move.Commit();                                                  // 062ce687
     Face.Commit();                                                  // 062ce696
-    (void)TractorRelease(NavHelper);                                // 062ce6a2 FUN_062ece40(Sys+0x1498)
+    (void)TractorRelease(NavHelperPtr24);                                // 062ce6a2 FUN_062ece40(Sys+0x1498)
     Behavior::Slot4();                                              // 062ce6aa JMP FUN_062d20f0
 }
 
@@ -210,7 +198,7 @@ int LootBehavior::Slot5(float Unused)
 {
     (void)Unused;
     // 062ce6b3-062ce6c8: only with a tractor and the TargetManager in attack state 2.
-    if (bHasTractor164 != 0 && NavHelper->Targeting.AttackState == 2)
+    if (bHasTractor164 != 0 && NavHelperPtr24->Targeting.AttackState == 2)
     {
         if (WatchedObject(Target.Watcher) == nullptr)               // 062ce6ca-062ce6df
             (void)AcquireLootTarget(&Target);                       // 062ce6e4 FUN_062ce870
@@ -237,14 +225,14 @@ bool LootBehavior::IsLootUnclaimed(IObjRW* Loot)
 
     // 062ce77c-062ce79b: every ship-class object in the owner's scan list (FUN_062e74e0).
     ScanList const* List = nullptr;
-    (void)NavHelper->Timers.GetOwnScanList(List, 0x7f0000);
+    (void)NavHelperPtr24->Timers.GetOwnScanList(List, 0x7f0000);
     if (List == nullptr)
         return false;
 
     for (int Index = 0; static_cast<unsigned>(Index) < static_cast<unsigned>(List->Count); ++Index)   // `JBE` / `JC`
     {
         IObjRW* const Other = WatchedObject(List->Entries[Index]);
-        if (Other == OwnShip(NavHelper))                            // 062ce7c1-062ce7d6
+        if (Other == OwnShip(NavHelperPtr24))                            // 062ce7c1-062ce7d6
             continue;
         unsigned OtherType = 0;                                     // not pre-set in retail
         Other->get_type(OtherType);                                 // 062ce7e1 [+0x88], result unread
@@ -272,7 +260,7 @@ bool LootBehavior::IsLootUnclaimed(IObjRW* Loot)
 // ----------------------------------------------------------------------------
 bool LootBehavior::AcquireLootTarget(FLootTarget* Slot)
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     pub::AI::Personality::JobStruct const& Job = Sys->PersonalityData.JobParams;
     if (Job.LootPreference == 0)                                    // 062ce87c [Sys+0x18fc]: loot flags
         return false;
@@ -359,7 +347,7 @@ Done:
 // ----------------------------------------------------------------------------
 int LootBehavior::Slot7()
 {
-    if (OwnerContext == nullptr)                                    // 062ceb56
+    if (OwnerContextPtr14 == nullptr)                                    // 062ceb56
     {
         UpdateResult10 = 3;
         return 3;
@@ -371,7 +359,7 @@ int LootBehavior::Slot7()
         return 2;
     }
 
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     if (!OwnHoldHasRoom(Sys))                                       // 062ceb8b-062cebf8
     {
         Target.Watcher.set(nullptr);                                // 062cebfa-062cec04
@@ -414,17 +402,17 @@ int LootBehavior::Slot7()
     Move.SetWatchObject(Loot);                                      // 062ced32 FUN_062d5760
     Move.SetEnabled(true);                                          // 062ced3b FUN_062d5a10
     Move.SetRange3c(TractorReach168);                               // 062ced49 .text:062a66b0
-    if (Move.Update(DeltaTime) == 1)                                // 062ced56
+    if (Move.Update(DeltaTime1c) == 1)                                // 062ced56
     {
         Move.Commit();                                              // 062ced62
         Face.SetWatchObject(Loot);                                  // 062ced6e FUN_062d7510
-        if (Face.Update(DeltaTime) == 1 && TractorActivate(Sys, Loot))   // 062ced7b / 062ced8d
+        if (Face.Update(DeltaTime1c) == 1 && TractorActivate(Sys, Loot))   // 062ced7b / 062ced8d
             return 2;                                               // 062ced99: +0x10 not written
     }
     else
     {
         Face.SetWatchObject(Loot);                                  // LAB_062ceda1
-        Face.Update(DeltaTime);
+        Face.Update(DeltaTime1c);
     }
     UpdateResult10 = 1;                                             // LAB_062cedba
     return 1;
@@ -436,7 +424,7 @@ int LootBehavior::Slot7()
 bool LootBehavior::Slot10(void* DirectiveOp)
 {
     unsigned char* const Op = static_cast<unsigned char*>(DirectiveOp);
-    void* const Found = NavHelper->Timers.FindVerifiedObject((unsigned const*)(Op + 0xc));   // 062cede3
+    void* const Found = NavHelperPtr24->Timers.FindVerifiedObject((unsigned const*)(Op + 0xc));   // 062cede3
     Target.Watcher.set(Found != nullptr ? reinterpret_cast<Watchable const*>(static_cast<char*>(Found) + FL_OBJRW_WATCHABLE_OFFSET)
                                         : nullptr);                 // 062cedf9-062cee00
     if (WatchedObject(Target.Watcher) != nullptr)                   // 062cee05-062cee10
