@@ -38,13 +38,16 @@ and later runs confirm them.
   - A P8 palette is opaque.
 - **The same format at the same size** is a plain byte copy, unused bits included. For DXT it
   is a copy of the blocks.
-- **DXT decoding:**
-  - The endpoints are widened to 8 bits by repeating their top bits.
-  - The in-between entries are interpolated in integers and rounded down.
+- **DXT decoding**, fitted from TexConvertTest's single-block probes:
+  - The endpoints become floats (value / 31, or / 63 for green), like any other channel.
+  - The in-between entries are interpolated in float, and every channel is rounded to nearest
+    when it is written.
   - The three-colour mode (colour 0 <= colour 1: a half-way entry and black) applies in every
     DXT format, not only DXT1. Index 3 is transparent only in DXT1.
-  - DXT5 alpha uses eight or six interpolated steps, again rounded down.
-  - DXT2 and DXT4 come back with their colour multiplied by alpha.
+  - DXT5 alpha uses eight or six interpolated steps, in float.
+  - DXT2 and DXT4 come back as straight alpha: colour divided by alpha (clamped to 1), and
+    black where alpha is 0. Between two premultiplied formats (DXT2 or DXT4 into DXT2 or DXT4)
+    the stored colour passes through unchanged, so re-encoding does not shift it.
 - **The pitch Shading passes for DXT.** Shading's DDS loader passes linear size / width in
   blocks, which is retail's own calculation, and D3DX uses it as given. So for a mip whose
   block grid is not square, RP8 reads the blocks with that pitch. TexConvert reads a DXT source

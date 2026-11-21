@@ -162,66 +162,53 @@ namespace TexConvert
 
         // --- DXT ---------------------------------------------------------------------------------
 
-        // DXT decoding, as D3DX 8.1 does it (TexConvertTest): endpoints widened to 8 bits by
-        // repeating their top bits, the in-between entries interpolated in integers and rounded
-        // down, and the three-colour mode (colour 0 <= colour 1: half-way entry and black) in every
-        // DXT format, not only DXT1. Index 3 is transparent only in DXT1; the other formats take
-        // alpha from their alpha half.
-        void Widen565(std::uint32_t V, std::uint32_t* Out)
-        {
-            const std::uint32_t R = (V >> 11) & 0x1F;
-            const std::uint32_t G = (V >> 5) & 0x3F;
-            const std::uint32_t B = V & 0x1F;
-            Out[0] = (R << 3) | (R >> 2);
-            Out[1] = (G << 2) | (G >> 4);
-            Out[2] = (B << 3) | (B >> 2);
-        }
-
+        // DXT decoding, as D3DX 8.1 does it (TexConvertTest's single-block probes): the endpoints
+        // become floats (value / 31 or / 63), the in-between entries are interpolated in float,
+        // and every channel is rounded to nearest when it is written. The three-colour mode (colour
+        // 0 <= colour 1: a half-way entry and black) applies in every DXT format, not only DXT1.
+        // Index 3 is transparent only in DXT1; the other formats take alpha from their alpha half.
         void DecodeColorBlock(const unsigned char* Block, bool bDxt1, FColor* Out)
         {
             const std::uint32_t C0 = Read16(Block);
             const std::uint32_t C1 = Read16(Block + 2);
             const std::uint32_t Indices = Read32(Block + 4);
-            std::uint32_t Palette[4][4];
-            Widen565(C0, Palette[0]);
-            Widen565(C1, Palette[1]);
-            Palette[0][3] = 255;
-            Palette[1][3] = 255;
-            Palette[2][3] = 255;
+            FColor Palette[4];
+            Palette[0] = {Unpack((C0 >> 11) & 0x1F, 5), Unpack((C0 >> 5) & 0x3F, 6), Unpack(C0 & 0x1F, 5), 1.0f};
+            Palette[1] = {Unpack((C1 >> 11) & 0x1F, 5), Unpack((C1 >> 5) & 0x3F, 6), Unpack(C1 & 0x1F, 5), 1.0f};
             if (C0 > C1)
             {
-                for (int Ch = 0; Ch < 3; ++Ch)
-                {
-                    Palette[2][Ch] = (2 * Palette[0][Ch] + Palette[1][Ch]) / 3;
-                    Palette[3][Ch] = (Palette[0][Ch] + 2 * Palette[1][Ch]) / 3;
-                }
-                Palette[3][3] = 255;
+                Palette[2] = {(2.0f * Palette[0].R + Palette[1].R) / 3.0f, (2.0f * Palette[0].G + Palette[1].G) / 3.0f,
+                              (2.0f * Palette[0].B + Palette[1].B) / 3.0f, 1.0f};
+                Palette[3] = {(Palette[0].R + 2.0f * Palette[1].R) / 3.0f, (Palette[0].G + 2.0f * Palette[1].G) / 3.0f,
+                              (Palette[0].B + 2.0f * Palette[1].B) / 3.0f, 1.0f};
             }
             else
             {
-                for (int Ch = 0; Ch < 3; ++Ch)
-                {
-                    Palette[2][Ch] = (Palette[0][Ch] + Palette[1][Ch]) / 2;
-                    Palette[3][Ch] = 0;
-                }
-                Palette[3][3] = bDxt1 ? 0 : 255;
+                Palette[2] = {(Palette[0].R + Palette[1].R) / 2.0f, (Palette[0].G + Palette[1].G) / 2.0f,
+                              (Palette[0].B + Palette[1].B) / 2.0f, 1.0f};
+                Palette[3] = {0.0f, 0.0f, 0.0f, bDxt1 ? 0.0f : 1.0f};
             }
             for (int Index = 0; Index < 16; ++Index)
-            {
-                const std::uint32_t* const P = Palette[(Indices >> (Index * 2)) & 3];
-                Out[Index] = {Unpack(P[0], 8), Unpack(P[1], 8), Unpack(P[2], 8), Unpack(P[3], 8)};
-            }
+                Out[Index] = Palette[(Indices >> (Index * 2)) & 3];
         }
 
-        // D3DX 8.1 hands DXT2 and DXT4 colour back multiplied by alpha (TexConvertTest), so the
-        // decoder does the same.
-        void Premultiply(FColor* Pixels)
+        // D3DX 8.1 hands DXT2 and DXT4 back as straight alpha: colour divided by alpha (clamped to
+        // 1), and black where alpha is 0 (TexConvertTest).
+        void Unpremultiply(FColor* Pixels)
         {
             for (int Index = 0; Index < 16; ++Index)
             {
-                Pixels[Index].R *= Pixels[Index].A;
-                Pixels[Index].G *= Pixels[Index].A;
-                Pixels[Index].B *= Pixels[Index].A;
+                const float A = Pixels[Index].A;
+                if (A <= 0.0f)
+                {
+                    Pixels[Index].R = 0.0f;
+                    Pixels[Index].G = 0.0f;
+                    Pixels[Index].B = 0.0f;
+                    continue;
+                }
+                Pixels[Index].R = std::min(1.0f, Pixels[Index].R / A);
+                Pixels[Index].G = std::min(1.0f, Pixels[Index].G / A);
+                Pixels[Index].B = std::min(1.0f, Pixels[Index].B / A);
             }
         }
 
@@ -240,32 +227,33 @@ namespace TexConvert
                 for (int Index = 0; Index < 16; ++Index)
                     Out[Index].A = Unpack((Block[Index / 2] >> ((Index & 1) * 4)) & 0xF, 4);
                 if (Format == kDxt2 && !bKeepStored)
-                    Premultiply(Out);
+                    Unpremultiply(Out);
                 return;
             }
-            // DXT4 / DXT5: two alpha endpoints and 3-bit indices, interpolated in integers.
-            const std::uint32_t A0 = Block[0];
-            const std::uint32_t A1 = Block[1];
-            std::uint32_t Alpha[8] = {A0, A1};
-            if (A0 > A1)
+            // DXT4 / DXT5: two alpha endpoints and 3-bit indices, interpolated in float like the
+            // colour.
+            const float A0 = Unpack(Block[0], 8);
+            const float A1 = Unpack(Block[1], 8);
+            float Alpha[8] = {A0, A1};
+            if (Block[0] > Block[1])
             {
-                for (std::uint32_t Step = 1; Step <= 6; ++Step)
-                    Alpha[Step + 1] = ((7 - Step) * A0 + Step * A1) / 7;
+                for (int Step = 1; Step <= 6; ++Step)
+                    Alpha[Step + 1] = ((7 - Step) * A0 + Step * A1) / 7.0f;
             }
             else
             {
-                for (std::uint32_t Step = 1; Step <= 4; ++Step)
-                    Alpha[Step + 1] = ((5 - Step) * A0 + Step * A1) / 5;
-                Alpha[6] = 0;
-                Alpha[7] = 255;
+                for (int Step = 1; Step <= 4; ++Step)
+                    Alpha[Step + 1] = ((5 - Step) * A0 + Step * A1) / 5.0f;
+                Alpha[6] = 0.0f;
+                Alpha[7] = 1.0f;
             }
             std::uint64_t Bits = 0;
             for (int Byte = 0; Byte < 6; ++Byte)
                 Bits |= static_cast<std::uint64_t>(Block[2 + Byte]) << (Byte * 8);
             for (int Index = 0; Index < 16; ++Index)
-                Out[Index].A = Unpack(Alpha[(Bits >> (Index * 3)) & 7], 8);
+                Out[Index].A = Alpha[(Bits >> (Index * 3)) & 7];
             if (Format == kDxt4 && !bKeepStored)
-                Premultiply(Out);
+                Unpremultiply(Out);
         }
 
         std::uint32_t Encode565(const float* C)

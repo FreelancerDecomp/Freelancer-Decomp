@@ -260,7 +260,7 @@ namespace
 {
 // One DXT block through D3DX and TexConvert into A8R8G8B8; on a difference, the block and both
 // results are printed, so the decoder's rounding can be read off the log.
-int G_ProbeLines = 0;
+int G_ProbeLines[16] = {}; // per format, so every DXT format gets lines in the log
 void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* Block)
 {
     const unsigned int Bytes = Format == TexConvert::kDxt1 ? 8u : 16u;
@@ -297,9 +297,9 @@ void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* B
                 Result != TexConvert::EResult::Exact || std::memcmp(Theirs, Ours, sizeof(Ours)) != 0;
             if (bDifferent)
                 ++G_Different;
-            if (bDifferent && G_ProbeLines < 60)
+            if (bDifferent && G_ProbeLines[Format] < 20)
             {
-                ++G_ProbeLines;
+                ++G_ProbeLines[Format];
                 std::printf("PROBE %s block", Name(Format));
                 for (unsigned int Index = 0; Index < Bytes; ++Index)
                     std::printf(" %02x", Block[Index]);
@@ -487,9 +487,9 @@ void RunSelfChecks()
     }
     const std::uint32_t Start = DecodeToArgb(TexConvert::kDxt2, Dxt2, Size, Size)[0];
     // The baseline itself, worked out by hand so a decoder broken everywhere cannot pass: colour
-    // 0x7BEF widens to R 123, G 125, B 123; alpha 8/15 is 136; DXT2 colour comes back multiplied
-    // by alpha: 123 * 136 / 255 = 65.6 -> 66 (0x42), 125 * 136 / 255 = 66.7 -> 67 (0x43).
-    SelfCheck("DXT2 block decoded", 0x88424342u, Start, 0);
+    // 0x7BEF is R 15/31, G 31/63, B 15/31; alpha 8/15 is 136; DXT2 comes back divided by alpha:
+    // (15/31) / (8/15) * 255 = 231.4 -> 231 (0xE7), (31/63) / (8/15) * 255 = 235.3 -> 235 (0xEB).
+    SelfCheck("DXT2 block decoded", 0x88E7EBE7u, Start, 0);
 
     // Two halvings (16 to 8 to 4), each re-encoded into DXT2.
     std::vector<unsigned char> Current = Dxt2;
