@@ -73,7 +73,7 @@ Who requests which interfaces from whom in `Initialize`:
 A single `DirectX8` object provides eight interfaces at once (each is its own sub-object with its own vtable):
 `IRenderPipeline8B`, `IVertexBufferManager`, `IRPDraw`, `IRPIndexBuffer`, `IRPVertexBuffer`,
 `IGammaControl`, `IRPTexture`, `IAggregateComponent`. The main interface has 77 slots; slot names,
-signatures and retail addresses are in `src/include/render/IRenderPipeline.h`, `slots.h` and in the
+signatures and retail addresses are in `src/include/render/IRenderPipeline.h` and in the
 decomp-tracker cards. A method name is known only where the body of the retail function contains an `FDUMP` string with it.
 
 Device lifecycle:

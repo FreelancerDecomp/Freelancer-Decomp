@@ -60,8 +60,6 @@
     <ClInclude Include="..\include\dacom.h" />
     <ClInclude Include="..\include\render\IBigImage2.h" />
     <ClInclude Include="..\include\render\factory_names.h" />
-    <ClInclude Include="..\include\render\render.h" />
-    <ClInclude Include="..\include\render\slots.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ximage.cpp" />

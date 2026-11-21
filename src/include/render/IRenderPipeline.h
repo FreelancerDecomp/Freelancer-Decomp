@@ -35,6 +35,37 @@ static constexpr char kRp9ComponentName[] = "DirectX9";
 // deformable2, flmaterials, rendcomp, rp8, shading, DALib); their error texts name the IID macro
 // "IID_IRenderPipeline" ("Alchemy: init: unable to acquire IID_IRenderPipeline"). "8B" is the
 // IID's version suffix, not part of the type name.
+
+namespace Render
+{
+    // IRenderPipeline::QueryDeviceAbility indices (RP8 FUN_06d19530). 0-3, 19 and 20 have no
+    // strings. Formerly in render/slots.h.
+    enum EDeviceAbility
+    {
+        AbilitySlot0 = 0,
+        AbilitySlot1 = 1,
+        AbilitySlot2 = 2,
+        AbilitySlot3 = 3,
+        DeviceGeometry = 4,
+        TextureSquareOnly = 5,
+        TextureMaxWidth = 6,
+        TextureMaxHeight = 7,
+        TextureCubemaps = 8,
+        DepthBias = 9,
+        FogVertex = 10,
+        FogPixel = 11,
+        FogRange = 12,
+        FogW = 13,
+        RasterAntialiasEdges = 14,
+        DeviceSupportLevel = 15,
+        TextureTrilinear = 16,
+        DeviceBadMode = 17,
+        DeviceBad4444 = 18,
+        AbilitySlot19 = 19,
+        AbilitySlot20 = 20,
+    };
+}
+
 struct IRenderPipeline : IDAComponent
 {
     // slot 3

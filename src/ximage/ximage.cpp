@@ -6,7 +6,7 @@
 
 #include "dacom.h"
 #include "ximage.h"
-#include "render/render.h"
+#include "render/factory_names.h"
 #include "render/IRenderPipeline.h"
 #include "render/shading.h"
 

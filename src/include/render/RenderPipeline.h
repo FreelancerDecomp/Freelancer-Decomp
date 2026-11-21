@@ -9,87 +9,10 @@
 #include "dacom.h"
 #include "render/IRenderPipeline.h"
 
-// Pipeline / library slot numbers from docs/re/render.md and docs/re/shading.md.
-// Call through the live vtable. Do not invent C++ method names for unnamed slots.
-
-static constexpr int kPipelineQueryDeviceAbility = 8;     // +0x20
-static constexpr int kPipelineSetModelview = 31;          // +0x7C
-static constexpr int kPipelineSetPerspective = 37;        // +0x94
-static constexpr int kPipelineSetMaterial = 43;           // +0xAC
-static constexpr int kPipelineGetMaterial = 44;           // +0xB0
-static constexpr int kPipelineGetRenderState = 61;        // +0xF4
-static constexpr int kPipelineSetRenderState = 60;        // +0xF0
-static constexpr int kPipelineSetTextureStageState = 62;  // +0xF8
-static constexpr int kPipelineGetTextureStageState = 63;  // +0xFC (EnvMap: unnamed counterpart to
-                                                       // SetTextureStageState +0xF8, used by
-                                                       // LAB_066F5AF0 to probe which of stage
-                                                       // 0/1 already carries TSS type 1 == 1
-                                                       // before picking the stage to apply the
-                                                       // dynamic envmap TSS pair at)
-static constexpr int kPipelineSetTextureStageTransform = 64; // +0x100
-static constexpr int kPipelineSetTextureStageTexture = 66;   // +0x108
-static constexpr int kPipelineVerifyState = 68;           // +0x110
-static constexpr int kPipelineDrawPrimitiveVb = 71;       // +0x11C
-static constexpr int kPipelineDrawIndexedPrimitiveVb = 72; // +0x120
-// The two 3DMathEngine slot numbers that used to live here are gone: that component is not
-// part of the render pipeline and its interface is declared in src/include/x86math.h.
-static constexpr int kVbMgrLockVertexMemory = 5;          // +0x14
-static constexpr int kVbMgrUnlockVertexMemory = 6;        // +0x18
-static constexpr int kVbMgrFillVertexMemory = 8;          // +0x20 (VertexBufferManager's
-                                                       // OWN slot 8 -- a DIFFERENT interface than
-                                                       // Pipeline's slot 8/kPipelineQueryDeviceAbility
-                                                       // despite the same slot number. Confirmed via
-                                                       // a full manual push-by-push trace of
-                                                       // FlmFillMeshAndDraw (flmaterials.dll.txt
-                                                       // 14766-14816) and the byte-identical
-                                                       // Exclusion/Glass Slot10 fallbacks: takes
-                                                       // (VbMgr, DestBase, Fvf, Mesh, Start, Count)
-                                                       // and has the VB manager itself walk the
-                                                       // Mesh's own vertex arrays into the locked
-                                                       // buffer -- replaces the earlier NomadCopyMesh
-                                                       // CPU-fill stand-in these call sites used.
-static constexpr int kEngineGetInstanceTransform = 40;    // +0xA0
-static constexpr int kEngineGetInstanceHandle = 25;       // +0x64
-static constexpr int kEngineReleaseHandle = 15;           // +0x3C
-// CORRECTED 2026-09-17 (cross-DLL ABI pass 40). Slot 49 is IEngine::GetInstanceRelative, not
-// a parent getter -- IEngine's own published table (src/include/engine/engbase.h) puts
-// GetInstanceParent at slot 53, and this constant's own comment below already describes the
-// relative getter's body: EngBase's EngineGetInstanceRelative is exactly
-// `parent == nullptr ? nullptr : Instance->Relative`. The old name said "GetParent".
-static constexpr int kEngineGetInstanceRelative = 49;     // +0xC4 (parent ? inst+0x5C : 0)
-static constexpr int kEngineGetRoot = 55;                 // +0xDC (root via +0x10)
-static constexpr int kEngineQueryInstance = 30;           // +0x78 (src/include/engine/engbase.h:66;
-                                                       // IEngine->QueryInstance(
-                                                       // inst, iid, &out); flmaterials Wire's own Slot10
-                                                       // calls this to fetch IVMeshWire/IMesh off
-                                                       // G_FlmEngineOuter)
-static constexpr int kRendererGetExtents = 4;             // +0x10
-
-static constexpr int kMaterialLibraryFindOrCreate = 15; // +0x3C
-static constexpr int kMaterialLibrarySlot18 = 18;       // +0x48
-static constexpr int kMaterialLibrarySlot23 = 23;       // +0x5C
-static constexpr int kMaterialLibrarySlot25 = 25;       // +0x64
-
-static constexpr int kMatAnimLibrarySlot5 = 5; // +0x14
-
-static constexpr int kBatchedSlot6 = 6;  // +0x18
-static constexpr int kBatchedSlot7 = 7;  // +0x1C (Shadow's
-                                      // own Slot9, LAB_066fa530 — called on the QI'd
-                                      // IBatchedMaterial on success; a different slot than
-                                      // kBatchedSlot6, used by Backdrop/Cloak's own Candidate
-                                      // dance — confirms per-caller slot choice, not a fixed one)
-static constexpr int kBatchedSlot8 = 8;  // +0x20
-static constexpr int kBatchedSlot17 = 17; // +0x44
-static constexpr int kBatchedSlot18 = 18; // +0x48
-
-// The pipeline is IRenderPipeline (rp8.dll), so these are ordinary virtual calls now --
-// the kPipeline* slot numbers above are kept only as the documented offset map, and the
-// arity of each one is whatever src/include/render/IRenderPipeline.h declares.
-inline GENRESULT PipelineQueryDeviceAbility(IRenderPipeline* Pipeline, unsigned long Index,
-                                            unsigned long* Out)
-{
-    return Pipeline->QueryDeviceAbility(static_cast<unsigned int>(Index), Out);
-}
+// Thin wrappers over IRenderPipeline's typed methods, kept for their callers' int / unsigned long
+// bridging and the table-walk helpers. Slot numbers live only in the typed vtable
+// (render/IRenderPipeline.h); the kPipeline* / kEngine* / kVbMgr* slot constants that used to
+// sit here had no remaining users.
 
 inline GENRESULT PipelineSetModelview(IRenderPipeline* Pipeline, const float* Matrix12)
 {
@@ -104,34 +27,10 @@ inline GENRESULT PipelineDrawPrimitiveVb(IRenderPipeline* Pipeline, unsigned lon
                                      static_cast<unsigned int>(Count), Unused);
 }
 
-// Slot 72 takes SEVEN arguments, not six: FUN_06d10e4b ends in RET 0x20, so the callee pops
-// eight dwords, and every retail caller pushes eight (shading.dll 0x06eb328a, 0x06eb3c0f,
-// 0x06eb5915, 0x06eba8ff all open with PUSH 0x0). This wrapper used to push seven, leaving
-// the __stdcall stack four bytes short on every indexed draw that went through it.
-inline GENRESULT PipelineDrawIndexedPrimitiveVb(IRenderPipeline* Pipeline, unsigned long Prim,
-                                                 void* Vb, unsigned long StartVertex,
-                                                 unsigned long VertCount, void* Indices,
-                                                 unsigned long IndexCount)
-{
-    return Pipeline->DrawIndexedPrimitiveVb(Prim, Vb, static_cast<unsigned int>(StartVertex),
-                                            static_cast<unsigned int>(VertCount), Indices,
-                                            static_cast<unsigned int>(IndexCount), 0);
-}
-
 inline GENRESULT PipelineSetPerspective(IRenderPipeline* Pipeline, float FovDeg, float Aspect,
                                          float NearPlane, float FarPlane)
 {
     return Pipeline->SetPerspective(FovDeg, Aspect, NearPlane, FarPlane);
-}
-
-inline GENRESULT PipelineSetMaterial(IRenderPipeline* Pipeline, const D3DMATERIAL8* Block)
-{
-    return Pipeline->SetMaterial(Block);
-}
-
-inline GENRESULT PipelineGetMaterial(IRenderPipeline* Pipeline, D3DMATERIAL8* Block)
-{
-    return Pipeline->GetMaterial(Block);
 }
 
 inline GENRESULT PipelineSetRenderState(IRenderPipeline* Pipeline, D3DRENDERSTATETYPE State,

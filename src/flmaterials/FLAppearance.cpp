@@ -953,7 +953,7 @@ namespace
     {
         (void)D;
         unsigned long Ability = 0;
-        PipelineQueryDeviceAbility(Appearance->Pipeline_, 9, &Ability);
+        Appearance->Pipeline_->QueryDeviceAbility(Render::DepthBias, &Ability);
         if (Ability == 0)
             return (GENRESULT)-1;
         const int InstanceCount = (int)((unsigned long)(C));
