@@ -15,11 +15,16 @@ X1R5G5B5, A4R4G4B4, A1R5G5B5, A8R8G8B8, X8R8G8B8, and DXT1 to DXT5.
 
 RP8 calls D3DX in two ways, and TexConvert's two paths follow them.
 
-| Path | When | RP8's D3DX call | Parity |
+| Path | When | RP8's D3DX call | Parity goal |
 |---|---|---|---|
 | Exact | same size, uncompressed target | `D3DX_FILTER_NONE`: a per-pixel format conversion | byte for byte with D3DX 8.1 |
-| Exact | same size, DXT into the same DXT format | the same | a block copy |
-| Filtered | different size, or a DXT target from another format | `D3DX_FILTER_TRIANGLE`, D3DX's DXT compressor | within a tolerance |
+| Exact | same size, the same format | the same | a byte copy, or a block copy for DXT |
+| Filtered | different size, or a DXT target from another format | `D3DX_FILTER_TRIANGLE`, D3DX's DXT compressor | close to D3DX, not identical |
+
+These are goals. TexConvertTest reports where the exact path does not match D3DX yet. On the
+filtered path it measures only DXT compression at the same size: the largest channel difference
+on one fixed image with partial alpha must stay within 24. Resized loads are not measured until
+the step 4.2 screenshot comparison.
 
 At the default texture detail, textures load at their own size, so the game uses the exact
 path. Lower detail settings shrink textures, and only then does the filtered path run.
