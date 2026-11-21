@@ -17,6 +17,12 @@ equal the Win32 output ([x64.md](x64.md)).
 Layout checks (`FL_LAYOUT_ASSERT`: struct sizes and field offsets against retail) and the FLDedicated
 start-and-stop job ([dedicated_server.md](dedicated_server.md)) complete the checks.
 
+Some pure functions are checked at compile time with `static_assert`, in the header that defines
+them, so every module that includes the header runs the checks when it builds: `MsvcrtAtoi`
+(`src/include/msvcrt_compat.h`, against measurements of msvcrt.dll) and RP8's ini number parser
+and FVF stride (`src/include/render/rp8_semantics.h`, shared by RP8, RP9 and RPGPU). A failing
+case is a build error.
+
 ## RpcCodecTest
 
 `RpcCodecTest.exe` compiles the packet codecs of `RemoteClient.dll`, the server's side of the
