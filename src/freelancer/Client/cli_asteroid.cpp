@@ -21,7 +21,7 @@
 #include "engine_light.h"
 #include "game_options.h"
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach (port-only Direct3D 9 nebula)
+#include "nebula_volume.h" // NebulaVolume::AsteroidSpawnReach PORT(rp9)
 #endif
 #include "render/RenderPipeline.h"
 #include "render/mesh_iface.h"
@@ -52,7 +52,7 @@ struct FCliAsteroidExclusionInline
     }
 
 #ifdef FREELANCER_RP9
-    // Port-only (CliAsteroidTickOne's extended spawn distance under the volumetric nebula):
+    // PORT(rp9) (CliAsteroidTickOne's extended spawn distance under the volumetric nebula):
     // the squared value as stored, read and put back around one near-field draw.
     static float GetMaxCliDistSq(Exclusion::AsteroidExclusionZoneMgr const* Mgr)
     {
@@ -2172,7 +2172,7 @@ namespace
         }
 
         // 0x00522782..0x005227c1: that offset plus the camera position (vt+0xc), then
-        // FUN_005554d0(point, 250.0f, camera, +0xd4, factor bits, 1). (Port-only, FREELANCER_RP9:
+        // FUN_005554d0(point, 250.0f, camera, +0xd4, factor bits, 1). (PORT(rp9):
         // while the Direct3D 9 volumetric nebula draws the controller, StarSysApplyObjectLighting
         // skips its fog block -- NebulaVolume::ReplacesObjectFog -- the ambient lerp stays.)
         float const* const CamPos = Camera->GetPosition();
@@ -2639,7 +2639,7 @@ namespace
     // common field (+0x04) and the byte +0x00; nothing on the camera, the zone, the pipeline or
     // the vertex-buffer manager.
 #ifdef FREELANCER_RP9
-    // Port-only parameters (CliAsteroidTickOne, the volumetric nebula's extended spawn
+    // PORT(rp9): parameters (CliAsteroidTickOne, the volumetric nebula's extended spawn
     // distance): FillOverride > 0 replaces the fill distance (fill_dist * detail) of the cube
     // walk, FadeBandOverride > 0 the width of the alpha fade before the reach (retail: half a
     // cube). Both 0: retail exactly.
@@ -2671,7 +2671,7 @@ namespace
         float const FovY =
             static_cast<float>(static_cast<double>(Camera->GetFovYDeg()) * 0.017453292f);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: slot 6 keeps the 4:3 angle, but the side planes of this cull cone must
+        // PORT(widescreen): slot 6 keeps the 4:3 angle, but the side planes of this cull cone must
         // match the frustum, whose horizontal tangent is tan(fovy) * aspect.
         float const HalfFovX = static_cast<float>(
             atan(tan(static_cast<double>(FovY)) * static_cast<double>(Camera->GetAspect())));
@@ -2842,7 +2842,7 @@ namespace
 #ifdef FREELANCER_RP9
         double const ReachD = Fill + Margin; // retail: FILD +0x24 * +0x230 + margin, = Fill
         float const Reach = static_cast<float>(ReachD);
-        // Port-only: the fade band of the extended spawn distance (retail: half a cube).
+        // PORT(rp9): the fade band of the extended spawn distance (retail: half a cube).
         double const FadeWidth =
             FadeBandOverride > 0.0 ? FadeBandOverride : static_cast<double>(HalfCube);
         float const FadeStart = static_cast<float>(ReachD - FadeWidth);
@@ -3057,7 +3057,7 @@ namespace
     }
 
 #ifdef FREELANCER_RP9
-    // Port-only: CAsteroidField::near_field (Common .text:062a53c0) with an extended fill
+    // PORT(rp9): CAsteroidField::near_field (Common .text:062a53c0) with an extended fill
     // distance -- the margin (cube + fill) * 1.74f around the zone, the zone's extent along the
     // line to its centre. The common field's own FillDist is left alone (it also drives the
     // server-side asteroid population).
@@ -3099,7 +3099,7 @@ namespace
         CamPos.z = Pos3[2];
 
 #ifdef FREELANCER_RP9
-        // Port-only: under the Direct3D 9 volumetric nebula (nebula_volume.cpp) the haze is far
+        // PORT(rp9): under the Direct3D 9 volumetric nebula (nebula_volume.cpp) the haze is far
         // thinner than retail's linear fog, which hid the end of the cube walk (fill_dist *
         // detail + 1.25 cubes, faded over its last half cube) and the billboards' hand-over
         // there. While a drawn nebula overlaps this field the cube walk goes out to where the
@@ -3139,7 +3139,7 @@ namespace
 #ifdef FREELANCER_RP9
             if (ExtFill > 0.0)
             {
-                // Port-only: the billboards fade in over the cubes' extended fade band (retail:
+                // PORT(rp9): the billboards fade in over the cubes' extended fade band (retail:
                 // from the fill distance to the reach, FUN_0054feb0), then the planes go back.
                 float const SavedFar = Field->Billboard.Float40;
                 float const SavedNear = Field->Billboard.Float44;
@@ -3173,7 +3173,7 @@ namespace
                 bAmbientDone = 1;
             }
 #ifdef FREELANCER_RP9
-            // Port-only: the fading cubes write depth while translucent; the volume adds the
+            // PORT(rp9): the fading cubes write depth while translucent; the volume adds the
             // medium behind them for the part they let through (their alpha reaches 0 at the
             // view depth ExtFill, see CliAsteroidDrawNearField).
             if (ExtFill > 0.0)
@@ -3182,7 +3182,7 @@ namespace
                                                static_cast<float>(Field->CubeSize));
             if (ExtFill > 0.0 && Field->ExclusionMgr != nullptr)
             {
-                // Port-only: the exclusion zones are cut off at fill * 1.25 from the camera
+                // PORT(rp9): the exclusion zones are cut off at fill * 1.25 from the camera
                 // (FUN_00524880, MaxCliDist); the extended walk needs them as far as it goes.
                 float const SavedDistSq =
                     FCliAsteroidExclusionInline::GetMaxCliDistSq(Field->ExclusionMgr);

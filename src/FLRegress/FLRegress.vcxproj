@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- FLRegress.exe: port-only headless regression harness (no retail counterpart). It starts
+  <!-- FLRegress.exe: PORT(flregress), the headless regression harness (no retail counterpart). It starts
        Server.dll as the single-player client does and dumps the game state to a text file. -->
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration>

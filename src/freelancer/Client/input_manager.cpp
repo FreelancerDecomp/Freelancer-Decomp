@@ -19,7 +19,7 @@
 
 #include "game_options.h"
 #include "globals.h"
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_command_dispatch.h"
 #include "menu_keymap_config.h"
 #include "nn_modal.h" // NnMainButtonOnUnclaimedMouse (FUN_0045a270)
@@ -665,7 +665,7 @@ namespace
     bool CursorComputeQuad(FMouseCursor const* Cursor, float* Out, int X, int Y)
     {
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: the cursor keeps its size relative to the height-scaled interface.
+        // PORT(widescreen): the cursor keeps its size relative to the height-scaled interface.
         float const SurfaceScale = static_cast<float>(
             WidescreenEquivalentSurfaceWidth() * static_cast<double>(kCursorQuadScale));
 #else

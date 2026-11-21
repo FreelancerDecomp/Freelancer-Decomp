@@ -20,7 +20,7 @@
 #include "character_select_equip.h" // FUN_004c4a30 / FUN_004c4a60
 #include "client_equip_fx.h"
 #include "client_frame_tick.h"      // FUN_00424f30 / FUN_00425080 / FUN_00425140, FUN_0041b2e0
-#include "client_tick_profile.h"    // Port-only owner-requested diagnostics
+#include "client_tick_profile.h"    // PORT(diag): owner-requested diagnostics
 #include "client_fuse.h"
 #include "client_gameobj.h"         // FClientGameobj (the player's object, FUN_0054a940)
 #include "client_objdb.h"

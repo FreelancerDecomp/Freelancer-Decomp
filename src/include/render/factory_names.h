@@ -18,7 +18,7 @@ namespace Factory
 {
     // RP8
     static constexpr char DirectX8[] = "DirectX8";
-    // RP9 (port-only Direct3D 9 mirror of RP8; docs/re/rp9.md)
+    // PORT(rp9): RP9 (Direct3D 9 mirror of RP8; docs/re/rp9.md)
     static constexpr char DirectX9[] = "DirectX9";
 
     // Shading libraries / services

@@ -3160,7 +3160,7 @@ void IVP_Complex_Mindist::change_spawned_mindist_count(int32_t Change)
 // bits 31/30 and 29..22 of uninitialised heap memory; the port starts from 0.
 // Every other field of this layer (synapse fields, +0x50..+0x58, +0x60..+0x6f)
 // is left unwritten by retail (heap garbage until init_mindist / the solver
-// write them) and is zeroed here, port-only, to stay deterministic.
+// write them) and is zeroed here to stay deterministic (PORT(deviation)).
 // ---------------------------------------------------------------------------
 IVP_Mindist_Base::IVP_Mindist_Base(IVP_Collision_Delegator* Delegator)
     : IVP_Collision(Delegator)                                   // :0634db8d-:0634dba0
@@ -3172,7 +3172,7 @@ IVP_Mindist_Base::IVP_Mindist_Base(IVP_Collision_Delegator* Delegator)
     , SeparatingNormal{ 0.0f, 0.0f, 0.0f }
     , _pad6c{}
 {
-    for (int32_t I = 0; I < 2; ++I) // port-only (LAB_0634dd00 stores the vptr only)
+    for (int32_t I = 0; I < 2; ++I) // PORT(deviation) (LAB_0634dd00 stores the vptr only)
     {
         synapse[I].HullPoolSlot = 0;
         synapse[I].next = synapse[I].prev = nullptr;
@@ -3193,7 +3193,7 @@ IVP_Mindist_Base::IVP_Mindist_Base(IVP_Collision_Delegator* Delegator)
 //   ++env->sum_of_mindists (+0x6c); ++env->mindists_generated (+0x70).
 // Named gap: ManagerNext / ManagerPrev (+0x74 / +0x78) are not written by
 // retail here (heap garbage until the mindist manager links them); the port
-// zeroes them, port-only, to stay deterministic.
+// zeroes them to stay deterministic (PORT(deviation)).
 // ---------------------------------------------------------------------------
 IVP_Ledge_Mindist::IVP_Ledge_Mindist(IVP_Environment* Environment, IVP_Collision_Delegator* Delegator)
     : IVP_Mindist_Base(Delegator)                                // :0634dd18

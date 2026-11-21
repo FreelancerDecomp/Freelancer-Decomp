@@ -62,7 +62,7 @@
       <AdditionalDependencies>dacom.lib;zlib.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <!-- Port-only (docs/dpnet.md): the x64 build hosts through DPNet, the port's own DirectPlay 8,
+  <!-- PORT(dpnet) (docs/dpnet.md): the x64 build hosts through DPNet, the port's own DirectPlay 8,
        instead of Microsoft's dpnet.dll. Win32 keeps Microsoft's, as retail. -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>

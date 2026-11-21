@@ -1,4 +1,4 @@
-// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation (port-only, not part of retail).
+// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation -- PORT(dpnet), not part of retail.
 // The [MC-DPL8CS] session layer, client/server mode; see dpnet_session.h. Section numbers refer
 // to [MC-DPL8CS] unless noted.
 

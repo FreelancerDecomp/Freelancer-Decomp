@@ -20,7 +20,7 @@
 #include "DALib.h"
 #include "game_options.h"
 #include "globals.h"
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_command_dispatch.h"
 #include "hud_targetable_objects.h"
 #include "hud_weapon_groups.h"
@@ -303,7 +303,7 @@ void HUD_Core::DrawBars(float DesignY, unsigned long Color, float Ratio)
     float const HalfThickness =
         static_cast<float>(static_cast<double>(SurfaceHeight) * kHalfThicknessPerLine);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the bars keep their 4:3 size (height-scaled) and stay centred on the
+    // PORT(widescreen): the bars keep their 4:3 size (height-scaled) and stay centred on the
     // full surface below.
     int const SegmentWidth = static_cast<int>(WidescreenEquivalentSurfaceWidth() * kSegmentWidthA *
                                               kSegmentWidthB); // ftol

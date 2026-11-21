@@ -7,7 +7,7 @@
 // a Derived object, for the {iid, offset} QueryInterface tables retail's components use.
 //
 // On Win32 it is the retail number, so the tables stay the constant data retail has. The
-// port-only x64 build (docs/x64.md) has 8-byte vtable pointers, so the facets sit at other
+// x64 build (PORT(x64), docs/x64.md) has 8-byte vtable pointers, so the facets sit at other
 // offsets; there the offset is taken from the class layout itself.
 
 #if defined(_WIN64)

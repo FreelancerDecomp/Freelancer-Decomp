@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- RpcCodecTest.exe: port-only network packet codec test (no retail counterpart). It compiles
+  <!-- RpcCodecTest.exe: PORT(tools), the network packet codec test (no retail counterpart). It compiles
        RemoteClient.dll's codec sources with RemoteClient's defines and runs every packet type's
        Encode/Decode on fixed inputs; see docs/testing.md. -->
   <ItemGroup Label="ProjectConfigurations">

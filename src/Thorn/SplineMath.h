@@ -7,7 +7,7 @@
 #pragma once
 
 #if !defined(_M_IX86)
-// Port-only x64 build (docs/x64.md): portable versions of the x87 blocks below. Each value the
+// PORT(x64): x64 build (docs/x64.md): portable versions of the x87 blocks below. Each value the
 // x87 keeps on its stack is a double; it becomes a float only where the asm stores it.
 #include <cmath>
 #endif

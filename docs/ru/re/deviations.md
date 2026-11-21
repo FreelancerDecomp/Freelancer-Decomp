@@ -8,6 +8,29 @@
 
 Различия, вытекающие из правила «No retail ABI» (современные `std::`-контейнеры вместо VC6-узлов, размеры структур), долгом не считаются и сюда не заносятся.
 
+## Функции только порта
+
+Функции, которые порт добавляет намеренно и у которых нет аналога в retail. Их код помечен
+`// PORT(<метка>)` (см. [refactoring.md](refactoring.md#код-только-порта)). Переключатели — свойства
+MSBuild в `src/Directory.Build.props` (и лист свойств «Freelancer — diagnostics»), если в строке
+не сказано иное. «Выкл.» в столбце совместимости — переключатель в 0.
+
+| Функция (метка) | Переключатель → define | По умолчанию | Где | Совместимость с retail | Документ |
+|---|---|---|---|---|---|
+| Режим ходьбы (`walk`) | `FreelancerWalkMode` → `FREELANCER_WALK_MODE` (только клиент) | 1 | `freelancer/Client/base_walk.cpp`; хуки в `gameflow`, `gf_character_object`, `input_manager`, `menu_keymap`, `nav_bar`, `nn_main_button`, `room_control`, `screen_quad_state`, `win3d*` | Выкл.: клиент как в retail. Вкл.: управление Трентом на базах, только на клиенте; сохранения, сервер и пакеты не меняются | [walk_mode.md](../walk_mode.md) |
+| Широкий экран (`widescreen`) | `FreelancerWidescreenSupport` → `FREELANCER_WIDESCREEN_SUPPORT` (только клиент) | 1 | `freelancer/Client/widescreen.h`, `hud_widescreen.*`; камеры, HUD, шрифты, навкарта, страница настроек, `win3d.cpp` | Выкл.: клиент retail 4:3. Вкл.: камеры Hor+ и разрешения устройства; интерфейс остаётся 4:3 по центру | [ниже](#клиент-широкоформатные-разрешения-камеры-hor-widescreen-2026-10-16), [hd_edition.md](../hd_edition.md) |
+| Конвейер Direct3D 9 и объёмная туманность (`rp9`) | `FreelancerRp9` → `FREELANCER_RP9` (хуки клиента); `RP9.vcxproj` при 0 ничего не собирает | 0 | `src/RP9`, `freelancer/Client/render_ex.cpp`, `nebula_volume.cpp`; хуки в `cli_nebula`, `cli_asteroid`, `space_scene_obj_draw`, `star_sphere`, `star_sys`, `client_gameobj`, `engine_init`, `main` | Выкл.: ни RP9.dll, ни хуки не собираются. Вкл.: RP9 работает, только если `DACOM.INI` выбирает `DirectX9`; с RP8 каждый хук идёт путём retail | [rp9.md](rp9.md) |
+| Конвейер SDL3 + SDL_GPU (`rpgpu`) | Собирается, если найден vcpkg; выбирается в `DACOM.INI` | Выбран RP8 | `src/RPGPU` | Отдельный рендер за IID RP8; другие модули не меняются | [rpgpu.md](../../re/rpgpu.md) |
+| Диагностика (`diag`) | `FreelancerBetaLabel` → `FREELANCER_BETA_LABEL`; `FreelancerEnableTickProfile` → `FREELANCER_ENABLE_TICK_PROFILE`; эхо FDUMP включено всегда | 0, 0 | `freelancer/Client/client_tick_profile.*`, `client_frame_tick.cpp`, `include/common_tick_profile.h`, `Common/physics_tick_profile.h`, окружение IVP, `Common/common_errorhandler.cpp` | Оба выкл.: ничего не рисуется. Добавляет экспорт порта `PhySys::SetTickProfile`; эхо FDUMP пишет ещё и в отладчик | [ниже](#клиент-метка-beta-и-экранный-профайлер-client-beta-label-2026-10-12), [FdumpHook](#commondll-errorhandlerfdumphook-дополнительный-вывод-в-отладчик-2026-09-27) |
+| Побочные индексы (`perf-index`) | Нет: компилируются всегда | Вкл. | `freelancer/Client/client_objdb.cpp`, `Server/server_classes.cpp`, `include/server_sysdb.h`, `Common/common_cobject.cpp` (+ вызывающие `ClassListKeysChanged`), `SoundManager/SoundManager.cpp` | Те же результаты в том же порядке, что у обходов retail, на которые они отвечают; контейнеры, раскладки и пакеты не меняются; сборки `_DEBUG` сверяют с обходом | [scaling.md](../../scaling.md), часть A |
+| Сборка x64 (`x64`) | `Platform=x64` | Win32 | ветви `_WIN64` / не `_M_IX86`; `include/x64_low_arena.h`, `x87_portable.h`, `x87_trig.h`, `facet_offset.h`, `fl_layout.h` | Вывод Win32 не меняется (CI сравнивает FLRegress и RpcCodecTest). Модули x64 не смешиваются с DLL retail; сетевой протокол тот же | [x64.md](../../x64.md) |
+| DPNet (`dpnet`) | `FREELANCER_DPNET`, задаётся `DALib.vcxproj` для x64 | Только x64 | `src/DPNet`, `DALib/DPNetAdapter.*`, `DALib/CDPServer.cpp`, `src/DPNetCheck` | Win32 остаётся на `dpnet.dll` Microsoft; сервер x64 совместим по проводу с клиентами retail | [dpnet.md](../../dpnet.md) |
+| FLRegress (`flregress`) | Своя программа | Собирается | `src/FLRegress` | Ни один модуль retail не меняется | [flregress.md](../../flregress.md) |
+| FLDedicated (`dedicated`) | Своя программа | Собирается | `src/FLDedicated` | Грузит те же модули, что FLServer.exe; клиенты retail видят тот же сервер | [dedicated_server.md](../../dedicated_server.md) |
+| Тестовые инструменты (`tools`) | Свои программы | Собираются | `src/RpcCodecTest`, `src/MemoryDiagnostics` | Ни один модуль retail не меняется | [testing.md](../../testing.md), [memory_diagnostics.md](../memory_diagnostics.md) |
+| Слой платформы (без метки) | Нет | Вкл. | `include/platform.h`, `platform_folders.h` | Каждая функция — тот же единственный вызов Win32, что делал retail, с теми же аргументами | [platform.md](../../platform.md) |
+| Защита от второго экземпляра (`deviation`) | `FL_SINGLE_INSTANCE` (никто не задаёт) | Не задан: защиты нет | `freelancer/Client/main.cpp` | На одной машине можно запустить несколько клиентов; define возвращает retail | [ниже](#клиент-защита-от-второго-экземпляра-за-fl_single_instance) |
+
 ## Клиент: метка Beta и экранный профайлер (CLIENT-BETA-LABEL, 2026-10-12)
 
 Статус: ЖИВО — намеренное отклонение по прямому запросу владельца. Владелец: Giperion; freelancer.exe / Client и Common.dll / IVP. Условие снятия: только явное указание Giperion; при аудите retail, смене версии и завершении портирования запись не закрывать.

@@ -173,9 +173,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: freelancer-release-x64
+          # The dev ini and character files: the build copies them from bin\ (copy_dev_ini.py).
           path: |
             bin_x64/*.exe
             bin_x64/*.dll
+            bin_x64/*.ini
+            bin_x64/*.txt
+            bin_x64/*.fl
             bin_x64/*.pdb
           if-no-files-found: error
           retention-days: 14
@@ -566,11 +570,6 @@ jobs:
         with:
           name: freelancer-release-x64
           path: bin_x64
-
-      # The development ini and character files the server reads live only in bin\.
-      - name: Copy the server's ini files
-        shell: pwsh
-        run: Copy-Item bin/*.ini, bin/*.txt, bin/*.fl bin_x64/
 
       - name: Enable DirectPlay
         shell: pwsh

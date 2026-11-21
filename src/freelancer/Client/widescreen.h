@@ -6,7 +6,7 @@
 
 #pragma once
 
-// Port-only widescreen support (FREELANCER_WIDESCREEN_SUPPORT). Retail ships 4:3 only: the
+// PORT(widescreen): widescreen support (FREELANCER_WIDESCREEN_SUPPORT). Retail ships 4:3 only: the
 // options page lists 4:3 modes (FUN_004af120 tests Width * 3 == Height * 4) and every camera
 // keeps its horizontal half-angle fixed while the viewport aspect changes, so a wider surface
 // loses picture at the top and bottom ("Vert-"). With the define the cameras go "Hor+": the

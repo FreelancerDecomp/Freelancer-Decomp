@@ -1,4 +1,4 @@
-// Freelancer Decomp: RpcCodecTest, the network packet codec test (port-only, not part of retail).
+// Freelancer Decomp: RpcCodecTest, the network packet codec test -- PORT(tools), not part of retail.
 //
 // Compiles the packet codecs of RemoteClient.dll (the server's network side: rpc_client_packets.cpp
 // and src/RemoteCommon) with RemoteClient's own defines, registers every packet type the way

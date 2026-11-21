@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- FLDedicated.exe: port-only console dedicated server (no retail counterpart). It runs
+  <!-- FLDedicated.exe: PORT(dedicated), a console dedicated server (no retail counterpart). It runs
        Server.dll with RemoteClient.dll as FLServer.exe does, without MFC or windows. -->
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration>
@@ -51,6 +51,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FLDedicated.cpp" />
+    <!-- The host shared by FLServer and FLDedicated (docs/dedicated_server.md). -->
+    <ClCompile Include="..\ServerHost\server_host.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\server_host.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FLDedicated.rc" />

@@ -1,4 +1,4 @@
-# DPNet: a DirectPlay 8 protocol implementation (port-only, not part of retail). See docs/dpnet.md.
+# DPNet: a DirectPlay 8 protocol implementation -- PORT(dpnet), not part of retail. See docs/dpnet.md.
 #
 # Plain portable C++20 with no Windows headers, so it builds on its own anywhere:
 #     cmake -S src/DPNet -B build/dpnet && cmake --build build/dpnet && ctest --test-dir build/dpnet
