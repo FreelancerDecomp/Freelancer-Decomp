@@ -10,7 +10,7 @@
 Deformable2, RendComp, ximage) не меняются: они ищут интерфейсы по IID.
 
 Сборка — переключатель `FreelancerRp9` (`-DFreelancerRp9=1`, [building.md](../../building.md#switches)),
-по умолчанию `0`. При `0` `src/RP9/CMakeLists.txt` не определяет модуль
+по умолчанию `0`; `RP9.dll` только для Win32 (на x64 переключатель ничего не собирает). При `0` `src/RP9/CMakeLists.txt` не определяет модуль
 (нет `RP9.dll`, DirectX SDK June 2010 не нужен), а клиентские хуки Ex
 (`render_ex.*`, `nebula_volume.*` и их вызовы в `cli_asteroid`, `cli_nebula`, `client_gameobj`,
 `engine_init`, `main`, `space_scene_obj_draw`, `star_sphere`, `star_sys`) стоят под

@@ -35,7 +35,16 @@ if(CMAKE_HOST_WIN32)
     # (GitHub's Windows runners) or Visual Studio's own copy.
     foreach(_root "$ENV{VCPKG_ROOT}" "$ENV{VCPKG_INSTALLATION_ROOT}" "$ENV{VSINSTALLDIR}VC/vcpkg")
       if(_root AND EXISTS "${_root}/scripts/buildsystems/vcpkg.cmake")
-        file(TO_CMAKE_PATH "${_root}/scripts/buildsystems/vcpkg.cmake" CMAKE_TOOLCHAIN_FILE)
+        file(TO_CMAKE_PATH "${_root}/scripts/buildsystems/vcpkg.cmake" _fl_toolchain)
+        # A toolchain only takes effect in a new build tree: CMake keeps the one the tree was
+        # first configured with.
+        if(DEFINED CACHE{CMAKE_CXX_COMPILER})
+          message(FATAL_ERROR "A vcpkg module was turned on in a build tree configured without "
+                              "vcpkg. Configure it afresh, keeping the switch: cmake --fresh "
+                              "--preset <preset> -DFreelancerRpGpu=${FreelancerRpGpu}")
+        endif()
+        set(CMAKE_TOOLCHAIN_FILE "${_fl_toolchain}" CACHE FILEPATH "vcpkg's toolchain file")
+        set(_fl_vcpkg_ours ON CACHE INTERNAL "CMAKE_TOOLCHAIN_FILE is vcpkg's, set by this file")
         break()
       endif()
     endforeach()
@@ -44,6 +53,14 @@ if(CMAKE_HOST_WIN32)
     set(VCPKG_MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE PATH "")
     # The manifest features of every module that is on: they all install into one folder.
     set(VCPKG_MANIFEST_FEATURES "${_fl_vcpkg_features}" CACHE STRING "" FORCE)
+    # Nothing on: no install step. A module copies the package DLLs it needs itself (RPGPU), so
+    # vcpkg's own copy step after each link is not used.
+    if(_fl_vcpkg_features)
+      set(VCPKG_MANIFEST_INSTALL ON CACHE BOOL "" FORCE)
+    else()
+      set(VCPKG_MANIFEST_INSTALL OFF CACHE BOOL "" FORCE)
+    endif()
+    set(VCPKG_APPLOCAL_DEPS OFF CACHE BOOL "" FORCE)
   endif()
 endif()
 
@@ -75,3 +92,6 @@ endif()
 foreach(_project IN LISTS FL_PROJECTS)
   add_subdirectory(src/${_project})
 endforeach()
+
+# The dev *.ini files of bin\ into every other output directory (cmake/Freelancer.cmake).
+fl_copy_dev_ini()

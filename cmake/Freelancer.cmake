@@ -44,7 +44,9 @@ if(NOT FL_WINDOWS)
   set(FL_BIN_DIR "${CMAKE_BINARY_DIR}/bin")
   option(FL_SANITIZE "AddressSanitizer and UndefinedBehaviorSanitizer for the portable modules" OFF)
   if(FL_SANITIZE)
-    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+    # No recovery: undefined behaviour stops the test with a failure instead of a warning.
+    add_compile_options(-fsanitize=address,undefined -fno-sanitize-recover=all
+                        -fno-omit-frame-pointer)
     add_link_options(-fsanitize=address,undefined)
   endif()
 
@@ -80,7 +82,7 @@ if(NOT FL_WINDOWS)
     target_include_directories(${name} PRIVATE "${FL_SRC_DIR}/include" "${FL_SRC_DIR}/IVP")
     target_compile_definitions(${name} PRIVATE FREELANCER_ENABLE_TICK_PROFILE=0)
     target_compile_options(${name} PRIVATE
-      "SHELL:-include ${FL_SRC_DIR}/include/fl_layout.h"
+      "SHELL:-include \"${FL_SRC_DIR}/include/fl_layout.h\""
       $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wextra>)
   endfunction()
 
@@ -107,7 +109,7 @@ endif()
 # ---------------------------------------------------------------------------------------------
 # Windows (MSVC): platforms and configurations, as Freelancer.sln has them.
 # ---------------------------------------------------------------------------------------------
-if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "X86")
   set(FL_PLATFORM Win32)
   set(FL_WIN32 TRUE)
   set(FL_X64 FALSE)
@@ -124,6 +126,14 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQU
 else()
   message(FATAL_ERROR "Freelancer builds for Win32 (x86) or x64: configure from an x86 or x64 "
                       "Developer Command Prompt, or use the presets in CMakePresets.json.")
+endif()
+# The presets name the platform they are for; the compiler comes from the developer prompt, which
+# the command line does not check against the preset (its architecture is only a hint for IDEs).
+set(FL_EXPECTED_PLATFORM "" CACHE STRING "Win32 or x64: fail when the compiler targets another")
+if(FL_EXPECTED_PLATFORM AND NOT FL_EXPECTED_PLATFORM STREQUAL FL_PLATFORM)
+  message(FATAL_ERROR "This preset builds ${FL_EXPECTED_PLATFORM}, but the compiler targets "
+                      "${FL_PLATFORM}: configure from the matching Developer Command Prompt "
+                      "(vcvarsall.bat x86 for Win32, x64 for x64).")
 endif()
 if(CMAKE_GENERATOR MATCHES "^Visual Studio")
   message(FATAL_ERROR "Use the Ninja generator (see CMakePresets.json): the Visual Studio "
@@ -873,9 +883,9 @@ endfunction()
 
 # Every output directory except bin\ (bin_debug\, binasan\, bin_x64\, bin_x64_debug\) gets the
 # dev *.ini and character files of bin\, with the absolute bin\ paths rewritten
-# (src/copy_dev_ini.py). dacom does it (Directory.Build.targets): every configuration and
-# platform builds it, and the server and client tools all depend on it.
-function(fl_copy_dev_ini name)
+# (src/copy_dev_ini.py). A target of its own that runs on every build, as MSBuild's step after
+# each build did, so an edit to a file in bin\ reaches the copies without relinking anything.
+function(fl_copy_dev_ini)
   find_package(Python3 COMPONENTS Interpreter)
   if(NOT Python3_Interpreter_FOUND)
     message(WARNING "Python 3 not found: the dev *.ini files are not copied into bin_*\\")
@@ -886,8 +896,8 @@ function(fl_copy_dev_ini name)
   else()
     set(_cond 1)
   endif()
-  add_custom_command(TARGET ${name} POST_BUILD
-    COMMAND "$<IF:${_cond},${Python3_EXECUTABLE};${FL_SRC_DIR}/copy_dev_ini.py;$<TARGET_FILE_DIR:${name}>,${CMAKE_COMMAND};-E;true>"
+  add_custom_target(dev_ini ALL
+    COMMAND "$<IF:${_cond},${Python3_EXECUTABLE};${FL_SRC_DIR}/copy_dev_ini.py;${FL_BIN_DIR},${CMAKE_COMMAND};-E;true>"
     COMMAND_EXPAND_LISTS VERBATIM)
 endfunction()
 

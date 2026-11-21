@@ -23,13 +23,22 @@ resource-compiler and linker options they share.
 
 ## Building on Windows
 
-From a Developer Command Prompt of the platform you build, **x86** (`vcvarsall.bat x86`) for
-Win32 or **x64** (`vcvarsall.bat x64`) for x64, at the repo root:
+From a Developer Command Prompt of the platform you build, at the repo root. Win32, from an
+**x86** prompt (`vcvarsall.bat x86`):
 
 ```
 cmake --preset release
 cmake --build --preset release
 ```
+
+x64, from an **x64** prompt (`vcvarsall.bat x64`):
+
+```
+cmake --preset release-x64
+cmake --build --preset release-x64
+```
+
+A preset whose platform does not match the prompt's compiler stops the configure step.
 
 | Preset | Platform | Output | |
 |---|---|---|---|
@@ -72,7 +81,9 @@ Port-only modules that need third-party packages (today RPGPU, with SDL3) get th
 one manifest, `src/vcpkg.json`, with a feature per module. The root `CMakeLists.txt` turns on the
 features of the modules that are on and installs them while it configures (vcpkg's toolchain
 file, found through `VCPKG_ROOT`, `VCPKG_INSTALLATION_ROOT` or Visual Studio's copy, unless
-`CMAKE_TOOLCHAIN_FILE` is given). With no such module on, vcpkg is not used at all. Without
+`CMAKE_TOOLCHAIN_FILE` is given). With no such module on, vcpkg is not used at all. CMake reads a
+toolchain file only when a build tree is first configured, so turning such a module on in a tree
+configured without vcpkg asks for `cmake --fresh --preset <preset> -D<Switch>=1`. Without
 vcpkg a module that is on is skipped with a warning, or fails the configure step with
 `-DFreelancerRequireVcpkg=ON`, as in CI.
 

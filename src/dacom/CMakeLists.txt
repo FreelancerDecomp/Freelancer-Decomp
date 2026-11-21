@@ -16,6 +16,3 @@ fl_add_module(dacom DLL RETAIL DEF ${_def}
 )
 
 fl_link(dacom)
-
-# The dev *.ini files into every output directory except bin\.
-fl_copy_dev_ini(dacom)

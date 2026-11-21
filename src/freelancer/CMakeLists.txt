@@ -2,7 +2,7 @@
 # static initialisation.
 
 # PlayerDB creates Restart.fl from NewPlayer.fl beside the executable: it is tracked in bin\ and
-# copied into the other output directories by copy_dev_ini.py (dacom's fl_copy_dev_ini).
+# copied into the other output directories by copy_dev_ini.py (the dev_ini target).
 
 fl_add_module(freelancer EXE RETAIL PCH EXPORTS
   SOURCES
