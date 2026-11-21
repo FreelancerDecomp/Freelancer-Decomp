@@ -506,6 +506,26 @@ jobs:
           }
           if ($check -ne 0) { throw "DPNetCheck failed (exit code $check)" }
 
+  # The x64 .def files (dacom_x64.def, Content_x64.def) repeat their Win32 twins with the C++
+  # names decorated for x64 (docs/x64.md). Their undecorated names, ordinals and flags must agree.
+  def-twins:
+    name: x64 .def files match Win32
+    runs-on: windows-2022
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare the export lists
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $undname = & $vswhere -latest -products * -find 'VC\Tools\MSVC\**\bin\Hostx64\x64\undname.exe' | Select-Object -First 1
+          if (-not $undname) { throw 'undname.exe not found' }
+          python .github/scripts/check_def_twins.py --undname $undname src
+          if ($LASTEXITCODE -ne 0) { throw 'An x64 .def file is out of step with its Win32 twin' }
+
   # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
   # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
   dpnet:
