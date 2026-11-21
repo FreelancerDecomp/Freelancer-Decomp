@@ -13,7 +13,10 @@
 struct IEngine2;
 #define FREELANCER_IENGINE2_DEFINED
 #include "engine/engbase.h"
-#include "render/IRenderPipeline.h"
+
+// DALib::Pipeline is only a pointer here; callers include render/IRenderPipeline.h (which pulls
+// in d3d8.h) themselves. Declared as a struct so the export still mangles as PAUIRenderPipeline.
+struct IRenderPipeline;
 
 // DALIB_API, FFileSystemAggDesc, FatalErrorFn / CriticalWarningFn and Startup / OpenData /
 // CloseData / Shutdown (the part MFC translation units can include).

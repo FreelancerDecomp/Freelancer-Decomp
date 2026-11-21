@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "readfile.h" // FFileSystemDesc, the layout ReadFile reads
 #include <cstddef>
 #include "dacom.h"

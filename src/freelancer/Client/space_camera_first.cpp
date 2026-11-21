@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "common_cobject.h"   // CompoundInstanceAnalyze
 #include "common_csys.h"      // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_goods.h"     // FindHardpoint_PS, HardpointInfo

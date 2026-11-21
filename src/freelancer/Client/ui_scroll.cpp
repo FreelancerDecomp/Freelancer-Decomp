@@ -20,6 +20,7 @@
 
 #include "dacom.h"
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "x86math.h"
 
 #include <string.h>

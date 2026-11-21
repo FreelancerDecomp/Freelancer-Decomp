@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <windows.h> // FILETIME, WIN32_FIND_DATAA
 
 // Digital Anvil FileSystem AGGDESC (size 0x30 or 0x34). DALib::OpenData / ReadFile.dll.c.
 struct FFileSystemDesc

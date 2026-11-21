@@ -14,6 +14,7 @@
 #include <new>
 #include <memory>
 #include <string>
+#include <windows.h>
 
 // DllMain FUN_06f3b8b0 — docs/re/thorn.md (boot, RegisterComponent ×15, Lua 3.2).
 // Retail PE export table is empty: no .def, no exported names.

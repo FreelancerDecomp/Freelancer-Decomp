@@ -19,6 +19,7 @@
 #include <map>
 #include <string>
 #include <cstdint>
+#include <windows.h>
 
 #if !defined(_M_IX86)
 #include "ThornX87.h"
