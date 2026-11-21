@@ -542,13 +542,15 @@ void RunProbes(IDirect3DDevice8* Device)
 
 int main()
 {
+    // The self-checks need no device: they run, and count, even without one.
+    RunSelfChecks();
     FDevice D3d;
     if (!CreateDevice(&D3d))
     {
-        std::printf("TexConvertTest: no Direct3D 8 device; nothing compared\n");
-        return 2;
+        std::printf("TexConvertTest: no Direct3D 8 device; only the self-checks ran (%d compared, %d different)\n",
+                    G_Compared, G_Different);
+        return G_Different != 0 ? 1 : 2;
     }
-    RunSelfChecks();
     RunProbes(D3d.Device);
     const unsigned int EncodeTargets[] = {TexConvert::kDxt1, TexConvert::kDxt2, TexConvert::kDxt3,
                                           TexConvert::kDxt4, TexConvert::kDxt5};
