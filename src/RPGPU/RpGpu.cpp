@@ -575,6 +575,7 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
         Backend_.reset();
         bBuffersActive_ = false;
         bModesLoaded_ = false;
+        Modes_.clear(); // a failed query on the new backend must not report the old one's modes
     }
     ResetStateToDefaults();
     bStarted_ = true;
