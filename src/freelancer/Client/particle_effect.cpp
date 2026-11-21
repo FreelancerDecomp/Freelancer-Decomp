@@ -434,7 +434,7 @@ unsigned char FParticleEffect::UpdateVisibility(float Dt, FSpaceCamera* Cam)
         {
             // 0x004f8762: vt+0x18c with a zeroed out-dword.
             unsigned DrawStateB = 0;
-            unsigned const DrawStateA = Watched->Slot18c(&DrawStateB);
+            std::uintptr_t const DrawStateA = Watched->Slot18c(&DrawStateB);
             if (DrawStateA == 0)
             {
                 // 0x004f877d: outside every field while the camera is fully inside one.
@@ -444,7 +444,7 @@ unsigned char FParticleEffect::UpdateVisibility(float Dt, FSpaceCamera* Cam)
             else
             {
                 // 0x004f8798: inside another field than the camera's.
-                if (DrawStateA != static_cast<unsigned>(reinterpret_cast<uintptr_t>(Field)))
+                if (DrawStateA != reinterpret_cast<std::uintptr_t>(Field))
                     return 0;
 
                 // 0x004f87ae..0x004f8827: the world transform (FUN_004f7ef0 inlined; the

@@ -896,7 +896,7 @@ namespace
     //   a3 the containing nebula (Gameobj +0x38; nebula vtable PTR_DAT_005dacbc),
     //   a4 the float lerp factor (Gameobj +0x3c), a5 Flag (FUN_00537f40's last arg).
     void StarSysApplyObjectLighting(float const* Pos3, float Radius, void* Camera,
-                                    unsigned DrawStateA, unsigned DrawStateB,
+                                    std::uintptr_t DrawStateA, unsigned DrawStateB,
                                     unsigned char Flag)
     {
         Win3DDisable(kWin3DFog); // 0x005554d8 FUN_00421ed0(0xb60)
@@ -920,7 +920,7 @@ namespace
 
         // 00555578: EBX = &DAT_0067986c; 00555576/0055557d: no nebula -> straight to the tail.
         unsigned char const* AmbientPtr = G_AmbientWorkRgb;
-        FNebulaEffect* const Nebula = (FNebulaEffect*)(uintptr_t)DrawStateA;
+        FNebulaEffect* const Nebula = reinterpret_cast<FNebulaEffect*>(DrawStateA);
         if (Nebula != nullptr)
         {
 
@@ -1196,12 +1196,12 @@ namespace
         if (G_FieldController != nullptr)
         {
             unsigned EncloseBits = 0;
-            const unsigned DrawStateA = Go->Slot18c(&EncloseBits);
+            const std::uintptr_t DrawStateA = Go->Slot18c(&EncloseBits);
             float Enclose = 0.0f;
             memcpy(&Enclose, &EncloseBits, sizeof(float));
 
             float E;
-            if (reinterpret_cast<void*>(static_cast<uintptr_t>(DrawStateA)) != G_FieldController)
+            if (reinterpret_cast<void*>(DrawStateA) != G_FieldController)
             {
                 // 0x0051f4c3..0x0051f4de: another enclosure -- above 0.25 (double 0x005cbf58)
                 // is dropped (TEST AH,0x41 / JZ); otherwise E = 0.0f.
@@ -2199,7 +2199,7 @@ double SpaceEffectPerfOneMinus()
     return EffectPerfOneMinus();
 }
 
-void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, unsigned DrawStateA,
+void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, std::uintptr_t DrawStateA,
                               unsigned DrawStateB, unsigned char Flag)
 {
     // FUN_005554d0 -- the body is StarSysApplyObjectLighting above.

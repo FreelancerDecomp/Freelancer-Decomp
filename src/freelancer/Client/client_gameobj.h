@@ -237,7 +237,7 @@ public:
     virtual unsigned* Slot188(unsigned* OutLod, void* Camera, unsigned CachedLod, void* Matrix,
                               void* Extra);
     // 99 +0x18c LAB_00524e50 (RET 4): *OutB = DrawStateB; return DrawStateA.
-    virtual unsigned Slot18c(unsigned* OutB);
+    virtual std::uintptr_t Slot18c(unsigned* OutB);
     // 100 +0x190 LAB_00524e60: DrawStateA = DrawStateB = 0, Field_0x34 = 10.0f.
     virtual void Slot190();
     // 101 +0x194 FUN_00539c90 (RET 0x10): the collision pair --
@@ -360,7 +360,7 @@ public:
     ActionDB Actions;                  // +0x20  update(Dt) by slot 93, add by slot 108
     FGameobjEffectList EffectList;     // +0x28
     float Field_0x34;                  // +0x34  ctor 0; slot 100 sets 10.0f; Ship ctor rand()/32768
-    unsigned DrawStateA;               // +0x38  slot 99 / slot 100; lighting FUN_005554d0 arg
+    std::uintptr_t DrawStateA;         // +0x38  slot 99 / slot 100; lighting FUN_005554d0 arg
     unsigned DrawStateB;               // +0x3c
     Archetype::Explosion* ExplosionArch; // +0x40 slot 92 resolves; the dtor releases
     unsigned char Flags;               // +0x44  bit0 slot 86/87, bit1 slot 88/89, bit2 slot 85

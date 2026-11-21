@@ -568,7 +568,7 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
             if (SpaceEffectPerfOneMinus() < 0.999)
                 Flag = 0;
             unsigned DrawStateB = 0;
-            const unsigned DrawStateA = Ship->Slot18c(&DrawStateB);
+            const std::uintptr_t DrawStateA = Ship->Slot18c(&DrawStateB);
             SpaceApplyObjectLighting(Center, Radius, Space, DrawStateA, DrawStateB, Flag);
         }
 
