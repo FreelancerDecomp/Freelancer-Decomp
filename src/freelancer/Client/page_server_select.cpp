@@ -946,7 +946,7 @@ void PageServerSelect::FillRow(unsigned Row, FServerInfo const* Server)
 bool PageServerSelect::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_005714d0.
-    unsigned const TableId = static_cast<unsigned>(reinterpret_cast<uintptr_t>(ServerTable));
+    std::uintptr_t const TableId = reinterpret_cast<std::uintptr_t>(ServerTable);
     if (Msg == 0x3004)
     {
         PlayOrRewindUiSoundSlot(0); // FUN_005645c0(0)
