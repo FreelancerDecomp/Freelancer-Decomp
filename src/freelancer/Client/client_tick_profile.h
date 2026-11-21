@@ -15,7 +15,7 @@
 #define FREELANCER_BETA_LABEL 0
 #endif
 
-// Port-only diagnostics requested by Giperion (CLIENT-BETA-LABEL).
+// PORT(diag): diagnostics requested by Giperion (CLIENT-BETA-LABEL).
 // Inclusive wall-clock times on the client thread; children are part of their parents.
 enum class EClientTickSection
 {

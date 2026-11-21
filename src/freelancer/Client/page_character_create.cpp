@@ -230,7 +230,7 @@ bool PageCharacterCreate::Create(Win3D* NewParent, void* /*Payload*/)
     int const* const PreviewRect = AsCamera(Preview)->GetViewport();
     int const PreviewWidth = PreviewRect[2] - PreviewRect[0];
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the scene's +0x98 is its angle on a 4:3 surface, so the width it spans
+    // PORT(widescreen): the scene's +0x98 is its angle on a 4:3 surface, so the width it spans
     // is the scene width over the Hor+ factor.
     SpaceCameraSetHalfFovX(
         Preview, static_cast<float>(static_cast<double>(PreviewWidth) *

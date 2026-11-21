@@ -270,7 +270,10 @@ private:
     int StageStates_[8][32] = {};
     // The defaults ResetRenderStatesToDefaults and CreateBuffers restore: RP8's, then the ini's.
     int DefaultRenderStates_[256] = {};
-    int DefaultStageStates_[2][32] = {}; // stage 0, the other stages
+    int DefaultStageStates_[32] = {}; // every stage
+    // The ability keys found in the ini section (RP8's ability map), by QueryDeviceAbility index.
+    unsigned long AbilityOverrides_[0x15] = {};
+    bool bAbilityOverridden_[0x15] = {};
     float Projection_[16] = {}; // D3D row-major
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};

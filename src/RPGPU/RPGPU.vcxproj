@@ -80,7 +80,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClInclude Include="RpGpu.h" />
-    <ClInclude Include="RpGpuDefaults.h" />
     <ClInclude Include="RpGpuDevice.h" />
   </ItemGroup>
   <ItemGroup>

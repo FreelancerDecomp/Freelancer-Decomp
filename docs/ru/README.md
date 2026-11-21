@@ -70,8 +70,8 @@ MSBuild.exe src\Freelancer.sln -t:Build -p:Configuration=Debug -v:minimal
 | Release | `bin\` |
 | DebugASan | `binasan\` (AddressSanitizer; копирует среду выполнения `clang_rt.asan_*` рядом с exe) |
 
-Запускайте `freelancer.exe` из каталога той конфигурации, которую вы собрали. Сборки Debug и ASan
-копируют dev-файлы `*.ini` из `bin\` с переписанными путями (`src/copy_dev_ini.py`) — правьте
+Запускайте `freelancer.exe` из каталога той конфигурации, которую вы собрали. Каждая сборка не в `bin\`
+(Debug, ASan и x64: `bin_x64\` / `bin_x64_debug\`) копирует dev-файлы `*.ini` из `bin\` с переписанными путями (`src/copy_dev_ini.py`) — правьте
 файлы в `bin\`, а не копии. Retail DLL в `EXE\` не инструментированы ASan.
 
 Поиск утечек памяти: [memory_diagnostics.md](memory_diagnostics.md).

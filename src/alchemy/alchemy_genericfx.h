@@ -442,7 +442,7 @@ namespace AlchemyImpl
         // decomp-tracker item 132871 -- confirmed via FUN_0620d690/FUN_0620bd70,
         // a smart-pointer-array shift-erase whose net effect is "release the
         // expired slot, shift everything after it down by one, shrink the
-        // count"). Port-only helper (not part of IGenericFx, same category as
+        // count"). PORT(api): helper (not part of IGenericFx, same category as
         // BorrowAssociatedFieldAt above) -- public so the free
         // function ApplyFieldsToPool (alchemy_common.cpp) can call it when a
         // field's own +0x1C gate reports done/expired, instead of leaving the
@@ -655,7 +655,7 @@ namespace AlchemyImpl
         // wave89 (sonnet:alchemy-wave89-lane1, 2026-09-15): read-only
         // accessor for Age_/Duration_ below -- see TickLifetime's own doc
         // comment above and Age_/Duration_'s own field comment for the full
-        // retail trace. Not part of IGenericFx -- a plain port-only helper.
+        // retail trace. Not part of IGenericFx -- a plain PORT(api) helper.
         float GetLifetimeAge() const { return Age_; }
         float GetLifetimeDuration() const { return Duration_; }
 
@@ -699,7 +699,7 @@ namespace AlchemyImpl
         // 0x0623bcbb: Release the old +0x7c, store and AddRef the new, Release the
         // creation reference) and cache it (+0x80 and the class caches).
         void AdoptPropertySet(FFxNodePropertySet* Set);
-        // Port-only: the class cache (retail +0x9c / +0xa8 / +0xf0) of a leaf that keeps a
+        // PORT(api): the class cache (retail +0x9c / +0xa8 / +0xf0) of a leaf that keeps a
         // typed pointer next to PropertySet_; called whenever PropertySet_ changes.
         virtual void OnPropertySetChanged();
 

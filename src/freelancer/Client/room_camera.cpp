@@ -10,7 +10,7 @@
 #include "common_text.h"
 #include "dacom.h"
 #include "globals.h"
-#include "widescreen.h"   // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "x86math.h"
 #include "x87_portable.h" // X87CopyFloat, the x64 form of the ZNear copy
 
@@ -76,7 +76,7 @@ namespace
     }
 
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+ (widescreen.h): +0x14 keeps the horizontal half-angle on a 4:3 surface,
+    // PORT(widescreen) (widescreen.h): +0x14 keeps the horizontal half-angle on a 4:3 surface,
     // +0x24 / the X plane / XScale take its tangent times this factor.
     double HorPlusScale(FRoomCamera const* Camera)
     {
@@ -176,7 +176,7 @@ void FRoomCamera::RebuildPlaneX()
 {
     // FUN_005566a0.
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x14 is the 4:3 angle the widened +0x24 came from.
+    // PORT(widescreen): +0x14 is the 4:3 angle the widened +0x24 came from.
     HalfFovXDeg = static_cast<float>(
         atan2(static_cast<double>(TanHalfFovX) / HorPlusScale(this), 1.0) * kRadToDeg);
 #else
@@ -486,7 +486,7 @@ FRoomCamera* RoomCameraConstruct(float const* PosOrient12, Rect const& Viewport,
     const float Tan = static_cast<float>(
         tan((static_cast<double>(HalfFovXDeg) + HalfFovXDeg) * kPiOver360));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x14 keeps the 4:3 angle, +0x24 and the X plane the widened tangent.
+    // PORT(widescreen): +0x14 keeps the 4:3 angle, +0x24 and the X plane the widened tangent.
     Cam->TanHalfFovX = static_cast<float>(static_cast<double>(Tan) * HorPlusScale(Cam));
 #else
     Cam->TanHalfFovX = Tan;
@@ -590,7 +590,7 @@ void RoomCameraSetHalfFovXValue(FRoomCamera* Camera, const float* HalfFovXDeg)
     int const* Edges = Camera->GetViewport();
     const double Tan = tan((static_cast<double>(*HalfFovXDeg) + *HalfFovXDeg) * kPiOver360);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x14 keeps the 4:3 angle, +0x24 and the X plane the widened tangent.
+    // PORT(widescreen): +0x14 keeps the 4:3 angle, +0x24 and the X plane the widened tangent.
     const double TanX = Tan * HorPlusScale(Camera);
 #else
     const double TanX = Tan;
@@ -643,7 +643,7 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
     const double TanX =
         tan((static_cast<double>(Camera->HalfFovXDeg) + Camera->HalfFovXDeg) * kPiOver360);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x14 keeps the 4:3 angle, +0x24 (and the X plane built from it) widens.
+    // PORT(widescreen): +0x14 keeps the 4:3 angle, +0x24 (and the X plane built from it) widens.
     Camera->TanHalfFovX = static_cast<float>(TanX * HorPlusScale(Camera));
 #else
     Camera->TanHalfFovX = static_cast<float>(TanX);

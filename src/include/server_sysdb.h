@@ -129,11 +129,11 @@ struct FServerCreateLootRequest;  // server_createinfo.h, CREATELOOT's 0x14-byte
 struct ObjectList : public MetaList<GameObject> {
     ObjectList() : MetaList<GameObject>(true) { invalidate_index(); }
     ObjectList(ObjectList const& Other) : MetaList<GameObject>(false) { (void)Other; invalidate_index(); }
-    // Port-only: drops this list's id index (find_by_id below). Retail has no
+    // PORT(perf-index): drops this list's id index (find_by_id below). Retail has no
     // destructor body of its own; MetaList<T>'s runs after this one as before.
     ~ObjectList() { drop_index(); }
 
-    // Port-only: every structural edit of a block goes through these, which
+    // PORT(perf-index): every structural edit of a block goes through these, which
     // forward to MetaList<T> unchanged and then update the id index (append,
     // remove) or mark it stale (the rest). No edit of the list itself differs
     // from retail.
@@ -147,11 +147,11 @@ struct ObjectList : public MetaList<GameObject> {
     void remove(MetaNode<GameObject>*& Node) { index_removing(Node); MetaList<GameObject>::remove(Node); }
     void free() { MetaList<GameObject>::free(); invalidate_index(); }
 
-    // Port-only: marks the id index stale. Code that rewrites Head/Tail or the
+    // PORT(perf-index): marks the id index stale. Code that rewrites Head/Tail or the
     // nodes by hand (StarSystem_DeleteBlock) calls it itself.
     void invalidate_index() const;
     void drop_index() const;
-    // Port-only: keep a valid id index in step with append (Node is the new
+    // PORT(perf-index): keep a valid id index in step with append (Node is the new
     // Tail) and remove (Node is still linked); anything they cannot record
     // exactly marks the index stale instead.
     void index_appended(MetaNode<GameObject>* Node) const;
@@ -167,7 +167,7 @@ struct ObjectList : public MetaList<GameObject> {
 
     // FUN_06cf4f00 (.text:06cf4f00, `RET 0x4`): the first node whose object's
     // IObjInspect::get_id (vtable +0x20, .text:06cf4f24) equals Id, or null.
-    // The port answers it from a side index of the same walk (server_classes.cpp).
+    // PORT(perf-index) answers it from a side index of the same walk (server_classes.cpp).
     MetaNode<GameObject>* find_by_id(unsigned int Id) const;
 
     // FUN_06cf5130 (.text:06cf5130, `RET 0x4`): how many nodes' objects answer

@@ -6,7 +6,7 @@
 #include "dacom_iids.h"
 #include "luaprofile.h" // IProfileParser
 
-#include "RpGpuDefaults.h"
+#include "render/rp8_semantics.h"
 
 #include <algorithm>
 #include <cmath>
@@ -97,31 +97,6 @@ namespace
 #endif
     }
 
-    // RP8's FvfStride: bytes per vertex of a D3D8 flexible vertex format.
-    unsigned int FvfStride(unsigned int Fvf)
-    {
-        unsigned int Bytes = 0;
-        if ((Fvf & 0xC) == 0xC)
-            Bytes = 0x1C;
-        else if ((Fvf & 4) == 4)
-            Bytes = 0x10;
-        else if ((Fvf & 2) == 2)
-            Bytes = 0xC;
-        if ((Fvf & 0x10) != 0)
-            Bytes += 0xC;
-        if ((Fvf & 0x40) != 0)
-            Bytes += 4;
-        if ((Fvf & 0x80) != 0)
-            Bytes += 4;
-        const unsigned int TexCount = (Fvf & 0xF00) >> 8;
-        for (unsigned int Index = 0; Index < TexCount; ++Index)
-        {
-            const unsigned int Size = (Fvf >> (Index * 2 + 0x10)) & 3;
-            Bytes += Size == 0 ? 8 : Size == 1 ? 0xC : Size == 2 ? 0x10 : 4;
-        }
-        return Bytes;
-    }
-
     // RP8 pixel-format numbers (pfenum): 1 P8, 2 R8G8B8, 3 R5G6B5, 4 X1R5G5B5, 5 A4R4G4B4,
     // 6 A1R5G5B5, 7 A8R8G8B8, 8 X8R8G8B8, 10..14 DXT1..5. 15..21 are format classes that RP8
     // resolves to one of those.
@@ -155,22 +130,10 @@ namespace
         return Format >= 10 && Format <= 14;
     }
 
+    // Formats 1..8 (IsKnownFormat): RP8's bit counts.
     unsigned int BytesPerPixel(unsigned int Format)
     {
-        switch (Format)
-        {
-        case 1:
-            return 1;
-        case 2:
-            return 3;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-            return 2;
-        default:
-            return 4;
-        }
+        return kRp8PfBpp[Format] / 8;
     }
 
     // Bytes per row of blocks for DXT, per row of pixels otherwise.
@@ -199,23 +162,15 @@ namespace
         return Image;
     }
 
-    // RP8's ini number syntax: true / yes, false / no, hex with an x, otherwise decimal.
+    // RP8's FUN_06d16930: the key's text when GetString finds it, converted as RP8 does
+    // (Rp8IniNumber).
     bool ReadNumber(IProfileParser* Parser, void* Section, const char* Key, unsigned long* Out)
     {
-        char Text[64] = {};
-        if (Parser->GetString(Section, Key, Text, sizeof(Text)) == 0 || Text[0] == '\0')
+        char Text[0x400] = {};
+        if (Parser->GetString(Section, Key, Text, sizeof(Text)) == 0)
             return false;
-        const std::size_t Span = std::strspn(Text, "0123456789abcdefABCDEFtrulsynoxTRULSYNOX+-");
-        if (Span != 0)
-            Text[Span] = '\0';
-        if (_stricmp(Text, "true") == 0 || _stricmp(Text, "yes") == 0)
-            *Out = 1;
-        else if (_stricmp(Text, "false") == 0 || _stricmp(Text, "no") == 0)
-            *Out = 0;
-        else if (std::strchr(Text, 'x') != nullptr || std::strchr(Text, 'X') != nullptr)
-            *Out = std::strtoul(Text, nullptr, 16);
-        else
-            *Out = static_cast<unsigned long>(std::strtol(Text, nullptr, 10));
+        Text[sizeof(Text) - 1] = '\0';
+        *Out = Rp8IniNumber(Text);
         return true;
     }
 
@@ -446,57 +401,61 @@ GENRESULT DACOM_API FRpGpu::Initialize()
     return GR_OK;
 }
 
-// RP8's defaults (RpGpuDefaults.h), each overridden by its key in the ini section when present.
+// RP8's keys and defaults (render/rp8_semantics.h), each overridden by its key in the ini
+// section when present, as RP8's Startup reads them: the pipeline states, the abilities and the
+// render states. RP8 does not read the texture-stage keys; every stage starts with its defaults,
+// COLOROP and ALPHAOP 1 (disabled) included.
 void FRpGpu::ReadSettings()
 {
-    PipelineState_[6] = 7; // the blend-stage limit
-    for (const FRpGpuStateInit& Row : kRpGpuPipelineStates)
+    for (const FRp8StateKey& Row : kRp8PipelineProperties)
         PipelineState_[Row.Id] = static_cast<int>(Row.Default);
     std::memset(DefaultRenderStates_, 0, sizeof(DefaultRenderStates_));
-    for (const FRpGpuStateInit& Row : kRpGpuRenderStates)
+    for (const FRp8StateKey& Row : kRp8RenderStateProperties)
         DefaultRenderStates_[Row.Id] = static_cast<int>(Row.Default);
     std::memset(DefaultStageStates_, 0, sizeof(DefaultStageStates_));
-    for (const FRpGpuStateInit& Row : kRpGpuFirstStageOps)
-        DefaultStageStates_[0][Row.Id] = static_cast<int>(Row.Default);
-    for (const FRpGpuStateInit& Row : kRpGpuOtherStageOps)
-        DefaultStageStates_[1][Row.Id] = static_cast<int>(Row.Default);
-    for (const FRpGpuStateInit& Row : kRpGpuStageStates)
-    {
-        DefaultStageStates_[0][Row.Id] = static_cast<int>(Row.Default);
-        DefaultStageStates_[1][Row.Id] = static_cast<int>(Row.Default);
-    }
+    for (const FRp8StateKey& Row : kRp8StageOpsOtherStage)
+        DefaultStageStates_[Row.Id] = static_cast<int>(Row.Default);
+    for (const FRp8StateKey& Row : kRp8StageStateProperties)
+        DefaultStageStates_[Row.Id] = static_cast<int>(Row.Default);
+    std::memset(AbilityOverrides_, 0, sizeof(AbilityOverrides_));
+    std::memset(bAbilityOverridden_, 0, sizeof(bAbilityOverridden_));
 
     IProfileParser* const Parser = AcquireProfileParser();
-    if (Parser == nullptr)
-        return;
-    void* const Section = Parser->OpenSection(Section_, 3);
-    if (Section != nullptr)
+    if (Parser != nullptr)
     {
-        unsigned long Value = 0;
-        for (const FRpGpuStateInit& Row : kRpGpuPipelineStates)
-            if (ReadNumber(Parser, Section, Row.Key, &Value))
-                PipelineState_[Row.Id] = static_cast<int>(Value);
-        for (const FRpGpuStateInit& Row : kRpGpuRenderStates)
-            if (ReadNumber(Parser, Section, Row.Key, &Value))
-                DefaultRenderStates_[Row.Id] = static_cast<int>(Value);
-        for (const FRpGpuStateInit& Row : kRpGpuStageStates)
+        void* const Section = Parser->OpenSection(Section_, 3);
+        if (Section != nullptr)
         {
-            if (ReadNumber(Parser, Section, Row.Key, &Value))
+            unsigned long Value = 0;
+            for (const FRp8StateKey& Row : kRp8PipelineProperties)
+                if (ReadNumber(Parser, Section, Row.Name, &Value))
+                    PipelineState_[Row.Id] = static_cast<int>(Value);
+            for (const FRp8StateKey& Row : kRp8AbilityProperties)
             {
-                DefaultStageStates_[0][Row.Id] = static_cast<int>(Value);
-                DefaultStageStates_[1][Row.Id] = static_cast<int>(Value);
+                if (ReadNumber(Parser, Section, Row.Name, &Value))
+                {
+                    AbilityOverrides_[Row.Id] = Value;
+                    bAbilityOverridden_[Row.Id] = true;
+                }
             }
+            for (const FRp8StateKey& Row : kRp8RenderStateProperties)
+                if (ReadNumber(Parser, Section, Row.Name, &Value))
+                    DefaultRenderStates_[Row.Id] = static_cast<int>(Value);
+            Parser->CloseSection(Section);
         }
-        Parser->CloseSection(Section);
+        Parser->Release();
     }
-    Parser->Release();
+
+    // BROKEN_MULTITEXTURE is read, then overwritten with the device's blend-stage count, capped
+    // at 7 (RP8's FUN_06d020ab).
+    PipelineState_[kPsMaxBlendStages] = 7;
 }
 
 void FRpGpu::ResetStateToDefaults()
 {
     std::memcpy(RenderStates_, DefaultRenderStates_, sizeof(RenderStates_));
     for (int Stage = 0; Stage < 8; ++Stage)
-        std::memcpy(StageStates_[Stage], DefaultStageStates_[Stage == 0 ? 0 : 1], sizeof(StageStates_[Stage]));
+        std::memcpy(StageStates_[Stage], DefaultStageStates_, sizeof(StageStates_[Stage]));
 }
 
 void FRpGpu::ResetDeviceState()
@@ -616,6 +575,9 @@ GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long
         Value = 0;
         break;
     }
+    // An ability key in the ini section replaces the device's answer, as in RP8.
+    if (bAbilityOverridden_[Index])
+        Value = AbilityOverrides_[Index];
     *Out = Value;
     return GR_OK;
 }
@@ -1349,7 +1311,7 @@ FRpGpuBuffer* FRpGpu::PoolBuffer(unsigned int Fvf)
         return nullptr;
     Pool->Fvf = Fvf;
     Pool->bRing = true;
-    if (!ResizeStorage(Pool, kPoolGrowVertices, std::max(1u, FvfStride(Fvf))))
+    if (!ResizeStorage(Pool, kPoolGrowVertices, std::max(1u, Rp8FvfStride(Fvf))))
     {
         delete Pool;
         return nullptr;
@@ -1577,7 +1539,7 @@ GENRESULT DACOM_API FRpGpu::CreateVb(unsigned int Fvf, unsigned int Count, unsig
         if (Buffer != nullptr)
         {
             Buffer->Fvf = Fvf;
-            if (ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, FvfStride(Fvf))))
+            if (ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, Rp8FvfStride(Fvf))))
             {
                 VertexBuffers_.insert(Buffer);
             }
@@ -1613,7 +1575,7 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
     FRpGpuBuffer* const Buffer = static_cast<FRpGpuBuffer*>(Handle);
     if (VertexBuffers_.count(Buffer) != 0)
     {
-        if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, FvfStride(Fvf))))
+        if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, Rp8FvfStride(Fvf))))
             return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
     }

@@ -6,7 +6,7 @@
 
 #pragma once
 
-// RP9 Ex: the port-only Direct3D 9 extensions of RP9.dll (render/IRenderPipelineEx.h). The
+// PORT(rp9): RP9 Ex, the Direct3D 9 extensions of RP9.dll (render/IRenderPipelineEx.h). The
 // interface methods are members of FDirectX9 (RP9.h) defined in RP9Ex.cpp; this header holds
 // their state. Nothing here exists in RP8.dll or retail; see docs/re/rp9.md, "Ex extensions".
 

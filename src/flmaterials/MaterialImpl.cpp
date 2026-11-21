@@ -135,7 +135,7 @@ namespace
     unsigned char FlmWireColorByte(float Component)
     {
 #if !defined(_M_IX86)
-        // Port-only x64: material colours are built while drawing, inside the scene, where the
+        // PORT(x64): material colours are built while drawing, inside the scene, where the
         // x87 runs at 24-bit precision (docs/x64.md, "Client precision"): the product is
         // rounded to float, then truncated like FISTP with the rounding control at truncate.
         const float Product = static_cast<float>(static_cast<double>(Component) * GFlmWireColorScale);

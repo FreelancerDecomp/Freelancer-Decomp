@@ -10,6 +10,14 @@ RemoteClient.dll as the client module, DirectPlay 8 for the network). It also fo
 FLServer's startup, 30 Hz frame loop and shutdown in the same order, so retail clients see the
 same server.
 
+The two programs share the parts of the host that do not need MFC:
+`src/ServerHost/server_host.cpp` (declared in `src/include/server_host.h`) is compiled into
+both. It holds the FPU setup, the startup and shutdown thread bodies, the server thread's frame
+loop, the loading screen, the exe version, the session data handed to RemoteClient and the
+`FLServer.cfg` file. Its addresses are FLServer's. Each program passes the parts that differ
+(the server mutex, the log line, where the frame stats go) to the frame loop as hooks, and
+keeps its own log, critical warning, `ReadFreelancerIni` and shutdown wait.
+
 ## Running
 
 From `bin\`, next to the game DLLs:

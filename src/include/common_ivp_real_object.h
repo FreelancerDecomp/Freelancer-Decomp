@@ -1161,7 +1161,7 @@ void IVP_Split_Object_From_Core(IVP_Real_Object* Object, const IVP_RealObjectCon
 //      0x10) in the constructor and released by FUN_06343ff0 in the
 //      destructor. The port now owns it the same way.
 //
-// This accessor is kept because existing callers use it; it is a port-only
+// This accessor is kept because existing callers use it; it is a PORT(api)
 // convenience, NOT a retail function -- retail has no getter and takes the
 // instance's address directly (see ivp_surface_manager.h).
 // ============================================================================

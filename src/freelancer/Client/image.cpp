@@ -8,7 +8,7 @@
 
 #include "dataconfig_progress.h" // GetIntroConfigState: TgaPath DAT_0067c18c
 #include "globals.h"             // g_display.data_path DAT_00679e0c, G_RenderSurfaceWidth/Height
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "pixel_format.h"
 #include "screen_quad_state.h"    // ScreenQuadDrawBigImageTile (FUN_00404720)
 #include "win3d_immediate.h"     // Win3DSetOrtho2D (FUN_004225e0)
@@ -488,7 +488,7 @@ void Image::Draw()
     // 0x00565c4b..0x00565ca9: alpha 1, colour {1, 1, 1}, then Draw(null, {0, height, width, 0}).
     RECT Dest;
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the 4:3 picture keeps its own aspect instead of stretching -- centred,
+    // PORT(widescreen): the 4:3 picture keeps its own aspect instead of stretching -- centred,
     // or against the edge ImageSetWidescreenAlign asked for (the main menu logo).
     LONG const ImageWidth = static_cast<LONG>(WidescreenEquivalentSurfaceWidth() + 0.5);
     LONG const Spare = static_cast<LONG>(G_RenderSurfaceWidth) - ImageWidth;

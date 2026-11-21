@@ -142,7 +142,7 @@ namespace
         // 0x00425080..0x0042508c: MaterialBatcher slot 0x28 (1), no null test.
         DALib::MaterialBatcher->FlushAll(1);
 
-        // Intentional port-only addition: CLIENT-BETA-LABEL, removal only by Giperion.
+        // PORT(diag): intentional addition, CLIENT-BETA-LABEL, removal only by Giperion.
         DrawClientTickProfile();
 
         // 0x0042508f..0x0042509a: Pipeline slot 0xe8 (EndScene); EAX is not read.
@@ -198,7 +198,7 @@ namespace
 // disconnect check, the Win3D roots, the local server and the state machine.
 void TickClientFrame(double DeltaSeconds)
 {
-    // Port-only QPC diagnostics requested by Giperion; CLIENT-BETA-LABEL.
+    // PORT(diag): QPC diagnostics requested by Giperion; CLIENT-BETA-LABEL.
     FClientTickProfileFrame ProfileFrame;
     // 0x005b289a..0x005b28b3: Timing::UpdateGlobalTime(dt) unless FUN_0042d740.
     if (!ShouldSkipLocalServerTick())

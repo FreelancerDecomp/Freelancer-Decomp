@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Port-only (no retail counterpart): the client side of the Direct3D 9 render extensions.
+// PORT(rp9): the client side of the Direct3D 9 render extensions.
 // See render_ex.h and docs/re/rp9.md, "Ex extensions".
 // Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
 #ifdef FREELANCER_RP9

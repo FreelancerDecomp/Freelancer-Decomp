@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "globals.h"
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "win_factory.h"   // WinFactoryCreate (FUN_0059db20)
 #include "character_info.h"
 #include "client_ime_focus.h"
@@ -48,7 +48,7 @@
 #include "win3d.h"                // Win3DStartupManager (FUN_0059d5a0)
 #include "win3d_engine_submit.h"
 #ifdef FREELANCER_RP9
-#include "render_ex.h"            // RenderEx::Startup (port-only Direct3D 9 extensions)
+#include "render_ex.h"            // PORT(rp9): RenderEx::Startup
 #endif
 #include "render/IRenderPipeline.h"
 
@@ -235,9 +235,10 @@ namespace
                 }
             }
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-            // Port-only: full screen with no saved [Display] size on a 32-bit capable adapter,
-            // the first rung is the desktop's own size when it is at least 800x600 and at least
-            // as wide as 4:3 -- a widescreen monitor starts native instead of stretching 1024x768.
+            // PORT(widescreen): full screen with no saved [Display] size on a 32-bit capable
+            // adapter, the first rung is the desktop's own size when it is at least 800x600 and at
+            // least as wide as 4:3 -- a widescreen monitor starts native instead of stretching
+            // 1024x768.
             int DesktopWidth = 0;
             int DesktopHeight = 0;
             if (bFullscreen != 0 && Format == 0x20 && WidescreenGetDesktopSize(&DesktopWidth, &DesktopHeight) &&
@@ -742,7 +743,7 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
     if (!StartupRenderPipeline())
         ShowEngineFatalError(0xd7);
 #ifdef FREELANCER_RP9
-    // Port-only: QueryInterface the Direct3D 9 extensions (RP9.dll) and read
+    // PORT(rp9): QueryInterface the Direct3D 9 extensions (RP9.dll) and read
     // DATA_EXTRA/VOLUMETRIC/volumetric.ini. With RP8 (DirectX8) the QI fails and nothing changes.
     RenderEx::Startup();
 #endif

@@ -49,7 +49,7 @@ namespace
         ListCount
     };
 
-    // Port-only side index of the class lists below (no retail counterpart). The lists keep
+    // PORT(perf-index): side index of the class lists below (no retail counterpart). The lists keep
     // every order and the FindFirst/FindNext cursor; the index only answers Find and locates
     // the node RemoveFromClassList unlinks.
     //   - Each listed object has an entry: its node, its list and an insertion number. The
@@ -174,7 +174,7 @@ namespace
             UnfileObject(Index.ById, Entry.FiledId, Entry);
     }
 
-    // push_back onto the class list, plus the port-only index entry.
+    // push_back onto the class list, plus the PORT(perf-index) index entry.
     void AddToClassList(EClassList ListIndex, CObject* Object)
     {
         std::list<CObject*>& List = G_ClassLists[ListIndex];
@@ -327,7 +327,7 @@ void DACOM_API CObject::destroy_instance(long Inst)
     // vcall +0x38(1) (scalar deleting dtor). Not FindChild / IVP.
     (void)Inst;
     EngineInstanceId = -1;
-    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
+    CmnCobject::ClassListKeysChanged(this); // PORT(perf-index): the class-list index
     if (RefCount == 1)
     {
         RefCount = 0;
@@ -564,7 +564,7 @@ CObject* __cdecl CObject::Find(long EngineInstanceId, Class ObjectClass)
 {
     // .text:062ae960..062aea30: -1 or a class without a list -> null; the first entry whose
     // instance (+0x4) matches gets RefCount (+0x98) + 1 and is returned.
-    // The port answers the walk from the class-list index (see G_ClassListEntries).
+    // PORT(perf-index) answers the walk from the class-list index (see G_ClassListEntries).
     if (EngineInstanceId == -1)
         return nullptr;
     std::list<CObject*>* const List = ListForClass(ObjectClass);
@@ -587,8 +587,8 @@ CObject* __cdecl CObject::Find(unsigned const& Id, Class ObjectClass)
     // against *Id for whatever list the class selects. Retail reads +0xb0 even in the
     // ClassObject / EquipmentObj / DynamicAsteroid lists, whose 0x9c-byte objects end
     // before it (reads past the object -- very strange); the port skips those entries
-    // instead of reading outside them (they are never filed by Id). The port answers the walk
-    // from the class-list index (see G_ClassListEntries).
+    // instead of reading outside them (they are never filed by Id). PORT(perf-index) answers the
+    // walk from the class-list index (see G_ClassListEntries).
     std::list<CObject*>* List = ListForClass(ObjectClass);
     if (List == nullptr)
         return nullptr;
