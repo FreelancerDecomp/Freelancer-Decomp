@@ -396,6 +396,9 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Info.primitive_type = PrimitiveType(Key.Topology);
     // Points (FILLMODE 1) are drawn solid: SDL_GPU has no point fill.
     Info.rasterizer_state.fill_mode = Key.FillMode == 2 ? SDL_GPU_FILLMODE_LINE : SDL_GPU_FILLMODE_FILL;
+    // Direct3D 8 clips at the near and far planes rather than clamping depth. (SDL's Direct3D 12
+    // driver clamps regardless.)
+    Info.rasterizer_state.enable_depth_clip = true;
     // Direct3D 8 culls by the winding on screen, pre-transformed triangles included: CULL_CW (2)
     // drops clockwise triangles, CULL_CCW (3) counter-clockwise ones. SDL_GPU's winding is
     // Direct3D's (y up in normalized coordinates).
@@ -435,9 +438,10 @@ SDL_GPUSampler* FRpGpuSdlBackend::Sampler(const FRpGpuSamplerKey& Key)
     Info.address_mode_u = AddressMode(Key.AddressU);
     Info.address_mode_v = AddressMode(Key.AddressV);
     Info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-    // MIPFILTER NONE samples level 0 only; otherwise the chain from MAXMIPLEVEL down.
-    Info.min_lod = static_cast<float>(Key.MaxMipLevel);
-    Info.max_lod = Key.MipFilter == 0 ? Info.min_lod : 1000.0f;
+    // MIPFILTER NONE samples level 0 only, whatever MAXMIPLEVEL says (Direct3D applies it only
+    // with mipmapping); otherwise the chain from MAXMIPLEVEL down.
+    Info.min_lod = Key.MipFilter == 0 ? 0.0f : static_cast<float>(Key.MaxMipLevel);
+    Info.max_lod = Key.MipFilter == 0 ? 0.0f : 1000.0f;
     SDL_GPUSampler* const Made = SDL_CreateGPUSampler(Device_, &Info);
     if (Made != nullptr)
         Samplers_[Packed] = Made;

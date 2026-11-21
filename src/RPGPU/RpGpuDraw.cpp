@@ -214,9 +214,13 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
 {
     if (!bBuffersActive_ || Verts == nullptr || Stride == 0 || VertCount == 0)
         return;
+    if ((Fvf & kFvfPositionMask) == 0)
+        return; // no position: nothing to draw, and nothing safe to read
+    // RP8's stride (Rp8FvfStride) leaves out the point size, as RP8 does; a format with one is
+    // longer than that stride and is not drawn, rather than read with the wrong layout.
     const FLayout Layout = LayoutOf(Fvf);
-    if (Layout.Size == 0 || static_cast<unsigned int>(Layout.Size) > Stride)
-        return; // no position, or a stride too small for the format: nothing safe to read
+    if (static_cast<unsigned int>(Layout.Size) > Stride)
+        return; // a stride too small for the format: nothing safe to read
     const unsigned int Count = Indices != nullptr ? IndexCount : VertCount;
     const int Primitives = PrimCountFromVerts(Prim, Count);
     if (Primitives <= 0)

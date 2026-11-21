@@ -623,6 +623,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb,
     (void)NumVerts;
     if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0 || Indices == nullptr)
         return GR_OK;
+    // More indices than the scratch ring holds fail, as RP8's LockRange fails them.
     unsigned int Start = 0;
     if (!LockRing(&ScratchIb_, IndexCount, &Start))
         return kFail;
