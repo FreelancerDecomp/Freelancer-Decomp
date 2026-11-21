@@ -10,6 +10,7 @@
 #include "x86math.h"
 #include "common_misc.h" // ICamera::GetViewTransform (+0x40), read by PipelineApplySubmit
 
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <new>
@@ -129,14 +130,18 @@ int FileOpenByName(void* File, const char* ChildName)
         const char* DataPath;
         unsigned long Field10;
         unsigned long Field14;
-        unsigned long Field18;
+        void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
         unsigned long Field1C;
         unsigned long Field20;
-        unsigned long Field24;
-        unsigned long Field28;
+        void* Field24;      // template file
+        void* Field28;      // parent
         unsigned long Field2C;
         unsigned long Field30;
     };
+    // ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform.
+    static_assert(offsetof(FOpenDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
+    static_assert(offsetof(FOpenDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
+    static_assert(offsetof(FOpenDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
     FOpenDesc Desc;
     std::memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
