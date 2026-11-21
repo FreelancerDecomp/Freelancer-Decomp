@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{78A3AD01-32FA-4C8B-B48B-C5E137A6E5F0}</ProjectGuid>
+    <FlModuleKind>port</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RPGPU</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

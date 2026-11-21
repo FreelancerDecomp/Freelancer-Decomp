@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C8D1E4A1-2B7F-4C91-9E35-A6B0D1C2E815}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SoundStreamer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

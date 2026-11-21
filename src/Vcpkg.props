@@ -1,7 +1,8 @@
 <Project>
   <!-- vcpkg for the port-only modules: one manifest (src/vcpkg.json), one baseline, one install
        per platform (src/vcpkg_installed/<triplet>/), so every consumer links and ships the same
-       copy of a package. Retail modules must never import this sheet.
+       copy of a package. Retail modules must never import this sheet
+       (FlModuleKind, checked in Directory.Build.targets).
 
        A consumer imports this sheet after Microsoft.Cpp.Default.props (which brings in
        Directory.Build.props and so the opt-in defaults) and before its configuration groups,

@@ -1,4 +1,13 @@
 <Project>
+  <!-- FlModuleKind, set in each project's Globals: retail (a rebuild of a retail module or
+       resource DLL; Win32 output stays the retail reference), port (port-only module) or tool
+       (tests and diagnostics). Retail modules must not depend on vcpkg (src/Vcpkg.props). -->
+  <Target Name="FlCheckModuleKind" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(FlModuleKind)'!='retail' and '$(FlModuleKind)'!='port' and '$(FlModuleKind)'!='tool'"
+           Text="$(MSBuildProjectName): FlModuleKind must be retail, port or tool (in the project's Globals), not '$(FlModuleKind)'." />
+    <Error Condition="'$(FlModuleKind)'=='retail' and '$(FlVcpkgImported)'=='true'"
+           Text="$(MSBuildProjectName): a retail module must not import Vcpkg.props; vcpkg packages are for port-only modules and tools." />
+  </Target>
   <!-- Public rendering interfaces use DX8 types; keep this SDK after the Windows SDK. -->
   <PropertyGroup>
     <IncludePath>$(IncludePath);$(Dx8SdkDir)\include</IncludePath>

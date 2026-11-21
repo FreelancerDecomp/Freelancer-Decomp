@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C4E81B30-7A2D-4F11-9C55-A1B2C3D4E5F6}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Shading</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

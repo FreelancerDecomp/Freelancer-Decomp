@@ -19,6 +19,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}</ProjectGuid>
+    <FlModuleKind>tool</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RpcCodecTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

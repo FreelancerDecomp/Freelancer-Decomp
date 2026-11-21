@@ -17,6 +17,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{E1A10001-5E50-4A01-9C01-000000000005}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OfferBribeResources</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>

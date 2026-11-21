@@ -81,4 +81,10 @@ imported only by those modules. Each has an opt-in property in `src/Directory.Bu
 `VCPKG_ROOT`. Without vcpkg such a module is skipped with a warning, or fails the build with
 `-p:FreelancerRequireVcpkg=true`, as in CI. Retail modules never depend on vcpkg.
 
+Every project says what it is with `FlModuleKind` in its `Globals`: `retail` (a rebuild of a
+retail module or resource DLL), `port` (port-only: RP9, RPGPU, FLDedicated) or `tool` (FLRegress,
+RpcCodecTest, DPNetCheck, MemoryDiagnostics). The solution folders follow it (Retail,
+ResourceDLLs, Port, Tests, Tools), and the build fails when a project has no kind or a retail
+project imports `src/Vcpkg.props`.
+
 Hunting memory leaks: [memory_diagnostics.md](memory_diagnostics.md).

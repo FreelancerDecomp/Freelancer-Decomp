@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{F1A82C14-6E4B-4D91-A703-B8C5D0E2F405}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ximage</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
