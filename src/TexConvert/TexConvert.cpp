@@ -574,7 +574,9 @@ namespace TexConvert
         if (!IsKnown(Destination.Format) || !IsKnown(Source.Format) || Destination.Bits == nullptr || Source.Bits == nullptr || Destination.Width == 0 ||
             Destination.Height == 0 || Source.Width == 0 || Source.Height == 0)
             return EResult::Failed;
-        if (Source.Format == kP8 && Source.PaletteRgb == nullptr)
+        // An uncompressed source must hold a whole row per pitch: a smaller pitch would make rows
+        // overlap and read past the row being converted. Padded rows are fine.
+        if (!IsBlock(Source.Format) && Source.Pitch < RowPitch(Source.Format, Source.Width))
             return EResult::Failed;
 
         const bool bSameSize = Source.Width == Destination.Width && Source.Height == Destination.Height;
@@ -592,12 +594,12 @@ namespace TexConvert
         }
 
         // A P8 target is only filled by a P8 source of the same size (the copy above): there is no
-        // palette quantizer.
-        if (Destination.Format == kP8)
+        // palette quantizer. Expanding P8 indices into colours needs the palette.
+        if (Destination.Format == kP8 || (Source.Format == kP8 && Source.PaletteRgb == nullptr))
             return EResult::Failed;
 
         // DXT2 / DXT4 into DXT2 / DXT4: the stored (premultiplied) colour passes through as it is.
-        // Every other read of DXT2 / DXT4 multiplies by alpha, as D3DX does.
+        // Every other read of DXT2 / DXT4 divides colour by alpha, as D3DX does.
         const bool bSourcePremultiplied = Source.Format == kDxt2 || Source.Format == kDxt4;
         const bool bTargetPremultiplied = Destination.Format == kDxt2 || Destination.Format == kDxt4;
         const bool bKeepStored = bSourcePremultiplied && bTargetPremultiplied;

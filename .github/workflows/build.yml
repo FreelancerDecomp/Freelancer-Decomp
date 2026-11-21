@@ -373,8 +373,9 @@ jobs:
   texconvert:
     # TexConvert (RPGPU's texture conversion) against D3DX 8.1: every source format into every
     # uncompressed target byte for byte, DXT decodes within one step per channel, and DXT into
-    # itself (docs/re/texconvert.md, "What counts as a difference"). Exit code 2 means no
-    # Direct3D 8 device on the runner: then only the self-checks ran, and the job passes.
+    # itself (docs/re/texconvert.md, "What counts as a difference"). Exit code 3 means no
+    # Direct3D 8 device on the runner: then only the self-checks ran, and the job passes. Exit
+    # code 2 (a device, but no comparison completed) fails like a difference.
     name: Texture conversion (TexConvertTest)
     needs: [build]
     runs-on: windows-2022
@@ -393,7 +394,7 @@ jobs:
         run: |
           & .\TexConvertTest.exe
           $code = $LASTEXITCODE
-          if ($code -eq 2) { Write-Host 'No Direct3D 8 device on this runner; nothing compared.'; exit 0 }
+          if ($code -eq 3) { Write-Host 'No Direct3D 8 device on this runner; only the self-checks ran.'; exit 0 }
           exit $code
 
   codecs:

@@ -259,7 +259,15 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
     Source.Pitch = Pitch;
     Source.Bits = Pixels;
     Source.PaletteRgb = static_cast<const unsigned char*>(B);
-    return TexConvert::Load(Destination, Source) != TexConvert::EResult::Failed ? GR_OK : GR_GENERIC;
+    // The conversion allocates a working buffer; a failed allocation leaves the level as it was.
+    try
+    {
+        return TexConvert::Load(Destination, Source) != TexConvert::EResult::Failed ? GR_OK : GR_GENERIC;
+    }
+    catch (const std::bad_alloc&)
+    {
+        return GR_OUT_OF_MEMORY;
+    }
 }
 
 GENRESULT DACOM_API FRpGpu::BlitTexture(void* DstHandle, int DstLevel, void* SrcHandle, int SrcLevel)

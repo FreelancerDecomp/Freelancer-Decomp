@@ -13,8 +13,8 @@
 // A second set loads wide and tall DXT images with the pitch Shading's DDS loader passes
 // (linear size / width in blocks), to show what D3DX does with it.
 //
-// Exit code: 0 all identical, 1 a difference, 2 nothing compared (no Direct3D 8 device, or no
-// case could run).
+// Exit code: 0 nothing counted differed, 1 a counted difference, 2 a device but no comparison
+// with D3DX completed, 3 no Direct3D 8 device (only the self-checks ran).
 
 #include "TexConvert.h"
 
@@ -460,7 +460,14 @@ void CompareEncode(IDirect3DDevice8* Device, unsigned int Format)
     Straight.Height = Height;
     Straight.Pitch = Width * 4;
     Straight.Bits = Image.data();
-    TexConvert::Load(Encoded, Straight);
+    const TexConvert::EResult EncodeResult = TexConvert::Load(Encoded, Straight);
+
+    if (EncodeResult == TexConvert::EResult::Failed)
+    {
+        ++G_Different;
+        std::printf("ENCODE A8R8G8B8 -> %s: TexConvert's compression failed\n", Name(Format));
+        return;
+    }
 
     // Both compressed images decoded the same way.
     std::vector<std::uint32_t> Back[2] = {std::vector<std::uint32_t>(Width * Height),
@@ -480,7 +487,13 @@ void CompareEncode(IDirect3DDevice8* Device, unsigned int Format)
         Source.Height = Height;
         Source.Pitch = Pitch;
         Source.Bits = Compressed[Side]->data();
-        TexConvert::Load(Decoded, Source);
+        if (TexConvert::Load(Decoded, Source) == TexConvert::EResult::Failed)
+        {
+            ++G_Different;
+            std::printf("ENCODE A8R8G8B8 -> %s: decoding the %s result failed\n", Name(Format),
+                        Side == 0 ? "D3DX" : "TexConvert");
+            return;
+        }
     }
     int Largest = 0;
     for (std::size_t Index = 0; Index < Back[0].size(); ++Index)
@@ -650,7 +663,7 @@ int main()
     {
         std::printf("TexConvertTest: no Direct3D 8 device; only the %d self-checks ran, %d different\n",
                     G_SelfChecks, G_Different);
-        return G_Different != 0 ? 1 : 2;
+        return G_Different != 0 ? 1 : 3;
     }
     RunProbes(D3d.Device);
     const unsigned int EncodeTargets[] = {TexConvert::kDxt1, TexConvert::kDxt2, TexConvert::kDxt3,
@@ -670,7 +683,12 @@ int main()
         for (int Pattern = 0; Pattern < 2; ++Pattern)
         {
             for (unsigned int Target : Targets)
-                Compare(D3d.Device, Source, Target, 256, 64, Pattern);
+            {
+                // Pattern 0 of a 16-bit source covers every one of its 65,536 values: 256x256.
+                const bool bAll16Bit = Pattern == 0 && (Source == TexConvert::kR5G6B5 || Source == TexConvert::kX1R5G5B5 ||
+                                                        Source == TexConvert::kA4R4G4B4 || Source == TexConvert::kA1R5G5B5);
+                Compare(D3d.Device, Source, Target, 256, bAll16Bit ? 256u : 64u, Pattern);
+            }
             // A DXT image into its own format is a block copy.
             if (TexConvert::IsBlock(Source))
                 Compare(D3d.Device, Source, Source, 256, 64, Pattern);
