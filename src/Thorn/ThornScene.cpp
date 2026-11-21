@@ -9,6 +9,7 @@
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
 #include "vc6_sort.h" // Vc6Sort::Sort (SortMasterEvents, SortActiveEventTypes)
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -26,7 +27,6 @@
 
 #if !defined(_M_IX86)
 #include "ThornX87.h"
-#include "float_bits.h"
 
 namespace
 {
