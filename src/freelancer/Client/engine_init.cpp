@@ -969,16 +969,9 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
 // own DAT_ statics. No null check on the manager, as retail.
 I3DMathEngine* __cdecl Acquire3DMathEngine()
 {
-    struct FMathEngineDesc
-    {
-        unsigned long Size;
-        const char* Name;
-        void* Implementation;
-    };
-
-    FMathEngineDesc Desc;
+    FMathDesc Desc;
     Desc.Size = 0xC;
-    Desc.Name = "3DMathEngine";
+    Desc.InterfaceName = "3DMathEngine";
     Desc.Implementation = nullptr;
 
     void* Instance = nullptr;

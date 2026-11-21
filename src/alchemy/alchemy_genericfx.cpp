@@ -631,7 +631,7 @@ namespace AlchemyImpl
     // ImpFxNode.cpp line 0xb3) and goes straight to the tail; otherwise the set's
     // class-name string (+4) is assigned the descriptor's +4 name (0x0623fe1e..0x0623fedb).
     // Tail 0x0623fee0: Duration = [set+0x48]. Returns 0.
-    GENRESULT FGenericFxObjectBase::InitializeFromFactory(const FAggDesc8* Desc)
+    GENRESULT FGenericFxObjectBase::InitializeFromFactory(const AGGDESC* Desc)
     {
         CreatePropertySet();
         if (Desc == nullptr)
@@ -641,7 +641,7 @@ namespace AlchemyImpl
         }
         else
         {
-            PropertySet_->ClassName.Assign(Desc->NameAt4);
+            PropertySet_->ClassName.Assign(Desc->interface_name);
         }
         std::memcpy(&Duration_, &PropertySet_->LifeSpan, sizeof(Duration_));
         return GR_OK;

@@ -17,18 +17,9 @@
 #include <new>
 #include <utility>
 
-// Engine aggregate descriptor as FUN_06c34b90 reads it: +8 the controlling outer (the engine,
-// null when not aggregated), +0xC where the inner non-delegating IDAComponent is written back,
-// +0x14 the system container (FUN_06c32350).
-struct FAggDesc18
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    void** InnerOut;
-    const char* Value;
-    IDAComponent* Parent;
-};
+// FUN_06c34b90 reads dacom.h's FAGGDESC18: +8 the controlling outer (the engine, null when not
+// aggregated), +0xC where the inner non-delegating IDAComponent is written back, +0x14 the
+// system container (FUN_06c32350).
 
 // IRenderer Slot7 flag bits (LAB_06c32a80).
 static constexpr unsigned long kDrawPickSwitch = 0x08;     // pick the LOD by distance (FUN_06c32040)
@@ -120,7 +111,7 @@ public:
     int WalkPlugins(int Id, void* File);
     int LoadPlugins();
     int UnloadPlugins();
-    int SetParentFromDesc(FAggDesc18* Desc);
+    int SetParentFromDesc(FAGGDESC18* Desc);
 };
 
 // FUN_06c31f30: drop both arrays, then CurrentLod = 0 and LodCount = Count; a non-zero Count
@@ -1070,18 +1061,18 @@ int DACOM_API FRenderManager::GetInstanceRootLodSelection(void* Id, void* A, voi
 }
 
 // FUN_06c32350: the system container from AGGDESC+0x14, AddRef'd; none -> -2.
-int FRenderManager::SetParentFromDesc(FAggDesc18* Desc)
+int FRenderManager::SetParentFromDesc(FAGGDESC18* Desc)
 {
-    if (Desc == nullptr || Desc->Parent == nullptr)
+    if (Desc == nullptr || Desc->SystemContainer == nullptr)
         return GR_INVALID_PARMS;
-    Parent = Desc->Parent;
+    Parent = Desc->SystemContainer;
     Parent->AddRef();
     return GR_OK;
 }
 
 GENRESULT DACOM_API RenderManagerFactoryCreate(FDacomFactory* This, AGGDESC* Desc, void** Out)
 {
-    FAggDesc18* Extended = (FAggDesc18*)Desc;
+    FAGGDESC18* Extended = (FAGGDESC18*)Desc;
     if (Extended->Size != 0x18 || std::strcmp(Extended->Name, This->Name) != 0)
     {
         *Out = nullptr;

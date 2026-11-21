@@ -1572,7 +1572,7 @@ GENRESULT DACOM_API FEyeMaterialFactory::CreateInstance(AGGDESC* Desc, void** Ou
 {
     // LAB_065fe070 (RET 0xC), 065fe070..e1a8. The desc is {0x14, name, outer, inner-out}.
     FAGGDESC14* const Aggregate = (FAGGDESC14*)(Desc);
-    if (Aggregate->Size != 0x14 || std::strcmp(Aggregate->NameAt4, Name) != 0)
+    if (Aggregate->Size != 0x14 || std::strcmp(Aggregate->Name, Name) != 0)
     {
         *Out = nullptr;
         return GR_INTERFACE_UNSUPPORTED;
@@ -1583,10 +1583,10 @@ GENRESULT DACOM_API FEyeMaterialFactory::CreateInstance(AGGDESC* Desc, void** Ou
         *Out = nullptr;
         return GR_OUT_OF_MEMORY;
     }
-    IDAComponent* const Outer = Aggregate->OuterUnknown;
+    IDAComponent* const Outer = Aggregate->Outer;
     Object->Controlling = Outer;
     if (Outer != nullptr)
-        *Aggregate->InnerUnknown = &Object->Inner;
+        *Aggregate->InnerOut = &Object->Inner;
     else
         Object->Controlling = &Object->Inner;
 
@@ -1596,8 +1596,8 @@ GENRESULT DACOM_API FEyeMaterialFactory::CreateInstance(AGGDESC* Desc, void** Ou
         *Out = (IMaterial*)(Object);
         return GR_OK;
     }
-    if (Aggregate->InnerUnknown != nullptr)
-        *Aggregate->InnerUnknown = nullptr;
+    if (Aggregate->InnerOut != nullptr)
+        *Aggregate->InnerOut = nullptr;
     Object->ScalarDeletingDestructor(1); // +0x54
     *Out = nullptr;
     return Result;

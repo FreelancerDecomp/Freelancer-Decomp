@@ -82,10 +82,10 @@ GENRESULT DACOM_API FLibraryAggregate::Initialize()
     return Owner->InitializeBase(Owner->Outer);
 }
 
-GENRESULT FMaterialLibrary::InitializeFromDescriptor(const FMaterialAggregateDesc* Desc)
+GENRESULT FMaterialLibrary::InitializeFromDescriptor(const FAGGDESC14* Desc)
 {
     // FUN_06ecbfb0: mandatory descriptor, copy +8 outer into library +40.
-    Outer = Desc->OuterAt8;
+    Outer = Desc->Outer;
     return GR_OK;
 }
 
@@ -959,12 +959,12 @@ FMaterialLibraryRecord* FMaterialLibrary::CreateGenericRecord(const char* Name, 
         RemapType(NameCopy, TypeCopy, (void*)0x104, SelectedType) < 0)
         std::strcpy(SelectedType, TypeCopy);
 
-    FMaterialAggregateDesc Desc = {};
+    FAGGDESC14 Desc = {};
     IDAComponent* Inner;
     Desc.Size = sizeof(Desc);
-    Desc.NameAt4 = SelectedType;
-    Desc.OuterAt8 = AggregateOuter;
-    Desc.InnerOutAtC = (void**)&Inner;
+    Desc.Name = SelectedType;
+    Desc.Outer = AggregateOuter;
+    Desc.InnerOut = &Inner;
     IDAComponent* Created = nullptr;
     IMaterial* Material = nullptr;
     FMaterialLibraryRecord* Record = nullptr;
@@ -1035,12 +1035,12 @@ FMaterialLibraryRecord* DACOM_API FMaterialLibrary::CreateAfterMap(const char* N
     if (!bWrap)
         return CreateGenericRecord(NameCopy, SelectedType, 0, AggregateOuter);
 
-    FMaterialAggregateDesc Desc = {};
+    FAGGDESC14 Desc = {};
     IDAComponent* Inner;
     Desc.Size = sizeof(Desc);
-    Desc.NameAt4 = "BatchedMaterial";
-    Desc.OuterAt8 = AggregateOuter;
-    Desc.InnerOutAtC = (void**)&Inner;
+    Desc.Name = "BatchedMaterial";
+    Desc.Outer = AggregateOuter;
+    Desc.InnerOut = &Inner;
     IDAComponent* Created = nullptr;
     IMaterial* Material = nullptr;
     IBatchedMaterial* Batched = nullptr;

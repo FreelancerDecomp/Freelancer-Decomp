@@ -83,32 +83,6 @@ static unsigned long G_AnonymousIndex = 0;
 static const char* const G_StatusOk = "[OK]";
 static const char* const G_StatusFailed = "[FAILED]";
 
-// Local copy of DALib FFileSystemAggDesc (0x34). Do not include DALib.h.
-struct FEngBaseFileSystemDesc
-{
-    unsigned long Size;
-    const char* ComponentName;
-    const char* BackendName;
-    const char* DataPath;
-    unsigned long Field10;
-    unsigned long Field14;
-    void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
-    unsigned long Field1C;
-    unsigned long Field20;
-    void* Field24;      // template file
-    void* Field28;      // parent
-    unsigned long Field2C;
-    unsigned long Field30;
-};
-
-// ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform: the
-// pointer fields must be pointers there too, or every field after them moves on x64.
-static_assert(offsetof(FEngBaseFileSystemDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
-static_assert(offsetof(FEngBaseFileSystemDesc, Field10) == offsetof(FFileSystemDesc, Access), "Access");
-static_assert(offsetof(FEngBaseFileSystemDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
-static_assert(offsetof(FEngBaseFileSystemDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
-static_assert(offsetof(FEngBaseFileSystemDesc, Field28) == offsetof(FFileSystemDesc, Parent), "Parent");
-static_assert(offsetof(FEngBaseFileSystemDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
 
 // FEngineObject holds a real std::map (the instance-root map), so only the facet offset is
 // asserted; the retail byte layout is documented on the struct.
@@ -135,8 +109,6 @@ FL_LAYOUT_ASSERT(offsetof(FChannelArchetypeObject, FrameCount) == 0x04, "Channel
 FL_LAYOUT_ASSERT(offsetof(FChannelArchetypeObject, Duration) == 0x18, "ChannelArchetype.Duration");
 FL_LAYOUT_ASSERT(sizeof(FChannelArchetypeObject) == G_ChannelArchetypeObjectSize,
               "ChannelArchetype object size");
-FL_LAYOUT_ASSERT(sizeof(FAggDesc18) == 0x18, "AGGDESC 0x18");
-FL_LAYOUT_ASSERT(sizeof(FEngBaseFileSystemDesc) == 0x34, "FileSystem AGGDESC 0x34");
 FL_LAYOUT_ASSERT(sizeof(FEngineInstance) == G_EngineInstanceSize, "instance size");
 FL_LAYOUT_ASSERT(offsetof(FEngineInstance, Archetype) == 0x08, "instance.Archetype");
 FL_LAYOUT_ASSERT(offsetof(FEngineInstance, ParentArchetype) == 0x0C, "instance.ParentArchetype");
@@ -154,7 +126,6 @@ FL_LAYOUT_ASSERT(sizeof(FInstanceTransform) == G_TransformObjectSize, "transform
 FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, Matrix) == 0x04, "transform.Matrix");
 FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, Extra) == 0x34, "transform.Extra");
 FL_LAYOUT_ASSERT(offsetof(FInstanceTransform, User) == 0x44, "transform.User");
-FL_LAYOUT_ASSERT(sizeof(FAggDescC) == 0xC, "AGGDESC 0xC");
 
 struct FInnerIidEntry
 {
@@ -615,7 +586,7 @@ static GENRESULT DACOM_API ChannelArchetypeCollectAt(FChannelArchetypeObject* Th
                                                     float* OutKeys, unsigned long Capacity,
                                                     unsigned long* Count);
 static void ChannelDecompressFrames(FChannelArchetypeObject* Channel);
-static void FillFileSystemDesc(FEngBaseFileSystemDesc* Desc, const char* Path, const char* Backend);
+static void FillFileSystemDesc(FFileSystemDesc* Desc, const char* Path, const char* Backend);
 static unsigned long DACOM_API ChannelArchetypeAddRef(FChannelArchetypeObject* This);
 static unsigned long DACOM_API ChannelArchetypeRelease(FChannelArchetypeObject* This);
 static void ChannelArchetypeInnerCtor(FChannelArchetypeObject* This);
@@ -789,7 +760,7 @@ static unsigned long LoadAnimScriptNames(FAnimScript* Script, void* FileSystem)
         {
             if (FindData.cFileName[0] == '.')
                 continue;
-            FEngBaseFileSystemDesc Desc;
+            FFileSystemDesc Desc;
             FillFileSystemDesc(&Desc, FindData.cFileName, nullptr);
             Desc.Field30 = (unsigned long)FindHandle;
             void* NestedFs = nullptr;
@@ -836,7 +807,7 @@ static unsigned long LoadAnimScriptsByNameList(FAnimScript* Script, void* FileSy
         }
         if (FindAnimName(Script, DACOM_CRC::GetCRC32(Name)) != nullptr)
             continue;
-        FEngBaseFileSystemDesc Desc;
+        FFileSystemDesc Desc;
         FillFileSystemDesc(&Desc, Name, nullptr);
         void* NestedFs = nullptr;
         if (Fs->CreateInstance((AGGDESC*)(&Desc), &NestedFs) == 0)
@@ -3384,13 +3355,13 @@ static GENRESULT DACOM_API EngineLoadEngineComponents(FEngineObject* This, IDACo
         if (Name == nullptr)
             continue;
 
-        void* OuterInner = nullptr;
+        IDAComponent* OuterInner = nullptr;
         void* Created = nullptr;
-        FAggDesc18 Desc;
+        FAGGDESC18 Desc;
         Desc.Size = G_AggDescSizeAnimation;
         Desc.Name = Name;
-        Desc.Inner = This;
-        Desc.Outer = &OuterInner;
+        Desc.Outer = This;
+        Desc.InnerOut = &OuterInner;
         Desc.Value = Value;
         Desc.SystemContainer = SystemContainer;
 
@@ -3479,9 +3450,9 @@ static GENRESULT DACOM_API EngineSetSearchPath(FEngineObject* This, const char* 
     }
     else
     {
-        FAggDesc8 Desc;
-        Desc.Size = G_AggDescSizeSearchPath;
-        Desc.Name = G_NameSearchPath;
+        AGGDESC Desc;
+        Desc.size = G_AggDescSizeSearchPath;
+        Desc.interface_name = G_NameSearchPath;
         if (DACOM_Acquire()->CreateInstance((AGGDESC*)(&Desc),
                                             (void**)(&Created)) >= 0)
         {
@@ -3532,17 +3503,17 @@ static FArchetypeHandle* const G_InvalidArchetype =
 // The 0x34 FileSystem descriptor every caller builds inline (LAB_0661ffc0 0661ffde..06620025,
 // FUN_066201b0, FUN_06611840 ...): zeroed, then size / "FileSystem" / +8 backend / +0xC path /
 // 0x80000000 / 1 / 3 / 0x8000080 / +0x30 = -1.
-static void FillFileSystemDesc(FEngBaseFileSystemDesc* Desc, const char* Path, const char* Backend)
+static void FillFileSystemDesc(FFileSystemDesc* Desc, const char* Path, const char* Backend)
 {
     std::memset(Desc, 0, sizeof(*Desc));
     Desc->Size = 0x34;
     Desc->ComponentName = G_NameFileSystem;
-    Desc->BackendName = Backend;
-    Desc->DataPath = Path;
-    Desc->Field10 = 0x80000000;
-    Desc->Field14 = 1;
-    Desc->Field1C = 3;
-    Desc->Field20 = 0x8000080;
+    Desc->Implementation = Backend;
+    Desc->Path = Path;
+    Desc->Access = 0x80000000;
+    Desc->ShareMode = 1;
+    Desc->Creation = 3;
+    Desc->Flags = 0x8000080;
     Desc->Field30 = 0xFFFFFFFF;
 }
 
@@ -3713,7 +3684,7 @@ static GENRESULT DACOM_API EngineCreateFileSystem(FEngineObject* This, const cha
     if (Path == nullptr || Out == nullptr)
         return GR_INVALID_PARMS;
 
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, Path, nullptr);
 
     // Every candidate is called through vtable +0xC (CreateInstance): a component factory,
@@ -4087,7 +4058,7 @@ static GENRESULT DACOM_API ChannelArchetypeLoad(FChannelArchetypeObject* This, v
         return GR_INVALID_PARMS;
     IFileSystem* Fs = AsFileSystem(FileSystem);
 
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, G_NameHeader, G_NameDos);
     const int HeaderHandle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     if (HeaderHandle == -1)
@@ -4105,7 +4076,7 @@ static GENRESULT DACOM_API ChannelArchetypeLoad(FChannelArchetypeObject* This, v
     This->Flags = Header[2];
     This->Stride = ChannelStrideFromHeader(This->Flags, This->SampleRate);
 
-    Desc.DataPath = G_NameFrames;
+    Desc.Path = G_NameFrames;
     const int FramesHandle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     if (FramesHandle == -1)
         return (GENRESULT)0xFFFFFFFA;
@@ -4674,7 +4645,7 @@ static float PlaybackStoredDuration(FAnimPlayback* Playback)
 static unsigned long ReadUtfNameCrc(void* FileSystem, const char* Name, char** Out)
 {
     IFileSystem* Fs = AsFileSystem(FileSystem);
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, Name, nullptr);
     const int Handle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     if (Handle != -1)
@@ -4699,9 +4670,9 @@ static void LoadChannelNode(FAnimTrack* Track, void* FileSystem)
         Track->Channel->Release();
         Track->Channel = nullptr;
     }
-    FAggDesc8 Desc;
-    Desc.Size = G_AggDescSizeChannelArchetype;
-    Desc.Name = G_NameChannelArchetype;
+    AGGDESC Desc;
+    Desc.size = G_AggDescSizeChannelArchetype;
+    Desc.interface_name = G_NameChannelArchetype;
     ICOManager* Dacom = DACOM_Acquire();
     if (Dacom->CreateInstance((AGGDESC*)(&Desc),
                               (void**)(&Track->Channel)) == 0) // +0xC
@@ -4726,7 +4697,7 @@ static void LoadAnimScriptMaps(FAnimNameEntry* Entry, const char* Name, void* Fi
         {
             if (std::strcmp(FindData.cFileName, G_NameRootHeight) != 0)
                 continue;
-            FEngBaseFileSystemDesc Desc;
+            FFileSystemDesc Desc;
             FillFileSystemDesc(&Desc, FindData.cFileName, nullptr);
             Desc.Field30 = (unsigned long)FindHandle;
             const int Handle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
@@ -4740,7 +4711,7 @@ static void LoadAnimScriptMaps(FAnimNameEntry* Entry, const char* Name, void* Fi
         }
         if (FindData.cFileName[0] == '.')
             continue;
-        FEngBaseFileSystemDesc Desc;
+        FFileSystemDesc Desc;
         FillFileSystemDesc(&Desc, FindData.cFileName, nullptr);
         Desc.Field30 = (unsigned long)FindHandle;
         void* MapFs = nullptr;
@@ -5027,7 +4998,7 @@ static FArchetypeHandle* DACOM_API EngineCreateArchetypeHandle(FEngineObject* Th
 // The "Object name" / "File name" reads of FUN_066201b0 (06620249..c7 / 066202c7..5c): open
 static bool ReadPartNameField(IFileSystem* Fs, const char* Field, char* Buffer)
 {
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, Field, nullptr);
     const int Handle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     if (Handle == -1)
@@ -5051,7 +5022,7 @@ static bool ReadPartNameField(IFileSystem* Fs, const char* Field, char* Buffer)
 static GENRESULT LinkCmpndPartHandle(FEngineObject* Engine, const char* Name, void* CmpndFs,
                                     unsigned long FindHandle, void* ParentFs, FArchetypeChild* Child)
 {
-    FEngBaseFileSystemDesc PartDesc;
+    FFileSystemDesc PartDesc;
     FillFileSystemDesc(&PartDesc, Name, nullptr);
     PartDesc.Field30 = FindHandle;
     void* FileFs = nullptr;
@@ -5260,7 +5231,7 @@ static void ParseConsConstraints(FArchetypeHandle* Handle, IFileSystem* Fs)
         {
             if (FindData.cFileName[0] == '.')
                 continue;
-            FEngBaseFileSystemDesc Desc;
+            FFileSystemDesc Desc;
             FillFileSystemDesc(&Desc, FindData.cFileName, nullptr);
             Desc.Field30 = (unsigned long)FindHandle;
             const int File = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
@@ -5331,7 +5302,7 @@ static FArchetypeHandle* DACOM_API EngineCreateArchetypeHandle(FEngineObject* Th
                                                               FArchetypeName* Name,
                                                               void* FileSystem)
 {
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, G_NameCmpnd, nullptr);
     void* CmpndFs = nullptr;
     if (Name->Crc == 0)
@@ -6840,9 +6811,9 @@ static I3DMathEngine* G_MathEngine = nullptr;
 // retail, 0 here). No other tests.
 I3DMathEngine* Create3DMathEngine()
 {
-    FAggDescC Desc = {};
+    FMathDesc Desc = {};
     Desc.Size = G_AggDescSizeMath;
-    Desc.Name = G_Name3DMathEngine;
+    Desc.InterfaceName = G_Name3DMathEngine;
     void* Created = nullptr;
     DACOM_Acquire()->CreateInstance((AGGDESC*)(&Desc), &Created);
     return (I3DMathEngine*)Created;
@@ -7185,7 +7156,7 @@ static long ParseHardpointJointType(const char* Name)
 // The fixed-size field read LAB_06625e60 inlines four times (Axis 066260b8..1e, Min
 static void ReadHardpointField(IFileSystem* Fs, const char* Name, void* Dest, unsigned long Size)
 {
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, Name, nullptr);
     const int FileHandle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     if (FileHandle == -1)
@@ -7201,7 +7172,7 @@ static void ReadHardpointField(IFileSystem* Fs, const char* Name, void* Dest, un
 // FUN_06627b30 (cdecl, FS, Name, Out): the same open as ReadHardpointField, a 0x24-byte Read
 static GENRESULT ReadHardpointOrientation(IFileSystem* Fs, const char* Name, float* Out)
 {
-    FEngBaseFileSystemDesc Desc;
+    FFileSystemDesc Desc;
     FillFileSystemDesc(&Desc, Name, nullptr);
     const int FileHandle = Fs->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
     bool bRead = false;
@@ -7483,19 +7454,19 @@ GENRESULT DACOM_API AnimationFactoryCreateInstance(FDacomFactory* This, AGGDESC*
     Object->Inner.RefCount = 1;
     Object->Inner.Object = Object;
 
-    FAggDesc18* Agg = (FAggDesc18*)Desc;
+    FAGGDESC18* Agg = (FAGGDESC18*)Desc;
     IDAComponent* const InnerUnknown = &Object->Inner;
-    Object->Controller = (IDAComponent*)(Agg->Inner);
-    if (Agg->Inner != nullptr)
-        *Agg->Outer = InnerUnknown;
+    Object->Controller = (IDAComponent*)(Agg->Outer);
+    if (Agg->Outer != nullptr)
+        *Agg->InnerOut = InnerUnknown;
     else
         Object->Controller = InnerUnknown;
 
     const int HookResult = EngBaseAggregationHook(Desc);
     if (HookResult != 0)
     {
-        if (Agg->Outer != nullptr)
-            *Agg->Outer = nullptr;
+        if (Agg->InnerOut != nullptr)
+            *Agg->InnerOut = nullptr;
         DestroyAnimationLists(Object);
         std::free(Object);
         *Out = nullptr;
@@ -7528,19 +7499,19 @@ GENRESULT DACOM_API HardpointFactoryCreateInstance(FDacomFactory* This, AGGDESC*
     Object->Inner.RefCount = 1;
     Object->Inner.Object = Object;
 
-    FAggDesc18* Agg = (FAggDesc18*)Desc;
+    FAGGDESC18* Agg = (FAGGDESC18*)Desc;
     IDAComponent* const InnerUnknown = &Object->Inner;
-    Object->Controller = (IDAComponent*)(Agg->Inner);
-    if (Agg->Inner == nullptr)
+    Object->Controller = (IDAComponent*)(Agg->Outer);
+    if (Agg->Outer == nullptr)
         Object->Controller = InnerUnknown;
     else
-        *Agg->Outer = InnerUnknown;
+        *Agg->InnerOut = InnerUnknown;
 
     const int HookResult = EngBaseAggregationHook(Desc);
     if (HookResult != 0)
     {
-        if (Agg->Outer != nullptr)
-            *Agg->Outer = nullptr;
+        if (Agg->InnerOut != nullptr)
+            *Agg->InnerOut = nullptr;
         HardpointDestruct(Object);
         std::free(Object);
         *Out = nullptr;

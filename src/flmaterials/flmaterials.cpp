@@ -129,8 +129,8 @@ namespace
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;
             }
-            FMaterialAggregateDesc* Agg = (FMaterialAggregateDesc*)Desc;
-            if (std::strcmp(Agg->NameAt4, Spec_.Name) != 0)
+            FAGGDESC14* Agg = (FAGGDESC14*)Desc;
+            if (std::strcmp(Agg->Name, Spec_.Name) != 0)
             {
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;
@@ -146,8 +146,8 @@ namespace
             const GENRESULT Result = Object->InitializeFromDescriptor(Agg);
             if (Result != GR_OK)
             {
-                if (Agg->InnerOutAtC != nullptr)
-                    *Agg->InnerOutAtC = nullptr;
+                if (Agg->InnerOut != nullptr)
+                    *Agg->InnerOut = nullptr;
                 Object->ScalarDeletingDestructor(1);
                 *Instance = nullptr;
                 return Result;
@@ -208,8 +208,8 @@ namespace
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;
             }
-            FAggDesc18* Agg = (FAggDesc18*)Desc;
-            if (std::strcmp(Agg->NameAt4, G_NameFlAppearance) != 0)
+            FAGGDESC18* Agg = (FAGGDESC18*)Desc;
+            if (std::strcmp(Agg->Name, G_NameFlAppearance) != 0)
             {
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;

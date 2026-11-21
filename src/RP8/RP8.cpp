@@ -991,7 +991,7 @@ GENRESULT DACOM_API FRp8Factory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
     GENRESULT Result = GR_OK;
     FDirectX8* Object = nullptr;
-    FRp8AggDesc* Ext = (FRp8AggDesc*)(Desc);
+    FAGGDESC14* Ext = (FAGGDESC14*)(Desc);
     if (Ext->Size != 0x14 || std::strcmp(Ext->Name, Name) != 0)
     {
         Result = GR_INTERFACE_UNSUPPORTED;
@@ -1141,10 +1141,10 @@ unsigned long DACOM_API FDirectX8::Release()
 // FUN_06d01a06 (CreateInstance's last step): a non-empty AGGDESC+0x10 is strcpy'd into the
 // 0x80-byte name buffer +0x24 (unbounded, as in retail), else "RenderPipeline"; then
 // FDUMP(0x100003 NOTICE, rp_dx8.cpp line 0x2fb, the buffer). Always 0.
-GENRESULT FDirectX8::ApplySectionName(const FRp8AggDesc* Desc)
+GENRESULT FDirectX8::ApplySectionName(const FAGGDESC14* Desc)
 {
-    if (Desc->Extra != nullptr && Desc->Extra[0] != '\0')
-        strcpy(SectionName_, Desc->Extra);
+    if (Desc->Value != nullptr && Desc->Value[0] != '\0')
+        strcpy(SectionName_, Desc->Value);
     else
         strcpy(SectionName_, kRp8DefaultSection);
     Rp8Fdump(kFdumpNotice, 0x2fb, "NOTICE", SectionName_);

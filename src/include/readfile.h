@@ -16,31 +16,7 @@
 #include <cstdint>
 #include <windows.h> // FILETIME, WIN32_FIND_DATAA
 
-// Digital Anvil FileSystem AGGDESC (size 0x30 or 0x34). DALib::OpenData / ReadFile.dll.c.
-struct FFileSystemDesc
-{
-    unsigned long Size;              // +0x00  0x30 or 0x34
-    const char* ComponentName;       // +0x04  "FileSystem"
-    const char* Implementation;      // +0x08  "DOS" / "UTF" / "MEM"
-    const char* Path;                // +0x0C
-    unsigned long Access;            // +0x10  GENERIC_READ 0x80000000
-    unsigned long ShareMode;         // +0x14  FILE_SHARE_READ
-    void* Security;                  // +0x18
-    unsigned long Creation;          // +0x1C  OPEN_EXISTING 3
-    unsigned long Flags;             // +0x20  0x08000080
-    void* TemplateFile;              // +0x24
-    IDAComponent* Parent;            // +0x28
-    unsigned long Extra;             // +0x2C
-    unsigned long Field30;           // +0x30  0xFFFFFFFF when Size==0x34
-    void* MemBuffer;                 // +0x34  MEM size 0x40 only (FUN_06b777f0)
-    unsigned long MemSize;           // +0x38
-    unsigned long MemFlags;          // +0x3C  bit0=wrap pointer, bit1=flag+1
-};
-
-// Callers fill `Size` (0x30 / 0x34 for DOS and UTF, 0x40 for MEM) and the callee reads
-// only that much, so the DOS-sized prefix layout is the invariant that matters.
-FL_LAYOUT_ASSERT(offsetof(FFileSystemDesc, Field30) == 0x30, "DOS/UTF desc prefix is 0x34");
-FL_LAYOUT_ASSERT(sizeof(FFileSystemDesc) == 0x40, "MEM tail extends the desc to 0x40");
+// FFileSystemDesc, the FileSystem AGGDESC, is in dacom.h with the other descriptors.
 
 // File-system instances also expose their component factory.
 struct IFileSystem : IComponentFactory

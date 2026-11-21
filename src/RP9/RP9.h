@@ -58,14 +58,6 @@ enum ERp9PipelineState : int
     PipelineStateBrokenFlip = 0xD,
 };
 
-struct FRp9AggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
 
 // The 10-dword mode descriptor callers pass to select_mode / create_buffers (external shape).
 struct FRp9Mode
@@ -585,7 +577,7 @@ public:
 
     GENRESULT QueryLocal(const char* Iid, void** Out);
     void FlushDrawState(IDirect3DDevice9* Device); // formerly static FlushDrawState
-    GENRESULT ApplySectionName(const FRp9AggDesc* Desc);
+    GENRESULT ApplySectionName(const FAGGDESC14* Desc);
     // RP8 FUN_06d020ab (startup and create_buffers call it with the device caps, in D3D8 shape).
     // The flag part runs only after the MGSDB database loaded; the ability-map overrides run on
     // every path.

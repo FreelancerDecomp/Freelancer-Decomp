@@ -131,16 +131,16 @@ void* FVoiceProfile::OpenScriptFileSystem()
     if (UtfPath.empty())
         return nullptr;
 
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.BackendName = "UTF";
-    Desc.DataPath = UtfPath.c_str();
-    Desc.Field10 = 0x80000000u;
-    Desc.Field14 = 1;
-    Desc.Field1C = 3;
-    Desc.Field20 = 0x8000080u;
+    Desc.Implementation = "UTF";
+    Desc.Path = UtfPath.c_str();
+    Desc.Access = 0x80000000u;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080u;
     Desc.Field30 = 0xffffffffu;
 
     void* Out = nullptr;

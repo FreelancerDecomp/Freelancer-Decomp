@@ -92,15 +92,15 @@ namespace
     // The DOS FileSystem over DATA_EXTRA, described like DALib::OpenData's over DATA.
     IFileSystem* OpenExtraData(const char* Path)
     {
-        FFileSystemAggDesc Desc = {};
+        FFileSystemDesc Desc = {};
         Desc.Size = 0x34;
         Desc.ComponentName = "FileSystem";
-        Desc.BackendName = "DOS";
-        Desc.DataPath = Path;
-        Desc.Field10 = 0x80000000; // GENERIC_READ
-        Desc.Field14 = 1;          // FILE_SHARE_READ
-        Desc.Field1C = 3;          // OPEN_EXISTING
-        Desc.Field20 = 0x08000080;
+        Desc.Implementation = "DOS";
+        Desc.Path = Path;
+        Desc.Access = 0x80000000;     // GENERIC_READ
+        Desc.ShareMode = 1;           // FILE_SHARE_READ
+        Desc.Creation = 3;            // OPEN_EXISTING
+        Desc.Flags = 0x08000080;
         Desc.Field30 = 0xFFFFFFFF;
         IFileSystem* FileSystem = nullptr;
         if (DALib::Dacom == nullptr ||

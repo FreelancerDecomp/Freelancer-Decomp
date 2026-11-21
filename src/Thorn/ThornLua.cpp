@@ -358,12 +358,12 @@ namespace
 
         char Message[8192];
         const char* const DiagnosticSource = "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\THORN\\LuaScriptParser.cpp";
-        FThornAggDesc14 Desc;
+        FAGGDESC14 Desc;
         Desc.Size = G_AggDescSizeThorn;
-        Desc.NameAt4 = lua_getstring(ClsidObj);
+        Desc.Name = lua_getstring(ClsidObj);
         Desc.Outer = nullptr;
         Desc.InnerOut = nullptr;
-        Desc.Field_0x10 = 0;
+        Desc.Value = nullptr;
         if (Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc),
                                     reinterpret_cast<void**>(&Component.Object)) == GR_OK)
         {
@@ -607,12 +607,12 @@ namespace
         const bool bExplicitType = lua_isnil(TypeObject) == 0;
         const char* FactoryName = bExplicitType ? lua_getstring(TypeObject) : "CV_CRSplinePath";
         Descriptor->MotionPath.PathType = FactoryName;
-        FThornAggDesc14 Creation;
+        FAGGDESC14 Creation;
         Creation.Size = G_AggDescSizeThorn;
-        Creation.NameAt4 = FactoryName;
+        Creation.Name = FactoryName;
         Creation.Outer = nullptr;
         Creation.InnerOut = nullptr;
-        Creation.Field_0x10 = 0;
+        Creation.Value = nullptr;
         const GENRESULT Created = Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Creation),
                                                           reinterpret_cast<void**>(&Component.Object));
         if (Created != GR_OK && !bExplicitType)

@@ -122,38 +122,18 @@ int FileOpenByName(void* File, const char* ChildName)
 {
     if (File == nullptr || ChildName == nullptr)
         return -1;
-    struct FOpenDesc
-    {
-        unsigned long Size;
-        const char* ComponentName;
-        const char* BackendName;
-        const char* DataPath;
-        unsigned long Field10;
-        unsigned long Field14;
-        void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
-        unsigned long Field1C;
-        unsigned long Field20;
-        void* Field24;      // template file
-        void* Field28;      // parent
-        unsigned long Field2C;
-        unsigned long Field30;
-    };
-    // ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform.
-    static_assert(offsetof(FOpenDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
-    static_assert(offsetof(FOpenDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
-    static_assert(offsetof(FOpenDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
-    FOpenDesc Desc;
+    FFileSystemDesc Desc;
     std::memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.DataPath = ChildName;
-    Desc.Field10 = 0x80000000;
-    Desc.Field14 = 1;
-    Desc.Field1C = 3;
-    Desc.Field20 = 0x8000080;
+    Desc.Path = ChildName;
+    Desc.Access = 0x80000000;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080;
     Desc.Field30 = 0xFFFFFFFF;
     const int Handle =
-        AsFileSystem(File)->OpenByDesc((FFileSystemDesc*)(&Desc)); // +0x7C
+        AsFileSystem(File)->OpenByDesc(&Desc); // +0x7C
     if (Handle != -1)
         return Handle;
     // UTF +0x7C is a stub: OpenNode + current handle 0 (EngBase FileSystemReadNamed).

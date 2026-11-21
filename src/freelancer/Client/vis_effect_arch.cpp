@@ -1052,15 +1052,15 @@ int AleLibLoad(char const* AleName)
 
     // 0x004011df..0x00401244: the DALib::OpenData-shaped FileSystem desc (as FUN_00420dd0
     // builds it), created through DALib::Data vt+0xc.
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.DataPath = AleName;
-    Desc.Field10 = 0x80000000u;
-    Desc.Field14 = 1;
-    Desc.Field1C = 3;
-    Desc.Field20 = 0x8000080u;
+    Desc.Path = AleName;
+    Desc.Access = 0x80000000u;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080u;
     Desc.Field30 = 0xffffffffu;
 
     void* FsOut = nullptr;

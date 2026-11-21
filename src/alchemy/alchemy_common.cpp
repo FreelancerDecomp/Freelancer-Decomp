@@ -276,11 +276,10 @@ namespace AlchemyImpl
         ICOManager* Dacom = DACOM_Acquire();
         if (Dacom == nullptr)
             return GR_ALE_CREATE_FAIL;
-        FAggDesc8 Desc;
-        Desc.Size = 8;
-        Desc.NameAt4 = Name;
-        const GENRESULT Result =
-            Dacom->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), reinterpret_cast<void**>(Out));
+        AGGDESC Desc;
+        Desc.size = 8;
+        Desc.interface_name = Name;
+        const GENRESULT Result = Dacom->CreateInstance(&Desc, reinterpret_cast<void**>(Out));
         if (Result != GR_OK || *Out == nullptr)
             return GR_ALE_CREATE_FAIL;
         return GR_OK;
@@ -928,16 +927,10 @@ namespace AlchemyImpl
         ICOManager* Manager = DACOM_Acquire();
         if (Manager == nullptr)
             return nullptr;
-        struct FMathDesc12
-        {
-            unsigned long Size;
-            const char* NameAt4;
-            const char* Field8;
-        };
-        FMathDesc12 Desc;
+        FMathDesc Desc;
         Desc.Size = 0xC;
-        Desc.NameAt4 = "3DMathEngine";
-        Desc.Field8 = nullptr;
+        Desc.InterfaceName = "3DMathEngine";
+        Desc.Implementation = nullptr;
         void* Instance = nullptr;
         if (Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), &Instance) != GR_OK)
             return nullptr;

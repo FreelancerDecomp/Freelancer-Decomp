@@ -417,7 +417,7 @@ namespace AlchemyImpl
         // give it the class name (the creation descriptor's +4 name, hashed), then
         // Duration = set LifeSpan. A null descriptor FDUMPs "you should set DACOMDESC for
         // create FxNode" and skips the name.
-        GENRESULT InitializeFromFactory(const FAggDesc8* Desc);
+        GENRESULT InitializeFromFactory(const AGGDESC* Desc);
 
         // Retail IFxEmitter+0x9C (this, appearance). One slot; last wins. No emit.
         GENRESULT DACOM_API AssociateAppearance(IDAComponent* Appearance) override;

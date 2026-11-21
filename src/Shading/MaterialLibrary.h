@@ -99,7 +99,7 @@ public:
 
     GENRESULT ClearRuntime();
     GENRESULT InitializeBase(IDAComponent* InOuter);
-    GENRESULT InitializeFromDescriptor(const FMaterialAggregateDesc* Desc);
+    GENRESULT InitializeFromDescriptor(const FAGGDESC14* Desc);
     GENRESULT ParseMaterialMap();
     const char* ResolveType(const char* Name, const char* Type);
     FCrcSlot* FindByCrc(unsigned long Crc);

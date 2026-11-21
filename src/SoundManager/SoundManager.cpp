@@ -1444,7 +1444,7 @@ unsigned long DACOM_API FSoundManagerFactory::Release()
 GENRESULT DACOM_API FSoundManagerFactory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
     // FUN_06ee8310 RET 0xC. No null checks on Desc, its name or Instance.
-    FSoundAggDesc* SoundDesc = reinterpret_cast<FSoundAggDesc*>(Desc);
+    FAGGDESC14* SoundDesc = reinterpret_cast<FAGGDESC14*>(Desc);
     if (SoundDesc->Size != kAggDescSize || strcmp(SoundDesc->Name, Name) != 0)
     {
         *Instance = nullptr; // 06ee841a
@@ -1535,7 +1535,7 @@ FSoundManager::~FSoundManager()
     ReleaseCom();
 }
 
-void FSoundManager::BindOuter(FSoundAggDesc* Desc)
+void FSoundManager::BindOuter(FAGGDESC14* Desc)
 {
     // 06ee8387..83be: inner unknown at +0x140 = {vtbl 95c0, count 1, Self}; +0x13C = desc outer
     // if set, and then *desc+0xC = inner unconditionally (06ee8400); else +0x13C = inner.
