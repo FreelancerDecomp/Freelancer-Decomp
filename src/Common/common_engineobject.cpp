@@ -7,7 +7,7 @@
 // EngineObject: the IEngineInstance base of every CObject (engine instance id, transform,
 // radius, instance flags, velocities).
 #include "common_cobject.h"
-#include "common_cobject_internal.h" // CmnCobject::CopyMatrix9
+#include "common_cobject_internal.h" // CmnCobject::CopyMatrix9, ClassListKeysChanged
 
 #include "DALib.h"
 #include "dacom.h"
@@ -53,6 +53,7 @@ void DACOM_API EngineObject::initialize_instance(long Inst)
 {
     // Listing 0xa9910. this+4 = FEngineInstance*.
     EngineInstanceId = (int)Inst;
+    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
 }
 
 void DACOM_API EngineObject::create_instance(long Inst)
@@ -66,6 +67,7 @@ void DACOM_API EngineObject::destroy_instance(long Inst)
     // Listing 0xa9920. Clears this+4 only.
     (void)Inst;
     EngineInstanceId = -1;
+    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
 }
 
 void DACOM_API EngineObject::set_position(long Inst, Vector const& Pos)
