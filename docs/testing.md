@@ -103,3 +103,10 @@ The output holds no game data, so CI uploads it as the `rpc-codecs` artifact.
 
 Not covered yet: `RemoteServer.dll`'s copy of the codecs (the client side), and the codecs'
 callers (packet dispatch and the DirectPlay transport).
+
+## Debug builds
+
+Pull requests build Release only. The `Debug builds` workflow (`.github/workflows/debug-builds.yml`)
+builds Debug|Win32, DebugASan|Win32 and Debug|x64 every Monday and when started by hand
+(Actions → Debug builds → Run workflow), so a configuration that stops compiling is caught within
+a week. It only builds; it runs no tests.

@@ -1,0 +1,97 @@
+name: Debug builds
+
+# Debug and DebugASan are not built on pull requests (the Build workflow builds Release only),
+# so they are built once a week and on demand, to catch a configuration that no longer compiles.
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Mondays, 04:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The DirectX 8.1 SDK, as in build.yml (same archive, checksum and cache key).
+  DX8_SDK_URL: https://archive.org/download/dx81sdk_full/dx81sdk_full.exe
+  DX8_SDK_MD5: 28533018267fa278bb1c603a67d86d2f
+
+jobs:
+  build:
+    name: ${{ matrix.configuration }}|${{ matrix.platform }}
+    runs-on: windows-2022
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - configuration: Debug
+            platform: Win32
+          - configuration: DebugASan
+            platform: Win32
+          - configuration: Debug
+            platform: x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache DirectX 8.1 SDK
+        id: dx8-cache
+        uses: actions/cache@v4
+        with:
+          path: dx8
+          key: dx8-sdk-${{ env.DX8_SDK_MD5 }}
+
+      - name: Fetch DirectX 8.1 SDK headers and libraries
+        if: steps.dx8-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = Join-Path $env:RUNNER_TEMP 'dx81sdk_full.exe'
+          curl.exe --fail --location --retry 3 --silent --show-error -o $exe $env:DX8_SDK_URL
+          $md5 = (Get-FileHash -Algorithm MD5 $exe).Hash.ToLowerInvariant()
+          if ($md5 -ne $env:DX8_SDK_MD5) { throw "DX8 SDK checksum mismatch: $md5" }
+          $tmp = Join-Path $env:RUNNER_TEMP 'dx8x'
+          New-Item -ItemType Directory -Force $tmp | Out-Null
+          tar -xf $exe -C $tmp DXF/DXSDK/include DXF/DXSDK/lib
+          if ($LASTEXITCODE -ne 0) { throw "tar failed with exit code $LASTEXITCODE" }
+          New-Item -ItemType Directory -Force dx8 | Out-Null
+          Move-Item (Join-Path $tmp 'DXF/DXSDK/include') dx8/include
+          Move-Item (Join-Path $tmp 'DXF/DXSDK/lib') dx8/lib
+          if (-not (Test-Path dx8/include/d3d8.h) -or -not (Test-Path dx8/lib/d3d8.lib)) {
+            throw 'DX8 SDK layout not as expected'
+          }
+
+      # vcpkg's binary packages (SDL3 for RPGPU) are keyed on their inputs, configuration
+      # included, so Debug packages get their own cache here; Release's cache is build.yml's.
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: vcpkg-debug-${{ matrix.platform }}-${{ hashFiles('src/vcpkg.json', 'src/RPGPU/vcpkg.json') }}-${{ github.run_id }}
+          restore-keys: |
+            vcpkg-debug-${{ matrix.platform }}-
+
+      - name: Point vcpkg at the cache
+        shell: pwsh
+        run: |
+          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        run: >-
+          msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
+          -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }}
+          -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
+          -clp:PerformanceSummary -bl:msbuild.binlog
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: msbuild-binlog-${{ matrix.configuration }}-${{ matrix.platform }}
+          path: msbuild.binlog
+          retention-days: 7
