@@ -18,7 +18,8 @@ Retail compatibility comes first, as for the x64 server:
   retail clients and servers, and reads the retail `DATA\`, saves and data-only mods (including
   their 32-bit resource DLLs) without conversion. DLL plugins and exe patches stay Win32-only.
 - **No new behaviour.** The port renderers draw what RP8 draws. RP8 screenshots are the
-  reference. Visual extras such as RP9's volumetric nebulae stay off.
+  reference. Visual extras such as RP9's volumetric nebulae stay off on x64; they are evaluated
+  on their own in the optional stage after phase 4.
 - Known last-bit differences (x87 trigonometry and logarithms, see step 1.2) are listed in
   [x64.md](x64.md), not hidden.
 
@@ -133,7 +134,8 @@ RpcCodecTest.
 
 **2.5 RP9 for x64, as a stopgap renderer.** Link the x64 `d3dx9.lib`. Today `FreelancerRp9=1`
 also turns on the client's Ex hooks (volumetric nebulae). Split those into their own switch,
-off for x64, so the x64 client draws what RP8 draws. Note the `RP9-GAP` list in
+off for x64, so the x64 client draws what RP8 draws. On Win32 nothing changes: `FreelancerRp9=1`
+still builds both. Note the `RP9-GAP` list in
 [re/rp9.md](re/rp9.md): these are visual-only differences. No effort goes into closing them;
 phase 5 replaces RP9 on x64.
 
@@ -181,6 +183,21 @@ and compare the surfaces byte for byte.
 resolution), captured through the existing screenshot path and compared with a tolerance. RP8 on
 Win32 is the reference. RP9 on x64 gets measured too, for its known gaps.
 
+## Optional stage: RP9's extras on x64
+
+Not on the path to SDL3. The extras were added by the port and have no retail reference, so they
+get their own evaluation once the screenshot comparison from step 4.2 exists:
+
+- Capture the step 4.2 scenes with the extras on and off, next to the RP8 reference, and look
+  at what they change.
+- Decide from that whether they stay, change, or go, on Win32 too.
+- Only if they stay: turn on the Ex-hook switch from step 2.5 for x64 and port `render_ex.*`,
+  `nebula_volume.*` and RP9's Ex side (`RP9Ex.cpp`). The check is that x64 draws what the Win32
+  RP9 build draws with the same `volumetric.ini`.
+
+When RPGPU replaces RP9 on x64 in phase 5, the extras go with it unless RPGPU gets its own Ex
+side. That is a separate decision.
+
 ## Phase 5: RPGPU, the SDL3 + SDL_GPU renderer
 
 A port-only DACOM module, selected in `DACOM.INI`. It is developed on Windows first, with its
@@ -227,8 +244,10 @@ Not started until the hold on the non-Windows port is lifted. It needs CMake (#1
 
 ## Decisions needed
 
-1. Step 2.5: splitting RP9's Ex hooks into their own switch (off on x64).
-2. Step 2.2: the movie big-number code, once we know what it is for.
-3. Step 3.1: adding RPNull, a port-only module.
-4. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
-5. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
+1. Step 2.2: the movie big-number code, once we know what it is for.
+2. Step 3.1: adding RPNull, a port-only module.
+3. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
+4. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
+
+Decided: step 2.5 splits RP9's Ex hooks into their own switch, off on x64. Whether they come
+to x64 is decided in the optional stage after phase 4, from the screenshot comparison.
