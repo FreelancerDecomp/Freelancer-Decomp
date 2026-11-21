@@ -13,13 +13,15 @@ namespace TexConvert
 {
     namespace
     {
-        // One pixel as D3DX holds it between formats: four floats in 0..1.
+        // One pixel as D3DX holds it between formats: four channels in 0..1. D3DX 8.1 computes on
+        // the x87, whose extra precision decides ties (TexConvertTest's probes), so TexConvert
+        // keeps doubles, not floats.
         struct FColor
         {
-            float R;
-            float G;
-            float B;
-            float A;
+            double R;
+            double G;
+            double B;
+            double A;
         };
 
         std::uint16_t Read16(const unsigned char* P)
@@ -47,17 +49,23 @@ namespace TexConvert
             P[3] = static_cast<unsigned char>(V >> 24);
         }
 
-        // An n-bit channel as a float, and back with round-to-nearest.
-        float Unpack(std::uint32_t Value, unsigned int Bits)
+        // An n-bit channel as a number in 0..1, and back rounded to nearest (half up).
+        double Unpack(std::uint32_t Value, unsigned int Bits)
         {
-            return static_cast<float>(Value) / static_cast<float>((1u << Bits) - 1);
+            return static_cast<double>(Value) / static_cast<double>((1u << Bits) - 1);
         }
 
-        std::uint32_t Pack(float Value, unsigned int Bits)
+        std::uint32_t Pack(double Value, unsigned int Bits)
         {
-            const float Max = static_cast<float>((1u << Bits) - 1);
-            const float Clamped = std::min(1.0f, std::max(0.0f, Value));
-            return static_cast<std::uint32_t>(Clamped * Max + 0.5f);
+            const double Max = static_cast<double>((1u << Bits) - 1);
+            const double Scaled = std::min(1.0, std::max(0.0, Value)) * Max;
+            return static_cast<std::uint32_t>(std::floor(Scaled + 0.5));
+        }
+
+        // A value D3DX keeps in a 32-bit float (its D3DXCOLOR channels), widened again.
+        double AsFloat(double Value)
+        {
+            return static_cast<double>(static_cast<float>(Value));
         }
 
         FColor DecodePixel(unsigned int Format, const unsigned char* P, const unsigned char* PaletteRgb)
@@ -68,21 +76,21 @@ namespace TexConvert
             {
                 const unsigned char* const Entry = PaletteRgb != nullptr ? PaletteRgb + P[0] * 3 : nullptr;
                 if (Entry == nullptr)
-                    return {0.0f, 0.0f, 0.0f, 1.0f};
-                return {Unpack(Entry[0], 8), Unpack(Entry[1], 8), Unpack(Entry[2], 8), 1.0f};
+                    return {0.0, 0.0, 0.0, 1.0};
+                return {Unpack(Entry[0], 8), Unpack(Entry[1], 8), Unpack(Entry[2], 8), 1.0};
             }
             case kR8G8B8:
-                return {Unpack(P[2], 8), Unpack(P[1], 8), Unpack(P[0], 8), 1.0f};
+                return {Unpack(P[2], 8), Unpack(P[1], 8), Unpack(P[0], 8), 1.0};
             case kR5G6B5:
             {
                 const std::uint32_t V = Read16(P);
-                return {Unpack((V >> 11) & 0x1F, 5), Unpack((V >> 5) & 0x3F, 6), Unpack(V & 0x1F, 5), 1.0f};
+                return {Unpack((V >> 11) & 0x1F, 5), Unpack((V >> 5) & 0x3F, 6), Unpack(V & 0x1F, 5), 1.0};
             }
             case kX1R5G5B5:
             case kA1R5G5B5:
             {
                 const std::uint32_t V = Read16(P);
-                const float A = Format == kA1R5G5B5 ? static_cast<float>((V >> 15) & 1) : 1.0f;
+                const double A = Format == kA1R5G5B5 ? static_cast<double>((V >> 15) & 1) : 1.0;
                 return {Unpack((V >> 10) & 0x1F, 5), Unpack((V >> 5) & 0x1F, 5), Unpack(V & 0x1F, 5), A};
             }
             case kA4R4G4B4:
@@ -95,11 +103,11 @@ namespace TexConvert
             case kX8R8G8B8:
             {
                 const std::uint32_t V = Read32(P);
-                const float A = Format == kA8R8G8B8 ? Unpack(V >> 24, 8) : 1.0f;
+                const double A = Format == kA8R8G8B8 ? Unpack(V >> 24, 8) : 1.0;
                 return {Unpack((V >> 16) & 0xFF, 8), Unpack((V >> 8) & 0xFF, 8), Unpack(V & 0xFF, 8), A};
             }
             default:
-                return {0.0f, 0.0f, 0.0f, 1.0f};
+                return {0.0, 0.0, 0.0, 1.0};
             }
         }
 
@@ -172,21 +180,27 @@ namespace TexConvert
             const std::uint32_t C0 = Read16(Block);
             const std::uint32_t C1 = Read16(Block + 2);
             const std::uint32_t Indices = Read32(Block + 4);
+            // The endpoints are 32-bit floats; the entries between them are computed in double
+            // from those floats, the thirds as a + (b - a) / 3 (82 of 83 probes; the one left is
+            // a midpoint D3DX rounds up where the same sum rounds down elsewhere).
+            const double E0[3] = {AsFloat(Unpack((C0 >> 11) & 0x1F, 5)), AsFloat(Unpack((C0 >> 5) & 0x3F, 6)),
+                                  AsFloat(Unpack(C0 & 0x1F, 5))};
+            const double E1[3] = {AsFloat(Unpack((C1 >> 11) & 0x1F, 5)), AsFloat(Unpack((C1 >> 5) & 0x3F, 6)),
+                                  AsFloat(Unpack(C1 & 0x1F, 5))};
             FColor Palette[4];
-            Palette[0] = {Unpack((C0 >> 11) & 0x1F, 5), Unpack((C0 >> 5) & 0x3F, 6), Unpack(C0 & 0x1F, 5), 1.0f};
-            Palette[1] = {Unpack((C1 >> 11) & 0x1F, 5), Unpack((C1 >> 5) & 0x3F, 6), Unpack(C1 & 0x1F, 5), 1.0f};
+            Palette[0] = {E0[0], E0[1], E0[2], 1.0};
+            Palette[1] = {E1[0], E1[1], E1[2], 1.0};
             if (C0 > C1)
             {
-                Palette[2] = {(2.0f * Palette[0].R + Palette[1].R) / 3.0f, (2.0f * Palette[0].G + Palette[1].G) / 3.0f,
-                              (2.0f * Palette[0].B + Palette[1].B) / 3.0f, 1.0f};
-                Palette[3] = {(Palette[0].R + 2.0f * Palette[1].R) / 3.0f, (Palette[0].G + 2.0f * Palette[1].G) / 3.0f,
-                              (Palette[0].B + 2.0f * Palette[1].B) / 3.0f, 1.0f};
+                Palette[2] = {E0[0] + (E1[0] - E0[0]) / 3.0, E0[1] + (E1[1] - E0[1]) / 3.0,
+                              E0[2] + (E1[2] - E0[2]) / 3.0, 1.0};
+                Palette[3] = {E1[0] + (E0[0] - E1[0]) / 3.0, E1[1] + (E0[1] - E1[1]) / 3.0,
+                              E1[2] + (E0[2] - E1[2]) / 3.0, 1.0};
             }
             else
             {
-                Palette[2] = {(Palette[0].R + Palette[1].R) / 2.0f, (Palette[0].G + Palette[1].G) / 2.0f,
-                              (Palette[0].B + Palette[1].B) / 2.0f, 1.0f};
-                Palette[3] = {0.0f, 0.0f, 0.0f, bDxt1 ? 0.0f : 1.0f};
+                Palette[2] = {(E0[0] + E1[0]) / 2.0, (E0[1] + E1[1]) / 2.0, (E0[2] + E1[2]) / 2.0, 1.0};
+                Palette[3] = {0.0, 0.0, 0.0, bDxt1 ? 0.0 : 1.0};
             }
             for (int Index = 0; Index < 16; ++Index)
                 Out[Index] = Palette[(Indices >> (Index * 2)) & 3];
@@ -198,17 +212,17 @@ namespace TexConvert
         {
             for (int Index = 0; Index < 16; ++Index)
             {
-                const float A = Pixels[Index].A;
-                if (A <= 0.0f)
+                const double A = Pixels[Index].A;
+                if (A <= 0.0)
                 {
-                    Pixels[Index].R = 0.0f;
-                    Pixels[Index].G = 0.0f;
-                    Pixels[Index].B = 0.0f;
+                    Pixels[Index].R = 0.0;
+                    Pixels[Index].G = 0.0;
+                    Pixels[Index].B = 0.0;
                     continue;
                 }
-                Pixels[Index].R = std::min(1.0f, Pixels[Index].R / A);
-                Pixels[Index].G = std::min(1.0f, Pixels[Index].G / A);
-                Pixels[Index].B = std::min(1.0f, Pixels[Index].B / A);
+                Pixels[Index].R = std::min(1.0, AsFloat(Pixels[Index].R / A));
+                Pixels[Index].G = std::min(1.0, AsFloat(Pixels[Index].G / A));
+                Pixels[Index].B = std::min(1.0, AsFloat(Pixels[Index].B / A));
             }
         }
 
@@ -232,20 +246,20 @@ namespace TexConvert
             }
             // DXT4 / DXT5: two alpha endpoints and 3-bit indices, interpolated in float like the
             // colour.
-            const float A0 = Unpack(Block[0], 8);
-            const float A1 = Unpack(Block[1], 8);
-            float Alpha[8] = {A0, A1};
+            const double A0 = Unpack(Block[0], 8);
+            const double A1 = Unpack(Block[1], 8);
+            double Alpha[8] = {A0, A1};
             if (Block[0] > Block[1])
             {
                 for (int Step = 1; Step <= 6; ++Step)
-                    Alpha[Step + 1] = ((7 - Step) * A0 + Step * A1) / 7.0f;
+                    Alpha[Step + 1] = ((7 - Step) * A0 + Step * A1) / 7.0;
             }
             else
             {
                 for (int Step = 1; Step <= 4; ++Step)
-                    Alpha[Step + 1] = ((5 - Step) * A0 + Step * A1) / 5.0f;
-                Alpha[6] = 0.0f;
-                Alpha[7] = 1.0f;
+                    Alpha[Step + 1] = ((5 - Step) * A0 + Step * A1) / 5.0;
+                Alpha[6] = 0.0;
+                Alpha[7] = 1.0;
             }
             std::uint64_t Bits = 0;
             for (int Byte = 0; Byte < 6; ++Byte)
@@ -256,16 +270,16 @@ namespace TexConvert
                 Unpremultiply(Out);
         }
 
-        std::uint32_t Encode565(const float* C)
+        std::uint32_t Encode565(const double* C)
         {
             return (Pack(C[0], 5) << 11) | (Pack(C[1], 6) << 5) | Pack(C[2], 5);
         }
 
-        float Distance(const float* A, const float* B)
+        double Distance(const double* A, const double* B)
         {
-            const float R = A[0] - B[0];
-            const float G = A[1] - B[1];
-            const float Bl = A[2] - B[2];
+            const double R = A[0] - B[0];
+            const double G = A[1] - B[1];
+            const double Bl = A[2] - B[2];
             return R * R + G * G + Bl * Bl;
         }
 
@@ -273,13 +287,13 @@ namespace TexConvert
         // nearest palette entry. DXT1 uses the three-colour mode when a pixel is transparent.
         void EncodeColorBlock(const FColor* In, bool bDxt1, unsigned char* Block)
         {
-            float Min[3] = {1.0f, 1.0f, 1.0f};
-            float Max[3] = {0.0f, 0.0f, 0.0f};
+            double Min[3] = {1.0, 1.0, 1.0};
+            double Max[3] = {0.0, 0.0, 0.0};
             bool bTransparent = false;
             for (int Index = 0; Index < 16; ++Index)
             {
-                const float C[3] = {In[Index].R, In[Index].G, In[Index].B};
-                if (bDxt1 && In[Index].A < 0.5f)
+                const double C[3] = {In[Index].R, In[Index].G, In[Index].B};
+                if (bDxt1 && In[Index].A < 0.5)
                 {
                     bTransparent = true;
                     continue;
@@ -292,8 +306,8 @@ namespace TexConvert
             }
             if (Min[0] > Max[0])
             {
-                Min[0] = Min[1] = Min[2] = 0.0f;
-                Max[0] = Max[1] = Max[2] = 0.0f;
+                Min[0] = Min[1] = Min[2] = 0.0;
+                Max[0] = Max[1] = Max[2] = 0.0;
             }
             std::uint32_t C0 = Encode565(Max);
             std::uint32_t C1 = Encode565(Min);
@@ -315,7 +329,7 @@ namespace TexConvert
             // The four palette entries, decoded the same way as the decoder above.
             std::memset(Endpoints + 4, 0xE4, 4); // indices 0,1,2,3 in the first row
             DecodeColorBlock(Endpoints, bDxt1, Decoded);
-            float Palette[4][3];
+            double Palette[4][3];
             for (int Entry = 0; Entry < 4; ++Entry)
             {
                 Palette[Entry][0] = Decoded[Entry].R;
@@ -326,18 +340,18 @@ namespace TexConvert
             for (int Index = 0; Index < 16; ++Index)
             {
                 std::uint32_t Best = 0;
-                if (bThreeColor && In[Index].A < 0.5f)
+                if (bThreeColor && In[Index].A < 0.5)
                 {
                     Best = 3;
                 }
                 else
                 {
-                    const float C[3] = {In[Index].R, In[Index].G, In[Index].B};
-                    float BestDistance = Distance(C, Palette[0]);
+                    const double C[3] = {In[Index].R, In[Index].G, In[Index].B};
+                    double BestDistance = Distance(C, Palette[0]);
                     const std::uint32_t Count = bThreeColor ? 3u : 4u;
                     for (std::uint32_t Entry = 1; Entry < Count; ++Entry)
                     {
-                        const float D = Distance(C, Palette[Entry]);
+                        const double D = Distance(C, Palette[Entry]);
                         if (D < BestDistance)
                         {
                             BestDistance = D;
@@ -352,27 +366,16 @@ namespace TexConvert
             Write32(Block + 4, Indices);
         }
 
-        // bPremultiplied: the pixels already hold DXT2 / DXT4 stored colour (decoded with
-        // bKeepStored), so a DXT2 / DXT4 target stores them as they are.
-        void EncodeBlock(unsigned int Format, const FColor* In, unsigned char* Block, bool bPremultiplied)
+        // D3DX 8.1 stores colour into DXT2 / DXT4 as it is given, without multiplying by alpha
+        // (TexConvertTest's encode comparison), so every DXT2..5 target encodes its colour the same.
+        void EncodeBlock(unsigned int Format, const FColor* In, unsigned char* Block)
         {
             if (Format == kDxt1)
             {
                 EncodeColorBlock(In, true, Block);
                 return;
             }
-            if ((Format == kDxt2 || Format == kDxt4) && !bPremultiplied)
-            {
-                FColor Premultiplied[16];
-                for (int Index = 0; Index < 16; ++Index)
-                    Premultiplied[Index] = {In[Index].R * In[Index].A, In[Index].G * In[Index].A,
-                                            In[Index].B * In[Index].A, In[Index].A};
-                EncodeColorBlock(Premultiplied, false, Block + 8);
-            }
-            else
-            {
-                EncodeColorBlock(In, false, Block + 8);
-            }
+            EncodeColorBlock(In, false, Block + 8);
             if (Format == kDxt2 || Format == kDxt3)
             {
                 std::memset(Block, 0, 8);
@@ -381,8 +384,8 @@ namespace TexConvert
                 return;
             }
             // DXT4 / DXT5: the alpha range in eight steps.
-            float AMin = 1.0f;
-            float AMax = 0.0f;
+            double AMin = 1.0;
+            double AMax = 0.0;
             for (int Index = 0; Index < 16; ++Index)
             {
                 AMin = std::min(AMin, In[Index].A);
@@ -399,17 +402,17 @@ namespace TexConvert
             }
             Block[0] = static_cast<unsigned char>(A0);
             Block[1] = static_cast<unsigned char>(A1);
-            float Alpha[8] = {Unpack(A0, 8), Unpack(A1, 8)};
+            double Alpha[8] = {Unpack(A0, 8), Unpack(A1, 8)};
             for (int Step = 1; Step <= 6; ++Step)
-                Alpha[Step + 1] = ((7 - Step) * Alpha[0] + Step * Alpha[1]) / 7.0f;
+                Alpha[Step + 1] = ((7 - Step) * Alpha[0] + Step * Alpha[1]) / 7.0;
             std::uint64_t Bits = 0;
             for (int Index = 0; Index < 16; ++Index)
             {
                 std::uint64_t Best = 0;
-                float BestDistance = 2.0f;
+                double BestDistance = 2.0;
                 for (std::uint64_t Entry = 0; Entry < 8; ++Entry)
                 {
-                    const float D = std::abs(In[Index].A - Alpha[Entry]);
+                    const double D = std::abs(In[Index].A - Alpha[Entry]);
                     if (D < BestDistance)
                     {
                         BestDistance = D;
@@ -460,7 +463,7 @@ namespace TexConvert
             return Pixels;
         }
 
-        void EncodeImage(const FImage& Destination, const std::vector<FColor>& Pixels, bool bPremultiplied)
+        void EncodeImage(const FImage& Destination, const std::vector<FColor>& Pixels)
         {
             unsigned char* const Base = static_cast<unsigned char*>(Destination.Bits);
             if (IsBlock(Destination.Format))
@@ -479,8 +482,7 @@ namespace TexConvert
                             Block[Index] = Pixels[static_cast<std::size_t>(Y) * Destination.Width + X];
                         }
                         EncodeBlock(Destination.Format, Block,
-                                    Base + static_cast<std::size_t>(By) * Destination.Pitch + Bx * Bytes,
-                                    bPremultiplied);
+                                    Base + static_cast<std::size_t>(By) * Destination.Pitch + Bx * Bytes);
                     }
                 }
                 return;
@@ -530,8 +532,7 @@ namespace TexConvert
                     if (Weight > 0.0)
                     {
                         Out[static_cast<std::size_t>(Y) * OutW + X] = {
-                            static_cast<float>(Sum[0] / Weight), static_cast<float>(Sum[1] / Weight),
-                            static_cast<float>(Sum[2] / Weight), static_cast<float>(Sum[3] / Weight)};
+                            Sum[0] / Weight, Sum[1] / Weight, Sum[2] / Weight, Sum[3] / Weight};
                     }
                 }
             }
@@ -603,8 +604,8 @@ namespace TexConvert
         std::vector<FColor> Pixels = DecodeImage(Source, bKeepStored);
         if (!bSameSize)
             Pixels = Resize(Pixels, Source.Width, Source.Height, Destination.Width, Destination.Height);
-        // A straight-alpha source into DXT2 / DXT4 is multiplied once; a kept-stored one is not.
-        EncodeImage(Destination, Pixels, bKeepStored);
+        // DXT2 / DXT4 colour is stored as given (D3DX does not multiply it by alpha on encode).
+        EncodeImage(Destination, Pixels);
         return (bSameSize && !IsBlock(Destination.Format)) ? EResult::Exact : EResult::Filtered;
     }
 }
