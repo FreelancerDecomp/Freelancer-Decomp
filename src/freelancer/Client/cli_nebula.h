@@ -135,7 +135,7 @@ struct FNebulaEffect : INebula
     ~FNebulaEffect() override;
 
     FShapeDB Shapes;                                 // +0x04
-    unsigned char ShapePadding[0x18 - sizeof(FShapeDB)];
+    unsigned char ShapePadding[FL_LAYOUT_PAD(0x18 - sizeof(FShapeDB))];
     float FrameDelta;                                // +0x1c
     Universe::IZone* Zone;                            // +0x20
     unsigned Field24;                                // +0x24 TODO: exclusion state
@@ -145,7 +145,7 @@ struct FNebulaEffect : INebula
     unsigned Field30;                                // +0x30 TODO: exclusion state
     Exclusion::NebulaExclusionZoneMgr* ExclusionMgr;  // +0x34
     FNebulaZoneShellMap ZoneShells;                  // +0x38
-    unsigned char MapPadding[0x14 - sizeof(FNebulaZoneShellMap)];
+    unsigned char MapPadding[FL_LAYOUT_PAD(0x14 - sizeof(FNebulaZoneShellMap))];
     unsigned char Pad4C[0x98];                       // +0x4c
     FNebulaEffectCompanion Companion;                // +0xe4
     FNebulaCloudsListStorage Clouds;                  // +0xf4

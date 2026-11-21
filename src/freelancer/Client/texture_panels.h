@@ -76,7 +76,7 @@ struct FTexturePanels : IPlanetRing
     ~FTexturePanels() override;
 
     FShapeDB Shapes;                     // +0x04, destroyed automatically on constructor failure
-    unsigned char ShapePadding[0x18 - sizeof(FShapeDB)];
+    unsigned char ShapePadding[FL_LAYOUT_PAD(0x18 - sizeof(FShapeDB))];
     // Retail Load: Universe::get_zone(sysId, nickname) — IZone*, not ISystem.
     // Universe::IZone (common_universe.h); retail calls its vt +0xc/+0x28/+0x34/+0x44.
     Universe::IZone const* Zone;          // +0x1c
