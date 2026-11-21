@@ -15,7 +15,7 @@ Build: the `FreelancerRp9` switch (`-DFreelancerRp9=1`, [building.md](../buildin
 (no `RP9.dll`, no DirectX SDK June 2010 needed) and the client's Ex hooks (`render_ex.*`,
 `nebula_volume.*` and their calls in `cli_asteroid`, `cli_nebula`, `client_gameobj`,
 `engine_init`, `main`, `space_scene_obj_draw`, `star_sphere`, `star_sys`) sit under
-`#ifdef FREELANCER_RP9` — the client is identical to master. With `1` both are built.
+`#ifdef FREELANCER_RP9` — the client is identical to master. With `1` both are built on Win32; on x64 only the hooks are.
 
 Runtime selection: `bin/DACOM.INI` — `RP9.dll` in `[Libraries]` (commented out by default), and in
 `[System]` exactly one line is active: `DirectX8` (the default) or `DirectX9`.

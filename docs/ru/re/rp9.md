@@ -15,7 +15,7 @@ Deformable2, RendComp, ximage) не меняются: они ищут интер
 (нет `RP9.dll`, DirectX SDK June 2010 не нужен), а клиентские хуки Ex
 (`render_ex.*`, `nebula_volume.*` и их вызовы в `cli_asteroid`, `cli_nebula`, `client_gameobj`,
 `engine_init`, `main`, `space_scene_obj_draw`, `star_sphere`, `star_sys`) стоят под
-`#ifdef FREELANCER_RP9` — клиент совпадает с master. При `1` собираются оба.
+`#ifdef FREELANCER_RP9` — клиент совпадает с master. При `1` на Win32 собираются оба, на x64 — только хуки.
 
 Включение в рантайме — `bin/DACOM.INI`: `RP9.dll` в `[Libraries]` (по умолчанию закомментирован),
 в `[System]` активна одна строка — `DirectX8` (по умолчанию) или `DirectX9`.

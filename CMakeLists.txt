@@ -13,7 +13,8 @@ cmake_minimum_required(VERSION 3.27)
 # vcpkg, for the port-only modules: one manifest (src/vcpkg.json), installed by the toolchain
 # file while project() runs, so it is set up here. Only a module that is on needs it: today
 # RPGPU (FreelancerRpGpu, on by default on x64, whose client has no other renderer; RP8 needs
-# D3DX8, which is 32-bit only). With nothing on, vcpkg is not used at all.
+# D3DX8, which is 32-bit only). With nothing on, a new build tree does not use vcpkg at all; a
+# tree first configured with one on keeps vcpkg's toolchain, which then installs nothing.
 # ---------------------------------------------------------------------------------------------
 if(CMAKE_HOST_WIN32)
   if("$ENV{VSCMD_ARG_TGT_ARCH}" STREQUAL "x64")
