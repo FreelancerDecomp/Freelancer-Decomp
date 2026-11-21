@@ -9,7 +9,7 @@
 #include "common_aisteer.h"  // FAiTarget + IsTargetCoAlignedAndAhead / GetInterceptClearance /
                               // IsWithinInterceptRange -- Update()'s three intercept probes.
 #include "common_csys.h"   // Matrix / Transform -- FetchNavCandidateBasis's real result type
-#include "common_iface.h"  // IObjInspect -- what NavHelper[+0x14fc][+0x84] actually is
+#include "common_iface.h"  // IObjInspect -- what NavHelperPtr24[+0x14fc][+0x84] actually is
 
 #include <cstdlib>  // rand()
 
@@ -31,18 +31,6 @@
 // ----------------------------------------------------------------------------
 BuzzBehavior::BuzzBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContext(nullptr)
-    , ObjectDb(nullptr)
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , WatcherA()
     , WatcherB()
     , WatcherC()
@@ -149,17 +137,17 @@ bool BuzzBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     Field300 = 300.0f;
     Field304 = 0;
 
-    // retail (Common.dll.txt 191735-191750): `WatcherA->vtbl[0](OwnerContext,
-    // NavHelper, Param2)`. Push order read off the raw bytes -- ECX = OwnerContext
-    // (+0x14), EAX = NavHelper (+0x24), EBP = Param2 -- and they are pushed
-    // OwnerContext last, so the argument order is (Object, Handle, Context),
+    // retail (Common.dll.txt 191735-191750): `WatcherA->vtbl[0](OwnerContextPtr14,
+    // NavHelperPtr24, Param2)`. Push order read off the raw bytes -- ECX = OwnerContextPtr14
+    // (+0x14), EAX = NavHelperPtr24 (+0x24), EBP = Param2 -- and they are pushed
+    // OwnerContextPtr14 last, so the argument order is (Object, Handle, Context),
     // matching BaseIdea::SetContext's own signature.
     //
     // REAL as of 2026-09-17: this is MoveIdea's own vtable slot 0
     // (MoveIdea::SetContext, LAB_062d4f20), which common_idea.h now ports in
     // full. The old "common_idea.h itself leaves this FULLPORT-DEFERRED --
     // not safe to call through yet" note on this line was stale and is deleted.
-    WatcherA.SetContext(OwnerContext, NavHelper, Param2);
+    WatcherA.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
     // The next four calls are ONE MoveIdea configuration block: four
     // consecutive /OPT:ICF-folded one-line setters on the same &WatcherA
@@ -196,12 +184,12 @@ bool BuzzBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     // rather than convert -- 0 reinterprets to 0.0f either way).
     WatcherA.SetRange3c(0.0f);
 
-    // retail (191762-191772): `WatcherB->vtbl[0](OwnerContext, NavHelper,
+    // retail (191762-191772): `WatcherB->vtbl[0](OwnerContextPtr14, NavHelperPtr24,
     // Param2)`. FaceIdea's own slot 0 is LAB_062d6820; common_idea.h routes it
     // to BaseIdea::SetContext, which is what this call now reaches.
-    WatcherB.SetContext(OwnerContext, NavHelper, Param2);
+    WatcherB.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
-    // retail (191773-191783): `WatcherC->vtbl[0](OwnerContext, NavHelper,
+    // retail (191773-191783): `WatcherC->vtbl[0](OwnerContextPtr14, NavHelperPtr24,
     // Param2)`. Retail dereferences WatcherC's leading dword as a vtable
     // pointer with no null check, which an earlier pass flagged as a puzzle
     // versus DockBehavior's structurally similar GotoDirectiveHandle. It is
@@ -209,7 +197,7 @@ bool BuzzBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     // AfterburnerIdea (see the header's "WatcherC IDENTITY, RESOLVED" note),
     // and AfterburnerIdea does not override slot 0 -- it inherits BaseIdea's
     // shared default, LAB_062d7920.
-    WatcherC.SetContext(OwnerContext, NavHelper, Param2);
+    WatcherC.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
     // retail (191784-191805, .text:062c5d8f-062c5dbb): `WatcherD->vtbl[0](...)`
     // then `WatcherE->vtbl[0](...)`, same three arguments in the same order --
@@ -218,8 +206,8 @@ bool BuzzBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     // vtable dword. REAL as of 2026-09-17: both members are typed now, and both
     // DodgeIdea and BreakAwayIdea inherit BaseIdea's shared slot 0
     // (LAB_062d7920) unchanged, so this is exactly what retail dispatches to.
-    WatcherD.SetContext(OwnerContext, NavHelper, Param2);
-    WatcherE.SetContext(OwnerContext, NavHelper, Param2);
+    WatcherD.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
+    WatcherE.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
     return true;
 }
@@ -256,10 +244,10 @@ void BuzzBehavior::RecomputeApproach()
     PassByElapsed = 0.0f;
     HeadAwayElapsed = 0.0f;
 
-    // NavHelper+0x1584 is the SystemManager's pub::AI::Personality: +0x1618..+0x1677 is its
+    // NavHelperPtr24+0x1584 is the SystemManager's pub::AI::Personality: +0x1618..+0x1677 is its
     // BuzzHeadParams (Personality+0x94), +0x1678..+0x16ab its BuzzPassParams (+0xF4).
-    pub::AI::Personality::BuzzHeadTowardUseStruct const& Head = NavHelper->PersonalityData.BuzzHeadParams;
-    pub::AI::Personality::BuzzPassByUseStruct const& Pass = NavHelper->PersonalityData.BuzzPassParams;
+    pub::AI::Personality::BuzzHeadTowardUseStruct const& Head = NavHelperPtr24->PersonalityData.BuzzHeadParams;
+    pub::AI::Personality::BuzzPassByUseStruct const& Pass = NavHelperPtr24->PersonalityData.BuzzPassParams;
 
     // .text:062c5e50-062c5eb6: a weighted pick of HeadTowardStyle. Sum = Slide [0x1620] + Waggle
     // [0x1624] + StraightTo [0x161c] on the FPU, FSTP'd to a float local; R = (double)rand()
@@ -346,7 +334,7 @@ void BuzzBehavior::RecomputeApproach()
     // offsets in the old comments were NOT taken on trust. Retail copies every
     // source as a raw dword (`MOV EDX,[EAX+disp]; PUSH EDX`), never through the
     // x87 stack, so wherever the destination field is a float the assignment
-    // below reads the NavHelper slot as a float too, which is the same bits.
+    // below reads the NavHelperPtr24 slot as a float too, which is the same bits.
     WatcherD.Throttle = Head.BuzzHeadTowardEngineThrottle;               // [0x1630] FUN_062d9490, +0x94
     WatcherD.ConeAngle = Head.BuzzDodgeConeAngle;                        // [0x1654] .text:062a66b0, +0x3c
     WatcherD.ConeAngleVariancePercent = Head.BuzzDodgeConeAngleVariancePercent;  // [0x1658] .text:062a33e0, +0x40
@@ -422,12 +410,12 @@ int BuzzBehavior::EvaluateReadiness()
     }
     else
     {
-        // .text:062c6118-062c614c: FUN_062ecb20 on NavHelper+0x1364; when it is false,
-        // TargetManager::GetTarget (FUN_062ed5a0, NavHelper+0x142c) and, for a non-null
+        // .text:062c6118-062c614c: FUN_062ecb20 on NavHelperPtr24+0x1364; when it is false,
+        // TargetManager::GetTarget (FUN_062ed5a0, NavHelperPtr24+0x142c) and, for a non-null
         // target, FUN_062e6200 (GetObjectTypeOrZero) & 0x30000 -> Mode 1.
-        if (!NavHelper->GunConvergenceStateBytes.FollowerDirectiveGateA())
+        if (!NavHelperPtr24->GunConvergenceStateBytes.FollowerDirectiveGateA())
         {
-            IObjRW* const Target = NavHelper->Targeting.GetTarget();
+            IObjRW* const Target = NavHelperPtr24->Targeting.GetTarget();
             if (Target != nullptr && (GetObjectTypeOrZero(Target) & 0x30000) != 0)
                 Mode = 1;
         }
@@ -449,9 +437,9 @@ int BuzzBehavior::EvaluateReadiness()
 // ----------------------------------------------------------------------------
 void BuzzBehavior::AcquireLockEffects()
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
 
-    // 062c6177-062c6181: TargetManager::GetTarget (FUN_062ed5a0) on NavHelper+0x142c;
+    // 062c6177-062c6181: TargetManager::GetTarget (FUN_062ed5a0) on NavHelperPtr24+0x142c;
     // retail uses the result unchecked.
     IObjRW* const Target = Sys->Targeting.GetTarget();
 
@@ -462,24 +450,24 @@ void BuzzBehavior::AcquireLockEffects()
     WatcherB.SetScale94(HeadTowardTurnThrottle);
     WatcherB.SetWatchObject(Target);
 
-    // 062c61b3-062c61e1: FUN_062e8840(NavHelper+0x34) gates FUN_062d7640 with {0, 0, 1}.
-    if (CheckNavHelperFlagA(NavHelper))
+    // 062c61b3-062c61e1: FUN_062e8840(NavHelperPtr24+0x34) gates FUN_062d7640 with {0, 0, 1}.
+    if (CheckNavHelperFlagA(NavHelperPtr24))
     {
         Vector const WorldUp{ 0.0f, 0.0f, 1.0f };
         WatcherB.SetUpVector(WorldUp);
     }
 
-    // 062c61e6-062c61ee: WatcherB vtbl[4](DeltaTime).
-    WatcherB.Update(DeltaTime);
+    // 062c61e6-062c61ee: WatcherB vtbl[4](DeltaTime1c).
+    WatcherB.Update(DeltaTime1c);
 
-    // 062c61f1-062c622f: FUN_062e5190(NavHelper+0x14fc, Target, 0.0f). True: WatcherC
+    // 062c61f1-062c622f: FUN_062e5190(NavHelperPtr24+0x14fc, Target, 0.0f). True: WatcherC
     // (AfterburnerIdea, +0x164) ticks and WatcherA's +0x40 scale is 1.0f; false:
     // WatcherC commits (vtbl+0x10) and the scale is HeadTowardEngineThrottle. The scale goes through
     // the .text:062a33e0 fold, MoveIdea::SetScale40, on WatcherA (+0x2c).
     float Scale40;
     if (IsAlignedAndOutsideHeadingCone(&Sys->SelfTarget, Target, 0.0f))
     {
-        WatcherC.Update(DeltaTime);
+        WatcherC.Update(DeltaTime1c);
         Scale40 = 1.0f;
     }
     else
@@ -493,7 +481,7 @@ void BuzzBehavior::AcquireLockEffects()
     WatcherA.PublishTargetId(Target->get_id());
 
     // 062c6243-062c6284: the negated z column of the own ship's get_transform()
-    // (ExternalIface, NavHelper+0x1580; reads +0x8/+0x14/+0x20), FUN_062d5890 =
+    // (ExternalIface, NavHelperPtr24+0x1580; reads +0x8/+0x14/+0x20), FUN_062d5890 =
     // MoveIdea::SetDirection.
     Matrix const& Rotation = Sys->SelfTarget.Iface->get_transform().Rotation;
     Vector Dir;
@@ -502,8 +490,8 @@ void BuzzBehavior::AcquireLockEffects()
     Dir.z = -Rotation.E[2][2];
     WatcherA.SetDirection(Dir);
 
-    // 062c6289-062c6291: WatcherA vtbl[4](DeltaTime).
-    WatcherA.Update(DeltaTime);
+    // 062c6289-062c6291: WatcherA vtbl[4](DeltaTime1c).
+    WatcherA.Update(DeltaTime1c);
 }
 
 // ----------------------------------------------------------------------------
@@ -512,7 +500,7 @@ void BuzzBehavior::AcquireLockEffects()
 // both HeadTowardStyle switches (062c6537 with fate 0, 062c6579 with fate 2,
 // 062c66c9 with fate 3, 062c6a69 with fate 2, 062c6b0f with fate 3). Factored
 // out here because retail itself shares the code -- the only per-site
-// variation is the fate literal and WHICH contiguous NavHelper float pair is
+// variation is the fate literal and WHICH contiguous NavHelperPtr24 float pair is
 // copied (+0x1664/+0x1668 BuzzDodgeIntervalTime[VariancePercent] for fates 0 and 3,
 // +0x1670/+0x1674 BuzzSlideIntervalTime[VariancePercent] for fate 2).
 //
@@ -532,13 +520,13 @@ void BuzzBehavior::ApplySteeringFate(int Fate, float Interval, float IntervalVar
     WatcherD.IntervalTime = Interval;                                     // .text:063275d0, +0x34
     WatcherD.IntervalTimeVariancePercent = IntervalVariance;              // .text:063275f0, +0x38
 
-    // retail: `WatcherD->vtbl[4](DeltaTime)`. WatcherD is a DodgeIdea, whose
+    // retail: `WatcherD->vtbl[4](DeltaTime1c)`. WatcherD is a DodgeIdea, whose
     // slot-1 override is DodgeIdea::Update (LAB_062d7950, common_dodgeidea.cpp).
     // REAL as of 2026-09-17: the object is genuinely constructed now, so this is
     // no longer the inert call the old note described (its "WatcherD's own
     // constructor is unported, so the buffer stays zeroed and that function's
     // entry guard (Self+0x4 == nullptr) returns immediately" reason is gone).
-    WatcherD.Update(DeltaTime);
+    WatcherD.Update(DeltaTime1c);
 }
 
 // ----------------------------------------------------------------------------
@@ -552,9 +540,9 @@ void BuzzBehavior::ApplySteeringFate(int Fate, float Interval, float IntervalVar
 // Every branch, gate polarity, own-field arithmetic step, and per-case body is
 // real compiled code, and as of 2026-09-17 (claude:common-buzz-largeship) so is
 // every call. The list that stood here -- "the only remaining FULLPORT-DEFERRED
-// sites are the NavHelper-nested-handle probes (each a named stub below) and
+// sites are the NavHelperPtr24-nested-handle probes (each a named stub below) and
 // three writes that land inside spans common_idea.h still marks Opaque" -- is
-// spent: the "nested-handle chain" was NavHelper+0x14fc read as an FAiTarget
+// spent: the "nested-handle chain" was NavHelperPtr24+0x14fc read as an FAiTarget
 // plus a stack FAiTarget retail builds at [ESP+0x2c], all four probes are the
 // already-ported items 1891/1745/1750/1753, and the last Opaque write became
 // FaceIdea::SetAxis (item 1610).
@@ -565,7 +553,7 @@ void BuzzBehavior::ApplySteeringFate(int Fate, float Interval, float IntervalVar
 // BreakAwayIdea common_idea.h now publishes". The member is a BreakAwayIdea now:
 //   * FUN_062d9450(&WatcherE, Record.Iface) is BreakAwayIdea::SetWatchObject,
 //     declared and defined for real in common_idea.h/.cpp this pass.
-//   * WatcherE->vtbl[4](DeltaTime) at .text:062c6cbc is BreakAwayIdea::Update.
+//   * WatcherE->vtbl[4](DeltaTime1c) at .text:062c6cbc is BreakAwayIdea::Update.
 //     Its old reason ("retail LAB_062d8a50, which has no C++ body anywhere in
 //     this port yet") was STALE: tracker item 1629 ported all 634 instructions
 //     of LAB_062d8a50 on 2026-09-17 and is ready_unverified.
@@ -574,22 +562,22 @@ void BuzzBehavior::ApplySteeringFate(int Fate, float Interval, float IntervalVar
 int BuzzBehavior::Update()
 {
     // ---- Entry guard, Common.dll.txt 192188-192206 ----
-    // retail: `Handle = FUN_062ed5a0(NavHelper+0x142c);` then
-    // `if (OwnerContext == nullptr || Handle == nullptr) { UpdateResult10 = 3; return 3; }`
+    // retail: `Handle = FUN_062ed5a0(NavHelperPtr24+0x142c);` then
+    // `if (OwnerContextPtr14 == nullptr || Handle == nullptr) { UpdateResult10 = 3; return 3; }`
     // (the two JZs at 062c62eb/062c62f3 share LAB_062c6cfe, whose whole body is
     // `MOV EAX,3; MOV [ESI+0x10],EAX; RET` -- note it pops only EBX/ESI because
     // EBP/EDI are not pushed until after the guard).
     //
     // THE GAP IS CLOSED (2026-09-17, claude:common-buzz-largeship). What stood
     // here said "FetchNavHandle() is a stub, so this port can only check the
-    // OwnerContext half ... this port proceeds as if Handle were non-null --
+    // OwnerContextPtr14 half ... this port proceeds as if Handle were non-null --
     // i.e. it runs MORE of the state machine than retail would". FUN_062ed5a0
     // is item 1891, TargetManager::GetTarget (common_targetmanager.cpp), so
     // both halves of the guard are real and the deviation is gone.
-    IObjRW* const Handle = NavHelper->Targeting.GetTarget();
+    IObjRW* const Handle = NavHelperPtr24->Targeting.GetTarget();
 
     // ---- The stack record at [ESP+0x2c], Common.dll.txt 192195-192203 ----
-    // Retail INLINES FUN_062d09b0 (item 1470) here: `[ESP+0xac] = OwnerContext;
+    // Retail INLINES FUN_062d09b0 (item 1470) here: `[ESP+0xac] = OwnerContextPtr14;
     // [ESP+0xb0] = Handle; [ESP+0xa8..0xab] = 0`. Resolved against the entry
     // ESP (0xc4 of locals plus the EBX/ESI pushes) those are +0x80, +0x84 and
     // +0x7C..+0x7F of a record based at [ESP+0x2c] -- i.e. an ordinary
@@ -600,10 +588,10 @@ int BuzzBehavior::Update()
     // flag the previous port modelled as three loose locals are its CachedPos
     // (+0x0C), CachedRadius (+0x18) and bPosValid (+0x7E).
     //
-    // The previous port called these "the NavHelper-nested-handle chain ...
-    // dispatching through NavHelper[+0x14fc]'s own +0x84 sub-object, whose
+    // The previous port called these "the NavHelperPtr24-nested-handle chain ...
+    // dispatching through NavHelperPtr24[+0x14fc]'s own +0x84 sub-object, whose
     // class is not identified anywhere in this port ... real multi-hundred-byte
-    // functions". NavHelper+0x14fc is itself an FAiTarget (item 1745 proved
+    // functions". NavHelperPtr24+0x14fc is itself an FAiTarget (item 1745 proved
     // SystemManager+0x14FC is exactly this record, +0x84 == SystemManager's own
     // ExternalIface at +0x1580), and all three "multi-hundred-byte" probes have
     // been ported since: items 1745/1750/1753.
@@ -612,24 +600,24 @@ int BuzzBehavior::Update()
     // other slice of the record is behind one of the four cache guards Init
     // clears, so nothing reads it before its own refresh writes it.
     FAiTarget Record;
-    Record.Init(ObjInspectOf(OwnerContext), Handle);
+    Record.Init(ObjInspectOf(OwnerContextPtr14), Handle);
 
     // retail: the two JZs at 062c62eb/062c62f3 share LAB_062c6cfe. Note retail
     // writes the record's two interface pointers BEFORE testing either of them,
     // which is reproduced above.
-    if (OwnerContext == nullptr || Handle == nullptr)
+    if (OwnerContextPtr14 == nullptr || Handle == nullptr)
     {
         UpdateResult10 = 3;
         return 3;
     }
 
-    // NavHelper's own FAiTarget, the first argument to all four intercept
+    // NavHelperPtr24's own FAiTarget, the first argument to all four intercept
     // probes below (retail spells it `[ESI+0x24] + 0x14fc` at every site).
-    FAiTarget* const NavRecord = &NavHelper->SelfTarget;
+    FAiTarget* const NavRecord = &NavHelperPtr24->SelfTarget;
 
-    // NavHelper+0x1584, the personality: BuzzHeadParams at +0x1618, BuzzPassParams at
+    // NavHelperPtr24+0x1584, the personality: BuzzHeadParams at +0x1618, BuzzPassParams at
     // +0x1678, FormationParams at +0x17cc.
-    pub::AI::Personality const& Pers = NavHelper->PersonalityData;
+    pub::AI::Personality const& Pers = NavHelperPtr24->PersonalityData;
 
     int Result = 1;  // EDI throughout retail (seeded at 062c6302); becomes UpdateResult10.
 
@@ -647,14 +635,14 @@ int BuzzBehavior::Update()
     // Entered only when BuzzState != 2 (062c62f9/062c6307). CORRECTED
     // 2026-09-17: this is NOT an early return that skips the rest of the
     // function -- both of its exits (062c6415, 062c6425) jump to
-    // LAB_062c6cda, the shared tail, so the NavHelper timeout check below
+    // LAB_062c6cda, the shared tail, so the NavHelperPtr24 timeout check below
     // still runs. Only the middle of the function is skipped.
     // ------------------------------------------------------------------
     bool bFastPathTaken = false;
     if (BuzzState != 2)
     {
-        // retail: `FUN_062e4f60(NavHelper+0x14fc, &Record, 0)` then, if true,
-        // `FUN_062e4d00(NavHelper+0x14fc, &Record)` FCOMP'd against Field344.
+        // retail: `FUN_062e4f60(NavHelperPtr24+0x14fc, &Record, 0)` then, if true,
+        // `FUN_062e4d00(NavHelperPtr24+0x14fc, &Record)` FCOMP'd against Field344.
         // The `TEST AH,0x5; JP` at 062c634b is "jump unless less", so the path
         // continues only while the lead distance is below Field344.
         //
@@ -663,7 +651,7 @@ int BuzzBehavior::Update()
         // GetInterceptClearance -- both ready_unverified in common_aisteer.h,
         // and both operating on exactly the pair of FAiTarget records this
         // function already holds. The arguments are passed POSITIONALLY as
-        // retail pushes them (arg1 = NavHelper's record, arg2 = this tick's
+        // retail pushes them (arg1 = NavHelperPtr24's record, arg2 = this tick's
         // handle record, arg3 = the EBX that 062c62bb zeroed, i.e. 0.0f); no
         // attempt is made to re-derive which side item 1753 calls "Target" and
         // which "Reference", because the push order settles it either way.
@@ -691,11 +679,11 @@ int BuzzBehavior::Update()
                 // FaceIdea::SetScale94(1.0f).
                 WatcherB.SetScale94(1.0f);
 
-                // retail: `WatcherB->vtbl[4](DeltaTime)` at 062c6390, and
+                // retail: `WatcherB->vtbl[4](DeltaTime1c)` at 062c6390, and
                 // unusually its RETURN VALUE is used (`CMP EAX,1`). FaceIdea's
                 // Update() is LAB_062d68b0 (common_faceidea.cpp), so
                 // this is a real value now rather than something to fabricate.
-                int const FaceTick = WatcherB.Update(DeltaTime);
+                int const FaceTick = WatcherB.Update(DeltaTime1c);
                 if (FaceTick == 1)
                 {
                     // `TEST AH,0x41; JNZ` at 062c63a6 skips the tick for
@@ -703,9 +691,9 @@ int BuzzBehavior::Update()
                     // greater.
                     if (Field310 > Field314)
                     {
-                        WatcherC.Update(DeltaTime);
+                        WatcherC.Update(DeltaTime1c);
                     }
-                    Field310 += DeltaTime;
+                    Field310 += DeltaTime1c;
                 }
                 else
                 {
@@ -722,16 +710,16 @@ int BuzzBehavior::Update()
                 // MoveIdea::SetScale40(1.0f).
                 WatcherA.SetScale40(1.0f);
 
-                // retail: `WatcherA->vtbl[4](DeltaTime)`, return value discarded.
-                WatcherA.Update(DeltaTime);
+                // retail: `WatcherA->vtbl[4](DeltaTime1c)`, return value discarded.
+                WatcherA.Update(DeltaTime1c);
             }
 
-            // retail (192281-192297, own fields only): `Field308 += DeltaTime;
+            // retail (192281-192297, own fields only): `Field308 += DeltaTime1c;
             // Result = (Field308 > Field30c) ? 0 : (Field308 = 0, 1);`. The
             // `TEST AH,0x41; JNZ LAB_062c641a` at 062c640e routes "less or
             // equal" (and unordered) to the reset-and-1 arm. 062c6400 is FST,
             // not FSTP: the compare is on the unrounded x87 sum.
-            double const Sum308 = (double)(Field308) + (double)(DeltaTime);
+            double const Sum308 = (double)(Field308) + (double)(DeltaTime1c);
             Field308 = (float)(Sum308);
             if (Sum308 > (double)(Field30c))
             {
@@ -762,18 +750,18 @@ int BuzzBehavior::Update()
         // ------------------------------------------------------------------
         if (BuzzState == 0)
         {
-            // retail (062c6475-062c647e): `EAX = OwnerContext; ECX = EAX+4;
+            // retail (062c6475-062c647e): `EAX = OwnerContextPtr14; ECX = EAX+4;
             // CALL [[EAX+4]+0x20]`. NEWLY WIRED 2026-09-17, previously not
-            // coded at all: OwnerContext+4 is the IObjAffect sub-object of an
+            // coded at all: OwnerContextPtr14+4 is the IObjAffect sub-object of an
             // IObjRW (common_iface.h proves the offset from IObjRW's own
             // CompleteObjectLocator), and byte offset 0x20 is IObjAffect slot
             // 8 -- get_formation_follower_count() (named 2026-09-24: Server.dll's
             // Ship body .text:06d02a70 is `JMP CShip::get_formation_follower_count`,
             // a non-const CShip method). Nothing is pushed and the result in EAX
             // is dropped (062c6481 overwrites EAX), which the port mirrors.
-            (void)ObjAffectOf(OwnerContext)->get_formation_follower_count();
+            (void)ObjAffectOf(OwnerContextPtr14)->get_formation_follower_count();
 
-            // retail: `FUN_062e4350(NavHelper+0x14fc, &Out, MinDistanceToHeadToward)` -- the
+            // retail: `FUN_062e4350(NavHelperPtr24+0x14fc, &Out, MinDistanceToHeadToward)` -- the
             // same opaque probe used at all three of its call sites in this
             // function. True routes into the first HeadTowardStyle switch; false
             // commits the transition to the head-toward stage.
@@ -788,14 +776,14 @@ int BuzzBehavior::Update()
                 {
                 case 0:
                 {
-                    // LAB_062c657e. The DeltaTime argument is pushed at
+                    // LAB_062c657e. The DeltaTime1c argument is pushed at
                     // 062c65a1, BEFORE the branch, and both arms then issue
                     // the same `CALL [EDX+4]` on WatcherC -- so the tick is
                     // unconditional and is hoisted here.
-                    WatcherC.Update(DeltaTime);
+                    WatcherC.Update(DeltaTime1c);
 
                     // CORRECTED 2026-09-17. The gate at 062c658d-062c65a2 is
-                    // `FLD NavHelper[0x1638]; FCOMP 0.0f; TEST AH,0x44; JP`.
+                    // `FLD NavHelperPtr24[0x1638]; FCOMP 0.0f; TEST AH,0x44; JP`.
                     // `TEST AH,0x44` is MSVC's EQUALITY idiom: of the four
                     // FCOMP outcomes only "equal" (C3 set alone) leaves a
                     // single bit in the mask and therefore clears PF, so JP
@@ -818,7 +806,7 @@ int BuzzBehavior::Update()
                         WatcherA.SetScale40(1.0f);
 
                         // retail 062c65ba-062c660d: fetch the candidate basis
-                        // through NavHelper[+0x14fc][+0x84]->vtbl[0xc](), then
+                        // through NavHelperPtr24[+0x14fc][+0x84]->vtbl[0xc](), then
                         // build `{-Basis[0].z, -Basis[1].z, -Basis[2].z}` on
                         // the stack with three FCHS/FSTP pairs and pass it to
                         // FUN_062d5890 = MoveIdea::SetDirection. (That is the
@@ -827,7 +815,7 @@ int BuzzBehavior::Update()
                         // here. The x87 juggling was re-derived slot by slot,
                         // including the mid-sequence PUSH that shifts every
                         // subsequent [ESP+disp] by four.)
-                        Matrix const& Basis = FetchNavCandidateBasis(NavHelper);
+                        Matrix const& Basis = FetchNavCandidateBasis(NavHelperPtr24);
                         {
                             Vector Dir;
                             Dir.x = -Basis.E[0][2];
@@ -837,15 +825,15 @@ int BuzzBehavior::Update()
                         }
 
                         // retail 062c6612-062c661a: `WatcherA->vtbl[4](dt)`.
-                        WatcherA.Update(DeltaTime);
+                        WatcherA.Update(DeltaTime1c);
 
                         // retail 062c661d-062c6644: FAiTarget::RefreshPos
-                        // inlined on NavHelper+0x14fc -- skipped while its
-                        // guard byte (NavHelper+0x157a) is already set.
+                        // inlined on NavHelperPtr24+0x14fc -- skipped while its
+                        // guard byte (NavHelperPtr24+0x157a) is already set.
                         NavRecord->RefreshPos();
 
                         // retail LAB_062c6647 (192447-192459): builds
-                        // `NavHelper[0x1508..0x1510] - CandidatePos` (+0x1508 is the
+                        // `NavHelperPtr24[0x1508..0x1510] - CandidatePos` (+0x1508 is the
                         // own SelfTarget.CachedPos, 0x14fc + 0xc) and hands it to
                         // FUN_062d7590 = FaceIdea::SetDirection (`MOV [ECX+0xa0],3`
                         // plus a 3-dword copy into ECX+0x28).
@@ -859,7 +847,7 @@ int BuzzBehavior::Update()
                         WatcherB.SetScale94(1.0f);
 
                         // retail 062c6686-062c66b4: `if (FUN_062e8840(
-                        // NavHelper+0x34)) FUN_062d7640(&WatcherB, &{0,0,1});`
+                        // NavHelperPtr24+0x34)) FUN_062d7640(&WatcherB, &{0,0,1});`
                         // FUN_062e8840 is a one-instruction byte getter
                         // (`MOV AL,[ECX+0x78]; RET`), already ported in
                         // CheckNavHelperFlagA below, so the GATE is exact now. WIRED
@@ -869,25 +857,25 @@ int BuzzBehavior::Update()
                         // common_idea.h now instead of bytes inside `OpaqueAc`.
                         // With {0,0,1} the setter's three equality gates put
                         // bUpValid = 1 and UpB0 = {0,0,1}.
-                        if (CheckNavHelperFlagA(NavHelper))
+                        if (CheckNavHelperFlagA(NavHelperPtr24))
                         {
                             Vector const WorldUp{ 0.0f, 0.0f, 1.0f };
                             WatcherB.SetUpVector(WorldUp);
                         }
 
                         // retail 062c66b9-062c66c1: `WatcherB->vtbl[4](dt)`.
-                        WatcherB.Update(DeltaTime);
+                        WatcherB.Update(DeltaTime1c);
                     }
                     break;
                 }
                 case 1:
                     // LAB_062c653d, Common.dll.txt 192369-192393. WatcherC
                     // tick, then the shared fate epilogue with fate 2 and the
-                    // +0x1670/+0x1674 NavHelper pair (062c6579 jumps into the
+                    // +0x1670/+0x1674 NavHelperPtr24 pair (062c6579 jumps into the
                     // epilogue at LAB_062c66f2, i.e. it skips the +0xb4/+0x34
                     // stores' own PUSH sequence but performs the same three
                     // writes -- re-verified instruction by instruction).
-                    WatcherC.Update(DeltaTime);
+                    WatcherC.Update(DeltaTime1c);
                     ApplySteeringFate(2, Pers.BuzzHeadParams.BuzzSlideIntervalTime,
                                       Pers.BuzzHeadParams.BuzzSlideIntervalTimeVariancePercent);
                     break;
@@ -895,7 +883,7 @@ int BuzzBehavior::Update()
                     // 062c6524-062c6538. WatcherC tick, then fate 0 with the
                     // +0x1664/+0x1668 pair (`PUSH EBX`, and EBX is the zero
                     // register throughout this function).
-                    WatcherC.Update(DeltaTime);
+                    WatcherC.Update(DeltaTime1c);
                     ApplySteeringFate(0, Pers.BuzzHeadParams.BuzzDodgeIntervalTime,
                                       Pers.BuzzHeadParams.BuzzDodgeIntervalTimeVariancePercent);
                     break;
@@ -922,7 +910,7 @@ int BuzzBehavior::Update()
                 // ----------------------------------------------------------
                 // 062c6713 is FST, not FSTP: the compare is on the unrounded sum.
                 Result = 1;
-                double const Sum340 = (double)(DeltaTime) + (double)(HeadAwayElapsed);
+                double const Sum340 = (double)(DeltaTime1c) + (double)(HeadAwayElapsed);
                 HeadAwayElapsed = (float)(Sum340);
                 if (!(Sum340 < (double)(MaxTimeToHeadAway)))
                 {
@@ -941,9 +929,9 @@ int BuzzBehavior::Update()
                 BuzzState = 1;
 
                 // 062c64d7-062c6506: two Personality-flag-gated formation-leader
-                // notifications on the NavHelper+0x1364 record (FUN_062ecc60 /
+                // notifications on the NavHelperPtr24+0x1364 record (FUN_062ecc60 /
                 // FUN_062ecce0, FGunConvergenceStateBlock in common_systemmanager.h).
-                FGunConvergenceStateBlock& LeaderRec = NavHelper->GunConvergenceStateBytes;
+                FGunConvergenceStateBlock& LeaderRec = NavHelperPtr24->GunConvergenceStateBytes;
                 if (Pers.FormationParams.bBreakApartFormationOnBuzzHeadToward != 0)     // [0x17ec]
                 {
                     LeaderRec.NotifyFormationLeader1(Pers.FormationParams.BreakFormationOnBuzzHeadTowardTime);
@@ -966,7 +954,7 @@ int BuzzBehavior::Update()
             if (IsWithinInterceptRange(NavRecord, &Record, DistanceToPassBy))
             {
                 // retail 062c675d-062c67f3. Commit WatcherB then WatcherA;
-                // then a NavHelper-flag-gated choice between ticking WatcherC
+                // then a NavHelperPtr24-flag-gated choice between ticking WatcherC
                 // and committing it; then the transition to pass-by. This
                 // path jumps directly to LAB_062c6b50 WITHOUT passing through
                 // the shared `Result = 0` merge point -- Result keeps whatever
@@ -977,9 +965,9 @@ int BuzzBehavior::Update()
 
                 // FUN_062e8850 is `MOV AL,[ECX+0x68]; RET`, already ported in
                 // CheckNavHelperFlagB below -- exact, not a guess.
-                if (CheckNavHelperFlagB(NavHelper))
+                if (CheckNavHelperFlagB(NavHelperPtr24))
                 {
-                    WatcherC.Update(DeltaTime);
+                    WatcherC.Update(DeltaTime1c);
                 }
                 else
                 {
@@ -990,20 +978,20 @@ int BuzzBehavior::Update()
                 // 062c67b1-062c67be FUN_062ecc60 ([0x17f5] / [0x17f8]).
                 if (Pers.FormationParams.bBreakApartFormationOnBuzzPassBy != 0)
                 {
-                    NavHelper->GunConvergenceStateBytes.NotifyFormationLeader1(
+                    NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader1(
                         Pers.FormationParams.BreakFormationOnBuzzPassByTime);
                 }
                 // 062c67ce-062c67d4 FUN_062ecce0 ([0x17fc]).
                 if (Pers.FormationParams.bRegroupFormationOnBuzzPassBy != 0)
                 {
-                    NavHelper->GunConvergenceStateBytes.NotifyFormationLeader2();
+                    NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader2();
                 }
                 // `CMP byte [EAX+0x168c],BL; JZ`: BuzzPassParams.bBuzzDropBombOnPassBy.
                 if (Pers.BuzzPassParams.bBuzzDropBombOnPassBy != 0)
                 {
                     // 062c67d9-062c67f3: FUN_062eb550 = GunGroups.DropAllMines (item 1845), the
-                    // receiver `LEA ECX,[EAX+0x12c]` with EAX == NavHelper (.text:062c67e8).
-                    NavHelper->GunGroups.DropAllMines();
+                    // receiver `LEA ECX,[EAX+0x12c]` with EAX == NavHelperPtr24 (.text:062c67e8).
+                    NavHelperPtr24->GunGroups.DropAllMines();
                 }
             }
             else
@@ -1018,7 +1006,7 @@ int BuzzBehavior::Update()
                     // LAB_062c69b6, 2 -> fallthrough at 062c686e, else ->
                     // LAB_062c6b4e. Every case opens with the same two
                     // prologue steps (refresh the candidate position if this
-                    // tick has not yet, then recompute NavHelper's cached lead
+                    // tick has not yet, then recompute NavHelperPtr24's cached lead
                     // point) and then compares the candidate-relative angle
                     // against its own bit-exact .rdata threshold. All three
                     // thresholds were read from raw .rdata bytes this pass:
@@ -1034,7 +1022,7 @@ int BuzzBehavior::Update()
                         NavRecord->RefreshPos();
 
                         // Two gates in series. The second (062c6af6-062c6b07)
-                        // tests the SAME NavHelper[0x1638] the first switch's
+                        // tests the SAME NavHelperPtr24[0x1638] the first switch's
                         // case 0 tests, but with `JNP` instead of `JP`: JNP is
                         // taken on "equal", which routes to
                         // AcquireLockEffects(). So the fate-3 body is reached
@@ -1042,7 +1030,7 @@ int BuzzBehavior::Update()
                         // which is the cross-check that settles that gate's
                         // polarity for both sites.
                         bool const bWithinAngle =
-                            ReadCandidateMetric(NavHelper, CandidatePos) < 0.3926991f;  // DAT_0639f5d0
+                            ReadCandidateMetric(NavHelperPtr24, CandidatePos) < 0.3926991f;  // DAT_0639f5d0
                         if (bWithinAngle && Pers.BuzzHeadParams.BuzzHeadTowardRollThrottle != 0.0f)
                         {
                             ApplySteeringFate(3, Pers.BuzzHeadParams.BuzzDodgeIntervalTime,
@@ -1058,7 +1046,7 @@ int BuzzBehavior::Update()
                         // LAB_062c69b6, Common.dll.txt 192703-192758.
                         Record.RefreshPos();
                         NavRecord->RefreshPos();
-                        if (ReadCandidateMetric(NavHelper, CandidatePos) < 0.19634955f)  // DAT_0639f534
+                        if (ReadCandidateMetric(NavHelperPtr24, CandidatePos) < 0.19634955f)  // DAT_0639f534
                         {
                             // 062c6a3f-062c6a69, joining the shared epilogue
                             // at LAB_062c6b33. NEWLY WIRED: the prior port
@@ -1079,13 +1067,13 @@ int BuzzBehavior::Update()
                         // so it is spelled out.
                         Record.RefreshPos();
                         NavRecord->RefreshPos();
-                        if (ReadCandidateMetric(NavHelper, CandidatePos) < 1.5707964f)  // DAT_0639f5d4
+                        if (ReadCandidateMetric(NavHelperPtr24, CandidatePos) < 1.5707964f)  // DAT_0639f5d4
                         {
                             // 062c68f7-062c6922. Receiver is EBP, and
                             // `LEA EBP,[ESI+0x178]` at 062c68f7 proves it is
                             // &WatcherD -- the same three fields the shared
                             // epilogue writes, with fate 0 (`PUSH EBX`, the zero
-                            // register) and the +0x1664/+0x1668 NavHelper pair.
+                            // register) and the +0x1664/+0x1668 NavHelperPtr24 pair.
                             WatcherD.DodgeStyle = 0;                                 // .text:062d8920
                             WatcherD.IntervalTime = Pers.BuzzHeadParams.BuzzDodgeIntervalTime;                // [0x1664] .text:063275d0
                             WatcherD.IntervalTimeVariancePercent = Pers.BuzzHeadParams.BuzzDodgeIntervalTimeVariancePercent; // [0x1668] .text:063275f0
@@ -1098,7 +1086,7 @@ int BuzzBehavior::Update()
                             NavRecord->RefreshPos();
                             Record.RefreshPos();
 
-                            // LAB_062c6978: `CandidatePos - NavHelper's lead
+                            // LAB_062c6978: `CandidatePos - NavHelperPtr24's lead
                             // point`, i.e. the NEGATION of the vector the
                             // first switch's case 0 feeds WatcherB -- the
                             // operand order is genuinely reversed here
@@ -1113,9 +1101,9 @@ int BuzzBehavior::Update()
                             // &WatcherD): DodgeIdea::SetField58.
                             WatcherD.SetField58(Guide);
 
-                            // 062c69a5-062c69ae: `WatcherD->vtbl[4](DeltaTime)`,
+                            // 062c69a5-062c69ae: `WatcherD->vtbl[4](DeltaTime1c)`,
                             // i.e. DodgeIdea::Update.
-                            WatcherD.Update(DeltaTime);
+                            WatcherD.Update(DeltaTime1c);
                         }
                         else
                         {
@@ -1135,7 +1123,7 @@ int BuzzBehavior::Update()
                     // retail 062c681a-062c684d, "lost lock": reset the two
                     // maneuvering-intensity fields to 1.0f, call
                     // AcquireLockEffects() (SITE #1), then restore them from
-                    // NavHelper's own tunables. All own fields, all real.
+                    // NavHelperPtr24's own tunables. All own fields, all real.
                     HeadTowardEngineThrottle = 1.0f;
                     HeadTowardTurnThrottle = 1.0f;
                     AcquireLockEffects();
@@ -1159,7 +1147,7 @@ int BuzzBehavior::Update()
             // 062c6b5d-062c6b6c: FLD/FADD/FST/FCOMP -- the compare is on the
             // unrounded sum. `TEST AH,0x5; JP LAB_062c6cc3` -- jump unless
             // strictly less, so the switch runs only while the sum < PassByTime.
-            double const Sum338 = (double)(PassByElapsed) + (double)(DeltaTime);
+            double const Sum338 = (double)(PassByElapsed) + (double)(DeltaTime1c);
             PassByElapsed = (float)(Sum338);
             if (Sum338 < (double)(PassByTime))
             {
@@ -1189,10 +1177,10 @@ int BuzzBehavior::Update()
                     // dedup-guarded BaseWatcher::set_pointer on Picker.Watcher
                     // (+0x28) and clears Picker.Flag1c (+0x30).
                     WatcherE.SetWatchObject(Record.Iface);
-                    // 062c6cb4-062c6cbc: `WatcherE->vtbl[4](DeltaTime)` -- note
+                    // 062c6cb4-062c6cbc: `WatcherE->vtbl[4](DeltaTime1c)` -- note
                     // the `+4` is a BYTE offset into the vtable, i.e. slot 1,
                     // which on BreakAwayIdea is Update (LAB_062d8a50).
-                    WatcherE.Update(DeltaTime);
+                    WatcherE.Update(DeltaTime1c);
                     break;
                 case 1:
                     // LAB_062c6bd4, Common.dll.txt 192870-192921.
@@ -1214,7 +1202,7 @@ int BuzzBehavior::Update()
                         Axis.z = PassByRollThrottle;
                         WatcherB.SetAxis(Axis);
                     }
-                    WatcherB.Update(DeltaTime);
+                    WatcherB.Update(DeltaTime1c);
 
                     WatcherA.PublishTargetId(0);   // 062c6c19 FUN_062d4e50
                     // .text:062a33e0 fold -> MoveIdea::SetScale40.
@@ -1223,14 +1211,14 @@ int BuzzBehavior::Update()
                         // 062c6c2a-062c6c71: the same inlined
                         // "negated basis z column -> MoveIdea::SetDirection"
                         // sequence as the first switch's case 0.
-                        Matrix const& Basis = FetchNavCandidateBasis(NavHelper);
+                        Matrix const& Basis = FetchNavCandidateBasis(NavHelperPtr24);
                         Vector Dir;
                         Dir.x = -Basis.E[0][2];
                         Dir.y = -Basis.E[1][2];
                         Dir.z = -Basis.E[2][2];
                         WatcherA.SetDirection(Dir);
                     }
-                    WatcherA.Update(DeltaTime);
+                    WatcherA.Update(DeltaTime1c);
                     break;
                 default:
                     // LAB_062c6b95 is the PassByStyle == 2 fallthrough of the
@@ -1241,7 +1229,7 @@ int BuzzBehavior::Update()
                     if (PassByStyle == 2)
                     {
                         // FUN_062e91d0 on [this+0x24]+0x18.
-                        NavHelper->Thrust.SetEngineActive(false);
+                        NavHelperPtr24->Thrust.SetEngineActive(false);
 
                         // retail: `FUN_062d7510(&WatcherB, Handle)` --
                         // FaceIdea's own watch-object setter: FieldA0 = 1 and
@@ -1256,7 +1244,7 @@ int BuzzBehavior::Update()
 
                         // FUN_062d9490 -> FaceIdea::SetScale94.
                         WatcherB.SetScale94(1.0f);
-                        WatcherB.Update(DeltaTime);
+                        WatcherB.Update(DeltaTime1c);
                     }
                     break;
                 }
@@ -1281,10 +1269,10 @@ int BuzzBehavior::Update()
     // path converges on, the fast path included (see the correction note at
     // the top of this function). FUN_062e8810 turned out to be a single
     // instruction, `MOV AL,byte ptr [ECX+0x28]; RET`, so with the call site's
-    // own `NavHelper+0x34` this is exactly "read NavHelper's byte at +0x5c" --
+    // own `NavHelperPtr24+0x34` this is exactly "read NavHelperPtr24's byte at +0x5c" --
     // no longer an opaque probe at all, and ported as such below.
     // ------------------------------------------------------------------
-    if (CheckNavHelperTimeout(NavHelper))
+    if (CheckNavHelperTimeout(NavHelperPtr24))
     {
         Result = 2;
     }
@@ -1303,38 +1291,38 @@ Matrix const& BuzzBehavior::FetchHandleBasis(IObjInspect const* Handle)
     return Handle->get_transform().Rotation;
 }
 
-// NavHelper[+0x14fc][+0x84]->vtbl[0xc](): the own ship's (SelfTarget.Iface) orientation,
+// NavHelperPtr24[+0x14fc][+0x84]->vtbl[0xc](): the own ship's (SelfTarget.Iface) orientation,
 // same shape as FetchHandleBasis. Every retail site (062c65ba, 062c6c2a, the metric sites)
 // calls through it with no test.
-Matrix const& BuzzBehavior::FetchNavCandidateBasis(SystemManager* NavHelper)
+Matrix const& BuzzBehavior::FetchNavCandidateBasis(SystemManager* NavHelperPtr24)
 {
-    return NavHelper->SelfTarget.Iface->get_transform().Rotation;
+    return NavHelperPtr24->SelfTarget.Iface->get_transform().Rotation;
 }
 
-// The three NavHelper+0x34 byte probes (the timer table's getters).
-bool BuzzBehavior::CheckNavHelperTimeout(SystemManager* NavHelper)
+// The three NavHelperPtr24+0x34 byte probes (the timer table's getters).
+bool BuzzBehavior::CheckNavHelperTimeout(SystemManager* NavHelperPtr24)
 {
-    return NavHelper->Timers.IsTimer0Active();   // FUN_062e8810
+    return NavHelperPtr24->Timers.IsTimer0Active();   // FUN_062e8810
 }
 
-bool BuzzBehavior::CheckNavHelperFlagA(SystemManager* NavHelper)
+bool BuzzBehavior::CheckNavHelperFlagA(SystemManager* NavHelperPtr24)
 {
-    return NavHelper->Timers.IsTimer5Active();   // FUN_062e8840
+    return NavHelperPtr24->Timers.IsTimer5Active();   // FUN_062e8840
 }
 
-bool BuzzBehavior::CheckNavHelperFlagB(SystemManager* NavHelper)
+bool BuzzBehavior::CheckNavHelperFlagB(SystemManager* NavHelperPtr24)
 {
-    return NavHelper->Timers.IsTimer4Active();   // FUN_062e8850
+    return NavHelperPtr24->Timers.IsTimer4Active();   // FUN_062e8850
 }
 
 // FUN_062e1e20(Basis, LeadPoint, CandidatePos) = AngleToBasisZColumn3 (common_ini.h), a
 // __cdecl 3-argument call (`ADD ESP,0xc` at 062c68e9). LeadPoint is the own
-// SelfTarget.CachedPos (NavHelper+0x1508), passed by address.
-double BuzzBehavior::ReadCandidateMetric(SystemManager* NavHelper, Vector const& CandidatePos)
+// SelfTarget.CachedPos (NavHelperPtr24+0x1508), passed by address.
+double BuzzBehavior::ReadCandidateMetric(SystemManager* NavHelperPtr24, Vector const& CandidatePos)
 {
     // .text:062c68bf-062c68de: PUSH &CandidatePos, PUSH NavRecord+0xc (the
     // record's CachedPos itself, not a copy), then Iface->get_transform(), PUSH EAX.
     // AngleToBasisZColumn3 takes the basis as three consecutive Vectors (common_ini.h).
-    Vector const* const Basis = reinterpret_cast<Vector const*>(&FetchNavCandidateBasis(NavHelper));
-    return AngleToBasisZColumn3(Basis, &NavHelper->SelfTarget.CachedPos, &CandidatePos);
+    Vector const* const Basis = reinterpret_cast<Vector const*>(&FetchNavCandidateBasis(NavHelperPtr24));
+    return AngleToBasisZColumn3(Basis, &NavHelperPtr24->SelfTarget.CachedPos, &CandidatePos);
 }

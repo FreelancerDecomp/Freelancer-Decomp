@@ -11,7 +11,7 @@
 #include "common_csys.h"           // Transform
 #include "common_iface.h"          // IObjInspect, IObjRW, ObjInspectOf, ObjRwFromWatchable
 #include "common_iustategraph.h"   // FindClosestHostileTarget
-#include "common_systemmanager.h"  // SystemManager -- what NavHelper points at
+#include "common_systemmanager.h"  // SystemManager -- what NavHelperPtr24 points at
 
 #include <cmath>
 #include <cstdint>
@@ -59,18 +59,6 @@ namespace
 // ----------------------------------------------------------------------------
 EvadeBehavior::EvadeBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContext(nullptr)
-    , Opaque18{}
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , Mode2c(0)                  // 062c7836
     , Dodge()                    // 062c77c1 FUN_062d77d0
     , BreakAway()                // 062c77d1 FUN_062d8970
@@ -109,14 +97,14 @@ bool EvadeBehavior::SetContext(void* Owner, void* Manager, void* Sys)
 
     // Every idea gets (Object = +0x14, Handle = +0x24, Context = Manager): `PUSH EBP
     // (Manager); PUSH [ESI+0x24]; PUSH [ESI+0x14]; CALL [vtbl]`. Results unread.
-    Dodge.SetContext(OwnerContext, NavHelper, Manager);             // 062c7a07
+    Dodge.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);             // 062c7a07
     Dodge.ConeAngle = 1.5707964f;                                   // 062c7a10 .text:062a66b0, 0x3fc90fdb
     Dodge.DodgeDistance = 50.0f;                                    // 062c7a1c .text:062a33d0, 0x42480000
     Dodge.IntervalTime = 6.0f;                                      // 062c7a28 .text:063275d0, 0x40c00000
-    BreakAway.SetContext(OwnerContext, NavHelper, Manager);         // 062c7a42
-    DodgeMissile.SetContext(OwnerContext, NavHelper, Manager);      // 062c7a59
-    Face.SetContext(OwnerContext, NavHelper, Manager);              // 062c7a70
-    Afterburner.SetContext(OwnerContext, NavHelper, Manager);       // 062c7a87
+    BreakAway.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);         // 062c7a42
+    DodgeMissile.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);      // 062c7a59
+    Face.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);              // 062c7a70
+    Afterburner.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);       // 062c7a87
 
     DodgeTime2a8 = 10.0f;                                           // 062c7a89 0x41200000
     Elapsed2b0 = 0.0f;                                              // 062c7a93 (dword 0)
@@ -131,7 +119,7 @@ bool EvadeBehavior::SetContext(void* Owner, void* Manager, void* Sys)
 // ----------------------------------------------------------------------------
 int EvadeBehavior::PickDodgeStyle()
 {
-    pub::AI::Personality::EvadeDodgeUseStruct const& P = NavHelper->PersonalityData.EvadeDodgeParams;
+    pub::AI::Personality::EvadeDodgeUseStruct const& P = NavHelperPtr24->PersonalityData.EvadeDodgeParams;
     float const Sum = static_cast<float>(((static_cast<double>(P.EvadeDodgeStyleWeightWaggle) +
                                             P.EvadeDodgeStyleWeightWaggleRandom) +
                                            P.EvadeDodgeStyleWeightSlide) +
@@ -163,18 +151,18 @@ void EvadeBehavior::Slot3()
     Dodge.Picker.SetWatchObject(WatchedObject(Watcher2a0));         // 062c829b FUN_062d88e0
     BreakAway.Picker.SetWatchObject(WatchedObject(Watcher2a0));     // 062c82ba FUN_062d88e0
 
-    if (NavHelper->SelfTarget.Iface->is_player())                                 // 062c82d1
+    if (NavHelperPtr24->SelfTarget.Iface->is_player())                                 // 062c82d1
     {
         // 062c82db-062c8303: a 1.0f local, IObjInspect::get_throttle (+0x4c) on the owner
         // (result unread), then FUN_062d9490 on Dodge (+0x94) and .text:062a33e0 on
         // BreakAway (+0x40) with the local.
         float Throttle = 1.0f;
-        static_cast<IObjInspect const*>(static_cast<IObjRW*>(OwnerContext))->get_throttle(Throttle);
+        static_cast<IObjInspect const*>(static_cast<IObjRW*>(OwnerContextPtr14))->get_throttle(Throttle);
         Dodge.Throttle = Throttle;
         BreakAway.Throttle = Throttle;
     }
 
-    pub::AI::Personality const& Pers = NavHelper->PersonalityData;
+    pub::AI::Personality const& Pers = NavHelperPtr24->PersonalityData;
     pub::AI::Personality::EvadeDodgeUseStruct const& D = Pers.EvadeDodgeParams;
     pub::AI::Personality::EvadeBreakUseStruct const& B = Pers.EvadeBreakParams;
 
@@ -242,11 +230,11 @@ void EvadeBehavior::Slot3()
         BreakAway.AfterburnerDelay = static_cast<float>(static_cast<double>(B.EvadeBreakAfterburnerDelay) - R);
     }
 
-    if (NavHelper->SelfTarget.Iface->is_player())                                 // 062c857f
+    if (NavHelperPtr24->SelfTarget.Iface->is_player())                                 // 062c857f
     {
         // 062c8589-062c85c9: get_transform (+0xc) on ExternalIface, its +0x8/+0x14/+0x20
         // (column 2 of the rotation) negated into a local, handed to FUN_062d88c0.
-        Transform const& Xf = NavHelper->SelfTarget.Iface->get_transform();
+        Transform const& Xf = NavHelperPtr24->SelfTarget.Iface->get_transform();
         Vector Forward;
         Forward.x = -Xf.Rotation.E[0][2];                           // +0x08
         Forward.y = -Xf.Rotation.E[1][2];                           // +0x14
@@ -274,11 +262,11 @@ void EvadeBehavior::Slot4()
 int EvadeBehavior::Slot5(float Unused)
 {
     (void)Unused;
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     int Result = 2;                                                 // 062c7ac9 [ESP+0x14]
 
     // 062c7abb-062c7aee: JobParams.bForceAttackFormation (Sys+0x1958) and Timers[0].Active.
-    if (Sys->PersonalityData.JobParams.bForceAttackFormation != 0 && NavHelper->Timers.IsTimer0Active())
+    if (Sys->PersonalityData.JobParams.bForceAttackFormation != 0 && NavHelperPtr24->Timers.IsTimer0Active())
     {
         Flag2b4 = 1;
         Elapsed2b0 = DodgeTime2a8;
@@ -310,7 +298,7 @@ int EvadeBehavior::Slot5(float Unused)
             // 062c7be4-062c7bf7: GetIfaceVectorMagnitude (FUN_062e61a0) FCOMP 1.0f; `TEST
             // AH,0x41; JNZ` skips when not greater.
             if (GetIfaceVectorMagnitude(WatchedObject(Watcher2a0)) > 1.0f &&
-                WatchedOutsideCone(Watcher2a0, OwnerContext, ConeCos2bc))   // 062c7c16
+                WatchedOutsideCone(Watcher2a0, OwnerContextPtr14, ConeCos2bc))   // 062c7c16
             {
                 // 062c7c22-062c7c44: is the watched object's target this very ship?
                 unsigned int const SelfId = Sys->SelfTarget.Iface->get_id();
@@ -323,7 +311,7 @@ int EvadeBehavior::Slot5(float Unused)
 
             // LAB_062c7c68: ... or one of this ship's formation followers.
             IObjRW* Followers[0x10];
-            int const Count = static_cast<IObjRW*>(OwnerContext)->get_formation_followers(Followers, 0x10);
+            int const Count = static_cast<IObjRW*>(OwnerContextPtr14)->get_formation_followers(Followers, 0x10);
             for (int Index = 0; Index < Count; ++Index)             // 062c7c7c-062c7cdb
             {
                 IObjRW* const Follower = Followers[Index];
@@ -351,14 +339,14 @@ int EvadeBehavior::Slot5(float Unused)
 // ----------------------------------------------------------------------------
 void EvadeBehavior::Slot8()
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     Flag2b4 = 0;                                                    // 062c7d06
     if (Sys->PersonalityData.JobParams.bForceAttackFormation != 0)  // 062c7d0d
-        Flag2b4 = NavHelper->Timers.IsTimer0Active() ? 1 : 0;    // 062c7d1a FUN_062e8810
+        Flag2b4 = NavHelperPtr24->Timers.IsTimer0Active() ? 1 : 0;    // 062c7d1a FUN_062e8810
     if (Flag2b4 != 0)
         Elapsed2b0 = DodgeTime2a8;                                  // 062c7d2f
     if (Flag2b5 == 0)
-        Flag2b5 = NavHelper->Timers.IsTimer1Active() ? 1 : 0;    // 062c7d4b FUN_062e8820
+        Flag2b5 = NavHelperPtr24->Timers.IsTimer1Active() ? 1 : 0;    // 062c7d4b FUN_062e8820
 }
 
 // ----------------------------------------------------------------------------
@@ -368,14 +356,14 @@ void EvadeBehavior::Slot8()
 // ----------------------------------------------------------------------------
 int EvadeBehavior::Slot7()
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     pub::AI::Personality const& Pers = Sys->PersonalityData;
 
     // 062c7d67-062c7dc8: a non-player ship evades only something it is watching, and only
     // while that object lies outside its own heading cone.
-    if (!NavHelper->SelfTarget.Iface->is_player())
+    if (!NavHelperPtr24->SelfTarget.Iface->is_player())
     {
-        if (!IsWatching(Watcher2a0) || !WatchedOutsideCone(Watcher2a0, OwnerContext, ConeCos2bc))
+        if (!IsWatching(Watcher2a0) || !WatchedOutsideCone(Watcher2a0, OwnerContextPtr14, ConeCos2bc))
         {
             UpdateResult10 = 2;                                     // LAB_062c823a
             return 2;
@@ -387,7 +375,7 @@ int EvadeBehavior::Slot7()
     {
         Mode2c = 4;
     }
-    else if (NavHelper->Timers.IsTimer2Active())                 // 062c7df4 FUN_062e8860
+    else if (NavHelperPtr24->Timers.IsTimer2Active())                 // 062c7df4 FUN_062e8860
     {
         Mode2c = 3;
     }
@@ -419,27 +407,27 @@ int EvadeBehavior::Slot7()
         if (Mode2c == 1)                                            // 062c7e61-062c7e98
         {
             if (Pers.FormationParams.bBreakApartFormationOnEvadeDodge != 0)   // Sys+0x17fd
-                NavHelper->GunConvergenceStateBytes.NotifyFormationLeader1(Pers.FormationParams.BreakFormationOnEvadeDodgeTime);
+                NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader1(Pers.FormationParams.BreakFormationOnEvadeDodgeTime);
             if (Pers.FormationParams.bRegroupFormationOnEvadeDodge != 0)      // Sys+0x1804
-                NavHelper->GunConvergenceStateBytes.NotifyFormationLeader2();
+                NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader2();
         }
         if (Mode2c == 2)                                            // 062c7e9d-062c7ed4
         {
             if (Pers.FormationParams.bBreakApartFormationOnEvadeBreak != 0)   // Sys+0x1805
-                NavHelper->GunConvergenceStateBytes.NotifyFormationLeader1(Pers.FormationParams.BreakFormationOnEvadeBreakTime);
+                NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader1(Pers.FormationParams.BreakFormationOnEvadeBreakTime);
             if (Pers.FormationParams.bRegroupFormationOnEvadeBreak != 0)      // Sys+0x180c
-                NavHelper->GunConvergenceStateBytes.NotifyFormationLeader2();
+                NavHelperPtr24->GunConvergenceStateBytes.NotifyFormationLeader2();
         }
         Slot4();                                                    // 062c7edd CALL [EAX+0x10]
     }
 
-    Elapsed2b0 = Elapsed2b0 + DeltaTime;                            // 062c7ee0-062c7ef0
+    Elapsed2b0 = Elapsed2b0 + DeltaTime1c;                            // 062c7ee0-062c7ef0
 
     switch (Mode2c)
     {
     case 1:                                                         // 062c8030
     {
-        if (IsWatching(Watcher2a0) && !WatchedOutsideCone(Watcher2a0, OwnerContext, ConeCos2b8))
+        if (IsWatching(Watcher2a0) && !WatchedOutsideCone(Watcher2a0, OwnerContextPtr14, ConeCos2b8))
         {
             // 062c8076-062c80e7: the threat is back inside the narrower cone -- stop
             // steering: zero position into FUN_062e8c20 and FUN_062e8ce0, then
@@ -482,11 +470,11 @@ int EvadeBehavior::Slot7()
             Dodge.SlideThrottle = 1.0f;                             // FUN_062d8930
         }
 
-        Dodge.Update(DeltaTime);                                    // LAB_062c81a9
+        Dodge.Update(DeltaTime1c);                                    // LAB_062c81a9
 
         // 062c81b6-062c81ed: FUN_062e4500(Sys+0x14fc, watched-or-null, 50.0f).
         if (IsWithinInterceptRangeOfIface(&Sys->SelfTarget,WatchedObject(Watcher2a0), 50.0f))
-            Afterburner.Update(DeltaTime);                          // 062c81f3
+            Afterburner.Update(DeltaTime1c);                          // 062c81f3
         else
             Afterburner.Commit();                                   // 062c8206
         UpdateResult10 = 0;
@@ -495,7 +483,7 @@ int EvadeBehavior::Slot7()
 
     case 2:                                                         // 062c8219
     {
-        int const R = BreakAway.Update(DeltaTime);
+        int const R = BreakAway.Update(DeltaTime1c);
         if (R != 0)
         {
             UpdateResult10 = 2;
@@ -507,13 +495,13 @@ int EvadeBehavior::Slot7()
 
     case 3:                                                         // 062c7fd2
     {
-        if (IsWatching(Watcher2a0) && !WatchedOutsideCone(Watcher2a0, OwnerContext, 0.7f))  // 0x3f333333
+        if (IsWatching(Watcher2a0) && !WatchedOutsideCone(Watcher2a0, OwnerContextPtr14, 0.7f))  // 0x3f333333
         {
             UpdateResult10 = 2;
             return 2;
         }
         BreakAway.BreakStyle = 2;                                   // 062c801b .text:063275d0 (EBP)
-        int const R = BreakAway.Update(DeltaTime);                  // 062c8028
+        int const R = BreakAway.Update(DeltaTime1c);                  // 062c8028
         if (R != 0)
         {
             UpdateResult10 = 2;
@@ -542,7 +530,7 @@ int EvadeBehavior::Slot7()
         }
         DodgeMissile.SetWatchObject(ObjRwFromWatchable(MissileRaw));    // FUN_062d9ae0
         DodgeMissile.Mode1c = Mode;                                 // 062c7fb3 .text:0631d950
-        DodgeMissile.Update(DeltaTime);                             // 062c7fc0
+        DodgeMissile.Update(DeltaTime1c);                             // 062c7fc0
         UpdateResult10 = 1;
         return 1;
     }
@@ -558,7 +546,7 @@ int EvadeBehavior::Slot7()
 // ----------------------------------------------------------------------------
 bool EvadeBehavior::Slot10(void* DirectiveOp)
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     void* Target;
     if (DirectiveOp != nullptr)
     {

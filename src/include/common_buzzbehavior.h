@@ -222,20 +222,20 @@
 // reproduces the one-line EFFECT on the correct receiver instead.
 // ----------------------------------------------------------------------------
 //
-// NavHelper (+0x24) is read throughout Update()/RecomputeApproach() at many
+// NavHelperPtr24 (+0x24) is read throughout Update()/RecomputeApproach() at many
 // large, raw (non-vtable) offsets (+0x142c, +0x1364, +0x14fc, +0x1580,
 // +0x1618..+0x16a8, +0x17ec..+0x17fc, +0x168c) -- consistent with
-// common_behavior.h's own note that NavHelper "owns a cached 'target lead
+// common_behavior.h's own note that NavHelperPtr24 "owns a cached 'target lead
 // point' (its own +0x1508/+0x150c/+0x1510)" (note +0x14fc+0xc=+0x1508,
 // +0x14fc+0x10=+0x150c, +0x14fc+0x14=+0x1510 -- an EXACT match, confirming
 // +0x14fc is the head of that same nested sub-object) "plus a recomputed-
 // this-frame flag at +0x157a" (matches this pass's own +0x24+0x157a read)
 // "and a nested vtable-having sub-object at +0x1580" (also independently
-// touched here). NavHelper's real class is still not identified anywhere in
+// touched here). NavHelperPtr24's real class is still not identified anywhere in
 // this port; every raw read/vcall through it is either reproduced as a plain
 // memory read (safe, no ambiguity) or left FULLPORT-DEFERRED (vcalls/whole
-// blocks whose real effect depends on NavHelper's unidentified shape) -- this
-// is the exact "still-unidentified NavHelper/OwnerContext-shaped sub-object
+// blocks whose real effect depends on NavHelperPtr24's unidentified shape) -- this
+// is the exact "still-unidentified NavHelperPtr24/OwnerContextPtr14-shaped sub-object
 // dependency" decomp-tracker item 1309's own notes flagged in advance.
 // ============================================================================
 
@@ -281,7 +281,7 @@ public:
     // Own vtable slot 3 (offset 0x0c). Common.dll.txt 191808-191999
     // (LAB_062c5dd0), 186 instructions. Resets the tick-state prefix (shared
     // FUN_062d20d0, same as IdleBehavior::ResetTickState), re-rolls
-    // WatcherA/B/C/D/E's per-tick tunables from NavHelper's large tunable
+    // WatcherA/B/C/D/E's per-tick tunables from NavHelperPtr24's large tunable
     // block, and re-derives HeadTowardStyle/PassByStyle/MinDistanceToHeadToward/Field344 via
     // RandomVector()/rand()-driven weighted picks.
     void RecomputeApproach();
@@ -301,7 +301,7 @@ public:
     // Own vtable slot 5 (offset 0x14). Common.dll.txt 192026-192072
     // (FUN_062c60f0), 40 instructions. Real, mostly self-contained control
     // flow: if the StateTimer (HeadAwayElapsed) hasn't reached MaxTimeToHeadAway yet, checks
-    // two NavHelper-nested-handle conditions (FUN_062ecb20/FUN_062ed5a0/
+    // two NavHelperPtr24-nested-handle conditions (FUN_062ecb20/FUN_062ed5a0/
     // FUN_062e6200, all FULLPORT-DEFERRED -- unidentified classes) to decide
     // whether a candidate is ready (mode=1) or not (mode=2, retail's own safe
     // default while those checks can't be reproduced); else resets the timer.
@@ -320,7 +320,7 @@ public:
     // re-tracing the raw bytes end to end, and they are all fixed in the .cpp:
     //
     //  (1) THE TIMER SECTION IS NOT UNCONDITIONAL. LAB_062c6705's
-    //      `HeadAwayElapsed += DeltaTime` block is reached only by falling out of the
+    //      `HeadAwayElapsed += DeltaTime1c` block is reached only by falling out of the
     //      FIRST HeadTowardStyle switch. The two BuzzState-dispatch paths that skip it
     //      (`JNZ LAB_062c672b` at 062c646f when BuzzState != 0, and the
     //      `JZ/JMP LAB_062c672b` pair at 062c64fa/062c650b that ends the
@@ -332,7 +332,7 @@ public:
     //  (2) THE FIRST SWITCH'S CASE-0 GATE HAD INVERTED MEANING. The idiom at
     //      062c659b is `TEST AH,0x44; JP`, which is MSVC's EQUALITY test (only
     //      the "equal" FCOMP outcome leaves AH & 0x44 == 0x40, the single set
-    //      bit that clears PF) -- so the branch is `NavHelper[0x1638] != 0.0f`,
+    //      bit that clears PF) -- so the branch is `NavHelperPtr24[0x1638] != 0.0f`,
     //      not the `< 0.0f` the prior port coded. Independently cross-checked
     //      against the SECOND switch's case 0, which tests the same field with
     //      the opposite mnemonic (`JNP` at 062c6b07) and must therefore reach
@@ -341,7 +341,7 @@ public:
     //
     //  (3) THE "IMMEDIATE DIRECTION" FAST PATH IS NOT AN EARLY RETURN. Both of
     //      its exits (062c6415/062c6425) jump to LAB_062c6cda, the SHARED tail
-    //      -- so the NavHelper timeout check still runs on that path. The prior
+    //      -- so the NavHelperPtr24 timeout check still runs on that path. The prior
     //      comment claimed it "skips everything below, including the tail".
     //
     //  (4) PassByStyle case 1's second vector argument is `{0, 0, PassByRollThrottle}`, not
@@ -356,7 +356,7 @@ public:
     // MoveIdea::SetScale40/SetDirection/SetDirectionFrom on WatcherA; the
     // WatcherD/WatcherE "fate" field writes; FaceIdea's own
     // AngleWeight8c/ScaleDefault1_94/FieldA0/Field28 writes on WatcherB; the
-    // three NavHelper byte-flag probes (FUN_062e8810/8840/8850 all turn out to
+    // three NavHelperPtr24 byte-flag probes (FUN_062e8810/8840/8850 all turn out to
     // be single-instruction `MOV AL,[ECX+disp]; RET` getters, so they are now
     // exact); and the candidate-angle metric itself, which is
     // common_ini.h's already-ported AngleToBasisZColumn3 (FUN_062e1e20).
@@ -375,26 +375,26 @@ public:
     // Every case body of both HeadTowardStyle switches, and of the PassByStyle switch,
     // is now REAL compiled code rather than prose -- see the .cpp. Correct as
     // before: no case body of either HeadTowardStyle switch writes a BuzzBehavior-own
-    // field; every effect lands on WatcherA/B/C/D/E or on NavHelper.
+    // field; every effect lands on WatcherA/B/C/D/E or on NavHelperPtr24.
     //
     // WHAT IS STILL GENUINELY OPEN, with its CURRENT reason (the older reasons
     // were disproved above and are deleted rather than restated):
     // UPDATE 2026-09-17 (claude:common-idea-internals): the first two entries
-    // below rested on one shared premise -- "NavHelper[+0x14fc]'s own +0x84
+    // below rested on one shared premise -- "NavHelperPtr24[+0x14fc]'s own +0x84
     // sub-object, whose class is still unidentified anywhere in this port". That
     // premise is false. It is an `IObjInspect*`, proved from five independent
     // slot matches (see common_idea.h's MoveIdea::Update slot-1 comment for all
     // five, including the one that lands here: slot 0x2c takes (float&, Vector&)
-    // and its Vector out-param is NavHelper+0x1508, which is this very header's
+    // and its Vector out-param is NavHelperPtr24+0x1508, which is this very header's
     // own "cached lead point" -- 0x14fc + 0xc == 0x1508). What survives of those
     // two entries is written out below; two of the four stubs are now real.
     //
     //   * ALL FOUR PROBES ARE NOW REAL CALLS (2026-09-17, claude:common-buzz-
     //     largeship), and the TODO above ("wiring ReadLeadDistance and
     //     ProbeCandidateInRadius to them is a mechanical change that wants the
-    //     NavHelper `Elem` argument typed first") is discharged. The `Elem`
+    //     NavHelperPtr24 `Elem` argument typed first") is discharged. The `Elem`
     //     type it was waiting on is FAiTarget (common_aisteer.h), and BOTH of
-    //     this function's records are that type: NavHelper+0x14fc is one
+    //     this function's records are that type: NavHelperPtr24+0x14fc is one
     //     (item 1745 proved SystemManager+0x14FC is exactly this record) and
     //     retail builds the other on its own stack at [ESP+0x2c], inlining
     //     FUN_062d09b0 (item 1470) at .text:062c62b8-062c62e4 to do it.
@@ -404,14 +404,14 @@ public:
     //     1745) directly, passing the two records positionally exactly as
     //     retail pushes them. FetchNavHandle is deleted too -- FUN_062ed5a0 is
     //     item 1891, 23 instructions, TargetManager::GetTarget.
-    //   * The two lazy position refreshes (NavHelper's own record at +0x14fc and
+    //   * The two lazy position refreshes (NavHelperPtr24's own record at +0x14fc and
     //     the stack record) are retail's inlined FUN_062c47c0, i.e.
     //     FAiTarget::RefreshPos, guard byte +0x7E included (2026-10-08 cmn-ai10:
     //     the former RefreshNavLeadPoint helper dropped that guard).
     //     `FetchNavCandidateBasis` is `&Owner->get_transform().Rotation`.
     //     `FetchHandleBasis` is real as well now -- its stated
     //     reason ("its receiver comes from FetchNavHandle's own
-    //     (NavHelper+0x142c) chain, which has nothing non-null to call yet")
+    //     (NavHelperPtr24+0x142c) chain, which has nothing non-null to call yet")
     //     died with FetchNavHandle; the receiver is the stack record's own
     //     Iface, reloaded at .text:062c6354.
     //   * FaceIdea's +0x58 Vector, +0xad flag and +0xb0 Vector (retail
@@ -461,7 +461,7 @@ private:
     // "PlayApproachWarning" was in any case an invented semantic name for a
     // one-instruction field store and is deliberately not carried forward.
 
-    // NavHelper+0x1584.. is the SystemManager's pub::AI::Personality: the former
+    // NavHelperPtr24+0x1584.. is the SystemManager's pub::AI::Personality: the former
     // ReadNavFloat / ReadNavDword raw readers are gone, the call sites read
     // PersonalityData.BuzzHeadParams / BuzzPassParams / FormationParams by name.
 
@@ -469,7 +469,7 @@ private:
     // WatcherD" epilogue, reached from five call sites across both HeadTowardStyle
     // switches. Writes +0xb4/+0x34/+0x38 then ticks WatcherD. Interval / IntervalVariance
     // are the personality's BuzzDodgeIntervalTime pair (+0x1664) or BuzzSlideIntervalTime
-    // pair (+0x1670) -- formerly passed as a raw NavHelper offset.
+    // pair (+0x1670) -- formerly passed as a raw NavHelperPtr24 offset.
     void ApplySteeringFate(int Fate, float Interval, float IntervalVariance);
 
     // Common.dll.txt 192075-192181 (FUN_062c6170), 100 instructions, called
@@ -479,17 +479,17 @@ private:
     // own ship's -z axis. Writes no BuzzBehavior-own field.
     void AcquireLockEffects();
 
-    // The three NavHelper+0x34 byte probes: the timer table's IsTimer0/5/4Active
+    // The three NavHelperPtr24+0x34 byte probes: the timer table's IsTimer0/5/4Active
     // (FUN_062e8810 / 062e8840 / 062e8850, each `MOV AL,byte ptr [ECX+disp]; RET`).
-    static bool CheckNavHelperTimeout(SystemManager* NavHelper);    // FUN_062e8810(NavHelper+0x34)
-    static bool CheckNavHelperFlagA(SystemManager* NavHelper);      // FUN_062e8840(NavHelper+0x34)
-    static bool CheckNavHelperFlagB(SystemManager* NavHelper);      // FUN_062e8850(NavHelper+0x34)
+    static bool CheckNavHelperTimeout(SystemManager* NavHelperPtr24);    // FUN_062e8810(NavHelperPtr24+0x34)
+    static bool CheckNavHelperFlagA(SystemManager* NavHelperPtr24);      // FUN_062e8840(NavHelperPtr24+0x34)
+    static bool CheckNavHelperFlagB(SystemManager* NavHelperPtr24);      // FUN_062e8850(NavHelperPtr24+0x34)
 
     // The two "fetch a 3x3 basis" vcalls -- slot 3, get_transform(), whose
     // Transform begins with its 3x3 Matrix. Retail reads the result at +0x8,
     // +0x14 and +0x20 (column 2) and also block-copies all nine floats.
     static Matrix const& FetchHandleBasis(IObjInspect const* Handle);           // Record.Iface->vtbl[0xc]()
-    static Matrix const& FetchNavCandidateBasis(SystemManager* NavHelper);      // NavHelper->SelfTarget.Iface->vtbl[0xc]()
+    static Matrix const& FetchNavCandidateBasis(SystemManager* NavHelperPtr24);      // NavHelperPtr24->SelfTarget.Iface->vtbl[0xc]()
 
     // ---- THE FOURTEEN RETAIL SETTER ADDRESSES ON WatcherD/WatcherE. Between
     // ---- Update() and RecomputeApproach() this file routes through fourteen
@@ -526,7 +526,7 @@ private:
     // is common_ini.h's AngleToBasisZColumn3; Basis is NavRecord.Iface->
     // get_transform(), fetched after both pointer pushes. Returns the unrounded
     // ST0 value the three FCOMP sites compare.
-    static double ReadCandidateMetric(SystemManager* NavHelper, Vector const& CandidatePos);
+    static double ReadCandidateMetric(SystemManager* NavHelperPtr24, Vector const& CandidatePos);
 
 public:
     // ------------------------------------------------------------------
@@ -537,48 +537,7 @@ public:
     // five Watcher sub-object derivations. Struct sized to the largest
     // confirmed field (HeadTowardTurnThrottle @ +0x350, ends +0x354).
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.      // +0x08. Same role/offset as IdleBehavior::CachedHandle08 /
-                                // DockBehaviorFields::CachedHandle08 (shared FUN_062d2090 initializer).
-    int ModeSelector0xc;        // +0x0c. FUN_062d20d0 sets =1; EvaluateReadiness() also writes it.
-    int UpdateResult10;         // +0x10. Update()'s own tri-state result (EDI at return); FUN_062d20d0 sets =1.
-    void* OwnerContext;         // +0x14. Set by SetContext() (Param1); null-checked by Update().
-    IObjDB* ObjectDb;           // +0x18, formerly Opaque18. Written only by Behavior::Slot2
-                                // (.text:0629afd0, the manager's IObjDB; see common_behavior.h).
-    float DeltaTime;            // +0x1c. Zeroed by FUN_062d20d0; read constantly by Update().
-    // +0x20. Same role/offset as IdleBehavior::BehaviorMgrPtr20 (shared initializer).
-    //
-    // LEFT `void*` DELIBERATELY. SEARCHED AND NOT FOUND, 2026-09-17
-    // (claude:common-behavior-fields) -- a recorded negative result, not an unexamined field.
-    // The lead is real: TrailBehavior's own +0x20 is PROVEN `IBehaviorManager*`
-    // (.text:062cb094 `MOV ECX,dword ptr [EBP + 0x20]` into
-    // `CALL IBehaviorManager::get_camera_level_status`), and FaceBehavior, GotoBehavior,
-    // GuideBehavior and DelayBehavior were typed this same pass from their own such sites. The
-    // shared writer FUN_062d2090 does NOT carry it across -- fourteen SetContext() bodies call
-    // it, so Param2's type comes from outside and must be established per class.
-    // WHAT WAS SEARCHED: every instruction of BuzzBehavior's own methods (.text:062c5af0 ctor,
-    // 062c5c00/062c5c40 dtors, 062c5cf0 SetContext, 062c5dd0 RecomputeApproach, 062c60a0
-    // Disengage, 062c60f0 EvaluateReadiness, 062c6170 AcquireLockEffects, 062c62a0 Update --
-    // .text:062c5af0..062c6d30) scanned for `[reg + 0x20]`. Every hit is one of three things,
-    // none of them this field: ESP-relative stack scratch; a vtable dispatch on a DIFFERENT
-    // object (`CALL dword ptr [EAX + 0x20]` at .text:062c6192, `CALL dword ptr [EDX + 0x20]` at
-    // .text:062c6238 and .text:062c647e -- slot 8 on an owner/IObjAffect, not a field read);
-    // or `FLD float ptr [EAX + 0x20]` on a NavHelper-derived block (.text:062c6260,
-    // .text:062c65d7, .text:062c6c47). There is no `MOV reg,[this+0x20]` and no
-    // `[[this+0x20]+disp]` chain anywhere in the class -- Buzz reads its manager back only
-    // through the shared FUN_062d20f0 Disengage() tail, which a dozen unrelated classes share.
-    // WHAT WOULD CLOSE IT: a site that loads +0x20 into ECX ahead of a call, or walks it to a
-    // confirmed IBehaviorManager offset (+0x08 Sys, +0xc0 CurrentBehaviorIndex, +0xc4,
-    // +0x110 ContentCbPtr, +0x118/+0x11c, +0x164 TurnSensitivity, +0x174 dispatch table).
-    void* BehaviorMgrPtr;
-    SystemManager* NavHelper;   // +0x24. Set by SetContext() (Param3). See class comment -- read at
-                                 // many raw offsets throughout Update()/RecomputeApproach().
-    unsigned char Flags28;      // +0x28. Bit 0x1 cleared by FUN_062d20d0.
-    unsigned char Flag29;       // +0x29. Forces EvaluateReadiness() mode=3 when set.
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     MoveIdea WatcherA;  // +0x2c.  Same class as DockBehavior/LaunchBehavior/LootBehavior/
                         // FaceBehavior's own SubObjectA -- see the class-comment's
@@ -637,7 +596,7 @@ public:
     float Field314;             // +0x314. Ctor 1.5f. Threshold for Field310.
 
     // Names below +0x314 come from the personality keys RecomputeApproach() (.text:062c5dd0)
-    // copies in: NavHelper+0x1584 is the SystemManager's pub::AI::Personality, so +0x1618.. is
+    // copies in: NavHelperPtr24+0x1584 is the SystemManager's pub::AI::Personality, so +0x1618.. is
     // its [BuzzHeadTowardBlock] (BuzzHeadParams) and +0x1678.. its [BuzzPassByBlock]
     // (BuzzPassParams) -- the key names are Content's loader keys (common_pub.h).
 
@@ -665,10 +624,10 @@ public:
     float DistanceToPassBy;          // +0x32c, formerly Field32c. Ctor 100.0f; BuzzDistanceToPassBy.
     float Field330;                  // +0x330. Ctor 5.0f. No reader in .text:062c5af0..062c6d30.
     float PassByTime;                // +0x334, formerly Field334. Ctor 3.0f; BuzzPassByTime.
-    float PassByElapsed;             // +0x338, formerly Field338. Ctor 0. DeltaTime sum in stage 2,
+    float PassByElapsed;             // +0x338, formerly Field338. Ctor 0. DeltaTime1c sum in stage 2,
                                      // compared against PassByTime (.text:062c6b5d-062c6b6c).
     float MaxTimeToHeadAway;         // +0x33c, formerly Field33c. Ctor 6.0f; BuzzMaxTimeToHeadAway.
-    float HeadAwayElapsed;           // +0x340, formerly Field340. Ctor 0. DeltaTime sum in stage 0,
+    float HeadAwayElapsed;           // +0x340, formerly Field340. Ctor 0. DeltaTime1c sum in stage 0,
                                      // compared against MaxTimeToHeadAway (.text:062c670d,
                                      // EvaluateReadiness .text:062c60f3).
     float Field344;                  // +0x344. Set to 300.0f by RecomputeApproach(). The fast path runs
@@ -681,16 +640,6 @@ public:
                                      // (FaceIdea::SetScale94 in AcquireLockEffects()).
 };
 
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, CachedHandle08) == 0x08, "BuzzBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, ModeSelector0xc) == 0x0c, "BuzzBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, UpdateResult10) == 0x10, "BuzzBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, OwnerContext) == 0x14, "BuzzBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, ObjectDb) == 0x18, "BuzzBehavior::ObjectDb offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, DeltaTime) == 0x1c, "BuzzBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, BehaviorMgrPtr) == 0x20, "BuzzBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, NavHelper) == 0x24, "BuzzBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Flags28) == 0x28, "BuzzBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, Flag29) == 0x29, "BuzzBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherA) == 0x2c, "BuzzBehavior::WatcherA offset");
 FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherB) == 0xa4, "BuzzBehavior::WatcherB offset");
 FL_LAYOUT_ASSERT(offsetof(BuzzBehavior, WatcherC) == 0x164, "BuzzBehavior::WatcherC offset");

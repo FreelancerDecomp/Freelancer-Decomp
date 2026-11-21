@@ -194,46 +194,7 @@ public:
     // Watcher2c's own true size is not independently confirmed (see
     // IdleBehavior's identical caveat).
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.      // +0x08. Set by SetContext() from `Param1->vtbl[0x20](Param1)`
-                               // (via the shared FUN_062d2090) -- same role/offset as
-                               // IdleBehavior::CachedHandle08.
-    int ModeSelector0xc;       // +0x0c. Written by ResetTickState() (=1) and
-                               // SetModeFromFlags() (1 or 3).
-    int UpdateResult10;        // +0x10. Update()'s own tri-state result (1=active/3=idle)
-                               // and ResetTickState()'s own write (=1).
-    void* OwnerContextPtr14;   // +0x14. Set by SetContext() (Param1); null-checked by Update().
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;         // +0x1c. Passed to Watcher2c's Evaluate(dt) call and
-                               // accumulated into Field44 by Update().
-    // +0x20. Set by SetContext() (Param2); read by Disengage()'s shared FUN_062d20f0 tail-call
-    // and by Update()'s NotifyBehaviorDone() call.
-    // TYPED 2026-09-17 (claude:common-behavior-fields) from DelayBehavior's OWN call site, not
-    // by carrying a sibling's proof across: Update() at .text:062d0b14 does
-    // `MOV ECX,dword ptr [ESI + 0x20]` (ESI is `this`, set at .text:062d0ae1) and four
-    // instructions later `CALL FUN_062d29a0` -- the field goes straight into ECX as a
-    // __thiscall receiver. FUN_062d29a0's whole body writes +0x118 and +0x11c, which is
-    // exactly the pair IBehaviorManager writes on its OWN `this` inside its per-tick behavior
-    // switch (.text:062d2ea9 `MOV dword ptr [ESI+0x118],0x2` / .text:062d2eb3
-    // `MOV dword ptr [ESI+0x11c],EAX`, in a function whose ESI is proved IBehaviorManager by
-    // its reads of +0xc0, +0xc4 and the +0x174 dispatch table -- all three named by exported
-    // IBehaviorManager symbols). FUN_062d29a0 also sits inside the contiguous run of named
-    // IBehaviorManager methods (between `set_state_graph` @062d28b0 and `get_scan_response`
-    // @062d2b00), so the surviving /OPT:ICF copy is the IBehaviorManager one.
-    // Cross-checked: GuideBehavior reaches the SAME FUN_062d29a0 off its own +0x20 and ALSO
-    // reaches FUN_062d2a70 off it, whose prologue reads +0x08 and +0xc0 the way the named
-    // symbols `get_scan_response` / `update_current_behavior_throttle` do.
-    // The shared writer FUN_062d2090 was deliberately NOT used as evidence (fourteen callers).
-    IBehaviorManager* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3).
-    unsigned char Flags28;     // +0x28. Bit 0x1 cleared by ResetTickState(); bit 0x2 set by
-                               // ApplyDirective(). Not otherwise read by anything this pass ported.
-    unsigned char Flag29;      // +0x29. Read by SetModeFromFlags(); cleared by Disengage()'s
-                               // shared FUN_062d20f0 effect.
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     IdleIdea Watcher2c;        // +0x2c. IdleIdea (common_idea.h; ctor FUN_062d9b10 at
                                // .text:062d0a42), identified 2026-10-08, 0x14 bytes.
@@ -246,15 +207,6 @@ public:
                                // exceeds Field40.
 };
 
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, CachedHandle08) == 0x08, "DelayBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, ModeSelector0xc) == 0x0c, "DelayBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, UpdateResult10) == 0x10, "DelayBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, OwnerContextPtr14) == 0x14, "DelayBehavior::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, DeltaTime1c) == 0x1c, "DelayBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, BehaviorMgrPtr20) == 0x20, "DelayBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, NavHelperPtr24) == 0x24, "DelayBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Flags28) == 0x28, "DelayBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Flag29) == 0x29, "DelayBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Watcher2c) == 0x2c, "DelayBehavior::Watcher2c offset");
 FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Field40) == 0x40, "DelayBehavior::Field40 offset");
 FL_LAYOUT_ASSERT(offsetof(DelayBehavior, Field44) == 0x44, "DelayBehavior::Field44 offset");

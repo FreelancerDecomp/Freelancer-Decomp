@@ -66,18 +66,6 @@ static void RotateBasisRowsXZ(Vector* Rows, double Angle)
 // sets the two float thresholds.
 LaunchBehavior::LaunchBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , ThreatSourcePtr14(nullptr)
-    , Field18(nullptr)
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , SubObjectA()
     , SubObjectB()
     , ModeState164(0)
@@ -144,16 +132,16 @@ bool LaunchBehavior::SetContext(void* Param1, void* Param2, void* Param3)
     // WIRED FOR REAL (2026-09-11, d285:common-port): retail calls SubObjectA's
     // own vtbl slot 0 here -- re-read directly from Common.dll.txt 202985-
     // 203005 byte-for-byte: both SubObjectA's and SubObjectB's calls push the
-    // SAME 3 arguments, `(ThreatSourcePtr14, NavHelperPtr24, Param2)` -- Param2
+    // SAME 3 arguments, `(OwnerContextPtr14, NavHelperPtr24, Param2)` -- Param2
     // is this function's own raw incoming 2nd parameter, captured into a
     // register BEFORE the FUN_062d2090 call above (same pattern as
     // DockBehavior::SetContext, common_dockbehavior.cpp).
-    SubObjectA.SetContext(ThreatSourcePtr14, NavHelperPtr24, Param2);
+    SubObjectA.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
     // 062cd7c9: FUN_062d5980(&SubObjectA, 0) = MoveIdea::SetMode(0).
     ReleaseApproachStep(0);
 
-    SubObjectB.SetContext(ThreatSourcePtr14, NavHelperPtr24, Param2);
+    SubObjectB.SetContext(OwnerContextPtr14, NavHelperPtr24, Param2);
 
     // CORRECTED 2026-09-17 (claude:w16-behavior). Retail, Common.dll.txt
     // 203007-203020:
@@ -310,9 +298,9 @@ bool LaunchBehavior::ApplyDirective(void const* Param)
 // A fourth correction lives in SetContext(): retail's Field18c store was being
 // skipped along with its deferred predicate.
 //
-//   if (ThreatSourcePtr14==nullptr || Watcher168.target()==nullptr ||
+//   if (OwnerContextPtr14==nullptr || Watcher168.target()==nullptr ||
 //       Watcher168.target()-8==nullptr) { UpdateResult10=3; return 3; }
-//   void* fresh = Field18->vtbl[2]()->vtbl[0]();   // SAME chain as Engage()'s
+//   void* fresh = ObjectDb->vtbl[2]()->vtbl[0]();   // SAME chain as Engage()'s
 //                                                   // own FetchCachedResult()
 //   if (CachedResultPtr170 != fresh) { UpdateResult10=2; return 2; }
 //   if (Field188 > Field18c) { UpdateResult10=3; return 3; }   // launch timed out
@@ -357,7 +345,7 @@ bool LaunchBehavior::ApplyDirective(void const* Param)
 //      ported for real, sub-object payload calls FULLPORT-DEFERRED.
 int LaunchBehavior::Update()
 {
-    if (ThreatSourcePtr14 == nullptr)
+    if (OwnerContextPtr14 == nullptr)
     {
         UpdateResult10 = 3;
         return 3;
@@ -585,7 +573,7 @@ int LaunchBehavior::Update()
 // systems since Engage().
 unsigned LaunchBehavior::FetchSystemId() const
 {
-    Universe::ISystem const* const System = Field18->GetZoneDb();
+    Universe::ISystem const* const System = ObjectDb->GetZoneDb();
     return System->GetId();
 }
 
@@ -677,7 +665,7 @@ bool LaunchBehavior::NestedNavQuery0xbc()
 // The receiver is ECX == Watcher168's target minus 8 (.text:062cda2f-062cda40), the
 // same "-8 watcher back-adjustor to the owning IObjRW" the entry gate already tested.
 //
-// The hardpoint lookup at .text:062cdb03-062cdb12 is on ThreatSourcePtr14, not on the
+// The hardpoint lookup at .text:062cdb03-062cdb12 is on OwnerContextPtr14, not on the
 // watcher target, and at that point ESP is B-4 (one live push) then B-8:
 //     062cdaea  LEA EDX,[ESP+0xbc]  -> B+0xbc   (Matrix out)
 //     062cdb08  LEA EDX,[ESP+0x24]  -> B+0x20   (Vector out)
@@ -721,7 +709,7 @@ void LaunchBehavior::ComputeLaunchApproachTransform()
 
     Vector HardpointPos;
     Matrix HardpointOrient;
-    if (ObjInspectOf(ThreatSourcePtr14)->get_hardpoint("hpmount", &HardpointPos,
+    if (ObjInspectOf(OwnerContextPtr14)->get_hardpoint("hpmount", &HardpointPos,
                                                        &HardpointOrient) != 0)
         return;  // 062cdb18 `TEST EAX,EAX / JNZ LAB_062cdbdd` -- non-zero skips the tail
 

@@ -98,19 +98,7 @@ public:
     // 0..3 over the personality's EvadeDodge Field_04..Field_10.
     int PickDodgeStyle();
 
-    // ---- Behavior's own +0x04..+0x29 block, still declared per class ----
-    int TypeId;                  // +0x04
-    unsigned CachedHandle08;     // +0x08
-    int ModeSelector0xc;         // +0x0c, Slot5's result.
-    int UpdateResult10;          // +0x10, Slot7's result.
-    void* OwnerContext;          // +0x14, the owner IObjRW* (binder).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime;             // +0x1c
-    void* BehaviorMgrPtr;        // +0x20, the IBehaviorManager (binder).
-    SystemManager* NavHelper;    // +0x24, the SystemManager (binder).
-    unsigned char Flags28;       // +0x28
-    unsigned char Flag29;        // +0x29
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // ---- EvadeBehavior's own fields ----
     int Mode2c;                  // +0x2c. Slot7's mode 1..4; ctor and Slot3 zero it.
@@ -122,7 +110,7 @@ public:
     BaseWatcher Watcher2a0;      // +0x2a0, the object being evaded.
     float DodgeTime2a8;          // +0x2a8. SetContext 10.0f; Slot3: EvadeDodge.Field_30.
     float BreakTime2ac;          // +0x2ac. Ctor 3.0f; Slot3: EvadeBreak.Field_00.
-    float Elapsed2b0;            // +0x2b0. Slot7 accumulates DeltaTime; SetContext/Slot3 zero
+    float Elapsed2b0;            // +0x2b0. Slot7 accumulates DeltaTime1c; SetContext/Slot3 zero
                                  // it; Slot5/Slot8 set it to DodgeTime2a8.
     unsigned char Flag2b4;       // +0x2b4. Slot5/Slot8: Timers[0].Active latch.
     unsigned char Flag2b5;       // +0x2b5. Slot8: Timers[1].Active latch; Slot4 clears it.
@@ -132,15 +120,6 @@ public:
     float ConeCos2bc;            // +0x2bc. Ctor 0x3f34fdf4.
 };
 
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, TypeId) == 0x04, "EvadeBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, ModeSelector0xc) == 0x0c, "EvadeBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, UpdateResult10) == 0x10, "EvadeBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, OwnerContext) == 0x14, "EvadeBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, DeltaTime) == 0x1c, "EvadeBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, BehaviorMgrPtr) == 0x20, "EvadeBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, NavHelper) == 0x24, "EvadeBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, Flags28) == 0x28, "EvadeBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, Flag29) == 0x29, "EvadeBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, Mode2c) == 0x2c, "EvadeBehavior::Mode2c offset");
 FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, Dodge) == 0x30, "EvadeBehavior::Dodge offset");
 FL_LAYOUT_ASSERT(offsetof(EvadeBehavior, BreakAway) == 0x110, "EvadeBehavior::BreakAway offset");
