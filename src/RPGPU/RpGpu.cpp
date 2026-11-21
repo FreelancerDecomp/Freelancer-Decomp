@@ -134,10 +134,19 @@ namespace
     {
         Out->Width = std::max(1u, Width);
         Out->Height = std::max(1u, Height);
-        Out->Pitch = RowPitch(Format, Out->Width);
+        // Size the image in 64 bits: on Win32 the pitch or the byte count can exceed 32 bits, and
+        // a count above max_size() would throw length_error past CreateTexture's cleanup.
+        const std::uint64_t Pitch64 =
+            IsBlockFormat(Format)
+                ? static_cast<std::uint64_t>(std::max(1u, (Out->Width + 3) / 4)) * (Format == 10 ? 8u : 16u)
+                : static_cast<std::uint64_t>(Out->Width) * BytesPerPixel(Format);
+        const std::uint64_t Bytes64 = Pitch64 * RowCount(Format, Out->Height);
+        if (Pitch64 > 0xFFFFFFFFull || Bytes64 > Out->Bits.max_size())
+            return false;
+        Out->Pitch = static_cast<unsigned int>(Pitch64);
         try
         {
-            Out->Bits.assign(static_cast<std::size_t>(Out->Pitch) * RowCount(Format, Out->Height), 0);
+            Out->Bits.assign(static_cast<std::size_t>(Bytes64), 0);
         }
         catch (const std::bad_alloc&)
         {
