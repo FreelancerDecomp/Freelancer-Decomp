@@ -130,7 +130,8 @@ namespace
         return false;
     }
 
-    int G_Compared = 0;
+    int G_Compared = 0;   // comparisons with D3DX
+    int G_SelfChecks = 0; // checks without D3DX
     int G_Different = 0;
     int G_Skipped = 0;
 
@@ -460,7 +461,7 @@ void SelfCheck(const char* What, std::uint32_t Expected, std::uint32_t Got, int 
         const int B = static_cast<int>((Got >> Shift) & 0xFF);
         Largest = std::max(Largest, A > B ? A - B : B - A);
     }
-    ++G_Compared;
+    ++G_SelfChecks;
     std::printf("SELF %s: %08x -> %08x, largest channel difference %d (tolerance %d)\n", What, Expected, Got,
                 Largest, Tolerance);
     if (Largest > Tolerance)
@@ -483,6 +484,10 @@ void RunSelfChecks()
         std::memset(&Dxt2[Offset + 12], 0x00, 4); // every pixel colour 0
     }
     const std::uint32_t Start = DecodeToArgb(TexConvert::kDxt2, Dxt2, Size, Size)[0];
+    // The baseline itself, worked out by hand so a decoder broken everywhere cannot pass: colour
+    // 0x7BEF widens to R 123, G 125, B 123; alpha 8/15 is 136; DXT2 colour comes back multiplied
+    // by alpha: 123 * 136 / 255 = 65.6 -> 66 (0x42), 125 * 136 / 255 = 66.7 -> 67 (0x43).
+    SelfCheck("DXT2 block decoded", 0x88424342u, Start, 0);
 
     // Two halvings (16 to 8 to 4), each re-encoded into DXT2.
     std::vector<unsigned char> Current = Dxt2;
@@ -547,8 +552,8 @@ int main()
     FDevice D3d;
     if (!CreateDevice(&D3d))
     {
-        std::printf("TexConvertTest: no Direct3D 8 device; only the self-checks ran (%d compared, %d different)\n",
-                    G_Compared, G_Different);
+        std::printf("TexConvertTest: no Direct3D 8 device; only the %d self-checks ran, %d different\n",
+                    G_SelfChecks, G_Different);
         return G_Different != 0 ? 1 : 2;
     }
     RunProbes(D3d.Device);
@@ -591,12 +596,15 @@ int main()
         }
     }
 
-    std::printf("TexConvertTest: %d compared, %d different, %d skipped\n", G_Compared, G_Different, G_Skipped);
+    std::printf("TexConvertTest: %d compared with D3DX, %d self-checks, %d different, %d skipped\n", G_Compared,
+                G_SelfChecks, G_Different, G_Skipped);
     D3d.Device->Release();
     D3d.D3d->Release();
     if (D3d.Window != nullptr)
         DestroyWindow(D3d.Window);
+    if (G_Different != 0)
+        return 1;
     if (G_Compared == 0)
-        return 2;
+        return 2; // no comparison with D3DX completed
     return G_Different != 0 ? 1 : 0;
 }
