@@ -582,6 +582,9 @@ int main()
         {
             const unsigned int WidthBlocks = Size[0] / 4;
             const unsigned int Linear = TexConvert::RowPitch(Format, Size[0]) * TexConvert::RowCount(Format, Size[1]);
+            // The real block-row stride, the same on both sides: checks the layout of wide and tall
+            // images on its own, apart from what D3DX does with Shading's pitch.
+            Compare(D3d.Device, Format, TexConvert::kA8R8G8B8, Size[0], Size[1], 1);
             Compare(D3d.Device, Format, TexConvert::kA8R8G8B8, Size[0], Size[1], 1, Linear / WidthBlocks);
         }
     }
