@@ -498,6 +498,16 @@ void ImeUi_GetReadingString(HWND Window)
     if (!Id) return;
     HIMC Context = ImmGetContext(Window);
     if (!Context) return;
+#if defined(_WIN64)
+    // Port-only: without GetReadingString the code below reads the legacy IMEs' private data at
+    // fixed 32-bit offsets (INPUTCONTEXT +0x124 and the IMEs' own records). Those IMEs are
+    // 32-bit modules that never load into a 64-bit process, so x64 shows no reading string.
+    if (!GGetReadingString)
+    {
+        ImmReleaseContext(Window, Context);
+        return;
+    }
+#endif
     unsigned Length = 0;
     unsigned Error = 0;
     const BYTE* Text = NULL;

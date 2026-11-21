@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "x87_portable.h"
 #include "flmaterials.h"
 #include "engine/engbase.h" // IEngine
 #include "readfile.h"
@@ -133,6 +134,13 @@ namespace
     const double GFlmWireColorScale = 255.0;
     unsigned char FlmWireColorByte(float Component)
     {
+#if !defined(_M_IX86)
+        // Port-only x64: material colours are built while drawing, inside the scene, where the
+        // x87 runs at 24-bit precision (docs/x64.md, "Client precision"): the product is
+        // rounded to float, then truncated like FISTP with the rounding control at truncate.
+        const float Product = static_cast<float>(static_cast<double>(Component) * GFlmWireColorScale);
+        return (unsigned char)(X87TruncateToInt64(Product));
+#else
         unsigned short SavedControl;
         unsigned short TruncateControl;
         long long Converted;
@@ -149,6 +157,7 @@ namespace
             fldcw SavedControl
         }
         return (unsigned char)(Converted);
+#endif
     }
 
 
@@ -1065,6 +1074,10 @@ namespace
         // Borrowed candidate material used for inherited opacity.
         void* Candidate;
     };
+    // The caller's FMaterialSubmitContext (render/IMaterial.h), field for field.
+    FL_LAYOUT_ASSERT(offsetof(FNomadContext, Candidate) == 0x1C, "candidate material +0x1C");
+    static_assert(offsetof(FNomadContext, Candidate) == offsetof(FMaterialSubmitContext, ReplacedMaterial),
+                  "FNomadContext follows FMaterialSubmitContext");
 
     int FvfXyzSize(unsigned long Fvf)
     {
@@ -3627,7 +3640,7 @@ void FMaterialImpl::BindCloak(void* Context)
 
     IDAComponent* Candidate = nullptr;
     if (Context != nullptr)
-        Candidate = *(IDAComponent**)((unsigned char*)(Context) + 0x1C);
+        Candidate = (IDAComponent*)(((FNomadContext*)(Context))->Candidate); // +0x1C on Win32
 
     if (Candidate != nullptr)
     {
@@ -3707,7 +3720,7 @@ void FMaterialImpl::BindEnvMap(void* Context)
     EnvMapFlag_ = 0;
     const char* Name = nullptr;
     IDAComponent* Candidate = Context != nullptr
-        ? *(IDAComponent**)((unsigned char*)(Context) + 0x1c)
+        ? (IDAComponent*)(((FNomadContext*)(Context))->Candidate) // +0x1C on Win32
         : nullptr;
     if (Candidate != nullptr)
     {

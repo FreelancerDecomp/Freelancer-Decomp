@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "x87_trig.h"
 #include "alchemy_common.h"
 #include "common_misc.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
@@ -349,7 +350,7 @@ namespace AlchemyImpl
     // (DAT_06257ac0/b8c/79c8, all lazily built by FUN_0623e830). This port's
     // FAlchemy::DrawNodes (alchemy_alchemy.cpp) already receives and stores
     // that exact parameter unchanged:
-    //     G_DrawCookie = static_cast<unsigned long>(reinterpret_cast<unsigned int>(Cookie));
+    //     G_DrawCookie = reinterpret_cast<std::uintptr_t>(Cookie);
     // See DrawCameraFromCookie/GetDrawCameraPosition below for the
     // retail-verified vtable+0xc "GetPosition" method this cookie exposes —
     // consumed as a live camera/viewpoint position by at least
@@ -360,7 +361,8 @@ namespace AlchemyImpl
     // pointer already round-trips through this unsigned long bit-for-bit on
     // this project's Win32 target (alchemy.vcxproj) — it was only ever
     // stored as a plain integer because nothing previously dereferenced it.
-    unsigned long G_DrawCookie = 0;            // DAT_06257908
+    // Pointer-sized (unsigned int on Win32, as retail's dword), so the camera survives on x64.
+    std::uintptr_t G_DrawCookie = 0;           // DAT_06257908
     unsigned long G_DrawCounters[9] = {};      // DAT_062578e4
     unsigned char G_DrawFlagA = 1;             // DAT_06255060
     unsigned char G_DrawFlagB = 1;             // DAT_06255061
@@ -1477,6 +1479,7 @@ namespace AlchemyImpl
         // FUN_0623f6b0: libm reduces angles that x87 deliberately leaves
         // unchanged when |AngleRadians| >= 2^63 (C2 set). Preserve the
         // instruction semantics and both float stores; no calls in asm.
+#if defined(_M_IX86)
         __asm
         {
             fld AngleRadians
@@ -1487,6 +1490,13 @@ namespace AlchemyImpl
             fsin
             fstp dword ptr [eax + 4]
         }
+#else
+        // Port-only x64: every x64 CPU has SSE, so SelectAlchemyMathImplementation picks
+        // ComputeSinCosSse and this is only the initial value; x87_trig.h stands in for the
+        // instructions (last-bit differences possible).
+        Output[0] = X87CosF(AngleRadians);
+        Output[1] = X87SinF(AngleRadians);
+#endif
     }
 
     FnAlchemySinCos G_AlchemySinCos = ComputeSinCosFpu; // PTR_FUN_062572a0

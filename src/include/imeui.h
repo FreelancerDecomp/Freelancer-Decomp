@@ -263,5 +263,5 @@ public:
 };
 #pragma pack(pop)
 
-static_assert(sizeof(void*) == 4, "IMEFocus is 32-bit");
+FL_LAYOUT_ASSERT(sizeof(void*) == 4, "IMEFocus is 32-bit");
 FL_LAYOUT_ASSERT(sizeof(IMEFocus) == 0x18, "retail IMEFocus base through +0x17");

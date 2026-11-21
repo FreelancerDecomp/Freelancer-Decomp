@@ -10,6 +10,7 @@
 #include "alchemy_common.h"
 #include "alchemy_genericfx.h"
 
+#include <cstdint>
 #include <cstdio>
 #include <concepts>
 #include <cstdlib>
@@ -460,7 +461,7 @@ namespace AlchemyImpl
             FdumpAlchemyWarning(0x12C, kMsgDrawWithoutBegin);
             return GR_GENERIC;
         }
-        G_DrawCookie = static_cast<unsigned long>(reinterpret_cast<unsigned int>(Cookie));
+        G_DrawCookie = reinterpret_cast<std::uintptr_t>(Cookie);
         IDAComponent* Start = static_cast<IDAComponent*>(StartNode);
         if (Start == nullptr)
             Start = G_RootNode;
@@ -651,7 +652,7 @@ namespace AlchemyImpl
         WalkNodePreOrder(Start, [&](IDAComponent* Node) {
             unsigned long Key = 0;
             AsFxNode(Node)->GetInstanceNameHash(&Key);
-            if (Key == reinterpret_cast<unsigned long>(SearchKey))
+            if (Key == static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(SearchKey)))
             {
                 if (OutPtr != nullptr)
                     *OutPtr = Node;
@@ -748,7 +749,7 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FAlchemy::EnqueueAppearance(void* ListIndexRaw, void* AppearanceRaw)
     {
         const unsigned long ListIndex =
-            static_cast<unsigned long>(reinterpret_cast<unsigned int>(ListIndexRaw));
+            static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(ListIndexRaw));
         return EnqueueAppearanceToList(ListIndex, static_cast<IDAComponent*>(AppearanceRaw));
     }
 

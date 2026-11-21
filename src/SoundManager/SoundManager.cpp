@@ -4,11 +4,13 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "x87_portable.h"
 #include "SoundManagerInternal.h"
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "readfile.h"
 #include "platform.h"
 
+#include <cstdint>
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
@@ -734,6 +736,20 @@ namespace
                               float RolloffFactor, float ClientAtten)
     {
         static constexpr double kTen = 10.0; // DAT_06ee9480
+#if !defined(_M_IX86)
+        // Port-only x64: the sound update runs outside the scene, at 53-bit precision
+        // (docs/x64.md, "Client precision"), so each x87 step is one double operation;
+        // X87Log10 stands in for FLDLG2 / FYL2X (last-bit differences possible).
+        const double Min = MinDistance;
+        double Value = static_cast<double>(Dist) * static_cast<double>(DistanceFactor);
+        Value = Value - Min;
+        Value = Value * static_cast<double>(RolloffFactor);
+        Value = Value + Min;
+        Value = Min / Value;
+        Value = X87Log10(Value) * kTen;
+        Value = Value + static_cast<double>(ClientAtten);
+        return static_cast<float>(Value);
+#else
         float Result;
         __asm
         {
@@ -753,6 +769,7 @@ namespace
             fstp Result
         }
         return Result;
+#endif
     }
 
     // FUN_06ee1670 cdecl: clamp vs DAT_06ee9220=-100 / DAT_06ee9250=100,
@@ -3965,7 +3982,8 @@ GENRESULT DACOM_API FSoundManager::GetInstanceStatus(int Index, void* Out)
         Node = Node->Next;
     }
     unsigned long* Dwords = static_cast<unsigned long*>(Out);
-    Dwords[0] = reinterpret_cast<unsigned long>(Node->PlayKey);
+    // The record is three dwords (retail interface): x64 keeps the low 32 bits of the pointer.
+    Dwords[0] = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Node->PlayKey));
     Dwords[1] = Node->StatusFlags;
     Dwords[2] = Node->DsCapsFlags;
     return GR_OK;
