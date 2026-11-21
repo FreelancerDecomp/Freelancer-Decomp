@@ -184,7 +184,7 @@ namespace AlchemyImpl
         const char* RequestedName = nullptr;
         if (Desc->size == Spec_.RequiredSize)
         {
-            RequestedName = reinterpret_cast<FAggDesc8*>(Desc)->NameAt4;
+            RequestedName = Desc->interface_name;
         }
         else
         {
@@ -209,14 +209,14 @@ namespace AlchemyImpl
         {
             FAlchemy* Alchemy = static_cast<FAlchemy*>(Object);
             FAGGDESC14* Aggregate = reinterpret_cast<FAGGDESC14*>(Desc);
-            Alchemy->SetController(Aggregate->OuterUnknown);
-            if (Aggregate->OuterUnknown != nullptr)
-                *Aggregate->InnerUnknown = Alchemy->InnerUnknown();
+            Alchemy->SetController(Aggregate->Outer);
+            if (Aggregate->Outer != nullptr)
+                *Aggregate->InnerOut = Alchemy->InnerUnknown();
             const GENRESULT InitResult = Alchemy->Initialize(Desc);
             if (InitResult != GR_OK)
             {
-                if (Aggregate->InnerUnknown != nullptr)
-                    *Aggregate->InnerUnknown = nullptr;
+                if (Aggregate->InnerOut != nullptr)
+                    *Aggregate->InnerOut = nullptr;
                 delete Alchemy;
                 *Instance = nullptr;
                 return InitResult;
@@ -226,14 +226,14 @@ namespace AlchemyImpl
         {
             FFxRuntime* Runtime = static_cast<FFxRuntime*>(Object);
             FAGGDESC14* Aggregate = reinterpret_cast<FAGGDESC14*>(Desc);
-            Runtime->SetController(Aggregate->OuterUnknown);
-            if (Aggregate->OuterUnknown != nullptr)
-                *Aggregate->InnerUnknown = Runtime->InnerUnknown();
+            Runtime->SetController(Aggregate->Outer);
+            if (Aggregate->Outer != nullptr)
+                *Aggregate->InnerOut = Runtime->InnerUnknown();
             const GENRESULT InitResult = Runtime->InitializeFromFactory(Desc);
             if (InitResult != GR_OK)
             {
-                if (Aggregate->InnerUnknown != nullptr)
-                    *Aggregate->InnerUnknown = nullptr;
+                if (Aggregate->InnerOut != nullptr)
+                    *Aggregate->InnerOut = nullptr;
                 delete Runtime;
                 *Instance = nullptr;
                 return InitResult;
@@ -280,7 +280,7 @@ namespace AlchemyImpl
             // returned with *Instance = 0.
             FGenericFxObjectBase* const Node = static_cast<FGenericFxObjectBase*>(Object);
             const GENRESULT InitResult =
-                Node->InitializeFromFactory(reinterpret_cast<const FAggDesc8*>(Desc));
+                Node->InitializeFromFactory(Desc);
             if (InitResult != GR_OK)
             {
                 Object->Release();
@@ -321,9 +321,9 @@ namespace AlchemyImpl
             // Non-aggregation private descriptors retain their separate
             // initialization contract; Alchemy/Runtime inner outputs are
             // handled before Initialize above.
-            FAggDesc14* Extended = reinterpret_cast<FAggDesc14*>(Desc);
-            if (Extended->WritebackAtC != nullptr)
-                *Extended->WritebackAtC = Object;
+            FAGGDESC14* Extended = reinterpret_cast<FAGGDESC14*>(Desc);
+            if (Extended->InnerOut != nullptr)
+                *Extended->InnerOut = Object;
         }
 
         *Instance = Object;

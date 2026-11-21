@@ -30,9 +30,8 @@ already created object. A curve's display name does not replace the component na
 
 `LinearPCurve` is registered twice (the plain linear evaluator and a Hermite-based variant); the selection order
 belongs to the DACOM registry, and the second factory is not dead. The engine and spline factories support a controlling
-outer and a separate inner unknown; the curve factories do not use the descriptor's aggregation fields. The internal
-descriptor `FThornAggDesc14` (`Thorn.h`) is not the same as the descriptor with an IID: the two must not be
-swapped just because their sizes coincide.
+outer and a separate inner unknown; the curve factories do not use the descriptor's aggregation fields. Every Thorn factory reads
+dacom.h's `FAGGDESC14`: `+8` is the controlling outer, `+0xC` the inner out-slot, `+0x10` unused.
 
 Who uses it: `Common` creates `IScriptEngine` through DACOM and hands it the file system; `RoomData`
 (`src/Common/common_roomdata.cpp`) pulls out descriptors and properties to build a room and releases the

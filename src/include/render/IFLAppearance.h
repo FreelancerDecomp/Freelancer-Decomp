@@ -27,12 +27,4 @@ struct IFLAppearance : IDAComponent
     virtual GENRESULT DACOM_API CountVisibleGeometry(void* A, void* B, void* C) = 0;
 };
 
-struct FAggDesc18
-{
-    unsigned long Size;
-    const char* NameAt4;
-    void* OuterAt8;
-    void** InnerOutAtC;
-    const char* ValueAt10;
-    IDAComponent* SystemAt14;
-};
+// FLAppearance is created from dacom.h's FAGGDESC18.

@@ -67,9 +67,9 @@ namespace
             // LAB_06ec6d40..6e2e has its own aggregate descriptor contract.
             if (Spec.Kind == KindMaterialAnimation)
             {
-                FMaterialAggregateDesc* AnimationDesc = (FMaterialAggregateDesc*)Desc;
-                if (AnimationDesc->Size != sizeof(FMaterialAggregateDesc) ||
-                    std::strcmp(AnimationDesc->NameAt4, Spec.Name) != 0)
+                FAGGDESC14* AnimationDesc = (FAGGDESC14*)Desc;
+                if (AnimationDesc->Size != sizeof(FAGGDESC14) ||
+                    std::strcmp(AnimationDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
                     return GR_INTERFACE_UNSUPPORTED;
@@ -80,9 +80,9 @@ namespace
                     *Instance = nullptr;
                     return GR_OUT_OF_MEMORY;
                 }
-                Animation->Outer = AnimationDesc->OuterAt8;
+                Animation->Outer = AnimationDesc->Outer;
                 if (Animation->Outer != nullptr)
-                    *AnimationDesc->InnerOutAtC = (IDAComponent*)(&Animation->Controller);
+                    *AnimationDesc->InnerOut = (IDAComponent*)(&Animation->Controller);
                 *Instance = (IMatAnimLibrary*)Animation;
                 return GR_OK;
             }
@@ -90,9 +90,9 @@ namespace
             // FUN_06ecb940: controller publication precedes descriptor init.
             if (Spec.Kind == KindMaterialBatcher)
             {
-                FMaterialAggregateDesc* BatcherDesc = (FMaterialAggregateDesc*)Desc;
-                if (BatcherDesc->Size != sizeof(FMaterialAggregateDesc) ||
-                    std::strcmp(BatcherDesc->NameAt4, Spec.Name) != 0)
+                FAGGDESC14* BatcherDesc = (FAGGDESC14*)Desc;
+                if (BatcherDesc->Size != sizeof(FAGGDESC14) ||
+                    std::strcmp(BatcherDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
                     return GR_INTERFACE_UNSUPPORTED;
@@ -103,15 +103,15 @@ namespace
                     *Instance = nullptr;
                     return GR_OUT_OF_MEMORY;
                 }
-                Batcher->ControllingUnknown = BatcherDesc->OuterAt8 != nullptr
-                    ? BatcherDesc->OuterAt8 : (IDAComponent*)(&Batcher->Controller);
-                if (BatcherDesc->OuterAt8 != nullptr)
-                    *BatcherDesc->InnerOutAtC = (IDAComponent*)(&Batcher->Controller);
+                Batcher->ControllingUnknown = BatcherDesc->Outer != nullptr
+                    ? BatcherDesc->Outer : (IDAComponent*)(&Batcher->Controller);
+                if (BatcherDesc->Outer != nullptr)
+                    *BatcherDesc->InnerOut = (IDAComponent*)(&Batcher->Controller);
                 const GENRESULT Result = Batcher->InitializeFromDescriptor(BatcherDesc);
                 if (Result != GR_OK)
                 {
-                    if (BatcherDesc->InnerOutAtC != nullptr)
-                        *BatcherDesc->InnerOutAtC = nullptr;
+                    if (BatcherDesc->InnerOut != nullptr)
+                        *BatcherDesc->InnerOut = nullptr;
                     delete Batcher;
                     *Instance = nullptr;
                     return Result;
@@ -124,9 +124,9 @@ namespace
             // for aggregation, then run descriptor initialization on both paths.
             if (Spec.Kind == KindMaterialLibrary)
             {
-                FMaterialAggregateDesc* LibraryDesc = (FMaterialAggregateDesc*)Desc;
-                if (LibraryDesc->Size != sizeof(FMaterialAggregateDesc) ||
-                    std::strcmp(LibraryDesc->NameAt4, Spec.Name) != 0)
+                FAGGDESC14* LibraryDesc = (FAGGDESC14*)Desc;
+                if (LibraryDesc->Size != sizeof(FAGGDESC14) ||
+                    std::strcmp(LibraryDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
                     return GR_INTERFACE_UNSUPPORTED;
@@ -137,15 +137,15 @@ namespace
                     *Instance = nullptr;
                     return GR_OUT_OF_MEMORY;
                 }
-                Library->ControllingUnknown = LibraryDesc->OuterAt8 != nullptr
-                    ? LibraryDesc->OuterAt8 : (IDAComponent*)(&Library->Controller);
-                if (LibraryDesc->OuterAt8 != nullptr)
-                    *LibraryDesc->InnerOutAtC = (IDAComponent*)(&Library->Controller);
+                Library->ControllingUnknown = LibraryDesc->Outer != nullptr
+                    ? LibraryDesc->Outer : (IDAComponent*)(&Library->Controller);
+                if (LibraryDesc->Outer != nullptr)
+                    *LibraryDesc->InnerOut = (IDAComponent*)(&Library->Controller);
                 const GENRESULT Result = Library->InitializeFromDescriptor(LibraryDesc);
                 if (Result != GR_OK)
                 {
-                    if (LibraryDesc->InnerOutAtC != nullptr)
-                        *LibraryDesc->InnerOutAtC = nullptr;
+                    if (LibraryDesc->InnerOut != nullptr)
+                        *LibraryDesc->InnerOut = nullptr;
                     delete Library;
                     *Instance = nullptr;
                     return Result;
@@ -157,8 +157,8 @@ namespace
             // FUN_06ec6760: descriptor initialization is distinct from aggregate Initialize.
             if (Spec.Kind == KindTextureLibrary)
             {
-                FSystemAggDesc* TextureDesc = (FSystemAggDesc*)Desc;
-                if (TextureDesc->Size != sizeof(FSystemAggDesc) ||
+                FAGGDESC14* TextureDesc = (FAGGDESC14*)Desc;
+                if (TextureDesc->Size != sizeof(FAGGDESC14) ||
                     std::strcmp(TextureDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
@@ -191,9 +191,9 @@ namespace
             // 9260, a400, aca0, c2b0, c800, ce10, d2d0 and de50.
             if (Spec.Kind == KindMaterialType)
             {
-                FMaterialAggregateDesc* MaterialDesc = (FMaterialAggregateDesc*)Desc;
-                if (MaterialDesc->Size != sizeof(FMaterialAggregateDesc) ||
-                    std::strcmp(MaterialDesc->NameAt4, Spec.Name) != 0)
+                FAGGDESC14* MaterialDesc = (FAGGDESC14*)Desc;
+                if (MaterialDesc->Size != sizeof(FAGGDESC14) ||
+                    std::strcmp(MaterialDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
                     return GR_INTERFACE_UNSUPPORTED;
@@ -208,8 +208,8 @@ namespace
                 const GENRESULT Result = Material->InitializeFromDescriptor(MaterialDesc);
                 if (Result != GR_OK)
                 {
-                    if (MaterialDesc->InnerOutAtC != nullptr)
-                        *MaterialDesc->InnerOutAtC = nullptr;
+                    if (MaterialDesc->InnerOut != nullptr)
+                        *MaterialDesc->InnerOut = nullptr;
                     Material->ScalarDeletingDestructor(1);
                     *Instance = nullptr;
                     return Result;
@@ -222,9 +222,9 @@ namespace
             // initializer (3e80), after publishing the aggregation controller.
             if (Spec.Kind == KindBatchedMaterial)
             {
-                FMaterialAggregateDesc* BatchedDesc = (FMaterialAggregateDesc*)Desc;
-                if (BatchedDesc->Size != sizeof(FMaterialAggregateDesc) ||
-                    std::strcmp(BatchedDesc->NameAt4, Spec.Name) != 0)
+                FAGGDESC14* BatchedDesc = (FAGGDESC14*)Desc;
+                if (BatchedDesc->Size != sizeof(FAGGDESC14) ||
+                    std::strcmp(BatchedDesc->Name, Spec.Name) != 0)
                 {
                     *Instance = nullptr;
                     return GR_INTERFACE_UNSUPPORTED;
@@ -239,8 +239,8 @@ namespace
                 const GENRESULT Result = Batched->InitializeFromDescriptor(BatchedDesc);
                 if (Result != GR_OK)
                 {
-                    if (BatchedDesc->InnerOutAtC != nullptr)
-                        *BatchedDesc->InnerOutAtC = nullptr;
+                    if (BatchedDesc->InnerOut != nullptr)
+                        *BatchedDesc->InnerOut = nullptr;
                     delete Batched;
                     *Instance = nullptr;
                     return Result;

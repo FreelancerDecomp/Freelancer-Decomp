@@ -1243,15 +1243,15 @@ void Win3DStartupManager(int Width, int Height)
     // 0x0059d615..0x0059d67e: a "FileSystem" for interface\interface.generic.vms under
     // DALib::Data (slot 3), the 0x34-byte description zeroed by REP STOSD and filled like every
     // other client call site.
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.DataPath = "interface\\interface.generic.vms";
-    Desc.Field10 = 0x80000000u;
-    Desc.Field14 = 1;
-    Desc.Field1C = 3;
-    Desc.Field20 = 0x8000080u;
+    Desc.Path = "interface\\interface.generic.vms";
+    Desc.Access = 0x80000000u;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080u;
     Desc.Field30 = 0xffffffffu;
     void* FsOut = nullptr;
     if (static_cast<IFileSystem*>(DALib::Data)->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc),
@@ -1259,7 +1259,7 @@ void Win3DStartupManager(int Width, int Height)
     {
         // 0x0059d685..0x0059d69a: FUN_0041ade0(fs, path, 1, -1) -> DAT_0067dbc8.
         G_InterfaceGenericMaterial = Archetype::ResolveMaterialEntryFromFs(
-            static_cast<IFileSystem*>(FsOut), Desc.DataPath, true, 0xffffffffu);
+            static_cast<IFileSystem*>(FsOut), Desc.Path, true, 0xffffffffu);
     }
     // 0x0059d69f..0x0059d6b0: the file system is released (slot 2) whenever the out pointer is
     // non-null, whatever the create returned.

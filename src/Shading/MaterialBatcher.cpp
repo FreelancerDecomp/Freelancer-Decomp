@@ -332,12 +332,12 @@ unsigned long DACOM_API FMaterialBatcher::Release()
     return ControllingUnknown->Release();
 }
 
-GENRESULT FMaterialBatcher::InitializeFromDescriptor(const FMaterialAggregateDesc* Desc)
+GENRESULT FMaterialBatcher::InitializeFromDescriptor(const FAGGDESC14* Desc)
 {
     // FUN_06ec85a0: initialize the embedded library before the batcher outer.
     if (Library.InitializeFromDescriptor(Desc) < 0)
         return GR_GENERIC;
-    Outer = Desc->OuterAt8;
+    Outer = Desc->Outer;
     return GR_OK;
 }
 

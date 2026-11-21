@@ -44,16 +44,16 @@ namespace
     // The DALib::Data FileSystem description FUN_0059ec80 (0x0059ed1c..0x0059ed7b) and
     // FUN_0059e980 (0x0059ea47..0x0059ea9c) build on the stack: the 0x34-byte desc,
     // "FileSystem", no backend, the path, and the fixed open flags.
-    void BuildMeshFileSystemDesc(FFileSystemAggDesc* Desc, char const* Path)
+    void BuildMeshFileSystemDesc(FFileSystemDesc* Desc, char const* Path)
     {
         memset(Desc, 0, sizeof(*Desc));
         Desc->Size = 0x34;
         Desc->ComponentName = "FileSystem";
-        Desc->DataPath = Path;
-        Desc->Field10 = 0x80000000u;
-        Desc->Field14 = 1;
-        Desc->Field1C = 3;
-        Desc->Field20 = 0x8000080u;
+        Desc->Path = Path;
+        Desc->Access = 0x80000000u;
+        Desc->ShareMode = 1;
+        Desc->Creation = 3;
+        Desc->Flags = 0x8000080u;
         Desc->Field30 = 0xffffffffu;
     }
 
@@ -236,15 +236,15 @@ bool ClientMeshHolderLoad(FMeshHolder* Holder, char const* Path, char const* Aux
     bool bOk = false;
 
     // 00420df6..00420e4a: the DALib::OpenData-shaped FileSystem desc with no backend name.
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     memset(&Desc, 0, sizeof(Desc));
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.DataPath = Path;
-    Desc.Field10 = 0x80000000u;
-    Desc.Field14 = 1;
-    Desc.Field1C = 3;
-    Desc.Field20 = 0x8000080u;
+    Desc.Path = Path;
+    Desc.Access = 0x80000000u;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080u;
     Desc.Field30 = 0xffffffffu;
 
     void* FsOut = nullptr;
@@ -415,7 +415,7 @@ bool ClientMeshLoadFromPath(FClientMeshHolder* Holder, char const* RelPath,
 
     // 0x0059ed1c..0x0059ed85: open RelPath as a DALib::Data FileSystem (vt+0xc CreateInstance).
     // The FileSystem is the EH-guarded local released at 0x0059eeb2 whatever happened.
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     BuildMeshFileSystemDesc(&Desc, RelPath);
     void* FsOut = nullptr;
     if (static_cast<IFileSystem*>(DALib::Data)
@@ -487,7 +487,7 @@ bool Win3DModelCachePreload(char const* Path, char const* AuxPath)
 
     // 0x0059ea47..0x0059eab4: open Path as a DALib::Data FileSystem; failure -> false.
     bool bResult = false;
-    FFileSystemAggDesc Desc;
+    FFileSystemDesc Desc;
     BuildMeshFileSystemDesc(&Desc, Path);
     void* FsOut = nullptr;
     if (static_cast<IFileSystem*>(DALib::Data)

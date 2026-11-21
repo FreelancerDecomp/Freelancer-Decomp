@@ -783,7 +783,7 @@ namespace AlchemyImpl
 
     GENRESULT FAlchemy::AcquirePipelineInterfaces(AGGDESC* Desc)
     {
-        G_PipelineOuter = reinterpret_cast<FAGGDESC14*>(Desc)->OuterUnknown;
+        G_PipelineOuter = reinterpret_cast<FAGGDESC14*>(Desc)->Outer;
         G_InitializedAlchemy = this;
         GENRESULT Result = G_PipelineOuter->QueryInterface(
             Iids::RenderPipeline8B, reinterpret_cast<void**>(&G_RenderPipeline));

@@ -52,16 +52,10 @@
 // ===========================================================================
 I3DMathEngine* Server_Acquire3DMathEngine()
 {
-    struct FAGGDESC12
-    {
-        unsigned long Size;       // +0x00  0xc
-        const char* Name;         // +0x04  "3DMathEngine"
-        void* Field_0x08;         // +0x08  0
-    };
-    FAGGDESC12 Desc;
+    FMathDesc Desc;
     Desc.Size = 0xc;
-    Desc.Name = "3DMathEngine";
-    Desc.Field_0x08 = nullptr;
+    Desc.InterfaceName = "3DMathEngine";
+    Desc.Implementation = nullptr;
 
     void* Engine = nullptr;
     DACOM_Acquire()->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), &Engine);

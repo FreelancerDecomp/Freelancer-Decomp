@@ -74,7 +74,7 @@ bool FlmNameEqual(const char* Left, const char* Right);
 void FlmFdump(int Flags, const char* File, int Line, const char* Kind, const char* Message);
 
 IMaterial* FlmCreateMaterial(const FMaterialSpec& Spec);
-GENRESULT FlmCreateAppearanceInstance(FAggDesc18* Desc, void** Instance);
+GENRESULT FlmCreateAppearanceInstance(FAGGDESC18* Desc, void** Instance);
 
 // VisibleCounter slot 10 / IFLAppearance slot 13 (DAT_067045B4 / B8 / BC).
 extern unsigned long G_VisibleCounterA;
@@ -98,7 +98,7 @@ class FMaterialImpl : public IMaterial
 public:
     explicit FMaterialImpl(const FMaterialSpec& Spec);
     ~FMaterialImpl() noexcept(false);
-    void ConfigureAggregation(FMaterialAggregateDesc* Desc);
+    void ConfigureAggregation(FAGGDESC14* Desc);
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
     unsigned long DACOM_API AddRef() override;

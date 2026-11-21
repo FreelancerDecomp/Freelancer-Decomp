@@ -742,18 +742,9 @@ void DACOM_API FVMeshLibrary::Unload(void* Handle)
 // LAB_06c2ed50 (factory vtable slot 3). Only a 0x14 AGGDESC whose name matches the factory's;
 // otherwise *Out = 0, -3. Allocation failure -> *Out = 0, -4. Outer = AGGDESC+8; when set the
 // inner is written to *(AGGDESC+0xC), otherwise the object is its own outer.
-struct FVMeshAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
-
 GENRESULT DACOM_API VMeshLibraryFactoryCreate(FDacomFactory* This, AGGDESC* Desc, void** Out)
 {
-    FVMeshAggDesc* Extended = (FVMeshAggDesc*)Desc;
+    FAGGDESC14* Extended = (FAGGDESC14*)Desc;
     if (Extended->Size != 0x14 || std::strcmp(Extended->Name, This->Name) != 0)
     {
         *Out = nullptr;

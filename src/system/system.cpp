@@ -37,16 +37,8 @@ static constexpr char kFdumpPrefix[] = "%s(%d) : NOTICE:General:%s";
 static constexpr unsigned int kFdumpScratchSize = 0x2000; // FUN_06f11480 _vsnprintf cap
 static constexpr unsigned int kLineBufferSize = 0x100;    // ReadLine buffer @06f11246
 
-// AGGDESC size 0x14 used by this factory and when creating [System] children.
-// +8 = outer IUnknown (aggregation), +0xC = inner out, +0x10 = optional extra.
-struct FSystemAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
+// This factory and the [System] children it creates use dacom.h's FAGGDESC14; Value is the
+// child line's optional "= Value" part.
 
 // Optional child lifecycle facet; cached pointers are borrowed after QI/Release.
 struct ISystemComponent : IDAComponent
@@ -109,7 +101,7 @@ public:
     GENRESULT DACOM_API FindConnectionPoint(const char* Iid, void** Out) override;
     GENRESULT DACOM_API EnumConnectionPoints(void* Arg0, void* Arg1) override;
 
-    GENRESULT BindOuter(FSystemAggDesc* Desc);
+    GENRESULT BindOuter(FAGGDESC14* Desc);
 
     FComponentNode* Head;
     FComponentNode* Tail;
@@ -358,12 +350,12 @@ GENRESULT DACOM_API FSystemContainer::LoadSystemComponents()
                 if (*Name == ';' || *Name == '\0')
                     continue;
 
-                FSystemAggDesc Desc;
+                FAGGDESC14 Desc;
                 Desc.Size = kAggDescSize;
                 Desc.Name = nullptr;
                 Desc.Outer = nullptr;
                 Desc.InnerOut = nullptr;
-                Desc.Extra = nullptr;
+                Desc.Value = nullptr;
 
                 char* Extra = strchr(Name, '=');
                 if (Extra != nullptr)
@@ -384,7 +376,7 @@ GENRESULT DACOM_API FSystemContainer::LoadSystemComponents()
                 Desc.Name = Name;
                 Desc.Outer = (ISystemContainer*)(this);
                 Desc.InnerOut = &Node->Inner;
-                Desc.Extra = Extra;
+                Desc.Value = Extra;
 
                 char* Token = strchr(Name, ' ');
                 if (Token != nullptr)
@@ -410,7 +402,7 @@ GENRESULT DACOM_API FSystemContainer::LoadSystemComponents()
                 char Scratch[kFdumpScratchSize];
                 FDUMP((int)(kFdumpNotice), kFdumpPrefix, kRetailSource, kLoadComponentsLine,
                       FormatNotice(Scratch, kLoadFormat, Desc.Name,
-                                   Desc.Extra != nullptr ? Desc.Extra : kEmptyExtra, Status));
+                                   Desc.Value != nullptr ? Desc.Value : kEmptyExtra, Status));
             }
 
             if (bAggregated == 0)
@@ -447,7 +439,7 @@ GENRESULT DACOM_API FSystemContainer::AddComponent(AGGDESC* Desc)
     if (Desc == nullptr)
         return GR_INVALID_PARMS;
 
-    FSystemAggDesc* SystemDesc = (FSystemAggDesc*)(Desc);
+    FAGGDESC14* SystemDesc = (FAGGDESC14*)(Desc);
     IDAComponent* SavedOuter = SystemDesc->Outer;
     IDAComponent** SavedInnerOut = SystemDesc->InnerOut;
 
@@ -531,9 +523,9 @@ GENRESULT DACOM_API FSystemContainer::EnumConnectionPoints(void* Arg0, void* Arg
 
 // FUN_06f110e0: refuse an Extra of exactly "SystemContainer" (CMPSB ECX=0x10 over the 16-byte
 // literal incl. NUL == strcmp), else adopt the outer unknown when one is given.
-GENRESULT FSystemContainer::BindOuter(FSystemAggDesc* Desc)
+GENRESULT FSystemContainer::BindOuter(FAGGDESC14* Desc)
 {
-    if (Desc->Extra != nullptr && strcmp(Desc->Extra, kComponentName) == 0)
+    if (Desc->Value != nullptr && strcmp(Desc->Value, kComponentName) == 0)
         return GR_GENERIC;
     if (Desc->Outer != nullptr)
     {
@@ -579,7 +571,7 @@ unsigned long DACOM_API FSystemContainerFactory::Release()
 // LAB_06f118a0.
 GENRESULT DACOM_API FSystemContainerFactory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
-    FSystemAggDesc* SystemDesc = (FSystemAggDesc*)(Desc);
+    FAGGDESC14* SystemDesc = (FAGGDESC14*)(Desc);
     if (SystemDesc->Size != kAggDescSize || strcmp(SystemDesc->Name, Name) != 0)
     {
         *Instance = nullptr;

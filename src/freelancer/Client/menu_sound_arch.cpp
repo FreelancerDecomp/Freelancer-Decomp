@@ -2027,16 +2027,16 @@ namespace
             ? static_cast<IComponentFactory*>(static_cast<IFileSystem*>(ParentFs))
             : static_cast<IComponentFactory*>(DALib::Data);
 
-        FFileSystemAggDesc Desc;
+        FFileSystemDesc Desc;
         memset(&Desc, 0, sizeof(Desc));
         Desc.Size = 0x34;
         Desc.ComponentName = "FileSystem";
-        Desc.BackendName = ParentFs != nullptr ? "UTF" : "DOS";
-        Desc.DataPath = RelPath;
-        Desc.Field10 = 0x80000000u;
-        Desc.Field14 = 1;
-        Desc.Field1C = 3;
-        Desc.Field20 = 0x8000080u;
+        Desc.Implementation = ParentFs != nullptr ? "UTF" : "DOS";
+        Desc.Path = RelPath;
+        Desc.Access = 0x80000000u;
+        Desc.ShareMode = 1;
+        Desc.Creation = 3;
+        Desc.Flags = 0x8000080u;
         Desc.Field30 = 0xffffffffu;
 
         return Factory->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), OutFs);

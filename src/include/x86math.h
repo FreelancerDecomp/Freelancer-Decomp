@@ -44,14 +44,7 @@ struct FQuaternion
     float Z;
 };
 
-struct FMathDesc
-{
-    unsigned long Size;
-    const char* InterfaceName;
-    const char* Implementation;
-};
-
-FL_LAYOUT_ASSERT(sizeof(FMathDesc) == 0xC, "retail AGGDESC / DA3DMATHDESC size 0xC");
+// FMathDesc, the 0xC "3DMathEngine" AGGDESC, is in dacom.h with the other descriptors.
 
 // Retail vtable slots 0–25. Overload grouping does not match reconstructed Liberty 3dMath.h.
 struct I3DMathEngine : IDAComponent

@@ -262,16 +262,7 @@ void MathTransformVec3(float* Dest, const float* A, const float* B); // FUN_065f
 void FillFileDesc(FFileSystemDesc* Desc, const char* Path);      // FUN_065f3e80
 
 
-// Aggregate descriptor used to create the Deformable component.
-struct FAggDesc18
-{
-    unsigned long Size;
-    const char* NameAt4;
-    void* Outer;
-    void** InnerOut;
-    unsigned long Pad10;
-    IDAComponent* SystemAt14;
-};
+// The Deformable component is created from dacom.h's FAGGDESC18.
 
 // Factory FUN_065f2250: operator_new(0xC). CreateInstance stays on derived types.
 struct FDeformableFactory : IComponentFactory
@@ -519,14 +510,6 @@ struct FIkApplyGate
 
 FL_LAYOUT_ASSERT(offsetof(FIkApplyGate, JointAt0C) == 0x0C, "IK apply gate +C");
 
-struct FIkMathDesc
-{
-    unsigned long Size;
-    const char* Name;
-    void* Extra;
-};
-
-FL_LAYOUT_ASSERT(sizeof(FIkMathDesc) == 0xC, "3DMathEngine desc must be 0xC");
 
 // Material-context VB listing followed by its allocation capacity.
 struct FDeformVbDesc
