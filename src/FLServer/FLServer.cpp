@@ -24,14 +24,14 @@
 
 #include "dalib_core.h"         // DALib::Startup / OpenData / CloseData / Shutdown, CriticalWarningFn
 #include "dalib_net.h"          // CGunWrapper, IGunHost
-#include "dacom.h"              // DACOM_GetDllVersion
-#include "remoteclient.h"       // SetRemoteClient*, GetRemoteClientPort, SetServerLogFunction
+#include "dacom.h"
+#include "remoteclient.h"       // GetRemoteClientPort, SetServerLogFunction
 #include "server_iserverimpl.h" // Server
 #include "server_playerdb.h"    // Players
 #include "common_ini.h"         // INI_Reader, ILoadingScreen, RegisterLoadingScreen
-#include "common_misc.h"        // ParseGUID, WaitForServerRunPermission, GiveClientRunPermission
+#include "common_misc.h"        // ParseGUID
 #include "common_net.h"         // SetIsMPServer
-#include "common_timing.h"      // Timing
+#include "server_host.h"        // the host shared with FLDedicated (src/ServerHost)
 
 #include <afxpriv.h>             // WM_INITIALUPDATE
 #include <float.h>
@@ -63,20 +63,8 @@ HANDLE GGunThread = NULL;       // .data:004278bc
 static int GLastGunStatus = 0;
 // .data:004278c8 — server frames run since startup (incremented by the server thread, no reader).
 static unsigned int GServerFrameCount = 0;
-// .data:00425548 — the server thread's frame period in seconds (1/30). Retail keeps it in
-// writable .data but nothing writes it (only the two reads at .text:0040cda0 / 0040cdb4).
-static float GServerFramePeriod = 0.0333333351f;
-
-// .data:004278a0 (vtable .rdata:0041d030, set by the static initializer .text:0040b340) — the
-// loading screen InitInstance registers with Common: both slots are a bare RET
-// (.text:0040b350 / 0040b360), so Common's progress refreshes do nothing in the server.
-class FServerLoadingScreen : public ILoadingScreen
-{
-public:
-	virtual void Refresh() override {}   // .text:0040b350
-	virtual void Slot01() override {}    // .text:0040b360 — ILoadingScreen +0x04, never called
-};
-static FServerLoadingScreen GServerLoadingScreen;
+// The frame period (.data:00425548) and the loading screen (.data:004278a0) live in
+// src/ServerHost/server_host.cpp.
 
 // .text:0040afa0
 void LockApp()
@@ -218,25 +206,13 @@ static bool __cdecl CriticalWarning(unsigned int Code, const char* Text)
 // .text:0040be90 — runs IServerImpl::Startup; exit code 1 when it succeeded.
 static UINT __cdecl StartupThreadProc(LPVOID)
 {
-	HRESULT Result = CoInitialize(NULL);
-	UINT bStarted = Server.Startup(theApp.ServerControl.StartupInfo) ? 1 : 0;
-	if (Result == S_OK || Result == S_FALSE)
-	{
-		CoUninitialize();
-	}
-	return bStarted;
+	return RunServerStartup(theApp.ServerControl.StartupInfo);
 }
 
 // .text:0040b710 — runs IServerImpl::Shutdown.
 static UINT __cdecl ShutdownThreadProc(LPVOID)
 {
-	HRESULT Result = CoInitialize(NULL);
-	Server.Shutdown();
-	if (Result == S_OK || Result == S_FALSE)
-	{
-		CoUninitialize();
-	}
-	return 1;
+	return RunServerShutdown();
 }
 
 // .text:0040afc0 — the list-server (gun) thread: once a second, under GAppMutex, creates the
@@ -320,44 +296,20 @@ static DWORD WINAPI GunThreadProc(LPVOID)
 	return 0;
 }
 
-// The FPU setup of InitInstance (.text:0040bae3) and the server thread (.text:0040cc6c):
-// "unmask FPU exceptions" clears the zero-divide / overflow / invalid masks of the current
-// control word, otherwise every exception is masked with 53-bit precision.
-static void SetupServerFpu(bool bUnmaskExceptions)
+// SetupServerFpu (the FPU setup of InitInstance .text:0040bae3 and the server thread
+// .text:0040cc6c) is in src/ServerHost/server_host.cpp.
+
+// The server thread's FLServer parts; the loop itself is RunServerThread
+// (src/ServerHost/server_host.cpp).
+static bool IsServerRunning()
 {
-	if (bUnmaskExceptions)
-	{
-		_clearfp();
-		_control87(_controlfp(0, 0) & ~(_EM_ZERODIVIDE | _EM_OVERFLOW | _EM_INVALID), 0x8001f);
-	}
-	else
-	{
-		_control87(0x9001f, 0xfffff);
-	}
+	return GServerRunning != 0;
 }
 
-// .text:0040cb40 — the server thread: loads motd.dat, then runs IServerImpl::Update /
-// ElapseTime at 30 Hz under GServerMutex, handing the run permission back and forth with the
-// local client, and records the frame time and ServerStats in the document.
-static DWORD WINAPI ServerThreadProc(LPVOID)
+// The part of .text:0040cb40 after motd.dat (from the FPU setup at .text:0040cc6c): the "running"
+// line, logged at level 4, and the document the frames report to.
+static void* OnServerLoopStart()
 {
-	HRESULT Result = CoInitialize(NULL);
-
-	char MotdPath[0x400] = "";
-	Players.MakeLocalUserPath(MotdPath, "motd.dat");
-	FILE* MotdFile = fopen(MotdPath, "rb");
-	if (MotdFile != NULL)
-	{
-		wchar_t MotdText[0x1400] = L"";
-		fread(MotdText, 0x2800, 1, MotdFile);
-		MotdText[0x13ff] = L'\0';
-		fclose(MotdFile);
-		size_t Length = wcslen(MotdText);
-		GMotd.assign(MotdText, Length);
-		// Retail pushes &GMotd (.text:0040cc4e), which ApplyServerNews ignores.
-		ApplyServerNews();
-	}
-
 	CFLServerDoc* Document = NULL;
 	if (GApp != NULL)
 	{
@@ -370,46 +322,43 @@ static DWORD WINAPI ServerThreadProc(LPVOID)
 		GApp->ServerControl.SetLogLevel(SavedLevel);
 		Document = (CFLServerDoc*)GApp->MainDocument;
 	}
+	return Document;
+}
 
-	long long LastTicks = Timing::read_ticks();
-	srand(timeGetTime());
-	while (GServerRunning != 0)
+static void OnServerFrameRun()
+{
+	++GServerFrameCount;
+}
+
+// The frame time and ServerStats go to the document.
+static void OnServerFrameDone(void* Context, DWORD FrameStart, DWORD FrameEnd)
+{
+	CFLServerDoc* Document = (CFLServerDoc*)Context;
+	if (Document != NULL)
 	{
-		long long Ticks = Timing::read_ticks();
-		long long DeltaTicks = Ticks - LastTicks;
-		double Elapsed = Timing::seconds(DeltaTicks);
-		// x87: FLD period / FCOMP Elapsed / TEST AH,0x41 / JNZ skips the sleep when
-		// period <= Elapsed; the fall-through (period > Elapsed) sleeps the remainder.
-		if ((double)GServerFramePeriod > Elapsed)
-		{
-			SleepEx((DWORD)(long)(((double)GServerFramePeriod - Elapsed) * 1000.0), FALSE);
-		}
-		DWORD FrameStart = timeGetTime();
-		WaitForServerRunPermission();
-		LastTicks = Ticks;
-		Timing::read();
-		LockServer();
-		Server.Update();
-		Timing::UpdateGlobalTime(Elapsed);
-		Server.ElapseTime((float)Elapsed);
-		ReleaseMutex(GServerMutex);
-		Timing::read();
-		++GServerFrameCount;
-		GiveClientRunPermission();
-		DWORD FrameEnd = timeGetTime();
-		if (Document != NULL)
-		{
-			Document->SetLoad((int)(FrameEnd - FrameStart));
-			ServerStats Stats;
-			Server.GetServerStats(Stats);
-			Document->SetStats(&Stats);
-		}
+		Document->SetLoad((int)(FrameEnd - FrameStart));
+		ServerStats Stats;
+		Server.GetServerStats(Stats);
+		Document->SetStats(&Stats);
 	}
-	if (Result == S_OK || Result == S_FALSE)
-	{
-		CoUninitialize();
-	}
-	return 0;
+}
+
+// .text:0040cb40 — the server thread: loads motd.dat, then runs IServerImpl::Update /
+// ElapseTime at 30 Hz under GServerMutex (LockServer, then ReleaseMutex), handing the run
+// permission back and forth with the local client, and records the frame time and
+// ServerStats in the document.
+static DWORD WINAPI ServerThreadProc(LPVOID)
+{
+	FServerThreadHooks Hooks;
+	Hooks.IsRunning = IsServerRunning;
+	Hooks.Motd = &GMotd;
+	Hooks.ApplyMotd = ApplyServerNews;
+	Hooks.OnLoopStart = OnServerLoopStart;
+	Hooks.LockServer = LockServer;
+	Hooks.UnlockServer = UnlockServer;
+	Hooks.OnFrameRun = OnServerFrameRun;
+	Hooks.OnFrameDone = OnServerFrameDone;
+	return RunServerThread(Hooks);
 }
 
 
@@ -449,16 +398,7 @@ BOOL CFLServerApp::InitInstance()
 
 	char ModulePath[0x104] = {};
 	GetModuleFileNameA(GetModuleHandleA(NULL), ModulePath, 0x104);
-	unsigned int Major;
-	unsigned int Minor;
-	unsigned int Build;
-	if (DACOM_GetDllVersion(ModulePath, &Major, &Minor, &Build) != 0)
-	{
-		Major = 1;
-		Minor = 0;
-		Build = 0xb;
-	}
-	GServerVersion = (((Minor & 0xff) | (Major << 8)) << 16) | (Build & 0xffff);
+	GServerVersion = ReadServerVersion(ModulePath);
 
 	HMODULE ResourceModule = LoadLibraryA("ServerResources.dll");
 	if (ResourceModule != NULL)
@@ -535,7 +475,7 @@ BOOL CFLServerApp::InitInstance()
 	}
 	m_pMainWnd->ShowWindow(SW_SHOW);
 
-	RegisterLoadingScreen(&GServerLoadingScreen);
+	RegisterLoadingScreen(GetServerLoadingScreen());
 
 	ServerControl.SetIniPath(ModulePath);
 	ServerControl.SetClientModulePath("RemoteClient.dll");
@@ -748,13 +688,9 @@ bool CFLServerApp::OnServerStartupFinished(bool bStarted)
 		GGunThread = ServerControl.bListServerReporting
 			? ::CreateThread(NULL, 0, GunThreadProc, NULL, 0, NULL) : NULL;
 	}
-	SetRemoteClientSessionName(ServerControl.ServerName.c_str());
-	SetRemoteClientPassword(ServerControl.ServerPassword.c_str());
-	// .text:0040c09a..0040c0cf: (AllowPvp, AllowNewPlayers, exe version, description,
-	// server id, server signature); remoteclient.h's parameter names lag (see FLS-E handoff).
-	SetRemoteClientResponseData(ServerControl.GetAllowPvp() != 0, ServerControl.GetAllowNewPlayers() != 0,
-		(int)GServerVersion, ServerControl.ServerDescription.c_str(), Server.GetServerID(),
-		Server.GetServerSig());
+	PublishServerSession(ServerControl.ServerName.c_str(), ServerControl.ServerPassword.c_str(),
+		ServerControl.GetAllowPvp() != 0, ServerControl.GetAllowNewPlayers() != 0, GServerVersion,
+		ServerControl.ServerDescription.c_str());
 	((CMainFrame*)m_pMainWnd)->OpenBandwidthLog(ServerControl.BandwidthLogPath);
 	return true;
 }
