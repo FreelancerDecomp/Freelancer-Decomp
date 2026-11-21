@@ -52,6 +52,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FLDedicated.cpp" />
+    <!-- The host shared by FLServer and FLDedicated (docs/dedicated_server.md). -->
+    <ClCompile Include="..\ServerHost\server_host.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\server_host.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FLDedicated.rc" />
