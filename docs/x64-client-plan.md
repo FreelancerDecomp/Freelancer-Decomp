@@ -61,8 +61,11 @@ These also make the existing x64 server safer.
 ids for its UTF handles and mapping tokens (`src/include/handle_value.h`; Win32 keeps the
 addresses, as retail), `IFileSystem::MapFileView` returns `std::intptr_t`, and its callers keep
 the whole address. With `FL_HIGH_MEMORY=1` the x64 programs reserve all free address space below
-4 GB at startup, so a remaining truncation fails at once; the x64 CI runs set it, and the client
-should call the same function when it gets an x64 build.
+4 GB at startup, so most remaining truncations fail at once; the x64 CI runs set it, and the client
+should call the same function when it gets an x64 build. It catches most, not all: memory taken
+before the call (the process heap's first segment is usually below 4 GB) and the LowArena window
+for EngBase's handles stay low, so an address that lands there by chance still fits in 32 bits. A
+passing run with the switch is evidence, not proof, that no truncation is left.
 
 **1.2 x87 helpers for the client.** Done in #40. Extend `x87_portable.h`:
 
@@ -148,7 +151,7 @@ straight to RPGPU instead (phase 5, now in parallel with phases 2 to 4). RP9 sta
 option.
 
 **Gate:** `Release|x64` of every project that is not Win32-only is required in CI, with vcpkg
-required (a missing vcpkg is a build error, not a skipped RPGPU). The Win32-only projects are RP8,
+required (a missing vcpkg is a build error, not a skipped RPGPU; #60 adds that switch). The Win32-only projects are RP8,
 RP9, FLServer, DPNetCheck, MemoryDiagnostics and the resource-only DLLs. Win32 FLRegress and
 RpcCodecTest output is unchanged.
 
@@ -215,11 +218,12 @@ parallel with the rest of phase 2.
 **5.1 SDL3 dependency.** Done in #58. From vcpkg in manifest mode (`src/RPGPU/vcpkg.json`, moving
 to one `src/vcpkg.json`), with `builtin-baseline` pinned to a vcpkg release, built from source for
 Win32 and x64. Only `RPGPU.vcxproj` enables vcpkg, so no retail module sees SDL. CI caches vcpkg's
-binary packages. RPGPU is an explicit opt-in (`FreelancerRpGpu`, like `FreelancerRp9`). On a
-developer machine without vcpkg the project is skipped with a message; CI passes
-`FreelancerRequireVcpkg=true`, so there a missing vcpkg is an error. One `src/vcpkg.json` with a
-feature per consumer serves every port-only dependency, so a later SDL platform layer or audio
-decoder shares RPGPU's SDL3. The same manifest works under CMake later. The window stays the
+binary packages. As merged in #58, RPGPU builds whenever the project finds vcpkg and is skipped
+with a message otherwise, in CI too. #60 (open) changes that: RPGPU becomes an explicit setting
+(`FreelancerRpGpu`, like `FreelancerRp9`; on by default on x64, off on Win32), a developer machine
+without vcpkg still skips it with a warning, and CI passes `FreelancerRequireVcpkg=true`, so there
+a missing vcpkg is an error. #60 also moves to one `src/vcpkg.json` with a feature per consumer,
+so a later SDL platform layer or audio decoder shares RPGPU's SDL3. The same manifest works under CMake later. The window stays the
 client's own. SDL wraps the existing `HWND` (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), so
 nothing else in the client changes yet.
 
