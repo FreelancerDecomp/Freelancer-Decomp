@@ -205,7 +205,7 @@ namespace
         char Text[64] = {};
         if (Parser->GetString(Section, Key, Text, sizeof(Text)) == 0 || Text[0] == '\0')
             return false;
-        const std::size_t Span = std::strspn(Text, "0123456789truefalsynoxTRUEFALSYNOX+-");
+        const std::size_t Span = std::strspn(Text, "0123456789abcdefABCDEFtrulsynoxTRULSYNOX+-");
         if (Span != 0)
             Text[Span] = '\0';
         if (_stricmp(Text, "true") == 0 || _stricmp(Text, "yes") == 0)
@@ -234,6 +234,15 @@ namespace
                 Total += W * H * BitsPerPixel / 8;
         }
         return Total * Faces;
+    }
+
+    // A pool capacity: Count rounded up to the pool step, false when that does not fit.
+    bool RoundToPoolStep(unsigned int Count, unsigned int* Out)
+    {
+        if (Count > 0xFFFFFFFFu - (kPoolGrowVertices - 1))
+            return false;
+        *Out = (Count + kPoolGrowVertices - 1) / kPoolGrowVertices * kPoolGrowVertices;
+        return true;
     }
 
     unsigned int MaxMipLevels(unsigned int Width, unsigned int Height)
@@ -487,10 +496,7 @@ void FRpGpu::ResetStateToDefaults()
 {
     std::memcpy(RenderStates_, DefaultRenderStates_, sizeof(RenderStates_));
     for (int Stage = 0; Stage < 8; ++Stage)
-    {
         std::memcpy(StageStates_[Stage], DefaultStageStates_[Stage == 0 ? 0 : 1], sizeof(StageStates_[Stage]));
-        StageStates_[Stage][0xB] = Stage; // TEXCOORDINDEX: each stage its own set, as in D3D
-    }
 }
 
 void FRpGpu::ResetDeviceState()
@@ -1301,8 +1307,8 @@ bool FRpGpu::LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* Ou
     {
         if (Buffer->Fvf == 0)
             return false; // the scratch index buffer has a fixed size
-        const unsigned int Grown = (Count + kPoolGrowVertices - 1) / kPoolGrowVertices * kPoolGrowVertices;
-        if (!ResizeStorage(Buffer, Grown, Buffer->Stride))
+        unsigned int Grown = 0;
+        if (!RoundToPoolStep(Count, &Grown) || !ResizeStorage(Buffer, Grown, Buffer->Stride))
             return false;
     }
     if (Buffer->Cursor + Count > Buffer->Count)
@@ -1316,6 +1322,8 @@ bool FRpGpu::LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* Ou
 // succeeded; the old contents are dropped, as a re-created D3D buffer's are.
 bool FRpGpu::ResizeStorage(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int Stride)
 {
+    if (Count == 0 || Stride == 0 || Count > static_cast<std::size_t>(-1) / Stride)
+        return false; // the byte size does not fit a size_t (Win32)
     std::vector<unsigned char> Storage;
     try
     {
@@ -1559,8 +1567,8 @@ GENRESULT DACOM_API FRpGpu::CreateVb(unsigned int Fvf, unsigned int Count, unsig
         Buffer = PoolBuffer(Fvf);
         if (Buffer != nullptr && Count > Buffer->Count)
         {
-            const unsigned int Grown = (Count + kPoolGrowVertices - 1) / kPoolGrowVertices * kPoolGrowVertices;
-            if (!ResizeStorage(Buffer, Grown, Buffer->Stride))
+            unsigned int Grown = 0;
+            if (!RoundToPoolStep(Count, &Grown) || !ResizeStorage(Buffer, Grown, Buffer->Stride))
                 Buffer = nullptr;
         }
     }

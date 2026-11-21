@@ -12,7 +12,7 @@ FRpGpuDevice::~FRpGpuDevice()
 
 bool FRpGpuDevice::Create(HWND Hwnd, bool bVSync)
 {
-    if (Hwnd == nullptr)
+    if (Hwnd == nullptr || bAbandoned_)
         return false;
     if (Device_ != nullptr && (Hwnd_ != Hwnd || bNeedsRebuild_))
         Destroy();
@@ -69,7 +69,11 @@ bool FRpGpuDevice::Create(HWND Hwnd, bool bVSync)
         Mode = SDL_GPU_PRESENTMODE_VSYNC;
     if (!SDL_SetGPUSwapchainParameters(Device_, Window_, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, Mode))
     {
-        Destroy();
+        // Leaked on purpose: see bAbandoned_. Rare, and better than freeing twice.
+        Device_ = nullptr;
+        Window_ = nullptr;
+        bAbandoned_ = true;
+        Hwnd_ = nullptr;
         return false;
     }
 
@@ -99,7 +103,9 @@ void FRpGpuDevice::Destroy()
         SDL_DestroyWindow(Window_);
         Window_ = nullptr;
     }
-    if (bSdlVideo_)
+    // After an abandoned device the video subsystem stays up: quitting it would tear down the
+    // leaked window.
+    if (bSdlVideo_ && !bAbandoned_)
     {
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
         bSdlVideo_ = false;
