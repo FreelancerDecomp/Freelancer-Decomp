@@ -10,9 +10,6 @@
 // C exports are __cdecl. Interface methods are __stdcall (this on the stack).
 // IID strings look like "1.11_ICOManager", not COM GUIDs.
 
-// dacom.h uses no Win32 type, but it stays the header that brings in <windows.h>: windows.h
-// renames members such as SearchPath and GetObject (SearchPathA, GetObjectA) with macros, so every
-// file that sees those declarations must also see windows.h, as retail's headers did.
 #include <windows.h>
 
 #include "dacom_iids.h"  // every "1.11_*" interface id, in one place
