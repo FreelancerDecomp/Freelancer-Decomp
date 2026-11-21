@@ -28,7 +28,7 @@ installation of Freelancer (see [Local layout](#local-layout)).
 | Area | Documents |
 |------|-----------|
 | Engine core | [dacom](re/dacom.md) (object manager, built-in INI parser) · [dalib](re/dalib.md) · [readfile](re/readfile.md) (file system) · [x86math](re/x86math.md) · [system](re/system.md) · [engbase](re/engbase.md) · [zlib](re/zlib.md) · [winmain](re/winmain.md) · [resources](re/resources.md) · [movie](re/movie.md) · [imeui](re/imeui.md) · [luaprofile](re/luaprofile.md) |
-| Rendering | [render](re/render.md) (pipeline, RendComp, ximage) · [shading](re/shading.md) (textures, materials, FLAppearance) · [alchemy](re/alchemy.md) (particles / FX) · [deformable2](re/deformable2.md) · [rp9](re/rp9.md) (port-only Direct3D 9 renderer, volumetric nebula; `FreelancerRp9`) |
+| Rendering | [render](re/render.md) (pipeline, RendComp, ximage) · [shading](re/shading.md) (textures, materials, FLAppearance) · [alchemy](re/alchemy.md) (particles / FX) · [deformable2](re/deformable2.md) · [rp9](re/rp9.md) (port-only Direct3D 9 renderer, volumetric nebula; `FreelancerRp9`) · [rpgpu](re/rpgpu.md) (port-only SDL3 + SDL_GPU renderer; SDL3 from vcpkg) |
 | Audio | [audio](re/audio.md) |
 | Scripting | [thorn](re/thorn.md) (scene scripts, Lua 3.2) · [thorn_thn_format](re/thorn_thn_format.md) (`.thn` file format) |
 | Game data and logic | [common](re/common.md) · [common_archetype](re/common_archetype.md) · [common_physys](re/common_physys.md) · [content](re/content.md) · [mission script format](re/content_mission_script.md) · [mission opcodes](re/content_mission_opcodes.md) |
