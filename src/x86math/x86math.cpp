@@ -13,7 +13,6 @@
 #include <cstring>
 #include <new>
 #include <utility>
-#include <windows.h>
 
 int CallDacomStricmp(const char* Left, const char* Right);
 

@@ -37,7 +37,6 @@
 // embedded sub-objects. Verified acyclic: common_cobject.h's include closure does
 // not reach server_pub.h.
 #include "common_cobject.h"
-#include <windows.h> // HINSTANCE (DLL_LoadLibrary)
 #include "dacom.h"
 #include "common_ivp_controller.h"  // IVP_Controller_Golem, CRemotePhysicsController's first base
 #include <cmath>     // sqrt (CRemotePhysicsSimulation::CalcPositionError)
