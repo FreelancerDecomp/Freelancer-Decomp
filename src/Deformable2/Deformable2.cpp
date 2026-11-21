@@ -6,6 +6,7 @@
 
 #include "Deformable2.h"
 #include "EyeMaterial.h"     // RegisterEyeMaterialFactory (FUN_065fdfd0)
+#include "facet_offset.h"   // FL_FACET_OFFSET for G_InnerIidTable
 #include "common_misc.h"   // ICamera (GetViewTransform +0x40, ClassifySphere +0x3C)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
