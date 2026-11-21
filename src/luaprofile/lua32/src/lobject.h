@@ -9,6 +9,7 @@
 
 
 #include <limits.h>
+#include <stdint.h>
 
 #include "lua.h"
 
@@ -41,7 +42,7 @@ typedef unsigned char  Byte;  /* unsigned 8 bits */
 
 #define MAX_INT   (INT_MAX-2)  /* maximum value of an int (-2 for safety) */
 
-typedef unsigned int IntPoint; /* unsigned with same size as a pointer (for hashing) */
+typedef uintptr_t IntPoint; /* unsigned with same size as a pointer (for hashing); unsigned int on Win32, as retail */
 
 
 /*
