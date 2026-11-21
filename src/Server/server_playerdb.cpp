@@ -78,8 +78,9 @@
 // Common.dll), with the PlayerDB methods writing one and every IServerImpl
 // handler writing the other. This is now the single store.
 //
-// The object itself is defined near the bottom of this file, in the
-// "Missing global exports" block; it is declared in common_server.h.
+// The object itself is defined in server_classes.cpp, in its "Missing global exports" block,
+// which keeps the globals with constructors in their teardown order; it is declared in
+// common_server.h.
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------

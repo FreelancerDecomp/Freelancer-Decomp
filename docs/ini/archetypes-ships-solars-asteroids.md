@@ -145,7 +145,7 @@ Every `[Object]` section of a system file (e.g. `universe\systems\<sys>\<sys>.in
 | `voice` | id (whole value) | 0 | Voice id. | [L893](../../src/Common/common_csolar.cpp#L893) |
 | `comm_appr` | costume nickname (whole value) | none | Whole costume looked up by name. | [L898](../../src/Common/common_csolar.cpp#L898) |
 
-After the loop the object is rejected (error logged) when the archetype is missing, the nickname is empty, or the reputation entry for the nickname does not exist (see next section).
+After the loop `ReadObj` logs an error and returns false when the archetype is missing, the nickname is empty, or the reputation entry for the nickname does not exist (see next section). These are parser errors, not all rejections: the multiplayer server's `StarSystem::load_object` ([server_starsystem.cpp:885](../../src/Server/server_starsystem.cpp#L885)) does not read the result and creates the solar whenever `ReadObj` left an archetype set, as retail does. Only an unknown or missing archetype, which leaves it null, stops the object being created there.
 
 ### Object reputation pass (`LoadObjectVibesFromSystemIni`)
 

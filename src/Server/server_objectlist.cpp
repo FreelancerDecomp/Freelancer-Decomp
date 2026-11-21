@@ -5,8 +5,8 @@
 // Author: Giperion.
 
 // server_objectlist.cpp -- ObjectList (count_type, collect_in_sphere and the port-only id index).
-// Split out of server_classes.cpp unchanged; the declarations the split files share are in
-// server_classes_internal.h.
+// Split out of server_classes.cpp unchanged. It uses none of the declarations the other split
+// files share (server_classes_internal.h), so it does not include them.
 
 #include "common_server.h"
 #include "common_net.h"
@@ -57,7 +57,6 @@
 #include <algorithm>
 #include <unordered_map> // PORT(perf-index): the ObjectList blocks' id index (find_by_id)
 #include <cassert>       // PORT(perf-index): the id index's _DEBUG cross-check
-#include "server_classes_internal.h"
 
 // ===========================================================================
 // ObjectList::count_type -- FUN_06cf5130 (.text:06cf5130, `RET 0x4`) -- "how

@@ -219,7 +219,7 @@ Only `[Player]` sections are read (other sections belong to the controller DLLs)
 | `log` | `[0]` mad-lib id, `[1]` count, then count x (data, tag, flags) | - | One mission-log entry (repeat). A tag of 0x21 starts a nested entry whose parameters follow in the same line. | [L606](../../src/Server/server_savegame.cpp#L606) |
 | `logid` | - | - | Tested and ignored. | [L611](../../src/Server/server_savegame.cpp#L611) |
 
-`PlayerDB::ReadCharacterName` ([server_playerdb.cpp:3611](../../src/Server/server_playerdb.cpp#L3611)) reads only `name` (same hex rule, same `/*` ... `*/` comment skipping) of the first `[Player]` section to build the character list; a file that cannot be loaded gives an empty name. After a load the selected character's reader is also given to the controllers as the `PlayerLoad` message.
+`PlayerDB::ReadCharacterName` ([server_playerdb.cpp:3611](../../src/Server/server_playerdb.cpp#L3611)) reads only `name` (same hex rule, same `/*` ... `*/` comment skipping, with the comment depth reset for each section) to build the character list: it takes the first uncommented `name` in any `[Player]` section, walking later `[Player]` sections when an earlier one has none; a file that cannot be loaded gives an empty name. After a load the selected character's reader is also given to the controllers as the `PlayerLoad` message.
 
 ### New-character templates  ([PlayerData_CreateNewCharacter, server_savegame.cpp:1082](../../src/Server/server_savegame.cpp#L1082))
 

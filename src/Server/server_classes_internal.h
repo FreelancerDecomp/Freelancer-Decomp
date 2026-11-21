@@ -49,6 +49,7 @@ struct FGroupMsgPayload {
     unsigned int MsgType;
     unsigned int Param;
 };
+static_assert(sizeof(FGroupMsgPayload) == 8, "FGroupMsgPayload: the 8-byte group chat payload");
 
 // server_playerdb.cpp: the account "name" file's constant XOR key (Server_AccountCrc of
 // GAccountNameFileKeySource); CAccount::InitFromFolder uses it too.
