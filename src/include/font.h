@@ -59,4 +59,4 @@ public:
     virtual int GetCharWidths(wchar_t const* Text, int Len, int* OutWidths) = 0;
 };
 
-static_assert(sizeof(void*) == 4, "IFont is 32-bit exe");
+FL_LAYOUT_ASSERT(sizeof(void*) == 4, "IFont is 32-bit exe");
