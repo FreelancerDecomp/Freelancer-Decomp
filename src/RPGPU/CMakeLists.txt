@@ -13,17 +13,20 @@ fl_add_module(RPGPU DLL PORT
   SOURCES
     RpGpu.cpp
     RpGpuDds.cpp
+    RpGpuDraw.cpp
+    RpGpuLighting.cpp
     RpGpuResources.cpp
     RpGpuState.cpp
     backend/RpGpuNullBackend.cpp
     backend/RpGpuSdlBackend.cpp
+    shaders/RpGpuShaders.cpp
 )
 
-# render/d3d8_min.h's Direct3D 9 branch: RP8's interface types from the Windows SDK's d3d9.h
-# (identical layouts), so no DirectX 8 SDK is needed on either platform. NOMINMAX: windows.h's min
-# / max macros would break std::max.
+# RP_PORT_TYPES: render/IRenderPipeline.h carries the port's own types (render/rp_types.h, D3D
+# layouts), so RPGPU needs no Direct3D header on any platform. NOMINMAX: windows.h's min / max
+# macros would break std::max.
 fl_includes(RPGPU ../TexConvert)
-fl_defines(RPGPU RP_DIRECT3D9 NOMINMAX)
+fl_defines(RPGPU RP_PORT_TYPES NOMINMAX)
 fl_link(RPGPU
   LIBS dacom.lib TexConvert.lib
   REFERENCES TexConvert dacom)
