@@ -42,7 +42,7 @@
 #include "common_ini.h"
 #include "common_misc.h"
 #include "common_physys.h"
-#include "common_ivp_real_object.h" // IVP_Real_Object::client_data (+0xa4), the collision filter
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object::client_data (+0xa4), the collision filter
 #include "common_universe.h"
 #include "dacom.h"
 #include "dacom_iids.h"

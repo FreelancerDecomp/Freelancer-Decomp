@@ -42,7 +42,9 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- src/include, and src/IVP as the root of the Ipion physics headers ("ivp_physics/...")
+           that Common.dll's public ABI is built on. -->
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;$(MSBuildThisFileDirectory)IVP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FL_LAYOUT_ASSERT: the retail struct size and offset checks (Win32 only). -->
       <ForcedIncludeFiles>fl_layout.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='DebugASan'">MultiThreadedDebugDLL</RuntimeLibrary>

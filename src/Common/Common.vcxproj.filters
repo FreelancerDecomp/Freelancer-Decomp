@@ -795,7 +795,7 @@
     <ClInclude Include="common_physys_internal.h">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="physics_tick_profile.h">
+    <ClInclude Include="..\IVP\ivp_utility\ivp_tick_profile.h">
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_aisteer.h">

@@ -18653,7 +18653,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 128,
    "module": "(public)",
@@ -18716,7 +18716,7 @@
    "base_resolved": true,
    "base_slots": 7,
    "bases": "public IVP_Controller",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 256,
    "module": "(public)",
@@ -18737,7 +18737,7 @@
    "base_resolved": true,
    "base_slots": 7,
    "bases": "public IVP_Controller",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 280,
    "module": "(public)",
@@ -18765,7 +18765,7 @@
    "base_resolved": true,
    "base_slots": 9,
    "bases": "public IVP_Controller_Independent",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 337,
    "module": "(public)",
@@ -18807,7 +18807,7 @@
    "base_resolved": true,
    "base_slots": 13,
    "bases": "public IVP_Controller_Motion",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 408,
    "module": "(public)",
@@ -18849,7 +18849,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
    "line": 590,
    "module": "(public)",
@@ -18870,7 +18870,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
    "line": 707,
    "module": "(public)",
@@ -18891,7 +18891,7 @@
    "base_resolved": false,
    "base_slots": 0,
    "bases": "public IVP_Real_Object_Fast_Static",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
    "line": 736,
    "module": "(public)",
@@ -39154,91 +39154,91 @@
    "name": "Behavior"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 49,
    "module": "(public)",
    "name": "IVP_Core"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 50,
    "module": "(public)",
    "name": "IVP_Environment"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 79,
    "module": "(public)",
    "name": "IVP_Simulation_Unit"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 226,
    "module": "(public)",
    "name": "IVP_Real_Object"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 227,
    "module": "(public)",
    "name": "Vector"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 228,
    "module": "(public)",
    "name": "FLControllerGolemParms"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 23,
    "module": "(public)",
    "name": "IVP_Environment"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 24,
    "module": "(public)",
    "name": "IVP_Core"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 25,
    "module": "(public)",
    "name": "IVP_Material"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 26,
    "module": "(public)",
    "name": "IVP_OV_Element"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 29,
    "module": "(public)",
    "name": "IVP_Synapse_Real"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 30,
    "module": "(public)",
    "name": "IVP_Controller_Phantom"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 31,
    "module": "(public)",
    "name": "IVP_Template_Phantom"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 588,
    "module": "(public)",
    "name": "IVP_Cluster"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 704,
    "module": "(public)",
    "name": "IVP_Anchor"

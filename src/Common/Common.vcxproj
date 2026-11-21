@@ -101,7 +101,7 @@
     <ClInclude Include="..\include\common_csys.h" />
     <ClInclude Include="..\include\common_physys.h" />
     <ClInclude Include="..\include\common_tick_profile.h" />
-    <ClInclude Include="physics_tick_profile.h" />
+    <ClInclude Include="..\IVP\ivp_utility\ivp_tick_profile.h" />
     <ClInclude Include="..\include\common_cobject.h" />
     <ClInclude Include="..\include\common_cheapset.h" />
     <ClInclude Include="..\include\common_casteroid.h" />
