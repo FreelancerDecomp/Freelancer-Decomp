@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLDedicated, a console dedicated server (port-only, not part of retail).
+// Freelancer Decomp: FLDedicated, a console dedicated server -- PORT(dedicated), not part of retail.
 //
 // Runs the multiplayer server the way FLServer.exe does (Server.dll with RemoteClient.dll as its
 // client module), without MFC, windows or dialogs. It loads the same DLLs and follows the same

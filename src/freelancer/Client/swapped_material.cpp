@@ -207,7 +207,7 @@ void FSwappedMaterial::SetDtName(char const* TextureName)
                     size_t const Size = strlen(TextureName) + 1;
                     char* const Copy = static_cast<char*>(HeapAlloc(GetProcessHeap(), 0, Size));
                     memcpy(Copy, TextureName, Size);
-                    // Port-only x64: the 32-bit cell keeps only the low half of the address; the
+                    // PORT(x64): the 32-bit cell keeps only the low half of the address; the
                     // material parameter cells get their own fix (docs/x64-client-plan.md).
                     Value.Payload0 = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Copy));
                 }

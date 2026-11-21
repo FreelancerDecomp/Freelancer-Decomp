@@ -1,4 +1,4 @@
-// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation (port-only, not part of retail).
+// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation -- PORT(dpnet), not part of retail.
 //
 // Wire formats of the three DirectPlay 8 protocols, as Microsoft published them:
 //   [MC-DPL8R]  DirectPlay 8 Protocol: Reliable                (CFRAMEs, DFRAMEs, coalescing)

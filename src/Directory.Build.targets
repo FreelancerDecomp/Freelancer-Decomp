@@ -20,26 +20,26 @@
       <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <!-- Port-only "Beta 2" on-screen label: only the client (freelancer.exe) reads the define. -->
+  <!-- PORT(diag): "Beta 2" on-screen label: only the client (freelancer.exe) reads the define. -->
   <ItemDefinitionGroup Condition="'$(FreelancerBetaLabel)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile>
       <PreprocessorDefinitions>FREELANCER_BETA_LABEL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <!-- Port-only widescreen support: only the client (freelancer.exe) reads the define. -->
+  <!-- PORT(widescreen): widescreen support: only the client (freelancer.exe) reads the define. -->
   <ItemDefinitionGroup Condition="'$(FreelancerWidescreenSupport)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile>
       <PreprocessorDefinitions>FREELANCER_WIDESCREEN_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <!-- Port-only Direct3D 9 extensions: the client's hooks (RP9.vcxproj itself turns into an empty
+  <!-- PORT(rp9): Direct3D 9 extensions: the client's hooks (RP9.vcxproj itself turns into an empty
        Utility project when the property is off). -->
   <ItemDefinitionGroup Condition="'$(FreelancerRp9)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile>
       <PreprocessorDefinitions>FREELANCER_RP9;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-  <!-- Port-only walk mode in base rooms: only the client (freelancer.exe) reads the define. -->
+  <!-- PORT(walk): walk mode in base rooms: only the client (freelancer.exe) reads the define. -->
   <ItemDefinitionGroup Condition="'$(FreelancerWalkMode)'=='1' and '$(MSBuildProjectName)'=='freelancer'">
     <ClCompile>
       <PreprocessorDefinitions>FREELANCER_WALK_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

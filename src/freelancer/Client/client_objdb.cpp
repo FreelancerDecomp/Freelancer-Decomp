@@ -7,7 +7,7 @@
 #include "client_objdb.h"
 
 #include "client_gameobj.h"
-#include "client_tick_profile.h" // Port-only owner-requested collision profiling
+#include "client_tick_profile.h" // PORT(diag): owner-requested collision profiling
 #include "common_archetype.h"
 #include "common_cequip.h"    // CEShield (FUN_0052fe60)
 #include "common_csys.h"      // Acquire3DMathEngine (FUN_005b73e0)
@@ -27,11 +27,11 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <functional>    // std::hash (port-only G_CObjectIndex)
+#include <functional>    // PORT(perf-index): std::hash (G_CObjectIndex)
 #include <list>
-#include <map>     // port-only id index (G_IdIndex)
+#include <map>     // PORT(perf-index): id index (G_IdIndex)
 #include <new>
-#include <unordered_map> // port-only CObject index (G_CObjectIndex)
+#include <unordered_map> // PORT(perf-index): CObject index (G_CObjectIndex)
 #include <utility> // std::pair
 #include <vector>
 #include <windows.h>
@@ -88,19 +88,19 @@ namespace
         return Sum;
     }
 
-    // Port-only id index (no retail counterpart): FUN_005416c0 walks a bucket's ListNext chain
-    // calling get_id on every Gameobj until one matches. This side table holds, per (list, id),
-    // the Gameobjs linked into that list under that id in link order, so a lookup returns the
+    // PORT(perf-index): id index (no retail counterpart). FUN_005416c0 walks a bucket's ListNext
+    // chain calling get_id on every Gameobj until one matches. This side table holds, per (list,
+    // id), the Gameobjs linked into that list under that id in link order, so a lookup returns the
     // same Gameobj as the walk without visiting the chain. It is kept by LinkGameobj /
     // UnlinkGameobj, the only places the chains change, so an entry exists exactly while its
     // Gameobj is linked (a finished Gameobj stays findable until the reap unlinks it, as in
-    // retail). LinkGameobj only ever appends at the tail, so the front of each vector is the
-    // first match the walk would meet; duplicates are kept and the next one takes over when
-    // the front is unlinked. get_id is the Id (+0xb0) of the CObject at +0x10: every caller of
-    // FUN_00540c30 creates / finds that object and runs CSimple::init before registering, and
-    // neither the pointer nor the Id is written again while the Gameobj is linked, so the id
-    // read at link time is the id the walk would read. The lists stay the source of every
-    // iteration order; the index only answers the id lookups.
+    // retail). LinkGameobj only ever appends at the tail, so the front of each vector is the first
+    // match the walk would meet; duplicates are kept and the next one takes over when the front is
+    // unlinked. get_id is the Id (+0xb0) of the CObject at +0x10: every caller of FUN_00540c30
+    // creates / finds that object and runs CSimple::init before registering, and neither the
+    // pointer nor the Id is written again while the Gameobj is linked, so the id read at link time
+    // is the id the walk would read. The lists stay the source of every iteration order; the index
+    // only answers the id lookups.
     typedef std::pair<FGameobjList const*, unsigned> FIdIndexKey;
     std::map<FIdIndexKey, std::vector<FClientGameobj*> > G_IdIndex;
     // The key each linked Gameobj was indexed under, so the unlink removes exactly that entry.
@@ -146,16 +146,16 @@ namespace
         return Bucket->second.front();
     }
 
-    // Port-only CObject index (no retail counterpart), the G_IdIndex pattern for FUN_005419a0:
-    // that function walks one bucket's ListNext chain for the Gameobj whose cobject (vt+0x150,
-    // IObjInspectImpl's `MOV EAX,[ECX+0x10]`, not overridden) is a given CObject. This table
-    // holds, per (list, CObject*), the Gameobjs linked into that list with that cobject in link
-    // order; the front is the first match the walk would meet. It is kept by LinkGameobj /
-    // UnlinkGameobj alongside G_IdIndex, under the same argument: +0x10 is set by create /
-    // find (or CreateDebrisGameobjForObject) before every FUN_00540c30 and is not written
-    // again while the Gameobj is linked. A Gameobj with a null cobject is not entered:
-    // FUN_005419a0 dereferences its argument, so null is never looked up. Hashed, as this
-    // lookup runs once per collision event.
+    // PORT(perf-index): CObject index (no retail counterpart), the G_IdIndex pattern for
+    // FUN_005419a0: that function walks one bucket's ListNext chain for the Gameobj whose cobject
+    // (vt+0x150, IObjInspectImpl's `MOV EAX,[ECX+0x10]`, not overridden) is a given CObject. This
+    // table holds, per (list, CObject*), the Gameobjs linked into that list with that cobject in
+    // link order; the front is the first match the walk would meet. It is kept by LinkGameobj /
+    // UnlinkGameobj alongside G_IdIndex, under the same argument: +0x10 is set by create / find (or
+    // CreateDebrisGameobjForObject) before every FUN_00540c30 and is not written again while the
+    // Gameobj is linked. A Gameobj with a null cobject is not entered: FUN_005419a0 dereferences
+    // its argument, so null is never looked up. Hashed, as this lookup runs once per collision
+    // event.
     struct FCObjectIndexKey
     {
         FGameobjList const* List;
@@ -244,8 +244,8 @@ namespace
         if (Go == nullptr)
             return;
 
-        IdIndexAdd(List, Go);      // port-only, see G_IdIndex
-        CObjectIndexAdd(List, Go); // port-only, see G_CObjectIndex
+        IdIndexAdd(List, Go);      // PORT(perf-index): see G_IdIndex
+        CObjectIndexAdd(List, Go); // PORT(perf-index): see G_CObjectIndex
 
         Go->ListPrev = List->Last;
         if (List->Last != nullptr)
@@ -270,8 +270,8 @@ namespace
     {
         if (Go != nullptr)
         {
-            IdIndexRemove(List, Go);      // port-only, see G_IdIndex
-            CObjectIndexRemove(List, Go); // port-only, see G_CObjectIndex
+            IdIndexRemove(List, Go);      // PORT(perf-index): see G_IdIndex
+            CObjectIndexRemove(List, Go); // PORT(perf-index): see G_CObjectIndex
             FClientGameobj* const Prev = Go->ListPrev;
             FClientGameobj* const Next = Go->ListNext;
             if (Prev == nullptr)
@@ -745,7 +745,7 @@ FClientGameobj* ClientObjDb_FindByCObject(CObject const* Obj)
     default: return nullptr;
     }
 
-    // The port answers the walk from G_CObjectIndex: the same Gameobj -- the first linked
+    // PORT(perf-index) answers the walk from G_CObjectIndex: the same Gameobj -- the first linked
     // match in that bucket, or null. The walk only reads, so skipping it is invisible.
     return CObjectIndexFind(KindList(Kind), Obj);
 }
@@ -1095,7 +1095,7 @@ void ClientObjDb_UpdateRemotePhysics(float Dt)
 namespace
 {
     // The loop FUN_005416c0 repeats once per bucket: walk the bucket's Gameobj chain through
-    // ListNext (+0x14) until get_id (vt+0x20) equals ObjectId. The port answers it from the
+    // ListNext (+0x14) until get_id (vt+0x20) equals ObjectId. PORT(perf-index) answers it from the
     // id index (G_IdIndex): the same Gameobj the walk returns -- the first linked match, null
     // for none, null for a kind outside 1..10 as FUN_00540fc0 gives -- without visiting the
     // chain. The walk has no side effects (get_id only reads), so skipping it is invisible.

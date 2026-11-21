@@ -3,7 +3,7 @@
 
 #pragma once
 
-// Fixed-size blocks below 2 GB, for the port-only x64 build (docs/x64.md).
+// Fixed-size blocks below 2 GB, for the x64 build (PORT(x64), docs/x64.md).
 //
 // Retail code keeps some engine handles, which are addresses, in 32-bit `long` / `int` fields
 // and turns them back into pointers with a sign-extending cast: Common's

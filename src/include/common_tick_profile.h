@@ -14,7 +14,7 @@
 #define FREELANCER_ENABLE_TICK_PROFILE 0
 #endif
 
-// Port-only physics diagnostics requested by Giperion (CLIENT-BETA-LABEL).
+// PORT(diag): physics diagnostics requested by Giperion (CLIENT-BETA-LABEL).
 // QPC ticks, inclusive and summed across all substeps of one client physics block.
 enum class EPhysicsTickSection
 {

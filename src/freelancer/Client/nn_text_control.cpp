@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "nn_text_control.h"
-#include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "hud_widescreen.h"   // PORT(widescreen)
 
 #include "font_imp.h"
 #include "font_atlas.h"
@@ -669,7 +669,7 @@ void NnTextControl::SetPosition(float const* NewPosition)
 void NnTextControl::Draw()
 {
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only: owners that walk their children themselves (HudTargetBase, NN_MainButton)
+    // PORT(widescreen): owners that walk their children themselves (HudTargetBase, NN_MainButton)
     // reach this without the Win3D draw walk, so the control sets its own HUD shift.
     FWidescreenHudShiftScope const WidescreenScope(WidescreenHudShiftPixelsFor(this), true);
 #endif

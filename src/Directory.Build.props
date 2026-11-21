@@ -2,14 +2,14 @@
   <PropertyGroup>
     <!-- Default for projects without the shared diagnostics property sheet. -->
     <FreelancerEnableTickProfile Condition="'$(FreelancerEnableTickProfile)'==''">0</FreelancerEnableTickProfile>
-    <!-- Port-only "Beta 2" on-screen label, FREELANCER_BETA_LABEL; off by default. -->
+    <!-- PORT(diag): "Beta 2" on-screen label, FREELANCER_BETA_LABEL; off by default. -->
     <FreelancerBetaLabel Condition="'$(FreelancerBetaLabel)'==''">0</FreelancerBetaLabel>
-    <!-- Port-only widescreen (Hor+) support, FREELANCER_WIDESCREEN_SUPPORT; 0 builds retail's 4:3-only client. -->
+    <!-- PORT(widescreen): widescreen (Hor+) support, FREELANCER_WIDESCREEN_SUPPORT; 0 builds retail's 4:3-only client. -->
     <FreelancerWidescreenSupport Condition="'$(FreelancerWidescreenSupport)'==''">1</FreelancerWidescreenSupport>
-    <!-- Port-only Direct3D 9 rendering (RP9.dll + the client's Ex hooks: volumetric nebula),
+    <!-- PORT(rp9): Direct3D 9 rendering (RP9.dll + the client's Ex hooks: volumetric nebula),
          FREELANCER_RP9; 0 builds neither RP9.dll nor the client hooks (docs/re/rp9.md). -->
     <FreelancerRp9 Condition="'$(FreelancerRp9)'==''">0</FreelancerRp9>
-    <!-- Port-only walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; on by default, as
+    <!-- PORT(walk): walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; on by default, as
          Freelancer.Diagnostics.props sets it (only the client reads it). -->
     <FreelancerWalkMode Condition="'$(FreelancerWalkMode)'==''">1</FreelancerWalkMode>
     <PlatformToolset>v143</PlatformToolset>
@@ -20,7 +20,7 @@
     <FlBinDirName>bin</FlBinDirName>
     <FlBinDirName Condition="'$(Configuration)'=='Debug'">bin_debug</FlBinDirName>
     <FlBinDirName Condition="'$(Configuration)'=='DebugASan'">binasan</FlBinDirName>
-    <!-- Port-only x64 build of the server modules (docs/x64.md), in parallel with Win32, which
+    <!-- PORT(x64): x64 build of the server modules (docs/x64.md), in parallel with Win32, which
          stays the retail reference: Release -> bin_x64, Debug -> bin_x64_debug. -->
     <FlBinDirName Condition="'$(Platform)'=='x64'">bin_x64</FlBinDirName>
     <FlBinDirName Condition="'$(Platform)'=='x64' and '$(Configuration)'=='Debug'">bin_x64_debug</FlBinDirName>

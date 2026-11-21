@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "common_physys.h"
-#include "physics_tick_profile.h" // Port-only owner-requested diagnostics
+#include "physics_tick_profile.h" // PORT(diag): owner-requested diagnostics
 
 #include "common_archetype.h"
 #include "common_cobject.h"

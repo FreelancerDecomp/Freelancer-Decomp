@@ -6,7 +6,7 @@
 
 #pragma once
 
-// Port-only: the client side of the Direct3D 9 render extensions (render/IRenderPipelineEx.h,
+// PORT(rp9): the client side of the Direct3D 9 render extensions (render/IRenderPipelineEx.h,
 // RP9.dll). Retail has no such code. With the DirectX8 pipeline (RP8.dll, the retail one) the
 // QueryInterface fails, IsAvailable() stays false and every hook below returns at once, so the
 // retail algorithms run unchanged. Settings: DATA_EXTRA/VOLUMETRIC/volumetric.ini; shaders:

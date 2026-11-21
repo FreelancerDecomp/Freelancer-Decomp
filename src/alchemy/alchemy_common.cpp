@@ -1491,7 +1491,7 @@ namespace AlchemyImpl
             fstp dword ptr [eax + 4]
         }
 #else
-        // Port-only x64: every x64 CPU has SSE, so SelectAlchemyMathImplementation picks
+        // PORT(x64): every x64 CPU has SSE, so SelectAlchemyMathImplementation picks
         // ComputeSinCosSse and this is only the initial value; x87_trig.h stands in for the
         // instructions (last-bit differences possible).
         Output[0] = X87CosF(AngleRadians);

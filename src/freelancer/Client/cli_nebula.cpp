@@ -17,7 +17,7 @@
 #include "effect_base.h"    // FEffectBase (the effect at Nebula +0xec)
 #include "engine_light.h"
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h" // port-only Direct3D 9 volumetric nebula gates
+#include "nebula_volume.h" // PORT(rp9): Direct3D 9 volumetric nebula gates
 #endif
 #include "pixel_format.h"   // PixelFormatFromD3D / PixelFormatGetDesc (FUN_005b7010 / 005b7030)
 #include "space_camera.h"
@@ -215,7 +215,7 @@ namespace
         if (GLight == nullptr)
             return;
 #ifdef FREELANCER_RP9
-        // Port-only: while the Direct3D 9 volumetric nebula's lightning strikes drive this light
+        // PORT(rp9): while the Direct3D 9 volumetric nebula's lightning strikes drive this light
         // (direction from the strike, its flicker; nebula_volume.cpp), the random flash below
         // stays out. Never true on RP8 or with the volume off.
         if (NebulaVolume::DrivesNebulaLight(Nebula))
@@ -2028,7 +2028,7 @@ void FNebulaEffect::DrawFogOverlay(void* Camera)
     }
 
 #ifdef FREELANCER_RP9
-    // Port-only: while the Direct3D 9 volumetric nebula draws this nebula's inside
+    // PORT(rp9): while the Direct3D 9 volumetric nebula draws this nebula's inside
     // (nebula_volume.cpp), it replaces the fullscreen fog quad; the flag above and the
     // lightning below stay as retail.
     if (bDrawOverlay && !NebulaVolume::ReplacesFogOverlay(This))
@@ -2108,7 +2108,7 @@ void FNebulaEffect::DrawFogShell(void* Camera)
     Win3DApplyCamera(Cam);
     // 0x00508d95..0x00508db0: FUN_005074e0(this, copy+0x24, copy+0x28, copy+0x2c).
 #ifdef FREELANCER_RP9
-    // Port-only: while the Direct3D 9 volumetric nebula draws this nebula at full strength
+    // PORT(rp9): while the Direct3D 9 volumetric nebula draws this nebula at full strength
     // (nebula_volume.cpp) the two fill sheets are left out -- the path FUN_005074e0 itself
     // takes without a fill shape; the states around it stay as retail.
     if (!NebulaVolume::ReplacesFillSheets(This))
@@ -2147,7 +2147,7 @@ void FNebulaEffect::DrawBoltsPass(void* Camera)
     DALib::Pipeline->SetRenderState(D3DRS_AMBIENT, -1);
 
 #ifdef FREELANCER_RP9
-    // Port-only: while the Direct3D 9 volumetric nebula draws this nebula at full strength
+    // PORT(rp9): while the Direct3D 9 volumetric nebula draws this nebula at full strength
     // (nebula_volume.cpp) the exterior billboards are left out -- the path FUN_00507ed0 itself
     // takes with the zone out of view; the states around it stay as retail.
     if (!NebulaVolume::ReplacesExteriorBits(This))
@@ -2638,7 +2638,7 @@ void NebulaDestroy(FNebulaEffect* Nebula)
     if (Nebula == nullptr)
         return;
 #ifdef FREELANCER_RP9
-    NebulaVolume::UnregisterNebula(Nebula); // port-only bookkeeping (nebula_volume.cpp)
+    NebulaVolume::UnregisterNebula(Nebula); // PORT(rp9): bookkeeping (nebula_volume.cpp)
 #endif
     using FDel = void*(__thiscall*)(FNebulaEffect*, unsigned char);
     delete Nebula;

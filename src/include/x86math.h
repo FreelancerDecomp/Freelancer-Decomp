@@ -95,7 +95,7 @@ struct I3DMathEngine : IDAComponent
     virtual GENRESULT DACOM_API InvSqrt(float& Dst, float X) = 0;                                // +0x60
     virtual GENRESULT DACOM_API Sqrt(float& Dst, float X) = 0;                                   // +0x64
 
-    // Modern port-only raw-F32 transport; original retail slots 0..25 are unchanged.
+    // PORT(api): modern raw-F32 transport; original retail slots 0..25 are unchanged.
     // The input word is consumed at the kernel FMUL, after the quaternion dot test.
     virtual GENRESULT DACOM_API QuatSlerpValue(FQuaternion& Dst, const FQuaternion& A,
                                               const FQuaternion& B, const float* T) = 0;          // +0x68

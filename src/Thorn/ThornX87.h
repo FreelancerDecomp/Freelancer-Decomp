@@ -3,7 +3,7 @@
 
 #pragma once
 
-// Port-only x64 build (docs/x64.md): helpers for the portable versions of Thorn's inline x87
+// PORT(x64): x64 build (docs/x64.md): helpers for the portable versions of Thorn's inline x87
 // code. The Win32 build keeps its inline assembly; nothing here is used when _M_IX86 is defined.
 //
 // Convention (the same as x87_trig.h): a value retail keeps on the x87 stack, at extended

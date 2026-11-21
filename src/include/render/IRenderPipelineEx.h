@@ -6,7 +6,7 @@
 
 #pragma once
 
-// Port-only Direct3D 9 extensions of the render pipeline (RP9.dll). Retail has nothing like
+// PORT(rp9): Direct3D 9 extensions of the render pipeline (RP9.dll). Retail has nothing like
 // this: RP8.dll (Direct3D 8, the retail pipeline) does not answer these IIDs, so a consumer
 // QueryInterfaces the pipeline for Iids::RenderPipelineEx / Iids::RPDrawEx and, on failure,
 // keeps its old (fixed-function) algorithm unchanged. See docs/re/rp9.md, "Ex extensions".
