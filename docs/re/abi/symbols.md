@@ -15,15 +15,15 @@
 | `AttachedEquipment` | 4 | 17 | `src/include/common_archetype.h:866` | **public** | `public Equipment` |
 | `AttachedFXEquip` | 1 | 14 | `src/include/common_archetype.h:1251` | **public** | `public Equipment` |
 | `AttribStackNode` | 9 | 41 | `src/include/common_text.h:800` | **public** | `public RDLNode` |
-| `BaseFollowerBehavior` | 2 | 29 | `src/include/common_behavior.h:876` | **public** | `public Behavior` |
+| `BaseFollowerBehavior` | 2 | 29 | `src/Common/common_behavior.h:876` | **public** | `public Behavior` |
 | `BaseHint` | 4 | 4 | `src/include/common_goods.h:767` | **public** | — |
-| `BaseIdea` | 6 | 6 | `src/include/common_idea.h:181` | **public** | — |
+| `BaseIdea` | 6 | 6 | `src/Common/common_idea.h:181` | **public** | — |
 | `BaseOp` | 1 | 1 | `src/include/common_pub.h:695` | **public** | — |
 | `BaseRichTextWin` | 2 | 47 | `src/freelancer/Client/rich_text_win.h:83` | private (freelancer) | `public WinControl` |
-| `Behavior` | 27 | 27 | `src/include/common_behavior.h:538` | **public** | — |
+| `Behavior` | 27 | 27 | `src/Common/common_behavior.h:538` | **public** | — |
 | `BinaryRDLReader` | 3 | 3 | `src/include/common_text.h:1170` | **public** | — |
 | `BinaryRDLWriter` | 2 | 2 | `src/include/common_text.h:1190` | **public** | — |
-| `BroadcastRecord` | 3 | 3 | `src/include/server_basedb.h:123` | **public** | — |
+| `BroadcastRecord` | 3 | 3 | `src/Server/server_basedb.h:123` | **public** | — |
 | `Bullet` | 1 | 24 | `src/include/server_gameobject.h:1576` | **public** | `public Munition` |
 | `ButtonMover` | 2 | 2 | `src/freelancer/Client/button_mover.h:48` | private (freelancer) | — |
 | `ButtonScaler` | 2 | 2 | `src/freelancer/Client/button_mover.h:82` | private (freelancer) | — |
@@ -300,7 +300,7 @@
 | `IFLAppearance` | 11 | 14 | `src/include/render/IFLAppearance.h:7` | **public** | `IDAComponent` |
 | `IFLListBox` | 10 | 10 | `src/FLServer/IFLListBox.h:9` | private (FLServer) | — |
 | `IFogControl` | 11 | 14 | `src/include/thorn_controls.h:214` | **public** | `IDAComponent` |
-| `IFont` | 11 | 11 | `src/include/font.h:17` | **public** | — |
+| `IFont` | 11 | 11 | `src/freelancer/Client/font.h:17` | **public** | — |
 | `IFxAnimatedSingle` | 16 | 19 | `src/alchemy/alchemy_types.h:1231` | private (alchemy) | `IDAComponent` |
 | `IFxEffect` | 16 | 19 | `src/include/alchemy.h:176` | **public** | `IDAComponent` |
 | `IFxEffectArchetype` | 18 | 21 | `src/include/alchemy.h:34` | **public** | `IDAComponent` |

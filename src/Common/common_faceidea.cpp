@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 // Common.dll FaceIdea (ctor 0x062d6750, Update LAB_062d68b0, setters 0x062d7510-).
-// See src/include/common_idea.h.
+// See src/Common/common_idea.h.
 //
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_idea.cpp (ctor, SetContext, Commit,
 // setters) and common_aisteer.cpp (Update), code unchanged.

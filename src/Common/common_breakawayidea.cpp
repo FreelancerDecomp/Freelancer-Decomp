@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 // Common.dll BreakAwayIdea (ctor 0x062d8970, Update LAB_062d8a50). See
-// src/include/common_idea.h.
+// src/Common/common_idea.h.
 //
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_idea.cpp, code unchanged.
 

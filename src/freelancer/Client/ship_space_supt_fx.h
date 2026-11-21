@@ -46,7 +46,7 @@
 // LAB_00546b50 147insn, etc.) is CShip's IObjRW vtable override table -- consistent with
 // CShip being one of retail's largest polymorphic classes.
 // No CShip class exists in the port. src/include/common_cequip.h only forward-declares
-// `class CShip;`; src/include/server_cship.h documents a *server-side* FCShip field
+// `class CShip;`; src/Server/server_cship.h documents a *server-side* FCShip field
 // layout (reconstructed from Common.dll, used by Server.dll via IAT imports) but that is
 // a different concept from THIS client-side CShip -- freelancer.exe embeds its own full
 // CShip implementation (matches Freelancer's known architecture: single-player games run

@@ -13823,7 +13823,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_behavior.h",
+   "file": "src/Common/common_behavior.h",
    "kind": "class",
    "line": 538,
    "module": "(public)",
@@ -14026,7 +14026,7 @@
    "base_resolved": true,
    "base_slots": 27,
    "bases": "public Behavior",
-   "file": "src/include/common_behavior.h",
+   "file": "src/Common/common_behavior.h",
    "kind": "class",
    "line": 876,
    "module": "(public)",
@@ -17666,7 +17666,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_idea.h",
+   "file": "src/Common/common_idea.h",
    "kind": "class",
    "line": 181,
    "module": "(public)",
@@ -24036,7 +24036,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/font.h",
+   "file": "src/freelancer/Client/font.h",
    "kind": "class",
    "line": 17,
    "module": "(public)",
@@ -28803,7 +28803,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/server_basedb.h",
+   "file": "src/Server/server_basedb.h",
    "kind": "class",
    "line": 123,
    "module": "(public)",
@@ -38818,19 +38818,19 @@
    "name": "IEngine"
   },
   {
-   "file": "src/include/common_behavior.h",
+   "file": "src/Common/common_behavior.h",
    "line": 12,
    "module": "(public)",
    "name": "IObjDB"
   },
   {
-   "file": "src/include/common_behavior.h",
+   "file": "src/Common/common_behavior.h",
    "line": 399,
    "module": "(public)",
    "name": "SystemManagerTimerTable"
   },
   {
-   "file": "src/include/common_behavior.h",
+   "file": "src/Common/common_behavior.h",
    "line": 874,
    "module": "(public)",
    "name": "SystemManager"
@@ -39034,13 +39034,13 @@
    "name": "ICliObjFactory"
   },
   {
-   "file": "src/include/common_evadebehavior.h",
+   "file": "src/Common/common_evadebehavior.h",
    "line": 10,
    "module": "(public)",
    "name": "IObjRW"
   },
   {
-   "file": "src/include/common_facebehavior.h",
+   "file": "src/Common/common_facebehavior.h",
    "line": 17,
    "module": "(public)",
    "name": "SystemManager"
@@ -39094,13 +39094,13 @@
    "name": "FFlidCrcState"
   },
   {
-   "file": "src/include/common_idea.h",
+   "file": "src/Common/common_idea.h",
    "line": 15,
    "module": "(public)",
    "name": "ICRSplineSegment"
   },
   {
-   "file": "src/include/common_idea.h",
+   "file": "src/Common/common_idea.h",
    "line": 16,
    "module": "(public)",
    "name": "SystemManager"
@@ -39244,19 +39244,19 @@
    "name": "IVP_Anchor"
   },
   {
-   "file": "src/include/common_lootbehavior.h",
+   "file": "src/Common/common_lootbehavior.h",
    "line": 10,
    "module": "(public)",
    "name": "IBehaviorManager"
   },
   {
-   "file": "src/include/common_lootbehavior.h",
+   "file": "src/Common/common_lootbehavior.h",
    "line": 11,
    "module": "(public)",
    "name": "SystemManager"
   },
   {
-   "file": "src/include/common_lootbehavior.h",
+   "file": "src/Common/common_lootbehavior.h",
    "line": 12,
    "module": "(public)",
    "name": "IObjRW"
@@ -39616,7 +39616,7 @@
    "name": "EquipDesc"
   },
   {
-   "file": "src/include/common_strafebehavior.h",
+   "file": "src/Common/common_strafebehavior.h",
    "line": 10,
    "module": "(public)",
    "name": "IObjInspect"
@@ -39766,19 +39766,19 @@
    "name": "RDLRefNode"
   },
   {
-   "file": "src/include/common_trailbehavior.h",
+   "file": "src/Common/common_trailbehavior.h",
    "line": 10,
    "module": "(public)",
    "name": "IBehaviorManager"
   },
   {
-   "file": "src/include/common_trailbehavior.h",
+   "file": "src/Common/common_trailbehavior.h",
    "line": 11,
    "module": "(public)",
    "name": "SystemManager"
   },
   {
-   "file": "src/include/common_trailbehavior.h",
+   "file": "src/Common/common_trailbehavior.h",
    "line": 12,
    "module": "(public)",
    "name": "IObjRW"
@@ -39850,13 +39850,13 @@
    "name": "CDPServer"
   },
   {
-   "file": "src/include/font.h",
+   "file": "src/freelancer/Client/font.h",
    "line": 14,
    "module": "(public)",
    "name": "tagLOGFONTA"
   },
   {
-   "file": "src/include/font.h",
+   "file": "src/freelancer/Client/font.h",
    "line": 15,
    "module": "(public)",
    "name": "HFONT__"
@@ -39880,25 +39880,25 @@
    "name": "CImeUiFont"
   },
   {
-   "file": "src/include/network.h",
+   "file": "src/RemoteServer/network.h",
    "line": 12,
    "module": "(public)",
    "name": "IClient"
   },
   {
-   "file": "src/include/network.h",
+   "file": "src/RemoteServer/network.h",
    "line": 13,
    "module": "(public)",
    "name": "IChatClient"
   },
   {
-   "file": "src/include/network.h",
+   "file": "src/RemoteServer/network.h",
    "line": 14,
    "module": "(public)",
    "name": "IServer"
   },
   {
-   "file": "src/include/network.h",
+   "file": "src/RemoteServer/network.h",
    "line": 15,
    "module": "(public)",
    "name": "IChatServer"
@@ -40318,19 +40318,19 @@
    "name": "EquipDescVector"
   },
   {
-   "file": "src/include/server_basedb.h",
+   "file": "src/Server/server_basedb.h",
    "line": 8,
    "module": "(public)",
    "name": "BaseData"
   },
   {
-   "file": "src/include/server_basedb.h",
+   "file": "src/Server/server_basedb.h",
    "line": 9,
    "module": "(public)",
    "name": "RoomData"
   },
   {
-   "file": "src/include/server_basedb.h",
+   "file": "src/Server/server_basedb.h",
    "line": 10,
    "module": "(public)",
    "name": "FmtStr"
@@ -40348,31 +40348,31 @@
    "name": "I3DMathEngine"
   },
   {
-   "file": "src/include/server_cship.h",
+   "file": "src/Server/server_cship.h",
    "line": 15,
    "module": "(public)",
    "name": "FPhySysController"
   },
   {
-   "file": "src/include/server_cship.h",
+   "file": "src/Server/server_cship.h",
    "line": 16,
    "module": "(public)",
    "name": "FCSteering"
   },
   {
-   "file": "src/include/server_cship.h",
+   "file": "src/Server/server_cship.h",
    "line": 17,
    "module": "(public)",
    "name": "FCNudgeEngine"
   },
   {
-   "file": "src/include/server_cship.h",
+   "file": "src/Server/server_cship.h",
    "line": 18,
    "module": "(public)",
    "name": "FCStrafeEngine"
   },
   {
-   "file": "src/include/server_cship.h",
+   "file": "src/Server/server_cship.h",
    "line": 19,
    "module": "(public)",
    "name": "FActionDB"
@@ -40408,7 +40408,7 @@
    "name": "Quaternion"
   },
   {
-   "file": "src/include/server_savegame.h",
+   "file": "src/Server/server_savegame.h",
    "line": 109,
    "module": "(public)",
    "name": "CCharacterSet"

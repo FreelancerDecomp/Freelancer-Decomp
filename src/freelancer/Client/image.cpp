@@ -16,7 +16,7 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "readfile.h"
-#include "render/IBigImage2.h"
+#include "ximage.h"
 #include "render/IRenderPipeline.h"
 
 #include <windows.h>

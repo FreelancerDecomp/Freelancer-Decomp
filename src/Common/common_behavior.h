@@ -99,7 +99,7 @@ class SystemManager; // common_systemmanager.h -- Behavior::NavHelperPtr24 (poin
 // and the "written lazily by Update()/EnterState()" rationalisation was circular:
 // those two bodies (FUN_062c4900/FUN_062c3d10) are DockBehavior's, not this
 // class's, which is why everything they touch fits in 0x470 and not in 0x2b8.
-// Both have MOVED to src/include/common_dockbehavior.h this pass, together with
+// Both have MOVED to src/Common/common_dockbehavior.h this pass, together with
 // the whole >= 0x2b8 field block they addressed. See FormationBehavior's own
 // class comment below and decomp-tracker items 1279/1285.
 

@@ -65,7 +65,6 @@
   <ItemGroup>
     <ClInclude Include="..\include\rpc_iserver.h" />
     <ClInclude Include="..\include\rpc_iclient.h" />
-    <ClInclude Include="..\include\rpc_structs.h" />
     <ClInclude Include="rpc_transport.h" />
     <ClInclude Include="rpc_payloads.h" />
     <ClInclude Include="rpc_containers.h" />

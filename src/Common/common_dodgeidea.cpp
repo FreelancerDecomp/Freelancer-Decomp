@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Common.dll DodgeIdea (ctor 0x062d77d0, Update LAB_062d7950). See src/include/common_idea.h.
+// Common.dll DodgeIdea (ctor 0x062d77d0, Update LAB_062d7950). See src/Common/common_idea.h.
 //
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_idea.cpp (ctor, SetField58, Commit) and
 // common_aisteer.cpp (Update), code unchanged.

@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 // Common.dll SplineMoveIdea (ctor 0x062d9bf0, Update LAB_062d9d00). See
-// src/include/common_idea.h.
+// src/Common/common_idea.h.
 
 #include "common_idea.h"
 #include "common_idea_internal.h"
