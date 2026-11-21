@@ -80,6 +80,17 @@ TexConvert and compares the bytes:
 It also decodes single DXT blocks with hand-picked endpoints through both. When they differ
 it prints the block and both results, so a rounding difference can be read off the log.
 
+**What counts as a difference.**
+- Uncompressed conversions and same-format copies must be byte for byte.
+- DXT decodes into an uncompressed format may differ by at most one step in a channel
+  (counted as "within one step"). Those are the exact-half rounding ties listed above.
+  Matching them would mean reproducing D3DX's x87 code paths, and the project accepted ±1
+  there instead.
+- Two kinds of case are only reported, not counted:
+  - the Shading's-pitch cases, an intended difference pending a decision;
+  - compression into DXT2 or DXT4. Shading never targets those formats, and what D3DX does
+    when compressing into them is not understood yet.
+
 CI runs it in a report-only job. Exit code 0 means everything was identical, 1 means a
 difference (it prints the first differing bytes), and 2 means nothing was compared: no
 Direct3D 8 device, or no case could run.

@@ -135,7 +135,69 @@ namespace
     int G_Compared = 0;   // comparisons with D3DX
     int G_SelfChecks = 0; // checks without D3DX
     int G_Different = 0;
+    int G_Near = 0;        // DXT decodes off by at most 1 in a channel: accepted (docs/re/texconvert.md)
+    int G_Informative = 0; // reported, not counted: Shading's pitch, DXT2 / DXT4 compression
     int G_Skipped = 0;
+
+    // The largest difference between two rows of one uncompressed format, per channel, in that
+    // channel's own units (1 is one step of a 5-bit channel, not of a byte). Unused X bits are
+    // ignored.
+    int LargestChannelStep(unsigned int Format, const unsigned char* A, const unsigned char* B, unsigned int Width)
+    {
+        struct FField
+        {
+            unsigned int Shift;
+            unsigned int Bits;
+        };
+        FField Fields[4] = {};
+        int Count = 0;
+        unsigned int Bytes = 2;
+        switch (Format)
+        {
+        case TexConvert::kR8G8B8:
+            Fields[0] = {0, 8}; Fields[1] = {8, 8}; Fields[2] = {16, 8}; Count = 3; Bytes = 3;
+            break;
+        case TexConvert::kR5G6B5:
+            Fields[0] = {0, 5}; Fields[1] = {5, 6}; Fields[2] = {11, 5}; Count = 3;
+            break;
+        case TexConvert::kX1R5G5B5:
+            Fields[0] = {0, 5}; Fields[1] = {5, 5}; Fields[2] = {10, 5}; Count = 3;
+            break;
+        case TexConvert::kA1R5G5B5:
+            Fields[0] = {0, 5}; Fields[1] = {5, 5}; Fields[2] = {10, 5}; Fields[3] = {15, 1}; Count = 4;
+            break;
+        case TexConvert::kA4R4G4B4:
+            Fields[0] = {0, 4}; Fields[1] = {4, 4}; Fields[2] = {8, 4}; Fields[3] = {12, 4}; Count = 4;
+            break;
+        case TexConvert::kA8R8G8B8:
+            Fields[0] = {0, 8}; Fields[1] = {8, 8}; Fields[2] = {16, 8}; Fields[3] = {24, 8}; Count = 4; Bytes = 4;
+            break;
+        case TexConvert::kX8R8G8B8:
+            Fields[0] = {0, 8}; Fields[1] = {8, 8}; Fields[2] = {16, 8}; Count = 3; Bytes = 4;
+            break;
+        default:
+            return 1000;
+        }
+        int Largest = 0;
+        for (unsigned int X = 0; X < Width; ++X)
+        {
+            std::uint32_t Va = 0;
+            std::uint32_t Vb = 0;
+            for (unsigned int Byte = 0; Byte < Bytes; ++Byte)
+            {
+                Va |= static_cast<std::uint32_t>(A[X * Bytes + Byte]) << (Byte * 8);
+                Vb |= static_cast<std::uint32_t>(B[X * Bytes + Byte]) << (Byte * 8);
+            }
+            for (int Field = 0; Field < Count; ++Field)
+            {
+                const std::uint32_t Mask = (1u << Fields[Field].Bits) - 1;
+                const int Ca = static_cast<int>((Va >> Fields[Field].Shift) & Mask);
+                const int Cb = static_cast<int>((Vb >> Fields[Field].Shift) & Mask);
+                Largest = std::max(Largest, Ca > Cb ? Ca - Cb : Cb - Ca);
+            }
+        }
+        return Largest;
+    }
 
     // SrcPitch 0: the format's own pitch; otherwise the pitch passed to both converters.
     void Compare(IDirect3DDevice8* Device, unsigned int SrcFormat, unsigned int DstFormat, unsigned int Width,
@@ -213,10 +275,13 @@ namespace
         int FirstRow = -1;
         unsigned int FirstByte = 0;
         int Differing = 0;
+        int LargestStep = 0;
         for (unsigned int Row = 0; Row < Rows; ++Row)
         {
             const unsigned char* const Theirs = static_cast<const unsigned char*>(Locked.pBits) + Row * Locked.Pitch;
             const unsigned char* const Mine = Ours.data() + static_cast<std::size_t>(Row) * DstPitch;
+            if (!TexConvert::IsBlock(DstFormat) && std::memcmp(Theirs, Mine, DstPitch) != 0)
+                LargestStep = std::max(LargestStep, LargestChannelStep(DstFormat, Theirs, Mine, Width));
             for (unsigned int Byte = 0; Byte < DstPitch; ++Byte)
             {
                 if (Theirs[Byte] != Mine[Byte])
@@ -232,9 +297,27 @@ namespace
         }
         if (Result != TexConvert::EResult::Exact || Differing != 0)
         {
-            ++G_Different;
-            std::printf("DIFF %s -> %s %ux%u pattern %d%s: %d bytes differ", Name(SrcFormat), Name(DstFormat),
-                        Width, Height, Pattern, SrcPitchOverride != 0 ? " (Shading's pitch)" : "", Differing);
+            // Shading's pitch: a known, intended difference (reported only). A DXT decode off by at
+            // most one step in a channel: the accepted rounding ties. Anything else fails.
+            const char* Kind = "DIFF";
+            if (SrcPitchOverride != 0)
+            {
+                Kind = "INFO";
+                ++G_Informative;
+            }
+            else if (Result == TexConvert::EResult::Exact && TexConvert::IsBlock(SrcFormat) &&
+                     !TexConvert::IsBlock(DstFormat) && LargestStep <= 1)
+            {
+                Kind = "NEAR";
+                ++G_Near;
+            }
+            else
+            {
+                ++G_Different;
+            }
+            std::printf("%s %s -> %s %ux%u pattern %d%s: %d bytes differ, largest step %d", Kind, Name(SrcFormat),
+                        Name(DstFormat), Width, Height, Pattern, SrcPitchOverride != 0 ? " (Shading's pitch)" : "",
+                        Differing, LargestStep);
             if (FirstRow >= 0)
             {
                 const unsigned char* const Theirs =
@@ -296,7 +379,14 @@ void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* B
             const bool bDifferent =
                 Result != TexConvert::EResult::Exact || std::memcmp(Theirs, Ours, sizeof(Ours)) != 0;
             if (bDifferent)
-                ++G_Different;
+            {
+                const int Step = LargestChannelStep(TexConvert::kA8R8G8B8, reinterpret_cast<const unsigned char*>(Theirs),
+                                                    reinterpret_cast<const unsigned char*>(Ours), 16);
+                if (Result == TexConvert::EResult::Exact && Step <= 1)
+                    ++G_Near;
+                else
+                    ++G_Different;
+            }
             if (bDifferent && G_ProbeLines[Format] < 20)
             {
                 ++G_ProbeLines[Format];
@@ -406,7 +496,11 @@ void CompareEncode(IDirect3DDevice8* Device, unsigned int Format)
     ++G_Compared;
     std::printf("ENCODE A8R8G8B8 -> %s: largest channel difference %d (tolerance %d)\n", Name(Format), Largest,
                 Tolerance);
-    if (Largest > Tolerance)
+    // Shading never targets DXT2 or DXT4, and D3DX's compression into them is not understood
+    // yet (docs/re/texconvert.md): reported, not counted.
+    if (Format == TexConvert::kDxt2 || Format == TexConvert::kDxt4)
+        ++G_Informative;
+    else if (Largest > Tolerance)
         ++G_Different;
 }
 
@@ -598,8 +692,9 @@ int main()
         }
     }
 
-    std::printf("TexConvertTest: %d compared with D3DX, %d self-checks, %d different, %d skipped\n", G_Compared,
-                G_SelfChecks, G_Different, G_Skipped);
+    std::printf("TexConvertTest: %d compared with D3DX, %d self-checks, %d different, %d within one step (DXT "
+                "rounding ties), %d informative, %d skipped\n",
+                G_Compared, G_SelfChecks, G_Different, G_Near, G_Informative, G_Skipped);
     D3d.Device->Release();
     D3d.D3d->Release();
     if (D3d.Window != nullptr)
