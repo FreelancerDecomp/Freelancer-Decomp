@@ -27,7 +27,6 @@
     <ProjectGuid>{7E2C0A19-8B3C-4D4E-9516-A7B8C9D0E1F2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>freelancer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -54,7 +53,6 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Content;$(ProjectDir)..\imeui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FREELANCER_EXPORTS selects the declarations freelancer.exe exports itself
            (retail FreeLancer.exe carries a 69-name export table, no .def): see the
            export macros in src/include/rpc_iclient.h and src/include/common_exports.h. -->
