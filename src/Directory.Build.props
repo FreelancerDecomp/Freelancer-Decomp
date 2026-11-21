@@ -9,6 +9,15 @@
     <!-- Port-only Direct3D 9 rendering (RP9.dll + the client's Ex hooks: volumetric nebula),
          FREELANCER_RP9; 0 builds neither RP9.dll nor the client hooks (docs/re/rp9.md). -->
     <FreelancerRp9 Condition="'$(FreelancerRp9)'==''">0</FreelancerRp9>
+    <!-- Port-only SDL3 + SDL_GPU render pipeline (RPGPU.dll, docs/re/rpgpu.md), SDL3 from vcpkg
+         (src/Vcpkg.props). On by default on x64, whose client has no other renderer (RP8 needs
+         D3DX8, which is 32-bit only); off on Win32, where RP8 is the renderer and RPGPU an option.
+         Not in Freelancer.Diagnostics.props: RPGPU.vcxproj reads it before that sheet. -->
+    <FreelancerRpGpu Condition="'$(FreelancerRpGpu)'=='' and '$(Platform)'=='x64'">1</FreelancerRpGpu>
+    <FreelancerRpGpu Condition="'$(FreelancerRpGpu)'==''">0</FreelancerRpGpu>
+    <!-- true: a port-only module that is on but cannot find vcpkg fails the build instead of
+         being skipped with a warning (src/Vcpkg.targets). CI passes it. -->
+    <FreelancerRequireVcpkg Condition="'$(FreelancerRequireVcpkg)'==''">false</FreelancerRequireVcpkg>
     <!-- Port-only walk mode in base rooms (docs/walk_mode.md), FREELANCER_WALK_MODE; on by default, as
          Freelancer.Diagnostics.props sets it (only the client reads it). -->
     <FreelancerWalkMode Condition="'$(FreelancerWalkMode)'==''">1</FreelancerWalkMode>

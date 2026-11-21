@@ -80,5 +80,5 @@ tools/_*
 # CMake build trees (src/DPNet: cmake -S src/DPNet -B build/dpnet)
 /build/
 
-# vcpkg manifest-mode packages (RPGPU)
+# vcpkg manifest-mode packages of the port-only modules (src/vcpkg.json)
 vcpkg_installed/

@@ -1,0 +1,14 @@
+<Project>
+  <!-- The second half of Vcpkg.props: import after Microsoft.Cpp.targets. -->
+  <Import Project="$(FlVcpkgRoot)\scripts\buildsystems\msbuild\vcpkg.targets" Condition="'$(FlVcpkgEnabled)'=='true'" />
+  <Target Name="FlVcpkgMissing" BeforeTargets="PrepareForBuild"
+          Condition="'$(FlVcpkgWanted)'=='1' and '$(FlVcpkgEnabled)'!='true'">
+    <Error Condition="'$(FreelancerRequireVcpkg)'=='true'"
+           Text="$(MSBuildProjectName): vcpkg not found, and FreelancerRequireVcpkg=true. Set VCPKG_ROOT, or pass /p:FlVcpkgRoot=..." />
+    <Warning Condition="'$(FreelancerRequireVcpkg)'!='true'"
+             Text="$(MSBuildProjectName): skipped, vcpkg not found (set VCPKG_ROOT to build it)." />
+  </Target>
+  <Target Name="FlVcpkgOff" BeforeTargets="PrepareForBuild" Condition="'$(FlVcpkgWanted)'!='1'">
+    <Message Importance="high" Text="$(MSBuildProjectName): off, so not built (its opt-in property is not 1)." />
+  </Target>
+</Project>
