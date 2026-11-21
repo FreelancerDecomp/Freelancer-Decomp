@@ -16,6 +16,7 @@
 // (LAB_00517ba0, slot 0x6c).
 
 #include "space_camera_first.h"
+#include <cstdint>
 
 #include "DALib.h"
 #include "common_cobject.h"   // CompoundInstanceAnalyze
@@ -681,7 +682,7 @@ void FirstPersonCameraLoad(FFirstPersonCamera* Cam, const char* CockpitIniPath)
     // contains "cam"; only when one was found does the head transform come out of the engine
     // -- nine floats from IEngine slot 0x98 into +0x13c and three from slot 0x90 into +0x130.
     long CameraPart = -1;
-    CompoundInstanceAnalyze(reinterpret_cast<long>(Cam->Mesh.EngineInstance),
+    CompoundInstanceAnalyze(static_cast<long>(reinterpret_cast<std::intptr_t>(Cam->Mesh.EngineInstance)),
                             &FindCockpitCameraPart, &CameraPart);
     if (CameraPart != -1)
     {

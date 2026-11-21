@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_explosion.h"
+#include <cstdint>
 
 #include "DALib.h"
 #include "client_cliobj.h"         // Archetype::HookUpInstanceTreeMaterials (FUN_00425480)
@@ -432,7 +433,7 @@ void Action_Explode::CollectChildPieces(long Instance, int MaxPieces,
     {
         do
         {
-            CollectChildPieces(reinterpret_cast<long>(Child), MaxPieces, Pieces);
+            CollectChildPieces(static_cast<long>(reinterpret_cast<std::intptr_t>(Child)), MaxPieces, Pieces);
             Child = Engine->GetRelatedInstance(Inst, 1u, G_InvalidEngineHandle);
         } while (Child != G_InvalidEngineHandle);
         return;
