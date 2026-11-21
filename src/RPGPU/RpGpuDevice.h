@@ -3,11 +3,11 @@
 
 #pragma once
 
-// RPGPU's SDL3 side (port-only, docs/re/rpgpu.md): an SDL_GPU device and swap chain on the
-// client's own window. The rest of RPGPU talks to the game through RP8's interfaces and never
-// sees an SDL type; this class is the only place that includes SDL.
+// RPGPU's SDL backend (port-only, docs/re/rpgpu.md): an SDL_GPU device and swap chain on the
+// client's own window. The rest of RPGPU talks to it through IRpGpuBackend and never sees an
+// SDL type; this class is the only place that includes SDL.
 
-#include <windows.h>
+#include "RpGpuBackend.h"
 
 #include <cstdint>
 #include <vector>
@@ -15,47 +15,43 @@
 struct SDL_Window;
 struct SDL_GPUDevice;
 
-struct FRpGpuDisplayMode
-{
-    unsigned int Width;
-    unsigned int Height;
-    unsigned int Refresh;
-};
-
-class FRpGpuDevice
+class FRpGpuDevice final : public IRpGpuBackend
 {
 public:
     FRpGpuDevice() = default;
-    ~FRpGpuDevice();
+    ~FRpGpuDevice() override;
 
     FRpGpuDevice(const FRpGpuDevice&) = delete;
     FRpGpuDevice& operator=(const FRpGpuDevice&) = delete;
 
     // Wraps Hwnd in an SDL window, creates the GPU device and claims the window for it. The
-    // window stays the client's: SDL neither creates nor destroys it. A second call with the
-    // same window keeps the device and only applies VSync.
-    bool Create(HWND Hwnd, bool bVSync);
-    void Destroy();
-    bool IsReady() const { return Device_ != nullptr; }
+    // window stays the client's: SDL neither creates nor destroys it, and its size is the
+    // swap chain's (Width and Height are not used). A second call with the same window keeps the
+    // device and only applies VSync.
+    bool Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) override;
+    void Destroy() override;
+    bool IsReady() const override { return Device_ != nullptr; }
 
-    // The colour (D3DCOLOR, 0xAARRGGBB) the next frame's swap-chain image is cleared to.
-    void SetClearColor(std::uint32_t Argb) { ClearArgb_ = Argb; }
+    void SetClearColor(std::uint32_t Argb) override { ClearArgb_ = Argb; }
 
-    // Clears the swap-chain image and presents it. False when the device is missing or the
-    // frame could not be submitted; a minimised window (no swap-chain image) is not a failure. A
-    // failed frame marks the device for a rebuild on the next Create.
-    bool Present();
+    // Clears the swap-chain image and presents it. A minimised window (no swap-chain image) is
+    // not a failure. A failed frame marks the device for a rebuild on the next Create.
+    bool Present() override;
 
-    HWND Hwnd() const { return Hwnd_; }
-    std::uint32_t Width() const { return Width_; }
-    std::uint32_t Height() const { return Height_; }
+    HWND Hwnd() const override { return Hwnd_; }
+    std::uint32_t Width() const override { return Width_; }
+    std::uint32_t Height() const override { return Height_; }
 
     // The primary display's full-screen modes, largest first (SDL's order). False when SDL's
     // video subsystem or the display could not be queried.
-    static bool QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out);
+    bool QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out) override;
 
-    // The SDL error text of the last failure, for the module's log.
-    const char* LastError() const;
+    // Not yet: the swap-chain image cannot be read back. Frames become readable once RPGPU
+    // renders into its own target (plan step 5.3).
+    bool ReadBack(FRpGpuFrame* Out) override;
+
+    // The SDL error text of the last failure.
+    const char* LastError() const override;
 
 private:
     HWND Hwnd_ = nullptr;
