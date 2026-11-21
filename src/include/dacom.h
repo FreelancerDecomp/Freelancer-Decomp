@@ -10,6 +10,8 @@
 // C exports are __cdecl. Interface methods are __stdcall (this on the stack).
 // IID strings look like "1.11_ICOManager", not COM GUIDs.
 
+#include <windows.h>
+
 #include "dacom_iids.h"  // every "1.11_*" interface id, in one place
 
 typedef long GENRESULT;
