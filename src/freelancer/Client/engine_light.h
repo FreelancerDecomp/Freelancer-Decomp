@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 // Client light object — E:\FL\Scratch\Source\Client\cmn\EngineLight.cpp.
 //
 // Retail allocates it with `operator new(200)` in FUN_00556fd0 and drives it through
@@ -50,8 +52,8 @@ struct FEngineLight
     virtual bool Enable();
     virtual void Disable();
 
-    unsigned Field04;     // +0x04 intrusive light-list Next (retail DAT_006164e0 = list head)
-    unsigned Field08;     // +0x08 intrusive light-list Prev (retail DAT_006164e4 = list tail,
+    std::uintptr_t Field04; // +0x04 intrusive light-list Next (retail DAT_006164e0 = list head)
+    std::uintptr_t Field08; // +0x08 intrusive light-list Prev (retail DAT_006164e4 = list tail,
                            // DAT_006164e8 = count). The list-insert routine that actually links a
                            // light in (setting Flags bit 4) is a different, not yet ported
                            // function; this batch only ports the unlink side (dtor / Unregister),
