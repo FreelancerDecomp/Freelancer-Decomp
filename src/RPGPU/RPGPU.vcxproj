@@ -78,6 +78,7 @@
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClCompile Include="RpGpu.cpp" />
     <ClCompile Include="RpGpuDds.cpp" />
+    <ClCompile Include="RpGpuDraw.cpp" />
     <ClCompile Include="RpGpuResources.cpp" />
     <ClCompile Include="RpGpuState.cpp" />
     <ClCompile Include="backend\RpGpuNullBackend.cpp" />

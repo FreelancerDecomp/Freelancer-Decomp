@@ -73,9 +73,11 @@ client's next `CreateBuffers` brings the new one up.
   - `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour
     at the size `CreateBuffers` asked for, and it reads that back.
 
-## Status: skeleton
+## Status: 2D draws
 
-The first version opens the device and presents a cleared frame; it draws nothing else.
+RPGPU opens the device and presents the frames it records. It draws the 2D draws (pre-transformed
+vertices: the menus, the HUD), with texture stage 0 and the alpha test; see "Drawing". The 3D
+draws (transformed vertices), lighting, fog and the texture stages above 0 are not drawn yet.
 
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
   projection (stored as D3D's row-major matrix, handed over transposed, as RP8 does) and the
@@ -105,7 +107,8 @@ The first version opens the device and presents a cleared frame; it draws nothin
   - **Close to D3DX, not identical (also a goal):** resized loads, and any load that has to
     compress into DXT, even at the same size. TexConvertTest measures only part of this; see
     the test scope in [texconvert.md](texconvert.md).
-- **The draw calls** are accepted and dropped.
+- **The draw calls** record the 2D draws and draw them at `SwapBuffers` ("Drawing"). The others
+  are accepted and dropped until the 3D part of step 5.3.
 - **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none) and no cube
   maps until `LoadCubemap` loads them.
 - **`PrintScreen`** answers RP8's argument checks and writes a 24-bit BMP (`.BMP`, `.DIB`) of
@@ -149,4 +152,44 @@ The first shaders cover the 2D draws (menus, HUD), which use pre-transformed ver
   pixel centres.
 - `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
   modulate) and the alpha test.
+
+## Drawing
+
+RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3. The 2D draws
+come first.
+
+**Recording** (`RpGpuDraw.cpp`):
+- **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb` and
+  `DrawIndexedPrimitiveVb` convert the game's vertices into `FRpGpuVertex2D` (position, RHW,
+  diffuse, texture set 0). Each records one command with the render state of the moment:
+  - blending, the depth test, the colour write mask;
+  - texture stage 0's operations, sampler and texture;
+  - the alpha test, the viewport and the depth range.
+- **Clears:** `ClearBuffers` records a clear in order with the draws.
+- **Triangle fans** become indexed triangle lists, since SDL_GPU has none.
+- **Not drawn yet:** points, and every draw without pre-transformed vertices (the 3D draws,
+  which wait for the transform stage). An index past the vertices it came with drops the
+  draw.
+- **Textures:** a texture whose level 0 changed (`SetTextureLevelData`, `UnlockTexture`) goes
+  to the backend as B, G, R, A bytes through TexConvert when it is next drawn, as a new image
+  version: draws recorded before the change keep the image they saw. Replaced versions, and
+  the image of a texture destroyed during the frame, are released only after `SwapBuffers`
+  has presented the frame. After a new device every texture goes up again.
+
+**The SDL backend's `Present`:**
+1. One copy pass uploads the pending textures and the frame's vertices and indices, through
+   one transfer buffer.
+2. The commands replay on the swap-chain image and a depth buffer, in one render pass per
+   clear. The first pass clears colour and depth.
+3. Pipelines are cached per `FRpGpuPipelineKey`, and samplers per `FRpGpuSamplerKey`.
+4. A draw whose texture has no GPU copy samples a 1x1 white texture with the texture flag
+   off.
+
+**Known gaps** for the later parts of step 5.3:
+- clear rectangles (the whole target is cleared);
+- `CULLMODE` (2D draws do not cull);
+- mip levels above 0;
+- texture stages above 0;
+- the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);
+- a border colour, so `BORDER` addressing clamps instead.
 
