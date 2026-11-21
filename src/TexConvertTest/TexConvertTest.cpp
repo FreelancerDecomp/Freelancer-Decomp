@@ -18,6 +18,8 @@
 
 #include "TexConvert.h"
 
+// NOMINMAX: windows.h's min / max macros would break std::max.
+#define NOMINMAX
 #include <windows.h>
 
 #include <d3d8.h>
