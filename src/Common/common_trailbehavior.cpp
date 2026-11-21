@@ -577,7 +577,7 @@ bool TrailBehavior::Slot10(void* DirectiveOp)
         void* const Target = NavHelper->Timers.FindVerifiedObject((unsigned const*)(Op + 0xc));   // 062cb12e
         if (Target != nullptr)
         {
-            DirectiveTarget.set(reinterpret_cast<Watchable const*>(static_cast<char*>(Target) + 8));   // 062cb137-062cb14b
+            DirectiveTarget.set(reinterpret_cast<Watchable const*>(static_cast<char*>(Target) + FL_OBJRW_WATCHABLE_OFFSET));   // 062cb137-062cb14b
             bHasDirectiveTarget1e0 = 1;                             // 062cb158
             Flags28 = static_cast<unsigned char>(Flags28 | 0x2);    // 062cb15e
             return true;

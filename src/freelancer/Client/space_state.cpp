@@ -143,7 +143,7 @@ namespace
             FGameCamera* const Cam = reinterpret_cast<FGameCamera*>(GetActiveSpaceCamera());
             Watchable const* const Watched = Cam->Watched.target();
             void const* const WatchedObjRW =
-                Watched != nullptr ? reinterpret_cast<unsigned char const*>(Watched) - 8
+                Watched != nullptr ? reinterpret_cast<unsigned char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET
                                    : nullptr;
             // 0x0054b2e1..0x0054b325: the player's ship CEqObj (the chain above) -- and the
             // camera must be watching exactly that object.

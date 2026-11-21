@@ -119,9 +119,9 @@ bool TurretCameraComputeView(FTurretCamera* Cam, float* Out12, float DeltaSecond
     {
         const unsigned char* const Held =
             reinterpret_cast<const unsigned char*>(Hud->Watched.target());
-        if (Held == nullptr || Held - 8 == nullptr)
+        if (Held == nullptr || Held - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
             return true;
-        const unsigned char* const Plus0c = Held - 8 + 0xc;
+        const unsigned char* const Plus0c = Held - FL_OBJRW_WATCHABLE_OFFSET + 0xc;
         if (Plus0c == nullptr)
             return true;
         CEqObj* const EqObj = *reinterpret_cast<CEqObj* const*>(Plus0c + 4);

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_dockbehavior.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 #include "common_misc.h"   // SinglePlayer() -- UpdateApproachTail()'s case 0xb calls it
 #include "common_systemmanager.h"  // SystemManagerGunGroupManager::SetShieldActive -- FUN_062e9a60
 #include "common_gotobehavior.h"   // ComputeFormationFollowerEnvelope / ProxWatcherComputeSpeedCap
@@ -35,7 +36,7 @@ static void* HeaderBlockFromWatched(Watchable const* Watched)
     if (Watched == nullptr)
         return nullptr;
     return const_cast<void*>(
-        static_cast<void const*>(reinterpret_cast<char const*>(Watched) - 8));
+        static_cast<void const*>(reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET));
 }
 
 // DockBehavior -- see common_dockbehavior.h for the full RTTI/layout writeup
@@ -153,7 +154,7 @@ void* DockBehavior::GetWatchedRawBlock() const
     char const* Watched = reinterpret_cast<char const*>(Watcher324.target());
     if (Watched == nullptr)
         return nullptr;
-    return const_cast<char*>(Watched) - 8;
+    return const_cast<char*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET;
 }
 
 // Own vtable slot 7 (offset 0x1c), Update/dispatch entry point.
@@ -171,7 +172,7 @@ int DockBehavior::Update()
     // of exactly 8 -> result 3.
     void const* Watched = Watcher324.target();
     if (ThreatSourcePtr14 == nullptr || Watched == nullptr ||
-        reinterpret_cast<char const*>(Watched) - 8 == nullptr)
+        reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
     {
         UpdateResult10 = 3;
         return 3;
@@ -271,7 +272,7 @@ bool DockBehavior::OnResult(int Param1, int Param2, int Param3)
         // invalid" test.
         void const* Watched = Watcher324.target();
         bool const bInvalidBlock =
-            (Watched == nullptr) || (reinterpret_cast<char const*>(Watched) - 8 == nullptr);
+            (Watched == nullptr) || (reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET == nullptr);
 
         if (bInvalidBlock || Param3 == -1)
         {
@@ -455,7 +456,7 @@ void DockBehavior::RecomputeApproach()
 
     void const* Watched = Watcher324.target();
     bool const bInvalidBlock =
-        (Watched == nullptr) || (reinterpret_cast<char const*>(Watched) - 8 == nullptr);
+        (Watched == nullptr) || (reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET == nullptr);
     if (bInvalidBlock)
     {
         EnterState(0xd);                                             // 062c375b
@@ -486,7 +487,7 @@ void DockBehavior::RecomputeApproach()
         // 062c37bc-062c37e8: owner->get_lane_start(watched object, &TargetShipPtr388,
         // &DestPoint3cc, &Facing38c) (IObjInspect +0x138; the object is target - 8, or null).
         IObjInspect const* const WatchedObj = ObjInspectOf(Watched != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr);
         ObjInspectOf(ThreatSourcePtr14)->get_lane_start(
             WatchedObj, *static_cast<IObjInspect const**>(static_cast<void*>(&TargetShipPtr388)),
@@ -498,7 +499,7 @@ void DockBehavior::RecomputeApproach()
         // pointer (062c3829 XOR ECX,ECX / MOV EDX,[ECX]) -- reproduced literally.
         Watchable const* const Watched2 = Watcher324.target();
         void const* const Obj2 = Watched2 != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched2) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched2) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
         SubObjectA.PublishTargetId(ObjInspectOf(Obj2)->get_id());
     }
@@ -560,7 +561,7 @@ void DockBehavior::RecomputeApproach()
         // owner->get_position() first, then the object's (both IObjInspect slot 0).
         Watchable const* const Watched3 = Watcher324.target();
         void const* const Obj3 = Watched3 != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched3) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched3) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
         Vector const& ThreatPos = ThreatObject->get_position();
         Vector const& WatchedPos = ObjInspectOf(Obj3)->get_position();
@@ -695,11 +696,11 @@ void DockBehavior::CancelOwnerRequest(int RequestType)
 {
     unsigned int Id = 0;
     Watchable const* const Watched = Watcher324.target();
-    if (Watched != nullptr && reinterpret_cast<char const*>(Watched) - 8 != nullptr)
+    if (Watched != nullptr && reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET != nullptr)
     {
         Watchable const* const Again = Watcher324.target();
         void const* const Obj = Again != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Again) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Again) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
         Id = ObjInspectOf(Obj)->get_id();
     }
@@ -810,7 +811,7 @@ void DockBehavior::SubmitGotoDirective(Vector const& ReferencePoint)
         Op.Field_0C = 0;
         Watchable const* const Watched = Watcher324.target();
         void const* const Obj = Watched != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
         Op.Field_1C = static_cast<int32_t>(ObjInspectOf(Obj)->get_id()); // 062c561f
     }
@@ -838,7 +839,7 @@ void DockBehavior::OnWatchedObjectDestroyed(void* Message)
             return;
         Watchable const* const Watched = Watcher324.target();
         void const* const Obj = Watched != nullptr
-            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - 8)
+            ? static_cast<void const*>(reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
         if (ObjInspectOf(Obj)->get_id() != *reinterpret_cast<unsigned int const*>(Payload + 0x10))
             return;
@@ -1246,12 +1247,12 @@ void DockBehavior::RefreshApproachState()
     if (Field43c < -1)
         return;
     Watchable const* const Watched = Watcher324.target();
-    if (Watched == nullptr || reinterpret_cast<char const*>(Watched) - 8 == nullptr)
+    if (Watched == nullptr || reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
         return;
 
     // 062c5112-062c5148: object->get_dock_hardpoints(Field43c, &SubStateValue440, &A, &B,
     // &C, &Field408) (IObjInspect +0xc8; the object is re-read as target - 8).
-    IObjInspect const* const Obj = ObjInspectOf(reinterpret_cast<char const*>(Watched) - 8);
+    IObjInspect const* const Obj = ObjInspectOf(reinterpret_cast<char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET);
     Transform XformA;   // [ESP+0x40] local_90 -- left uninitialised by retail
     Transform XformB;   // [ESP+0x70] local_60
     Transform XformC;   // [ESP+0xa0] local_30

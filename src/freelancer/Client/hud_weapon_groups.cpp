@@ -90,7 +90,7 @@ void FWeaponGroups::SetShip(IObjRW* NewShip)
     // FUN_004f5520.
     Watchable const* const Watched = (NewShip == nullptr)
         ? nullptr
-        : reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(NewShip) + 8);
+        : reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(NewShip) + FL_OBJRW_WATCHABLE_OFFSET);
     Ship.set(Watched);
 }
 

@@ -1067,14 +1067,14 @@ void HudCameraUpdateShake(FHudCamera* Cam)
         reinterpret_cast<const unsigned char*>(Cam->Watched.target());
     if (Held == nullptr)
         return;
-    if (Held - 8 == nullptr)
+    if (Held - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
         return;
     // Retail reads the Ship Gameobj fields straight off that object. The port's watched object
     // is its IObjInspect face; dynamic_cast is the port's own interface-to-object step (the same
     // one GameobjJumpArmState makes), the downcast to the Ship class is unchecked, as retail's
     // fixed offsets are.
     FClientShipGameobj* const Ship = static_cast<FClientShipGameobj*>(dynamic_cast<FClientGameobj*>(
-        reinterpret_cast<IObjInspect*>(const_cast<unsigned char*>(Held - 8))));
+        reinterpret_cast<IObjInspect*>(const_cast<unsigned char*>(Held - FL_OBJRW_WATCHABLE_OFFSET))));
 
     // 0x0051db4d..0x0051db60: +0x18c bit 0 (a hull hit, set by slot 105 FUN_00545ed0 at
     // 0x00545f07) -> amplitude 0.02f (0x3ca3d70a), bit cleared.

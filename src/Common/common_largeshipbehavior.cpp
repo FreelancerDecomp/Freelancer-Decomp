@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_largeshipbehavior.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 #include "common_aisteer.h"        // ComputeWeaponSlotStat (item 1846), FAiTarget, GetCachedRange, RaySphereIntersect
 #include "common_iustategraph.h"   // BuildAiTargetList / GetAiTargetList (item 1800)
 #include "common_systemmanager.h"  // SystemManager, FAiTargetVector
@@ -237,7 +238,7 @@ static IObjInspect const* OwnerObjInspectOf(SystemManager* Sys)
     {
         return nullptr;
     }
-    unsigned char* const Raw = reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - 8;
+    unsigned char* const Raw = reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - FL_OBJRW_WATCHABLE_OFFSET;
     return static_cast<IObjInspect const*>(reinterpret_cast<IObjRW*>(Raw));
 }
 

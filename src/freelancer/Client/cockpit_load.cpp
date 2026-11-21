@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "cockpit_load.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "player_spawn.h"
 #include "common_archetype.h"
@@ -31,7 +32,7 @@ namespace
 
     // Same `- 8` as everywhere else: the watcher holds the Watchable, eight bytes into the
     // IObjRW.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // Retail CEqObj offsets used by FUN_00543350.
     struct FPlayerShipView

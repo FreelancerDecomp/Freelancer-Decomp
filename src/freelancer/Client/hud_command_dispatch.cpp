@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "hud_command_dispatch.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "event_handler.h"
 
@@ -390,7 +391,7 @@ bool SpaceSendCommand(FSpaceCommand* Command)
             reinterpret_cast<unsigned char const*>(GameCamera->Watched.target()));
         if (Held != nullptr)
         {
-            FClientGameobj* const Object = reinterpret_cast<FClientGameobj*>(Held - 8);
+            FClientGameobj* const Object = reinterpret_cast<FClientGameobj*>(Held - FL_OBJRW_WATCHABLE_OFFSET);
             // ManagerKind 1 is the ship bucket: the object is an FClientShipGameobj, whose
             // slot 115 is FClientEquippedObj::Slot1cc (overridden by the ship).
             if (Object != nullptr && Object->ManagerKind == 1)
