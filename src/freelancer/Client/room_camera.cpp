@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "widescreen.h"   // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
 #include "x86math.h"
+#include "x87_portable.h" // X87CopyFloat, the x64 form of the ZNear copy
 
 #include <math.h>
 #include <stddef.h>
@@ -627,6 +628,7 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
     // FUN_00556e00.
     // Retail consumes the raw argument with FLD/FSTP at this callee boundary.
     float* Destination = &Camera->ZNear;
+#if defined(_M_IX86)
     __asm
     {
         mov eax, ZNear
@@ -634,6 +636,9 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
         mov eax, Destination
         fstp dword ptr [eax]
     }
+#else
+    X87CopyFloat(Destination, ZNear);
+#endif
 
     const double TanX =
         tan((static_cast<double>(Camera->HalfFovXDeg) + Camera->HalfFovXDeg) * kPiOver360);
