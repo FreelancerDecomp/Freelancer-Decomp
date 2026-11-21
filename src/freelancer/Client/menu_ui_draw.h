@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "render/IBigImage2.h"
+#include "ximage.h"
 
 // Minimal 2D UI draw helpers (pipeline slot 69 / 70). The big-image tile callback FUN_00404720
 // is ScreenQuadDrawBigImageTile in screen_quad_state.h.

@@ -553,7 +553,7 @@ FL_LAYOUT_ASSERT(sizeof(IdleIdea) == 0x14, "IdleIdea adds no fields to BaseIdea"
 // header did not cross-check (they were listed as "already-documented gaps"):
 //   FUN_062e8ce0 == Behavior_SyncPredictedPosition(void*, Vector const*)
 //   FUN_062e89a0 == Behavior_UpdateCruiseGate(void*, float, int)
-// both declared in src/include/common_behavior.h and defined for real in
+// both declared in src/Common/common_behavior.h and defined for real in
 // common_behavior.cpp. (Behavior_SyncPredictedPosition is itself only ported
 // for its front half -- see its own doc comment -- so that residual gap is
 // inherited here rather than re-created here.) Body:

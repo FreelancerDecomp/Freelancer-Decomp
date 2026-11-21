@@ -22,7 +22,7 @@
 #include "common_csys.h"
 #include "dacom.h"
 #include "dacom_iids.h"
-#include "render/IBigImage2.h"
+#include "ximage.h"
 #include "render/IRenderPipeline.h"
 #include "x86math.h"
 

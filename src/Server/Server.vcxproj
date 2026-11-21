@@ -60,7 +60,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\common_server.h" />
     <ClInclude Include="..\include\common_server_types.h" />
-    <ClInclude Include="..\include\server_savegame.h" />
+    <ClInclude Include="server_savegame.h" />
     <ClInclude Include="..\include\server_savefile.h" />
     <ClInclude Include="..\include\server_fuse.h" />
   </ItemGroup>

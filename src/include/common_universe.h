@@ -277,7 +277,7 @@ namespace Universe
     // .?AUZONE@@ : .?AUIZone@Universe@@ : .?AUIZoneImmersion@Universe@@, single inheritance,
     // one vftable .rdata:063a5094 of 37 slots +0x00..+0x90). There is NO destructor slot:
     // ZONE's destructor FUN_06339010 is non-virtual and is called directly (06337dee,
-    // 0639774d). The concrete class is ZONE (src/include/common_zone.h,
+    // 0639774d). The concrete class is ZONE (src/Common/common_zone.h,
     // src/Common/common_zone.cpp); nothing outside Common.dll constructs one.
     //
     // Retail interfaces carry no data. The data members below are the port's storage for the
