@@ -13,7 +13,7 @@
 //   screenshot comparison (x64-client-plan.md, steps 3.2 and 4.2). Selected with
 //   [RenderPipeline] NULL_DEVICE = 1.
 
-#include <windows.h>
+#include "render/rp_types.h"
 
 #include <cstdint>
 #include <memory>
@@ -43,7 +43,7 @@ public:
     // Brings the device and swap chain up on Hwnd, the client's window. Width and Height are the
     // size the client asked for; a backend with a real window uses the window's own size. A
     // second call with the same window keeps the device and only applies VSync.
-    virtual bool Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) = 0;
+    virtual bool Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) = 0;
     virtual void Destroy() = 0;
     virtual bool IsReady() const = 0;
 
@@ -54,7 +54,7 @@ public:
     // be submitted; the next Create then rebuilds the device.
     virtual bool Present() = 0;
 
-    virtual HWND Hwnd() const = 0;
+    virtual RpWindowHandle Hwnd() const = 0;
     virtual std::uint32_t Width() const = 0;
     virtual std::uint32_t Height() const = 0;
 

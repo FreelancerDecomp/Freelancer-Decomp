@@ -7,14 +7,35 @@
 #pragma once
 
 #include "dacom.h"
-#include "render/d3d8_min.h"
+#include "render/rp_types.h"
 
 #include <cstddef>
 
-// IRPTexture parameter types: the FileSystem interface is declared in readfile.h, the image
-// info record is the DirectX 8.1 SDK's D3DXIMAGE_INFO (d3dx8tex.h).
-struct IFileSystem;
+// The D3D types the interface carries, under names that do not need the D3D headers.
+//
+// - Every module but RPGPU: the D3D types themselves (render/d3d8_min.h), so declarations,
+//   layouts and mangled names are what they were. The image info is the DirectX 8.1 SDK's
+//   D3DXIMAGE_INFO (d3dx8tex.h), declared only.
+// - RP_PORT_TYPES (RPGPU, which has no D3D 8 SDK and needs none): the port's own types with
+//   the same layouts (render/rp_types.h). RP8 and RP9 check the equivalence.
+#if defined(RP_PORT_TYPES)
+using RpLight = FRpLight;
+using RpMaterial = FRpMaterial;
+using RpRenderState = RpRenderStateId;
+using RpWindow = RpWindowHandle;
+using RpImageInfo = FRpImageInfo;
+#else
+#include "render/d3d8_min.h"
 struct _D3DXIMAGE_INFO;
+using RpLight = D3DLIGHT8;
+using RpMaterial = D3DMATERIAL8;
+using RpRenderState = D3DRENDERSTATETYPE;
+using RpWindow = HWND;
+using RpImageInfo = _D3DXIMAGE_INFO;
+#endif
+
+// The FileSystem interface IRPTexture takes is declared in readfile.h.
+struct IFileSystem;
 
 // LockTexture's output record: retail's five dwords (0x14 bytes). The client's font atlas seeds
 // Format before the call and writes Pitch-spaced rows through Bits. Bits is a pointer, so on the
@@ -103,7 +124,7 @@ struct IRenderPipeline : IDAComponent
     // slot 11 FUN_06d0869d
     virtual GENRESULT DACOM_API SelectMode(int* Mode, unsigned int* OutIndex) = 0;
     // slot 12 FUN_06d08811
-    virtual GENRESULT DACOM_API CreateBuffers(HWND Hwnd, int* Mode, int* OutMode) = 0;
+    virtual GENRESULT DACOM_API CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode) = 0;
     // slot 13 LAB_06d098f3
     virtual GENRESULT DACOM_API GetModeBlob(void* OutAdapter, void* OutMode10Dwords) = 0;
     // slot 14 FUN_06d09982
@@ -130,9 +151,9 @@ struct IRenderPipeline : IDAComponent
     // slot 24 FUN_06d0aca6
     virtual GENRESULT DACOM_API GetDepthRange(float* OutMinZ, float* OutMaxZ) = 0;
     // slot 25 FUN_06d0ad7d RET 0x18
-    virtual GENRESULT DACOM_API SetWindow(HWND Hwnd, int X, int Y, int W, int H) = 0;
+    virtual GENRESULT DACOM_API SetWindow(RpWindow Hwnd, int X, int Y, int W, int H) = 0;
     // slot 26 FUN_06d0ae23
-    virtual GENRESULT DACOM_API GetWindow(HWND* OutHwnd, int* OutLeft, int* OutRight, int* OutW,
+    virtual GENRESULT DACOM_API GetWindow(RpWindow* OutHwnd, int* OutLeft, int* OutRight, int* OutW,
                                           int* OutH) = 0;
     // slot 27 FUN_06d0b09d
     virtual GENRESULT DACOM_API SetWorld(const float* M12) = 0;
@@ -160,19 +181,19 @@ struct IRenderPipeline : IDAComponent
     virtual GENRESULT DACOM_API SetPerspective(float FovDeg, float Aspect, float NearPlane,
                                              float FarPlane) = 0;
     // slot 38 FUN_06d0ce57 RET 0xC
-    virtual GENRESULT DACOM_API SetLight(void* Handle, const D3DLIGHT8* Light) = 0;
+    virtual GENRESULT DACOM_API SetLight(void* Handle, const RpLight* Light) = 0;
     // slot 39 FUN_06d0cf9c RET 0x8
     virtual GENRESULT DACOM_API DestroyLight(void* Handle) = 0;
     // slot 40 FUN_06d0d044
-    virtual GENRESULT DACOM_API GetLight(void* Handle, D3DLIGHT8* OutLight) = 0;
+    virtual GENRESULT DACOM_API GetLight(void* Handle, RpLight* OutLight) = 0;
     // slot 41 FUN_06d0d0d7
     virtual GENRESULT DACOM_API SetLightEnable(void* Handle, int Enable) = 0;
     // slot 42 FUN_06d0d157
     virtual GENRESULT DACOM_API GetLightEnable(void* Handle, int* OutEnable) = 0;
     // slot 43 FUN_06d0d1dc
-    virtual GENRESULT DACOM_API SetMaterial(const D3DMATERIAL8* Material) = 0;
+    virtual GENRESULT DACOM_API SetMaterial(const RpMaterial* Material) = 0;
     // slot 44 FUN_06d0d310
-    virtual GENRESULT DACOM_API GetMaterial(D3DMATERIAL8* Material) = 0;
+    virtual GENRESULT DACOM_API GetMaterial(RpMaterial* Material) = 0;
     // slot 45 FUN_06d0d628
     virtual GENRESULT DACOM_API CreateTexture(int Width, int Height, unsigned int* Format,
                                               unsigned int Levels, unsigned int Flags,
@@ -230,9 +251,9 @@ struct IRenderPipeline : IDAComponent
     // slot 59 FUN_06d0f9e4
     virtual GENRESULT DACOM_API ResetRenderStatesToDefaults() = 0;
     // slot 60 FUN_06d0fa68
-    virtual GENRESULT DACOM_API SetRenderState(D3DRENDERSTATETYPE State, int Value) = 0;
+    virtual GENRESULT DACOM_API SetRenderState(RpRenderState State, int Value) = 0;
     // slot 61 FUN_06d0fb44
-    virtual GENRESULT DACOM_API GetRenderState(D3DRENDERSTATETYPE State, int* Out) = 0;
+    virtual GENRESULT DACOM_API GetRenderState(RpRenderState State, int* Out) = 0;
     // slot 62 FUN_06d0fbcf
     virtual GENRESULT DACOM_API SetTextureStageState(int Stage, int Type, int Value) = 0;
     // slot 63 FUN_06d0fcd5
@@ -496,7 +517,7 @@ struct IRPTexture : IDAComponent
     // slot 6 FUN_06d152e4 RET 0x10: D3DXGetImageInfoFromFileInMemory(SrcData, SrcSize, Info).
     // Shading's load_dds_mips (06ebfe74) calls it and then compares Info.ImageFileFormat with 4
     // (D3DXIFF_DDS).
-    virtual GENRESULT DACOM_API GetImageInfo(_D3DXIMAGE_INFO* Info, unsigned int SrcSize,
+    virtual GENRESULT DACOM_API GetImageInfo(RpImageInfo* Info, unsigned int SrcSize,
                                              const void* SrcData) = 0;
     // slot 7 FUN_06d14dd7 RET 0x10: load_texture for a cube map (TEXTURE_CUBEMAPS ability,
     // D3DXCreateCubeTextureFromFileInMemory). Shading 06ec0399 calls it as

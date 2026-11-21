@@ -82,6 +82,38 @@ static bool ParserEnumLine(IProfileParser* Parser, void* Section, int Index, cha
 #include <d3dx9tex.h>
 #include <DxErr.h>
 
+// render/rp_types.h spells the interface's D3D types for RPGPU (RP_PORT_TYPES); RP9 checks they
+// have the D3D layouts, so both sides of a call agree on the bytes.
+static_assert(sizeof(FRpLight) == sizeof(D3DLIGHT8));
+static_assert(offsetof(FRpLight, Type) == offsetof(D3DLIGHT8, Type));
+static_assert(offsetof(FRpLight, Diffuse) == offsetof(D3DLIGHT8, Diffuse));
+static_assert(offsetof(FRpLight, Specular) == offsetof(D3DLIGHT8, Specular));
+static_assert(offsetof(FRpLight, Ambient) == offsetof(D3DLIGHT8, Ambient));
+static_assert(offsetof(FRpLight, Position) == offsetof(D3DLIGHT8, Position));
+static_assert(offsetof(FRpLight, Direction) == offsetof(D3DLIGHT8, Direction));
+static_assert(offsetof(FRpLight, Range) == offsetof(D3DLIGHT8, Range));
+static_assert(offsetof(FRpLight, Falloff) == offsetof(D3DLIGHT8, Falloff));
+static_assert(offsetof(FRpLight, Attenuation0) == offsetof(D3DLIGHT8, Attenuation0));
+static_assert(offsetof(FRpLight, Attenuation1) == offsetof(D3DLIGHT8, Attenuation1));
+static_assert(offsetof(FRpLight, Attenuation2) == offsetof(D3DLIGHT8, Attenuation2));
+static_assert(offsetof(FRpLight, Theta) == offsetof(D3DLIGHT8, Theta));
+static_assert(offsetof(FRpLight, Phi) == offsetof(D3DLIGHT8, Phi));
+static_assert(sizeof(FRpMaterial) == sizeof(D3DMATERIAL8));
+static_assert(offsetof(FRpMaterial, Diffuse) == offsetof(D3DMATERIAL8, Diffuse));
+static_assert(offsetof(FRpMaterial, Ambient) == offsetof(D3DMATERIAL8, Ambient));
+static_assert(offsetof(FRpMaterial, Specular) == offsetof(D3DMATERIAL8, Specular));
+static_assert(offsetof(FRpMaterial, Emissive) == offsetof(D3DMATERIAL8, Emissive));
+static_assert(offsetof(FRpMaterial, Power) == offsetof(D3DMATERIAL8, Power));
+static_assert(sizeof(FRpImageInfo) == sizeof(D3DXIMAGE_INFO));
+static_assert(offsetof(FRpImageInfo, Width) == offsetof(D3DXIMAGE_INFO, Width));
+static_assert(offsetof(FRpImageInfo, Height) == offsetof(D3DXIMAGE_INFO, Height));
+static_assert(offsetof(FRpImageInfo, Depth) == offsetof(D3DXIMAGE_INFO, Depth));
+static_assert(offsetof(FRpImageInfo, MipLevels) == offsetof(D3DXIMAGE_INFO, MipLevels));
+static_assert(offsetof(FRpImageInfo, Format) == offsetof(D3DXIMAGE_INFO, Format));
+static_assert(offsetof(FRpImageInfo, ResourceType) == offsetof(D3DXIMAGE_INFO, ResourceType));
+static_assert(offsetof(FRpImageInfo, ImageFileFormat) == offsetof(D3DXIMAGE_INFO, ImageFileFormat));
+static_assert(sizeof(RpRenderStateId) == sizeof(D3DRENDERSTATETYPE));
+
 // IRPTexture::GetImageInfo hands the caller's D3DX 8.1 D3DXIMAGE_INFO (d3dx8tex.h: Width, Height,
 // Depth, MipLevels, Format, ResourceType, ImageFileFormat) to D3DX9, whose record has the same
 // tag and the same seven dwords; D3DXIFF_DDS is 4 in both (Shading's load_dds_mips tests it).

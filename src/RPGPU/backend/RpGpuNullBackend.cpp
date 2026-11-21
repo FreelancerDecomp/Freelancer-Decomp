@@ -21,7 +21,7 @@ namespace
     class FRpGpuNullBackend final : public IRpGpuBackend
     {
     public:
-        bool Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) override
+        bool Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) override
         {
             (void)bVSync;
             Hwnd_ = Hwnd;
@@ -54,7 +54,7 @@ namespace
             return true;
         }
 
-        HWND Hwnd() const override { return Hwnd_; }
+        RpWindowHandle Hwnd() const override { return Hwnd_; }
         std::uint32_t Width() const override { return Width_; }
         std::uint32_t Height() const override { return Height_; }
 
@@ -105,7 +105,7 @@ namespace
         const char* LastError() const override { return ""; }
 
     private:
-        HWND Hwnd_ = nullptr;
+        RpWindowHandle Hwnd_ = nullptr;
         bool bReady_ = false;
         std::uint32_t Width_ = 0;
         std::uint32_t Height_ = 0;

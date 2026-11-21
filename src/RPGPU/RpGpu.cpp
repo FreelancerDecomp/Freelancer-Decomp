@@ -402,7 +402,7 @@ GENRESULT DACOM_API FRpGpu::SelectMode(int* Mode, unsigned int* OutIndex)
 // Mode and OutMode are the first 0x28 bytes of the client's DisplaySettings: +0 mode index,
 // +4 refresh, +8 width, +0xC height, +0x10 colour bits, +0x14 depth bits, +0x18 stencil bits,
 // +0x1C present interval, +0x20 buffer count, +0x24 flip allowed, +0x25 full screen.
-GENRESULT DACOM_API FRpGpu::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
+GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode)
 {
     if (!bStarted_ || Mode == nullptr)
         return GR_GENERIC;
@@ -509,7 +509,7 @@ GENRESULT DACOM_API FRpGpu::GetDeviceStats(void* Out)
     return kUnsupported;
 }
 
-GENRESULT DACOM_API FRpGpu::SetWindow(HWND Hwnd, int X, int Y, int W, int H)
+GENRESULT DACOM_API FRpGpu::SetWindow(RpWindow Hwnd, int X, int Y, int W, int H)
 {
     (void)Hwnd;
     (void)X;
@@ -519,7 +519,7 @@ GENRESULT DACOM_API FRpGpu::SetWindow(HWND Hwnd, int X, int Y, int W, int H)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::GetWindow(HWND* OutHwnd, int* OutLeft, int* OutRight, int* OutW, int* OutH)
+GENRESULT DACOM_API FRpGpu::GetWindow(RpWindow* OutHwnd, int* OutLeft, int* OutRight, int* OutW, int* OutH)
 {
     if (OutHwnd != nullptr)
         *OutHwnd = Backend().Hwnd();

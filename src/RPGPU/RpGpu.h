@@ -82,7 +82,7 @@ public:
     GENRESULT DACOM_API GetDisplayModeCount(unsigned int* Out) override;
     GENRESULT DACOM_API GetDisplayModeEnum(unsigned int Index, void* Out) override;
     GENRESULT DACOM_API SelectMode(int* Mode, unsigned int* OutIndex) override;
-    GENRESULT DACOM_API CreateBuffers(HWND Hwnd, int* Mode, int* OutMode) override;
+    GENRESULT DACOM_API CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode) override;
     GENRESULT DACOM_API GetModeBlob(void* OutAdapter, void* OutMode10Dwords) override;
     GENRESULT DACOM_API DestroyGpuResources() override;
     GENRESULT DACOM_API ClearBuffers(unsigned long Flags, const void* Rects) override;
@@ -95,8 +95,8 @@ public:
     GENRESULT DACOM_API GetViewportRect(int* OutX, int* OutY, int* OutW, int* OutH) override;
     GENRESULT DACOM_API SetDepthRange(float MinZ, float MaxZ) override;
     GENRESULT DACOM_API GetDepthRange(float* OutMinZ, float* OutMaxZ) override;
-    GENRESULT DACOM_API SetWindow(HWND Hwnd, int X, int Y, int W, int H) override;
-    GENRESULT DACOM_API GetWindow(HWND* OutHwnd, int* OutLeft, int* OutRight, int* OutW, int* OutH) override;
+    GENRESULT DACOM_API SetWindow(RpWindow Hwnd, int X, int Y, int W, int H) override;
+    GENRESULT DACOM_API GetWindow(RpWindow* OutHwnd, int* OutLeft, int* OutRight, int* OutW, int* OutH) override;
     GENRESULT DACOM_API SetWorld(const float* M12) override;
     GENRESULT DACOM_API GetWorld(float* Out12) override;
     GENRESULT DACOM_API SetView(const float* M12) override;
@@ -108,13 +108,13 @@ public:
     GENRESULT DACOM_API SetLookat(float EyeX, float EyeY, float EyeZ, float AtX, float AtY, float AtZ, float UpX, float UpY, float UpZ) override;
     GENRESULT DACOM_API SetOrtho(float Left, float Right, float Bottom, float Top, float NearPlane, float FarPlane) override;
     GENRESULT DACOM_API SetPerspective(float FovDeg, float Aspect, float NearPlane, float FarPlane) override;
-    GENRESULT DACOM_API SetLight(void* Handle, const D3DLIGHT8* Light) override;
+    GENRESULT DACOM_API SetLight(void* Handle, const RpLight* Light) override;
     GENRESULT DACOM_API DestroyLight(void* Handle) override;
-    GENRESULT DACOM_API GetLight(void* Handle, D3DLIGHT8* OutLight) override;
+    GENRESULT DACOM_API GetLight(void* Handle, RpLight* OutLight) override;
     GENRESULT DACOM_API SetLightEnable(void* Handle, int Enable) override;
     GENRESULT DACOM_API GetLightEnable(void* Handle, int* OutEnable) override;
-    GENRESULT DACOM_API SetMaterial(const D3DMATERIAL8* Material) override;
-    GENRESULT DACOM_API GetMaterial(D3DMATERIAL8* Material) override;
+    GENRESULT DACOM_API SetMaterial(const RpMaterial* Material) override;
+    GENRESULT DACOM_API GetMaterial(RpMaterial* Material) override;
     GENRESULT DACOM_API CreateTexture(int Width, int Height, unsigned int* Format, unsigned int Levels, unsigned int Flags, void** OutHandle) override;
     GENRESULT DACOM_API DestroyTexture(void* Handle) override;
     GENRESULT DACOM_API IsTexture(void* Handle) override;
@@ -130,8 +130,8 @@ public:
     GENRESULT DACOM_API BeginScene() override;
     GENRESULT DACOM_API EndScene() override;
     GENRESULT DACOM_API ResetRenderStatesToDefaults() override;
-    GENRESULT DACOM_API SetRenderState(D3DRENDERSTATETYPE State, int Value) override;
-    GENRESULT DACOM_API GetRenderState(D3DRENDERSTATETYPE State, int* Out) override;
+    GENRESULT DACOM_API SetRenderState(RpRenderState State, int Value) override;
+    GENRESULT DACOM_API GetRenderState(RpRenderState State, int* Out) override;
     GENRESULT DACOM_API SetTextureStageState(int Stage, int Type, int Value) override;
     GENRESULT DACOM_API GetTextureStageState(int Stage, int Type, int* Out) override;
     GENRESULT DACOM_API SetTextureStageTransform(int Stage, const float* Matrix16) override;
@@ -187,7 +187,7 @@ public:
     GENRESULT DACOM_API PrintScreen(void* ParentFileSystem, const char* FileName) override;
     GENRESULT DACOM_API LoadTexture(IFileSystem* FileSystem, const char* FileName, void** OutHandle) override;
     GENRESULT DACOM_API LoadSurfaceData(void* Handle, int Level, unsigned int SrcSize, const void* SrcData) override;
-    GENRESULT DACOM_API GetImageInfo(_D3DXIMAGE_INFO* Info, unsigned int SrcSize, const void* SrcData) override;
+    GENRESULT DACOM_API GetImageInfo(RpImageInfo* Info, unsigned int SrcSize, const void* SrcData) override;
     GENRESULT DACOM_API LoadCubemap(IFileSystem* FileSystem, const char* FileName, void** OutHandle) override;
 
     FRpGpuInner Inner_;

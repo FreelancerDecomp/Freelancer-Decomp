@@ -41,7 +41,7 @@ namespace
 // D3DXIMAGE_INFO for a DDS file, read from its header: +0 width, +4 height, +8 depth,
 // +0xC mip levels, +0x10 D3DFORMAT, +0x14 resource type, +0x18 file format (4, DDS). Shading
 // loads only DDS this way; anything else fails as D3DX's answer would make it.
-bool ReadDdsImageInfo(std::uint32_t* Info, unsigned int SrcSize, const void* SrcData)
+bool ReadDdsImageInfo(FRpImageInfo* Info, unsigned int SrcSize, const void* SrcData)
 {
     const unsigned char* const Data = static_cast<const unsigned char*>(SrcData);
     if (Info == nullptr || Data == nullptr || SrcSize < 128 || std::memcmp(Data, "DDS ", 4) != 0)
@@ -104,13 +104,12 @@ bool ReadDdsImageInfo(std::uint32_t* Info, unsigned int SrcSize, const void* Src
     if (Needed > SrcSize)
         return false;
 
-    std::uint32_t* const Out = Info;
-    Out[0] = Width;
-    Out[1] = Height;
-    Out[2] = (Caps2 & 0x200000) != 0 && Depth != 0 ? Depth : 1;
-    Out[3] = Mips != 0 ? Mips : 1;
-    Out[4] = Format;
-    Out[5] = (Caps2 & 0x200) != 0 ? 5u : (Caps2 & 0x200000) != 0 ? 4u : 3u; // cube / volume / 2D
-    Out[6] = 4; // D3DXIFF_DDS
+    Info->Width = Width;
+    Info->Height = Height;
+    Info->Depth = (Caps2 & 0x200000) != 0 && Depth != 0 ? Depth : 1;
+    Info->MipLevels = Mips != 0 ? Mips : 1;
+    Info->Format = Format;
+    Info->ResourceType = (Caps2 & 0x200) != 0 ? 5u : (Caps2 & 0x200000) != 0 ? 4u : 3u; // cube / volume / 2D
+    Info->ImageFileFormat = 4; // D3DXIFF_DDS
     return true;
 }
