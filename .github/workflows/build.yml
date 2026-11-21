@@ -128,18 +128,45 @@ jobs:
             throw 'DX8 SDK layout not as expected'
           }
 
-      # RPGPU's SDL3 comes from vcpkg in manifest mode (src/RPGPU/vcpkg.json; the runner's
-      # VCPKG_INSTALLATION_ROOT). vcpkg keeps each package it builds as a zip in its binary cache;
-      # caching that folder means SDL3 is compiled once per manifest and platform, not per run.
+      # The port-only modules' packages come from vcpkg in manifest mode (src/vcpkg.json; the
+      # runner's VCPKG_INSTALLATION_ROOT). vcpkg keeps each package it builds as a zip in its
+      # binary cache, under a hash of its inputs, compiler included; caching that folder means
+      # SDL3 is compiled once per manifest, triplet and runner image, not per run. The image
+      # version is in the key so that a new compiler's packages are saved under a new key (the
+      # old key would hit and never be saved again); restore-keys still start from the newest
+      # older cache. Only the PR side saves: the base side may build fewer features, and a
+      # smaller cache saved first under the same key would stick. ImageOS and ImageVersion are
+      # the runner's environment variables, which the env context does not hold.
+      - name: vcpkg cache key
+        id: vcpkg-key
+        shell: pwsh
+        env:
+          TRIPLET: ${{ matrix.platform == 'x64' && 'x64-windows' || 'x86-windows' }}
+          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
+        run: |
+          $prefix = "vcpkg-$env:TRIPLET-$env:ImageOS-"
+          "prefix=$prefix" >> $env:GITHUB_OUTPUT
+          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
+
       - name: Cache vcpkg packages
         if: matrix.side == 'pr'
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: vcpkg-${{ matrix.platform }}-${{ hashFiles('src/RPGPU/vcpkg.json') }}
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
+
+      - name: Restore vcpkg packages
+        if: matrix.side == 'base'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
 
       - name: Point vcpkg at the cache
-        if: matrix.side == 'pr'
         shell: pwsh
         run: |
           $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
@@ -153,10 +180,14 @@ jobs:
       # count. Idle cores then pick up files from any project, so the projects on the critical
       # path (Common, freelancer) are not stuck behind small single-threaded libraries.
       # Neither changes the compiler or linker options.
+      # The PR side builds RPGPU on both platforms (FreelancerRpGpu is off by default on Win32)
+      # and fails if vcpkg is missing rather than skipping it. The base side only feeds the
+      # Win32 FLRegress and RpcCodecTest comparisons, which RPGPU is not part of.
       - name: Build
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
           -p:Configuration=Release -p:Platform=${{ matrix.platform }}
+          ${{ matrix.side == 'pr' && '-p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true' || '' }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
           -clp:PerformanceSummary -bl:msbuild.binlog
 
