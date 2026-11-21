@@ -225,9 +225,6 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     const int Primitives = PrimCountFromVerts(Prim, Count);
     if (Primitives <= 0)
         return;
-    // The draw is going ahead, as RP8's FlushDrawState would: a changed view is now committed.
-    CommitTransforms();
-
     // The topology, and how many of the vertices or indices it uses.
     ERpGpuTopology Topology = ERpGpuTopology::Triangles;
     unsigned int Used = 0;

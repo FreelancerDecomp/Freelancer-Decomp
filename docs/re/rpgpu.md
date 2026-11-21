@@ -187,8 +187,10 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 - **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb`,
   `DrawIndexedPrimitiveVb` and `IRPDraw::DrawIndexedPrimitive` convert the game's vertices
   into `FRpGpuVertex` (position, diffuse, the texture set stage 0's `TEXCOORDINDEX` names).
-  Every Direct3D 8 position format is read: XYZ, XYZRHW, and XYZB1 to XYZB5, whose blend
-  weights are skipped. Each draw records one command with the state of the moment:
+  The position formats are read as Direct3D 8 lays them out: XYZ, XYZRHW, and XYZB1 to
+  XYZB5, whose blend weights are skipped. A format whose layout is longer than RP8's stride
+  (`Rp8FvfStride`, which RP8 hands to Direct3D) is not drawn: XYZB2, XYZB3, XYZB5 and any with
+  a point size. Each draw records one command with the state of the moment:
   - blending, the depth test, the colour write mask, `CULLMODE`, `FILLMODE` and `ZBIAS`;
   - texture stage 0's operations, sampler (with `MIPFILTER` and `MAXMIPLEVEL`) and texture;
   - the alpha test and the viewport;

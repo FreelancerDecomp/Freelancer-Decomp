@@ -110,7 +110,7 @@ namespace
         if (DepthFormat == SDL_GPU_TEXTUREFORMAT_D24_UNORM || DepthFormat == SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT)
             StepsPerUnit = 16777215.0f / 65535.0f;
         else if (DepthFormat == SDL_GPU_TEXTUREFORMAT_D32_FLOAT || DepthFormat == SDL_GPU_TEXTUREFORMAT_D32_FLOAT_S8_UINT)
-            StepsPerUnit = 8388608.0f / 65535.0f; // a float's 2^-23 steps near depth 1
+            StepsPerUnit = 16777216.0f / 65535.0f; // a float's step is 2^-24 for depths in [0.5, 1)
         return -static_cast<float>(ZBias) * StepsPerUnit;
     }
 

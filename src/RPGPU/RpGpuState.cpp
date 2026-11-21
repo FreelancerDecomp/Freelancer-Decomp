@@ -9,6 +9,7 @@
 #include "luaprofile.h" // IProfileParser
 #include "render/rp8_semantics.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -600,8 +601,19 @@ GENRESULT DACOM_API FRpGpu::GetTextureStageTexture(int Stage, void** OutHandle)
     return GR_OK;
 }
 
+// RP8's verify_state: outside a buffer session it fails; otherwise it flushes the draw state
+// (committing the view), fails when the stage past the last blend stage is not disabled, and
+// resets the stream selection. RP8 also asks the device to validate, which SDL_GPU has no
+// counterpart for, and refuses MODULATE2X under a flag not yet identified.
 GENRESULT DACOM_API FRpGpu::VerifyState()
 {
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    CommitTransforms();
+    const int Stage = std::clamp(PipelineState_[kPsMaxBlendStages], 0, 7);
+    if (StageStates_[Stage][1] != 1 || StageStates_[Stage][4] != 1) // COLOROP, ALPHAOP
+        return GR_GENERIC;
+    ResetStreams();
     return GR_OK;
 }
 

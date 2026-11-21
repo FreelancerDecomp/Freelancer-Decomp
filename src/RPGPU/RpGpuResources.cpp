@@ -403,8 +403,11 @@ GENRESULT DACOM_API FRpGpu::VbMgrInit(void* A, void* B, void* C, void* D)
     return GR_OK;
 }
 
+// RP8 resets its stream selection here and releases the pool buffers' GPU copies; RPGPU's pools
+// are CPU memory and stay.
 GENRESULT DACOM_API FRpGpu::VbMgrReleaseAll()
 {
+    ResetStreams();
     return GR_OK;
 }
 
@@ -413,6 +416,8 @@ GENRESULT DACOM_API FRpGpu::LockVertexMemory(unsigned int Fvf, unsigned int Coun
     if (Out == nullptr)
         return GR_INVALID_PARMS;
     FRpGpuBuffer* const Pool = PoolBuffer(Fvf);
+    if (Pool != nullptr)
+        SelectedVb_ = Pool; // RP8 selects the pool buffer before it locks it
     unsigned int Start = 0;
     if (Pool == nullptr || !LockRing(Pool, Count, &Start))
         return GR_OUT_OF_MEMORY;
