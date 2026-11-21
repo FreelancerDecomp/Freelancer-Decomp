@@ -70,8 +70,13 @@ def norm_path(path, base=None):
     path = path.strip().strip('"')
     if base and not os.path.isabs(path) and not re.match(r"^[A-Za-z]:", path):
         path = os.path.join(base, path)
-    path = os.path.normpath(path).replace("\\", "/").rstrip("/")
-    return path.lower()
+    path = os.path.normpath(path).replace("\\", "/").rstrip("/").lower()
+    # vcpkg installs into src/vcpkg_installed/<triplet>/<triplet>/ for MSBuild and into
+    # <build>/vcpkg_installed/<triplet>/ for CMake: the same package either way.
+    m = re.search(r"/vcpkg_installed/(?:[^/]+/)*?([^/]+-windows)(/.*)?$", path)
+    if m:
+        path = "<vcpkg>/" + m.group(1) + (m.group(2) or "")
+    return path
 
 
 def stem(path):
@@ -190,11 +195,11 @@ def msbuild_commands(repo, config, platform):
             if kind == "cl":
                 parsed = parse_cl(args, base)
                 for src in inputs:
-                    cl[norm_path(src)] = dict(parsed, project=project)
+                    cl[(project, norm_path(src))] = dict(parsed, project=project)
             elif kind == "rc":
                 for src in inputs:
-                    rc[norm_path(src)] = dict(parse_cl(args, base), project=project,
-                                              base=norm_path(base) if base else None)
+                    rc[(project, norm_path(src))] = dict(parse_cl(args, base), project=project,
+                                                         base=norm_path(base) if base else None)
             elif kind == "link" or kind.startswith("lib"):
                 parsed = parse_link(args, base)
                 # The command line leaves out what MSBuild passes through its input list: the
@@ -238,7 +243,7 @@ def parse_link(args, base):
         if re.match(r"^/[A-Za-z]+(:|$)", a) and not os.path.isfile(a):
             if low.startswith("/libpath:"):
                 d = norm_path(a[9:], base)
-                if d not in libpath and "vcpkg_installed" not in d:
+                if d not in libpath and not d.startswith("<vcpkg>"):
                     libpath.append(d)
             elif low.startswith("/def:"):
                 opts.add("/DEF:" + os.path.basename(a[5:].replace("\\", "/")).lower())
@@ -253,6 +258,9 @@ def parse_link(args, base):
             resources.append(stem(a))
         elif low.endswith(".lib"):
             name = os.path.basename(a.replace("\\", "/")).lower()
+            # vcpkg's packages: MSBuild links <installed>\lib\*.lib, CMake each library by path.
+            if name == "*.lib" or "vcpkg_installed" in low:
+                name = "<vcpkg libraries>"
             if name not in libs:
                 libs.append(name)
     return {"output": output, "objects": objects, "resources": resources, "libs": libs,
@@ -290,21 +298,28 @@ def ninja_builds(path):
     return builds
 
 
+def target_of(output):
+    """The CMake target of an object file: .../CMakeFiles/<target>.dir/... -> <target>."""
+    m = re.search(r"CMakeFiles[\\/]([^\\/]+)\.dir[\\/]", output)
+    return m.group(1).lower() if m else None
+
+
 def cmake_commands(build_dir):
     cl, rc, link, lib = {}, {}, {}, {}
     for e in json.load(open(os.path.join(build_dir, "compile_commands.json"), encoding="utf-8")):
         if not e["file"].lower().endswith((".c", ".cpp")):
             continue  # rc commands are read from build.ninja below
         args = e.get("arguments") or split_command_line(e["command"])
-        cl[norm_path(e["file"])] = dict(parse_cl(args[1:], e["directory"]), project=None)
+        cl[(target_of(e.get("output", "")), norm_path(e["file"]))] = dict(
+            parse_cl(args[1:], e["directory"]), project=None)
     for rule, outputs, inputs, var in ninja_builds(os.path.join(build_dir, "build.ninja")):
         if rule.startswith("RC_COMPILER__"):
             args = split_command_line(" ".join([var.get("DEFINES", ""), var.get("INCLUDES", ""),
                                                 var.get("FLAGS", "")]))
             for src in inputs:
-                rc[norm_path(src)] = dict(parse_cl(args, build_dir), project=None)
+                rc[(target_of(outputs[0]), norm_path(src))] = dict(parse_cl(args, build_dir), project=None)
         elif re.match(r"C(XX)?_(SHARED_LIBRARY|EXECUTABLE|MODULE)_LINKER__", rule):
-            flags = split_command_line(var.get("LINK_FLAGS", ""))
+            flags = split_command_line(var.get("LINK_FLAGS", "") + " " + var.get("LINK_PATH", ""))
             if "SHARED_LIBRARY" in rule:
                 flags.append("/DLL")
             libs = split_command_line(var.get("LINK_LIBRARIES", ""))
@@ -319,17 +334,18 @@ def cmake_commands(build_dir):
 
 def compare_compiles(kind, a, b, report):
     failed = False
-    for src in sorted(set(a) | set(b)):
-        if src not in b:
-            report.append("- %s `%s`: built by MSBuild only" % (kind, src))
+    for key in sorted(set(a) | set(b)):
+        src = "%s` (%s)" % (key[1], key[0])
+        if key not in b:
+            report.append("- %s `%s: built by MSBuild only" % (kind, src))
             failed = True
             continue
-        if src not in a:
-            report.append("- %s `%s`: built by CMake only" % (kind, src))
+        if key not in a:
+            report.append("- %s `%s: built by CMake only" % (kind, src))
             failed = True
             continue
-        x, y, msgs = a[src], b[src], []
-        if src.endswith(".c"):
+        x, y, msgs = a[key], b[key], []
+        if key[1].endswith(".c"):
             # A C++ standard switch does nothing for a C file.
             for z in (x, y):
                 z["options"] = {o for o in z["options"] if not o.lower().startswith("/std:c++")}
@@ -353,12 +369,14 @@ def compare_compiles(kind, a, b, report):
                         % (sorted(x["options"] - y["options"]), sorted(y["options"] - x["options"])))
         if msgs:
             failed = True
-            report.append("- %s `%s`: %s" % (kind, src, "; ".join(msgs)))
+            report.append("- %s `%s: %s" % (kind, src, "; ".join(msgs)))
         elif kind == "cl":
+            # Warning switches (a project's DisableSpecificWarnings replacing the shared list)
+            # and the other diagnostics are listed, not compared.
             dd = {d for d in x["diagnostics"] ^ y["diagnostics"]
-                  if not re.match(r"^/(c|TP|TC|FS|showIncludes|Fo.*|Fd.*|Fa.*|Fp.*)$", d, re.I)}
+                  if not re.match(r"^/(c|TP|TC|FS|showIncludes|wd\d+|Fo.*|Fd.*|Fa.*|Fp.*)$", d, re.I)}
             if dd:
-                report.append("- (diagnostics only) cl `%s`: %s" % (src, sorted(dd)))
+                report.append("- (diagnostics only) cl `%s: %s" % (src, sorted(dd)))
     return failed
 
 
@@ -513,6 +531,7 @@ def pe_summary(path):
 def cmd_binaries(ns):
     report = ["## Binaries: %s vs %s" % (ns.a, ns.b), ""]
     failed = False
+    ignored = {n.lower() for n in ns.ignore}
     names_a = {os.path.basename(p).lower(): p for p in glob.glob(os.path.join(ns.a, "*")) if p.lower().endswith((".exe", ".dll"))}
     names_b = {os.path.basename(p).lower(): p for p in glob.glob(os.path.join(ns.b, "*")) if p.lower().endswith((".exe", ".dll"))}
     same = []
@@ -520,6 +539,9 @@ def cmd_binaries(ns):
         if name not in names_a or name not in names_b:
             report.append("- `%s`: only in %s" % (name, ns.a if name in names_a else ns.b))
             failed = True
+            continue
+        if name in ignored:
+            report.append("- `%s`: not compared (--ignore)" % name)
             continue
         ha, sa, ia, ea = pe_summary(names_a[name])
         hb, sb, ib, eb = pe_summary(names_b[name])
@@ -575,6 +597,8 @@ def main():
     b = sub.add_parser("binaries")
     b.add_argument("a", help="MSBuild output directory")
     b.add_argument("b", help="CMake output directory")
+    b.add_argument("--ignore", action="append", default=[],
+                   help="a DLL not to compare (one that neither build compiles, such as a vcpkg package)")
     ns = ap.parse_args()
     failed, report = cmd_commands(ns) if ns.cmd == "commands" else cmd_binaries(ns)
     text = "\n".join(report) + "\n"

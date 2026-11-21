@@ -335,7 +335,8 @@ jobs:
           BIN: ${{ matrix.platform == 'x64' && 'bin_x64' || 'bin' }}
         run: |
           python -m pip install --quiet pefile
-          python .github/scripts/build_parity.py binaries bin-msbuild ${{ env.BIN }}
+          # SDL3.dll is vcpkg's build, not ours: each build installs the package on its own.
+          python .github/scripts/build_parity.py binaries bin-msbuild ${{ env.BIN }} --ignore SDL3.dll
 
   regress:
     name: Regression (FLRegress)
@@ -740,7 +741,7 @@ jobs:
             cc: clang
             cxx: clang++
           - name: macOS Clang
-            os: macos-14
+            os: macos-latest
             cc: clang
             cxx: clang++
 

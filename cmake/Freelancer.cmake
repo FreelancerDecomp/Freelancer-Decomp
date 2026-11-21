@@ -584,9 +584,10 @@ function(fl_add_module name kind)
     "$<${_fl_cfg_asan}:/fsanitize=address>"
     /GS /Zc:wchar_t /Zc:forScope /Zc:inline
     /std:c++20 /permissive /FIfl_layout.h
-    /external:W${A_WARNING_LEVEL} /Gd /analyze- /FC /wd4251 /wd4275)
+    /external:W${A_WARNING_LEVEL} /Gd /FC /wd4251 /wd4275)
   if(FL_WIN32)
-    list(APPEND _cl /Oy-)
+    # MSBuild passes these two for Win32 only.
+    list(APPEND _cl /Oy- /analyze-)
   endif()
   target_compile_options(${name} PRIVATE "$<$<COMPILE_LANGUAGE:C,CXX>:${_cl}>")
 
@@ -801,7 +802,15 @@ function(fl_vcpkg_package name package)
     set(${name}_VCPKG_OK FALSE PARENT_SCOPE)
     return()
   endif()
-  target_link_libraries(${name} PRIVATE ${ARGN})
+  # The package's headers go after every other include directory, where vcpkg's MSBuild
+  # integration put them (an imported target's would come first).
+  foreach(_target IN LISTS ARGN)
+    get_target_property(_dirs ${_target} INTERFACE_INCLUDE_DIRECTORIES)
+    if(_dirs)
+      set_property(TARGET ${name} APPEND PROPERTY FL_INCLUDES_LATE ${_dirs})
+    endif()
+    target_link_libraries(${name} PRIVATE "$<LINK_ONLY:${_target}>")
+  endforeach()
   set(${name}_VCPKG_OK TRUE PARENT_SCOPE)
 endfunction()
 
