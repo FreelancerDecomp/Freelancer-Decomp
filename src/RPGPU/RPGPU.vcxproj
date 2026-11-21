@@ -82,6 +82,7 @@
     <ClCompile Include="RpGpuState.cpp" />
     <ClCompile Include="backend\RpGpuNullBackend.cpp" />
     <ClCompile Include="backend\RpGpuSdlBackend.cpp" />
+    <ClCompile Include="shaders\RpGpuShaders.cpp" />
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClInclude Include="RpGpu.h" />
@@ -91,9 +92,13 @@
     <ClInclude Include="RpGpuState.h" />
     <ClInclude Include="backend\RpGpuBackend.h" />
     <ClInclude Include="backend\RpGpuSdlBackend.h" />
+    <ClInclude Include="shaders\RpGpuShaders.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\vcpkg.json" />
+    <None Include="shaders\RpGpuShaderBytecode.generated.inc" />
+    <None Include="shaders\rpgpu_pretransformed.vert.hlsl" />
+    <None Include="shaders\rpgpu_stage0.frag.hlsl" />
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ProjectReference Include="..\TexConvert\TexConvert.vcxproj">

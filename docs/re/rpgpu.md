@@ -117,3 +117,33 @@ allocated from LowArena (`x64_low_arena.h`), below 2 GB. The texture images live
 heap: `LockTexture` hands their address out in `FRpTextureLock::Bits`
 (`render/IRenderPipeline.h`), which is a pointer, so nothing cuts it to 32 bits. On Win32 the
 record keeps retail's five-dword layout.
+
+## Shaders
+
+RPGPU replaces Direct3D 8's fixed-function pipeline with shaders (plan step 5.3). They are
+written in HLSL in `src/RPGPU/shaders/`: `name.vert.hlsl` for vertex shaders, `name.frag.hlsl`
+for fragment shaders. They follow SDL_GPU's binding conventions:
+
+| Resource | Register |
+|---|---|
+| vertex uniforms | `b<n>, space1` |
+| fragment textures and samplers | `t<n>` / `s<n>, space2` |
+| fragment uniforms | `b<n>, space3` |
+
+They are compiled offline, not at run time, and the bytecode is committed:
+- `tools/rpgpu_shaders.ps1` compiles each shader with SDL_shadercross into SPIR-V (Vulkan),
+  DXIL (Direct3D 12) and MSL (Metal).
+- The results go into one generated file, `RpGpuShaderBytecode.generated.inc`.
+  `FindRpGpuShader(name)` (`RpGpuShaders.h`) looks a shader up by its file name without
+  `.hlsl`.
+- shadercross comes from the `shader-tools` feature of `src/vcpkg.json`. No build installs
+  it; only the "RPGPU shaders" CI job does.
+- That job compiles everything again and fails when the committed file differs. It uploads
+  the fresh file as the `rpgpu-shader-bytecode` artifact, ready to commit.
+
+The first shaders cover the 2D draws (menus, HUD), which use pre-transformed vertices:
+- `rpgpu_pretransformed.vert` maps `D3DFVF_XYZRHW` positions to clip space, with Direct3D 8's
+  pixel centres.
+- `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
+  modulate) and the alpha test.
+
