@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "alchemy_math.h"
+#include "x87_portable.h"
 
 #include <cmath>
 #include <float.h>
