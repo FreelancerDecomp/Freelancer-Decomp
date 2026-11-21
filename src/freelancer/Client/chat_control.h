@@ -79,7 +79,7 @@ public:
     // slot 11 FUN_00468260
     void Update() override;
     // slot 23 LAB_00467f10 (RET 0xc) -- 0xef01 / 0xef02 / 0x300d / 0xf001 / 0xf002
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_00468220 (RET 0xc) -- 0x26 on BtnCCClose
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

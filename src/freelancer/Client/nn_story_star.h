@@ -125,7 +125,7 @@ public:
     // slot 13 FUN_004bc940
     void Draw() override;
     // slot 23 LAB_004bc090 (RET 0xc) -- 0xef01 show / 0xef02 tear down
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_004bc110 (RET 0xc) -- 0x26, a button was clicked
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

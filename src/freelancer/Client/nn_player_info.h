@@ -97,7 +97,7 @@ public:
     void Draw() override;
     // slot 23 LAB_00475430 (RET 0xc) -- 0xef02 removes the window from its parent and deletes it
     // (every child first); anything else is WinControl's Slot23.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_004a80e0 (RET 0xc) -- 0x3e from the scroll: FirstRow = B. 0x26: the close
     // button closes the NeuroNet screen; the infocard's close button restores the statistics;
     // a faction frame opens that faction's infocard. Everything else returns 0.

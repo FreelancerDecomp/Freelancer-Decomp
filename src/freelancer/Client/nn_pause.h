@@ -51,7 +51,7 @@ public:
     // slot 13 FUN_00488960
     void Draw() override;
     // slot 23 LAB_004a70a0 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_004a7130 (RET 0xc)
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

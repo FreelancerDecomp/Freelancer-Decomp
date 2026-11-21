@@ -560,7 +560,7 @@ bool NnHelp::Create(Win3D* NewParent, void* Data)
     return Win3D::Create(NewParent, Data); // FUN_004b5060
 }
 
-bool NnHelp::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnHelp::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_00475430 (RET 0xc).
     if (Msg != 0xef02)

@@ -441,18 +441,18 @@ void BaseRichTextWin::Draw()
     Slot39();
 }
 
-bool BaseRichTextWin::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool BaseRichTextWin::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_0057afd0 (RET 0xc). 0xf005 is a scrollbar's value change; A is the sender.
     if (Msg == 0xf005)
     {
-        if (A == static_cast<unsigned>(reinterpret_cast<uintptr_t>(ScrollBarV)))
+        if (A == reinterpret_cast<std::uintptr_t>(ScrollBarV))
         {
             int const OriginX = ScrollX;
             SetScrollOrigin(OriginX, static_cast<int>(ScrollBarV->GetValue()));
             return true;
         }
-        if (A == static_cast<unsigned>(reinterpret_cast<uintptr_t>(ScrollBarH)))
+        if (A == reinterpret_cast<std::uintptr_t>(ScrollBarH))
         {
             int OriginY;
             switch (AlignMode)
@@ -1367,14 +1367,14 @@ bool RichTextEditWin::OnKeyDown(FHudCmdRecord const* Record)
             if (ImeBox != nullptr)
                 ImeBox->HandleKey(Key);
             if (Parent != nullptr)
-                Parent->Slot23(0xf004u, static_cast<unsigned>(reinterpret_cast<uintptr_t>(this)), 0u);
+                Parent->Slot23(0xf004u, reinterpret_cast<std::uintptr_t>(this), 0u);
             return true;
         case 0x1b:
             // Escape (0x0057cd75): the same with 0xf003.
             if (ImeBox != nullptr)
                 ImeBox->HandleKey(Key);
             if (Parent != nullptr)
-                Parent->Slot23(0xf003u, static_cast<unsigned>(reinterpret_cast<uintptr_t>(this)), 0u);
+                Parent->Slot23(0xf003u, reinterpret_cast<std::uintptr_t>(this), 0u);
             return true;
         case 0x23:
             // End (0x0057cc90).

@@ -107,7 +107,7 @@ public:
     // slot 13 FUN_0057ab10
     void Draw() override;
     // slot 23 FUN_0057afd0 -- 0xf005 from the scrollbars
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_0057ebb0 -- property 6 sets the attach offset
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

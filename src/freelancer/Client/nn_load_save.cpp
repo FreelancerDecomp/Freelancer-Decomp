@@ -496,7 +496,7 @@ void NnLoadSave::Draw()
         bSaveAllowed = 1;
 }
 
-bool NnLoadSave::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnLoadSave::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_00486c50 (RET 0xc): the list clicks (0xf001 / 0xf002), NN_Confirm's answer (0x3006)
     // and USER_CANCEL / USER_ENTER relays (0xf003 / 0xf004) go on to slot 42; always false.

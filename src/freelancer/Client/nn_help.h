@@ -49,7 +49,7 @@ public:
     bool Create(Win3D* NewParent, void* Data) override;
     // slot 23 LAB_00475430 (RET 0xc) -- 0xef02 removes the window from its parent and deletes it
     // (every child first); anything else is WinControl's Slot23.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_00475400 (RET 0xc) -- a click (0x26) on the close button closes the NeuroNet
     // screen (FUN_0045a460) and returns 1; everything else returns 0 (WinControl's SetProperty
     // is not called).

@@ -79,7 +79,7 @@ public:
     // slot 19 FUN_005a0650
     bool MouseEvent(FWin3DMouseEvent const* Event) override;
     // slot 23 FUN_005a0840 -- 0xef01 show / 0xef02 hide
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // --- IDataViewOwner (vftable 0x005e5e38) ---
     // LAB_0053aaa0 -- RET 8

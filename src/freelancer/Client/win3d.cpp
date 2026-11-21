@@ -538,7 +538,7 @@ bool Win3D::Slot22(unsigned /*A*/, unsigned /*B*/)
     return false;
 }
 
-bool Win3D::Slot23(unsigned /*Msg*/, unsigned /*A*/, unsigned /*B*/)
+bool Win3D::Slot23(unsigned /*Msg*/, std::uintptr_t /*A*/, std::uintptr_t /*B*/)
 {
     // LAB_004b50e0: XOR AL,AL / RET 0xc.
     return false;

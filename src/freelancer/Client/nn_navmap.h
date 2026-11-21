@@ -207,7 +207,7 @@ public:
     // slot 9 LAB_0048eba0 (RET 8)
     bool Create(Win3D* NewParent, void* Data) override;
     // slot 23 LAB_004945e0 (RET 0xc) -- 0xef01 show, 0xef02 close and delete.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // --- Event::Handler ---
     // LAB_0049e190 (RET 4) -- 0xf while briefing: tell the MissionBriefing state to continue

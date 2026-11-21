@@ -1104,7 +1104,7 @@ void NnInventory::Close()
     delete this;
 }
 
-bool NnInventory::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnInventory::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_0047ade0 (RET 0xc).
     if (Msg == 0xef02)

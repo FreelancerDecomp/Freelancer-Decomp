@@ -281,7 +281,7 @@ void PageAccountSelect::Update()
     Win3D::Update();
 }
 
-bool PageAccountSelect::Slot23(unsigned Msg, unsigned A, unsigned /*B*/)
+bool PageAccountSelect::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t /*B*/)
 {
     // FUN_00573010.
     if (Msg == 0x3004)
