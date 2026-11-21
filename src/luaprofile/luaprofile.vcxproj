@@ -27,7 +27,6 @@
     <ProjectGuid>{A9C4E210-8B5D-4F17-9E42-D1A0B3C5E618}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>luaprofile</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">

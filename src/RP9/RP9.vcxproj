@@ -19,17 +19,17 @@
     <ProjectGuid>{2E2460CC-3158-46C3-A5F3-445D2D6C6401}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RP9</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
-  <!-- FreelancerRp9 (the client's FREELANCER_RP9 switch) lives in this shared sheet; read it before
-       the configuration groups so that 0 turns the project into an empty Utility build (no
+  <!-- FreelancerRp9 (the client's FREELANCER_RP9 switch): a value saved in this shared sheet wins
+       over the default in Directory.Build.props (imported by Microsoft.Cpp.Default.props). Read it
+       before the configuration groups so that 0 turns the project into an empty Utility build (no
        RP9.dll, no DirectX SDK June 2010 needed). -->
   <Import Project="..\Freelancer.Diagnostics.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
     <Rp9Enabled>false</Rp9Enabled>
     <Rp9Enabled Condition="'$(FreelancerRp9)'=='1'">true</Rp9Enabled>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -49,8 +49,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup>
     <TargetName>RP9</TargetName>
-    <OutDir>$(ProjectDir)..\..\$(FlBinDirName)\</OutDir>
-    <IntDir>$(ProjectDir)..\obj\RP9\$(Configuration)\</IntDir>
     <!-- DirectX SDK June 2010 root ($(Dx9SdkDir), Directory.Build.props), with a trailing slash. -->
     <Rp9DxSdkDir>$([MSBuild]::EnsureTrailingSlash('$(Dx9SdkDir)'))</Rp9DxSdkDir>
     <!-- d3d9.h / d3d9.lib come from the Windows SDK. The June 2010 Include dir (D3DX9, DxErr)

@@ -27,7 +27,6 @@
     <ProjectGuid>{C4E81B30-7A2D-4F11-9C55-A1B2C3D4E5F6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Shading</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
