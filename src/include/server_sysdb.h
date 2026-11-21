@@ -134,22 +134,28 @@ struct ObjectList : public MetaList<GameObject> {
     ~ObjectList() { drop_index(); }
 
     // Port-only: every structural edit of a block goes through these, which
-    // forward to MetaList<T> unchanged and then mark the id index stale. No
-    // edit of the list itself differs from retail.
+    // forward to MetaList<T> unchanged and then update the id index (append,
+    // remove) or mark it stale (the rest). No edit of the list itself differs
+    // from retail.
     void prepend(GameObject* Item) { MetaList<GameObject>::prepend(Item); invalidate_index(); }
-    void append(GameObject* Item) { MetaList<GameObject>::append(Item); invalidate_index(); }
+    void append(GameObject* Item) { MetaList<GameObject>::append(Item); index_appended(Tail); }
     void insert_after(MetaNode<GameObject>* After, GameObject* Item)
     {
         MetaList<GameObject>::insert_after(After, Item);
         invalidate_index();
     }
-    void remove(MetaNode<GameObject>*& Node) { MetaList<GameObject>::remove(Node); invalidate_index(); }
+    void remove(MetaNode<GameObject>*& Node) { index_removing(Node); MetaList<GameObject>::remove(Node); }
     void free() { MetaList<GameObject>::free(); invalidate_index(); }
 
     // Port-only: marks the id index stale. Code that rewrites Head/Tail or the
     // nodes by hand (StarSystem_DeleteBlock) calls it itself.
     void invalidate_index() const;
     void drop_index() const;
+    // Port-only: keep a valid id index in step with append (Node is the new
+    // Tail) and remove (Node is still linked); anything they cannot record
+    // exactly marks the index stale instead.
+    void index_appended(MetaNode<GameObject>* Node) const;
+    void index_removing(MetaNode<GameObject>* Node) const;
 
     // StarSystem reads and writes the list's fields directly throughout
     // (e.g. .text:06d08794 `[EBP+0x38]`, .text:06d0bfe4 `[EBX+0xd8]`).
