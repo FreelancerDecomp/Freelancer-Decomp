@@ -80,8 +80,8 @@ MPRep, gls_workaround.
 
 ## Что есть в порте
 
-- Широкоэкранный режим «Hor+» — `FREELANCER_WIDESCREEN_SUPPORT` (свойство
-  `FreelancerWidescreenSupport` в `src/Directory.Build.props`, по умолчанию включено): камеры
+- Широкоэкранный режим «Hor+» — `FREELANCER_WIDESCREEN_SUPPORT` (переключатель
+  `FreelancerWidescreenSupport`, [building.md](../building.md#switches), по умолчанию включено): камеры
   расширяют фрустум по горизонтали, интерфейс Win3D остаётся 4:3, угловые окна HUD сдвигаются к краям
   экрана сдвигом камеры (`widescreen.h`, `hud_widescreen.*`). Это самостоятельный механизм порта,
   заменяющий jflp-пересчёт и HudShift; он не повторяет их побайтно. Описан в [re/freelancer.md](re/freelancer.md),

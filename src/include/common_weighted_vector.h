@@ -110,7 +110,7 @@ public:
     // rpclocal), where Direct3D 8 CreateDevice without FPU_PRESERVE (EXE\dacom.ini, rp8
     // .text:06d06bb4) leaves 24-bit precision; FLServer.exe sets 53-bit itself
     // (_control87(0x9001f, 0xfffff) at 0x0040bb17). The port is x87 (/arch:IA32,
-    // src/Directory.Build.props), so a double running sum held in an x87 register is rounded
+    // cmake/Freelancer.cmake), so a double running sum held in an x87 register is rounded
     // by the same control word: 24-bit in the client (identical to the old float version),
     // 53-bit in a server process. A float variable would force 24-bit everywhere. The zero
     // test reads the unrounded sum (FCOMP right after the FST).

@@ -4,8 +4,8 @@
 #pragma once
 
 // FL_LAYOUT_ASSERT(condition, message): a check that a structure has retail Freelancer's
-// size or a field its retail offset. Every project includes this header (/FI, set in
-// src/Directory.Build.props).
+// size or a field its retail offset. Every module includes this header (/FI, set in
+// cmake/Freelancer.cmake).
 //
 // The retail layouts are those of the 32-bit build, so the checks apply to Win32 only. The
 // x64 build (PORT(x64), docs/x64.md) has 8-byte pointers, and with them other sizes and

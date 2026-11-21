@@ -1192,10 +1192,10 @@ FL_LAYOUT_ASSERT(sizeof(FPayloadServerRequestSpaceScript) == 0x1c, "REQUESTSPACE
 //
 // All four already exist in the port with signatures that demangle to exactly those
 // prototypes (src/include/common_text.h lines 168, 209, 238, 239). What actually blocked
-// these types was rpclocal.vcxproj linking only kernel32 and user32 -- a property of the
+// these types was rpclocal linking only kernel32 and user32 -- a property of the
 // port, never of retail: retail rpclocal's own import table names COMMON.DLL, DACOM.DLL,
 // KERNEL32.DLL, MSVCP60.DLL and MSVCRT.DLL. So the project now links Common.lib (which
-// src/Server/Server.vcxproj already did) and these codecs call the real FmtStr.
+// src/Server/CMakeLists.txt already did) and these codecs call the real FmtStr.
 //
 // Independent check on the port's FmtStr::Val::get_flattened_size: the senders that do
 // NOT call the export inline the identical arithmetic, six instructions, five separate

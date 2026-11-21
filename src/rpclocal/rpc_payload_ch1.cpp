@@ -576,7 +576,7 @@ static bool DeliverActivateThrusters(const FPacketBase* Packet, IClient* Client,
 // RET 0x10), receiver caseD_1b at 0x06d835e3 -> IClient vtable +0x17c.
 //
 // THE GAP THAT USED TO BE HERE IS CLOSED. The old note said neither FmtStr export was
-// reachable because rpclocal.vcxproj links only kernel32 and user32. That was a property
+// reachable because rpclocal linked only kernel32 and user32. That was a property
 // of the port, not of retail: retail rpclocal's import table names COMMON.DLL, and four
 // FmtStr entry points in it. The project now links Common.lib, as retail does, and this
 // type flattens and unflattens for real. The long argument is at the head of the

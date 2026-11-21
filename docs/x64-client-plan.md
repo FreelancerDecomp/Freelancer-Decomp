@@ -96,8 +96,7 @@ LOAD_LIBRARY_AS_IMAGE_RESOURCE)` on x64, unchanged `LoadLibraryA` on Win32. Use 
 ## Phase 2: the client builds for x64
 
 Compile and link only; nothing runs yet. Modules go in dependency order, one or a few per PR,
-each adding `Release|x64` / `Debug|x64` to the `.vcxproj` (and to `CMakeLists.txt` if #11 has
-merged by then).
+each adding the module to the x64 build (now: no Win32-only guard in its `CMakeLists.txt`).
 
 **2.1 Leaf modules** (done: #39, #45, #46, #47)**:** ximage, imeui, SoundStreamer, SoundManager,
 flmaterials, alchemy, Deformable2, luaprofile. Includes:
@@ -218,7 +217,7 @@ parallel with the rest of phase 2.
 **5.1 SDL3 dependency.** Done in #58 and #60. From vcpkg in manifest mode: one `src/vcpkg.json`
 with a feature per consumer (`rpgpu` today), `builtin-baseline` pinned to a vcpkg release, built
 from source for Win32 and x64, so a later SDL platform layer or audio decoder shares RPGPU's SDL3.
-`src/Vcpkg.props` wires it into port-only projects only, so no retail module sees SDL. RPGPU is an
+The root `CMakeLists.txt` wires it into port-only modules only (`fl_vcpkg_package`), so no retail module sees SDL. RPGPU is an
 explicit setting (`FreelancerRpGpu`, like `FreelancerRp9`; on by default on x64, off on Win32). A
 developer machine without vcpkg skips it with a warning; CI passes `FreelancerRequireVcpkg=true`,
 so there a missing vcpkg is an error. CI caches vcpkg's binary packages per triplet, runner image
@@ -273,9 +272,10 @@ smoke test passes on it, and then it becomes the default on x64. Win32's default
 
 ## Phase 6: other platforms (Linux, macOS, Windows ARM64)
 
-Not started until the hold on the non-Windows port is lifted. It needs CMake (#11), which is
-not on the critical path before then: MSBuild builds Win32 and x64, and #11 would have to prove
-byte-identical Win32 output again.
+Not started until the hold on the non-Windows port is lifted. The CMake build that replaced the
+Visual Studio solution ([building.md](building.md)) already builds the portable modules (DPNet,
+TexConvert, qhull) on Linux and macOS, with CI; each further module joins them once it builds
+without the Windows API.
 
 - An SDL3 implementation of `platform.h` (window, timers, threads, files, modules).
 - Input: DirectInput replaced by SDL events.

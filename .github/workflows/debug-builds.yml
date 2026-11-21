@@ -27,10 +27,13 @@ jobs:
         include:
           - configuration: Debug
             platform: Win32
+            preset: debug
           - configuration: DebugASan
             platform: Win32
+            preset: debugasan
           - configuration: Debug
             platform: x64
+            preset: debug-x64
 
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +71,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: vcpkg-debug-${{ matrix.platform }}-${{ hashFiles('src/vcpkg.json', 'src/RPGPU/vcpkg.json') }}-${{ github.run_id }}
+          key: vcpkg-debug-${{ matrix.platform }}-${{ hashFiles('src/vcpkg.json') }}-${{ github.run_id }}
           restore-keys: |
             vcpkg-debug-${{ matrix.platform }}-
 
@@ -79,19 +82,13 @@ jobs:
           New-Item -ItemType Directory -Force $cache | Out-Null
           "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
 
-      - uses: microsoft/setup-msbuild@v2
-
       - name: Build
-        run: >-
-          msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
-          -p:Configuration=${{ matrix.configuration }} -p:Platform=${{ matrix.platform }}
-          -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
-          -clp:PerformanceSummary -bl:msbuild.binlog
-
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: msbuild-binlog-${{ matrix.configuration }}-${{ matrix.platform }}
-          path: msbuild.binlog
-          retention-days: 7
+        shell: cmd
+        env:
+          ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'x86' }}
+          PRESET: ${{ matrix.preset }}
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VSDIR=%%i"
+          call "%VSDIR%\VC\Auxiliary\Build\vcvarsall.bat" %ARCH% || exit /b 1
+          cmake --preset %PRESET% || exit /b 1
+          cmake --build --preset %PRESET% || exit /b 1

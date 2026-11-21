@@ -108,7 +108,7 @@
 // EquipDesc / EquipDescList. Retail rpclocal.dll imports EquipDesc::EquipDesc
 // (.rdata:06db3004), set_arch_id/set_count/set_status/set_id/set_equipped/set_hardpoint/
 // make_internal/is_internal (06db3070..06db308c, 06db30d8) and
-// std::list<EquipDesc>::_Buynode (06db30ac) BY NAME, and rpclocal.vcxproj links
+// std::list<EquipDesc>::_Buynode (06db30ac) BY NAME, and rpclocal links
 // Common.lib, so the real types are what the two REQEQUIPMENT/REQCARGO helpers speak.
 #include "common_goods.h"
 // The CREATESHIP / CREATESOLAR source record, shared with Server.dll and freelancer.exe.
@@ -319,7 +319,7 @@ FL_LAYOUT_ASSERT(sizeof(FRpcEquipWireHandle) == 4,
 // handed IServer::ReqEquipment / ::ReqCargo a std::list<FRpcEquipDescMirror> through a
 // reference cast instead. That was false twice over. Retail imports the EquipDesc ctor
 // and every one of its setters BY NAME (the IAT slots listed at the top of this file),
-// and rpclocal.vcxproj has linked Common.lib since the PLAYER_TRADE equipment sub-types
+// and rpclocal has linked Common.lib since the PLAYER_TRADE equipment sub-types
 // were closed. Worse, the cast was not merely unproven, it was wrong: the port's
 // EquipDescList was then `{ std::vector<EquipDesc> Items; }`, so reading a std::list
 // header through it fed Server.dll a node pointer as a vector begin/end pair. (Since

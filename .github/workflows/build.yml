@@ -173,31 +173,32 @@ jobs:
           New-Item -ItemType Directory -Force $cache | Out-Null
           "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
 
-      - uses: microsoft/setup-msbuild@v2
-
-      # MultiToolTask runs each source file as its own compiler process, and
-      # EnforceProcessCountAcrossBuilds caps those processes across all projects at the core
-      # count. Idle cores then pick up files from any project, so the projects on the critical
-      # path (Common, freelancer) are not stuck behind small single-threaded libraries.
-      # Neither changes the compiler or linker options.
       # The PR side builds RPGPU on both platforms (FreelancerRpGpu is off by default on Win32)
       # and fails if vcpkg is missing rather than skipping it. The base side only feeds the
       # Win32 FLRegress and RpcCodecTest comparisons, which RPGPU is not part of.
       - name: Build
+        if: hashFiles('CMakeLists.txt') != ''
+        shell: cmd
+        env:
+          ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'x86' }}
+          PRESET: ${{ matrix.platform == 'x64' && 'release-x64' || 'release' }}
+          OPTIONS: ${{ matrix.side == 'pr' && '-DFreelancerRpGpu=1 -DFreelancerRequireVcpkg=ON' || '' }}
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VSDIR=%%i"
+          call "%VSDIR%\VC\Auxiliary\Build\vcvarsall.bat" %ARCH% || exit /b 1
+          cmake --preset %PRESET% %OPTIONS% || exit /b 1
+          cmake --build --preset %PRESET% || exit /b 1
+
+      # A base commit from before the CMake build (src\Freelancer.sln) is built with MSBuild.
+      - uses: microsoft/setup-msbuild@v2
+        if: hashFiles('CMakeLists.txt') == ''
+
+      - name: Build (MSBuild)
+        if: hashFiles('CMakeLists.txt') == ''
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
           -p:Configuration=Release -p:Platform=${{ matrix.platform }}
-          ${{ matrix.side == 'pr' && '-p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true' || '' }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
-          -clp:PerformanceSummary -bl:msbuild.binlog
-
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || (matrix.platform == 'x64' && 'msbuild-binlog-x64' || 'msbuild-binlog') }}
-          path: msbuild.binlog
-          retention-days: 7
 
       - name: Upload x64 binaries
         if: matrix.platform == 'x64'
@@ -229,114 +230,6 @@ jobs:
             bin/*.pdb
           if-no-files-found: error
           retention-days: 14
-
-  # CMake against MSBuild: both build the same configuration into the same output directory
-  # (so that every path the linker records is the same), one after the other, and are compared
-  # command line by command line and binary by binary (.github/scripts/build_parity.py).
-  parity:
-    name: CMake parity (Release|${{ matrix.platform }})
-    runs-on: windows-2022
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [Win32, x64]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache DirectX 8.1 SDK
-        id: dx8-cache
-        uses: actions/cache@v4
-        with:
-          path: dx8
-          key: dx8-sdk-${{ env.DX8_SDK_MD5 }}
-
-      - name: Fetch DirectX 8.1 SDK headers and libraries
-        if: steps.dx8-cache.outputs.cache-hit != 'true'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $exe = Join-Path $env:RUNNER_TEMP 'dx81sdk_full.exe'
-          curl.exe --fail --location --retry 3 --silent --show-error -o $exe $env:DX8_SDK_URL
-          $md5 = (Get-FileHash -Algorithm MD5 $exe).Hash.ToLowerInvariant()
-          if ($md5 -ne $env:DX8_SDK_MD5) { throw "DX8 SDK checksum mismatch: $md5" }
-          $tmp = Join-Path $env:RUNNER_TEMP 'dx8x'
-          New-Item -ItemType Directory -Force $tmp | Out-Null
-          tar -xf $exe -C $tmp DXF/DXSDK/include DXF/DXSDK/lib
-          if ($LASTEXITCODE -ne 0) { throw "tar failed with exit code $LASTEXITCODE" }
-          New-Item -ItemType Directory -Force dx8 | Out-Null
-          Move-Item (Join-Path $tmp 'DXF/DXSDK/include') dx8/include
-          Move-Item (Join-Path $tmp 'DXF/DXSDK/lib') dx8/lib
-
-      - name: vcpkg cache key
-        id: vcpkg-key
-        shell: pwsh
-        env:
-          TRIPLET: ${{ matrix.platform == 'x64' && 'x64-windows' || 'x86-windows' }}
-          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
-        run: |
-          $prefix = "vcpkg-$env:TRIPLET-$env:ImageOS-"
-          "prefix=$prefix" >> $env:GITHUB_OUTPUT
-          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
-
-      - name: Restore vcpkg packages
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: ${{ steps.vcpkg-key.outputs.key }}
-          restore-keys: |
-            ${{ steps.vcpkg-key.outputs.prefix }}
-
-      - name: Point vcpkg at the cache
-        shell: pwsh
-        run: |
-          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
-          New-Item -ItemType Directory -Force $cache | Out-Null
-          "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
-
-      - uses: microsoft/setup-msbuild@v2
-
-      - name: Build with MSBuild
-        run: >-
-          msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
-          -p:Configuration=Release -p:Platform=${{ matrix.platform }}
-          -p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true
-          -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
-
-      - name: Set the MSBuild binaries aside
-        shell: pwsh
-        env:
-          BIN: ${{ matrix.platform == 'x64' && 'bin_x64' || 'bin' }}
-        run: |
-          New-Item -ItemType Directory bin-msbuild | Out-Null
-          Move-Item "$env:BIN\*.exe", "$env:BIN\*.dll", "$env:BIN\*.pdb", "$env:BIN\*.lib", "$env:BIN\*.exp" bin-msbuild
-
-      - name: Build with CMake
-        shell: cmd
-        env:
-          ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'x86' }}
-          PRESET: ${{ matrix.platform == 'x64' && 'release-x64' || 'release' }}
-        run: |
-          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VSDIR=%%i"
-          call "%VSDIR%\VC\Auxiliary\Build\vcvarsall.bat" %ARCH% || exit /b 1
-          cmake --version || exit /b 1
-          cmake --preset %PRESET% -DFreelancerRpGpu=1 -DFreelancerRequireVcpkg=ON || exit /b 1
-          cmake --build --preset %PRESET% || exit /b 1
-
-      - name: Compare command lines
-        env:
-          BUILD: ${{ matrix.platform == 'x64' && 'build/release-x64' || 'build/release' }}
-        run: python .github/scripts/build_parity.py commands --repo . --cmake-build ${{ env.BUILD }} --platform ${{ matrix.platform }}
-
-      - name: Compare binaries
-        if: success() || failure()
-        env:
-          BIN: ${{ matrix.platform == 'x64' && 'bin_x64' || 'bin' }}
-        run: |
-          python -m pip install --quiet pefile
-          # SDL3.dll is vcpkg's build, not ours: each build installs the package on its own.
-          python .github/scripts/build_parity.py binaries bin-msbuild ${{ env.BIN }} --ignore SDL3.dll
 
   regress:
     name: Regression (FLRegress)

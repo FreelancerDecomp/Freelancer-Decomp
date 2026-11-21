@@ -9,9 +9,9 @@ same IIDs as RP8 (`RenderPipeline8B`, `VertexBufferManager`, `RPDraw`, `RPIndexB
 (`kRp9ComponentName`, priority `0x40000000`). The consumers (exe, Shading, flmaterials, alchemy,
 Deformable2, RendComp, ximage) do not change: they look interfaces up by IID.
 
-Build: the `FreelancerRp9` property (`src/Directory.Build.props`, `src/Freelancer.Diagnostics.props`,
-VS property page "Features"), `0` by default. With `0`, `RP9.vcxproj` turns into an empty Utility
-project (no `RP9.dll`, no DirectX SDK June 2010 needed) and the client's Ex hooks (`render_ex.*`,
+Build: the `FreelancerRp9` switch (`-DFreelancerRp9=1`, [building.md](../building.md#switches)),
+`0` by default. With `0`, `src/RP9/CMakeLists.txt` defines no module
+(no `RP9.dll`, no DirectX SDK June 2010 needed) and the client's Ex hooks (`render_ex.*`,
 `nebula_volume.*` and their calls in `cli_asteroid`, `cli_nebula`, `client_gameobj`,
 `engine_init`, `main`, `space_scene_obj_draw`, `star_sphere`, `star_sys`) sit under
 `#ifdef FREELANCER_RP9` — the client is identical to master. With `1` both are built.

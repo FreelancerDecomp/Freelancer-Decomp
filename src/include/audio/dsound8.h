@@ -6,9 +6,9 @@
 
 #pragma once
 
-// DirectX 8 SDK DirectSound. Do NOT add DX8\include via AdditionalIncludeDirectories
+// DirectX 8 SDK DirectSound. Do NOT add DX8\include as an include directory (/I)
 // — that SDK ships an old basetsd.h that breaks Windows 10 winnt.h (PVOID64).
-// Wired via $(Dx8SdkDir)\include appended to $(IncludePath) in the audio vcxproj.
+// Wired via dx8\include appended to cl's INCLUDE (cmake/Freelancer.cmake).
 //
 // Default SDK: $(Dx8SdkDir) = repo-root dx8/
 // CoCreate still uses retail IID last word E5 60, not SDK A7 70.

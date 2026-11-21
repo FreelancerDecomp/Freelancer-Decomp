@@ -82,7 +82,7 @@ gls_workaround.
 ## What the port has
 
 - The "Hor+" widescreen mode — `FREELANCER_WIDESCREEN_SUPPORT` (the `FreelancerWidescreenSupport`
-  property in `src/Directory.Build.props`, enabled by default): cameras widen the frustum
+  switch, [building.md](building.md#switches), enabled by default): cameras widen the frustum
   horizontally, the Win3D interface stays 4:3, the corner HUD windows are moved towards the screen
   edges by a camera shift (`widescreen.h`, `hud_widescreen.*`). This is the port's own mechanism that
   replaces the jflp recalculation and HudShift; it does not repeat them byte for byte. It is described
