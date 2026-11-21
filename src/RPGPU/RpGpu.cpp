@@ -116,14 +116,6 @@ namespace
         return kRp8PfBpp[Format] / 8;
     }
 
-    // Bytes per row of blocks for DXT, per row of pixels otherwise.
-    unsigned int RowPitch(unsigned int Format, unsigned int Width)
-    {
-        if (IsBlockFormat(Format))
-            return std::max(1u, (Width + 3) / 4) * (Format == 10 ? 8u : 16u);
-        return Width * BytesPerPixel(Format);
-    }
-
     unsigned int RowCount(unsigned int Format, unsigned int Height)
     {
         return IsBlockFormat(Format) ? std::max(1u, (Height + 3) / 4) : Height;
@@ -134,7 +126,7 @@ namespace
     {
         Out->Width = std::max(1u, Width);
         Out->Height = std::max(1u, Height);
-        // Size the image in 64 bits: on Win32 the pitch or the byte count can exceed 32 bits, and
+        // Bytes per row of blocks for DXT, per row of pixels otherwise. Sized in 64 bits: on Win32 the pitch or the byte count can exceed 32 bits, and
         // a count above max_size() would throw length_error past CreateTexture's cleanup.
         const std::uint64_t Pitch64 =
             IsBlockFormat(Format)
