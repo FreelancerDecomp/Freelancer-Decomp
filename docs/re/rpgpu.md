@@ -94,6 +94,14 @@ The first version opens the device and presents a cleared frame; it draws nothin
   - vertex-buffer lock offsets go in as bytes and come back as vertex indices;
   - the pool vertex buffers and the scratch index buffer (handle -1) are rings;
   - `IsVbValid` and `IsIbValid` answer 1 for a valid buffer.
+- **Texture levels are converted** by TexConvert ([texconvert.md](texconvert.md)), which does
+  what D3DX's `D3DXLoadSurfaceFromMemory` does for RP8.
+  - **The goal:** byte for byte for same-size loads into an uncompressed format and for DXT
+    copies into the same DXT format. TexConvertTest checks this against D3DX 8.1 and reports
+    where it doesn't hold yet.
+  - **Close to D3DX, not identical (also a goal):** resized loads, and any load that has to
+    compress into DXT, even at the same size. TexConvertTest measures only part of this; see
+    the test scope in [texconvert.md](texconvert.md).
 - **The draw calls** are accepted and dropped.
 - **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none) and no cube
   maps until `LoadCubemap` loads them.

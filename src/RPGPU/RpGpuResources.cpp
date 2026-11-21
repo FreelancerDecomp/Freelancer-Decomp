@@ -9,10 +9,12 @@
 
 #include "RpGpuDds.h"
 #include "render/rp8_semantics.h"
+#include "TexConvert.h"
 
 #include <algorithm>
 #include <cstring>
 #include <new>
+#include <stdexcept>
 
 using namespace RpGpuDetail;
 
@@ -116,6 +118,9 @@ GENRESULT DACOM_API FRpGpu::CreateTexture(int Width, int Height, unsigned int* F
         return GR_INVALID_PARMS;
     const unsigned int Concrete = ConcreteFormat(*Format);
     if (!IsKnownFormat(Concrete))
+        return GR_GENERIC;
+    // P8 only with TEXTURE_ALLOW_8BIT, as in RP8; TexConvert fills it only from a P8 source.
+    if (Concrete == 1 && PipelineState_[kPsAllow8Bit] == 0)
         return GR_GENERIC;
 
     // 0 asks for the full chain down to 1x1; more levels than that is an invalid request, as
@@ -226,23 +231,48 @@ GENRESULT DACOM_API FRpGpu::GetTextureInterface(void* Handle, void* UnusedA, voi
     return kUnsupported;
 }
 
-// The loaders (Shading's DDS and TGA readers, ximage) fill a level from their own pixels. The
-// skeleton keeps the level's memory but does not convert: nothing samples it yet.
+// The loaders (Shading's DDS and TGA readers, ximage) fill a level from their own pixels: RP8
+// hands them to D3DXLoadSurfaceFromMemory, RPGPU to TexConvert, which converts the format and
+// resizes when the sizes differ (docs/re/texconvert.md). B is the P8 palette, 256 RGB triplets.
 GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int SrcW, int SrcH, unsigned int Pitch,
                                                 unsigned int* SrcFormat, const void* Pixels, void* A, void* B)
 {
-    (void)SrcW;
-    (void)SrcH;
-    (void)Pitch;
-    (void)Pixels;
     (void)A;
-    (void)B;
     FRpGpuTexture* const Texture = LiveTexture(Handle);
     if (Texture == nullptr || SrcFormat == nullptr || *SrcFormat == 0)
         return GR_INVALID_PARMS;
     if (Level > 0 && PipelineState_[kPsTextureLod] == 0)
         return GR_OK;
-    return GR_OK;
+    if (Level < 0 || static_cast<std::size_t>(Level) >= Texture->Images.size() || SrcW <= 0 || SrcH <= 0 ||
+        Pixels == nullptr)
+        return GR_GENERIC;
+    FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Level)];
+    TexConvert::FImage Destination;
+    Destination.Format = Texture->Format;
+    Destination.Width = Image.Width;
+    Destination.Height = Image.Height;
+    Destination.Pitch = Image.Pitch;
+    Destination.Bits = Image.Bits.data();
+    TexConvert::FSource Source;
+    Source.Format = ConcreteFormat(*SrcFormat);
+    Source.Width = static_cast<unsigned int>(SrcW);
+    Source.Height = static_cast<unsigned int>(SrcH);
+    Source.Pitch = Pitch;
+    Source.Bits = Pixels;
+    Source.PaletteRgb = static_cast<const unsigned char*>(B);
+    // The conversion allocates a working buffer; a failed allocation leaves the level as it was.
+    try
+    {
+        return TexConvert::Load(Destination, Source) != TexConvert::EResult::Failed ? GR_OK : GR_GENERIC;
+    }
+    catch (const std::bad_alloc&)
+    {
+        return GR_OUT_OF_MEMORY;
+    }
+    catch (const std::length_error&)
+    {
+        return GR_OUT_OF_MEMORY; // TexConvert refuses such sizes first; this only backs that up
+    }
 }
 
 GENRESULT DACOM_API FRpGpu::BlitTexture(void* DstHandle, int DstLevel, void* SrcHandle, int SrcLevel)
