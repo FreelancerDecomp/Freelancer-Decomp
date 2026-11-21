@@ -84,16 +84,19 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
-  <!-- Debug output is bin_debug\, not bin\ where the dev *.ini live: copy them over with the
-       absolute bin\ paths rewritten. FlDebugOutDir has no trailing slash, as FlASanOutDir. -->
-  <Target Name="CopyDebugDevIni" AfterTargets="Build"
-          Condition="'$(Configuration)'=='Debug' and '$(MSBuildProjectName)'=='freelancer'">
+  <!-- Every output dir except bin\ (bin_debug\, binasan\, bin_x64\, bin_x64_debug\) gets the dev
+       *.ini and character files of bin\, with the absolute bin\ paths rewritten
+       (copy_dev_ini.py). dacom does it: every configuration and platform builds it, and the
+       server and client tools all depend on it. FlDevIniOutDir has no trailing slash, as
+       FlASanOutDir. -->
+  <Target Name="CopyDevIni" AfterTargets="Build"
+          Condition="'$(FlBinDirName)'!='bin' and '$(MSBuildProjectName)'=='dacom'">
     <PropertyGroup>
-      <FlDebugOutDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\bin_debug'))</FlDebugOutDir>
+      <FlDevIniOutDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\$(FlBinDirName)'))</FlDevIniOutDir>
     </PropertyGroup>
-    <Exec Command="python &quot;$(MSBuildThisFileDirectory)copy_dev_ini.py&quot; &quot;$(FlDebugOutDir)&quot;" />
+    <Exec Command="python &quot;$(MSBuildThisFileDirectory)copy_dev_ini.py&quot; &quot;$(FlDevIniOutDir)&quot;" />
   </Target>
-  <Target Name="CopyASanDevIni" AfterTargets="Build"
+  <Target Name="CopyASanRuntime" AfterTargets="Build"
           Condition="'$(Configuration)'=='DebugASan' and '$(MSBuildProjectName)'=='freelancer'">
     <PropertyGroup>
       <FlASanRtDir Condition="Exists('$(VCToolsInstallDir)bin\Hostx86\x86\clang_rt.asan_dynamic-i386.dll')">$(VCToolsInstallDir)bin\Hostx86\x86</FlASanRtDir>
@@ -102,7 +105,6 @@
     <ItemGroup>
       <FlASanRt Include="$(FlASanRtDir)\clang_rt.asan*_dynamic-i386.dll" Condition="'$(FlASanRtDir)'!=''" />
     </ItemGroup>
-    <Exec Command="python &quot;$(MSBuildThisFileDirectory)copy_dev_ini.py&quot; &quot;$(FlASanOutDir)&quot;" />
     <Copy SourceFiles="@(FlASanRt)" DestinationFolder="$(FlASanOutDir)" SkipUnchangedFiles="true"
           Condition="'@(FlASanRt)'!=''" />
     <Warning Text="AddressSanitizer runtime DLLs not found under $(VCToolsInstallDir)bin\Hostx86\x86 or Hostx64\x86."
