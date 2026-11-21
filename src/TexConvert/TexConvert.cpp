@@ -206,6 +206,22 @@ namespace TexConvert
             }
         }
 
+        // DXT2 and DXT4 store colour premultiplied by alpha; everything between decode and encode
+        // is straight alpha, so their colour is divided out here and multiplied back on encode.
+        void Unpremultiply(FColor* Pixels)
+        {
+            for (int Index = 0; Index < 16; ++Index)
+            {
+                const float A = Pixels[Index].A;
+                if (A > 0.0f)
+                {
+                    Pixels[Index].R = std::min(1.0f, Pixels[Index].R / A);
+                    Pixels[Index].G = std::min(1.0f, Pixels[Index].G / A);
+                    Pixels[Index].B = std::min(1.0f, Pixels[Index].B / A);
+                }
+            }
+        }
+
         void DecodeBlock(unsigned int Format, const unsigned char* Block, FColor* Out)
         {
             if (Format == kDxt1)
@@ -218,6 +234,8 @@ namespace TexConvert
             {
                 for (int Index = 0; Index < 16; ++Index)
                     Out[Index].A = Unpack((Block[Index / 2] >> ((Index & 1) * 4)) & 0xF, 4);
+                if (Format == kDxt2)
+                    Unpremultiply(Out);
                 return;
             }
             // DXT4 / DXT5: two alpha endpoints and 3-bit indices.
@@ -241,6 +259,8 @@ namespace TexConvert
                 Bits |= static_cast<std::uint64_t>(Block[2 + Byte]) << (Byte * 8);
             for (int Index = 0; Index < 16; ++Index)
                 Out[Index].A = Alpha[(Bits >> (Index * 3)) & 7];
+            if (Format == kDxt4)
+                Unpremultiply(Out);
         }
 
         std::uint32_t Encode565(const float* C)
@@ -346,7 +366,18 @@ namespace TexConvert
                 EncodeColorBlock(In, true, Block);
                 return;
             }
-            EncodeColorBlock(In, false, Block + 8);
+            if (Format == kDxt2 || Format == kDxt4)
+            {
+                FColor Premultiplied[16];
+                for (int Index = 0; Index < 16; ++Index)
+                    Premultiplied[Index] = {In[Index].R * In[Index].A, In[Index].G * In[Index].A,
+                                            In[Index].B * In[Index].A, In[Index].A};
+                EncodeColorBlock(Premultiplied, false, Block + 8);
+            }
+            else
+            {
+                EncodeColorBlock(In, false, Block + 8);
+            }
             if (Format == kDxt2 || Format == kDxt3)
             {
                 std::memset(Block, 0, 8);
@@ -533,8 +564,15 @@ namespace TexConvert
         return IsBlock(Format) ? std::max(1u, (Height + 3) / 4) : Height;
     }
 
-    EResult Load(const FImage& Destination, const FSource& Source)
+    EResult Load(const FImage& Destination, const FSource& Original)
     {
+        // A DXT source is read with its own block-row stride, whatever pitch the caller passed:
+        // Shading's DDS loader passes linear size / width in blocks, which is the stride only for
+        // a square block grid (TexConvertTest compares that case with D3DX).
+        FSource Source = Original;
+        if (IsBlock(Source.Format))
+            Source.Pitch = RowPitch(Source.Format, Source.Width);
+
         if (!IsKnown(Destination.Format) || !IsKnown(Source.Format) || Destination.Format == kP8 ||
             Destination.Bits == nullptr || Source.Bits == nullptr || Destination.Width == 0 ||
             Destination.Height == 0 || Source.Width == 0 || Source.Height == 0)

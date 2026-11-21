@@ -10,7 +10,11 @@
 // blocks. D3DX writes into a system-memory image surface of a Direct3D 8 device, TexConvert into
 // a buffer; the bytes must be identical.
 //
-// Exit code: 0 all identical, 1 a difference, 2 no Direct3D 8 device (nothing compared).
+// A second set loads wide and tall DXT images with the pitch Shading's DDS loader passes
+// (linear size / width in blocks), to show what D3DX does with it.
+//
+// Exit code: 0 all identical, 1 a difference, 2 nothing compared (no Direct3D 8 device, or no
+// case could run).
 
 #include "TexConvert.h"
 
@@ -129,8 +133,9 @@ namespace
     int G_Different = 0;
     int G_Skipped = 0;
 
+    // SrcPitch 0: the format's own pitch; otherwise the pitch passed to both converters.
     void Compare(IDirect3DDevice8* Device, unsigned int SrcFormat, unsigned int DstFormat, unsigned int Width,
-                 unsigned int Height, int Pattern)
+                 unsigned int Height, int Pattern, unsigned int SrcPitchOverride = 0)
     {
         const std::vector<unsigned char> Source = MakeSource(SrcFormat, Width, Height, Pattern);
         unsigned char Palette[256 * 3];
@@ -145,7 +150,8 @@ namespace
             Entries[Index].peBlue = Palette[Index * 3 + 2];
             Entries[Index].peFlags = 0xFF;
         }
-        const unsigned int SrcPitch = TexConvert::RowPitch(SrcFormat, Width);
+        const unsigned int SrcPitch =
+            SrcPitchOverride != 0 ? SrcPitchOverride : TexConvert::RowPitch(SrcFormat, Width);
 
         IDirect3DSurface8* Surface = nullptr;
         if (Device->CreateImageSurface(Width, Height, ToD3d(DstFormat), &Surface) < 0)
@@ -216,8 +222,8 @@ namespace
         if (Result != TexConvert::EResult::Exact || Differing != 0)
         {
             ++G_Different;
-            std::printf("DIFF %s -> %s pattern %d: %d bytes differ", Name(SrcFormat), Name(DstFormat), Pattern,
-                        Differing);
+            std::printf("DIFF %s -> %s %ux%u pattern %d%s: %d bytes differ", Name(SrcFormat), Name(DstFormat),
+                        Width, Height, Pattern, SrcPitchOverride != 0 ? " (Shading's pitch)" : "", Differing);
             if (FirstRow >= 0)
             {
                 const unsigned char* const Theirs =
@@ -266,10 +272,25 @@ int main()
                 Compare(D3d.Device, Source, Source, 256, 64, Pattern);
         }
     }
+    // Shading's DDS pitch for wide and tall mips: linear size / width in blocks.
+    const unsigned int DxtFormats[] = {TexConvert::kDxt1, TexConvert::kDxt5};
+    const unsigned int Sizes[2][2] = {{256, 64}, {64, 256}};
+    for (unsigned int Format : DxtFormats)
+    {
+        for (const auto& Size : Sizes)
+        {
+            const unsigned int WidthBlocks = Size[0] / 4;
+            const unsigned int Linear = TexConvert::RowPitch(Format, Size[0]) * TexConvert::RowCount(Format, Size[1]);
+            Compare(D3d.Device, Format, TexConvert::kA8R8G8B8, Size[0], Size[1], 1, Linear / WidthBlocks);
+        }
+    }
+
     std::printf("TexConvertTest: %d compared, %d different, %d skipped\n", G_Compared, G_Different, G_Skipped);
     D3d.Device->Release();
     D3d.D3d->Release();
     if (D3d.Window != nullptr)
         DestroyWindow(D3d.Window);
+    if (G_Compared == 0)
+        return 2;
     return G_Different != 0 ? 1 : 0;
 }

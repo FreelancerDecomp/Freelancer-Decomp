@@ -31,6 +31,14 @@ path. Lower detail settings shrink textures, and only then does the filtered pat
 - A P8 palette is opaque.
 - DXT blocks decode with the usual palettes: four colours, or three plus transparent black for
   DXT1 when colour 0 <= colour 1; DXT5 alpha uses eight or six steps.
+- DXT2 and DXT4 store colour premultiplied by alpha. Decoding divides it out, and encoding
+  multiplies it back, so everything in between is straight alpha. A block copy into the same
+  format leaves it as it is. TexConvertTest's DXT2 and DXT4 cases show whether D3DX 8.1 decodes
+  them the same way.
+- A DXT source is read with its own block-row stride (width in blocks × block size), whatever
+  pitch the caller passed. Shading's DDS loader passes linear size / width in blocks, retail's
+  own calculation, which is the stride only for a square block grid. TexConvertTest also
+  loads wide and tall DXT images with Shading's pitch, to show what D3DX does with it.
 
 **The filtered path.** This is our own code, not a copy of D3DX's:
 - an area-weighted (box) resample;
