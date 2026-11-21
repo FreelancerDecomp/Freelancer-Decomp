@@ -65,8 +65,9 @@ private:
     bool bNeedsRebuild_ = false;
     // A failed swap-chain reconfiguration leaves SDL 3.4.18's D3D12 backend with records it has
     // already freed, and releasing the window would free them again. Such a device and window
-    // are abandoned, not released, and the module stops creating devices.
-    bool bAbandoned_ = false;
+    // are abandoned, not released, and the module stops creating devices: the flag is shared by
+    // every instance, so at most one device is ever leaked.
+    static inline bool bAbandoned_ = false;
     std::uint32_t ClearArgb_ = 0xFF000000u;
     std::uint32_t Width_ = 0;
     std::uint32_t Height_ = 0;
