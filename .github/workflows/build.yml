@@ -370,6 +370,32 @@ jobs:
             }
           }
 
+  texconvert:
+    # Report-only: TexConvert (RPGPU's texture conversion) against D3DX 8.1, byte for byte, on
+    # every source format into every uncompressed target and DXT into itself
+    # (docs/re/texconvert.md). Exit code 2 means no Direct3D 8 device on the runner.
+    name: Texture conversion (TexConvertTest)
+    needs: [build]
+    runs-on: windows-2022
+    timeout-minutes: 10
+    continue-on-error: true
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: freelancer-release-win32
+          path: bin
+
+      - name: Compare with D3DX 8.1
+        shell: pwsh
+        working-directory: bin
+        run: |
+          & .\TexConvertTest.exe
+          $code = $LASTEXITCODE
+          if ($code -eq 2) { Write-Host 'No Direct3D 8 device on this runner; nothing compared.'; exit 0 }
+          exit $code
+
   codecs:
     name: Packet codecs (RpcCodecTest)
     needs: [build]
