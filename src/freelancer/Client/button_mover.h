@@ -75,7 +75,7 @@ public:
     // FUN_0055e290 -- when active: stop and put every control at its End, then OnFinished.
     void Finish();
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only (hud_widescreen.cpp): how far the running move is, 0..1; 1 when idle.
+    // PORT(widescreen) (hud_widescreen.cpp): how far the running move is, 0..1; 1 when idle.
     float GetProgress() const { return bActive && Duration > 0.0f ? Elapsed / Duration : 1.0f; }
 #endif
 

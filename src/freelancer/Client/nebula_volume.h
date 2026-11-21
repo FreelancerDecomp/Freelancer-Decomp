@@ -6,7 +6,7 @@
 
 #pragma once
 
-// Port-only (no retail counterpart): the ray-marched volumetric nebula, on the Direct3D 9 render
+// PORT(rp9): the ray-marched volumetric nebula, on the Direct3D 9 render
 // extensions (render/IRenderPipelineEx.h, RP9.dll). Retail draws the inside of a nebula as a
 // fullscreen fog quad, per-object linear D3D fog and interior puff billboards, and its outside
 // as axis-locked billboards ("bits"), two crossing fill sheets and the per-nebula far-bucket

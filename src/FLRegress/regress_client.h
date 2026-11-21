@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // FRegressClient stands in for the game client. Server.dll loads the module named in
 // SStartupInfo::ModulePath (FLRegress.exe itself) and takes its IClient / IChatClient from the

@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Port-only: the in-flight HUD's corner windows at the edges of a widescreen surface. See
+// PORT(widescreen): the in-flight HUD's corner windows at the edges of a widescreen surface. See
 // hud_widescreen.h; nothing here exists in retail.
 
 #include "hud_widescreen.h"

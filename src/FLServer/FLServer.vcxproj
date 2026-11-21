@@ -109,6 +109,7 @@
     <ClInclude Include="FLSummaryForm.h" />
     <ClInclude Include="FLServerCmdLine.h" />
     <ClInclude Include="CrashReport.h" />
+    <ClInclude Include="..\include\server_host.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FLServer.cpp" />
@@ -142,6 +143,8 @@
     <ClCompile Include="FLSummaryForm.cpp" />
     <ClCompile Include="FLServerCmdLine.cpp" />
     <ClCompile Include="CrashReport.cpp" />
+    <!-- The host shared by FLServer and FLDedicated (docs/dedicated_server.md). -->
+    <ClCompile Include="..\ServerHost\server_host.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FLServer.rc" />

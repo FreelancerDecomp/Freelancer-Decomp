@@ -20,7 +20,7 @@
 #include "globals.h"
 #include "menu_sound_arch.h"
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h" // NebulaVolume::RegisterNebula (port-only)
+#include "nebula_volume.h" // PORT(rp9): NebulaVolume::RegisterNebula
 #endif
 #include "player_behavior.h"
 #include "player_spawn.h"
@@ -462,7 +462,7 @@ namespace
                     using FLoad = void(__thiscall*)(FNebulaEffect*, char const*, char const*);
                     Nebula->Load(File, Zone); // slot 0
 #ifdef FREELANCER_RP9
-                    // Port-only: the file name for volumetric.ini [NebulaOverride] file=.
+                    // PORT(rp9): the file name for volumetric.ini [NebulaOverride] file=.
                     NebulaVolume::RegisterNebula(Nebula, File);
 #endif
                     G_Nebulae.push_back(Nebula);

@@ -1,7 +1,7 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 
-// Port-only: DPNet behind DirectPlay 8's COM interfaces (DPNetAdapter.h, docs/dpnet.md).
+// PORT(dpnet): DPNet behind DirectPlay 8's COM interfaces (DPNetAdapter.h, docs/dpnet.md).
 //
 // DPNet's FServer has no socket, clock or thread of its own. This file supplies them: a UDP
 // socket bound like DirectPlay's TCP/IP service provider, a network thread that feeds received

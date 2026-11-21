@@ -659,7 +659,7 @@ namespace Archetype
 
     long Munition::BEAM_ARCH_INDEX = -1;
 
-    // Port-only names for code retail inlines into its two callers (they need the protected
+    // PORT(api): names for code retail inlines into its two callers (they need the protected
     // static): the LoadEquipment tail 062f930e..062f9347 and Archetype::Free 062fab7f..062fab98.
     void Munition::LoadBeamArchIdx()
     {

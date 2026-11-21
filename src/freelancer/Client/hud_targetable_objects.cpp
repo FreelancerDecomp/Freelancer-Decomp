@@ -33,7 +33,7 @@
 #include "common_reputation.h" // Reputation::Vibe::GetAffiliation, Reputation::get_short_name
 #include "font_imp.h"         // FindMenuFontImp (FUN_004177b0)
 #include "globals.h"          // G_RenderSurfaceWidth / G_RenderSurfaceHeight
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_comm.h"         // HudCommIsWatchedObjectId (FUN_004cc880)
 #include "hud_command_dispatch.h" // HudCommandRecord, FSpaceCommand, SpaceSendCommand
 #include "hud_status_core.h"  // HudSampleShieldHitPoints (FUN_004d4b50)
@@ -2502,7 +2502,7 @@ void HudTargetableObjects::DrawWaypointArrow(FHudContactRecord const* Record)
                                static_cast<double>(0.0174533f)) *   // DAT_0067dc90
                       static_cast<double>(-(-1.3f)) * static_cast<double>(0.945f);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: +0x98 is the 4:3 angle; the screen edge is the widened one.
+        // PORT(widescreen): +0x98 is the 4:3 angle; the screen edge is the widened one.
         Edge *= SpaceCameraHorPlusScale(Ui);
 #endif
         if (!(Local.X > 0.0f))
@@ -3418,7 +3418,7 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
                                static_cast<double>(0.0174533f)) *   // DAT_0067dc90, DAT_005c77f4
                       static_cast<double>(-(-1.3f)) * static_cast<double>(0.89f);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: +0x98 is the 4:3 angle; the screen edge is the widened one.
+        // PORT(widescreen): +0x98 is the 4:3 angle; the screen edge is the widened one.
         Edge *= SpaceCameraHorPlusScale(Ui);
 #endif
         if (!(Local.X > 0.0f))
@@ -3769,7 +3769,7 @@ void HudTargetableObjects::DrawLeadMarkers()
         Object->get_type(Type);   // slot 34
         float Size = 0.0f;
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: marker size follows the height-scaled interface.
+        // PORT(widescreen): marker size follows the height-scaled interface.
         double const Unit = WidescreenEquivalentSurfaceWidth() * static_cast<double>(0.0015625f);
 #else
         double const Unit = static_cast<double>(static_cast<int>(G_RenderSurfaceWidth)) *

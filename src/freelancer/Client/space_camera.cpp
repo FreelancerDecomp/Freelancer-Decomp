@@ -31,7 +31,7 @@
 #include "globals.h"         // g_client.window (DAT_0067eca0), G_RenderSurfaceWidth/Height
 #include "player_behavior.h" // GetPlayerObjRW (the DAT_00679744 - 8 read, FUN_0054baf0)
 #include "star_sys.h"        // StarSysGetFogColor (FUN_005552e0)
-#include "widescreen.h"      // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"      // PORT(widescreen)
 
 #include "dacom.h"
 #include "common_csys.h"     // Acquire3DMathEngine (FUN_005b73e0)
@@ -178,7 +178,7 @@ namespace
             Cam->HalfFovXDeg = static_cast<float>(HalfFovX);
             double TanX = tan(HalfFovX * static_cast<double>(kDegreesToRadians));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-            // Port-only Hor+: +0x98 keeps the 4:3 angle, the frustum takes the widened one.
+            // PORT(widescreen): +0x98 keeps the 4:3 angle, the frustum takes the widened one.
             TanX *= SpaceCameraHorPlusScale(Cam);
 #endif
             const double TanY = TanX / static_cast<double>(Cam->Aspect);
@@ -207,7 +207,7 @@ namespace
             const double TanX = TanY * static_cast<double>(Cam->Aspect);
             const float TanXStored = static_cast<float>(TanX);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-            // Port-only Hor+: +0x98 is the 4:3 angle the widened tangent came from.
+            // PORT(widescreen): +0x98 is the 4:3 angle the widened tangent came from.
             Cam->HalfFovXDeg = TangentToDegrees(TanX / SpaceCameraHorPlusScale(Cam));
 #else
             Cam->HalfFovXDeg = TangentToDegrees(TanX);
@@ -290,7 +290,7 @@ void SpaceCameraSetHalfFovX(FSpaceCamera* Cam, float HalfFovXDeg)
 
     double TanX = tan(static_cast<double>(HalfFovXDeg) * static_cast<double>(kDegreesToRadians));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x98 keeps the 4:3 angle, the frustum takes the widened one.
+    // PORT(widescreen): +0x98 keeps the 4:3 angle, the frustum takes the widened one.
     TanX *= SpaceCameraHorPlusScale(Cam);
 #endif
     const double TanY = TanX / static_cast<double>(Cam->Aspect);
@@ -311,7 +311,7 @@ void SpaceCameraSetFovY(FSpaceCamera* Cam, float FovYDeg)
     const double TanY = tan(static_cast<double>(FovYDeg) * static_cast<double>(kDegreesToRadians));
     const double TanX = TanY * static_cast<double>(Cam->Aspect);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: +0x98 is the 4:3 angle the widened tangent came from.
+    // PORT(widescreen): +0x98 is the 4:3 angle the widened tangent came from.
     Cam->HalfFovXDeg = TangentToDegrees(TanX / SpaceCameraHorPlusScale(Cam));
 #else
     Cam->HalfFovXDeg = TangentToDegrees(TanX);
@@ -352,7 +352,7 @@ bool SpaceCameraSetViewport(FSpaceCamera* Cam, const int* ViewRect4)
     // X plane / XScale with the unrounded tangent, Y plane / YScale with the stored float.
     double TanX = tan(static_cast<double>(Cam->HalfFovXDeg) * static_cast<double>(kDegreesToRadians));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the 4:3 angle at +0x98 widened for the viewport just stored.
+    // PORT(widescreen): the 4:3 angle at +0x98 widened for the viewport just stored.
     TanX *= SpaceCameraHorPlusScale(Cam);
 #endif
     const double TanY = TanX / static_cast<double>(AspectStored);

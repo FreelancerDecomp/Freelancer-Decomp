@@ -157,7 +157,7 @@ NeuroNetMissionMessage::NeuroNetMissionMessage()
     , bPausedGame(0)
 {
     // Inlined into FUN_0048b1c0 (0x0048b1f9..0x0048b21d): WinControl ctor (FUN_0059f860), the
-    // vptrs, DAT_00671ff4 = this, +0x364 = 0 (a dword store), +0x368 = 0. Port-only: every
+    // vptrs, DAT_00671ff4 = this, +0x364 = 0 (a dword store), +0x368 = 0. PORT(deviation): every
     // other field is zeroed too -- retail leaves +0x32c..+0x360 as operator_new left them, and
     // only Create writes the controls its kind uses (SetProperty compares the clicked control
     // against all of them).

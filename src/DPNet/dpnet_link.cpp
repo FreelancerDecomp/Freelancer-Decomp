@@ -1,4 +1,4 @@
-// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation (port-only, not part of retail).
+// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation -- PORT(dpnet), not part of retail.
 // One [MC-DPL8R] connection; see dpnet_link.h. Section numbers refer to [MC-DPL8R].
 
 #include "dpnet_link.h"

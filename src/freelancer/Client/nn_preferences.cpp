@@ -36,7 +36,7 @@
 #include "player_spawn.h"          // GetPlayerConnectionId (DAT_00673344)
 #include "rich_text_win.h"
 #include "ui_scroll.h"
-#include "widescreen.h"            // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"            // PORT(widescreen)
 #include "win3d.h"
 #include "win3d_renderables.h"     // Win3DFlushBeforeOverlayDraw (FUN_0045a9f0)
 #include "win_factory.h"
@@ -1457,12 +1457,12 @@ namespace
     };
 
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only replacement for the ctor's fixed five resolutions (0x004a982f..0x004a98bc): every
-    // device resolution of at least 800x600 that is at least as wide as 4:3, ascending by width,
-    // at most kPrefVideoResolutionCount of them (the largest kept), then the same list at 32 bpp.
-    // The page keys its selection by width alone (SelWidth / CurWidth), so one height is kept
-    // per width: the one whose aspect is closest to the desktop's (1280x720 over 1280x960 on a
-    // 16:9 monitor). Unused entries get width -1, which FindVideoMode never matches.
+    // PORT(widescreen): replacement for the ctor's fixed five resolutions (0x004a982f..0x004a98bc):
+    // every device resolution of at least 800x600 that is at least as wide as 4:3, ascending by
+    // width, at most kPrefVideoResolutionCount of them (the largest kept), then the same list at 32
+    // bpp. The page keys its selection by width alone (SelWidth / CurWidth), so one height is kept
+    // per width: the one whose aspect is closest to the desktop's (1280x720 over 1280x960 on a 16:9
+    // monitor). Unused entries get width -1, which FindVideoMode never matches.
     void BuildWidescreenModeTable(FPrefVideoMode* Modes)
     {
         int DesktopWidth = 4;
@@ -1567,7 +1567,8 @@ bool NnPreferences::FindVideoMode(DisplaySettings* Out, int Width, int Height, i
         if (Bpp > 0 ? Bpp != ModeBpp : Out->color_bpp != ModeBpp)
             continue;
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only: any mode at least as wide as 4:3 (16:10, 16:9, ...); the cameras go Hor+.
+        // PORT(widescreen): any mode at least as wide as 4:3 (16:10, 16:9, ...); the cameras go
+        // Hor+.
         if (Mode.Width * 3 >= Mode.Height * 4)
 #else
         if (Mode.Width * 3 == Mode.Height * 4)

@@ -124,8 +124,8 @@ void SpaceCameraSetFovY(FSpaceCamera* Cam, float FovYDeg);
 int SpaceCameraSetProperty(FSpaceCamera* Cam, const char* Key, const char* Value);
 
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-// Port-only (widescreen.h): the Hor+ factor for this camera's stored viewport. Under the define
-// +0x98 is the horizontal half-angle on a 4:3 surface; the planes, XScale and +0x9c use
+// PORT(widescreen) (widescreen.h): the Hor+ factor for this camera's stored viewport. Under the
+// define +0x98 is the horizontal half-angle on a 4:3 surface; the planes, XScale and +0x9c use
 // tan(+0x98) times this factor.
 double SpaceCameraHorPlusScale(const FSpaceCamera* Cam);
 #endif

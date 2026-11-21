@@ -26,7 +26,7 @@
 #include "effect_base.h"      // EffectSystemShutdown (FUN_004f7140)
 #include "vis_effect_arch.h"  // EffectArchShutdown (FUN_0040ef30)
 #include "font_imp.h"         // FontShutdown (FUN_004174a0)
-#include "client_tick_profile.h" // Port-only diagnostics, released before fonts
+#include "client_tick_profile.h" // PORT(diag): released before fonts
 #include "gameflow.h"
 #include "globals.h"
 #include "graph_library.h"
@@ -52,7 +52,7 @@
 #include "ui_scroll.h"
 #include "voice_profiles.h"
 #ifdef FREELANCER_RP9
-#include "render_ex.h"        // RenderEx::Shutdown (port-only Direct3D 9 extensions)
+#include "render_ex.h"        // PORT(rp9): RenderEx::Shutdown
 #endif
 
 #include <ctype.h>
@@ -413,7 +413,7 @@ namespace
     bool RunEulaGate()
     {
 #if defined(_WIN64)
-        // Port-only: EBUEula.dll is a 32-bit code module a 64-bit process cannot load, so the
+        // PORT(x64): EBUEula.dll is a 32-bit code module a 64-bit process cannot load, so the
         // x64 client skips the EULA, as FLDedicated does (docs/x64.md, "EULA").
         return true;
 #else
@@ -573,7 +573,7 @@ namespace
         ShutdownClientSoundArch(); // FUN_0042b4d0
         ShutdownRenderMgr(false);  // FUN_004247c0(0)
 #ifdef FREELANCER_RP9
-        // Port-only: the Direct3D 9 extension objects and interfaces go before the pipeline.
+        // PORT(rp9): the Direct3D 9 extension objects and interfaces go before the pipeline.
         RenderEx::Shutdown();
 #endif
         // 0x005b22c3 FUN_005b4050: frees every heap option object and list node of the

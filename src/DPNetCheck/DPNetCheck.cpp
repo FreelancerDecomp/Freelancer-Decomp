@@ -1,7 +1,7 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 
-// DPNetCheck.exe (port-only, docs/dpnet.md): joins a running Freelancer server through
+// DPNetCheck.exe (PORT(dpnet), docs/dpnet.md): joins a running Freelancer server through
 // Microsoft's DirectPlay 8 client, dpnet.dll, which is what a retail Freelancer client uses, and
 // checks the three steps a client takes:
 //
