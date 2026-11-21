@@ -37,8 +37,8 @@ if(CMAKE_HOST_WIN32)
       if(_root AND EXISTS "${_root}/scripts/buildsystems/vcpkg.cmake")
         file(TO_CMAKE_PATH "${_root}/scripts/buildsystems/vcpkg.cmake" _fl_toolchain)
         # A toolchain only takes effect in a new build tree: CMake keeps the one the tree was
-        # first configured with.
-        if(DEFINED CACHE{CMAKE_CXX_COMPILER})
+        # first configured with (its CMakeSystem.cmake, written by the first project()).
+        if(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_VERSION}/CMakeSystem.cmake")
           message(FATAL_ERROR "A vcpkg module was turned on in a build tree configured without "
                               "vcpkg. Configure it afresh, keeping the switch: cmake --fresh "
                               "--preset <preset> -DFreelancerRpGpu=${FreelancerRpGpu}")
