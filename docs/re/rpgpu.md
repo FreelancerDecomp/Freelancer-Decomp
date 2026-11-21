@@ -94,6 +94,8 @@ The first version opens the device and presents a cleared frame; it draws nothin
 
 ## x64
 
-Callers keep texture handles in 32-bit fields, and the font atlas reads a locked texture's
-address from an `unsigned long[5]`. So on x64 the texture and buffer handles and the texture
-images are allocated from LowArena (`x64_low_arena.h`), below 2 GB.
+Callers keep texture and buffer handles in 32-bit fields, so on x64 the handle objects are
+allocated from LowArena (`x64_low_arena.h`), below 2 GB. The texture images live on the ordinary
+heap: `LockTexture` hands their address out in `FRpTextureLock::Bits`
+(`render/IRenderPipeline.h`), which is a pointer, so nothing cuts it to 32 bits. On Win32 the
+record keeps retail's five-dword layout.

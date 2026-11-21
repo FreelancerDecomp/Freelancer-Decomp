@@ -13,7 +13,8 @@
 // Win32 does not use this header's allocator: there every address already fits.
 //
 // FL_LOW_ARENA_NEW, inside a class, gives that class operator new / delete from the arena on
-// x64 and nothing on Win32. RendComp's render plugins use it for the handles they return through
+// x64 and nothing on Win32. Plain new ends the process when the arena is full (Allocate); new
+// (std::nothrow) returns null instead (TryAllocate), so its callers' null checks hold. RendComp's render plugins use it for the handles they return through
 // IRenderComponent::Claim, which retail declared as `int`.
 //
 // The arena reserves and commits 16 MB chunks of free address space below 2 GB, hands out
@@ -162,7 +163,7 @@ namespace LowArena
     }                                                                                              \
     static void* operator new(std::size_t Size, const std::nothrow_t&) noexcept                    \
     {                                                                                              \
-        return LowArena::Allocate(Size);                                                           \
+        return LowArena::TryAllocate(Size);                                                        \
     }                                                                                              \
     static void operator delete(void* Element, std::size_t Size)                                   \
     {                                                                                              \

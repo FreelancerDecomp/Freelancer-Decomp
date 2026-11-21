@@ -26,25 +26,24 @@
 
 static constexpr char kRpGpuComponentName[] = "SDLGPU";
 
-// CPU memory for one texture image. LockTexture hands its address out in a 32-bit slot (the
-// font atlas reads it from an unsigned long[5]), so on x64 it comes from LowArena, below 2 GB.
+// CPU memory for one texture image, on the ordinary heap: LockTexture hands its address out in
+// FRpTextureLock::Bits, which is pointer-sized on x64.
 struct FRpGpuImage
 {
-    unsigned char* Bits = nullptr;
-    std::size_t Size = 0;
+    std::vector<unsigned char> Bits;
     unsigned int Width = 0;
     unsigned int Height = 0;
     unsigned int Pitch = 0;
 };
 
 // A texture: its size, RP8 pixel-format number (pfenum) and one image per mip level (per face
-// for a cube). Callers keep the handle in 32-bit fields, so on x64 it is allocated below 2 GB
-// (x64_low_arena.h).
+// for a cube). Callers keep the handle in 32-bit fields, so on x64 the handle object (not its
+// images) is allocated below 2 GB (x64_low_arena.h).
 struct FRpGpuTexture
 {
     FL_LOW_ARENA_NEW
     FRpGpuTexture() = default;
-    ~FRpGpuTexture();
+    ~FRpGpuTexture() = default;
     FRpGpuTexture(const FRpGpuTexture&) = delete;
     FRpGpuTexture& operator=(const FRpGpuTexture&) = delete;
 
@@ -160,7 +159,7 @@ public:
     GENRESULT DACOM_API CreateTexture(int Width, int Height, unsigned int* Format, unsigned int Levels, unsigned int Flags, void** OutHandle) override;
     GENRESULT DACOM_API DestroyTexture(void* Handle) override;
     GENRESULT DACOM_API IsTexture(void* Handle) override;
-    GENRESULT DACOM_API LockTexture(void* Handle, int Level, void* Out) override;
+    GENRESULT DACOM_API LockTexture(void* Handle, int Level, FRpTextureLock* Out) override;
     GENRESULT DACOM_API UnlockTexture(void* Handle, int Level) override;
     GENRESULT DACOM_API GetTextureFormat(void* Handle, int* OutFormat) override;
     GENRESULT DACOM_API GetTextureDim(void* Handle, unsigned int* OutW, unsigned int* OutH, int* OutLevels) override;

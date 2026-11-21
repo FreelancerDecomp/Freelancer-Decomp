@@ -16,6 +16,22 @@
 struct IFileSystem;
 struct _D3DXIMAGE_INFO;
 
+// LockTexture's output record: retail's five dwords (0x14 bytes). The client's font atlas seeds
+// Format before the call and writes Pitch-spaced rows through Bits. Bits is a pointer, so on the
+// port-only x64 build the locked address is not cut to 32 bits; on Win32 it is retail's dword
+// at +0xC.
+struct FRpTextureLock
+{
+    unsigned long Width;  // +0x0 the level's width
+    unsigned long Height; // +0x4 the level's height
+    unsigned long Pitch;  // +0x8 bytes per row (per row of blocks for DXT)
+    void* Bits;           // +0xC the level's first byte
+    unsigned long Format; // +0x10 RP8 pixel-format number (pfenum)
+};
+FL_LAYOUT_ASSERT(sizeof(FRpTextureLock) == 0x14, "LockTexture's five-dword record");
+FL_LAYOUT_ASSERT(offsetof(FRpTextureLock, Bits) == 0xC, "LockTexture: bits at +0xC");
+FL_LAYOUT_ASSERT(offsetof(FRpTextureLock, Format) == 0x10, "LockTexture: pfenum at +0x10");
+
 
 // RP8-only names. Every IID is Iids::* from dacom_iids.h and IAggregateComponent itself is
 // declared in dacom.h, so nothing here is shared with render/shading.h any more.
@@ -166,7 +182,7 @@ struct IRenderPipeline : IDAComponent
     // slot 47 FUN_06d0dc51
     virtual GENRESULT DACOM_API IsTexture(void* Handle) = 0;
     // slot 48 FUN_06d0dce3
-    virtual GENRESULT DACOM_API LockTexture(void* Handle, int Level, void* Out) = 0;
+    virtual GENRESULT DACOM_API LockTexture(void* Handle, int Level, FRpTextureLock* Out) = 0;
     // slot 49 FUN_06d0e1af
     virtual GENRESULT DACOM_API UnlockTexture(void* Handle, int Level) = 0;
     // slot 50 FUN_06d0e3d9 RET 0xC

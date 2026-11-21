@@ -77,26 +77,6 @@ namespace
         OutputDebugStringA(Text);
     }
 
-    // CPU memory a caller may see through a 32-bit slot: below 2 GB on x64.
-    unsigned char* AllocateLow(std::size_t Size)
-    {
-#if defined(_WIN64)
-        return static_cast<unsigned char*>(LowArena::TryAllocate(Size));
-#else
-        return static_cast<unsigned char*>(std::malloc(Size));
-#endif
-    }
-
-    void FreeLow(unsigned char* Bits, std::size_t Size)
-    {
-#if defined(_WIN64)
-        LowArena::Free(Bits, Size);
-#else
-        (void)Size;
-        std::free(Bits);
-#endif
-    }
-
     // RP8 pixel-format numbers (pfenum): 1 P8, 2 R8G8B8, 3 R5G6B5, 4 X1R5G5B5, 5 A4R4G4B4,
     // 6 A1R5G5B5, 7 A8R8G8B8, 8 X8R8G8B8, 10..14 DXT1..5. 15..21 are format classes that RP8
     // resolves to one of those.
@@ -149,17 +129,21 @@ namespace
         return IsBlockFormat(Format) ? std::max(1u, (Height + 3) / 4) : Height;
     }
 
-    FRpGpuImage MakeImage(unsigned int Format, unsigned int Width, unsigned int Height)
+    // A zeroed image of one level; false when its memory could not be allocated.
+    bool MakeImage(unsigned int Format, unsigned int Width, unsigned int Height, FRpGpuImage* Out)
     {
-        FRpGpuImage Image;
-        Image.Width = std::max(1u, Width);
-        Image.Height = std::max(1u, Height);
-        Image.Pitch = RowPitch(Format, Image.Width);
-        Image.Size = static_cast<std::size_t>(Image.Pitch) * RowCount(Format, Image.Height);
-        Image.Bits = AllocateLow(Image.Size);
-        if (Image.Bits != nullptr)
-            std::memset(Image.Bits, 0, Image.Size);
-        return Image;
+        Out->Width = std::max(1u, Width);
+        Out->Height = std::max(1u, Height);
+        Out->Pitch = RowPitch(Format, Out->Width);
+        try
+        {
+            Out->Bits.assign(static_cast<std::size_t>(Out->Pitch) * RowCount(Format, Out->Height), 0);
+        }
+        catch (const std::bad_alloc&)
+        {
+            return false;
+        }
+        return true;
     }
 
     // RP8's FUN_06d16930: the key's text when GetString finds it, converted as RP8 does
@@ -279,12 +263,6 @@ namespace
         std::memcpy(&Value, Data + Offset, sizeof(Value));
         return Value;
     }
-}
-
-FRpGpuTexture::~FRpGpuTexture()
-{
-    for (FRpGpuImage& Image : Images)
-        FreeLow(Image.Bits, Image.Size);
 }
 
 // --- aggregation -----------------------------------------------------------------------------
@@ -1045,15 +1023,22 @@ GENRESULT DACOM_API FRpGpu::CreateTexture(int Width, int Height, unsigned int* F
     Texture->Height = static_cast<unsigned int>(Height);
     Texture->Format = Concrete;
     Texture->Levels = Count;
+    try
+    {
+        Texture->Images.resize(Count);
+    }
+    catch (const std::bad_alloc&)
+    {
+        delete Texture;
+        return GR_OUT_OF_MEMORY;
+    }
     for (unsigned int Level = 0; Level < Count; ++Level)
     {
-        FRpGpuImage Image = MakeImage(Concrete, Texture->Width >> Level, Texture->Height >> Level);
-        if (Image.Bits == nullptr)
+        if (!MakeImage(Concrete, Texture->Width >> Level, Texture->Height >> Level, &Texture->Images[Level]))
         {
             delete Texture;
             return GR_OUT_OF_MEMORY;
         }
-        Texture->Images.push_back(Image);
     }
     Textures_.insert(Texture);
     *OutHandle = Texture;
@@ -1076,22 +1061,20 @@ GENRESULT DACOM_API FRpGpu::IsTexture(void* Handle)
     return LiveTexture(Handle) != nullptr ? GR_OK : GR_GENERIC;
 }
 
-// Out: five dwords: width, height, pitch in bytes, bits, pixel format (pfenum).
-GENRESULT DACOM_API FRpGpu::LockTexture(void* Handle, int Level, void* Out)
+// Out: width, height, pitch in bytes, bits, pixel format (pfenum).
+GENRESULT DACOM_API FRpGpu::LockTexture(void* Handle, int Level, FRpTextureLock* Out)
 {
     FRpGpuTexture* const Texture = LiveTexture(Handle);
     if (Texture == nullptr || Out == nullptr)
         return GR_INVALID_PARMS;
     if (Level < 0 || static_cast<std::size_t>(Level) >= Texture->Images.size())
         return GR_GENERIC;
-    const FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Level)];
-    unsigned long* const Record = static_cast<unsigned long*>(Out);
-    Record[0] = Image.Width;
-    Record[1] = Image.Height;
-    Record[2] = Image.Pitch;
-    // Retail's record keeps the address in a dword; LowArena keeps it below 2 GB on x64.
-    Record[3] = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Image.Bits));
-    Record[4] = Texture->Format;
+    FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Level)];
+    Out->Width = Image.Width;
+    Out->Height = Image.Height;
+    Out->Pitch = Image.Pitch;
+    Out->Bits = Image.Bits.data();
+    Out->Format = Texture->Format;
     return GR_OK;
 }
 
