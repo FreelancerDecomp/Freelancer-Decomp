@@ -782,6 +782,28 @@ function(fl_rc name)
   target_compile_definitions(${name} PRIVATE "$<$<COMPILE_LANGUAGE:RC>:${A_DEFINES}>")
 endfunction()
 
+# The include directories an imported target hands on, through the targets it links
+# (SDL3::SDL3 is a wrapper around SDL3::SDL3-shared, which holds them).
+function(_fl_package_includes out target)
+  set(_dirs ${${out}})
+  get_target_property(_aliased ${target} ALIASED_TARGET)
+  if(_aliased)
+    set(target ${_aliased})
+  endif()
+  get_target_property(_own ${target} INTERFACE_INCLUDE_DIRECTORIES)
+  if(_own)
+    list(APPEND _dirs ${_own})
+  endif()
+  get_target_property(_links ${target} INTERFACE_LINK_LIBRARIES)
+  foreach(_link IN LISTS _links)
+    if(TARGET "${_link}")
+      _fl_package_includes(_dirs "${_link}")
+    endif()
+  endforeach()
+  list(REMOVE_DUPLICATES _dirs)
+  set(${out} ${_dirs} PARENT_SCOPE)
+endfunction()
+
 # fl_vcpkg_package(<name> <package> <targets...>): link a port-only module to a package of the
 # shared vcpkg manifest (src/vcpkg.json; the root CMakeLists.txt installs it). Returns FALSE in
 # <name>_VCPKG_OK, with a warning or (FreelancerRequireVcpkg=ON) an error, when vcpkg is not
@@ -805,10 +827,9 @@ function(fl_vcpkg_package name package)
   # The package's headers go after every other include directory, where vcpkg's MSBuild
   # integration put them (an imported target's would come first).
   foreach(_target IN LISTS ARGN)
-    get_target_property(_dirs ${_target} INTERFACE_INCLUDE_DIRECTORIES)
-    if(_dirs)
-      set_property(TARGET ${name} APPEND PROPERTY FL_INCLUDES_LATE ${_dirs})
-    endif()
+    set(_dirs)
+    _fl_package_includes(_dirs ${_target})
+    set_property(TARGET ${name} APPEND PROPERTY FL_INCLUDES_LATE ${_dirs})
     target_link_libraries(${name} PRIVATE "$<LINK_ONLY:${_target}>")
   endforeach()
   set(${name}_VCPKG_OK TRUE PARENT_SCOPE)
