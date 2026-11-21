@@ -28,7 +28,7 @@ public:
     // window stays the client's: SDL neither creates nor destroys it, and its size is the
     // swap chain's (Width and Height are not used). A second call with the same window keeps the
     // device and only applies VSync.
-    bool Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) override;
+    bool Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync) override;
     void Destroy() override;
     bool IsReady() const override { return Device_ != nullptr; }
 
@@ -38,7 +38,7 @@ public:
     // not a failure. A failed frame marks the device for a rebuild on the next Create.
     bool Present() override;
 
-    HWND Hwnd() const override { return Hwnd_; }
+    RpWindowHandle Hwnd() const override { return Hwnd_; }
     std::uint32_t Width() const override { return Width_; }
     std::uint32_t Height() const override { return Height_; }
 
@@ -54,7 +54,7 @@ public:
     const char* LastError() const override;
 
 private:
-    HWND Hwnd_ = nullptr;
+    RpWindowHandle Hwnd_ = nullptr;
     SDL_Window* Window_ = nullptr;
     SDL_GPUDevice* Device_ = nullptr;
     bool bSdlVideo_ = false;

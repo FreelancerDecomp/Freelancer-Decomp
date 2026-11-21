@@ -39,8 +39,11 @@ client's next `CreateBuffers` brings the new one up.
   `VCPKG_INSTALLATION_ROOT` (GitHub's Windows runners) or Visual Studio's own copy
   (override: `-p:FlVcpkgRoot=...`). When RPGPU is on and vcpkg is missing, the build skips it
   with a warning; with `-p:FreelancerRequireVcpkg=true` it fails instead.
-- `RP_DIRECT3D9` selects the Direct3D 9 branch of `render/d3d8_min.h`, so the interface types
-  come from the Windows SDK's `d3d9.h`, which has the same layouts. No DirectX 8 SDK is needed.
+- `RP_PORT_TYPES` makes `render/IRenderPipeline.h` carry the port's own types
+  (`render/rp_types.h`: light, material, render-state id, window handle and image info, with
+  the D3D layouts) instead of the D3D ones, so RPGPU includes no Direct3D header. Every other
+  module still sees the D3D types under the same names; RP8 and RP9 assert that the layouts
+  match.
 - CI builds RPGPU on both platforms with `FreelancerRpGpu=1` and `FreelancerRequireVcpkg=true`.
   It caches vcpkg's binary packages (`VCPKG_DEFAULT_BINARY_CACHE`) per triplet, runner image and
   manifest, so SDL3 is compiled once per compiler and manifest, not per run.

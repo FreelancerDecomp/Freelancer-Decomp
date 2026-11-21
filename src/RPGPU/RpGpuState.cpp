@@ -269,8 +269,8 @@ GENRESULT DACOM_API FRpGpu::SetPerspective(float FovDeg, float Aspect, float Nea
     return GR_OK;
 }
 
-// Lights: the handle is the caller's own D3DLIGHT8. Nothing is lit until the skeleton draws.
-GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const D3DLIGHT8* Light)
+// Lights: the handle is the caller's own light record. Nothing is lit until the skeleton draws.
+GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const RpLight* Light)
 {
     (void)Handle;
     (void)Light;
@@ -283,7 +283,7 @@ GENRESULT DACOM_API FRpGpu::DestroyLight(void* Handle)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, D3DLIGHT8* OutLight)
+GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, RpLight* OutLight)
 {
     (void)Handle;
     if (OutLight != nullptr)
@@ -306,13 +306,13 @@ GENRESULT DACOM_API FRpGpu::GetLightEnable(void* Handle, int* OutEnable)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::SetMaterial(const D3DMATERIAL8* Material)
+GENRESULT DACOM_API FRpGpu::SetMaterial(const RpMaterial* Material)
 {
     (void)Material;
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::GetMaterial(D3DMATERIAL8* Material)
+GENRESULT DACOM_API FRpGpu::GetMaterial(RpMaterial* Material)
 {
     if (Material != nullptr)
         std::memset(Material, 0, sizeof(*Material));
@@ -325,7 +325,7 @@ GENRESULT DACOM_API FRpGpu::ResetRenderStatesToDefaults()
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::SetRenderState(D3DRENDERSTATETYPE State, int Value)
+GENRESULT DACOM_API FRpGpu::SetRenderState(RpRenderState State, int Value)
 {
     const unsigned int Index = static_cast<unsigned int>(State);
     if (Index < 256)
@@ -333,7 +333,7 @@ GENRESULT DACOM_API FRpGpu::SetRenderState(D3DRENDERSTATETYPE State, int Value)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::GetRenderState(D3DRENDERSTATETYPE State, int* Out)
+GENRESULT DACOM_API FRpGpu::GetRenderState(RpRenderState State, int* Out)
 {
     const unsigned int Index = static_cast<unsigned int>(State);
     if (Out != nullptr)

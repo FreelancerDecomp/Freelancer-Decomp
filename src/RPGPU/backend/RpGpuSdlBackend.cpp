@@ -10,7 +10,7 @@ FRpGpuSdlBackend::~FRpGpuSdlBackend()
     Destroy();
 }
 
-bool FRpGpuSdlBackend::Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync)
+bool FRpGpuSdlBackend::Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync)
 {
     (void)Width;
     (void)Height;

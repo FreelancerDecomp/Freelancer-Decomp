@@ -728,9 +728,9 @@ GENRESULT DACOM_API FRpGpu::LoadSurfaceData(void* Handle, int Level, unsigned in
 // D3DXIMAGE_INFO for a DDS file, read from its header: +0 width, +4 height, +8 depth,
 // +0xC mip levels, +0x10 D3DFORMAT, +0x14 resource type, +0x18 file format (4, DDS). Shading
 // loads only DDS this way; anything else fails as D3DX's answer would make it.
-GENRESULT DACOM_API FRpGpu::GetImageInfo(_D3DXIMAGE_INFO* Info, unsigned int SrcSize, const void* SrcData)
+GENRESULT DACOM_API FRpGpu::GetImageInfo(RpImageInfo* Info, unsigned int SrcSize, const void* SrcData)
 {
-    return ReadDdsImageInfo(reinterpret_cast<std::uint32_t*>(Info), SrcSize, SrcData) ? GR_OK : GR_GENERIC;
+    return ReadDdsImageInfo(Info, SrcSize, SrcData) ? GR_OK : GR_GENERIC;
 }
 
 GENRESULT DACOM_API FRpGpu::LoadCubemap(IFileSystem* FileSystem, const char* FileName, void** OutHandle)
