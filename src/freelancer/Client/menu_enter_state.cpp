@@ -925,10 +925,10 @@ int MenuStateDriverUpdate(FMenuNavState* Nav, float DeltaSeconds)
         // PORT(widescreen): the logo sits in the top left of its 4:3 picture and goes with the main
         // menu column to the left edge (hud_widescreen.cpp).
         ImageSetWidescreenAlign(-1);
+#endif
         Nav->LogoImage.Draw();                                  // +0x210 slot 2 (0x005742dd)
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
         ImageSetWidescreenAlign(0);
-#else
-        Nav->LogoImage.Draw();                                  // +0x210 slot 2 (0x005742dd)
 #endif
         ClearWin3DBuffers(kWin3DClearDepth);                    // FUN_004215e0(0x100)
         Win3DDrawAll();                                         // FUN_0059e300 (0x005742ed)
