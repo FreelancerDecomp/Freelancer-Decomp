@@ -185,7 +185,7 @@ Notes:
 * Per-texture-stage states (`COLOROP`, `ALPHAOP`, `COLORARG1/2`, `ADDRESSU/V`, ...) have built-in defaults in the port but are **not read from the INI** (the stage maps are filled only with their defaults).
 * Keys that are listed in the retail `DACOM.INI` as comments, for example `DEVICE_GAMMA`, are not read by this code.
 * The value is converted by `Rp8IniNumber` ([rp8_semantics.h](../../src/include/render/rp8_semantics.h)): the text is cut after its leading run of `0123456789truefalsynoxTRUEFALSYNOX+-` (no `b`, `c` or `d`, so `0x1C` reads as `0x1`, which is 1); `true` / `yes` are 1, `false` / `no` are 0; a text with an `x` is hex; anything else is decimal through msvcrt's wrapping `atoi`.
-* The port-only pipelines RP9 and RPGPU ([rpgpu.md](../re/rpgpu.md)) read the keys of 8.2 to 8.4 the same way, from the same tables. RPGPU ignores the device-creation keys of 8.1, which have no SDL_GPU meaning.
+* The port-only pipelines RP9 and RPGPU ([rpgpu.md](../re/rpgpu.md)) read the keys of 8.2 to 8.4 the same way, from the same tables. RPGPU ignores the device-creation keys of 8.1, which have no SDL_GPU meaning. RPGPU also reads `NULL_DEVICE` (default 0): non-zero runs it without a device, which is useful when there is no GPU ([rpgpu.md](../re/rpgpu.md)).
 
 ### 8.5 `[TextureFormatClasses]` (optional)
 

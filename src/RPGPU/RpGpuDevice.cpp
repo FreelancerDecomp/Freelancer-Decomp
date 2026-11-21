@@ -10,8 +10,10 @@ FRpGpuDevice::~FRpGpuDevice()
     Destroy();
 }
 
-bool FRpGpuDevice::Create(HWND Hwnd, bool bVSync)
+bool FRpGpuDevice::Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync)
 {
+    (void)Width;
+    (void)Height;
     if (Hwnd == nullptr || bAbandoned_)
         return false;
     if (Device_ != nullptr && (Hwnd_ != Hwnd || bNeedsRebuild_))
@@ -185,7 +187,18 @@ bool FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
     return bOk;
 }
 
+bool FRpGpuDevice::ReadBack(FRpGpuFrame* Out)
+{
+    (void)Out;
+    return false;
+}
+
 const char* FRpGpuDevice::LastError() const
 {
     return SDL_GetError();
+}
+
+std::unique_ptr<IRpGpuBackend> CreateRpGpuSdlBackend()
+{
+    return std::make_unique<FRpGpuDevice>();
 }

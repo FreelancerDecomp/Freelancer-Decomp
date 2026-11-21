@@ -87,9 +87,11 @@
   <ItemGroup Condition="'$(RpGpuEnabled)'=='true'">
     <ClCompile Include="RpGpu.cpp" />
     <ClCompile Include="RpGpuDevice.cpp" />
+    <ClCompile Include="RpGpuNullBackend.cpp" />
   </ItemGroup>
   <ItemGroup Condition="'$(RpGpuEnabled)'=='true'">
     <ClInclude Include="RpGpu.h" />
+    <ClInclude Include="RpGpuBackend.h" />
     <ClInclude Include="RpGpuDevice.h" />
   </ItemGroup>
   <ItemGroup>

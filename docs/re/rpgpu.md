@@ -17,6 +17,12 @@ version. On Win32 it is an option next to RP8, which stays the default. See
 In `bin/DACOM.INI`, uncomment `RPGPU.dll` in `[Libraries]`, and in `[System]` replace
 `DirectX8` with `SDLGPU`. It reads the same `[RenderPipeline]` section as RP8.
 
+`NULL_DEVICE = 1` in that section (RPGPU's own key, default 0) runs RPGPU without a device: the
+Null backend accepts every call, reports a fixed list of display modes (1920x1080 down to
+640x480, 60 Hz) and presents nothing. It is for runs without a GPU, such as a CI smoke test and
+screenshot comparison. The key is read at `Startup`; a change replaces the backend, and the
+client's next `CreateBuffers` brings the new one up.
+
 ## Build
 
 - SDL3 comes from vcpkg in manifest mode: `src/RPGPU/vcpkg.json`, with `builtin-baseline`
@@ -33,9 +39,16 @@ In `bin/DACOM.INI`, uncomment `RPGPU.dll` in `[Libraries]`, and in `[System]` re
 
 ## Structure
 
-- `RpGpuDevice.*` is the only code that includes SDL. It wraps the client's window in an SDL
-  window (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), creates the SDL_GPU device, claims the
-  window, and clears and presents. SDL picks the backend: Direct3D 12, Vulkan or Metal.
+- `RpGpuBackend.h` is the seam between the pipeline and the screen: `IRpGpuBackend` brings the
+  device and swap chain up, lists display modes, clears and presents, and reads the last frame
+  back.
+- `RpGpuDevice.*` is the SDL backend and the only code that includes SDL. It wraps the client's
+  window in an SDL window (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), creates the SDL_GPU
+  device, claims the window, and clears and presents. SDL picks the GPU API: Direct3D 12, Vulkan
+  or Metal. It cannot read frames back yet: the swap-chain image is not readable, and that
+  changes once RPGPU draws into its own target (plan step 5.3).
+- `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour at
+  the size `CreateBuffers` asked for, and it reads that back.
 - `RpGpu.*` holds the DACOM factory, the aggregation controller and the component that
   implements the interfaces.
 
@@ -66,6 +79,9 @@ The first version opens the device and presents a cleared frame; it draws nothin
 - **The draw calls** are accepted and dropped.
 - **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none) and no cube
   maps until `LoadCubemap` loads them.
+- **`PrintScreen`** answers RP8's argument checks and writes a 24-bit BMP (`.BMP`, `.DIB`) of
+  the backend's last frame. RP8 saves through D3DX in seven formats; RPGPU fails the other
+  five, and fails on a backend that cannot read frames back.
 - **`GetImageInfo`** reads the DDS header itself, which is what Shading needs from D3DX.
 
 ## x64
