@@ -47,18 +47,28 @@ client's next `CreateBuffers` brings the new one up.
 
 ## Structure
 
-- `RpGpuBackend.h` is the seam between the pipeline and the screen: `IRpGpuBackend` brings the
-  device and swap chain up, lists display modes, clears and presents, and reads the last frame
-  back.
-- `RpGpuDevice.*` is the SDL backend and the only code that includes SDL. It wraps the client's
-  window in an SDL window (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), creates the SDL_GPU
-  device, claims the window, and clears and presents. SDL picks the GPU API: Direct3D 12, Vulkan
-  or Metal. It cannot read frames back yet: the swap-chain image is not readable, and that
-  changes once RPGPU draws into its own target (plan step 5.3).
-- `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour at
-  the size `CreateBuffers` asked for, and it reads that back.
-- `RpGpu.*` holds the DACOM factory, the aggregation controller and the component that
-  implements the interfaces.
+- `RpGpu.*` holds the DACOM factory, the aggregation controller and the component class. Its
+  .cpp has the interface lookup, the device and frame calls that go to the backend, the draw
+  calls and `DllMain`.
+- `RpGpuState.*` holds the settings and RP8's defaults, the pipeline, render and texture-stage
+  state, the viewport, the transforms and the lights.
+- `RpGpuResources.*` holds the texture and buffer handle tables, the texture images, the
+  vertex and index buffers with RP8's lock and offset conventions, the pool and scratch rings,
+  and the IRPTexture loaders.
+- `RpGpuDds.*` reads the DDS header for `GetImageInfo`; the texture decoder (plan step 4.1)
+  will grow here.
+- `RpGpuCommon.h` holds the helpers every file shares: the GENRESULT values, the -1 handle and
+  the log.
+- `backend/` is the seam between the pipeline and the screen:
+  - `RpGpuBackend.h`: `IRpGpuBackend` brings the device and swap chain up, lists display modes,
+    clears and presents, and reads the last frame back.
+  - `RpGpuSdlBackend.*` is the SDL backend and the only code that includes SDL. It wraps the
+    client's window in an SDL window (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), creates the
+    SDL_GPU device, claims the window, and clears and presents. SDL picks the GPU API: Direct3D
+    12, Vulkan or Metal. It cannot read frames back yet: the swap-chain image is not readable,
+    and that changes once RPGPU draws into its own target (plan step 5.3).
+  - `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour
+    at the size `CreateBuffers` asked for, and it reads that back.
 
 ## Status: skeleton
 

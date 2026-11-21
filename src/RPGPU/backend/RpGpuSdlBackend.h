@@ -15,14 +15,14 @@
 struct SDL_Window;
 struct SDL_GPUDevice;
 
-class FRpGpuDevice final : public IRpGpuBackend
+class FRpGpuSdlBackend final : public IRpGpuBackend
 {
 public:
-    FRpGpuDevice() = default;
-    ~FRpGpuDevice() override;
+    FRpGpuSdlBackend() = default;
+    ~FRpGpuSdlBackend() override;
 
-    FRpGpuDevice(const FRpGpuDevice&) = delete;
-    FRpGpuDevice& operator=(const FRpGpuDevice&) = delete;
+    FRpGpuSdlBackend(const FRpGpuSdlBackend&) = delete;
+    FRpGpuSdlBackend& operator=(const FRpGpuSdlBackend&) = delete;
 
     // Wraps Hwnd in an SDL window, creates the GPU device and claims the window for it. The
     // window stays the client's: SDL neither creates nor destroys it, and its size is the

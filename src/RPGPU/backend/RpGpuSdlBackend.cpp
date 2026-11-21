@@ -1,16 +1,16 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
 
-#include "RpGpuDevice.h"
+#include "RpGpuSdlBackend.h"
 
 #include <SDL3/SDL.h>
 
-FRpGpuDevice::~FRpGpuDevice()
+FRpGpuSdlBackend::~FRpGpuSdlBackend()
 {
     Destroy();
 }
 
-bool FRpGpuDevice::Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync)
+bool FRpGpuSdlBackend::Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, bool bVSync)
 {
     (void)Width;
     (void)Height;
@@ -89,7 +89,7 @@ bool FRpGpuDevice::Create(HWND Hwnd, std::uint32_t Width, std::uint32_t Height, 
     return true;
 }
 
-void FRpGpuDevice::Destroy()
+void FRpGpuSdlBackend::Destroy()
 {
     if (Device_ != nullptr)
     {
@@ -117,7 +117,7 @@ void FRpGpuDevice::Destroy()
     Height_ = 0;
 }
 
-bool FRpGpuDevice::Present()
+bool FRpGpuSdlBackend::Present()
 {
     if (Device_ == nullptr)
         return false;
@@ -161,7 +161,7 @@ bool FRpGpuDevice::Present()
     return true;
 }
 
-bool FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
+bool FRpGpuSdlBackend::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
 {
     Out->clear();
     // The video subsystem is reference-counted: this works before and after Create.
@@ -187,18 +187,18 @@ bool FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
     return bOk;
 }
 
-bool FRpGpuDevice::ReadBack(FRpGpuFrame* Out)
+bool FRpGpuSdlBackend::ReadBack(FRpGpuFrame* Out)
 {
     (void)Out;
     return false;
 }
 
-const char* FRpGpuDevice::LastError() const
+const char* FRpGpuSdlBackend::LastError() const
 {
     return SDL_GetError();
 }
 
 std::unique_ptr<IRpGpuBackend> CreateRpGpuSdlBackend()
 {
-    return std::make_unique<FRpGpuDevice>();
+    return std::make_unique<FRpGpuSdlBackend>();
 }
