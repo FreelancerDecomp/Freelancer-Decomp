@@ -151,9 +151,9 @@ straight to RPGPU instead (phase 5, now in parallel with phases 2 to 4). RP9 sta
 option.
 
 **Gate:** `Release|x64` of every project that is not Win32-only is required in CI, with vcpkg
-required (a missing vcpkg is a build error, not a skipped RPGPU; #60 adds that switch). The Win32-only projects are RP8,
-RP9, FLServer, DPNetCheck, MemoryDiagnostics and the resource-only DLLs. Win32 FLRegress and
-RpcCodecTest output is unchanged.
+required (a missing vcpkg is a build error, not a skipped RPGPU; #60 adds that switch). The
+Win32-only projects are RP8, RP9, FLServer, DPNetCheck, MemoryDiagnostics and the resource-only
+DLLs. Win32 FLRegress and RpcCodecTest output is unchanged.
 
 ## Phase 3: the x64 client runs and plays with retail
 
