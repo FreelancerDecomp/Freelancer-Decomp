@@ -53,10 +53,10 @@ struct FEffectBase
     void* LinkNext;                // +0x64
     void* LinkSelf;                // +0x68
 };
-static_assert(sizeof(FEffectBase) == 0x6c, "EffectBase through +0x68");
-static_assert(offsetof(FEffectBase, EngineIndex) == 0x40, "EngineIndex");
-static_assert(offsetof(FEffectBase, RefCount) == 0x58, "RefCount");
-static_assert(offsetof(FEffectBase, EffectTypeId) == 0x5c, "EffectTypeId");
+FL_LAYOUT_ASSERT(sizeof(FEffectBase) == 0x6c, "EffectBase through +0x68");
+FL_LAYOUT_ASSERT(offsetof(FEffectBase, EngineIndex) == 0x40, "EngineIndex");
+FL_LAYOUT_ASSERT(offsetof(FEffectBase, RefCount) == 0x58, "RefCount");
+FL_LAYOUT_ASSERT(offsetof(FEffectBase, EffectTypeId) == 0x5c, "EffectTypeId");
 
 // FUN_004f79a0 — size==0x84 → Heap::Malloc on the pool DAT_00674ccc; else malloc.
 void* EffectAlloc(unsigned Size);

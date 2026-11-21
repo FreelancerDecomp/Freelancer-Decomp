@@ -21,6 +21,7 @@
 #include "rpc_packet_codec.h"
 #include "rpc_server_channel_codec.h" // Canonical hardpoint dictionary builder.
 #include "msvcrt_compat.h"
+#include "x87_portable.h" // the x64 form of the update-object float copies
 #include "rpc_server_channel_receive_private.h"
 
 #include <list>
@@ -284,6 +285,7 @@ void HandlePacket(unsigned int ClientId, CDAPacket* Packet)
                 float* TimeDestination = &Info.Field_0x20;
                 float* FieldDestination = &Info.Field_0x24;
                 // 06bd3b9a..3bca retains the two intermediate FST operations.
+#if defined(_M_IX86)
                 __asm {
                     mov eax, TimeSource
                     fld dword ptr [eax]
@@ -297,6 +299,12 @@ void HandlePacket(unsigned int ClientId, CDAPacket* Packet)
                     mov eax, FieldDestination
                     fstp dword ptr [eax]
                 }
+#else
+                X87CopyFloat(&TimeRounded, TimeSource);
+                X87CopyFloat(&FieldRounded, FieldSource);
+                X87CopyFloat(TimeDestination, TimeSource);
+                X87CopyFloat(FieldDestination, FieldSource);
+#endif
                 Info.Field_0x28 = Wire->Field_0x00;
                 Client->SendCommonUpdateObject(1, Info);
                 break;

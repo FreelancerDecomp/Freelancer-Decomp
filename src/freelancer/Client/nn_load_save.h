@@ -102,7 +102,7 @@ public:
     // slot 13 FUN_00486c10
     void Draw() override;
     // slot 23 LAB_00486c50 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_00486ca0 (RET 0xc)
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 
@@ -164,14 +164,14 @@ private:
     WinControl* ButtonTextFor(uintptr_t Button) const;
 };
 
-static_assert(sizeof(void*) != 4 || offsetof(NnLoadSave, bCursorDrawFlag) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnLoadSave, bCursorDrawFlag) == 0x330,
               "NN_LoadSave +0x330 cursor flag");
-static_assert(sizeof(void*) != 4 || offsetof(NnLoadSave, Mode) == 0x334, "NN_LoadSave +0x334");
-static_assert(sizeof(void*) != 4 || offsetof(NnLoadSave, ConfirmMode) == 0x338,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnLoadSave, Mode) == 0x334, "NN_LoadSave +0x334");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnLoadSave, ConfirmMode) == 0x338,
               "NN_LoadSave +0x338");
-static_assert(sizeof(void*) != 4 || offsetof(NnLoadSave, bExitToMainMenu) == 0x33c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnLoadSave, bExitToMainMenu) == 0x33c,
               "NN_LoadSave +0x33c");
-static_assert(sizeof(void*) != 4 || offsetof(NnLoadSave, Byte340) == 0x340,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnLoadSave, Byte340) == 0x340,
               "NN_LoadSave +0x340");
 
 // FUN_00488970 (cdecl) -- unless an NN_LoadSave exists (FUN_0059d9c0), build one with Mode as

@@ -670,8 +670,9 @@ namespace
 
             // Byte arrays preserve the wrapped DWORD extents; only handles are zeroed.
             Uvs_ = (float*)new unsigned char[TileCount_ * 32];
-            Handles_ = (void**)new unsigned char[TileCount_ * 4];
-            std::memset(Handles_, 0, TileCount_ * 4);
+            // Retail TileCount_ * 4: one texture handle each (sizeof is 4 on Win32, 8 on x64).
+            Handles_ = (void**)new unsigned char[TileCount_ * sizeof(void*)];
+            std::memset(Handles_, 0, TileCount_ * sizeof(void*));
 
             const unsigned char* Base = (const unsigned char*)(Pixels);
             long Index = 0;
@@ -922,7 +923,7 @@ namespace
         unsigned long RefCount_;          // +0x44
     };
 
-    static_assert(sizeof(FBigImage) == 0x48, "operator_new(0x48) @06f82445");
+    FL_LAYOUT_ASSERT(sizeof(FBigImage) == 0x48, "operator_new(0x48) @06f82445");
 
     // 0xC-byte factory (operator_new(0xc) @06f8232c): vptr 06f83070, RefCount, Name.
     class FBigImageFactory : public IComponentFactory
@@ -992,7 +993,7 @@ namespace
         const char* Name_;       // +0x08 s_BigImage_06f840f0
     };
 
-    static_assert(sizeof(FBigImageFactory) == 0x0C, "operator_new(0xc) @06f8232c");
+    FL_LAYOUT_ASSERT(sizeof(FBigImageFactory) == 0x0C, "operator_new(0xc) @06f8232c");
 
     // FUN_06f82320: DACOM_Acquire, operator_new(0xC) (null passes a null factory on, as
     // retail does), RegisterComponent(factory, "BigImage", 0x40000000), drop the creation ref.

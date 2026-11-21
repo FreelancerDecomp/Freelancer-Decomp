@@ -52,6 +52,7 @@
 #include <stdarg.h>
 #include <algorithm>
 #include <unordered_map> // port-only id index of the ObjectList blocks (ObjectList::find_by_id)
+#include <cassert>       // port-only: the id index's _DEBUG cross-check
 
 #pragma comment(lib, "winmm.lib")
 
@@ -6556,17 +6557,14 @@ void StarSystem::sp_obj_update(SSPObjUpdateInfo const& Info, unsigned int Sessio
     // node ? node->Next : Head`, a null node returns. Each node's wrapper (null
     // tested), its CBase::Object under (& 3), and that CSimple's Id (+0xb0) read
     // without a test on the narrowing.
-    CSimple* Ship = nullptr;
-    FSystemListNode* Node = nullptr;
-    for (;;)
-    {
-        Node = (Node == nullptr) ? Ships.Head : Node->Next;
-        if (Node == nullptr)
-            return;
-        Ship = (Node->Data != nullptr) ? Node->Data->csimple() : nullptr;
-        if (Ship->Id == Info.ObjectId)
-            break;
-    }
+    // Port-only: the walk is ObjectList::find_by_id's (FUN_06cf4f00) -- the first node whose
+    // object's get_id, the same CSimple::Id (+0xb0) read, matches -- so the Ships block's id
+    // index answers it. A node without a CSimple faults there as it does here: a null-page
+    // read before any side effect.
+    FSystemListNode* const Node = Ships.find_by_id(Info.ObjectId);
+    if (Node == nullptr)
+        return;
+    CSimple* const Ship = Node->Data->csimple();
 
     // .text:06d0bc0f .. 06d0bc21 -- PhySys::RCSet(ship, &Position, &Orientation,
     // the double timestamp).
@@ -6770,21 +6768,34 @@ unsigned int ObjectList::collect_in_sphere(unsigned int* OutIds, unsigned int Ma
 // walk on up to seven blocks per lookup, so a station costs a get_id call on
 // every ship, projectile and loot crate first. The index below remembers, per
 // block, the FIRST node of each id in list order -- exactly the node the walk
-// stops at -- and is rebuilt from that same walk after any structural edit
-// (the ObjectList forwards in server_sysdb.h and StarSystem_DeleteBlock mark it
-// stale). The list stays the source of every order; the index only answers ids.
+// stops at -- for every node up to the first one whose id cannot be read. It is
+// built from that same walk, then kept in step by the ObjectList forwards in
+// server_sysdb.h: append and remove update it in place, every other edit (and
+// StarSystem_DeleteBlock's own Head/Tail rewrite) marks it stale. The list stays
+// the source of every order; the index only answers ids.
 //
 // Why the answer is the walk's answer:
-//   - Duplicate ids keep their first node (insert does not overwrite), and the
-//     cross-block order is find_object's own, which is unchanged.
+//   - Duplicate ids keep their first node, and the cross-block order is
+//     find_object's own, which is unchanged.
 //   - An object's id cannot change while its node is linked and the list is
 //     not edited: get_id is IObjInspectImpl's `InspectSimple(Object)->Id`; the
 //     wrapper holds a reference on its CObject until its destructor
 //     (GameObject::~GameObject), CSimple::Id is only written by CSimple::init,
-//     and every create path sets Object and runs init before the append. The
-//     one exception, ListC0's create_med_asteroid / create_med_mine, appends
-//     first and finds the CObject right after with no lookup in between; the
-//     append already marked the index stale, so the next build reads the id.
+//     and every create path sets Object and runs init before the append. So an
+//     id read at build time or at append time is the one the walk would read.
+//   - The one exception, ListC0's create_med_asteroid / create_med_mine, appends
+//     while the wrapper's Object is still null (CBase::CBase) and finds the
+//     CObject right after. Its id cannot be read at the append, so the append
+//     marks the index stale, as any append did before, and the next build
+//     reads the id.
+//   - An append is recorded only when every earlier node is indexed (nothing
+//     unreadable before it) and its own id can be read; the new node is the
+//     Tail, so it is the first of its id only if no indexed node has that id.
+//   - A remove reads no id: the index keeps each indexed node's id and how many
+//     indexed nodes share it. Removing the first node of an id hands "first"
+//     to the next indexed node with that id in list order. Removing a node the
+//     index does not hold (the first unreadable one or anything after it)
+//     marks the index stale.
 //   - The build stops at the first node whose get_id would fault (null Data,
 //     null Object, or not a CSimple: the walk would crash there). Lookups the
 //     index cannot answer continue the original walk from that node, so they
@@ -6796,8 +6807,14 @@ unsigned int ObjectList::collect_in_sphere(unsigned int* OutIds, unsigned int Ma
 // one-entry cache), so the index needs no locking beyond what the lists need.
 namespace {
 
+struct FObjectListIdEntry {
+    MetaNode<GameObject>* First;      // the first indexed node with this id, in list order
+    unsigned int Count;               // indexed nodes with this id
+};
+
 struct FObjectListIdIndex {
-    std::unordered_map<unsigned int, MetaNode<GameObject>*> FirstById;
+    std::unordered_map<unsigned int, FObjectListIdEntry> ById;
+    std::unordered_map<MetaNode<GameObject>*, unsigned int> IdOfNode; // every indexed node
     MetaNode<GameObject>* WalkFrom;   // first node the build could not read; null = whole list
     unsigned int StaleLookups;        // lookups answered by the plain walk since the last edit
     bool bValid;
@@ -6814,20 +6831,53 @@ FObjectListIdIndexTable* GObjectListIdIndexes = nullptr;
 // Stale lookups answered by the plain walk before the index is rebuilt.
 unsigned int const ObjectListIdIndexRebuildAfter = 4;
 
+// This list's index, or null when it has none yet (no lookup so far).
+FObjectListIdIndex* ObjectList_FindIdIndex(ObjectList const* List)
+{
+    if (GObjectListIdIndexes == nullptr)
+        return nullptr;
+    FObjectListIdIndexTable::iterator const It = GObjectListIdIndexes->find(List);
+    return (It != GObjectListIdIndexes->end()) ? &It->second : nullptr;
+}
+
+void ObjectList_MarkStale(FObjectListIdIndex& Index)
+{
+    Index.bValid = false;
+    Index.StaleLookups = 0;
+}
+
+// The walk's get_id call on Node cannot fault: Data, its Object, and a CSimple.
+bool ObjectList_CanReadId(MetaNode<GameObject> const* Node)
+{
+    GameObject* const Data = Node->Data;
+    CObject* const Raw = (Data != nullptr) ? Data->Object : nullptr;
+    return Raw != nullptr && (static_cast<unsigned int>(Raw->ObjectClass) & 3u) == 3u;
+}
+
+// Records Node, which comes after every node already indexed.
+void ObjectList_IndexNode(FObjectListIdIndex& Index, MetaNode<GameObject>* Node)
+{
+    unsigned int const Id = static_cast<unsigned int>(Node->Data->get_id());
+    Index.IdOfNode[Node] = Id;
+    FObjectListIdEntry& Entry = Index.ById[Id];
+    if (Entry.Count == 0)
+        Entry.First = Node;
+    ++Entry.Count;
+}
+
 // The walk below, recorded: every node up to the first one the walk could not
 // call get_id on.
 void ObjectList_BuildIdIndex(ObjectList const& List, FObjectListIdIndex& Index)
 {
-    Index.FirstById.clear();
+    Index.ById.clear();
+    Index.IdOfNode.clear();
     Index.WalkFrom = nullptr;
     for (MetaNode<GameObject>* Node = List.Head; Node != nullptr; Node = Node->Next) {
-        GameObject* const Data = Node->Data;
-        CObject* const Raw = (Data != nullptr) ? Data->Object : nullptr;
-        if (Raw == nullptr || (static_cast<unsigned int>(Raw->ObjectClass) & 3u) != 3u) {
+        if (!ObjectList_CanReadId(Node)) {
             Index.WalkFrom = Node;
             break;
         }
-        Index.FirstById.insert(std::make_pair(static_cast<unsigned int>(Data->get_id()), Node));
+        ObjectList_IndexNode(Index, Node);
     }
     Index.bValid = true;
     Index.StaleLookups = 0;
@@ -6847,19 +6897,69 @@ MetaNode<GameObject>* ObjectList_WalkById(MetaNode<GameObject>* Node, unsigned i
 
 void ObjectList::invalidate_index() const
 {
-    if (GObjectListIdIndexes == nullptr)
-        return;
-    FObjectListIdIndexTable::iterator const It = GObjectListIdIndexes->find(this);
-    if (It != GObjectListIdIndexes->end()) {
-        It->second.bValid = false;
-        It->second.StaleLookups = 0;
-    }
+    if (FObjectListIdIndex* const Index = ObjectList_FindIdIndex(this))
+        ObjectList_MarkStale(*Index);
 }
 
 void ObjectList::drop_index() const
 {
     if (GObjectListIdIndexes != nullptr)
         GObjectListIdIndexes->erase(this);
+}
+
+// After MetaList::append: Node is the new Tail.
+void ObjectList::index_appended(MetaNode<GameObject>* Node) const
+{
+    FObjectListIdIndex* const Index = ObjectList_FindIdIndex(this);
+    if (Index == nullptr)
+        return;
+    if (!Index->bValid || Index->WalkFrom != nullptr || !ObjectList_CanReadId(Node)) {
+        ObjectList_MarkStale(*Index);
+        return;
+    }
+    ObjectList_IndexNode(*Index, Node);
+}
+
+// Before MetaList::remove: Node is still linked (null is remove's no-op).
+void ObjectList::index_removing(MetaNode<GameObject>* Node) const
+{
+    if (Node == nullptr)
+        return;
+    FObjectListIdIndex* const Index = ObjectList_FindIdIndex(this);
+    if (Index == nullptr)
+        return;
+    if (!Index->bValid) {
+        ObjectList_MarkStale(*Index);
+        return;
+    }
+    std::unordered_map<MetaNode<GameObject>*, unsigned int>::iterator const Indexed =
+        Index->IdOfNode.find(Node);
+    if (Indexed == Index->IdOfNode.end()) {
+        ObjectList_MarkStale(*Index); // WalkFrom or a node after it
+        return;
+    }
+    unsigned int const Id = Indexed->second;
+    Index->IdOfNode.erase(Indexed);
+
+    std::unordered_map<unsigned int, FObjectListIdEntry>::iterator const Entry = Index->ById.find(Id);
+    if (--Entry->second.Count == 0) {
+        Index->ById.erase(Entry);
+        return;
+    }
+    if (Entry->second.First != Node)
+        return;
+    // The next node with this id in list order; every node between Node and
+    // WalkFrom is indexed, and at least one of them has this id.
+    for (MetaNode<GameObject>* Next = Node->Next; Next != nullptr && Next != Index->WalkFrom;
+         Next = Next->Next) {
+        std::unordered_map<MetaNode<GameObject>*, unsigned int>::const_iterator const Other =
+            Index->IdOfNode.find(Next);
+        if (Other != Index->IdOfNode.end() && Other->second == Id) {
+            Entry->second.First = Next;
+            return;
+        }
+    }
+    ObjectList_MarkStale(*Index); // not reached while the index matches the list
 }
 
 // FUN_06cf4f00 -- see the walk and the index above.
@@ -6876,11 +6976,22 @@ MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
         ObjectList_BuildIdIndex(*this, Index);
     }
 
-    std::unordered_map<unsigned int, MetaNode<GameObject>*>::const_iterator const Hit =
-        Index.FirstById.find(Id);
-    if (Hit != Index.FirstById.end())
-        return Hit->second;
+    std::unordered_map<unsigned int, FObjectListIdEntry>::const_iterator const Hit = Index.ById.find(Id);
+    if (Hit != Index.ById.end()) {
+#ifdef _DEBUG
+        // Port-only cross-check: the index's node is the retail walk's. Every
+        // node before it is indexed, so the walk cannot fault on the way.
+        assert(ObjectList_WalkById(Head, Id) == Hit->second.First);
+#endif
+        return Hit->second.First;
+    }
     // Every node before WalkFrom has another id; the walk goes on from there.
+#ifdef _DEBUG
+    // Port-only cross-check of the miss: no node the index covers (all readable,
+    // so the walk cannot fault here) has this id.
+    for (MetaNode<GameObject>* Node = Head; Node != Index.WalkFrom; Node = Node->Next)
+        assert(static_cast<unsigned int>(Node->Data->get_id()) != Id);
+#endif
     return ObjectList_WalkById(Index.WalkFrom, Id);
 }
 
@@ -12158,6 +12269,21 @@ bool Server_DestroyInTransit(GameObject* Obj)
     return true;
 }
 
+// Port-only (no retail counterpart): true when every block StarSystem::find_object
+// searches is empty. SysDB::SysMap holds every system of the universe, loaded or
+// not, and Server_FindObject's miss path asks each one in turn. For such a system
+// find_object(Id) returns null and does nothing else: it is non-virtual, writes
+// no global and no counter, and each find_by_id walk starts at a null Head, so no
+// get_id is called and nothing can fault. (The port's id index may record a
+// lookup on the block; that only steers when the index is rebuilt.)
+static bool StarSystem_FindObjectBlocksEmpty(StarSystem const& System)
+{
+    return System.Ships.Head == nullptr && System.Loot.Head == nullptr
+        && System.List70.Head == nullptr && System.List98.Head == nullptr
+        && System.ListAC.Head == nullptr && System.ListC0.Head == nullptr
+        && System.Solars.Head == nullptr;
+}
+
 // FUN_06d00560 (.text:06d00560, cdecl, 39 instructions). Only caller:
 // .text:06cfa4fa (the system-transfer path, when the target system is null).
 //   .text:06d00563 .. 06d00580  a 0x38-byte local: 0xd dwords of Parms, then
@@ -12239,6 +12365,10 @@ bool Server_FindObject(unsigned int const& Id, GameObject*& OutObj, StarSystem*&
                      SysIt != SysDB::SysMap.end(); ++SysIt)
                 {
                     if (&SysIt->second == GLookupCacheSystem)
+                        continue;
+                    // Port-only: a system with nothing in find_object's blocks
+                    // can only answer null (see StarSystem_FindObjectBlocksEmpty).
+                    if (StarSystem_FindObjectBlocksEmpty(SysIt->second))
                         continue;
                     OutObj = SysIt->second.find_object(Id);
                     if (OutObj != nullptr)

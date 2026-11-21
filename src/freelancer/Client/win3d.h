@@ -26,6 +26,7 @@
 // DAT_0067dcd4 counts live Win3D objects (++ in the ctor, -- in the dtor FUN_004b4fd0).
 
 #include <stddef.h>
+#include <cstdint>
 
 struct Win3D;
 class WinControl;
@@ -101,7 +102,7 @@ struct Win3D : public LinkTree<Win3D>
     // slot 22 (+0x58) LAB_0043d8a0 -- false. FUN_0059d140 event 2 passes record +0x10/+0x14.
     virtual bool Slot22(unsigned A, unsigned B);
     // slot 23 (+0x5c) LAB_004b50e0 -- XOR AL,AL / RET 0xc. Broadcast by FUN_0059df40.
-    virtual bool Slot23(unsigned Msg, unsigned A, unsigned B);
+    virtual bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B);
     // slot 24 (+0x60) LAB_0043d900 -- slot 24 on every child
     virtual void Slot24(unsigned A);
     // slots 25 / 26 (+0x64 / +0x68) LAB_0043d930 -- FLD 1.0f (DAT_005c75dc)
@@ -134,19 +135,19 @@ private:
     Win3D& operator=(Win3D const&) = delete;
 };
 
-static_assert(sizeof(Win3D) == 0x7c, "retail Win3D is 0x7c bytes");
-static_assert(offsetof(Win3D, Parent) == 0x04, "Win3D +0x04 parent");
-static_assert(offsetof(Win3D, NextSibling) == 0x08, "Win3D +0x08 next sibling");
-static_assert(offsetof(Win3D, ChildHead) == 0x0c, "Win3D +0x0c first child");
-static_assert(offsetof(Win3D, ClassName) == 0x10, "Win3D +0x10 class name");
-static_assert(offsetof(Win3D, Name) == 0x18, "Win3D +0x18 name");
-static_assert(offsetof(Win3D, CaptureNext) == 0x38, "Win3D +0x38 capture link");
-static_assert(offsetof(Win3D, Orientation) == 0x3c, "Win3D +0x3c orientation");
-static_assert(offsetof(Win3D, Position) == 0x60, "Win3D +0x60 position");
-static_assert(offsetof(Win3D, Flags) == 0x6c, "Win3D +0x6c flags");
-static_assert(offsetof(Win3D, DrawLayer) == 0x70, "Win3D +0x70 draw layer");
-static_assert(offsetof(Win3D, HitPriority) == 0x74, "Win3D +0x74 hit priority");
-static_assert(offsetof(Win3D, DrawSubLayer) == 0x78, "Win3D +0x78 sub-layer");
+FL_LAYOUT_ASSERT(sizeof(Win3D) == 0x7c, "retail Win3D is 0x7c bytes");
+FL_LAYOUT_ASSERT(offsetof(Win3D, Parent) == 0x04, "Win3D +0x04 parent");
+FL_LAYOUT_ASSERT(offsetof(Win3D, NextSibling) == 0x08, "Win3D +0x08 next sibling");
+FL_LAYOUT_ASSERT(offsetof(Win3D, ChildHead) == 0x0c, "Win3D +0x0c first child");
+FL_LAYOUT_ASSERT(offsetof(Win3D, ClassName) == 0x10, "Win3D +0x10 class name");
+FL_LAYOUT_ASSERT(offsetof(Win3D, Name) == 0x18, "Win3D +0x18 name");
+FL_LAYOUT_ASSERT(offsetof(Win3D, CaptureNext) == 0x38, "Win3D +0x38 capture link");
+FL_LAYOUT_ASSERT(offsetof(Win3D, Orientation) == 0x3c, "Win3D +0x3c orientation");
+FL_LAYOUT_ASSERT(offsetof(Win3D, Position) == 0x60, "Win3D +0x60 position");
+FL_LAYOUT_ASSERT(offsetof(Win3D, Flags) == 0x6c, "Win3D +0x6c flags");
+FL_LAYOUT_ASSERT(offsetof(Win3D, DrawLayer) == 0x70, "Win3D +0x70 draw layer");
+FL_LAYOUT_ASSERT(offsetof(Win3D, HitPriority) == 0x74, "Win3D +0x74 hit priority");
+FL_LAYOUT_ASSERT(offsetof(Win3D, DrawSubLayer) == 0x78, "Win3D +0x78 sub-layer");
 
 // Flag bits of Win3D::Flags (+0x6c).
 enum EWin3DFlags : unsigned char

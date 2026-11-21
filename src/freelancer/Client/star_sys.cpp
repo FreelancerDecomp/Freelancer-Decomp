@@ -589,7 +589,7 @@ namespace
                 continue;
             // The watcher points at the Watchable sub-object at IObjRW+8.
             IObjRW const* const Target = reinterpret_cast<IObjRW const*>(
-                reinterpret_cast<unsigned char const*>(Watched) - 8);
+                reinterpret_cast<unsigned char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET);
             if (Target == nullptr)
                 continue;
             // 005552a1..005552a8: PUSH target, PUSH player -> FUN_0045a490(player, target):

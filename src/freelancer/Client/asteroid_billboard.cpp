@@ -320,13 +320,13 @@ void FBillboardVertexCursor::Advance(int /*Unused*/)
 
 // ------------------------------------------------------------------ FAsteroidBillboardBatch
 
-static_assert(sizeof(FBillboardVertexCursor) == 8, "cursor is {ptr, stride}");
-static_assert(sizeof(FAsteroidBillboardBatch) == 0x84, "DAT_006797d0 object is 0x84 bytes");
-static_assert(offsetof(FAsteroidBillboardBatch, Lock) == 0x14, "batch lock out +0x14");
-static_assert(offsetof(FAsteroidBillboardBatch, Saved) == 0x28, "batch saved vertices +0x28");
-static_assert(offsetof(FAsteroidBillboardBatch, Flags) == 0x58, "batch flags +0x58");
-static_assert(offsetof(FAsteroidBillboardBatch, Color) == 0x68, "batch colour +0x68");
-static_assert(offsetof(FAsteroidBillboardBatch, PosCursor) == 0x6c, "batch cursors +0x6c");
+FL_LAYOUT_ASSERT(sizeof(FBillboardVertexCursor) == 8, "cursor is {ptr, stride}");
+FL_LAYOUT_ASSERT(sizeof(FAsteroidBillboardBatch) == 0x84, "DAT_006797d0 object is 0x84 bytes");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBatch, Lock) == 0x14, "batch lock out +0x14");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBatch, Saved) == 0x28, "batch saved vertices +0x28");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBatch, Flags) == 0x58, "batch flags +0x58");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBatch, Color) == 0x68, "batch colour +0x68");
+FL_LAYOUT_ASSERT(offsetof(FAsteroidBillboardBatch, PosCursor) == 0x6c, "batch cursors +0x6c");
 
 // LAB_0054dad0: FUN_0054daf0(0x142), atexit(LAB_0054db50).
 FAsteroidBillboardBatch G_AsteroidBillboardBatch(0x142);

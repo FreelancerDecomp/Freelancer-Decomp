@@ -12,6 +12,10 @@
 // instance and transform handles here on x64, so those fields stay as retail declared them.
 // Win32 does not use this header's allocator: there every address already fits.
 //
+// FL_LOW_ARENA_NEW, inside a class, gives that class operator new / delete from the arena on
+// x64 and nothing on Win32. RendComp's render plugins use it for the handles they return through
+// IRenderComponent::Claim, which retail declared as `int`.
+//
 // The arena reserves and commits 16 MB chunks of free address space below 2 GB, hands out
 // blocks by bumping a cursor, and keeps freed blocks on a list per block size for reuse. It
 // never returns memory to the system. With FL_HIGH_MEMORY=1 (x64_high_memory.h) all other
@@ -19,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <new>
 
 #if defined(_WIN64)
 #include <windows.h>
@@ -56,9 +61,13 @@ namespace LowArena
             return Instance;
         }
 
-        // The first free range below Limit that holds a whole chunk, reserved and committed.
-        inline bool NewChunk(FState& Arena)
+        // The first free range below Limit that holds a whole chunk, reserved and committed. A
+        // block larger than a chunk gets a chunk of its own size.
+        inline bool NewChunk(FState& Arena, std::size_t MinBytes)
         {
+            const std::size_t Bytes =
+                MinBytes > ChunkSize ? (MinBytes + Granularity - 1) & ~(std::size_t)(Granularity - 1)
+                                     : ChunkSize;
             std::uintptr_t Address = Granularity;
             MEMORY_BASIC_INFORMATION Info;
             while (Address < Limit && VirtualQuery((void*)(Address), &Info, sizeof(Info)) == sizeof(Info))
@@ -69,14 +78,14 @@ namespace LowArena
                 {
                     const std::uintptr_t Start = (Base + Granularity - 1) & ~(Granularity - 1);
                     const std::uintptr_t Stop = End < Limit ? End : Limit;
-                    if (Start < Stop && Stop - Start >= ChunkSize)
+                    if (Start < Stop && Stop - Start >= Bytes)
                     {
-                        void* Chunk = VirtualAlloc((void*)(Start), ChunkSize, MEM_RESERVE | MEM_COMMIT,
+                        void* Chunk = VirtualAlloc((void*)(Start), Bytes, MEM_RESERVE | MEM_COMMIT,
                                                    PAGE_READWRITE);
                         if (Chunk != nullptr)
                         {
                             Arena.Cursor = (char*)(Chunk);
-                            Arena.End = Arena.Cursor + ChunkSize;
+                            Arena.End = Arena.Cursor + Bytes;
                             return true;
                         }
                     }
@@ -93,9 +102,9 @@ namespace LowArena
         }
     }
 
-    // A block of Size bytes below 2 GB, not cleared. Running out of space below 2 GB ends the
-    // process: falling back to a high address would bring the truncation back silently.
-    inline void* Allocate(std::size_t Size)
+    // A block of Size bytes below 2 GB, not cleared, or null when no free range below 2 GB holds
+    // it. For callers that can report the failure (a texture's pixels, for example).
+    inline void* TryAllocate(std::size_t Size)
     {
         const std::size_t Block = Detail::BlockSize(Size);
         Detail::FState& Arena = Detail::State();
@@ -109,14 +118,24 @@ namespace LowArena
         }
         if (Arena.Cursor == nullptr || (std::size_t)(Arena.End - Arena.Cursor) < Block)
         {
-            if (!Detail::NewChunk(Arena))
-            {
-                std::fprintf(stderr, "LowArena: no free address space below 2 GB\n");
-                std::abort();
-            }
+            if (!Detail::NewChunk(Arena, Block))
+                return nullptr;
         }
         void* Element = Arena.Cursor;
         Arena.Cursor = Arena.Cursor + Block;
+        return Element;
+    }
+
+    // A block of Size bytes below 2 GB, not cleared. Running out of space below 2 GB ends the
+    // process: falling back to a high address would bring the truncation back silently.
+    inline void* Allocate(std::size_t Size)
+    {
+        void* const Element = TryAllocate(Size);
+        if (Element == nullptr)
+        {
+            std::fprintf(stderr, "LowArena: no free address space below 2 GB\n");
+            std::abort();
+        }
         return Element;
     }
 
@@ -134,3 +153,21 @@ namespace LowArena
     }
 #endif
 }
+
+#if defined(_WIN64)
+#define FL_LOW_ARENA_NEW                                                                           \
+    static void* operator new(std::size_t Size)                                                    \
+    {                                                                                              \
+        return LowArena::Allocate(Size);                                                           \
+    }                                                                                              \
+    static void* operator new(std::size_t Size, const std::nothrow_t&) noexcept                    \
+    {                                                                                              \
+        return LowArena::Allocate(Size);                                                           \
+    }                                                                                              \
+    static void operator delete(void* Element, std::size_t Size)                                   \
+    {                                                                                              \
+        LowArena::Free(Element, Size);                                                             \
+    }
+#else
+#define FL_LOW_ARENA_NEW
+#endif

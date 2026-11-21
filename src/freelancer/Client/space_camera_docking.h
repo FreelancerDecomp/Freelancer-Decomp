@@ -44,10 +44,10 @@ struct FDockingCamera : FGameCamera
     float         ElapsedSeconds;    // +0x100  ctor writes 0
 };
 
-static_assert(sizeof(FDockingCamera) == 0x104, "FDockingCamera is 0x104");
-static_assert(offsetof(FDockingCamera, bFadePending) == 0x0f8, "DC +0x0f8");
-static_assert(offsetof(FDockingCamera, TotalSeconds) == 0x0fc, "DC +0x0fc");
-static_assert(offsetof(FDockingCamera, ElapsedSeconds) == 0x100, "DC +0x100");
+FL_LAYOUT_ASSERT(sizeof(FDockingCamera) == 0x104, "FDockingCamera is 0x104");
+FL_LAYOUT_ASSERT(offsetof(FDockingCamera, bFadePending) == 0x0f8, "DC +0x0f8");
+FL_LAYOUT_ASSERT(offsetof(FDockingCamera, TotalSeconds) == 0x0fc, "DC +0x0fc");
+FL_LAYOUT_ASSERT(offsetof(FDockingCamera, ElapsedSeconds) == 0x100, "DC +0x100");
 
 // FUN_0051ea20.
 void DockingCameraConstruct(FDockingCamera* Cam);

@@ -95,7 +95,7 @@ public:
     // slot 12 LAB_00462ab0
     void UpdateInactive() override;
     // slot 23 FUN_00462a40 (RET 0xc) -- 0xef01 / 0xef02
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_00462bd0 (RET 0xc) -- 0x26, a child button clicked
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

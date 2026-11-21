@@ -1173,7 +1173,7 @@ void IBehaviorManager::UpdateNotificationQueue(float Dt)
             Watchable const* WatchedA = Cur->WatcherA.target();
             IObjRW* RawA = (WatchedA != nullptr)
                 ? reinterpret_cast<IObjRW*>(const_cast<char*>(
-                      reinterpret_cast<char const*>(WatchedA) - 8))
+                      reinterpret_cast<char const*>(WatchedA) - FL_OBJRW_WATCHABLE_OFFSET))
                 : nullptr;
             QueueNotification(RawA, Cur->Field1C, 0.0f);
         }
@@ -1184,7 +1184,7 @@ void IBehaviorManager::UpdateNotificationQueue(float Dt)
             Watchable const* WatchedB = Cur->WatcherB.target();
             IObjRW* RawB = (WatchedB != nullptr)
                 ? reinterpret_cast<IObjRW*>(const_cast<char*>(
-                      reinterpret_cast<char const*>(WatchedB) - 8))
+                      reinterpret_cast<char const*>(WatchedB) - FL_OBJRW_WATCHABLE_OFFSET))
                 : nullptr;
             InsertNotification(RawB, Cur->Field1C, 0.0f);
         }
@@ -1224,7 +1224,7 @@ void IBehaviorManager::QueueNotification(IObjRW* Target, unsigned Extra, float D
         NotificationNode* Node = InsertNotificationNodeBefore(NotificationQueueHead);
         Node->Mode = 0;
         Node->WatcherA.set((Target != nullptr)
-            ? reinterpret_cast<Watchable const*>(reinterpret_cast<char const*>(Target) + 8)
+            ? reinterpret_cast<Watchable const*>(reinterpret_cast<char const*>(Target) + FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr);
         Node->WatcherB.set(nullptr);
         Node->Field1C = Extra;
@@ -1272,10 +1272,10 @@ void IBehaviorManager::InsertNotification(IObjRW* Target, unsigned Extra, float 
         // Common.dll.txt 214764-214781.
         Watchable const* SelfWatched = reinterpret_cast<Watchable const*>(WatchablePtr);
         bool SelfValid = (SelfWatched != nullptr)
-            && (reinterpret_cast<char const*>(SelfWatched) - 8 != nullptr);
+            && (reinterpret_cast<char const*>(SelfWatched) - FL_OBJRW_WATCHABLE_OFFSET != nullptr);
         Node->WatcherA.set(SelfValid ? SelfWatched : nullptr);
         Node->WatcherB.set((Target != nullptr)
-            ? reinterpret_cast<Watchable const*>(reinterpret_cast<char const*>(Target) + 8)
+            ? reinterpret_cast<Watchable const*>(reinterpret_cast<char const*>(Target) + FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr);
         Node->Field1C = Extra;      // 062d484f local_14
         Node->Timer = Duration;     // 062d4853 local_10
@@ -1333,7 +1333,7 @@ void IBehaviorManager::InsertNotification(IObjRW* Target, unsigned Extra, float 
             Watchable const* SelfWatched = reinterpret_cast<Watchable const*>(Mgr->WatchablePtr);
             IObjRW* Raw = (SelfWatched != nullptr)
                 ? reinterpret_cast<IObjRW*>(const_cast<char*>(
-                      reinterpret_cast<char const*>(SelfWatched) - 8))
+                      reinterpret_cast<char const*>(SelfWatched) - FL_OBJRW_WATCHABLE_OFFSET))
                 : nullptr;
             Mgr->QueueNotification(Raw, 1, 0.0f);
         }
@@ -1362,7 +1362,7 @@ void IBehaviorManager::UpdateBehaviorTick(float Dt)
         return;
     if (WatchablePtr == nullptr)
         return;
-    if (reinterpret_cast<char*>(WatchablePtr) - 8 == nullptr)
+    if (reinterpret_cast<char*>(WatchablePtr) - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
         return;
     // Sys is dereferenced unconditionally past this point, as in retail: the ctor always
     // builds it (FUN_062d2220 .text:062d235f-062d2399) and only the dtor clears it.

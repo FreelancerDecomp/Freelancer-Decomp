@@ -65,15 +65,15 @@ public:
     FInnerUnknown Inner;
 };
 
-static_assert(offsetof(FLuaObject, LuaState) == 0x0C, "lua_State* @ +0xC");
-static_assert(offsetof(FLuaObject, SectionList) == 0x10, "section list @ +0x10");
-static_assert(offsetof(FLuaObject, ExtraLuaRef) == 0x14, "extra Lua ref @ +0x14");
-static_assert(offsetof(FLuaObject, Controlling) == 0x18, "controlling unknown @ +0x18");
-static_assert(offsetof(FLuaObject, Inner) == 0x1C, "inner IUnknown @ +0x1C");
-static_assert(sizeof(FLuaObject) == kLuaObjectSize, "calloc(1, 0x28)");
-static_assert(offsetof(FInnerUnknown, RefCount) == 4, "inner refcount @ object+0x20");
-static_assert(offsetof(FInnerUnknown, Owner) == 8, "inner back-ptr @ object+0x24");
-static_assert(offsetof(FLuaTaggedValue, Payload) == 8, "FUN_06801690 payload @ +8");
+FL_LAYOUT_ASSERT(offsetof(FLuaObject, LuaState) == 0x0C, "lua_State* @ +0xC");
+FL_LAYOUT_ASSERT(offsetof(FLuaObject, SectionList) == 0x10, "section list @ +0x10");
+FL_LAYOUT_ASSERT(offsetof(FLuaObject, ExtraLuaRef) == 0x14, "extra Lua ref @ +0x14");
+FL_LAYOUT_ASSERT(offsetof(FLuaObject, Controlling) == 0x18, "controlling unknown @ +0x18");
+FL_LAYOUT_ASSERT(offsetof(FLuaObject, Inner) == 0x1C, "inner IUnknown @ +0x1C");
+FL_LAYOUT_ASSERT(sizeof(FLuaObject) == kLuaObjectSize, "calloc(1, 0x28)");
+FL_LAYOUT_ASSERT(offsetof(FInnerUnknown, RefCount) == 4, "inner refcount @ object+0x20");
+FL_LAYOUT_ASSERT(offsetof(FInnerUnknown, Owner) == 8, "inner back-ptr @ object+0x24");
+FL_LAYOUT_ASSERT(offsetof(FLuaTaggedValue, Payload) == 8, "FUN_06801690 payload @ +8");
 
 class FLuaFactory final : public IComponentFactory
 {
@@ -89,9 +89,9 @@ public:
     const char* Name;
 };
 
-static_assert(sizeof(FLuaFactory) == kFactorySize, "factory operator_new(0xC)");
-static_assert(offsetof(FLuaFactory, RefCount) == 4, "factory refcount @ +4");
-static_assert(offsetof(FLuaFactory, Name) == 8, "factory name ILua @ +8");
+FL_LAYOUT_ASSERT(sizeof(FLuaFactory) == kFactorySize, "factory operator_new(0xC)");
+FL_LAYOUT_ASSERT(offsetof(FLuaFactory, RefCount) == 4, "factory refcount @ +4");
+FL_LAYOUT_ASSERT(offsetof(FLuaFactory, Name) == 8, "factory name ILua @ +8");
 
 // PE file 0xD118 / 0xD020 — TAB-separated, 0-based i, next/nextvar, string|number only.
 static char kGetProfileLine[] =
@@ -104,8 +104,8 @@ static char kGetTableLine[] =
     "if (t == \"string\" or t == \"number\") then\t\t\tif i == 0 then\t\t\t\treturn n, v;\t\t\telse\t\t\t\t"
     "i = i - 1;\t\t\tend\t\tend\t\tn, v = next(table, n);\tend\treturn nil;end";
 
-static_assert(sizeof(kGetTableLine) == 0xF8, "PE __get_table_line 0xF7 + NUL");
-static_assert(sizeof(kGetProfileLine) == 0xEB, "PE __get_profile_line 0xEA + NUL");
+FL_LAYOUT_ASSERT(sizeof(kGetTableLine) == 0xF8, "PE __get_table_line 0xF7 + NUL");
+FL_LAYOUT_ASSERT(sizeof(kGetProfileLine) == 0xEB, "PE __get_profile_line 0xEA + NUL");
 
 static constexpr char kFdumpPath[] =
     "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\LuaProfile\\LuaProfile.cpp";

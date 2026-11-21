@@ -53,4 +53,4 @@ private:
     float Corner_[3];                       // +0xf4 — slot 8: Block * (Width, -Height, 0)
 };
 
-static_assert(sizeof(UiWinObject) == 0x100, "retail UIWinObject is 0x100 bytes");
+FL_LAYOUT_ASSERT(sizeof(UiWinObject) == 0x100, "retail UIWinObject is 0x100 bytes");

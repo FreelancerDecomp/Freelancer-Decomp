@@ -1,0 +1,12 @@
+{
+  "$comment": "RPGPU's dependencies (port-only SDL3 + SDL_GPU renderer, docs/re/rpgpu.md). Only RPGPU.vcxproj enables vcpkg manifest mode; no other project sees these packages. builtin-baseline pins vcpkg release 2026.10.16 (SDL 3.4.18).",
+  "name": "freelancer-rpgpu",
+  "version-string": "0",
+  "builtin-baseline": "9eec002df1cd109f8f104cd966a763daf9751489",
+  "dependencies": [
+    {
+      "name": "sdl3",
+      "default-features": false
+    }
+  ]
+}

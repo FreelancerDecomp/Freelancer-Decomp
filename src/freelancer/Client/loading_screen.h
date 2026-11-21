@@ -54,7 +54,7 @@ private:
     LoadingProgressBar& operator=(LoadingProgressBar const&) = delete;
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(LoadingProgressBar) == 0x384,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(LoadingProgressBar) == 0x384,
               "retail LoadingProgressBar is 0x384 bytes");
 
 // DAT_0067c3b8.

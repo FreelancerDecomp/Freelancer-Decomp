@@ -190,7 +190,7 @@ void NnScanner::Update()
         Field4e0 = 1;
 }
 
-bool NnScanner::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnScanner::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_004b7180 (RET 0xc).
     if (Msg == 0xef02)

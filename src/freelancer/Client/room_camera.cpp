@@ -12,24 +12,25 @@
 #include "globals.h"
 #include "widescreen.h"   // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
 #include "x86math.h"
+#include "x87_portable.h" // X87CopyFloat, the x64 form of the ZNear copy
 
 #include <math.h>
 #include <stddef.h>
 #include <string.h>
 
 // Layout: every field sits where FUN_00556280 / FUN_005564b0 write it.
-static_assert(offsetof(FRoomCamera, Viewport) == 0x04, "room camera ViewRect +0x04");
-static_assert(offsetof(FRoomCamera, HalfFovXDeg) == 0x14, "room camera +0x14");
-static_assert(offsetof(FRoomCamera, ZNear) == 0x1c, "room camera +0x1c");
-static_assert(offsetof(FRoomCamera, TanHalfFovX) == 0x24, "room camera +0x24");
-static_assert(offsetof(FRoomCamera, HalfWidth) == 0x30, "room camera +0x30");
-static_assert(offsetof(FRoomCamera, PlaneX) == 0x40, "room camera +0x40");
-static_assert(offsetof(FRoomCamera, PlaneY) == 0x4c, "room camera +0x4c");
-static_assert(offsetof(FRoomCamera, RefCount) == 0x58, "room camera +0x58");
-static_assert(offsetof(FRoomCamera, Orient) == 0x5c, "room camera Orient +0x5c");
-static_assert(offsetof(FRoomCamera, Pos) == 0x80, "room camera Pos +0x80");
-static_assert(offsetof(FRoomCamera, View) == 0x8c, "room camera View +0x8c");
-static_assert(sizeof(FRoomCamera) == 0xbc, "room camera operator_new(0xbc)");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, Viewport) == 0x04, "room camera ViewRect +0x04");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, HalfFovXDeg) == 0x14, "room camera +0x14");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, ZNear) == 0x1c, "room camera +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, TanHalfFovX) == 0x24, "room camera +0x24");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, HalfWidth) == 0x30, "room camera +0x30");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, PlaneX) == 0x40, "room camera +0x40");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, PlaneY) == 0x4c, "room camera +0x4c");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, RefCount) == 0x58, "room camera +0x58");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, Orient) == 0x5c, "room camera Orient +0x5c");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, Pos) == 0x80, "room camera Pos +0x80");
+FL_LAYOUT_ASSERT(offsetof(FRoomCamera, View) == 0x8c, "room camera View +0x8c");
+FL_LAYOUT_ASSERT(sizeof(FRoomCamera) == 0xbc, "room camera operator_new(0xbc)");
 
 namespace
 {
@@ -627,6 +628,7 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
     // FUN_00556e00.
     // Retail consumes the raw argument with FLD/FSTP at this callee boundary.
     float* Destination = &Camera->ZNear;
+#if defined(_M_IX86)
     __asm
     {
         mov eax, ZNear
@@ -634,6 +636,9 @@ void RoomCameraSetZNearValue(FRoomCamera* Camera, const float* ZNear)
         mov eax, Destination
         fstp dword ptr [eax]
     }
+#else
+    X87CopyFloat(Destination, ZNear);
+#endif
 
     const double TanX =
         tan((static_cast<double>(Camera->HalfFovXDeg) + Camera->HalfFovXDeg) * kPiOver360);

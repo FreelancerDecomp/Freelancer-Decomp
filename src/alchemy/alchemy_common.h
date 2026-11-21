@@ -8,6 +8,8 @@
 
 #include "alchemy_types.h"
 
+#include <cstdint>
+
 struct ICamera;
 
 // alchemy.dll — DACOM particle FX scaffolding.
@@ -165,7 +167,7 @@ namespace AlchemyImpl
     extern IDAComponent* G_RpDraw;          // DAT_06257bcc
     extern void* G_VbHandle;                // DAT_0625791c
     extern void* G_IbHandle;
-    extern unsigned long G_DrawCookie;            // DAT_06257908
+    extern std::uintptr_t G_DrawCookie;           // DAT_06257908: the draw camera (a pointer)
     extern unsigned long G_DrawCounters[9];       // DAT_062578e4
     extern unsigned char G_DrawFlagA;             // DAT_06255060
     extern unsigned char G_DrawFlagB;             // DAT_06255061

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "alchemy_math.h"
+#include "x87_portable.h"
 
 #include <cmath>
 #include <float.h>
@@ -58,6 +59,11 @@ namespace AlchemyImpl
     // __ftol2 alone inherits the old RC on its unmasked exception path.
     __declspec(noinline) std::int64_t ConvertAlchemyFpuInteger(const double& Value)
     {
+#if !defined(_M_IX86)
+        // Port-only x64: no x87 control word; truncation is the conversion's own rounding, and
+        // NaN / overflow give the integer indefinite, as FISTP does (x87_portable.h).
+        return X87TruncateToInt64(Value);
+#else
         unsigned int SavedControl;
         unsigned int CurrentControl;
         __control87_2(0, 0, &SavedControl, nullptr);
@@ -65,5 +71,6 @@ namespace AlchemyImpl
         const std::int64_t Converted = static_cast<std::int64_t>(Value);
         __control87_2(SavedControl, _MCW_RC, &CurrentControl, nullptr);
         return Converted;
+#endif
     }
 }

@@ -263,6 +263,7 @@ void CSimple::init(CreateParms const& Parms)
     // retail reads Archetype (+0x88) and DALib::Engine unconditionally.
     // .text:062b5b66-062b5b82: Id (+0xb0), connect(ObjDb) through vt+0x90, OwnerPlayer (+0xb4).
     Id = Parms.Id;
+    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
     connect(Parms.ObjDb);
     OwnerPlayer = Parms.OwnerPlayer;
 

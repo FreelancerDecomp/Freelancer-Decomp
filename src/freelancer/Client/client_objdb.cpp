@@ -21,14 +21,17 @@
 #include "star_sys.h"
 #include "x86math.h"          // I3DMathEngine::MatrixToQuaternion
 
+#include <cassert>
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <functional>    // std::hash (port-only G_CObjectIndex)
 #include <list>
 #include <map>     // port-only id index (G_IdIndex)
 #include <new>
+#include <unordered_map> // port-only CObject index (G_CObjectIndex)
 #include <utility> // std::pair
 #include <vector>
 #include <windows.h>
@@ -143,13 +146,106 @@ namespace
         return Bucket->second.front();
     }
 
+    // Port-only CObject index (no retail counterpart), the G_IdIndex pattern for FUN_005419a0:
+    // that function walks one bucket's ListNext chain for the Gameobj whose cobject (vt+0x150,
+    // IObjInspectImpl's `MOV EAX,[ECX+0x10]`, not overridden) is a given CObject. This table
+    // holds, per (list, CObject*), the Gameobjs linked into that list with that cobject in link
+    // order; the front is the first match the walk would meet. It is kept by LinkGameobj /
+    // UnlinkGameobj alongside G_IdIndex, under the same argument: +0x10 is set by create /
+    // find (or CreateDebrisGameobjForObject) before every FUN_00540c30 and is not written
+    // again while the Gameobj is linked. A Gameobj with a null cobject is not entered:
+    // FUN_005419a0 dereferences its argument, so null is never looked up. Hashed, as this
+    // lookup runs once per collision event.
+    struct FCObjectIndexKey
+    {
+        FGameobjList const* List;
+        CObject const* Obj;
+
+        bool operator==(FCObjectIndexKey const& Other) const
+        {
+            return List == Other.List && Obj == Other.Obj;
+        }
+    };
+
+    struct FCObjectIndexKeyHash
+    {
+        size_t operator()(FCObjectIndexKey const& Key) const
+        {
+            size_t const ListHash = std::hash<FGameobjList const*>()(Key.List);
+            size_t const ObjHash = std::hash<CObject const*>()(Key.Obj);
+            return ObjHash ^ (ListHash + 0x9e3779b9u + (ObjHash << 6) + (ObjHash >> 2));
+        }
+    };
+
+    std::unordered_map<FCObjectIndexKey, std::vector<FClientGameobj*>, FCObjectIndexKeyHash>
+        G_CObjectIndex;
+    // The cobject each indexed Gameobj was entered under, so the unlink removes exactly that
+    // entry.
+    std::unordered_map<FClientGameobj const*, CObject const*> G_CObjectIndexKeyOf;
+
+    void CObjectIndexAdd(FGameobjList const* List, FClientGameobj* Go)
+    {
+        CObject const* const Obj = Go->cobject();
+        if (Obj == nullptr)
+            return;
+        FCObjectIndexKey const Key = {List, Obj};
+        G_CObjectIndex[Key].push_back(Go);
+        G_CObjectIndexKeyOf[Go] = Obj;
+    }
+
+    void CObjectIndexRemove(FGameobjList const* List, FClientGameobj* Go)
+    {
+        std::unordered_map<FClientGameobj const*, CObject const*>::iterator const KeyIt =
+            G_CObjectIndexKeyOf.find(Go);
+        if (KeyIt == G_CObjectIndexKeyOf.end())
+            return;
+        FCObjectIndexKey const Key = {List, KeyIt->second};
+        G_CObjectIndexKeyOf.erase(KeyIt);
+        std::unordered_map<FCObjectIndexKey, std::vector<FClientGameobj*>,
+                           FCObjectIndexKeyHash>::iterator const Bucket = G_CObjectIndex.find(Key);
+        if (Bucket == G_CObjectIndex.end())
+            return;
+        std::vector<FClientGameobj*>& Linked = Bucket->second;
+        for (std::vector<FClientGameobj*>::iterator It = Linked.begin(); It != Linked.end(); ++It)
+        {
+            if (*It == Go)
+            {
+                Linked.erase(It);
+                break;
+            }
+        }
+        if (Linked.empty())
+            G_CObjectIndex.erase(Bucket);
+    }
+
+    // The first Gameobj the ListNext walk of List would find with cobject() == Obj, or null.
+    FClientGameobj* CObjectIndexFind(FGameobjList const* List, CObject const* Obj)
+    {
+        FCObjectIndexKey const Key = {List, Obj};
+        std::unordered_map<FCObjectIndexKey, std::vector<FClientGameobj*>,
+                           FCObjectIndexKeyHash>::const_iterator const Bucket =
+            G_CObjectIndex.find(Key);
+        FClientGameobj* const Found =
+            (Bucket == G_CObjectIndex.end() || Bucket->second.empty()) ? nullptr
+                                                                       : Bucket->second.front();
+#ifdef _DEBUG
+        // Debug-only cross-check against the walk the index replaces.
+        FClientGameobj* Walked = List->First;
+        while (Walked != nullptr && Walked->cobject() != Obj)
+            Walked = Walked->ListNext;
+        assert(Walked == Found);
+#endif
+        return Found;
+    }
+
     // FUN_00542350 (ECX = list, RET 4): append at the tail. A null Gameobj is a no-op.
     void LinkGameobj(FGameobjList* List, FClientGameobj* Go)
     {
         if (Go == nullptr)
             return;
 
-        IdIndexAdd(List, Go); // port-only, see G_IdIndex
+        IdIndexAdd(List, Go);      // port-only, see G_IdIndex
+        CObjectIndexAdd(List, Go); // port-only, see G_CObjectIndex
 
         Go->ListPrev = List->Last;
         if (List->Last != nullptr)
@@ -174,7 +270,8 @@ namespace
     {
         if (Go != nullptr)
         {
-            IdIndexRemove(List, Go); // port-only, see G_IdIndex
+            IdIndexRemove(List, Go);      // port-only, see G_IdIndex
+            CObjectIndexRemove(List, Go); // port-only, see G_CObjectIndex
             FClientGameobj* const Prev = Go->ListPrev;
             FClientGameobj* const Next = Go->ListNext;
             if (Prev == nullptr)
@@ -648,13 +745,9 @@ FClientGameobj* ClientObjDb_FindByCObject(CObject const* Obj)
     default: return nullptr;
     }
 
-    FClientGameobj* Go = ClientObjDb_GetKindHead(&Kind);
-    for (; Go != nullptr; Go = Go->ListNext)
-    {
-        if (Go->cobject() == Obj)
-            return Go;
-    }
-    return nullptr;
+    // The port answers the walk from G_CObjectIndex: the same Gameobj -- the first linked
+    // match in that bucket, or null. The walk only reads, so skipping it is invisible.
+    return CObjectIndexFind(KindList(Kind), Obj);
 }
 
 unsigned ClientObjDb_GetRegisteredCount()
@@ -795,7 +888,7 @@ namespace
         Vector Field_0x0c; // +0x0c  event +0x1c
         Vector Field_0x18; // +0x18  event +0x28
     };
-    static_assert(sizeof(FClientCollisionRecord) == 0x24, "collision record 0x24");
+    FL_LAYOUT_ASSERT(sizeof(FClientCollisionRecord) == 0x24, "collision record 0x24");
 
     // FUN_0052fe60 (cdecl): one side of a PhySys collision -> the Gameobj of the part's root
     // (FUN_005419a0) and the sub-object it was hit on.

@@ -64,7 +64,7 @@ public:
     // slot 19 LAB_00561730 (RET 4).
     bool MouseEvent(FWin3DMouseEvent const* Event) override;
     // slot 23 LAB_00561630 (RET 0xc).
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // Event::Handler face (+0x80) slot 0 LAB_00561700 (RET 4).
     bool OnEvent(unsigned MsgId) override;
 

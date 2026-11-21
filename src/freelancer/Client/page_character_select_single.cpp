@@ -517,7 +517,7 @@ void PageCharacterSelectSingle::BeginLeave(int Direction)
     PlayUiSoundSlot(0x1b); // FUN_00564570
 }
 
-bool PageCharacterSelectSingle::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool PageCharacterSelectSingle::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_0056c360.
     if (Msg == 0x3004)

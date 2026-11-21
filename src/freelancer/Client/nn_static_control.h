@@ -110,11 +110,11 @@ private:
     NnStaticControl& operator=(NnStaticControl const&) = delete;
 };
 
-static_assert(offsetof(NnStaticControl, CurRoll) == 0x32c, "StaticControl +0x32c");
-static_assert(offsetof(NnStaticControl, StartYpr) == 0x338, "StaticControl +0x338");
-static_assert(offsetof(NnStaticControl, bNoMeshRender) == 0x344, "StaticControl +0x344");
-static_assert(offsetof(NnStaticControl, bZClear) == 0x34c, "StaticControl +0x34c");
-static_assert(offsetof(NnStaticControl, Camera) == 0x350, "StaticControl +0x350");
-static_assert(offsetof(NnStaticControl, MeshColour) == 0x410, "StaticControl +0x410");
-static_assert(offsetof(NnStaticControl, ForceRadius) == 0x418, "StaticControl +0x418");
-static_assert(offsetof(NnStaticControl, RotationSpeed) == 0x41c, "StaticControl +0x41c");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, CurRoll) == 0x32c, "StaticControl +0x32c");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, StartYpr) == 0x338, "StaticControl +0x338");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, bNoMeshRender) == 0x344, "StaticControl +0x344");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, bZClear) == 0x34c, "StaticControl +0x34c");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, Camera) == 0x350, "StaticControl +0x350");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, MeshColour) == 0x410, "StaticControl +0x410");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, ForceRadius) == 0x418, "StaticControl +0x418");
+FL_LAYOUT_ASSERT(offsetof(NnStaticControl, RotationSpeed) == 0x41c, "StaticControl +0x41c");

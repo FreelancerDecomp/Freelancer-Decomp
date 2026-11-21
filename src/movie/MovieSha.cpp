@@ -9,11 +9,11 @@
 #include <stddef.h>
 #include <windows.h>
 
-static_assert(sizeof(FSha1Context) == 0x74u, "SHA-1 context is 0x74 bytes");
-static_assert(offsetof(FSha1Context, State) == 0x18u, "SHA-1 state");
-static_assert(offsetof(FSha1Context, ByteCountHigh) == 0x2cu, "SHA-1 count high");
-static_assert(offsetof(FSha1Context, ByteCountLow) == 0x30u, "SHA-1 count low");
-static_assert(offsetof(FSha1Context, Block) == 0x34u, "SHA-1 partial block");
+FL_LAYOUT_ASSERT(sizeof(FSha1Context) == 0x74u, "SHA-1 context is 0x74 bytes");
+FL_LAYOUT_ASSERT(offsetof(FSha1Context, State) == 0x18u, "SHA-1 state");
+FL_LAYOUT_ASSERT(offsetof(FSha1Context, ByteCountHigh) == 0x2cu, "SHA-1 count high");
+FL_LAYOUT_ASSERT(offsetof(FSha1Context, ByteCountLow) == 0x30u, "SHA-1 count low");
+FL_LAYOUT_ASSERT(offsetof(FSha1Context, Block) == 0x34u, "SHA-1 partial block");
 
 static unsigned int RotateLeft(unsigned int Value, unsigned int Bits)
 {

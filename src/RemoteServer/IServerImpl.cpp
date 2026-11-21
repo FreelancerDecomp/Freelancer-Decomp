@@ -14,6 +14,7 @@
 #undef GetChatServerInterface
 #include "rpc_packet.h"
 #include "rpc_packet_codec.h"
+#include "x87_portable.h" // the x64 forms of the float copies below
 #include "rpc_server_channel_codec.h"
 #include "common_goods.h"
 #include <string.h>
@@ -330,11 +331,15 @@ void IServerImpl::ReqHullStatus(float HullStatus, unsigned int SessionId) {
     if (Serializer->Allocate(3, FLPACKET_CLIENT_REQHULLSTATUS, &Packet) == 0) {
         FRpcRequestHullStatusPacket* TypedPacket = static_cast<FRpcRequestHullStatusPacket*>(Packet);
         float* Destination = &TypedPacket->Value;
+#if defined(_M_IX86)
         __asm {
             fld HullStatus
             mov eax, Destination
             fstp dword ptr [eax]
         }
+#else
+        X87CopyFloat(Destination, &HullStatus);
+#endif
         this->PushToServer(Packet->AsRaw());
     }
 }
@@ -435,6 +440,7 @@ void IServerImpl::ReqAddItem(unsigned int ArchId, const char* Hardpoint, int Cou
         float* HealthDestination = &TypedPacket->Health;
         unsigned char Mounted;
         // 06bd75bd..75db: FLD precedes both integer stores; FSTP follows them.
+#if defined(_M_IX86)
         __asm {
             fld Health
             mov eax, ArchId
@@ -448,6 +454,12 @@ void IServerImpl::ReqAddItem(unsigned int ArchId, const char* Hardpoint, int Cou
             mov edx, HealthDestination
             fstp dword ptr [edx]
         }
+#else
+        *ArchDestination = ArchId;
+        *CountDestination = Count;
+        Mounted = bMounted;
+        X87CopyFloat(HealthDestination, &Health);
+#endif
         TypedPacket->bMounted = Mounted;
         TypedPacket->CopyHardpoint(Hardpoint, static_cast<unsigned int>(strlen(Hardpoint) + 1u));
         this->PushToServer(Packet->AsRaw());
@@ -473,6 +485,7 @@ void IServerImpl::ReqModifyItem(unsigned short EquipId, const char* Hardpoint, i
         float* HealthDestination = &TypedPacket->Health;
         unsigned char Mounted;
         // 06bd768d..76ad: retain MOVZX and the stores between FLD and FSTP.
+#if defined(_M_IX86)
         __asm {
             fld Health
             movzx eax, EquipId
@@ -486,6 +499,12 @@ void IServerImpl::ReqModifyItem(unsigned short EquipId, const char* Hardpoint, i
             mov edx, HealthDestination
             fstp dword ptr [edx]
         }
+#else
+        *EquipDestination = EquipId;
+        *CountDestination = Count;
+        Mounted = bMounted;
+        X87CopyFloat(HealthDestination, &Health);
+#endif
         TypedPacket->bMounted = Mounted;
         TypedPacket->CopyHardpoint(Hardpoint, static_cast<unsigned int>(strlen(Hardpoint) + 1u));
         this->PushToServer(Packet->AsRaw());
@@ -684,11 +703,17 @@ void IServerImpl::SPObjUpdate(const SSPObjUpdateInfo& Info, unsigned int Session
         const double* TimeSource = &Info.Timestamp;
         float NarrowedTime;
         // 06bd7fc6/7fcc narrows before any packet payload store.
+#if defined(_M_IX86)
         __asm {
             mov eax, TimeSource
             fld qword ptr [eax]
             fstp dword ptr NarrowedTime
         }
+#else
+        // FLD qword / FSTP dword rounds to nearest, as the SSE conversion does; a signaling NaN
+        // comes out quiet in both.
+        NarrowedTime = static_cast<float>(*TimeSource);
+#endif
         FRpcUpdateObjectPacket* TypedPacket = static_cast<FRpcUpdateObjectPacket*>(Packet);
         TypedPacket->Field_0x00 = Info.Field_0x2c;
         TypedPacket->ObjectId = Info.ObjectId;
@@ -1018,12 +1043,16 @@ void IServerImpl::AddTradeEquip(unsigned int SessionId, const EquipDesc& Equip) 
         TypedPacket->EquipCount = Equip.get_count();
         const float* HealthSource = &Equip.Health;
         float* HealthDestination = &TypedPacket->EquipHealth;
+#if defined(_M_IX86)
         __asm {
             mov eax, HealthSource
             mov edx, HealthDestination
             fld dword ptr [eax]
             fstp dword ptr [edx]
         }
+#else
+        X87CopyFloat(HealthDestination, HealthSource);
+#endif
         TypedPacket->EquipId = Equip.get_id();
         this->PushToServer(Packet->AsRaw());
     }
@@ -1066,11 +1095,15 @@ void IServerImpl::ReqDifficultyScale(float Scale, unsigned int SessionId) {
     if (Serializer->Allocate(3, FLPACKET_CLIENT_REQDIFFICULTYSCALE, &Packet) == 0) {
         FRpcRequestDifficultyScalePacket* TypedPacket = static_cast<FRpcRequestDifficultyScalePacket*>(Packet);
         float* Destination = &TypedPacket->Value;
+#if defined(_M_IX86)
         __asm {
             fld Scale
             mov eax, Destination
             fstp dword ptr [eax]
         }
+#else
+        X87CopyFloat(Destination, &Scale);
+#endif
         this->PushToServer(Packet->AsRaw());
     }
 }

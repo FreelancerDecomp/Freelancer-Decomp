@@ -306,7 +306,7 @@ bool NnGroupControl::Create(Win3D* NewParent, void* Data)
     return true;
 }
 
-bool NnGroupControl::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnGroupControl::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_00462a40
     if (Msg == 0xef01)

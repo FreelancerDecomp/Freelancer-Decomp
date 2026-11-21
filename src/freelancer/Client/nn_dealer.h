@@ -35,7 +35,7 @@ struct FPlayerStatsRepEntry
     unsigned GroupId; // +0x00
     float Feeling;    // +0x04
 };
-static_assert(sizeof(FPlayerStatsRepEntry) == 8, "player-stats reputation entry is 8 bytes");
+FL_LAYOUT_ASSERT(sizeof(FPlayerStatsRepEntry) == 8, "player-stats reputation entry is 8 bytes");
 
 class NnDealer : public NnInventory
 {

@@ -333,7 +333,7 @@ FCliDynamicAsteroid* FCliDynamicAsteroidGameobj::GetOwner() const
 
 void FCliDynamicAsteroidGameobj::SetOwner(FCliDynamicAsteroid* Owner)
 {
-    static_assert(sizeof(FCliDynamicAsteroid*) == 4, "the +0xa8 owner is one dword");
+    FL_LAYOUT_ASSERT(sizeof(FCliDynamicAsteroid*) == 4, "the +0xa8 owner is one dword");
     std::memcpy(&bWatchListed, &Owner, sizeof(Owner));
 }
 

@@ -56,7 +56,7 @@ struct FPrefOption
     unsigned char bHeader;  // +0x16 caption only
     unsigned char Pad17;
 };
-static_assert(sizeof(FPrefOption) == 0x18, "retail optlist row is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(FPrefOption) == 0x18, "retail optlist row is 0x18 bytes");
 
 // One key map row (0x2c bytes) -- two FKeyBindingLookup-shaped triples and the command data.
 struct FKeyRowKey
@@ -76,7 +76,7 @@ struct FKeyRow
     unsigned char bEditable; // +0x28
     unsigned char Pad29[3];
 };
-static_assert(sizeof(FKeyRow) == 0x2c, "retail key row is 0x2c bytes");
+FL_LAYOUT_ASSERT(sizeof(FKeyRow) == 0x2c, "retail key row is 0x2c bytes");
 
 // Retail +0x8cc: ten {Width, Height, Bpp} modes (five resolutions at 16 bpp, then at 32).
 struct FPrefVideoMode
@@ -114,7 +114,7 @@ public:
     // slot 20 FUN_004adac0 (RET 8)
     bool KeyEvent(unsigned Key, unsigned char* Modifiers) override;
     // slot 23 FUN_004ada30 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 FUN_004ac0a0 (RET 0xc)
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 
@@ -291,12 +291,12 @@ private:
     void MarkKeyMapDirtyAndReload();
 };
 
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, bClosed) == 0x32c, "NN_Preferences +0x32c");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, BigBox) == 0x338, "NN_Preferences +0x338");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, PageButtons) == 0x34c, "NN_Preferences +0x34c");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, CommandRows) == 0x37c, "NN_Preferences +0x37c");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, StaticRows) == 0x418, "NN_Preferences +0x418");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, KeyScroll) == 0x4b8, "NN_Preferences +0x4b8");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, GroupTexts) == 0x4d4, "NN_Preferences +0x4d4");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, DialogButtonText) == 0x4fc, "NN_Preferences +0x4fc");
-static_assert(sizeof(void*) != 4 || offsetof(NnPreferences, OptionsA) == 0x504, "NN_Preferences +0x504");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, bClosed) == 0x32c, "NN_Preferences +0x32c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, BigBox) == 0x338, "NN_Preferences +0x338");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, PageButtons) == 0x34c, "NN_Preferences +0x34c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, CommandRows) == 0x37c, "NN_Preferences +0x37c");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, StaticRows) == 0x418, "NN_Preferences +0x418");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, KeyScroll) == 0x4b8, "NN_Preferences +0x4b8");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, GroupTexts) == 0x4d4, "NN_Preferences +0x4d4");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, DialogButtonText) == 0x4fc, "NN_Preferences +0x4fc");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPreferences, OptionsA) == 0x504, "NN_Preferences +0x504");

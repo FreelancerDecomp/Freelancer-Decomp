@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "cockpit_load.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "player_spawn.h"
 #include "common_archetype.h"
@@ -31,7 +32,7 @@ namespace
 
     // Same `- 8` as everywhere else: the watcher holds the Watchable, eight bytes into the
     // IObjRW.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // Retail CEqObj offsets used by FUN_00543350.
     struct FPlayerShipView
@@ -43,8 +44,8 @@ namespace
         Archetype::Root* Archetype;
     };
 
-    static_assert(offsetof(FPlayerShipView, FlagsAt4c) == 0x4c, "CEqObj+0x4c class flags");
-    static_assert(offsetof(FPlayerShipView, Archetype) == 0x88, "CObject+0x88 archetype");
+    FL_LAYOUT_ASSERT(offsetof(FPlayerShipView, FlagsAt4c) == 0x4c, "CEqObj+0x4c class flags");
+    FL_LAYOUT_ASSERT(offsetof(FPlayerShipView, Archetype) == 0x88, "CObject+0x88 archetype");
 
     // Archetype::CliShip companion — cockpit ini path at retail +0x60.
     struct FCliShipCompanionView
@@ -54,7 +55,7 @@ namespace
         char* CockpitIniPath;
     };
 
-    static_assert(offsetof(FCliShipCompanionView, CockpitIniPath) == 0x60,
+    FL_LAYOUT_ASSERT(offsetof(FCliShipCompanionView, CockpitIniPath) == 0x60,
                   "CliShip+0x60 cockpit ini path");
 
     // player_spawn.cpp's fallback when it has no manager object; never bound.

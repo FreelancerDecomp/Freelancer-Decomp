@@ -198,7 +198,7 @@ void HUDItem::SetTarget(IObjRW* NewTarget)
     // differs from the one watched, which is BaseWatcher::set.
     Watchable const* const Watched = (NewTarget == nullptr)
         ? nullptr
-        : reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(NewTarget) + 8);
+        : reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(NewTarget) + FL_OBJRW_WATCHABLE_OFFSET);
     Target.set(Watched);
 }
 

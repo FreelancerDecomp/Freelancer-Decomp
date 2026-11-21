@@ -71,7 +71,7 @@ void RearViewCameraUpdate(FRearViewCamera* Cam, float DeltaSeconds)
             reinterpret_cast<const unsigned char*>(Hud->Watched.target()));
         if (Held != nullptr)
         {
-            unsigned char* const Object = Held - 8;
+            unsigned char* const Object = Held - FL_OBJRW_WATCHABLE_OFFSET;
             if (Object != nullptr)
             {
                 unsigned char* const Plus0c = Object + 0xc;

@@ -198,7 +198,7 @@ void FDirectionPicker::SetWatchObject(void const* Object)
     // 062d88e4-062d88f3: Object ? Object + 8 : null (IObjRW -> Watchable).
     Watchable const* const Target =
         (Object != nullptr)
-            ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object) + 8)
+            ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object) + FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
     Watcher.set(Target);   // 062d88f5-062d88fa: CMP EAX,[ECX]; JZ; set_pointer
     Flag1c = 1;            // 062d88ff `MOV byte [ESI+0x30],0x1`, unconditional

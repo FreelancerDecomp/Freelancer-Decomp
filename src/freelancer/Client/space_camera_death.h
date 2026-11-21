@@ -50,16 +50,16 @@ struct FDeathCamera : FGameCamera
     float MaxDriftSpeed;             // +0x150  controller writes 100.0f
 };
 
-static_assert(sizeof(FDeathCamera) == 0x154, "FDeathCamera is 0x154");
-static_assert(offsetof(FDeathCamera, BasePosition) == 0x0f8, "DthC +0x0f8");
-static_assert(offsetof(FDeathCamera, DriftDirection) == 0x104, "DthC +0x104");
-static_assert(offsetof(FDeathCamera, ShakeOrientation) == 0x110, "DthC +0x110");
-static_assert(offsetof(FDeathCamera, DriftPosition) == 0x134, "DthC +0x134");
-static_assert(offsetof(FDeathCamera, DriftSpeed) == 0x140, "DthC +0x140");
-static_assert(offsetof(FDeathCamera, ShakeTimer) == 0x144, "DthC +0x144");
-static_assert(offsetof(FDeathCamera, ShakeDuration) == 0x148, "DthC +0x148");
-static_assert(offsetof(FDeathCamera, DriftDamping) == 0x14c, "DthC +0x14c");
-static_assert(offsetof(FDeathCamera, MaxDriftSpeed) == 0x150, "DthC +0x150");
+FL_LAYOUT_ASSERT(sizeof(FDeathCamera) == 0x154, "FDeathCamera is 0x154");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, BasePosition) == 0x0f8, "DthC +0x0f8");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, DriftDirection) == 0x104, "DthC +0x104");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, ShakeOrientation) == 0x110, "DthC +0x110");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, DriftPosition) == 0x134, "DthC +0x134");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, DriftSpeed) == 0x140, "DthC +0x140");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, ShakeTimer) == 0x144, "DthC +0x144");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, ShakeDuration) == 0x148, "DthC +0x148");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, DriftDamping) == 0x14c, "DthC +0x14c");
+FL_LAYOUT_ASSERT(offsetof(FDeathCamera, MaxDriftSpeed) == 0x150, "DthC +0x150");
 
 // The controller's step for this slot: FUN_0051b2f0, then the four literals, then the vptr.
 //

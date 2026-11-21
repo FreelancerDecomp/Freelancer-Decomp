@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_gameobj.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "DALib.h"
 #include "cli_projectile_fx.h"   // CliEffectListClear / FCliEquipFirePacket / fire-host ports
@@ -88,7 +89,7 @@ namespace
         FGameobjEffectListHead* Prev;
         void* Companion[4];
     };
-    static_assert(sizeof(FGameobjEffectListHead) == 0x18, "effect list node 0x18");
+    FL_LAYOUT_ASSERT(sizeof(FGameobjEffectListHead) == 0x18, "effect list node 0x18");
 }
 
 // ===========================================================================
@@ -213,7 +214,7 @@ namespace
     constexpr int kHitEffectSlotCount = 3;
     // 0x0053a022: MOV [ESP+0x14],0x42c80000 -- the replace-by-lowest ceiling, 100.0f.
     constexpr float kHitEffectReplaceCeiling = 100.0f;
-    static_assert(sizeof(FClientGameobj::HitEffects) / sizeof(FClientGameobj::HitEffects[0]) ==
+    FL_LAYOUT_ASSERT(sizeof(FClientGameobj::HitEffects) / sizeof(FClientGameobj::HitEffects[0]) ==
                       kHitEffectSlotCount,
                   "HitEffects holds DAT_00613e60 slots");
 
@@ -474,7 +475,7 @@ unsigned* FClientGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned Cache
     return GameobjSubmitDrawRetail(this, OutLod, Camera, CachedLod, Matrix, Extra);
 }
 
-unsigned FClientGameobj::Slot18c(unsigned* OutB)
+std::uintptr_t FClientGameobj::Slot18c(unsigned* OutB)
 {
     // LAB_00524e50.
     *OutB = DrawStateB;
@@ -1033,7 +1034,7 @@ namespace
         FEquipFxNode* Prev;
         INotify* Wrapper;
     };
-    static_assert(sizeof(FEquipFxNode) == 0xc, "equip-FX node 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FEquipFxNode) == 0xc, "equip-FX node 0xc");
 }
 
 FEquippedFuseList::FEquippedFuseList(unsigned char InAllocatorByte)
@@ -1918,7 +1919,7 @@ void FClientSolarGameobj::Slot170()
     FClientEquippedObj::Slot170();
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 void FClientSolarGameobj::update(float Dt)
@@ -2235,7 +2236,7 @@ void FClientSolarGameobj::ReadIni(INI_Reader& Reader)
     // into +0x3c (FUN_005553b0, no hint).
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 // ===========================================================================
@@ -3497,10 +3498,10 @@ void FClientShipGameobj::Slot1b8(float Dt)
 
     // 0x00545628..0x00545643: FUN_005553b0(get_position() (vt+0), &+0x3c, hint +0x38) into
     // +0x38.
-    FNebulaEffect* const Hint = reinterpret_cast<FNebulaEffect*>(static_cast<uintptr_t>(DrawStateA));
+    FNebulaEffect* const Hint = reinterpret_cast<FNebulaEffect*>(DrawStateA);
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), Hint);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 
     // 0x0054563c..0x0054565f: the clock reloaded; above the period it is reduced on the FPU
     // stack (FSUB / FCOM / TEST AH,0x41 / JZ loops while still greater) and stored once.
@@ -4374,8 +4375,8 @@ void FClientShipGameobj::AirlockIn(Vector const& Pos, Matrix const& Orient)
 
 // The launch camera's stack Csys: Matrix at +0x10, Vector at +0x34 of the frame, i.e. the
 // orientation followed directly by the position -- FUN_0054bb90's twelve floats.
-static_assert(offsetof(Transform, Translation) == 0x24, "Csys12: position after 3x3");
-static_assert(sizeof(Transform) == 0x30, "Csys12: twelve floats");
+FL_LAYOUT_ASSERT(offsetof(Transform, Translation) == 0x24, "Csys12: position after 3x3");
+FL_LAYOUT_ASSERT(sizeof(Transform) == 0x30, "Csys12: twelve floats");
 
 void FClientShipGameobj::LaunchFromDock(FClientGameobj* DockGo, int LaunchIndex)
 {
@@ -4769,7 +4770,7 @@ namespace
             return;
         FNebulaEffect* const Nebula = StarSysFindNebula(
             &Self->get_position(), reinterpret_cast<float*>(&Self->DrawStateB), nullptr);
-        Self->DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+        Self->DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
         Self->Field_0x34 = 1.0f;
     }
 
@@ -5088,7 +5089,7 @@ int FClientGuidedGameobj::set_target(IObjRW* Target, unsigned short SubTarget, i
     Watchable const* const Watched = Guided->TargetWatch.target();
     IObjRW const* const Current =
         (Watched != nullptr)
-            ? reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Watched) - 8)
+            ? reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
     if (Current == Target && Guided->SubTarget == SubTarget)
         return 0;
@@ -5108,7 +5109,7 @@ int FClientGuidedGameobj::set_target(IObjRW* Target, unsigned short SubTarget, i
     {
         Watchable const* const NewWatched =
             (Target != nullptr) ? reinterpret_cast<Watchable const*>(
-                                      reinterpret_cast<unsigned char const*>(Target) + 8)
+                                      reinterpret_cast<unsigned char const*>(Target) + FL_OBJRW_WATCHABLE_OFFSET)
                                 : nullptr;
         Guided->TargetWatch.set(NewWatched);
     }
@@ -5197,7 +5198,7 @@ void FClientLootGameobj::Slot170()
     // 0x0053e677..0x0053e68c: FUN_005553b0(&get_position(), &DrawStateB, 0) into DrawStateA.
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 void FClientLootGameobj::update(float Dt)
@@ -5275,7 +5276,7 @@ namespace
         Watchable const* const Target = Watcher.target();
         if (Target == nullptr)
             return nullptr;
-        return reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Target) - 8);
+        return reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Target) - FL_OBJRW_WATCHABLE_OFFSET);
     }
 
     // FUN_0045aa10(out, first, last, &Obj): the first node from first up to last whose
@@ -5308,7 +5309,7 @@ void GameobjWatchListAdd(IObjRW* Obj)
     if (Obj != nullptr)
     {
         Watchable const* const Target =
-            reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + 8);
+            reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + FL_OBJRW_WATCHABLE_OFFSET);
         G_GameobjWatchList.back().set(Target);
     }
 }

@@ -109,7 +109,7 @@ namespace
         FTlShipListNode* Prev;
         unsigned ShipId;
     };
-    static_assert(sizeof(FTlShipListNode) == 0xc, "ship list node 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FTlShipListNode) == 0xc, "ship list node 0xc");
 
     FTlShipListNode* TlShipListHead(FTradeLaneRingRuntime* Ring)
     {
@@ -204,7 +204,7 @@ namespace
         if (Watched == nullptr)
             return nullptr;
         return reinterpret_cast<FClientGameobj*>(
-            reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - 8);
+            reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - FL_OBJRW_WATCHABLE_OFFSET);
     }
 
     // The CSolar narrowing every function here inlines: null gameobj, null object or a class
@@ -1100,7 +1100,7 @@ FTradeLaneRingRuntime* TradeLaneRingFindOrCreate(FClientGameobj* RingGameobj,
     Ring->bActive = 1;
     Watchable const* WatchTarget = nullptr;
     if (RingGameobj != nullptr)
-        WatchTarget = reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char*>(RingGameobj) + 8);
+        WatchTarget = reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char*>(RingGameobj) + FL_OBJRW_WATCHABLE_OFFSET);
     Ring->RingWatcher.set(WatchTarget);
     Ring->SideKey = Side;
 

@@ -69,7 +69,7 @@ public:
     // slot 11 FUN_0056ce30.
     void Update() override;
     // slot 23 LAB_0056c360 (RET 0xc).
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // Event::Handler face (+0x80) slot 0 LAB_0056d310 (RET 4).
     bool OnEvent(unsigned MsgId) override;
 

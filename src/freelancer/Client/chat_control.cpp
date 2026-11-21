@@ -920,7 +920,7 @@ void ChatControl::FillPrivate(int FirstItem, unsigned VisibleRows)
     }
 }
 
-bool ChatControl::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool ChatControl::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_00467f10
     if (Msg == 0xef01)

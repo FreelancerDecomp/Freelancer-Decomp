@@ -110,33 +110,33 @@ struct FThirdPersonCamera : FHudCamera
 // exactly 0x218 bytes; every field offset below is checked against the listing. That the
 // inherited part lands exactly on +0x100 is an independent check on the whole hierarchy:
 // 0xc0 (FSpaceCamera) + 0x38 (FGameCamera) + 0x8 (FHudCamera) = 0x100.
-static_assert(sizeof(FThirdPersonCamera) == 0x218, "FThirdPersonCamera must be 0x218");
-static_assert(offsetof(FThirdPersonCamera, HardpointPos) == 0x100, "TP +0x100");
-static_assert(offsetof(FThirdPersonCamera, HardpointOrient) == 0x10c, "TP +0x10c");
-static_assert(offsetof(FThirdPersonCamera, TranslationCache) == 0x130, "TP +0x130");
-static_assert(offsetof(FThirdPersonCamera, Field140) == 0x140, "TP +0x140");
-static_assert(offsetof(FThirdPersonCamera, OffsetX) == 0x144, "TP +0x144");
-static_assert(offsetof(FThirdPersonCamera, OffsetY) == 0x148, "TP +0x148");
-static_assert(offsetof(FThirdPersonCamera, Field14C) == 0x14c, "TP +0x14c");
-static_assert(offsetof(FThirdPersonCamera, Field154) == 0x154, "TP +0x154");
-static_assert(offsetof(FThirdPersonCamera, TargetOrientB) == 0x17c, "TP +0x17c");
-static_assert(offsetof(FThirdPersonCamera, PrevAngularRate) == 0x1ac, "TP +0x1ac");
-static_assert(offsetof(FThirdPersonCamera, TargetOrientA) == 0x1b0, "TP +0x1b0");
-static_assert(offsetof(FThirdPersonCamera, AngularAcceleration) == 0x1d4, "TP +0x1d4");
-static_assert(offsetof(FThirdPersonCamera, TurnLookAheadSlerpAmount) == 0x1e8, "TP +0x1e8");
-static_assert(offsetof(FThirdPersonCamera, UpAxis) == 0x204, "TP +0x204");
-static_assert(offsetof(FThirdPersonCamera, Field210) == 0x210, "TP +0x210");
-static_assert(offsetof(FThirdPersonCamera, bInitialised) == 0x214, "TP +0x214");
+FL_LAYOUT_ASSERT(sizeof(FThirdPersonCamera) == 0x218, "FThirdPersonCamera must be 0x218");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, HardpointPos) == 0x100, "TP +0x100");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, HardpointOrient) == 0x10c, "TP +0x10c");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, TranslationCache) == 0x130, "TP +0x130");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, Field140) == 0x140, "TP +0x140");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, OffsetX) == 0x144, "TP +0x144");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, OffsetY) == 0x148, "TP +0x148");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, Field14C) == 0x14c, "TP +0x14c");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, Field154) == 0x154, "TP +0x154");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, TargetOrientB) == 0x17c, "TP +0x17c");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, PrevAngularRate) == 0x1ac, "TP +0x1ac");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, TargetOrientA) == 0x1b0, "TP +0x1b0");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, AngularAcceleration) == 0x1d4, "TP +0x1d4");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, TurnLookAheadSlerpAmount) == 0x1e8, "TP +0x1e8");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, UpAxis) == 0x204, "TP +0x204");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, Field210) == 0x210, "TP +0x210");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, bInitialised) == 0x214, "TP +0x214");
 
-static_assert(offsetof(FThirdPersonCamera, bCameraLevelEnabled) == 0x13c, "TP +0x13c");
-static_assert(offsetof(FThirdPersonCamera, ResetOrient) == 0x158, "TP +0x158");
-static_assert(offsetof(FThirdPersonCamera, LevelAxis) == 0x1a0, "TP +0x1a0");
-static_assert(offsetof(FThirdPersonCamera, PrevSpeed) == 0x1ec, "TP +0x1ec");
-static_assert(offsetof(FThirdPersonCamera, LookAheadMultiplier) == 0x1f0, "TP +0x1f0");
-static_assert(offsetof(FThirdPersonCamera, AccelerationLimit) == 0x1f4, "TP +0x1f4");
-static_assert(offsetof(FThirdPersonCamera, SmoothedSpeed) == 0x1f8, "TP +0x1f8");
-static_assert(offsetof(FThirdPersonCamera, SpeedSlack) == 0x1fc, "TP +0x1fc");
-static_assert(offsetof(FThirdPersonCamera, TurnRateScale) == 0x200, "TP +0x200");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, bCameraLevelEnabled) == 0x13c, "TP +0x13c");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, ResetOrient) == 0x158, "TP +0x158");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, LevelAxis) == 0x1a0, "TP +0x1a0");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, PrevSpeed) == 0x1ec, "TP +0x1ec");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, LookAheadMultiplier) == 0x1f0, "TP +0x1f0");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, AccelerationLimit) == 0x1f4, "TP +0x1f4");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, SmoothedSpeed) == 0x1f8, "TP +0x1f8");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, SpeedSlack) == 0x1fc, "TP +0x1fc");
+FL_LAYOUT_ASSERT(offsetof(FThirdPersonCamera, TurnRateScale) == 0x200, "TP +0x200");
 
 
 // FUN_005187d0. Opens the cockpit ini and validates it; returns false when the file is missing

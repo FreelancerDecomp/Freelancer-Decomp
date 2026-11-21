@@ -66,7 +66,7 @@ struct FFlashLight
     Vector Pos;                // +0x70
 };
 
-static_assert(sizeof(FFlashLight) == 0x7c, "FlashLight sizeof 0x7c");
+FL_LAYOUT_ASSERT(sizeof(FFlashLight) == 0x7c, "FlashLight sizeof 0x7c");
 
 // The heap pair each list node of FFlashLightSet holds (operator new(8) at 0x0055832c).
 struct FFlashLightEntry

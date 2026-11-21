@@ -187,7 +187,7 @@ void NnRolloverControl::LoadRolloverTable()
     } while (Reader.read_header());
 }
 
-bool NnRolloverControl::Slot23(unsigned Msg, unsigned /*A*/, unsigned /*B*/)
+bool NnRolloverControl::Slot23(unsigned Msg, std::uintptr_t /*A*/, std::uintptr_t /*B*/)
 {
     // LAB_004b5700 (RET 0xc).
     if (Msg != 0xef02)

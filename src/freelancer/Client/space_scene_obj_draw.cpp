@@ -133,7 +133,7 @@ namespace
         float DistSq;           // +0x04  sort key
         void* Object;           // +0x08  Gameobj* / FNebulaEffect* / FCliAsteroid* / FTexturePanels*
     };
-    static_assert(sizeof(FZItem) == 0xc, "Zitem sizeof 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FZItem) == 0xc, "Zitem sizeof 0xc");
 
     // ZItemNebula, vftable 0x005dc01c -- sizeof 0xc (FUN_0051ec80(0xc) at 0x0051b8b5 /
     // 0x0051b935 / 0x0051b97b), Object = the StarSys nebula.
@@ -146,7 +146,7 @@ namespace
         // LAB_00517320: return 2.
         int Slot04() override { return 2; }
     };
-    static_assert(sizeof(FZItemNebula) == 0xc, "ZItemNebula sizeof 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FZItemNebula) == 0xc, "ZItemNebula sizeof 0xc");
 
     // ZItemGameObject, vftable 0x005dc364.
     struct FZItemGameObject final : FZItem
@@ -159,7 +159,7 @@ namespace
         int Slot04() override;
         unsigned LodWord;       // +0x0c  packed LOD
     };
-    static_assert(sizeof(FZItemGameObject) == 0x10, "ZItemGameObject sizeof 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FZItemGameObject) == 0x10, "ZItemGameObject sizeof 0x10");
 
     // ZItemAsteroidField, vftable 0x005dc034.
     struct FZItemAsteroidField final : FZItem
@@ -170,7 +170,7 @@ namespace
         int Slot04() override { return 2; }
         unsigned LodWord;       // +0x0c  piece index
     };
-    static_assert(sizeof(FZItemAsteroidField) == 0x10, "ZItemAsteroidField sizeof 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FZItemAsteroidField) == 0x10, "ZItemAsteroidField sizeof 0x10");
 
     // ZItemPlanetRing, vftable 0x005dc06c (the object is the ring's FTexturePanels).
     struct FZItemPlanetRing final : FZItem
@@ -182,7 +182,7 @@ namespace
         int Slot04() override { return 2; }
         unsigned LodWord;       // +0x0c  piece index
     };
-    static_assert(sizeof(FZItemPlanetRing) == 0x10, "ZItemPlanetRing sizeof 0x10");
+    FL_LAYOUT_ASSERT(sizeof(FZItemPlanetRing) == 0x10, "ZItemPlanetRing sizeof 0x10");
 
     struct FDrawBucket
     {
@@ -259,8 +259,8 @@ namespace
         int CellZ;                // +0x18
         int HalfSize;             // +0x1c
     };
-    static_assert(sizeof(FLightGridPayload) == 0x14, "payload node 0x14");
-    static_assert(sizeof(FLightGridNode) == 0x20, "tree node 0x20");
+    FL_LAYOUT_ASSERT(sizeof(FLightGridPayload) == 0x14, "payload node 0x14");
+    FL_LAYOUT_ASSERT(sizeof(FLightGridNode) == 0x20, "tree node 0x20");
 
     FLightGridNode G_LightGridRoot = {};
     // DAT_00675578 — 256×0x14 payload pool; free head DAT_00676978.
@@ -896,7 +896,7 @@ namespace
     //   a3 the containing nebula (Gameobj +0x38; nebula vtable PTR_DAT_005dacbc),
     //   a4 the float lerp factor (Gameobj +0x3c), a5 Flag (FUN_00537f40's last arg).
     void StarSysApplyObjectLighting(float const* Pos3, float Radius, void* Camera,
-                                    unsigned DrawStateA, unsigned DrawStateB,
+                                    std::uintptr_t DrawStateA, unsigned DrawStateB,
                                     unsigned char Flag)
     {
         Win3DDisable(kWin3DFog); // 0x005554d8 FUN_00421ed0(0xb60)
@@ -920,7 +920,7 @@ namespace
 
         // 00555578: EBX = &DAT_0067986c; 00555576/0055557d: no nebula -> straight to the tail.
         unsigned char const* AmbientPtr = G_AmbientWorkRgb;
-        FNebulaEffect* const Nebula = (FNebulaEffect*)(uintptr_t)DrawStateA;
+        FNebulaEffect* const Nebula = reinterpret_cast<FNebulaEffect*>(DrawStateA);
         if (Nebula != nullptr)
         {
 
@@ -991,7 +991,7 @@ namespace
         unsigned char* Particle; // +0x10  companion +8
         FGameLight* Light;       // +0x14  companion +0xc
     };
-    static_assert(sizeof(FSweepEffectNode) == 0x18, "effect list node 0x18");
+    FL_LAYOUT_ASSERT(sizeof(FSweepEffectNode) == 0x18, "effect list node 0x18");
 
     // FUN_004fd040 (thiscall on the list, GameObject+0x28; callers 0x005265ea, 0x005399d2) --
     // walk from the sentinel's next ([+4]->[0]) until the node is the sentinel again (re-read
@@ -1196,12 +1196,12 @@ namespace
         if (G_FieldController != nullptr)
         {
             unsigned EncloseBits = 0;
-            const unsigned DrawStateA = Go->Slot18c(&EncloseBits);
+            const std::uintptr_t DrawStateA = Go->Slot18c(&EncloseBits);
             float Enclose = 0.0f;
             memcpy(&Enclose, &EncloseBits, sizeof(float));
 
             float E;
-            if (reinterpret_cast<void*>(static_cast<uintptr_t>(DrawStateA)) != G_FieldController)
+            if (reinterpret_cast<void*>(DrawStateA) != G_FieldController)
             {
                 // 0x0051f4c3..0x0051f4de: another enclosure -- above 0.25 (double 0x005cbf58)
                 // is dropped (TEST AH,0x41 / JZ); otherwise E = 0.0f.
@@ -2199,7 +2199,7 @@ double SpaceEffectPerfOneMinus()
     return EffectPerfOneMinus();
 }
 
-void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, unsigned DrawStateA,
+void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, std::uintptr_t DrawStateA,
                               unsigned DrawStateB, unsigned char Flag)
 {
     // FUN_005554d0 -- the body is StarSysApplyObjectLighting above.

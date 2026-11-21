@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "room_control.h"
+#include <cstdint>
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -152,9 +153,9 @@ private:
 };
 
 #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
-static_assert(sizeof(FRoomShipPadTable) == 0x18, "FRoomShipPadTable sizeof 0x18");
+FL_LAYOUT_ASSERT(sizeof(FRoomShipPadTable) == 0x18, "FRoomShipPadTable sizeof 0x18");
 #endif
-static_assert(sizeof(FRoomShipPad) == 0x10, "FRoomShipPad sizeof 0x10");
+FL_LAYOUT_ASSERT(sizeof(FRoomShipPad) == 0x10, "FRoomShipPad sizeof 0x10");
 
 // Retail FUN_00449260 object (RoomControl). The RoomObject base (+0x00..+0x2f) is
 // FRoomObject; RoomControl registers itself with a null owner (FUN_005593d0(0) at 0x00449282),
@@ -258,53 +259,53 @@ struct FRoomRuntime : public FRoomObject, public EventHandler
     int Field_0x13a8;                   // +0x13a8
 };
 
-static_assert(offsetof(FRoomObject, bNoUpdate) == 0x04, "RoomObject +0x04");
-static_assert(offsetof(FRoomObject, Owner) == 0x08, "RoomObject owner +0x08");
-static_assert(offsetof(FRoomObject, AmbientSource) == 0x0C, "RoomObject +0x0c");
-static_assert(offsetof(FRoomObject, bVisible) == 0x10, "RoomObject +0x10");
-static_assert(offsetof(FRoomObject, Layer) == 0x16, "RoomObject layer +0x16");
-static_assert(offsetof(FRoomObject, RenderMode) == 0x18, "RoomObject +0x18");
-static_assert(offsetof(FRoomObject, Float1C) == 0x1C, "RoomObject +0x1c");
-static_assert(offsetof(FRoomObject, MaterialEntries) == 0x20, "RoomObject vector +0x20");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, bNoUpdate) == 0x04, "RoomObject +0x04");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, Owner) == 0x08, "RoomObject owner +0x08");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, AmbientSource) == 0x0C, "RoomObject +0x0c");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, bVisible) == 0x10, "RoomObject +0x10");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, Layer) == 0x16, "RoomObject layer +0x16");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, RenderMode) == 0x18, "RoomObject +0x18");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, Float1C) == 0x1C, "RoomObject +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FRoomObject, MaterialEntries) == 0x20, "RoomObject vector +0x20");
 
 // The offsets below are retail's. They hold when std::vector is 0x10 bytes (the iterator-debug
 // builds, like retail's VC6 vector with its allocator byte); a release build's 0x0c-byte vector
 // shifts everything past +0x2c by four, which nothing in the port reads by raw offset.
 #if defined(_ITERATOR_DEBUG_LEVEL) && _ITERATOR_DEBUG_LEVEL != 0
-static_assert(sizeof(FRoomObject) == 0x30, "RoomObject sizeof 0x30");
-static_assert(offsetof(FRoomRuntime, BaseId) == 0x34, "FRoomRuntime +0x34");
-static_assert(offsetof(FRoomRuntime, MainInstance) == 0x44, "FRoomRuntime +0x44");
-static_assert(offsetof(FRoomRuntime, MainScript) == 0x48, "FRoomRuntime +0x48");
-static_assert(offsetof(FRoomRuntime, Scripts) == 0x4C, "FRoomRuntime +0x4C");
-static_assert(offsetof(FRoomRuntime, Handles64) == 0x64, "FRoomRuntime +0x64");
-static_assert(offsetof(FRoomRuntime, Room) == 0x40, "FRoomRuntime +0x40");
-static_assert(offsetof(FRoomRuntime, RoomLights) == 0xE4, "FRoomRuntime +0xE4");
-static_assert(offsetof(FRoomRuntime, RoomLightCount) == 0x2E4, "FRoomRuntime +0x2E4");
-static_assert(offsetof(FRoomRuntime, FrameLights) == 0x2E8, "FRoomRuntime +0x2E8");
-static_assert(offsetof(FRoomRuntime, FrameLightCount) == 0x4E8, "FRoomRuntime +0x4E8");
-static_assert(offsetof(FRoomRuntime, FrameAmbient) == 0x4EC, "FRoomRuntime +0x4EC");
-static_assert(offsetof(FRoomRuntime, SingleLightIndex) == 0x4F8, "FRoomRuntime +0x4F8");
-static_assert(offsetof(FRoomRuntime, bSingleLight) == 0x4FC, "FRoomRuntime +0x4FC");
-static_assert(offsetof(FRoomRuntime, Camera) == 0x500, "FRoomRuntime Camera +0x500");
-static_assert(offsetof(FRoomRuntime, Placements) == 0x504, "FRoomRuntime +0x504");
-static_assert(offsetof(FRoomRuntime, Slot518) == 0x518, "FRoomRuntime +0x518");
-static_assert(offsetof(FRoomRuntime, Props) == 0x618, "FRoomRuntime +0x618");
-static_assert(offsetof(FRoomRuntime, PropCount) == 0x818, "FRoomRuntime +0x818");
-static_assert(offsetof(FRoomRuntime, Flashlights) == 0x81C, "FRoomRuntime +0x81C");
-static_assert(offsetof(FRoomRuntime, FlashlightCount) == 0x101C, "FRoomRuntime +0x101C");
-static_assert(offsetof(FRoomRuntime, ShipPads) == 0x1020, "FRoomRuntime +0x1020");
-static_assert(offsetof(FRoomRuntime, SceneAmbient) == 0x1038, "FRoomRuntime +0x1038");
-static_assert(offsetof(FRoomRuntime, SceneTraffic) == 0x108C, "FRoomRuntime +0x108C");
-static_assert(offsetof(FRoomRuntime, SceneOnce) == 0x10E0, "FRoomRuntime +0x10E0");
-static_assert(offsetof(FRoomRuntime, SceneOnceCount) == 0x1130, "FRoomRuntime +0x1130");
-static_assert(offsetof(FRoomRuntime, ControllerCount) == 0x1334, "FRoomRuntime +0x1334");
-static_assert(offsetof(FRoomRuntime, bCameraMoving) == 0x1338, "FRoomRuntime +0x1338");
-static_assert(offsetof(FRoomRuntime, bCameraMoveSkippable) == 0x1340, "FRoomRuntime +0x1340");
-static_assert(offsetof(FRoomRuntime, CameraToQuat) == 0x1348, "FRoomRuntime +0x1348");
-static_assert(offsetof(FRoomRuntime, CameraFromQuat) == 0x1370, "FRoomRuntime +0x1370");
-static_assert(offsetof(FRoomRuntime, CameraDone) == 0x1398, "FRoomRuntime +0x1398");
-static_assert(offsetof(FRoomRuntime, Field_0x13a4) == 0x13a4, "FRoomRuntime +0x13a4");
-static_assert(sizeof(FRoomRuntime) == 0x13AC, "FRoomRuntime sizeof 0x13AC");
+FL_LAYOUT_ASSERT(sizeof(FRoomObject) == 0x30, "RoomObject sizeof 0x30");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, BaseId) == 0x34, "FRoomRuntime +0x34");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, MainInstance) == 0x44, "FRoomRuntime +0x44");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, MainScript) == 0x48, "FRoomRuntime +0x48");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Scripts) == 0x4C, "FRoomRuntime +0x4C");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Handles64) == 0x64, "FRoomRuntime +0x64");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Room) == 0x40, "FRoomRuntime +0x40");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, RoomLights) == 0xE4, "FRoomRuntime +0xE4");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, RoomLightCount) == 0x2E4, "FRoomRuntime +0x2E4");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, FrameLights) == 0x2E8, "FRoomRuntime +0x2E8");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, FrameLightCount) == 0x4E8, "FRoomRuntime +0x4E8");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, FrameAmbient) == 0x4EC, "FRoomRuntime +0x4EC");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, SingleLightIndex) == 0x4F8, "FRoomRuntime +0x4F8");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, bSingleLight) == 0x4FC, "FRoomRuntime +0x4FC");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Camera) == 0x500, "FRoomRuntime Camera +0x500");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Placements) == 0x504, "FRoomRuntime +0x504");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Slot518) == 0x518, "FRoomRuntime +0x518");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Props) == 0x618, "FRoomRuntime +0x618");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, PropCount) == 0x818, "FRoomRuntime +0x818");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Flashlights) == 0x81C, "FRoomRuntime +0x81C");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, FlashlightCount) == 0x101C, "FRoomRuntime +0x101C");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, ShipPads) == 0x1020, "FRoomRuntime +0x1020");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, SceneAmbient) == 0x1038, "FRoomRuntime +0x1038");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, SceneTraffic) == 0x108C, "FRoomRuntime +0x108C");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, SceneOnce) == 0x10E0, "FRoomRuntime +0x10E0");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, SceneOnceCount) == 0x1130, "FRoomRuntime +0x1130");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, ControllerCount) == 0x1334, "FRoomRuntime +0x1334");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, bCameraMoving) == 0x1338, "FRoomRuntime +0x1338");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, bCameraMoveSkippable) == 0x1340, "FRoomRuntime +0x1340");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, CameraToQuat) == 0x1348, "FRoomRuntime +0x1348");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, CameraFromQuat) == 0x1370, "FRoomRuntime +0x1370");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, CameraDone) == 0x1398, "FRoomRuntime +0x1398");
+FL_LAYOUT_ASSERT(offsetof(FRoomRuntime, Field_0x13a4) == 0x13a4, "FRoomRuntime +0x13a4");
+FL_LAYOUT_ASSERT(sizeof(FRoomRuntime) == 0x13AC, "FRoomRuntime sizeof 0x13AC");
 #endif
 
 // DAT_00679a10 (list head DAT_00679a14, size DAT_00679a18) -- every RoomObject, in
@@ -2118,7 +2119,7 @@ FRoomRuntime* CreateRoomRuntime(RoomData* Room)
     Runtime->MainScript = 0xffffffffu;
     // 0x004496ef FUN_0044a030; 0x004496f4..0x004496fb RoomData::fixup(+0x44).
     RoomControlLoadProps(Runtime);
-    Room->fixup(reinterpret_cast<long>(Runtime->MainInstance));
+    Room->fixup(static_cast<long>(reinterpret_cast<std::intptr_t>(Runtime->MainInstance)));
     // 0x00449701..0x0044970c: FUN_00555bf0 on +0x4c with +0x48 unless -1.
     if (Runtime->MainScript != 0xffffffffu)
         Runtime->Scripts.Load(Runtime->MainScript);

@@ -64,9 +64,9 @@ struct FNebulaZoneShell
     float MaxAlpha;       // +0x28
     float Tint[3];        // +0x2c
 };
-static_assert(sizeof(FNebulaZoneShell) == 0x38, "zone_shell mesh is 0x38");
-static_assert(offsetof(FNebulaZoneShell, ShellScalar) == 0x24, "zone_shell +0x24");
-static_assert(offsetof(FNebulaZoneShell, Tint) == 0x2c, "zone_shell +0x2c");
+FL_LAYOUT_ASSERT(sizeof(FNebulaZoneShell) == 0x38, "zone_shell mesh is 0x38");
+FL_LAYOUT_ASSERT(offsetof(FNebulaZoneShell, ShellScalar) == 0x24, "zone_shell +0x24");
+FL_LAYOUT_ASSERT(offsetof(FNebulaZoneShell, Tint) == 0x2c, "zone_shell +0x2c");
 
 
 namespace
@@ -102,7 +102,7 @@ namespace
     // map (FUN_004e7f60 ctor, lower_bound FUN_0052c7a0 / FUN_0041bd10, insert FUN_004b68b0,
     // erase FUN_00509d60); the port keeps a real std::map in the same bytes.
     typedef std::map<unsigned, FNebulaZoneShell*> FNebulaZoneShellMap;
-    static_assert(sizeof(FNebulaZoneShellMap) < 0x14,
+    FL_LAYOUT_ASSERT(sizeof(FNebulaZoneShellMap) < 0x14,
                   "std::map must fit in the retail tree's 0x14 bytes");
 
     FNebulaZoneShellMap& NebulaZoneShells(FNebulaEffect* Nebula)

@@ -71,7 +71,7 @@ struct FHudContactRecord
     unsigned char Pad32[2];
 };
 
-static_assert(sizeof(FHudContactRecord) == 0x34, "retail contact record stride 0x34");
+FL_LAYOUT_ASSERT(sizeof(FHudContactRecord) == 0x34, "retail contact record stride 0x34");
 
 // The lead-fire marker FUN_004ebf70 (0x004ec2f5..0x004ec39a) and FUN_004f1dd0 (0x004f1fdc..
 // 0x004f202d) append to the list at +0x910: the node value is 0x20 bytes -- a watcher on the
@@ -111,7 +111,7 @@ struct FCameraRayHit
     float Distance;             // +0x14 |Point - camera position|
 };
 
-static_assert(sizeof(FCameraRayHit) == 0x18, "FUN_0051dd20 result is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(FCameraRayHit) == 0x18, "FUN_0051dd20 result is 0x18 bytes");
 
 // FUN_0051ddd0 (cdecl, returns Out) -- cast a ray from the camera's position to *To through the
 // active system (PhySys::FindRayCollisions, at most 8 hits) and keep the first hit whose object

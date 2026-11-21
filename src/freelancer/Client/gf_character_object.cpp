@@ -531,7 +531,7 @@ void FCharacterObject::Load(FCharacterDesc const& Desc)
         void* const Instance = MiscUtilLoadEngineInstance(Found->Mesh.c_str(), DALib::Data,
                                                           nullptr, nullptr, &Paths,
                                                           &MaterialEntries, nullptr);
-        AccessoryInstances[Index] = reinterpret_cast<long>(Instance);
+        AccessoryInstances[Index] = static_cast<long>(reinterpret_cast<std::intptr_t>(Instance));
         AccessoryHardpoints[Index].analyze_instance(AccessoryInstances[Index]);
         if (AccessoryInstances[Index] != -1)
         {

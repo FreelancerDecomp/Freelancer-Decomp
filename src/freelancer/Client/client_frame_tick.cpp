@@ -88,6 +88,8 @@ namespace
         // 0x00424f58..0x00424f91: when the device changed the precision (DAT_0061084c differs
         // from DAT_00610848), the frame runs with the one the device left: EAX is loaded from
         // DAT_0061084c before the 0x18 / 0x35 tests.
+#if defined(_M_IX86)
+        // x64 has no x87 precision control (SSE2 only; _MCW_PC is unsupported): Win32 only.
         if (G_FpuPrecisionFound != G_FpuPrecisionWanted)
         {
             if (G_FpuPrecisionFound == 0x18)
@@ -97,6 +99,7 @@ namespace
             else
                 _control87(0, 0);
         }
+#endif
 
         // 0x00424f94..0x00424faf: with DAT_00610864, DAT_006679f8 = (BeginScene +0xe4 >= 0).
         if (G_bRenderPostCreate)
@@ -162,6 +165,8 @@ namespace
         // 0x004250ec..0x00425138: when the precision FUN_004249c0 found (DAT_0061084c) differs
         // from the one the renderer wants (DAT_00610848), put the wanted one back -- EAX is
         // loaded from DAT_00610848 here: 24-bit, 53-bit, or the (0, 0) query for anything else.
+#if defined(_M_IX86)
+        // x64 has no x87 precision control (SSE2 only; _MCW_PC is unsupported): Win32 only.
         if (G_FpuPrecisionFound != G_FpuPrecisionWanted)
         {
             if (G_FpuPrecisionWanted == 0x18)
@@ -171,6 +176,7 @@ namespace
             else
                 _control87(0, 0);
         }
+#endif
     }
 
     // FUN_00425140 (.text:00425140-0042515d), void.

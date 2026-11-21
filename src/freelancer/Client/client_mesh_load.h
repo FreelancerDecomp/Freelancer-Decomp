@@ -65,8 +65,8 @@ struct FMeshHolder
     Archetype::FCliMaterialEntry* AuxMaterialEntry = nullptr; // +0x0c
 };
 
-static_assert(sizeof(FMeshHolder) == 0x10, "FUN_00420d40 object is 0x10");
-static_assert(offsetof(FMeshHolder, EngineInstance) == 0x4, "holder +0x4 instance");
+FL_LAYOUT_ASSERT(sizeof(FMeshHolder) == 0x10, "FUN_00420d40 object is 0x10");
+FL_LAYOUT_ASSERT(offsetof(FMeshHolder, EngineInstance) == 0x4, "holder +0x4 instance");
 
 // Retail `Object3D : ObjectHandle` (RTTI .?AUObject3D@@, COL 0x005eb5e8), 0x28 bytes, vftable
 // 0x005d2efc whose one slot is the scalar deleting destructor FUN_0048dd20. The constructor is
@@ -87,9 +87,9 @@ struct FClientMeshHolder : FMeshHolder
     float UserFloats[5] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f}; // +0x14..+0x24 (FUN_00492250)
 };
 
-static_assert(sizeof(FClientMeshHolder) == 0x28, "retail HUD mesh holder 0x28");
-static_assert(offsetof(FClientMeshHolder, AnimOrArchIndex) == 0x10, "holder +0x10 anim");
-static_assert(offsetof(FClientMeshHolder, UserFloats) == 0x14, "holder +0x14 analyze ctx");
+FL_LAYOUT_ASSERT(sizeof(FClientMeshHolder) == 0x28, "retail HUD mesh holder 0x28");
+FL_LAYOUT_ASSERT(offsetof(FClientMeshHolder, AnimOrArchIndex) == 0x10, "holder +0x10 anim");
+FL_LAYOUT_ASSERT(offsetof(FClientMeshHolder, UserFloats) == 0x14, "holder +0x14 analyze ctx");
 
 // FUN_00420d40 itself: the four stores and nothing else.
 void MeshHolderConstruct(FMeshHolder* Holder);

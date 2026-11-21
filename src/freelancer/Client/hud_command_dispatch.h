@@ -87,7 +87,7 @@ struct FSpaceCommand
     unsigned char Byte26;          // +0x26
     unsigned char Pad27;
 };
-static_assert(sizeof(FSpaceCommand) == 0x28, "retail command record is 0x28 bytes");
+FL_LAYOUT_ASSERT(sizeof(FSpaceCommand) == 0x28, "retail command record is 0x28 bytes");
 
 // FUN_0054bcb0 (cdecl, one argument) -- route a command through the in-flight camera
 // controller. False when no controller exists (DAT_00678ba0); otherwise the active camera

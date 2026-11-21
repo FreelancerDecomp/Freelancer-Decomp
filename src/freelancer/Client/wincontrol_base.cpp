@@ -311,7 +311,7 @@ bool WinControl::MouseEvent(FWin3DMouseEvent const* Event)
     return HitTest(Win3DGetMouseRay(Ray));
 }
 
-bool WinControl::Slot23(unsigned Msg, unsigned /*A*/, unsigned /*B*/)
+bool WinControl::Slot23(unsigned Msg, std::uintptr_t /*A*/, std::uintptr_t /*B*/)
 {
     // FUN_005a0840.
     if (Msg == 0xef01)

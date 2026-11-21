@@ -460,7 +460,7 @@ namespace
         unsigned char bHasName;            // +0x0d
         wchar_t Name[0x40];                // +0x0e
     };
-    static_assert(sizeof(FInventorySortRecord) == 0x90, "FUN_004c6b80 record stride 0x90");
+    FL_LAYOUT_ASSERT(sizeof(FInventorySortRecord) == 0x90, "FUN_004c6b80 record stride 0x90");
 }
 
 void FInventoryShipModel::SortFrom(EquipDescList const* Source)
@@ -1104,7 +1104,7 @@ void NnInventory::Close()
     delete this;
 }
 
-bool NnInventory::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnInventory::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_0047ade0 (RET 0xc).
     if (Msg == 0xef02)

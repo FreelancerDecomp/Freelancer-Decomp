@@ -599,7 +599,7 @@ void MoveIdea::SetWatchObject(void const* Object2)
     // the same IObjRW -> Watchable adjustment BaseWatcher(IObjRW*) applies.
     TargetKind48 = 1;
     Watcher.set(reinterpret_cast<Watchable const*>(
-        static_cast<unsigned char const*>(Object2) + 8));
+        static_cast<unsigned char const*>(Object2) + FL_OBJRW_WATCHABLE_OFFSET));
 
     // LAB_062d5791-062d57d3: both mirrors are taken from the watched block,
     // re-read from Watcher (not from Object2), each through the same

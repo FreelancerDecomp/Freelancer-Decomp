@@ -66,11 +66,11 @@ private:
     void Dismiss();
 };
 
-static_assert(sizeof(NnError) == 0x344, "retail NN_Error is 0x344 bytes (operator_new 00474908)");
-static_assert(offsetof(NnError, bCursorDrawFlag) == 0x330, "NN_Error +0x330");
-static_assert(offsetof(NnError, Text) == 0x334, "NN_Error +0x334 Text");
-static_assert(offsetof(NnError, OkayButton) == 0x338, "NN_Error +0x338 okay button");
-static_assert(offsetof(NnError, Title) == 0x340, "NN_Error +0x340 title");
+FL_LAYOUT_ASSERT(sizeof(NnError) == 0x344, "retail NN_Error is 0x344 bytes (operator_new 00474908)");
+FL_LAYOUT_ASSERT(offsetof(NnError, bCursorDrawFlag) == 0x330, "NN_Error +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnError, Text) == 0x334, "NN_Error +0x334 Text");
+FL_LAYOUT_ASSERT(offsetof(NnError, OkayButton) == 0x338, "NN_Error +0x338 okay button");
+FL_LAYOUT_ASSERT(offsetof(NnError, Title) == 0x340, "NN_Error +0x340 title");
 
 // FUN_00473c00 (cdecl) -- unless one is registered, build an NN_Error under Parent, centre it,
 // hide the title (flags &= 0xfc), set the explanation to Ids and capture the mouse. Returns at

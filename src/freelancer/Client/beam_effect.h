@@ -53,7 +53,7 @@ struct FBeamEffectArch
     float RadiusNearAlt;       // +0x78  flash_size
     float Pad7C;               // +0x7C  defaulted 1.0 in FUN_0042e430
 };
-static_assert(sizeof(FBeamEffectArch) == 0x80, "BeamEffectArch 0x80");
+FL_LAYOUT_ASSERT(sizeof(FBeamEffectArch) == 0x80, "BeamEffectArch 0x80");
 
 // Retail object through FUN_004f9540's last write at +0x80.
 // Transform at +0x10; BaseWatcher at +0x44 (FUN_004f9450 ADD ECX,0x44).
@@ -79,14 +79,14 @@ struct FBeamEffect : FEffectBase
     float ProgressDenom80;         // +0x80  = 0.1
 };
 
-static_assert(sizeof(FBeamEffect) == 0x84, "BeamEffect 0x84");
-static_assert(offsetof(FBeamEffect, LocalXform) == 0x10, "xform @ +0x10");
-static_assert(offsetof(FBeamEffect, Watcher) == 0x44, "BaseWatcher @ +0x44");
-static_assert(offsetof(FBeamEffect, RefCount) == 0x58, "ref @ +0x58");
-static_assert(offsetof(FBeamEffect, EffectTypeId) == 0x5c, "type @ +0x5c");
-static_assert(offsetof(FBeamEffect, LinkPrev) == 0x60, "link @ +0x60");
-static_assert(offsetof(FBeamEffect, Arch) == 0x6c, "Arch @ +0x6c");
-static_assert(offsetof(FBeamEffect, Flags70) == 0x70, "Flags @ +0x70");
+FL_LAYOUT_ASSERT(sizeof(FBeamEffect) == 0x84, "BeamEffect 0x84");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, LocalXform) == 0x10, "xform @ +0x10");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, Watcher) == 0x44, "BaseWatcher @ +0x44");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, RefCount) == 0x58, "ref @ +0x58");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, EffectTypeId) == 0x5c, "type @ +0x5c");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, LinkPrev) == 0x60, "link @ +0x60");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, Arch) == 0x6c, "Arch @ +0x6c");
+FL_LAYOUT_ASSERT(offsetof(FBeamEffect, Flags70) == 0x70, "Flags @ +0x70");
 
 struct FEffectArch; // vis_effect_arch.h
 struct FSpaceCamera; // space_camera.h

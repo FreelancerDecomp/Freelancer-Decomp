@@ -9,6 +9,7 @@
 #include "DALib.h"
 #include "common_goods.h"   // HardpointSummary
 #include "common_misc.h"    // malloc_strcpy / malloc_strfree
+#include "facet_offset.h"
 #include "gf_script_object.h"
 
 #include <cstdint>
@@ -28,12 +29,18 @@ namespace
         unsigned long Offset;
     };
 
+    // The offsets are retail's on Win32 and the class layout's on x64 (facet_offset.h).
     FThornFacetEntry const G_ThornFacetTable[] = {
-        {Iids::CompoundControl, 0x00},     {Iids::SoundControl, 0x04},
-        {Iids::IKControl, 0x08},           {Iids::GeoTransformControl, 0x0c},
-        {Iids::CameraControl, 0x10},       {Iids::D3DLightControl, 0x14},
-        {Iids::PSysControl, 0x18},         {Iids::FogControl, 0x1c},
-        {Iids::ReverbControl, 0x20},       {nullptr, 0},
+        {Iids::CompoundControl, FL_FACET_OFFSET(0x00, FThornComponent, ICompoundControl)},
+        {Iids::SoundControl, FL_FACET_OFFSET(0x04, FThornComponent, ISoundControl)},
+        {Iids::IKControl, FL_FACET_OFFSET(0x08, FThornComponent, IIKControl)},
+        {Iids::GeoTransformControl, FL_FACET_OFFSET(0x0c, FThornComponent, IGeoTransformControl)},
+        {Iids::CameraControl, FL_FACET_OFFSET(0x10, FThornComponent, ICameraControl)},
+        {Iids::D3DLightControl, FL_FACET_OFFSET(0x14, FThornComponent, ID3DLightControl)},
+        {Iids::PSysControl, FL_FACET_OFFSET(0x18, FThornComponent, IPSysControl)},
+        {Iids::FogControl, FL_FACET_OFFSET(0x1c, FThornComponent, IFogControl)},
+        {Iids::ReverbControl, FL_FACET_OFFSET(0x20, FThornComponent, IReverbControl)},
+        {nullptr, 0},
     };
 
     long InstanceHandle(void* Instance)

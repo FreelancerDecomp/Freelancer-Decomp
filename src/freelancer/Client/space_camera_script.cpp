@@ -35,7 +35,7 @@ namespace
 {
     // Same convention as the other cameras: a watcher holds the Watchable subobject, which sits
     // eight bytes into the IObjRW, which is where retail's ubiquitous `- 8` comes from.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // The name literal at .rdata 0x005dc1e4, returned by slot 0x54.
     const char kScriptCameraClassName[] = "ScriptCamera";
@@ -523,7 +523,7 @@ bool ScriptCameraActivate(FScriptCamera* Cam, const int* ViewRect4)
         void* Field0C;
         void* Field10;
     };
-    static_assert(sizeof(FScriptAggDesc) == 0x14, "retail descriptor is 0x14 bytes");
+    FL_LAYOUT_ASSERT(sizeof(FScriptAggDesc) == 0x14, "retail descriptor is 0x14 bytes");
 
     // 0x0051e4d9: DALib::Dacom is read and used with no null test.
     ICOManager* const Manager = DALib::Dacom;

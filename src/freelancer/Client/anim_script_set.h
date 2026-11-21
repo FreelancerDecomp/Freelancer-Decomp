@@ -39,7 +39,7 @@ struct FAnimScriptSet
     unsigned long Play(void* Root, int Index);
 };
 
-static_assert(sizeof(FAnimScriptSet) == 0x18, "AnimScriptSet sizeof 0x18");
+FL_LAYOUT_ASSERT(sizeof(FAnimScriptSet) == 0x18, "AnimScriptSet sizeof 0x18");
 
 // FUN_00555ca0 (thiscall, RET 4; ECX is not read) -- stop the playback *Playback through
 // Anim +0x38, release it through Anim +0x28 and set it to -1. Nothing when it is already -1.

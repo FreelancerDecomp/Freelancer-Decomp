@@ -747,7 +747,7 @@ bool FaceBehavior::Slot10(void* Message)
         // 062c8b60-062c8b84: FUN_062e74a0(Sys+0x34, Message+0x10), Watcher30 = T ? T+8 : 0
         // (CMP/JZ dedup); then the watch must be live (`Ptr && Ptr - 8`).
         void* const T = NavHelperPtr24->Timers.FindVerifiedObject((unsigned const*)(M + 0x10));
-        Watcher30.set(T != nullptr ? reinterpret_cast<Watchable const*>(static_cast<char*>(T) + 8)
+        Watcher30.set(T != nullptr ? reinterpret_cast<Watchable const*>(static_cast<char*>(T) + FL_OBJRW_WATCHABLE_OFFSET)
                                    : nullptr);
         if (GetWatchedRawBlock() == nullptr)
         {

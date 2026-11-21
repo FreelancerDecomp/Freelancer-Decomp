@@ -598,6 +598,8 @@ bool RenderMgrCreateBuffers(HWND Hwnd, const DisplaySettings* Mode, DisplaySetti
     // 0x00424b41: restore the FPU precision the renderer wants if the device changed it.
     const unsigned int Control = _control87(0, 0);
     G_FpuPrecisionFound = ((Control & 0x30000) == 0x20000) ? 0x18 : 0x35;
+#if defined(_M_IX86)
+    // x64 has no x87 precision control (SSE2 only; _MCW_PC is unsupported): Win32 only.
     if (G_FpuPrecisionFound != G_FpuPrecisionWanted)
     {
         if (G_FpuPrecisionWanted == 0x18)
@@ -607,6 +609,7 @@ bool RenderMgrCreateBuffers(HWND Hwnd, const DisplaySettings* Mode, DisplaySetti
         else
             _control87(0, 0);
     }
+#endif
 
     // 0x00424b9e..0x00424bba: FUN_00421620(0, 0, w, h, RenderMgr.cpp, 0x269), the full-surface
     // viewport (DAT_00610850 width, DAT_00610854 height).
@@ -757,7 +760,7 @@ bool InitializeEngine(const FClientCommandLine* CommandLine)
     Mode.buffer_count = 2;
     Mode.border = 1;
     Mode.fullscreen = 1;
-    static_assert(offsetof(DisplaySettings, height) == offsetof(DisplaySettings, width) + 4 &&
+    FL_LAYOUT_ASSERT(offsetof(DisplaySettings, height) == offsetof(DisplaySettings, width) + 4 &&
                       offsetof(DisplaySettings, color_bpp) == offsetof(DisplaySettings, width) + 8 &&
                       offsetof(DisplaySettings, depth_bpp) == offsetof(DisplaySettings, width) + 12,
                   "FPerfDisplaySettings mirrors mode +0x08..+0x14");

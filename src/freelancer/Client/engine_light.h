@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 // Client light object — E:\FL\Scratch\Source\Client\cmn\EngineLight.cpp.
 //
 // Retail allocates it with `operator new(200)` in FUN_00556fd0 and drives it through
@@ -50,8 +52,8 @@ struct FEngineLight
     virtual bool Enable();
     virtual void Disable();
 
-    unsigned Field04;     // +0x04 intrusive light-list Next (retail DAT_006164e0 = list head)
-    unsigned Field08;     // +0x08 intrusive light-list Prev (retail DAT_006164e4 = list tail,
+    std::uintptr_t Field04; // +0x04 intrusive light-list Next (retail DAT_006164e0 = list head)
+    std::uintptr_t Field08; // +0x08 intrusive light-list Prev (retail DAT_006164e4 = list tail,
                            // DAT_006164e8 = count). The list-insert routine that actually links a
                            // light in (setting Flags bit 4) is a different, not yet ported
                            // function; this batch only ports the unlink side (dtor / Unregister),
@@ -78,16 +80,16 @@ struct FEngineLight
 
 #include <stddef.h>
 
-static_assert(sizeof(FD3dLight8) == 0x68, "D3DLIGHT8 is 0x68 bytes");
-static_assert(offsetof(FD3dLight8, Position) == 0x34, "D3DLIGHT8 Position at +0x34");
-static_assert(offsetof(FD3dLight8, Phi) == 0x64, "D3DLIGHT8 Phi at +0x64");
-static_assert(offsetof(FEngineLight, D3d) == 0x0C, "light D3DLIGHT8 at +0x0C");
-static_assert(offsetof(FEngineLight, Orient) == 0x74, "light orientation at +0x74");
-static_assert(offsetof(FEngineLight, Position) == 0x98, "light position at +0x98");
-static_assert(offsetof(FEngineLight, Color) == 0xA4, "light colour at +0xA4");
-static_assert(offsetof(FEngineLight, Type) == 0xB0, "light type at +0xB0");
-static_assert(offsetof(FEngineLight, Flags) == 0xB4, "light flags at +0xB4");
-static_assert(sizeof(FEngineLight) == 0xC8, "retail operator new(200)");
+FL_LAYOUT_ASSERT(sizeof(FD3dLight8) == 0x68, "D3DLIGHT8 is 0x68 bytes");
+FL_LAYOUT_ASSERT(offsetof(FD3dLight8, Position) == 0x34, "D3DLIGHT8 Position at +0x34");
+FL_LAYOUT_ASSERT(offsetof(FD3dLight8, Phi) == 0x64, "D3DLIGHT8 Phi at +0x64");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, D3d) == 0x0C, "light D3DLIGHT8 at +0x0C");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, Orient) == 0x74, "light orientation at +0x74");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, Position) == 0x98, "light position at +0x98");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, Color) == 0xA4, "light colour at +0xA4");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, Type) == 0xB0, "light type at +0xB0");
+FL_LAYOUT_ASSERT(offsetof(FEngineLight, Flags) == 0xB4, "light flags at +0xB4");
+FL_LAYOUT_ASSERT(sizeof(FEngineLight) == 0xC8, "retail operator new(200)");
 
 // FUN_00410ca0 — construct in place. LightType 1/2/3 and -2 are kept, anything else is -1.
 void EngineLightInit(FEngineLight* Light, int LightType);
@@ -299,7 +301,7 @@ namespace Light
         int EndMarker;           // +0x0C 0; -1 on the last frame of a section (one-shot)
     };
 
-    static_assert(sizeof(AnimFrame) == 0x10, "Light::AnimFrame is 0x10 bytes");
+    FL_LAYOUT_ASSERT(sizeof(AnimFrame) == 0x10, "Light::AnimFrame is 0x10 bytes");
 
     // operator new(0x4C). vtable PTR_FUN_005de730 { FUN_00538690 deleting dtor }.
     struct AnimationArch : public OwnerList<AnimFrame>
@@ -328,8 +330,8 @@ inline void OwnerListDeleteData<Light::AnimationArch>(Light::AnimationArch* Data
     delete Data;
 }
 
-static_assert(offsetof(Light::AnimationArch, NameLen) == 0x14, "AnimationArch NameLen +0x14");
-static_assert(offsetof(Light::AnimationArch, Name) == 0x18, "AnimationArch Name +0x18");
+FL_LAYOUT_ASSERT(offsetof(Light::AnimationArch, NameLen) == 0x14, "AnimationArch NameLen +0x14");
+FL_LAYOUT_ASSERT(offsetof(Light::AnimationArch, Name) == 0x18, "AnimationArch Name +0x18");
 
 // FUN_00538b20 -- __cdecl(char const* Path), called from FUN_0054aa80 @ 0054ac70 with
 // GetFileSysPath("fx\lightanim.ini"). Appends one AnimationArch per [LightAnim] section.
@@ -348,7 +350,7 @@ struct FGameLightAnimSlot
     float RangeScale;            // +0x14 / +0xE8  light Range at bind
 };
 
-static_assert(sizeof(FGameLightAnimSlot) == 0x18, "anim slot 0x18");
+FL_LAYOUT_ASSERT(sizeof(FGameLightAnimSlot) == 0x18, "anim slot 0x18");
 
 struct FGameLight : FEngineLight
 {
@@ -370,10 +372,10 @@ struct FGameLight : FEngineLight
     float Field128;             // +0x128
 };
 
-static_assert(offsetof(FGameLight, RefCount) == 0xD0, "GameLight RefCount +0xD0");
-static_assert(offsetof(FGameLight, Anim) == 0xD4, "GameLight Anim +0xD4");
-static_assert(offsetof(FGameLight, Anim.Def) == 0xDC, "Anim.Def +0xDC");
-static_assert(sizeof(FGameLight) == 0x12C, "GameLight 300 bytes");
+FL_LAYOUT_ASSERT(offsetof(FGameLight, RefCount) == 0xD0, "GameLight RefCount +0xD0");
+FL_LAYOUT_ASSERT(offsetof(FGameLight, Anim) == 0xD4, "GameLight Anim +0xD4");
+FL_LAYOUT_ASSERT(offsetof(FGameLight, Anim.Def) == 0xDC, "Anim.Def +0xDC");
+FL_LAYOUT_ASSERT(sizeof(FGameLight) == 0x12C, "GameLight 300 bytes");
 
 // A GameLight's vtable slot 2 (+8), the shape of every retail disable site
 // (`MOV EAX,[ECX]; CALL [EAX+8]` -- a raw scan finds no direct CALL FUN_005376f0).

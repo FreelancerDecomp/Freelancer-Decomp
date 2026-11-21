@@ -16,6 +16,7 @@
 // (LAB_00517ba0, slot 0x6c).
 
 #include "space_camera_first.h"
+#include <cstdint>
 
 #include "DALib.h"
 #include "common_cobject.h"   // CompoundInstanceAnalyze
@@ -290,7 +291,7 @@ void FirstPersonCameraUpdate(FFirstPersonCamera* Cam, float DeltaSeconds)
             reinterpret_cast<const unsigned char*>(Hud->Watched.target()));
         if (Held != nullptr)
         {
-            unsigned char* const Object = Held - 8;
+            unsigned char* const Object = Held - FL_OBJRW_WATCHABLE_OFFSET;
             if (Object != nullptr)
             {
                 unsigned char* const Plus0c = Object + 0xc;
@@ -511,7 +512,7 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
         reinterpret_cast<const unsigned char*>(Hud->Watched.target());
     if (Held == nullptr)
         return;
-    if (Held - 8 == nullptr)
+    if (Held - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
         return;
 
     // 0x0051843f..0x0051844a: FUN_0051c200(LayerFlags, Param2).
@@ -567,7 +568,7 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
             if (SpaceEffectPerfOneMinus() < 0.999)
                 Flag = 0;
             unsigned DrawStateB = 0;
-            const unsigned DrawStateA = Ship->Slot18c(&DrawStateB);
+            const std::uintptr_t DrawStateA = Ship->Slot18c(&DrawStateB);
             SpaceApplyObjectLighting(Center, Radius, Space, DrawStateA, DrawStateB, Flag);
         }
 
@@ -681,7 +682,7 @@ void FirstPersonCameraLoad(FFirstPersonCamera* Cam, const char* CockpitIniPath)
     // contains "cam"; only when one was found does the head transform come out of the engine
     // -- nine floats from IEngine slot 0x98 into +0x13c and three from slot 0x90 into +0x130.
     long CameraPart = -1;
-    CompoundInstanceAnalyze(reinterpret_cast<long>(Cam->Mesh.EngineInstance),
+    CompoundInstanceAnalyze(static_cast<long>(reinterpret_cast<std::intptr_t>(Cam->Mesh.EngineInstance)),
                             &FindCockpitCameraPart, &CameraPart);
     if (CameraPart != -1)
     {

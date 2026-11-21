@@ -32,7 +32,7 @@ struct FStaticCamera : FGameCamera
 
 };
 
-static_assert(sizeof(FStaticCamera) == 0x0f8, "FStaticCamera adds nothing to FGameCamera");
+FL_LAYOUT_ASSERT(sizeof(FStaticCamera) == 0x0f8, "FStaticCamera adds nothing to FGameCamera");
 
 // The controller ctor's step for this slot: FUN_0051b2f0 then the vptr, nothing more.
 void StaticCameraConstruct(FStaticCamera* Cam);

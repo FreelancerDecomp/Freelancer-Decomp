@@ -508,7 +508,7 @@ void UiScroll::NotifyParent()
     // (0x3e, this, ftol(value)).
     if (Parent == nullptr)
         return;
-    Parent->Slot23(0xf005u, static_cast<unsigned>(reinterpret_cast<uintptr_t>(this)), 0u);
+    Parent->Slot23(0xf005u, reinterpret_cast<std::uintptr_t>(this), 0u);
     WinControl* const Owner = Parent->AsWinControl();
     if (Owner == nullptr)
         return;

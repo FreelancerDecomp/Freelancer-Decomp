@@ -27,7 +27,7 @@
 #include <new>
 #include <string>
 
-static_assert(sizeof(void*) != 4 || offsetof(Image, BigImage) == 0x14, "Image +0x14 BigImage");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(Image, BigImage) == 0x14, "Image +0x14 BigImage");
 
 namespace
 {

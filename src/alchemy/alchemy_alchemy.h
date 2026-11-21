@@ -86,6 +86,7 @@ namespace AlchemyImpl
         GENRESULT DACOM_API DrawNodes(void* Cookie, void* StartNode) override;
         GENRESULT DACOM_API GetDrawCookie() override
         {
+            // Retail returns the cookie in EAX; the interface stays 32-bit (no caller found).
             return static_cast<GENRESULT>(G_DrawCookie);
         }
         GENRESULT DACOM_API Slot19(const char* Name, void* Unused) override;

@@ -121,12 +121,12 @@ private:
     NnShipTrader& operator=(NnShipTrader const&) = delete;
 };
 
-static_assert(sizeof(NnShipTrader) == 0x448, "retail NN_ShipTrader is 0x448 bytes (operator_new 0x004b9738)");
-static_assert(offsetof(NnShipTrader, CancelButton) == 0x330, "NN_ShipTrader +0x330");
-static_assert(offsetof(NnShipTrader, ShipView) == 0x370, "NN_ShipTrader +0x370");
-static_assert(offsetof(NnShipTrader, PlayerWorth) == 0x3a4, "NN_ShipTrader +0x3a4");
-static_assert(offsetof(NnShipTrader, RowCount) == 0x3cc, "NN_ShipTrader +0x3cc");
-static_assert(offsetof(NnShipTrader, bDragStart) == 0x3e4, "NN_ShipTrader +0x3e4");
-static_assert(offsetof(NnShipTrader, BaseFeeling) == 0x3f8, "NN_ShipTrader +0x3f8");
-static_assert(offsetof(NnShipTrader, RankLevel) == 0x420, "NN_ShipTrader +0x420");
-static_assert(offsetof(NnShipTrader, RowClassTexts) == 0x43c, "NN_ShipTrader +0x43c");
+FL_LAYOUT_ASSERT(sizeof(NnShipTrader) == 0x448, "retail NN_ShipTrader is 0x448 bytes (operator_new 0x004b9738)");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, CancelButton) == 0x330, "NN_ShipTrader +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, ShipView) == 0x370, "NN_ShipTrader +0x370");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, PlayerWorth) == 0x3a4, "NN_ShipTrader +0x3a4");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, RowCount) == 0x3cc, "NN_ShipTrader +0x3cc");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, bDragStart) == 0x3e4, "NN_ShipTrader +0x3e4");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, BaseFeeling) == 0x3f8, "NN_ShipTrader +0x3f8");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, RankLevel) == 0x420, "NN_ShipTrader +0x420");
+FL_LAYOUT_ASSERT(offsetof(NnShipTrader, RowClassTexts) == 0x43c, "NN_ShipTrader +0x43c");

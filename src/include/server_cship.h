@@ -7,6 +7,7 @@
 #pragma once
 
 #include "server_cobject.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 // CShip — ship game object (inherits CEqObj in Common.dll)
 // Layout reconstructed from Common.dll.c constructor CShip::CShip() at 0x50670
@@ -281,7 +282,7 @@ inline float CShip_get_throttle(const FCShip* ship) {
 // Retail: if *(this+0x220) != 0, return (IObjRW*)(*(this+0x220) - 8)
 inline void* CShip_get_target(const FCShip* ship) {
     if (!ship || !ship->TargetWatcher) return nullptr;
-    return (void*)((char*)ship->TargetWatcher - 8);
+    return (void*)((char*)ship->TargetWatcher - FL_OBJRW_WATCHABLE_OFFSET);
 }
 
 // CShip::get_sub_target — returns ushort at this+0x228

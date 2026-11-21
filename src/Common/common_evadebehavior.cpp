@@ -572,7 +572,7 @@ bool EvadeBehavior::Slot10(void* DirectiveOp)
     }
     // LAB_062c864a: `Target ? Target + 8 : 0`, deduplicated set_pointer.
     Watcher2a0.set(Target != nullptr
-                       ? reinterpret_cast<Watchable const*>(static_cast<char*>(Target) + 8)
+                       ? reinterpret_cast<Watchable const*>(static_cast<char*>(Target) + FL_OBJRW_WATCHABLE_OFFSET)
                        : nullptr);
     Flags28 = static_cast<unsigned char>(Flags28 | 0x2);           // 062c8679
     return true;

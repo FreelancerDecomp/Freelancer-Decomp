@@ -410,7 +410,7 @@ void TypeSelect::Draw()
     Win3DDrawChildren(this);
 }
 
-bool TypeSelect::Slot23(unsigned Msg, unsigned A, unsigned /*B*/)
+bool TypeSelect::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t /*B*/)
 {
     // FUN_00566bd0.
     if (Msg != 0x3004)

@@ -26,7 +26,7 @@ struct FClientPathString
 
     const char* c_str() const { return Text; }
 };
-static_assert(sizeof(FClientPathString) == 0x108, "FClientPathString stride is 0x108");
+FL_LAYOUT_ASSERT(sizeof(FClientPathString) == 0x108, "FClientPathString stride is 0x108");
 
 // The options object at DAT_00679bc0 (this of FUN_005621a0). Its first 0x28 bytes are the
 // ten-dword render mode FUN_004249c0 hands to RP8 create_buffers as the out-blob (RP8 FRp8Mode:
@@ -61,7 +61,7 @@ struct DisplaySettings
     char quick_flag;                  // +0x879  "+Q"/"-Q": set to 1, never read anywhere in the PE
     char pad87a[2];
 };
-static_assert(sizeof(DisplaySettings) == 0x87c, "options object ends after +0x879");
+FL_LAYOUT_ASSERT(sizeof(DisplaySettings) == 0x87c, "options object ends after +0x879");
 
 // WinMain's command-line block (local_5e4, 0x244 bytes of WinMain's frame). FUN_005b33f0 zeroes
 // Count; FUN_005b3400 copies lpCmdLine into Buffer and splits it in place on " \t", honouring
@@ -76,7 +76,7 @@ struct FClientCommandLine
     FClientCommandLine();                // FUN_005b33f0
     void Parse(const char* CommandLine); // FUN_005b3400
 };
-static_assert(sizeof(FClientCommandLine) == 0x244, "WinMain local_5e4 is 0x244 bytes");
+FL_LAYOUT_ASSERT(sizeof(FClientCommandLine) == 0x244, "WinMain local_5e4 is 0x244 bytes");
 
 struct IEnvironment;
 

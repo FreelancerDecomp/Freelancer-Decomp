@@ -970,7 +970,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
     return Win3D::Create(NewParent, Data);
 }
 
-bool NeuroNetNavMap::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NeuroNetNavMap::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_004945e0.
     (void)A;

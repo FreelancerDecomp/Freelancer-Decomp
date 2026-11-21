@@ -69,7 +69,7 @@ public:
     // slot 11 FUN_0056f6e0 -- the list pump, the slide in / out, then Win3D's child walk.
     void Update() override;
     // slot 23 FUN_005714d0 (RET 0xc).
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // Event::Handler face (+0x80) slot 0 LAB_00572330 (RET 4).
     bool OnEvent(unsigned MsgId) override;
 

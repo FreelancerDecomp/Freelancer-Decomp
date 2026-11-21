@@ -170,15 +170,15 @@ private:
     NnTrade& operator=(NnTrade const&) = delete;
 };
 
-static_assert(sizeof(NnTrade) == 0x440, "retail NN_Trade is 0x440 bytes (operator_new 0x004c381c)");
-static_assert(offsetof(NnTrade, TargetList) == 0x330, "NN_Trade +0x330");
-static_assert(offsetof(NnTrade, Quantity) == 0x364, "NN_Trade +0x364");
-static_assert(offsetof(NnTrade, Mode) == 0x390, "NN_Trade +0x390");
-static_assert(offsetof(NnTrade, PlayerCargoUsed) == 0x3c0, "NN_Trade +0x3c0");
-static_assert(offsetof(NnTrade, TargetCargoUsed) == 0x3e8, "NN_Trade +0x3e8");
-static_assert(offsetof(NnTrade, PlayerAcceptedText) == 0x410, "NN_Trade +0x410");
-static_assert(offsetof(NnTrade, SelectedItem) == 0x428, "NN_Trade +0x428");
-static_assert(offsetof(NnTrade, TargetShip) == 0x43c, "NN_Trade +0x43c");
+FL_LAYOUT_ASSERT(sizeof(NnTrade) == 0x440, "retail NN_Trade is 0x440 bytes (operator_new 0x004c381c)");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, TargetList) == 0x330, "NN_Trade +0x330");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, Quantity) == 0x364, "NN_Trade +0x364");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, Mode) == 0x390, "NN_Trade +0x390");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, PlayerCargoUsed) == 0x3c0, "NN_Trade +0x3c0");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, TargetCargoUsed) == 0x3e8, "NN_Trade +0x3e8");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, PlayerAcceptedText) == 0x410, "NN_Trade +0x410");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, SelectedItem) == 0x428, "NN_Trade +0x428");
+FL_LAYOUT_ASSERT(offsetof(NnTrade, TargetShip) == 0x43c, "NN_Trade +0x43c");
 
 // DAT_006724b4 -- the open trade window: set by the ctor, cleared by the dtor. Read at
 // 0x0045a15f, 0x0045cd37/0x0045cd57, 0x004e28ce/0x004e2914/0x004e497d (HUD_Target) and by the

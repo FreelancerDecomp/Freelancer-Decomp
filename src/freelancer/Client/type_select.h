@@ -54,8 +54,8 @@ public:
     int Command; // +0xec -- the slot 23 argument sent on a click
 };
 
-static_assert(sizeof(TextMsgButton) == 0xf0, "retail TextMsgButton is 0xf0 bytes");
-static_assert(offsetof(TextMsgButton, Command) == 0xec, "TextMsgButton +0xec command");
+FL_LAYOUT_ASSERT(sizeof(TextMsgButton) == 0xf0, "retail TextMsgButton is 0xf0 bytes");
+FL_LAYOUT_ASSERT(offsetof(TextMsgButton, Command) == 0xec, "TextMsgButton +0xec command");
 
 class TypeSelect : public Win3D, public EventHandler
 {
@@ -74,7 +74,7 @@ public:
     // slot 13 FUN_00566500 -- JMP FUN_0059e5c0
     void Draw() override;
     // slot 23 FUN_00566bd0 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // Event::Handler slot 0 at +0x7c, FUN_00566fc0 (RET 4) -- 0xf -> FUN_00471f30(0), true.
     bool OnEvent(unsigned MsgId) override;
@@ -101,16 +101,16 @@ private:
     unsigned char ProbeMultiplayerAvailable();
 };
 
-static_assert(offsetof(TypeSelect, NextState) == 0x80, "TypeSelect +0x80 next state");
-static_assert(offsetof(TypeSelect, Buttons) == 0x84, "TypeSelect +0x84 buttons");
-static_assert(offsetof(TypeSelect, Statics) == 0x534, "TypeSelect +0x534 statics");
-static_assert(offsetof(TypeSelect, Version) == 0x548, "TypeSelect +0x548 version");
-static_assert(offsetof(TypeSelect, SensApi) == 0x54c, "TypeSelect +0x54c sensapi");
-static_assert(offsetof(TypeSelect, AnimTime) == 0x560, "TypeSelect +0x560 anim time");
-static_assert(offsetof(TypeSelect, PendingCommand) == 0x568, "TypeSelect +0x568 command");
-static_assert(offsetof(TypeSelect, bAnimating) == 0x56c, "TypeSelect +0x56c animating");
-static_assert(offsetof(TypeSelect, Phase) == 0x570, "TypeSelect +0x570 phase");
-static_assert(sizeof(TypeSelect) == 0x578, "retail TypeSelect is 0x578 bytes");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, NextState) == 0x80, "TypeSelect +0x80 next state");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, Buttons) == 0x84, "TypeSelect +0x84 buttons");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, Statics) == 0x534, "TypeSelect +0x534 statics");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, Version) == 0x548, "TypeSelect +0x548 version");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, SensApi) == 0x54c, "TypeSelect +0x54c sensapi");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, AnimTime) == 0x560, "TypeSelect +0x560 anim time");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, PendingCommand) == 0x568, "TypeSelect +0x568 command");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, bAnimating) == 0x56c, "TypeSelect +0x56c animating");
+FL_LAYOUT_ASSERT(offsetof(TypeSelect, Phase) == 0x570, "TypeSelect +0x570 phase");
+FL_LAYOUT_ASSERT(sizeof(TypeSelect) == 0x578, "retail TypeSelect is 0x578 bytes");
 
 // DAT_0067b780.
 TypeSelect& GetTypeSelect();

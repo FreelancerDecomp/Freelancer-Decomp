@@ -603,7 +603,7 @@ bool UiFastTable::SelectRow(unsigned Row)
     SelectedRow = Row;
     bSelected = 1;
     if (Parent != nullptr && bChanged)
-        Parent->Slot23(0x300du, static_cast<unsigned>(reinterpret_cast<uintptr_t>(this)), Row);
+        Parent->Slot23(0x300du, reinterpret_cast<std::uintptr_t>(this), Row);
     return true;
 }
 
@@ -1257,7 +1257,7 @@ bool UiFastTable::MouseEvent(FWin3DMouseEvent const* Event)
                 bool const bChanged = !(bSelected != 0 && SelectedRow == Row);
                 SelectedRow = Row;
                 bSelected = 1;
-                unsigned const Self = static_cast<unsigned>(reinterpret_cast<uintptr_t>(this));
+                std::uintptr_t const Self = reinterpret_cast<std::uintptr_t>(this);
                 if (Parent != nullptr && bChanged)
                     Parent->Slot23(0x300du, Self, Row);
                 if (Parent != nullptr)
@@ -1269,7 +1269,7 @@ bool UiFastTable::MouseEvent(FWin3DMouseEvent const* Event)
 
     if (Event->Field1 == 2)
     {
-        unsigned const Self = static_cast<unsigned>(reinterpret_cast<uintptr_t>(this));
+        std::uintptr_t const Self = reinterpret_cast<std::uintptr_t>(this);
         if (bHovered != 0)
         {
             unsigned const Row = HoveredRow;
@@ -1408,13 +1408,13 @@ void UiScrollTable::SetScrollBarGap(float Gap)
     ScrollBar->SetTransform(Orientation);
 }
 
-bool UiScrollTable::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool UiScrollTable::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_0058f8b0: the own scrollbar's value change goes to the callback; the base class's
     // horizontal bar (+0x3f4) is swallowed; anything else is BaseRichTextWin's (FUN_0057afd0).
     if (Msg == 0xf005u)
     {
-        if (A == static_cast<unsigned>(reinterpret_cast<uintptr_t>(ScrollBar)))
+        if (A == reinterpret_cast<std::uintptr_t>(ScrollBar))
         {
             if (Callback != nullptr)
             {
@@ -1424,7 +1424,7 @@ bool UiScrollTable::Slot23(unsigned Msg, unsigned A, unsigned B)
             }
             return true;
         }
-        if (A == static_cast<unsigned>(reinterpret_cast<uintptr_t>(ScrollBarH)))
+        if (A == reinterpret_cast<std::uintptr_t>(ScrollBarH))
             return true;
     }
     return BaseRichTextWin::Slot23(Msg, A, B);

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "common_exports.h"
+#include "facet_offset.h" // FL_OBJRW_AFFECT_OFFSET / FL_OBJRW_WATCHABLE_OFFSET
 
 // Common.dll IFACE batch — IObjInspectImpl, IBehaviorManager, ScriptBehavior,
 // BehaviorTypes, IAction.
@@ -569,15 +570,6 @@ inline IObjInspect const* ObjInspectOf(void const* Object)
     return static_cast<IObjInspect const*>(Object);
 }
 
-// `Watchable` is IObjRW's third base and sits at +8, so the `- 8` the AI state machines
-// do on a watcher target is a downcast to the whole object. The AI TUs (common_aisteer.cpp,
-// common_behaviormanager.cpp, common_targetmanager.cpp, ...) all spell it out by hand; this names it.
-inline IObjRW* ObjRwFromWatchable(void* WatchableSubObject)
-{
-    if (WatchableSubObject == nullptr)
-        return nullptr;
-    return reinterpret_cast<IObjRW*>(static_cast<char*>(WatchableSubObject) - 8);
-}
 
 // IObjAffect abstract interface — mutation methods.
 struct IObjAffect
@@ -789,16 +781,31 @@ struct IObjAffect
 // offset the CompleteObjectLocator at .rdata:063a8b9c fixes. Spelled as a cast here because
 // every caller still holds the object as a void*; once they hold a real IObjRW*, a plain
 // `static_cast<IObjAffect*>` does the same adjustment and this helper can go.
+struct IObjRW : IObjInspect, IObjAffect, Watchable
+{
+};
+
+// IObjRW's base offsets: retail's 4 and 8 on Win32, the class layout's on the port-only x64
+// build, where each vtable pointer is 8 bytes (facet_offset.h).
+#define FL_OBJRW_AFFECT_OFFSET FL_FACET_OFFSET(4, IObjRW, IObjAffect)
+#define FL_OBJRW_WATCHABLE_OFFSET FL_FACET_OFFSET(8, IObjRW, Watchable)
+
+// `Watchable` is IObjRW's third base and sits at +8, so the `- 8` the AI state machines
+// do on a watcher target is a downcast to the whole object. The AI TUs (common_aisteer.cpp,
+// common_behaviormanager.cpp, common_targetmanager.cpp, ...) all spell it out by hand; this names it.
+inline IObjRW* ObjRwFromWatchable(void* WatchableSubObject)
+{
+    if (WatchableSubObject == nullptr)
+        return nullptr;
+    return reinterpret_cast<IObjRW*>(static_cast<char*>(WatchableSubObject) - FL_OBJRW_WATCHABLE_OFFSET);
+}
+
 inline IObjAffect* ObjAffectOf(void* ObjRw)
 {
     if (ObjRw == nullptr)
         return nullptr;
-    return reinterpret_cast<IObjAffect*>(static_cast<char*>(ObjRw) + 4);
+    return reinterpret_cast<IObjAffect*>(static_cast<char*>(ObjRw) + FL_OBJRW_AFFECT_OFFSET);
 }
-
-struct IObjRW : IObjInspect, IObjAffect, Watchable
-{
-};
 
 FL_LAYOUT_ASSERT(sizeof(IObjRW) == 0x0C, "IObjRW is two vtable pointers plus Watchable");
 

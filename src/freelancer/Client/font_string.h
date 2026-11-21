@@ -87,7 +87,7 @@ struct FFontStringChildSlot
     unsigned char Pad[3];
 };
 
-static_assert(sizeof(FFontStringChildSlot) == 8, "child slot 8 bytes");
+FL_LAYOUT_ASSERT(sizeof(FFontStringChildSlot) == 8, "child slot 8 bytes");
 
 // Retail `.?AUFontString@@` — size 0x2c, vtable PTR_LAB_005c8cb8.
 class FontStringChild final : public FontStringElement
@@ -133,7 +133,7 @@ public:
     unsigned char Pad29_[3];
 };
 
-static_assert(sizeof(FontStringChild) == 0x2c, "FontString child 0x2c");
+FL_LAYOUT_ASSERT(sizeof(FontStringChild) == 0x2c, "FontString child 0x2c");
 
 // Retail `.?AUFontNumberString@@` — size 0x34, ctor FUN_00414d10, one vtable of 13 slots at
 // PTR_LAB_005c8ce8 (0x005c8d08 is slot 8 of it, not a second vtable). Retail derives it from the
@@ -192,13 +192,13 @@ public:
     void* FaceCache_;            // +0x30 FUN_00413710 face* (FNumberFace*)
 };
 
-static_assert(offsetof(NumberStringChild, GlyphFirst_) == 0x08, "NumberString glyphs +0x08");
-static_assert(offsetof(NumberStringChild, Font_) == 0x14, "NumberString key +0x14");
-static_assert(offsetof(NumberStringChild, RefCount_) == 0x18, "NumberString RefCount +0x18");
-static_assert(offsetof(NumberStringChild, bShadow_) == 0x20, "NumberString shadow +0x20");
-static_assert(offsetof(NumberStringChild, LayoutGen_) == 0x24, "NumberString gen +0x24");
-static_assert(offsetof(NumberStringChild, FaceCache_) == 0x30, "NumberString Face +0x30");
-static_assert(sizeof(NumberStringChild) == 0x34, "NumberString 0x34");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, GlyphFirst_) == 0x08, "NumberString glyphs +0x08");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, Font_) == 0x14, "NumberString key +0x14");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, RefCount_) == 0x18, "NumberString RefCount +0x18");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, bShadow_) == 0x20, "NumberString shadow +0x20");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, LayoutGen_) == 0x24, "NumberString gen +0x24");
+FL_LAYOUT_ASSERT(offsetof(NumberStringChild, FaceCache_) == 0x30, "NumberString Face +0x30");
+FL_LAYOUT_ASSERT(sizeof(NumberStringChild) == 0x34, "NumberString 0x34");
 
 // One glyph's texture rect in the face atlas (FUN_00414070 00414228..00414263).
 struct FNumberGlyphUv
@@ -208,7 +208,7 @@ struct FNumberGlyphUv
     float U1; // +0x08 running advance sum / page width
     float V1; // +0x0c page used height / page height
 };
-static_assert(sizeof(FNumberGlyphUv) == 0x10, "glyph uv 0x10");
+FL_LAYOUT_ASSERT(sizeof(FNumberGlyphUv) == 0x10, "glyph uv 0x10");
 
 // FUN_00413710 — refcounted 0x164 face keyed by the NumberString's font (+0x14).
 struct FNumberFace
@@ -220,11 +220,11 @@ struct FNumberFace
     IFont* FontKey;           // +0x15c
     int RefCount;             // +0x160
 };
-static_assert(offsetof(FNumberFace, Advance) == 0x08, "face advances +0x08");
-static_assert(offsetof(FNumberFace, Uv) == 0x4c, "face uv +0x4c");
-static_assert(offsetof(FNumberFace, FontKey) == 0x15c, "face FontKey");
-static_assert(offsetof(FNumberFace, RefCount) == 0x160, "face RefCount");
-static_assert(sizeof(FNumberFace) == 0x164, "face 0x164");
+FL_LAYOUT_ASSERT(offsetof(FNumberFace, Advance) == 0x08, "face advances +0x08");
+FL_LAYOUT_ASSERT(offsetof(FNumberFace, Uv) == 0x4c, "face uv +0x4c");
+FL_LAYOUT_ASSERT(offsetof(FNumberFace, FontKey) == 0x15c, "face FontKey");
+FL_LAYOUT_ASSERT(offsetof(FNumberFace, RefCount) == 0x160, "face RefCount");
+FL_LAYOUT_ASSERT(sizeof(FNumberFace) == 0x164, "face 0x164");
 
 FNumberFace* NumberFaceGetOrCreate(IFont* FontKey);
 void NumberFaceRelease(FNumberFace* Face);
@@ -268,8 +268,8 @@ struct FFontString
     unsigned char Pad31[3];
 };
 
-static_assert(offsetof(FFontString, FontIface) == 0x1c, "Font::String +0x1c");
-static_assert(sizeof(FFontString) == 0x34, "Font::String size 0x34");
+FL_LAYOUT_ASSERT(offsetof(FFontString, FontIface) == 0x1c, "Font::String +0x1c");
+FL_LAYOUT_ASSERT(sizeof(FFontString) == 0x34, "Font::String size 0x34");
 
 void FontStringClearContents(FFontString* Self);
 // FUN_00445dc0 -- Release on every non-null child in [First, Last); the slots stay as they are.

@@ -4,6 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
+#include "x87_portable.h"
 #include "flmaterials.h"
 #include "engine/engbase.h" // IEngine
 #include "readfile.h"
@@ -133,6 +134,13 @@ namespace
     const double GFlmWireColorScale = 255.0;
     unsigned char FlmWireColorByte(float Component)
     {
+#if !defined(_M_IX86)
+        // Port-only x64: material colours are built while drawing, inside the scene, where the
+        // x87 runs at 24-bit precision (docs/x64.md, "Client precision"): the product is
+        // rounded to float, then truncated like FISTP with the rounding control at truncate.
+        const float Product = static_cast<float>(static_cast<double>(Component) * GFlmWireColorScale);
+        return (unsigned char)(X87TruncateToInt64(Product));
+#else
         unsigned short SavedControl;
         unsigned short TruncateControl;
         long long Converted;
@@ -149,6 +157,7 @@ namespace
             fldcw SavedControl
         }
         return (unsigned char)(Converted);
+#endif
     }
 
 
@@ -176,10 +185,10 @@ namespace
         unsigned long Value2[4];
     };
 
-    static_assert(sizeof(FFlmMaterialParamDesc) == sizeof(FShadingPropertyRecord), "shared property descriptor size");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type0) == offsetof(FShadingPropertyRecord, Current), "current value boundary");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type1) == offsetof(FShadingPropertyRecord, Default), "default value boundary");
-    static_assert(offsetof(FFlmMaterialParamDesc, Type2) == offsetof(FShadingPropertyRecord, Saved), "saved value boundary");
+    FL_LAYOUT_ASSERT(sizeof(FFlmMaterialParamDesc) == sizeof(FShadingPropertyRecord), "shared property descriptor size");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type0) == offsetof(FShadingPropertyRecord, Current), "current value boundary");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type1) == offsetof(FShadingPropertyRecord, Default), "default value boundary");
+    FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type2) == offsetof(FShadingPropertyRecord, Saved), "saved value boundary");
 
     void FlmSetDescriptorEntry(FFlmMaterialParamDesc* Entry, int Type,
                                 unsigned long Flags, const char* Tag, const char* Name,
@@ -221,7 +230,7 @@ namespace
             }
         }
     };
-    static_assert(sizeof(FFlmOwnedDescriptor) == kFlmParamDescSize, "Descriptor stride");
+    FL_LAYOUT_ASSERT(sizeof(FFlmOwnedDescriptor) == kFlmParamDescSize, "Descriptor stride");
 
 
     void FlmReleaseTypedValue(unsigned long* Slot);
@@ -345,7 +354,7 @@ namespace
             {0, nullptr, "Colorize Options", "flcopt",
              1, {0, 0, 0, 0}, 1, {0, 0, 0, 0}, 1, {0, 0, 0, 0}},
         };
-        static_assert(sizeof(FFlmMaterialParamDesc) == kFlmParamDescSize,
+        FL_LAYOUT_ASSERT(sizeof(FFlmMaterialParamDesc) == kFlmParamDescSize,
                       "FFlmMaterialParamDesc must match the confirmed 0x4C stride");
         if (bCloak)
         {
@@ -1065,6 +1074,10 @@ namespace
         // Borrowed candidate material used for inherited opacity.
         void* Candidate;
     };
+    // The caller's FMaterialSubmitContext (render/IMaterial.h), field for field.
+    FL_LAYOUT_ASSERT(offsetof(FNomadContext, Candidate) == 0x1C, "candidate material +0x1C");
+    static_assert(offsetof(FNomadContext, Candidate) == offsetof(FMaterialSubmitContext, ReplacedMaterial),
+                  "FNomadContext follows FMaterialSubmitContext");
 
     int FvfXyzSize(unsigned long Fvf)
     {
@@ -3627,7 +3640,7 @@ void FMaterialImpl::BindCloak(void* Context)
 
     IDAComponent* Candidate = nullptr;
     if (Context != nullptr)
-        Candidate = *(IDAComponent**)((unsigned char*)(Context) + 0x1C);
+        Candidate = (IDAComponent*)(((FNomadContext*)(Context))->Candidate); // +0x1C on Win32
 
     if (Candidate != nullptr)
     {
@@ -3707,7 +3720,7 @@ void FMaterialImpl::BindEnvMap(void* Context)
     EnvMapFlag_ = 0;
     const char* Name = nullptr;
     IDAComponent* Candidate = Context != nullptr
-        ? *(IDAComponent**)((unsigned char*)(Context) + 0x1c)
+        ? (IDAComponent*)(((FNomadContext*)(Context))->Candidate) // +0x1C on Win32
         : nullptr;
     if (Candidate != nullptr)
     {

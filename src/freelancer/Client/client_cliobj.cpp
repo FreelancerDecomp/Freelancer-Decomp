@@ -93,10 +93,10 @@ namespace Archetype
             FLodNode* Next;
         };
 
-        static_assert(sizeof(FLodNode) == 0x34, "LOD node sizeof 0x34");
-        static_assert(offsetof(FLodNode, ObjCrc) == 0x24, "LOD CRC +0x24");
-        static_assert(offsetof(FLodNode, MinSpecLod) == 0x2C, "MinSpecLOD +0x2C");
-        static_assert(offsetof(FLodNode, Next) == 0x30, "LOD next +0x30");
+        FL_LAYOUT_ASSERT(sizeof(FLodNode) == 0x34, "LOD node sizeof 0x34");
+        FL_LAYOUT_ASSERT(offsetof(FLodNode, ObjCrc) == 0x24, "LOD CRC +0x24");
+        FL_LAYOUT_ASSERT(offsetof(FLodNode, MinSpecLod) == 0x2C, "MinSpecLOD +0x2C");
+        FL_LAYOUT_ASSERT(offsetof(FLodNode, Next) == 0x30, "LOD next +0x30");
 
         FLodNode* MakeLodNode()
         {
@@ -203,13 +203,13 @@ namespace Archetype
             void** LiveCap;          // +0x20
         };
 
-        static_assert(sizeof(FCliDistanceRecord) == 0x24, "distance record stride 0x24");
-        static_assert(offsetof(FCliDistanceRecord, EffectIdBegin) == 0x08, "effect ids +0x08");
-        static_assert(offsetof(FCliDistanceRecord, LiveBegin) == 0x18, "live effects +0x18");
-        static_assert(offsetof(FCliDistanceRecord, EffectIdCookie) == 0x04, "id vector header +0x04");
-        static_assert(offsetof(FCliDistanceRecord, LiveCookie) == 0x14, "live vector header +0x14");
+        FL_LAYOUT_ASSERT(sizeof(FCliDistanceRecord) == 0x24, "distance record stride 0x24");
+        FL_LAYOUT_ASSERT(offsetof(FCliDistanceRecord, EffectIdBegin) == 0x08, "effect ids +0x08");
+        FL_LAYOUT_ASSERT(offsetof(FCliDistanceRecord, LiveBegin) == 0x18, "live effects +0x18");
+        FL_LAYOUT_ASSERT(offsetof(FCliDistanceRecord, EffectIdCookie) == 0x04, "id vector header +0x04");
+        FL_LAYOUT_ASSERT(offsetof(FCliDistanceRecord, LiveCookie) == 0x14, "live vector header +0x14");
 
-        static_assert(sizeof(FCliMaterialEntry) == 0x18, "MaterialLib cache entry 0x18");
+        FL_LAYOUT_ASSERT(sizeof(FCliMaterialEntry) == 0x18, "MaterialLib cache entry 0x18");
 
         // StateFlags (+0x50) bits from FUN_00407100 / Slot10 / Slot11 / Slot12 / Load.
         enum ECliObjStateFlags : unsigned char
@@ -282,12 +282,12 @@ namespace Archetype
             virtual void DestroyMostDerived();
         };
 
-        static_assert(sizeof(FCliObj) == 0x54, "ICliObj base sizeof 0x54");
-        static_assert(offsetof(FCliObj, PendingLoad) == 0x1C, "ICliObj+0x1C PendingLoad");
-        static_assert(offsetof(FCliObj, MaterialPaths) == 0x20, "ICliObj+0x20 MaterialPaths");
-        static_assert(offsetof(FCliObj, ResolvedEntries) == 0x30, "ICliObj+0x30 ResolvedEntries");
-        static_assert(offsetof(FCliObj, DistanceRecords) == 0x40, "ICliObj+0x40 DistanceRecords");
-        static_assert(offsetof(FCliObj, StateFlags) == 0x50, "ICliObj+0x50 StateFlags");
+        FL_LAYOUT_ASSERT(sizeof(FCliObj) == 0x54, "ICliObj base sizeof 0x54");
+        FL_LAYOUT_ASSERT(offsetof(FCliObj, PendingLoad) == 0x1C, "ICliObj+0x1C PendingLoad");
+        FL_LAYOUT_ASSERT(offsetof(FCliObj, MaterialPaths) == 0x20, "ICliObj+0x20 MaterialPaths");
+        FL_LAYOUT_ASSERT(offsetof(FCliObj, ResolvedEntries) == 0x30, "ICliObj+0x30 ResolvedEntries");
+        FL_LAYOUT_ASSERT(offsetof(FCliObj, DistanceRecords) == 0x40, "ICliObj+0x40 DistanceRecords");
+        FL_LAYOUT_ASSERT(offsetof(FCliObj, StateFlags) == 0x50, "ICliObj+0x50 StateFlags");
 
         // Retail CliShip — operator_new(0x88), cockpit CacheString at +0x60.
         class FCliShip : public FCliObj
@@ -319,9 +319,9 @@ namespace Archetype
             float CamTurnLookAhead;      // +0x84
         };
 
-        static_assert(sizeof(FCliShip) == 0x88, "CliShip sizeof 0x88");
-        static_assert(offsetof(FCliShip, CockpitIni) == 0x60, "CliShip cockpit +0x60");
-        static_assert(offsetof(FCliShip, CamAngularSlerp) == 0x74, "CliShip cam slerp +0x74");
+        FL_LAYOUT_ASSERT(sizeof(FCliShip) == 0x88, "CliShip sizeof 0x88");
+        FL_LAYOUT_ASSERT(offsetof(FCliShip, CockpitIni) == 0x60, "CliShip cockpit +0x60");
+        FL_LAYOUT_ASSERT(offsetof(FCliShip, CamAngularSlerp) == 0x74, "CliShip cam slerp +0x74");
 
         // Retail case 2: operator_new(0x88), FUN_004068d0, PTR_FUN_005c7908.
         // Two ID_String clears at +0x54/+0x58 (not init_docking_points).
@@ -360,7 +360,7 @@ namespace Archetype
             unsigned char Pad85[3];
         };
 
-        static_assert(sizeof(FCliSolar) == 0x88, "CliSolar sizeof 0x88");
+        FL_LAYOUT_ASSERT(sizeof(FCliSolar) == 0x88, "CliSolar sizeof 0x88");
 
         // Retail Archetype::CliProj (RTTI .?AUCliProj@Archetype@@, vtable 005c79a8), sizeof 0x60.
         // Factory types 0x20 (Mine) / 0x21 (CounterMeasure) at 0040cc44 / 0040cc92, and the
@@ -379,9 +379,9 @@ namespace Archetype
             ID_String OneShotSound;     // +0x5C
         };
 
-        static_assert(sizeof(FCliProj) == 0x60, "CliProj sizeof 0x60");
-        static_assert(offsetof(FCliProj, ConstEffectDelay) == 0x54, "CliProj +0x54");
-        static_assert(offsetof(FCliProj, OneShotSound) == 0x5C, "CliProj +0x5c");
+        FL_LAYOUT_ASSERT(sizeof(FCliProj) == 0x60, "CliProj sizeof 0x60");
+        FL_LAYOUT_ASSERT(offsetof(FCliProj, ConstEffectDelay) == 0x54, "CliProj +0x54");
+        FL_LAYOUT_ASSERT(offsetof(FCliProj, OneShotSound) == 0x5C, "CliProj +0x5c");
 
         // Retail Archetype::CliEQAttachedFX (vtable 005c7fe0), sizeof 0x5C, factory type 0x17 at
         // 0040cfda. Slots: ReadUnknown 0040b6d0, Redefine 0040b740, Inherit 0040b7f0.
@@ -399,8 +399,8 @@ namespace Archetype
             unsigned char Pad59[3];
         };
 
-        static_assert(sizeof(FCliEQAttachedFX) == 0x5C, "CliEQAttachedFX sizeof 0x5c");
-        static_assert(offsetof(FCliEQAttachedFX, bUseThrottle) == 0x58, "CliEQAttachedFX +0x58");
+        FL_LAYOUT_ASSERT(sizeof(FCliEQAttachedFX) == 0x5C, "CliEQAttachedFX sizeof 0x5c");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQAttachedFX, bUseThrottle) == 0x58, "CliEQAttachedFX +0x58");
 
         // Retail Archetype::CliAsteroid (vtable 005c7a3c), sizeof 0x54, factory type 4 at 0040ccc2.
         // ReadUnknown 00408ac0 only forwards to FUN_00406dc0 (the base parser, so no override);
@@ -411,7 +411,7 @@ namespace Archetype
             void Inherit(ICliObj* Donor) override;
         };
 
-        static_assert(sizeof(FCliAsteroid) == 0x54, "CliAsteroid sizeof 0x54");
+        FL_LAYOUT_ASSERT(sizeof(FCliAsteroid) == 0x54, "CliAsteroid sizeof 0x54");
 
         // Retail Archetype::CliDynamicAsteroid (vtable 005c7a78), sizeof 0x5C, factory type 5 at
         // 0040ccf8. Slots: ReadUnknown 00408cd0, Inherit 00408d20 (Redefine is the base 00407050).
@@ -428,8 +428,8 @@ namespace Archetype
             unsigned char Pad59[3];
         };
 
-        static_assert(sizeof(FCliDynamicAsteroid) == 0x5C, "CliDynamicAsteroid sizeof 0x5c");
-        static_assert(offsetof(FCliDynamicAsteroid, bHasParticleEffect) == 0x58, "+0x58");
+        FL_LAYOUT_ASSERT(sizeof(FCliDynamicAsteroid) == 0x5C, "CliDynamicAsteroid sizeof 0x5c");
+        FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroid, bHasParticleEffect) == 0x58, "+0x58");
 
         // Retail Archetype::CliEQTractor (vtable 005c7f78), sizeof 0x60, factory type 0x16 at
         // 0040cf7c. Slots: ReadUnknown 0040b320, Redefine 0040b3f0, Inherit 0040b4c0.
@@ -448,8 +448,8 @@ namespace Archetype
             ID_String CompleteSound;     // +0x5c "tractor_complete_snd"
         };
 
-        static_assert(sizeof(FCliTractor) == 0x60, "CliEQTractor sizeof 0x60");
-        static_assert(offsetof(FCliTractor, OperatingEffect) == 0x58, "CliEQTractor +0x58");
+        FL_LAYOUT_ASSERT(sizeof(FCliTractor) == 0x60, "CliEQTractor sizeof 0x60");
+        FL_LAYOUT_ASSERT(offsetof(FCliTractor, OperatingEffect) == 0x58, "CliEQTractor +0x58");
 
         // Retail Archetype::CliEQThruster (vtable 005c7d98), sizeof 0x5C, factory type 0xF at
         // 0040cf27. Slots: ReadUnknown 0040a060, Redefine 0040a0e0 (shared with CliSolar),
@@ -467,8 +467,8 @@ namespace Archetype
             CacheString HpParticles;    // +0x58 "hp_particles"
         };
 
-        static_assert(sizeof(FCliEQThruster) == 0x5C, "CliEQThruster sizeof 0x5c");
-        static_assert(offsetof(FCliEQThruster, HpParticles) == 0x58, "CliEQThruster +0x58");
+        FL_LAYOUT_ASSERT(sizeof(FCliEQThruster) == 0x5C, "CliEQThruster sizeof 0x5c");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQThruster, HpParticles) == 0x58, "CliEQThruster +0x58");
 
         // Retail Archetype::CliEQInternalFX (vtable 005c802c), sizeof 0x64, factory type 0x18 at
         // 0040d029. Slots: ReadUnknown 0040b9f0, Redefine 0040bab0, Inherit 0040bb90.
@@ -487,8 +487,8 @@ namespace Archetype
             float OutsideConeAttenuation;    // +0x60 "outside_cone_attenuation", ctor 0
         };
 
-        static_assert(sizeof(FCliInternalFx) == 0x64, "CliEQInternalFX sizeof 0x64");
-        static_assert(offsetof(FCliInternalFx, OutsideConeAttenuation) == 0x60, "+0x60");
+        FL_LAYOUT_ASSERT(sizeof(FCliInternalFx) == 0x64, "CliEQInternalFX sizeof 0x64");
+        FL_LAYOUT_ASSERT(offsetof(FCliInternalFx, OutsideConeAttenuation) == 0x60, "+0x60");
 
         // Retail Archetype::CliEQLight (vtable 005c7eb8), sizeof 0x98, factory type 0x15 at
         // 0040cef8 (ctor FUN_0040a9e0). Slots: ReadUnknown 0040ab30, Redefine 0040ae70, Inherit
@@ -514,11 +514,11 @@ namespace Archetype
             float LightsourceCone;   // +0x94 "lightsource_cone", ctor 180
         };
 
-        static_assert(sizeof(FCliEQLight) == 0x98, "CliEQLight sizeof 0x98");
-        static_assert(offsetof(FCliEQLight, MinColor) == 0x6c, "CliEQLight +0x6c");
-        static_assert(offsetof(FCliEQLight, BulbSize) == 0x78, "CliEQLight +0x78");
-        static_assert(offsetof(FCliEQLight, FlareConeCos) == 0x8c, "CliEQLight +0x8c");
-        static_assert(offsetof(FCliEQLight, LightsourceCone) == 0x94, "CliEQLight +0x94");
+        FL_LAYOUT_ASSERT(sizeof(FCliEQLight) == 0x98, "CliEQLight sizeof 0x98");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQLight, MinColor) == 0x6c, "CliEQLight +0x6c");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQLight, BulbSize) == 0x78, "CliEQLight +0x78");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQLight, FlareConeCos) == 0x8c, "CliEQLight +0x8c");
+        FL_LAYOUT_ASSERT(offsetof(FCliEQLight, LightsourceCone) == 0x94, "CliEQLight +0x94");
 
         // Retail Archetype::CliMunition : CliProj (vtable 005c8420), sizeof 0x84, factory type
         // 0x1F at 0040cbbd. Slots: ReadUnknown 004083a0, Redefine 004084b0, Inherit 00408520,
@@ -551,9 +551,9 @@ namespace Archetype
             FCliVc6Vector<FEffectArch*> LiveEffects;   // +0x74…+0x80
         };
 
-        static_assert(sizeof(FCliMunition) == 0x84, "CliMunition sizeof 0x84");
-        static_assert(offsetof(FCliMunition, HitEffectIds) == 0x64, "hit ids +0x64");
-        static_assert(offsetof(FCliMunition, LiveEffects) == 0x74, "live effects +0x74");
+        FL_LAYOUT_ASSERT(sizeof(FCliMunition) == 0x84, "CliMunition sizeof 0x84");
+        FL_LAYOUT_ASSERT(offsetof(FCliMunition, HitEffectIds) == 0x64, "hit ids +0x64");
+        FL_LAYOUT_ASSERT(offsetof(FCliMunition, LiveEffects) == 0x74, "live effects +0x74");
 
         // Retail Archetype::CliEQShield (vtable 005c83e4), sizeof 0x54, factory type 0xD at
         // 0040cd7c (FUN_004068d0, then the vptr). Every slot is CliRoot's except slot 10
@@ -565,7 +565,7 @@ namespace Archetype
             void Slot10() override;
         };
 
-        static_assert(sizeof(FCliEQShield) == 0x54, "CliEQShield sizeof 0x54");
+        FL_LAYOUT_ASSERT(sizeof(FCliEQShield) == 0x54, "CliEQShield sizeof 0x54");
 
         // Retail Archetype::CliEQRepairDroid (vtable 005c83a8), sizeof 0x58, factory type 0x19 at
         // 0040d0ab. Slots: ReadUnknown 0040c810, Redefine 00409bd0 (shared with
@@ -582,7 +582,7 @@ namespace Archetype
             ID_String ActiveEffect;      // +0x54 "active_effect"
         };
 
-        static_assert(sizeof(FCliRepairDroid) == 0x58, "CliEQRepairDroid sizeof 0x58");
+        FL_LAYOUT_ASSERT(sizeof(FCliRepairDroid) == 0x58, "CliEQRepairDroid sizeof 0x58");
 
         // Retail Archetype::CliEQShieldGenerator (vtable 005c7cfc), sizeof 0x70, factory type 0xE
         // at 0040cdba. Slots: ReadUnknown 004098b0, Redefine 00409bd0, Inherit 00409c80, scalar
@@ -614,8 +614,8 @@ namespace Archetype
             FCliVc6Vector<FCliDistanceRecord> ShieldHitEffects; // +0x60 "shield_hit_effects"
         };
 
-        static_assert(sizeof(FCliShieldGenerator) == 0x70, "CliEQShieldGenerator sizeof 0x70");
-        static_assert(offsetof(FCliShieldGenerator, ShieldHitEffects) == 0x60, "+0x60 hit effects");
+        FL_LAYOUT_ASSERT(sizeof(FCliShieldGenerator) == 0x70, "CliEQShieldGenerator sizeof 0x70");
+        FL_LAYOUT_ASSERT(offsetof(FCliShieldGenerator, ShieldHitEffects) == 0x60, "+0x60 hit effects");
 
         // Retail Archetype::CliEQLauncher (vtable 005c7df0), sizeof 0x84, factory types 0x12 / 0x13
         // (MineDropper / CounterMeasureDropper) at 0040ce88. Slots: ReadUnknown 0040a4d0, Redefine
@@ -643,9 +643,9 @@ namespace Archetype
             void AssignLightAnim(char const* Text);
         };
 
-        static_assert(sizeof(FCliLauncher) == 0x84, "CliEQLauncher sizeof 0x84");
-        static_assert(offsetof(FCliLauncher, LightAnim) == 0x60, "CliEQLauncher +0x60");
-        static_assert(offsetof(FCliLauncher, DryFireSound) == 0x80, "CliEQLauncher +0x80");
+        FL_LAYOUT_ASSERT(sizeof(FCliLauncher) == 0x84, "CliEQLauncher sizeof 0x84");
+        FL_LAYOUT_ASSERT(offsetof(FCliLauncher, LightAnim) == 0x60, "CliEQLauncher +0x60");
+        FL_LAYOUT_ASSERT(offsetof(FCliLauncher, DryFireSound) == 0x80, "CliEQLauncher +0x80");
 
         // Retail Archetype::CliEQGun : CliEQLauncher (vtable 005c7e6c), sizeof 0x88, factory type
         // 0x11 at 0040ce1a. Slots: ReadUnknown 0040a850 (chains to 0040a4d0 first), Redefine
@@ -661,8 +661,8 @@ namespace Archetype
             ID_String TurretSound;       // +0x84 "turret_sound"
         };
 
-        static_assert(sizeof(FCliGun) == 0x88, "CliEQGun sizeof 0x88");
-        static_assert(offsetof(FCliGun, TurretSound) == 0x84, "CliEQGun +0x84");
+        FL_LAYOUT_ASSERT(sizeof(FCliGun) == 0x88, "CliEQGun sizeof 0x88");
+        FL_LAYOUT_ASSERT(offsetof(FCliGun, TurretSound) == 0x84, "CliEQGun +0x84");
 
         // Retail Archetype::CliEQEngine (vtable 005c7ac4), sizeof 0xAC, factory type 0xC at
         // 0040cd4d (ctor FUN_00408f20). Slots: ReadUnknown 00408ff0, Redefine 004093e0, Inherit
@@ -697,11 +697,11 @@ namespace Archetype
             ID_String CruiseDisruptEffect;    // +0xa8
         };
 
-        static_assert(sizeof(FCliEngine) == 0xAC, "CliEQEngine sizeof 0xac");
-        static_assert(offsetof(FCliEngine, RumbleSound) == 0x60, "CliEQEngine +0x60");
-        static_assert(offsetof(FCliEngine, CharacterPitchRange) == 0x7c, "CliEQEngine +0x7c");
-        static_assert(offsetof(FCliEngine, EngineKillSound) == 0x84, "CliEQEngine +0x84");
-        static_assert(offsetof(FCliEngine, CruiseDisruptEffect) == 0xa8, "CliEQEngine +0xa8");
+        FL_LAYOUT_ASSERT(sizeof(FCliEngine) == 0xAC, "CliEQEngine sizeof 0xac");
+        FL_LAYOUT_ASSERT(offsetof(FCliEngine, RumbleSound) == 0x60, "CliEQEngine +0x60");
+        FL_LAYOUT_ASSERT(offsetof(FCliEngine, CharacterPitchRange) == 0x7c, "CliEQEngine +0x7c");
+        FL_LAYOUT_ASSERT(offsetof(FCliEngine, EngineKillSound) == 0x84, "CliEQEngine +0x84");
+        FL_LAYOUT_ASSERT(offsetof(FCliEngine, CruiseDisruptEffect) == 0xa8, "CliEQEngine +0xa8");
 
         // Retail Archetype::CliEQTradeLane (vtable 005c8074), sizeof 0xC8, factory type 0x1D at
         // 0040d083 (ctor FUN_0040bd90). Slots: ReadUnknown 0040be90, Redefine 0040c290, Inherit
@@ -746,11 +746,11 @@ namespace Archetype
             FEffectArch* Effects[5];      // +0xb4 player effect, else the ship one (0040c690)
         };
 
-        static_assert(sizeof(FCliTradeLane) == 0xC8, "CliEQTradeLane sizeof 0xc8");
-        static_assert(offsetof(FCliTradeLane, PlayerEnter) == 0x54, "CliEQTradeLane +0x54");
-        static_assert(offsetof(FCliTradeLane, RingActiveEnd) == 0x90, "CliEQTradeLane +0x90");
-        static_assert(offsetof(FCliTradeLane, SpinMax) == 0xac, "CliEQTradeLane +0xac");
-        static_assert(offsetof(FCliTradeLane, Effects) == 0xb4, "CliEQTradeLane +0xb4");
+        FL_LAYOUT_ASSERT(sizeof(FCliTradeLane) == 0xC8, "CliEQTradeLane sizeof 0xc8");
+        FL_LAYOUT_ASSERT(offsetof(FCliTradeLane, PlayerEnter) == 0x54, "CliEQTradeLane +0x54");
+        FL_LAYOUT_ASSERT(offsetof(FCliTradeLane, RingActiveEnd) == 0x90, "CliEQTradeLane +0x90");
+        FL_LAYOUT_ASSERT(offsetof(FCliTradeLane, SpinMax) == 0xac, "CliEQTradeLane +0xac");
+        FL_LAYOUT_ASSERT(offsetof(FCliTradeLane, Effects) == 0xb4, "CliEQTradeLane +0xb4");
 
         FCliShip* AsCliShip(ICliObj* Companion)
         {

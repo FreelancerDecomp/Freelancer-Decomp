@@ -51,7 +51,7 @@ public:
     // slot 13 FUN_00488960
     void Draw() override;
     // slot 23 LAB_004a70a0 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_004a7130 (RET 0xc)
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 
@@ -79,16 +79,16 @@ private:
     void ResumeAndDelete();
 };
 
-static_assert(sizeof(void*) != 4 || sizeof(NnPause) == 0x374,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(NnPause) == 0x374,
               "retail NN_Pause is 0x374 bytes (operator_new 004a7738)");
-static_assert(sizeof(void*) != 4 || offsetof(NnPause, bCursorDrawFlag) == 0x330,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPause, bCursorDrawFlag) == 0x330,
               "NN_Pause +0x330 cursor flag");
-static_assert(sizeof(void*) != 4 || offsetof(NnPause, Title) == 0x334, "NN_Pause +0x334 title");
-static_assert(sizeof(void*) != 4 || offsetof(NnPause, ButtonBox) == 0x338,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPause, Title) == 0x334, "NN_Pause +0x334 title");
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPause, ButtonBox) == 0x338,
               "NN_Pause +0x338 button boxes");
-static_assert(sizeof(void*) != 4 || offsetof(NnPause, ButtonText) == 0x34c,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPause, ButtonText) == 0x34c,
               "NN_Pause +0x34c button texts");
-static_assert(sizeof(void*) != 4 || offsetof(NnPause, ButtonAction) == 0x360,
+FL_LAYOUT_ASSERT(sizeof(void*) != 4 || offsetof(NnPause, ButtonAction) == 0x360,
               "NN_Pause +0x360 button actions");
 
 // FUN_004a75c0 (cdecl) -- open the pause window unless a NeuroNet screen is up (DAT_0067dcc8),

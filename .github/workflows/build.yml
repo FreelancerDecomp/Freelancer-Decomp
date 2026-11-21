@@ -128,6 +128,24 @@ jobs:
             throw 'DX8 SDK layout not as expected'
           }
 
+      # RPGPU's SDL3 comes from vcpkg in manifest mode (src/RPGPU/vcpkg.json; the runner's
+      # VCPKG_INSTALLATION_ROOT). vcpkg keeps each package it builds as a zip in its binary cache;
+      # caching that folder means SDL3 is compiled once per manifest and platform, not per run.
+      - name: Cache vcpkg packages
+        if: matrix.side == 'pr'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: vcpkg-${{ matrix.platform }}-${{ hashFiles('src/RPGPU/vcpkg.json') }}
+
+      - name: Point vcpkg at the cache
+        if: matrix.side == 'pr'
+        shell: pwsh
+        run: |
+          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
+
       - uses: microsoft/setup-msbuild@v2
 
       # MultiToolTask runs each source file as its own compiler process, and

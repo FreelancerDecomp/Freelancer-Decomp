@@ -88,16 +88,16 @@ private:
     TextWin& operator=(TextWin const&) = delete;
 };
 
-static_assert(sizeof(TextWin) == 0xec, "retail TextWin is 0xec bytes");
-static_assert(offsetof(TextWin, Text) == 0x7c, "TextWin +0x7c Font::String");
-static_assert(offsetof(TextWin, TextScale) == 0xb0, "TextWin +0xb0 scale");
-static_assert(offsetof(TextWin, Width) == 0xb4, "TextWin +0xb4 width");
-static_assert(offsetof(TextWin, Bounds) == 0xbc, "TextWin +0xbc bounds");
-static_assert(offsetof(TextWin, ColorIdle) == 0xcc, "TextWin +0xcc idle colour");
-static_assert(offsetof(TextWin, ColorInactive) == 0xdc, "TextWin +0xdc inactive colour");
-static_assert(offsetof(TextWin, FlagE0) == 0xe0, "TextWin +0xe0 flags");
-static_assert(offsetof(TextWin, bUsePalette) == 0xe6, "TextWin +0xe6");
-static_assert(offsetof(TextWin, FieldE8) == 0xe8, "TextWin +0xe8");
+FL_LAYOUT_ASSERT(sizeof(TextWin) == 0xec, "retail TextWin is 0xec bytes");
+FL_LAYOUT_ASSERT(offsetof(TextWin, Text) == 0x7c, "TextWin +0x7c Font::String");
+FL_LAYOUT_ASSERT(offsetof(TextWin, TextScale) == 0xb0, "TextWin +0xb0 scale");
+FL_LAYOUT_ASSERT(offsetof(TextWin, Width) == 0xb4, "TextWin +0xb4 width");
+FL_LAYOUT_ASSERT(offsetof(TextWin, Bounds) == 0xbc, "TextWin +0xbc bounds");
+FL_LAYOUT_ASSERT(offsetof(TextWin, ColorIdle) == 0xcc, "TextWin +0xcc idle colour");
+FL_LAYOUT_ASSERT(offsetof(TextWin, ColorInactive) == 0xdc, "TextWin +0xdc inactive colour");
+FL_LAYOUT_ASSERT(offsetof(TextWin, FlagE0) == 0xe0, "TextWin +0xe0 flags");
+FL_LAYOUT_ASSERT(offsetof(TextWin, bUsePalette) == 0xe6, "TextWin +0xe6");
+FL_LAYOUT_ASSERT(offsetof(TextWin, FieldE8) == 0xe8, "TextWin +0xe8");
 
 // FUN_004176c0 (cdecl, 8-byte return in EAX:EDX) -- a width/height at depth Z in world units
 // to screen units through the Win3D camera (+0x78 XScale, +0x7c YScale, +0xa4 ZNear).

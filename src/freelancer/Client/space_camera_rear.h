@@ -42,8 +42,8 @@ struct FRearViewCamera : FHudCamera
 };
 
 // The death camera sits at controller + 0x60c and this one at + 0x500.
-static_assert(sizeof(FRearViewCamera) == 0x10c, "FRearViewCamera must be 0x10c");
-static_assert(offsetof(FRearViewCamera, ViewPosition) == 0x100, "RV +0x100");
+FL_LAYOUT_ASSERT(sizeof(FRearViewCamera) == 0x10c, "FRearViewCamera must be 0x10c");
+FL_LAYOUT_ASSERT(offsetof(FRearViewCamera, ViewPosition) == 0x100, "RV +0x100");
 
 // FUN_0051ad30. Chains to the HUDCamera ctor and then plants the default view position; the
 // literals are 0x00000000, 0x40a00000 and 0x41a00000, i.e. five metres up and twenty back.

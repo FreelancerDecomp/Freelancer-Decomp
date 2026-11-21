@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "RendComp.h"
+#include "x64_low_arena.h"
 #include "TriMesh.h"         // the TriMesh archetype (FTriMeshArch)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 #include "common_misc.h"     // ICamera (the sphere draw reads the camera)
@@ -1008,6 +1009,9 @@ public:
 class FSphereHandle : public IMatHookUp
 {
 public:
+    // x64: allocated below 2 GB; IRenderComponent::Claim returns the address as an int.
+    FL_LOW_ARENA_NEW
+
     IMaterial** Materials;        // +0x04 operator new(Sides * 4), zeroed; filled by Slot3
     unsigned long Sides;          // +0x08 "Sides": the number of materials
     float Radius;                 // +0x0C "Radius"; -1.0f after a reset
@@ -1121,10 +1125,11 @@ public:
 
         if (Sides != 0)
         {
-            Materials = (IMaterial**)new unsigned char[Sides * 4];
-            std::memset(Materials, 0, Sides * 4);
-            MaterialNames = (char**)new unsigned char[Sides * 4];
-            std::memset(MaterialNames, 0, Sides * 4);
+            // Retail Sides * 4: one pointer each (sizeof is 4 on Win32, 8 on x64).
+            Materials = (IMaterial**)new unsigned char[Sides * sizeof(IMaterial*)];
+            std::memset(Materials, 0, Sides * sizeof(IMaterial*));
+            MaterialNames = (char**)new unsigned char[Sides * sizeof(char*)];
+            std::memset(MaterialNames, 0, Sides * sizeof(char*));
 
             char Buffer[0x80];
             for (unsigned long Index = 0; Index < Sides; ++Index)

@@ -118,12 +118,12 @@ protected:
     // after its own player voice line): 0x0052ccbd..0x0052cd1c.
     void DropOnDestroying();
 };
-static_assert(sizeof(FCliLauncherFx) == 0x40, "CliLauncherFx 0x40");
-static_assert(offsetof(FCliLauncherFx, AnimJointIndex) == 0x10, "AnimJoint @ +0x10");
-static_assert(offsetof(FCliLauncherFx, FireVoice) == 0x1c, "FireVoice @ +0x1c");
-static_assert(offsetof(FCliLauncherFx, MuzzleEffect) == 0x28, "MuzzleEffect @ +0x28");
-static_assert(offsetof(FCliLauncherFx, DefaultEffectArch) == 0x2c, "sparks arch @ +0x2c");
-static_assert(offsetof(FCliLauncherFx, Companion) == 0x30, "companion @ +0x30");
+FL_LAYOUT_ASSERT(sizeof(FCliLauncherFx) == 0x40, "CliLauncherFx 0x40");
+FL_LAYOUT_ASSERT(offsetof(FCliLauncherFx, AnimJointIndex) == 0x10, "AnimJoint @ +0x10");
+FL_LAYOUT_ASSERT(offsetof(FCliLauncherFx, FireVoice) == 0x1c, "FireVoice @ +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FCliLauncherFx, MuzzleEffect) == 0x28, "MuzzleEffect @ +0x28");
+FL_LAYOUT_ASSERT(offsetof(FCliLauncherFx, DefaultEffectArch) == 0x2c, "sparks arch @ +0x2c");
+FL_LAYOUT_ASSERT(offsetof(FCliLauncherFx, Companion) == 0x30, "companion @ +0x30");
 
 // FUN_0052d570: the mine dropper -- the launcher with vtable PTR_FUN_005dd564.
 struct FCliMineDropperFx : FCliLauncherFx
@@ -157,7 +157,7 @@ struct FCliGunFx : FCliLauncherFx
     // it: the gun's scalar deleting destructor FUN_0052d590 runs only FUN_0052caa0.
     ISoundSource* TurretVoice;
 };
-static_assert(sizeof(FCliGunFx) == 0x44, "CliGunFx 0x44");
+FL_LAYOUT_ASSERT(sizeof(FCliGunFx) == 0x44, "CliGunFx 0x44");
 
 // FUN_0052d570 — MineDropper (base + Mine vtable stamp).
 FCliLauncherFx* CliMineEquipFxConstruct(CEquip* Equip, void* Host);
@@ -177,10 +177,10 @@ struct FCliGunFxCompanion
     unsigned LightAnimLen;   // +0x5c  0 → skip player-light arm
     char LightAnimName[32];  // +0x60  FUN_00538e80 (NOT ID_String)
 };
-static_assert(offsetof(FCliGunFxCompanion, OneShotEffect) == 0x54, "gun fx @ +0x54");
-static_assert(offsetof(FCliGunFxCompanion, FlashRadius) == 0x58, "flash radius @ +0x58");
-static_assert(offsetof(FCliGunFxCompanion, LightAnimLen) == 0x5c, "anim len @ +0x5c");
-static_assert(offsetof(FCliGunFxCompanion, LightAnimName) == 0x60, "anim name @ +0x60");
+FL_LAYOUT_ASSERT(offsetof(FCliGunFxCompanion, OneShotEffect) == 0x54, "gun fx @ +0x54");
+FL_LAYOUT_ASSERT(offsetof(FCliGunFxCompanion, FlashRadius) == 0x58, "flash radius @ +0x58");
+FL_LAYOUT_ASSERT(offsetof(FCliGunFxCompanion, LightAnimLen) == 0x5c, "anim len @ +0x5c");
+FL_LAYOUT_ASSERT(offsetof(FCliGunFxCompanion, LightAnimName) == 0x60, "anim name @ +0x60");
 
 class FClientEquippedObj; // client_gameobj.h
 
@@ -195,10 +195,10 @@ struct FCliEquipFirePacket
     Vector TargetPos;            // +0x18  also 0x1c payload dword pair with +0x14
     unsigned char Pad24[4];      // +0x24  tenth dword of the 10-dword copy
 };
-static_assert(offsetof(FCliEquipFirePacket, HardpointId) == 0x10, "fire pkt hp @ +0x10");
-static_assert(offsetof(FCliEquipFirePacket, ActivateSubOp) == 0x14, "activate sub @ +0x14");
-static_assert(offsetof(FCliEquipFirePacket, TargetPos) == 0x18, "fire pkt tgt @ +0x18");
-static_assert(sizeof(FCliEquipFirePacket) == 0x28, "fire pkt 0x28 (10 dwords)");
+FL_LAYOUT_ASSERT(offsetof(FCliEquipFirePacket, HardpointId) == 0x10, "fire pkt hp @ +0x10");
+FL_LAYOUT_ASSERT(offsetof(FCliEquipFirePacket, ActivateSubOp) == 0x14, "activate sub @ +0x14");
+FL_LAYOUT_ASSERT(offsetof(FCliEquipFirePacket, TargetPos) == 0x18, "fire pkt tgt @ +0x18");
+FL_LAYOUT_ASSERT(sizeof(FCliEquipFirePacket) == 0x28, "fire pkt 0x28 (10 dwords)");
 
 // FUN_004fc8b0
 void BeamEffectSetProgressFromSpeed(FBeamEffect* This, float Speed);

@@ -170,7 +170,7 @@ namespace AlchemyImpl
         float InvDuration;
     };
 
-    static_assert(sizeof(FPooledParticle) == 0x30,
+    FL_LAYOUT_ASSERT(sizeof(FPooledParticle) == 0x30,
                   "FPooledParticle must match Basic/Rect stride 0x30");
 
     struct IAnimatedTransform;

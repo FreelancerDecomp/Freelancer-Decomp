@@ -87,7 +87,7 @@ namespace
         IObjRW* const Current = WatchedObject(Sys->Watcher149C);
         if (Current != nullptr && Current->get_id() == Target->get_id())   // 062ecdc7-062ecde4
             return false;
-        Sys->Watcher149C.set(reinterpret_cast<Watchable const*>(reinterpret_cast<char*>(Target) + 8));   // 062ecdea
+        Sys->Watcher149C.set(reinterpret_cast<Watchable const*>(reinterpret_cast<char*>(Target) + FL_OBJRW_WATCHABLE_OFFSET));   // 062ecdea
         IObjRW* const Owner = WatchedObject(Sys->Owner1498->Watcher);      // 062ece08-062ece1a
         int const Result = static_cast<IObjAffect*>(Owner)->slot_40(Id, WatchedObject(Sys->Watcher149C), -1);
         return Result == 0;                                         // 062ece26
@@ -348,7 +348,7 @@ bool LootBehavior::AcquireLootTarget(FLootTarget* Slot)
 
 Done:
     // LAB_062ceb0f: the slot watches the winner (or nothing), undirected.
-    Slot->Watcher.set(Best != nullptr ? reinterpret_cast<Watchable const*>(reinterpret_cast<char*>(Best) + 8)
+    Slot->Watcher.set(Best != nullptr ? reinterpret_cast<Watchable const*>(reinterpret_cast<char*>(Best) + FL_OBJRW_WATCHABLE_OFFSET)
                                       : nullptr);
     Slot->bDirected = 0;                                            // 062ceb2f
     return Best != nullptr;
@@ -437,7 +437,7 @@ bool LootBehavior::Slot10(void* DirectiveOp)
 {
     unsigned char* const Op = static_cast<unsigned char*>(DirectiveOp);
     void* const Found = NavHelper->Timers.FindVerifiedObject((unsigned const*)(Op + 0xc));   // 062cede3
-    Target.Watcher.set(Found != nullptr ? reinterpret_cast<Watchable const*>(static_cast<char*>(Found) + 8)
+    Target.Watcher.set(Found != nullptr ? reinterpret_cast<Watchable const*>(static_cast<char*>(Found) + FL_OBJRW_WATCHABLE_OFFSET)
                                         : nullptr);                 // 062cedf9-062cee00
     if (WatchedObject(Target.Watcher) != nullptr)                   // 062cee05-062cee10
     {

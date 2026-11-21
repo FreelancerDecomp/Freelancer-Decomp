@@ -30,7 +30,7 @@ struct FEffectTypeInfo
     float PbubbleNear;        // +0x20
     float PbubbleFar;         // +0x24
 };
-static_assert(sizeof(FEffectTypeInfo) == 0x28, "EffectTypeInfo 0x28");
+FL_LAYOUT_ASSERT(sizeof(FEffectTypeInfo) == 0x28, "EffectTypeInfo 0x28");
 
 // One EffectLOD row: max_lod_screen_size / min_lod_screen_size / min_screen_size.
 struct FEffectLodSizes

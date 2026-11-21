@@ -18,10 +18,14 @@
 #include "DALib.h"
 #include "dacom.h"
 
+#include <cassert>
 #include <cstdint>
+#include <iterator>
 #include <list>
+#include <map>
 #include <new>
 #include <stdlib.h>
+#include <unordered_map>
 
 namespace
 {
@@ -44,6 +48,43 @@ namespace
         ListDynamicAsteroid,
         ListCount
     };
+
+    // Port-only side index of the class lists below (no retail counterpart). The lists keep
+    // every order and the FindFirst/FindNext cursor; the index only answers Find and locates
+    // the node RemoveFromClassList unlinks.
+    //   - Each listed object has an entry: its node, its list and an insertion number. The
+    //     lists only grow by push_back (Alloc), so insertion numbers ascend in list order and
+    //     the smallest one filed under a key is the first match of the retail walk.
+    //   - Objects are filed under the keys the walks compare: EngineInstanceId (never under
+    //     -1, which Find(long) rejects up front) and, for classes with a CSimple, CSimple::Id.
+    //   - Both keys are plain fields. While an object is listed they are written only by
+    //     EngineObject::initialize_instance / destroy_instance, CObject::destroy_instance and
+    //     CSimple::init (the engine reaches the first three through IEngineInstance); each
+    //     calls CmnCobject::ClassListKeysChanged right after its write. The constructors
+    //     write them before Alloc lists the object.
+    // Declared before the lists so that it outlives them in static teardown.
+    typedef std::map<unsigned long long, CObject*> FFiledObjects; // insertion number -> object
+
+    struct FClassListEntry
+    {
+        CObject* Object;
+        std::list<CObject*>::iterator Node;
+        unsigned long long Seq;
+        int ListIndex;
+        long FiledInstance; // the EngineInstanceId it is filed under; -1 = not filed
+        bool bFiledId;
+        unsigned FiledId;   // the CSimple::Id it is filed under when bFiledId
+    };
+
+    struct FClassListIndex
+    {
+        std::unordered_map<long, FFiledObjects> ByInstance;
+        std::unordered_map<unsigned, FFiledObjects> ById;
+    };
+
+    std::unordered_map<EngineObject const*, FClassListEntry> G_ClassListEntries;
+    FClassListIndex G_ClassListIndexes[ListCount];
+    unsigned long long G_ClassListNextSeq = 0;
 
     std::list<CObject*> G_ClassLists[ListCount];
     std::list<CObject*>* G_FindList = nullptr;
@@ -80,25 +121,120 @@ namespace
             && ObjectClass != CObject::ClassDynamicAsteroid;
     }
 
+    template <class TKey>
+    void FileObject(std::unordered_map<TKey, FFiledObjects>& Map, TKey Key, FClassListEntry const& Entry)
+    {
+        Map[Key].emplace(Entry.Seq, Entry.Object);
+    }
+
+    template <class TKey>
+    void UnfileObject(std::unordered_map<TKey, FFiledObjects>& Map, TKey Key, FClassListEntry const& Entry)
+    {
+        typename std::unordered_map<TKey, FFiledObjects>::iterator It = Map.find(Key);
+        if (It == Map.end())
+            return;
+        It->second.erase(Entry.Seq);
+        if (It->second.empty())
+            Map.erase(It);
+    }
+
+    // The first object in list order filed under Key, or null.
+    template <class TKey>
+    CObject* FirstFiledObject(std::unordered_map<TKey, FFiledObjects> const& Map, TKey Key)
+    {
+        typename std::unordered_map<TKey, FFiledObjects>::const_iterator It = Map.find(Key);
+        if (It == Map.end())
+            return nullptr;
+        return It->second.begin()->second;
+    }
+
+    // Files Entry under its object's current keys.
+    void FileClassListEntry(FClassListEntry& Entry)
+    {
+        FClassListIndex& Index = G_ClassListIndexes[Entry.ListIndex];
+        CObject* const Object = Entry.Object;
+        Entry.FiledInstance = Object->EngineInstanceId;
+        if (Entry.FiledInstance != -1)
+            FileObject(Index.ByInstance, Entry.FiledInstance, Entry);
+        Entry.bFiledId = ClassHasSimpleId(Object->ObjectClass);
+        Entry.FiledId = 0;
+        if (Entry.bFiledId)
+        {
+            Entry.FiledId = ((CSimple*)Object)->Id;
+            FileObject(Index.ById, Entry.FiledId, Entry);
+        }
+    }
+
+    void UnfileClassListEntry(FClassListEntry const& Entry)
+    {
+        FClassListIndex& Index = G_ClassListIndexes[Entry.ListIndex];
+        if (Entry.FiledInstance != -1)
+            UnfileObject(Index.ByInstance, Entry.FiledInstance, Entry);
+        if (Entry.bFiledId)
+            UnfileObject(Index.ById, Entry.FiledId, Entry);
+    }
+
+    // push_back onto the class list, plus the port-only index entry.
+    void AddToClassList(EClassList ListIndex, CObject* Object)
+    {
+        std::list<CObject*>& List = G_ClassLists[ListIndex];
+        List.push_back(Object);
+        FClassListEntry Entry;
+        Entry.Object = Object;
+        Entry.Node = std::prev(List.end());
+        Entry.Seq = G_ClassListNextSeq++;
+        Entry.ListIndex = ListIndex;
+        Entry.FiledInstance = -1;
+        Entry.bFiledId = false;
+        Entry.FiledId = 0;
+        FClassListEntry& Stored = G_ClassListEntries[Object];
+        Stored = Entry;
+        FileClassListEntry(Stored);
+    }
+
     void RemoveFromClassList(CObject* Object)
     {
+        // Retail walks the object's class list for its node (FUN_062ae690 + FUN_062af830); the
+        // entry holds that node. An object listed nowhere, or in another list, is not unlinked.
         if (Object == nullptr)
             return;
         std::list<CObject*>* List = ListForClass(Object->ObjectClass);
         if (List == nullptr)
             return;
-        std::list<CObject*>::iterator It = List->begin();
-        for (; It != List->end(); ++It)
-        {
-            if (*It == Object)
-            {
-                if (G_bFindActive && G_FindList == List && G_FindNextIt == It)
-                    ++G_FindNextIt;
-                List->erase(It);
-                return;
-            }
-        }
+        std::unordered_map<EngineObject const*, FClassListEntry>::iterator EntryIt =
+            G_ClassListEntries.find(Object);
+        if (EntryIt == G_ClassListEntries.end() || &G_ClassLists[EntryIt->second.ListIndex] != List)
+            return;
+        std::list<CObject*>::iterator It = EntryIt->second.Node;
+        UnfileClassListEntry(EntryIt->second);
+        G_ClassListEntries.erase(EntryIt);
+        if (G_bFindActive && G_FindList == List && G_FindNextIt == It)
+            ++G_FindNextIt;
+        List->erase(It);
     }
+
+#ifdef _DEBUG
+    // The retail walks of Find(long) / Find(unsigned const&), for the index cross-check.
+    CObject* WalkByInstance(std::list<CObject*> const& List, long EngineInstanceId)
+    {
+        for (std::list<CObject*>::const_iterator It = List.begin(); It != List.end(); ++It)
+        {
+            if ((*It)->EngineInstanceId == EngineInstanceId)
+                return *It;
+        }
+        return nullptr;
+    }
+
+    CObject* WalkById(std::list<CObject*> const& List, unsigned Id)
+    {
+        for (std::list<CObject*>::const_iterator It = List.begin(); It != List.end(); ++It)
+        {
+            if (ClassHasSimpleId((*It)->ObjectClass) && ((CSimple*)*It)->Id == Id)
+                return *It;
+        }
+        return nullptr;
+    }
+#endif
 }
 
 // Helpers shared by several CObject-family TUs; declared in common_cobject_internal.h.
@@ -173,6 +309,16 @@ namespace CmnCobject
                 Dst.E[Row][Col] = Src.E[Row][Col];
         }
     }
+
+    void ClassListKeysChanged(EngineObject const* Object)
+    {
+        std::unordered_map<EngineObject const*, FClassListEntry>::iterator It =
+            G_ClassListEntries.find(Object);
+        if (It == G_ClassListEntries.end())
+            return;
+        UnfileClassListEntry(It->second);
+        FileClassListEntry(It->second);
+    }
 } // namespace CmnCobject
 
 void DACOM_API CObject::destroy_instance(long Inst)
@@ -181,6 +327,7 @@ void DACOM_API CObject::destroy_instance(long Inst)
     // vcall +0x38(1) (scalar deleting dtor). Not FindChild / IVP.
     (void)Inst;
     EngineInstanceId = -1;
+    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
     if (RefCount == 1)
     {
         RefCount = 0;
@@ -338,65 +485,65 @@ CObject* __cdecl CObject::Alloc(Class ObjectClass)
     // `INC [obj+0x98]` (AddRef, no null test on the allocation -- a failed pool allocation
     // crashes in retail on the increment, and does so here too), then push_back onto that
     // class's own list (FUN_062af9b0 / FUN_062af7d0, both a VC6 list::insert at the head,
-    // i.e. push_back; they differ only in which STL node cache they draw from). Any other
-    // class value returns 0 without a message.
+    // i.e. push_back; they differ only in which STL node cache they draw from; AddToClassList
+    // also files the port's index entry). Any other class value returns 0 without a message.
     CObject* Result = nullptr;
     switch (ObjectClass)
     {
     case ClassObject:                                   // Heap 063fc400 (0x9c), list 063fc32c
         Result = new CObject(ClassObject);
         Result->AddRef();
-        G_ClassLists[ListObject].push_back(Result);
+        AddToClassList(ListObject, Result);
         break;
     case ClassBeam:                                     // Heap 063fc3f0 (0x120), list 063fc398
         Result = new CBeam(ClassBeam);
         Result->AddRef();
-        G_ClassLists[ListBeam].push_back(Result);
+        AddToClassList(ListBeam, Result);
         break;
     case ClassGuided:                                   // Heap 063fc3e0 (0x104), list 063fc38c
         Result = new CGuided(ClassGuided);
         Result->AddRef();
-        G_ClassLists[ListGuided].push_back(Result);
+        AddToClassList(ListGuided, Result);
         break;
     case ClassMine:                                     // Heap 063fc3d0 (0xf0), list 063fc374
         Result = new CMine(ClassMine);
         Result->AddRef();
-        G_ClassLists[ListMine].push_back(Result);
+        AddToClassList(ListMine, Result);
         break;
     case ClassCounterMeasure:                           // Heap 063fc3d0 (0xf0), list 063fc368
         Result = new CCounterMeasure(ClassCounterMeasure);
         Result->AddRef();
-        G_ClassLists[ListCounterMeasure].push_back(Result);
+        AddToClassList(ListCounterMeasure, Result);
         break;
     case ClassSolar:                                    // Heap 063fc3c0 (0x1ec), list 063fc35c
         Result = new CSolar(ClassSolar);
         Result->AddRef();
-        G_ClassLists[ListSolar].push_back(Result);
+        AddToClassList(ListSolar, Result);
         break;
     case ClassShip:                                     // Heap 063fc3b0 (0x2dc), list 063fc3a4
         Result = new CShip();
         Result->AddRef();
-        G_ClassLists[ListShip].push_back(Result);
+        AddToClassList(ListShip, Result);
         break;
     case ClassLoot:                                     // operator new(0x104), list 063fc380
         Result = new CLoot(ClassLoot);
         Result->AddRef();
-        G_ClassLists[ListLoot].push_back(Result);
+        AddToClassList(ListLoot, Result);
         break;
     case ClassAsteroid:                                 // operator new(0xfc), list 063fc350
         Result = new CAsteroid();
         Result->AddRef();
-        G_ClassLists[ListAsteroid].push_back(Result);
+        AddToClassList(ListAsteroid, Result);
         break;
     case ClassEquipmentObj:                             // operator new(0x9c), list 063fc338
         Result = new CEquipmentObj(ClassEquipmentObj);
         Result->AddRef();
-        G_ClassLists[ListEquipment].push_back(Result);
+        AddToClassList(ListEquipment, Result);
         break;
     case ClassDynamicAsteroid:                          // operator new(0x9c), list 063fc344
         Result = new CDynamicAsteroid();
         Result->AddRef();
-        G_ClassLists[ListDynamicAsteroid].push_back(Result);
+        AddToClassList(ListDynamicAsteroid, Result);
         break;
     default:
         break;
@@ -417,21 +564,21 @@ CObject* __cdecl CObject::Find(long EngineInstanceId, Class ObjectClass)
 {
     // .text:062ae960..062aea30: -1 or a class without a list -> null; the first entry whose
     // instance (+0x4) matches gets RefCount (+0x98) + 1 and is returned.
+    // The port answers the walk from the class-list index (see G_ClassListEntries).
     if (EngineInstanceId == -1)
         return nullptr;
     std::list<CObject*>* const List = ListForClass(ObjectClass);
     if (List == nullptr)
         return nullptr;
-    for (std::list<CObject*>::iterator It = List->begin(); It != List->end(); ++It)
-    {
-        CObject* const Obj = *It;
-        if (Obj->EngineInstanceId == EngineInstanceId)
-        {
-            Obj->AddRef();
-            return Obj;
-        }
-    }
-    return nullptr;
+    CObject* const Obj =
+        FirstFiledObject(G_ClassListIndexes[List - G_ClassLists].ByInstance, EngineInstanceId);
+#ifdef _DEBUG
+    assert(Obj == WalkByInstance(*List, EngineInstanceId));
+#endif
+    if (Obj == nullptr)
+        return nullptr;
+    Obj->AddRef();
+    return Obj;
 }
 
 CObject* __cdecl CObject::Find(unsigned const& Id, Class ObjectClass)
@@ -440,23 +587,19 @@ CObject* __cdecl CObject::Find(unsigned const& Id, Class ObjectClass)
     // against *Id for whatever list the class selects. Retail reads +0xb0 even in the
     // ClassObject / EquipmentObj / DynamicAsteroid lists, whose 0x9c-byte objects end
     // before it (reads past the object -- very strange); the port skips those entries
-    // instead of reading outside them.
+    // instead of reading outside them (they are never filed by Id). The port answers the walk
+    // from the class-list index (see G_ClassListEntries).
     std::list<CObject*>* List = ListForClass(ObjectClass);
     if (List == nullptr)
         return nullptr;
-    for (std::list<CObject*>::iterator It = List->begin(); It != List->end(); ++It)
-    {
-        CObject* const Obj = *It;
-        if (!ClassHasSimpleId(Obj->ObjectClass))
-            continue;
-        CSimple* const Simple = (CSimple*)Obj;
-        if (Simple->Id == Id)
-        {
-            Obj->AddRef();
-            return Obj;
-        }
-    }
-    return nullptr;
+    CObject* const Obj = FirstFiledObject(G_ClassListIndexes[List - G_ClassLists].ById, Id);
+#ifdef _DEBUG
+    assert(Obj == WalkById(*List, Id));
+#endif
+    if (Obj == nullptr)
+        return nullptr;
+    Obj->AddRef();
+    return Obj;
 }
 
 CObject* __cdecl CObject::FindFirst(Class ObjectClass)

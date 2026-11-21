@@ -164,7 +164,7 @@ void MatchThrottle2Idea::SetWatchAndPosition(void const* Object2, Vector const& 
 {
     // `raw = Object2 ? Object2 + 8 : 0; if (raw != [EDI]) set_pointer(raw)` == set().
     Watcher.set(Object2 != nullptr
-        ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object2) + 8)
+        ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object2) + FL_OBJRW_WATCHABLE_OFFSET)
         : nullptr);
     Position = Point;                                               // 062d6612-062d6629
     Distance28 = 0.0f;                                              // 062d662c
@@ -176,7 +176,7 @@ void MatchThrottle2Idea::SetWatchAndPosition(void const* Object2, Vector const& 
 void MatchThrottle2Idea::SetWatchAndDistance(void const* Object2, float Distance)
 {
     Watcher.set(Object2 != nullptr
-        ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object2) + 8)
+        ? reinterpret_cast<Watchable const*>(static_cast<unsigned char const*>(Object2) + FL_OBJRW_WATCHABLE_OFFSET)
         : nullptr);
     Position = Vector{ 0.0f, 0.0f, 0.0f };                          // 062d6695-062d66c5
     Distance28 = Distance;                                          // 062d66cb

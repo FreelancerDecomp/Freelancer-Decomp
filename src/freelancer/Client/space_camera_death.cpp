@@ -47,7 +47,7 @@ namespace
     // 0x005494cf: the CEqObj type mask the attach slot tests. Both bits must be set.
     const unsigned kEqObjShipTypeMask = 0x503;
 
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // 0x005496bc..0x005496df / 0x00549723..0x00549748: an angle uniformly in [-Amplitude,
     // +Amplitude], spelled `frac * (hi - lo) + lo` with lo = -hi (a float, FST [ESP+0x18] /

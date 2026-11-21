@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 // Retail space-object mesh draw walk (camera +0x78 → Slot7).
 // Listing anchors: FUN_0051b250, FUN_0051c200, FUN_0051f2c0, FUN_00539980,
 // plus same-pass drain FUN_0051eda0 / FUN_0051f810 (required to close the queue).
@@ -46,7 +48,7 @@ double SpaceEffectPerfOneMinus();
 // FUN_005554d0 (cdecl, 6 args) -- the StarSys per-object lighting: ambient (with the containing
 // nebula's lerp and fog), then the nearby lights. Callers 0x00518574 (cockpit), 0x005227c1
 // (asteroid ambient), 0x00539bb1 (FUN_00539b40).
-void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, unsigned DrawStateA,
+void SpaceApplyObjectLighting(float const* Pos3, float Radius, void* Camera, std::uintptr_t DrawStateA,
                               unsigned DrawStateB, unsigned char Flag);
 
 // FUN_0040fb60 (thiscall on the camera, RET 8) -- ZNear (+0xa4) and ZFar (+0xa8) written.

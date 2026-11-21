@@ -6,6 +6,7 @@
 
 #include "Deformable2.h"
 #include "EyeMaterial.h"     // RegisterEyeMaterialFactory (FUN_065fdfd0)
+#include "facet_offset.h"   // FL_FACET_OFFSET for G_InnerIidTable
 #include "common_misc.h"   // ICamera (GetViewTransform +0x40, ClassifySphere +0x3C)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
@@ -3150,7 +3151,7 @@ struct FIkVec
     int Count;
 };
 
-static_assert(sizeof(FIkVec) == 0x34, "IK vector is 13 dwords");
+FL_LAYOUT_ASSERT(sizeof(FIkVec) == 0x34, "IK vector is 13 dwords");
 
 // Keep Rest9 adjacent: a locked first joint writes into the preceding cells.
 struct FIkDlsJacobian
@@ -3159,7 +3160,7 @@ struct FIkDlsJacobian
     FSvdMatrix J;
 };
 
-static_assert(offsetof(FIkDlsJacobian, J) == 0x24, "the Jacobian sits right after the scratch");
+FL_LAYOUT_ASSERT(offsetof(FIkDlsJacobian, J) == 0x24, "the Jacobian sits right after the scratch");
 
 // The Jacobian's cells as the listing addresses them: flat, 12 per row, from Cell[0][0].
 static float* IkDlsCells(FIkDlsJacobian* Block)
@@ -5246,12 +5247,13 @@ struct FInnerIidEntry
     int Offset;
 };
 
+// The offsets are retail's on Win32 and the class layout's on x64 (facet_offset.h).
 static const FInnerIidEntry G_InnerIidTable[] = {
-    {G_IidDeformableShort, 0},
-    {G_IidEngineComponentShort, 4},
-    {Iids::Deformable, 0},
-    {Iids::EngineComponent, 4},
-    {Iids::AggregateComponent, 4},
+    {G_IidDeformableShort, FL_FACET_OFFSET(0, FDeformableObject, IDeformable)},
+    {G_IidEngineComponentShort, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
+    {Iids::Deformable, FL_FACET_OFFSET(0, FDeformableObject, IDeformable)},
+    {Iids::EngineComponent, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
     {nullptr, 0},
 };
 
@@ -5426,7 +5428,7 @@ static void DrawInstanceParts(FDeformInstance* Instance, void* /*Unused*/, ICame
     *OutLod = 0;
     if (Instance->PartCount <= 0)
         return;
-    static_assert(sizeof(ICamera*) == sizeof(float), "the radius shares the camera's slot");
+    FL_LAYOUT_ASSERT(sizeof(ICamera*) == sizeof(float), "the radius shares the camera's slot");
     float Radius = 0.0f;
     std::memcpy(&Radius, &Camera, sizeof(Radius));
     float Center[3];

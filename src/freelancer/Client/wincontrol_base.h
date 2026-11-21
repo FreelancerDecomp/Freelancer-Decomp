@@ -79,7 +79,7 @@ public:
     // slot 19 FUN_005a0650
     bool MouseEvent(FWin3DMouseEvent const* Event) override;
     // slot 23 FUN_005a0840 -- 0xef01 show / 0xef02 hide
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // --- IDataViewOwner (vftable 0x005e5e38) ---
     // LAB_0053aaa0 -- RET 8
@@ -274,20 +274,20 @@ private:
     WinControl& operator=(WinControl const&) = delete;
 };
 
-static_assert(sizeof(WinControl) == 0x32c, "retail WinControl is 0x32c bytes");
-static_assert(offsetof(WinControl, MeshHolder) == 0x80, "WinControl +0x80 mesh holder");
-static_assert(offsetof(WinControl, Offset) == 0xa8, "WinControl +0xa8 offset");
-static_assert(offsetof(WinControl, HalfExtents) == 0xb4, "WinControl +0xb4 half extents");
-static_assert(offsetof(WinControl, HitOffset) == 0xc0, "WinControl +0xc0 hit offset");
-static_assert(offsetof(WinControl, ToolTipIds) == 0xcc, "WinControl +0xcc tooltip");
-static_assert(offsetof(WinControl, MeshPath) == 0xd0, "WinControl +0xd0 mesh path");
-static_assert(offsetof(WinControl, HardpointName) == 0x1d0, "WinControl +0x1d0 hardpoint");
-static_assert(offsetof(WinControl, bCaptured) == 0x2d0, "WinControl +0x2d0 captured");
-static_assert(offsetof(WinControl, Field2e0) == 0x2e0, "WinControl +0x2e0");
-static_assert(offsetof(WinControl, PositionFlags) == 0x2f4, "WinControl +0x2f4 flags");
-static_assert(offsetof(WinControl, AttachOrientation) == 0x2f8, "WinControl +0x2f8 attach");
-static_assert(offsetof(WinControl, AttachPosition) == 0x31c, "WinControl +0x31c attach pos");
-static_assert(offsetof(WinControl, bAttached) == 0x328, "WinControl +0x328 attached");
+FL_LAYOUT_ASSERT(sizeof(WinControl) == 0x32c, "retail WinControl is 0x32c bytes");
+FL_LAYOUT_ASSERT(offsetof(WinControl, MeshHolder) == 0x80, "WinControl +0x80 mesh holder");
+FL_LAYOUT_ASSERT(offsetof(WinControl, Offset) == 0xa8, "WinControl +0xa8 offset");
+FL_LAYOUT_ASSERT(offsetof(WinControl, HalfExtents) == 0xb4, "WinControl +0xb4 half extents");
+FL_LAYOUT_ASSERT(offsetof(WinControl, HitOffset) == 0xc0, "WinControl +0xc0 hit offset");
+FL_LAYOUT_ASSERT(offsetof(WinControl, ToolTipIds) == 0xcc, "WinControl +0xcc tooltip");
+FL_LAYOUT_ASSERT(offsetof(WinControl, MeshPath) == 0xd0, "WinControl +0xd0 mesh path");
+FL_LAYOUT_ASSERT(offsetof(WinControl, HardpointName) == 0x1d0, "WinControl +0x1d0 hardpoint");
+FL_LAYOUT_ASSERT(offsetof(WinControl, bCaptured) == 0x2d0, "WinControl +0x2d0 captured");
+FL_LAYOUT_ASSERT(offsetof(WinControl, Field2e0) == 0x2e0, "WinControl +0x2e0");
+FL_LAYOUT_ASSERT(offsetof(WinControl, PositionFlags) == 0x2f4, "WinControl +0x2f4 flags");
+FL_LAYOUT_ASSERT(offsetof(WinControl, AttachOrientation) == 0x2f8, "WinControl +0x2f8 attach");
+FL_LAYOUT_ASSERT(offsetof(WinControl, AttachPosition) == 0x31c, "WinControl +0x31c attach pos");
+FL_LAYOUT_ASSERT(offsetof(WinControl, bAttached) == 0x328, "WinControl +0x328 attached");
 
 // FUN_005a1340 (thiscall on HalfExtents, RET 4; wincontrol_children.cpp) -- the mesh's box via
 // FUN_0059f0d0; on success HalfExtents = {box[0], box[2], 0}. Callers pass a control's +0xb4

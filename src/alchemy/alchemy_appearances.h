@@ -345,7 +345,7 @@ namespace AlchemyImpl
         IFxEffect* LifeEffect;  // +0x6c
         IFxEffect* DeathEffect; // +0x70
     };
-    static_assert(sizeof(FParticleAppRecord) == 0x74, "retail particle record stride");
+    FL_LAYOUT_ASSERT(sizeof(FParticleAppRecord) == 0x74, "retail particle record stride");
 
     class FxParticleAppearance final : public FGenericFxObjectBase
     {

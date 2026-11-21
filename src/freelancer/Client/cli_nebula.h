@@ -28,7 +28,7 @@ struct FNebulaClouds
     unsigned char Raw[0x12c];
 };
 
-static_assert(sizeof(FNebulaClouds) == 0x12c, "Clouds component 0x12c");
+FL_LAYOUT_ASSERT(sizeof(FNebulaClouds) == 0x12c, "Clouds component 0x12c");
 
 // DAT_00679860 -- SpaceTerrainRenderComp.cpp's lazily filled I3DMathEngine (FUN_005b73e0 on
 // first use). Readers: FUN_0054c8b0 (0x0054cb06, the band rings in cli_asteroid.cpp),
@@ -74,10 +74,10 @@ struct FNebulaCloudsListStorage
     FNebulaCloudsListNode* Sentinel;
     unsigned Count;
 };
-static_assert(sizeof(FNebulaEffectCompanion) == 0x10, "Nebula companion size");
-static_assert(sizeof(FNebulaCloudsListStorage) == 0xc, "Nebula clouds list size");
-static_assert(sizeof(FShapeDB) < 0x18, "ShapeDB fits reserved storage");
-static_assert(sizeof(FNebulaZoneShellMap) < 0x14, "zone shell map fits reserved storage");
+FL_LAYOUT_ASSERT(sizeof(FNebulaEffectCompanion) == 0x10, "Nebula companion size");
+FL_LAYOUT_ASSERT(sizeof(FNebulaCloudsListStorage) == 0xc, "Nebula clouds list size");
+FL_LAYOUT_ASSERT(sizeof(FShapeDB) < 0x18, "ShapeDB fits reserved storage");
+FL_LAYOUT_ASSERT(sizeof(FNebulaZoneShellMap) < 0x14, "zone shell map fits reserved storage");
 
 struct INebula
 {
@@ -135,7 +135,7 @@ struct FNebulaEffect : INebula
     ~FNebulaEffect() override;
 
     FShapeDB Shapes;                                 // +0x04
-    unsigned char ShapePadding[0x18 - sizeof(FShapeDB)];
+    unsigned char ShapePadding[FL_LAYOUT_PAD(0x18 - sizeof(FShapeDB))];
     float FrameDelta;                                // +0x1c
     Universe::IZone* Zone;                            // +0x20
     unsigned Field24;                                // +0x24 TODO: exclusion state
@@ -145,7 +145,7 @@ struct FNebulaEffect : INebula
     unsigned Field30;                                // +0x30 TODO: exclusion state
     Exclusion::NebulaExclusionZoneMgr* ExclusionMgr;  // +0x34
     FNebulaZoneShellMap ZoneShells;                  // +0x38
-    unsigned char MapPadding[0x14 - sizeof(FNebulaZoneShellMap)];
+    unsigned char MapPadding[FL_LAYOUT_PAD(0x14 - sizeof(FNebulaZoneShellMap))];
     unsigned char Pad4C[0x98];                       // +0x4c
     FNebulaEffectCompanion Companion;                // +0xe4
     FNebulaCloudsListStorage Clouds;                  // +0xf4
@@ -158,17 +158,17 @@ struct FNebulaEffect : INebula
 };
 #pragma pack(pop)
 
-static_assert(sizeof(FNebulaEffect) == 0x2d0, "Nebula 0x2d0");
-static_assert(offsetof(FNebulaEffect, Shapes) == 0x04, "Shapes +0x04");
-static_assert(offsetof(FNebulaEffect, FrameDelta) == 0x1c, "FrameDelta +0x1c");
-static_assert(offsetof(FNebulaEffect, Companion) == 0xe4, "Companion +0xe4");
-static_assert(offsetof(FNebulaEffect, Clouds) == 0xf4, "Clouds list +0xf4");
-static_assert(offsetof(FNebulaEffect, Zone) == 0x20, "Zone +0x20");
-static_assert(offsetof(FNebulaEffect, ExclusionMgr) == 0x34, "ExclusionMgr +0x34");
-static_assert(offsetof(FNebulaEffect, ZoneShells) == 0x38, "zone_shell map +0x38");
-static_assert(offsetof(FNebulaEffect, Clouds) + offsetof(FNebulaCloudsListStorage, Sentinel) == 0xf8, "CloudsList +0xf8");
-static_assert(offsetof(FNebulaEffect, FogDistance) == 0x298, "FogDistance +0x298");
-static_assert(offsetof(FNebulaEffect, FlagLoaded) == 0x2c0, "FlagLoaded +0x2c0");
+FL_LAYOUT_ASSERT(sizeof(FNebulaEffect) == 0x2d0, "Nebula 0x2d0");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, Shapes) == 0x04, "Shapes +0x04");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, FrameDelta) == 0x1c, "FrameDelta +0x1c");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, Companion) == 0xe4, "Companion +0xe4");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, Clouds) == 0xf4, "Clouds list +0xf4");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, Zone) == 0x20, "Zone +0x20");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, ExclusionMgr) == 0x34, "ExclusionMgr +0x34");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, ZoneShells) == 0x38, "zone_shell map +0x38");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, Clouds) + offsetof(FNebulaCloudsListStorage, Sentinel) == 0xf8, "CloudsList +0xf8");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, FogDistance) == 0x298, "FogDistance +0x298");
+FL_LAYOUT_ASSERT(offsetof(FNebulaEffect, FlagLoaded) == 0x2c0, "FlagLoaded +0x2c0");
 
 FNebulaEffect* NebulaConstruct(FNebulaEffect* This);
 FNebulaEffect* NebulaCreate();

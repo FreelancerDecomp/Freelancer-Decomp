@@ -44,7 +44,7 @@ CHARACTER_ID G_NoCharacterId;
 // DAT_0067bcf8.
 FCharacterCreateSelection G_CharacterCreateSelection;
 // 0x0056aa8b: REP STOSD with ECX = 0x11 clears DAT_0067bcf8..DAT_0067bd3b, the index included.
-static_assert(sizeof(FCharacterCreateSelection) == 0x44, "DAT_0067bcf8 is 0x11 dwords");
+FL_LAYOUT_ASSERT(sizeof(FCharacterCreateSelection) == 0x44, "DAT_0067bcf8 is 0x11 dwords");
 
 namespace
 {
@@ -687,7 +687,7 @@ void PageCharacterSelect::FillRow(unsigned Row, CCharacterSet::CharacterInfo con
     Data->Release();
 }
 
-bool PageCharacterSelect::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool PageCharacterSelect::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_00569670.
     if (Msg == 0x3004)

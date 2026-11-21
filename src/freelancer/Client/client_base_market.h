@@ -38,7 +38,7 @@ struct FClientMarketGood
     unsigned Field24;
 };
 
-static_assert(sizeof(FClientMarketGood) == 0x28, "the client market value is 0x28 bytes");
+FL_LAYOUT_ASSERT(sizeof(FClientMarketGood) == 0x28, "the client market value is 0x28 bytes");
 
 typedef std::map<unsigned, FClientMarketGood> FClientMarket;
 

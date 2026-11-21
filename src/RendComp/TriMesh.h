@@ -9,6 +9,7 @@
 // TriMesh archetype, face groups and UV animation state.
 
 #include "RendComp.h"
+#include "x64_low_arena.h"
 #include "render/shading.h" // IMaterialLibrary (archetype +0x21C)
 
 #include <cstddef>
@@ -98,6 +99,9 @@ void TriMeshDescFree(FRpVertexSrcDesc* Desc);                                // 
 class FTriMeshArch : public IMesh
 {
 public:
+    // x64: allocated below 2 GB; IRenderComponent::Claim returns the address as an int.
+    FL_LOW_ARENA_NEW
+
     // +0x04: vtable PTR_LAB_06c36134 (4 slots). QI/AddRef/Release are the this-4 thunks
     // LAB_06c27660 / LAB_06c27670 (FUN_06c2b100 = 1); Slot3 is the material hook-up.
     class FHookFacet : public IMatHookUp

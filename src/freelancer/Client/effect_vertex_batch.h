@@ -29,7 +29,7 @@ struct FEffectVertex
     float V;              // +0x14
 };
 
-static_assert(sizeof(FEffectVertex) == 0x18, "Effect vertex stride 0x18");
+FL_LAYOUT_ASSERT(sizeof(FEffectVertex) == 0x18, "Effect vertex stride 0x18");
 
 // Retail object starting at DAT_00674c7c. Methods take this; Effect.cpp uses the
 // global G_EffectVertexBatch.
@@ -58,7 +58,7 @@ struct FEffectVertexBatch
     float V;                      // +0x38  DAT_00674cb4
 };
 
-static_assert(sizeof(FEffectVertexBatch) == 0x3C, "batch object 0x3C");
+FL_LAYOUT_ASSERT(sizeof(FEffectVertexBatch) == 0x3C, "batch object 0x3C");
 
 // DAT_00674c7c — Effect.cpp frame batch for beams / cross-billboards.
 extern FEffectVertexBatch G_EffectVertexBatch;

@@ -175,7 +175,7 @@ struct FNavMapBaseEntry
     int BaseIndex;     // +0x10
     int SystemIndex;   // +0x14
 };
-static_assert(sizeof(FNavMapBaseEntry) == 0x18, "FNavMapBaseEntry is 0x18 bytes");
+FL_LAYOUT_ASSERT(sizeof(FNavMapBaseEntry) == 0x18, "FNavMapBaseEntry is 0x18 bytes");
 
 // One jump link of the universe view (FUN_004976e0: operator new(0x10)). Held by pointer in
 // NeuroNetNavMap::JumpLinks; the list is emptied without freeing them (FUN_004975a0,
@@ -207,7 +207,7 @@ public:
     // slot 9 LAB_0048eba0 (RET 8)
     bool Create(Win3D* NewParent, void* Data) override;
     // slot 23 LAB_004945e0 (RET 0xc) -- 0xef01 show, 0xef02 close and delete.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // --- Event::Handler ---
     // LAB_0049e190 (RET 4) -- 0xf while briefing: tell the MissionBriefing state to continue

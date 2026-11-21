@@ -71,11 +71,11 @@ public:
     ID_String Nickname;      // +0xb4  slot 90: the archetype's nickname
     void* Companion[4];      // +0xb8  effect companion {arch, ISoundSource*, particle, light}
 };
-static_assert(offsetof(FCliDynamicAsteroidGameobj, bActive) == 0xac, "DynamicAsteroid +0xac");
-static_assert(offsetof(FCliDynamicAsteroidGameobj, Alpha) == 0xb0, "DynamicAsteroid +0xb0");
-static_assert(offsetof(FCliDynamicAsteroidGameobj, Nickname) == 0xb4, "DynamicAsteroid +0xb4");
-static_assert(offsetof(FCliDynamicAsteroidGameobj, Companion) == 0xb8, "DynamicAsteroid +0xb8");
-static_assert(sizeof(FCliDynamicAsteroidGameobj) == 0xc8,
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroidGameobj, bActive) == 0xac, "DynamicAsteroid +0xac");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroidGameobj, Alpha) == 0xb0, "DynamicAsteroid +0xb0");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroidGameobj, Nickname) == 0xb4, "DynamicAsteroid +0xb4");
+FL_LAYOUT_ASSERT(offsetof(FCliDynamicAsteroidGameobj, Companion) == 0xb8, "DynamicAsteroid +0xb8");
+FL_LAYOUT_ASSERT(sizeof(FCliDynamicAsteroidGameobj) == 0xc8,
               "DynamicAsteroid sizeof 0xc8 (operator new(0xc8))");
 
 // FUN_005256a0 (thiscall, RET 4) -- the manager constructor over raw operator new(0xe8)

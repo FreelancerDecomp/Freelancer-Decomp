@@ -46,7 +46,7 @@ bool PageOptions::Create(Win3D* NewParent, void* /*Payload*/)
     return true;
 }
 
-bool PageOptions::Slot23(unsigned Msg, unsigned A, unsigned /*B*/)
+bool PageOptions::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t /*B*/)
 {
     // FUN_005736a0.
     if (Msg == 0x3004)

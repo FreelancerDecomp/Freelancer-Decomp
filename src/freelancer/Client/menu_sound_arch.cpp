@@ -25,6 +25,7 @@
 #include "sound_config.h"
 #include "soundstreamer.h"
 #include "x86math.h"
+#include "x87_portable.h" // the x64 forms of the mixer arithmetic below
 #include "common_misc.h"
 #include "game_options.h"   // GetGameOption (FUN_005792b0)
 #include "sound_archetype.h"
@@ -91,13 +92,13 @@ namespace
         char Nickname[64];
     };
 
-    static_assert(offsetof(FClientSoundArch, NicknameId) == 4, "id @ +4");
-    static_assert(offsetof(FClientSoundArch, File) == 8, "file @ +8");
-    static_assert(offsetof(FClientSoundArch, SmArchId) == 0xC, "sm @ +0xC");
-    static_assert(offsetof(FClientSoundArch, RangeMin) == 0x10, "range @ +0x10");
-    static_assert(offsetof(FClientSoundArch, Flags) == 0x18, "flags @ +0x18");
-    static_assert(offsetof(FClientSoundArch, Linked) == 0x24, "linked @ +0x24");
-    static_assert(offsetof(FClientSoundArch, UseCount) == 0x2A, "use @ +0x2A");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, NicknameId) == 4, "id @ +4");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, File) == 8, "file @ +8");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, SmArchId) == 0xC, "sm @ +0xC");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, RangeMin) == 0x10, "range @ +0x10");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, Flags) == 0x18, "flags @ +0x18");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, Linked) == 0x24, "linked @ +0x24");
+    FL_LAYOUT_ASSERT(offsetof(FClientSoundArch, UseCount) == 0x2A, "use @ +0x2A");
 
     struct FSoundSource;
 
@@ -112,7 +113,7 @@ namespace
         FSoundSource* Value;
     };
 
-    static_assert(sizeof(FPlayingSourceNode) == 0xc, "list node 0xc");
+    FL_LAYOUT_ASSERT(sizeof(FPlayingSourceNode) == 0xc, "list node 0xc");
 
     // DAT_00667c6c (the allocator byte) / DAT_00667c70 (head node) / DAT_00667c74 (size). The
     // constructor is the static initializer LAB_004278a0, the destructor its atexit handler
@@ -223,14 +224,14 @@ namespace
         FPlayingSourceNode* ListNode; // +0x2C  this source's node in DAT_00667c70, null when idle
     };
 
-    static_assert(offsetof(FSoundSource, Flags) == 0xC, "src flags @ +0xC");
-    static_assert(offsetof(FSoundSource, Pitch) == 0x10, "src pitch @ +0x10");
-    static_assert(offsetof(FSoundSource, Arch) == 0x18, "src arch @ +0x18");
-    static_assert(offsetof(FSoundSource, AttenuationDb) == 0x1C, "src dB @ +0x1C");
-    static_assert(offsetof(FSoundSource, Pan) == 0x20, "src pan @ +0x20");
-    static_assert(offsetof(FSoundSource, RefCount) == 0x24, "src ref @ +0x24");
-    static_assert(offsetof(FSoundSource, ListNode) == 0x2C, "src list @ +0x2C");
-    static_assert(sizeof(FSoundSource) == 0x30, "Sound::Source is 0x30 (pool DAT_00667a44)");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, Flags) == 0xC, "src flags @ +0xC");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, Pitch) == 0x10, "src pitch @ +0x10");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, Arch) == 0x18, "src arch @ +0x18");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, AttenuationDb) == 0x1C, "src dB @ +0x1C");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, Pan) == 0x20, "src pan @ +0x20");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, RefCount) == 0x24, "src ref @ +0x24");
+    FL_LAYOUT_ASSERT(offsetof(FSoundSource, ListNode) == 0x2C, "src list @ +0x2C");
+    FL_LAYOUT_ASSERT(sizeof(FSoundSource) == 0x30, "Sound::Source is 0x30 (pool DAT_00667a44)");
 
     // DAT_00667cc0 -- SoundArch.cpp's archetype registry: a VC6 std::set<SoundArch> ordered by
     // the nickname id at +0x04 (unsigned: FUN_0042c300 0x0042c320 CMP [node+0x10] / JNC), head
@@ -298,9 +299,9 @@ namespace
         unsigned char Pad3D[3];
     };
 
-    static_assert(offsetof(FStreamedSource, StreamHandle) == 0x30, "streamed @ +0x30");
-    static_assert(offsetof(FStreamedSource, bFadeOut) == 0x3C, "fade-out @ +0x3C");
-    static_assert(sizeof(FStreamedSource) == 0x40, "Sound::StreamedSource is 0x40 (pool DAT_00667a24)");
+    FL_LAYOUT_ASSERT(offsetof(FStreamedSource, StreamHandle) == 0x30, "streamed @ +0x30");
+    FL_LAYOUT_ASSERT(offsetof(FStreamedSource, bFadeOut) == 0x3C, "fade-out @ +0x3C");
+    FL_LAYOUT_ASSERT(sizeof(FStreamedSource) == 0x40, "Sound::StreamedSource is 0x40 (pool DAT_00667a24)");
 
     // DAT_00667cb0 / DAT_00667cb4 -- the background music and ambience. FUN_004288e0 stores the
     // __RTDynamicCast of its play handle to Sound::StreamedSource here.
@@ -343,6 +344,7 @@ namespace
                 float Y;
                 float Z;
                 // Only the Z product is rounded to float before adding the old position.
+#if defined(_M_IX86)
                 __asm
                 {
                     mov eax, Position
@@ -362,6 +364,15 @@ namespace
                     fadd dword ptr [eax + 8]
                     fstp Z
                 }
+#else
+                // 53-bit precision outside the scene (docs/x64.md, "Client precision").
+                const double XStep = static_cast<double>(DeltaSeconds) * Position[6];
+                const double YStep = static_cast<double>(DeltaSeconds) * Position[7];
+                ZStep = static_cast<float>(static_cast<double>(DeltaSeconds) * Position[8]);
+                X = static_cast<float>(XStep + Position[0]);
+                Y = static_cast<float>(YStep + Position[1]);
+                Z = static_cast<float>(static_cast<double>(ZStep) + Position[2]);
+#endif
                 Spatial[0] = X;
                 Spatial[1] = Y;
                 Spatial[2] = Z;
@@ -375,9 +386,9 @@ namespace
         int Source3dId;    // +0x60  attached engine instance, -1 = free
     };
 
-    static_assert(offsetof(FSpatialSource, Spatial) == 0x30, "3d block @ +0x30");
-    static_assert(offsetof(FSpatialSource, Source3dId) == 0x60, "attach @ +0x60");
-    static_assert(sizeof(FSpatialSource) == 0x64, "Sound::Source3D is 0x64 (pool DAT_00667a34)");
+    FL_LAYOUT_ASSERT(offsetof(FSpatialSource, Spatial) == 0x30, "3d block @ +0x30");
+    FL_LAYOUT_ASSERT(offsetof(FSpatialSource, Source3dId) == 0x60, "attach @ +0x60");
+    FL_LAYOUT_ASSERT(sizeof(FSpatialSource) == 0x64, "Sound::Source3D is 0x64 (pool DAT_00667a34)");
 
     // --- Sound.cpp globals ---
 
@@ -1326,12 +1337,16 @@ namespace
             float SourceDb = AttenuationDb;
             float CombinedDb;
             // Retail rounds this sum to float, but keeps the following category sum in x87.
+#if defined(_M_IX86)
             __asm
             {
                 fild ArchDb
                 fadd SourceDb
                 fstp CombinedDb
             }
+#else
+            CombinedDb = static_cast<float>(static_cast<double>(ArchDb) + SourceDb);
+#endif
             float Base = 0.f;
             float ModeDb = 0.f;
             bool bDuck = false;
@@ -1366,6 +1381,7 @@ namespace
                 break;
             }
             unsigned char bSilent;
+#if defined(_M_IX86)
             __asm
             {
                 fld Base
@@ -1380,6 +1396,14 @@ namespace
                 test ah, 41h
                 setnp bSilent
             }
+#else
+            double Sum = Base;
+            if (bDuck)
+                Sum = Sum + G_DuckCurrentDb;
+            Sum = Sum + ModeDb;
+            Sum = Sum + CombinedDb;
+            bSilent = X87TestParityEven(X87CompareStatus(Sum, kSilenceDb), 0x41) ? 0 : 1;
+#endif
             if (bSilent != 0)
             {
                 MixerScale = kMixerNoScore;
@@ -1397,6 +1421,7 @@ namespace
         GetPosition(&Pos);
         float DistSq;
         // No intermediate float stores: retail adds Z squared, Y squared, then X squared.
+#if defined(_M_IX86)
         __asm
         {
             mov eax, Listener
@@ -1420,11 +1445,20 @@ namespace
             fstp st(0)
             fstp st(0)
         }
+#else
+        {
+            const double DX = static_cast<double>(Listener[0]) - Pos.X;
+            const double DY = static_cast<double>(Listener[1]) - Pos.Y;
+            const double DZ = static_cast<double>(Listener[2]) - Pos.Z;
+            DistSq = static_cast<float>(DZ * DZ + DY * DY + DX * DX);
+        }
+#endif
 
         float MaxRange;
         if (GetMaxDistance(&MaxRange) == GR_OK)
         {
             unsigned char bOutside;
+#if defined(_M_IX86)
             __asm
             {
                 fld MaxRange
@@ -1434,6 +1468,10 @@ namespace
                 test ah, 5
                 setnp bOutside
             }
+#else
+            const double MaxRangeSq = static_cast<double>(MaxRange) * MaxRange;
+            bOutside = X87TestParityEven(X87CompareStatus(MaxRangeSq, DistSq), 5) ? 0 : 1;
+#endif
             if (bOutside != 0)
             {
                 MixerScale = kMixerNoScore;
@@ -1454,6 +1492,7 @@ namespace
         double const Ten = 10.0;
         float Score;
         // A float inverse-sqrt intermediate or libm log10 changes retail's final rounding.
+#if defined(_M_IX86)
         __asm
         {
             fld MinRange
@@ -1471,6 +1510,15 @@ namespace
             fstp st(1)
             fstp Score
         }
+#else
+        double InvSqrt = static_cast<double>(Guess) * Guess;
+        InvSqrt = InvSqrt * DistSq;
+        InvSqrt = InvSqrt * Half;
+        InvSqrt = ThreeHalves - InvSqrt;
+        InvSqrt = InvSqrt * Guess;
+        const double Ratio = InvSqrt * MinRange;
+        Score = static_cast<float>(X87Log10(Ratio) * Ten);
+#endif
         MixerScale = Score;
     }
 
@@ -2406,8 +2454,8 @@ namespace
         Archetype::ISound* EmitterArch; // retail +0x64
     };
 
-    static_assert(offsetof(FEquipSoundEmitter, EmitterArch) == 0x64, "emitter arch @ +0x64");
-    static_assert(sizeof(FEquipSoundEmitter) == 0x68, "engine emitter is 0x68");
+    FL_LAYOUT_ASSERT(offsetof(FEquipSoundEmitter, EmitterArch) == 0x64, "emitter arch @ +0x64");
+    FL_LAYOUT_ASSERT(sizeof(FEquipSoundEmitter) == 0x68, "engine emitter is 0x68");
 
     // CliThrusterSound (RTTI .?AVCliThrusterSound@@, vtable 005ddbfc): a Sound::Source (base
     // ctor FUN_00429040(1)) grown to 0x50 (Heap FUN_00428f80(0x50) / FUN_00428fc0(this, 0x50)).
@@ -2495,9 +2543,9 @@ namespace
         Archetype::ISound* ExteriorArch; // retail +0x4c  EXTERIOR_SOUND_NAME
     };
 
-    static_assert(offsetof(FThrusterSoundSource, Ship) == 0x30, "thruster ship @ +0x30");
-    static_assert(offsetof(FThrusterSoundSource, bExterior) == 0x44, "thruster mode @ +0x44");
-    static_assert(sizeof(FThrusterSoundSource) == 0x50, "CliThrusterSound is 0x50");
+    FL_LAYOUT_ASSERT(offsetof(FThrusterSoundSource, Ship) == 0x30, "thruster ship @ +0x30");
+    FL_LAYOUT_ASSERT(offsetof(FThrusterSoundSource, bExterior) == 0x44, "thruster mode @ +0x44");
+    FL_LAYOUT_ASSERT(sizeof(FThrusterSoundSource) == 0x50, "CliThrusterSound is 0x50");
 
     // FUN_0042ae40 on one of the ThrusterEquipConsts ID_Strings.
     Archetype::ISound* ThrusterLookupArch(ID_String const& Name)
