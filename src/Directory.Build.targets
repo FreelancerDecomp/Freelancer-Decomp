@@ -119,4 +119,30 @@
     <Warning Text="AddressSanitizer runtime DLLs not found under $(VCToolsInstallDir)bin\Hostx86\x86 or Hostx64\x86."
              Condition="'$(FlASanRtDir)'==''" />
   </Target>
+  <!-- Precompiled header for the three largest projects: fl_pch.h (Windows SDK and standard
+       library headers only, see the file) is forced in front of every source file and compiled
+       once per project, by pch/fl_pch.cpp. The Win32 code it produces is the same as without it
+       (see fl_pch.h before changing the header list). Files that define WIN32_LEAN_AND_MEAN or NOMINMAX before <windows.h> opt out, as
+       do the Ipion sources Common builds (third-party code that mostly does without <windows.h>). -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)'=='Common' or '$(MSBuildProjectName)'=='freelancer' or '$(MSBuildProjectName)'=='Content'">
+    <FlPch>$(MSBuildThisFileDirectory)pch\fl_pch.h</FlPch>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(FlPch)'!=''">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(FlPch)</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)fl_pch.pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>$(FlPch);%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(FlPch)'!=''">
+    <ClCompile Include="$(MSBuildThisFileDirectory)pch\fl_pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Update="..\IVP\**\*.cpp;common_misc.cpp;common_mpcritsec.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <!-- Only Directory.Build.props's forced include, without fl_pch.h. -->
+      <ForcedIncludeFiles>fl_layout.h</ForcedIncludeFiles>
+    </ClCompile>
+  </ItemGroup>
 </Project>
