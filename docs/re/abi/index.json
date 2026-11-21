@@ -13826,9 +13826,9 @@
    "file": "src/Common/common_behavior.h",
    "kind": "class",
    "line": 538,
-   "module": "(public)",
+   "module": "Common",
    "name": "Behavior",
-   "public": true,
+   "public": false,
    "slots": [
     {
      "derived": false,
@@ -14029,9 +14029,9 @@
    "file": "src/Common/common_behavior.h",
    "kind": "class",
    "line": 876,
-   "module": "(public)",
+   "module": "Common",
    "name": "BaseFollowerBehavior",
-   "public": true,
+   "public": false,
    "slots": [
     {
      "derived": true,
@@ -17669,9 +17669,9 @@
    "file": "src/Common/common_idea.h",
    "kind": "class",
    "line": 181,
-   "module": "(public)",
+   "module": "Common",
    "name": "BaseIdea",
-   "public": true,
+   "public": false,
    "slots": [
     {
      "derived": true,
@@ -24039,9 +24039,9 @@
    "file": "src/freelancer/Client/font.h",
    "kind": "class",
    "line": 17,
-   "module": "(public)",
+   "module": "freelancer",
    "name": "IFont",
-   "public": true,
+   "public": false,
    "slots": [
     {
      "derived": false,
@@ -28806,9 +28806,9 @@
    "file": "src/Server/server_basedb.h",
    "kind": "class",
    "line": 123,
-   "module": "(public)",
+   "module": "Server",
    "name": "BroadcastRecord",
-   "public": true,
+   "public": false,
    "slots": [
     {
      "derived": true,
@@ -38820,19 +38820,19 @@
   {
    "file": "src/Common/common_behavior.h",
    "line": 12,
-   "module": "(public)",
+   "module": "Common",
    "name": "IObjDB"
   },
   {
    "file": "src/Common/common_behavior.h",
    "line": 399,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManagerTimerTable"
   },
   {
    "file": "src/Common/common_behavior.h",
    "line": 874,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManager"
   },
   {
@@ -39036,13 +39036,13 @@
   {
    "file": "src/Common/common_evadebehavior.h",
    "line": 10,
-   "module": "(public)",
+   "module": "Common",
    "name": "IObjRW"
   },
   {
    "file": "src/Common/common_facebehavior.h",
    "line": 17,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManager"
   },
   {
@@ -39096,13 +39096,13 @@
   {
    "file": "src/Common/common_idea.h",
    "line": 15,
-   "module": "(public)",
+   "module": "Common",
    "name": "ICRSplineSegment"
   },
   {
    "file": "src/Common/common_idea.h",
    "line": 16,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManager"
   },
   {
@@ -39246,19 +39246,19 @@
   {
    "file": "src/Common/common_lootbehavior.h",
    "line": 10,
-   "module": "(public)",
+   "module": "Common",
    "name": "IBehaviorManager"
   },
   {
    "file": "src/Common/common_lootbehavior.h",
    "line": 11,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManager"
   },
   {
    "file": "src/Common/common_lootbehavior.h",
    "line": 12,
-   "module": "(public)",
+   "module": "Common",
    "name": "IObjRW"
   },
   {
@@ -39618,7 +39618,7 @@
   {
    "file": "src/Common/common_strafebehavior.h",
    "line": 10,
-   "module": "(public)",
+   "module": "Common",
    "name": "IObjInspect"
   },
   {
@@ -39768,19 +39768,19 @@
   {
    "file": "src/Common/common_trailbehavior.h",
    "line": 10,
-   "module": "(public)",
+   "module": "Common",
    "name": "IBehaviorManager"
   },
   {
    "file": "src/Common/common_trailbehavior.h",
    "line": 11,
-   "module": "(public)",
+   "module": "Common",
    "name": "SystemManager"
   },
   {
    "file": "src/Common/common_trailbehavior.h",
    "line": 12,
-   "module": "(public)",
+   "module": "Common",
    "name": "IObjRW"
   },
   {
@@ -39852,13 +39852,13 @@
   {
    "file": "src/freelancer/Client/font.h",
    "line": 14,
-   "module": "(public)",
+   "module": "freelancer",
    "name": "tagLOGFONTA"
   },
   {
    "file": "src/freelancer/Client/font.h",
    "line": 15,
-   "module": "(public)",
+   "module": "freelancer",
    "name": "HFONT__"
   },
   {
@@ -39882,25 +39882,25 @@
   {
    "file": "src/RemoteServer/network.h",
    "line": 12,
-   "module": "(public)",
+   "module": "RemoteServer",
    "name": "IClient"
   },
   {
    "file": "src/RemoteServer/network.h",
    "line": 13,
-   "module": "(public)",
+   "module": "RemoteServer",
    "name": "IChatClient"
   },
   {
    "file": "src/RemoteServer/network.h",
    "line": 14,
-   "module": "(public)",
+   "module": "RemoteServer",
    "name": "IServer"
   },
   {
    "file": "src/RemoteServer/network.h",
    "line": 15,
-   "module": "(public)",
+   "module": "RemoteServer",
    "name": "IChatServer"
   },
   {
@@ -40320,19 +40320,19 @@
   {
    "file": "src/Server/server_basedb.h",
    "line": 8,
-   "module": "(public)",
+   "module": "Server",
    "name": "BaseData"
   },
   {
    "file": "src/Server/server_basedb.h",
    "line": 9,
-   "module": "(public)",
+   "module": "Server",
    "name": "RoomData"
   },
   {
    "file": "src/Server/server_basedb.h",
    "line": 10,
-   "module": "(public)",
+   "module": "Server",
    "name": "FmtStr"
   },
   {
@@ -40350,31 +40350,31 @@
   {
    "file": "src/Server/server_cship.h",
    "line": 15,
-   "module": "(public)",
+   "module": "Server",
    "name": "FPhySysController"
   },
   {
    "file": "src/Server/server_cship.h",
    "line": 16,
-   "module": "(public)",
+   "module": "Server",
    "name": "FCSteering"
   },
   {
    "file": "src/Server/server_cship.h",
    "line": 17,
-   "module": "(public)",
+   "module": "Server",
    "name": "FCNudgeEngine"
   },
   {
    "file": "src/Server/server_cship.h",
    "line": 18,
-   "module": "(public)",
+   "module": "Server",
    "name": "FCStrafeEngine"
   },
   {
    "file": "src/Server/server_cship.h",
    "line": 19,
-   "module": "(public)",
+   "module": "Server",
    "name": "FActionDB"
   },
   {
@@ -40410,7 +40410,7 @@
   {
    "file": "src/Server/server_savegame.h",
    "line": 109,
-   "module": "(public)",
+   "module": "Server",
    "name": "CCharacterSet"
   },
   {
