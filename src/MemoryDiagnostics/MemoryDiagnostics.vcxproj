@@ -8,6 +8,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{026B37B1-182F-4D90-A4DB-F298230734D2}</ProjectGuid>
+    <FlModuleKind>tool</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MemoryDiagnostics</RootNamespace>
   </PropertyGroup>

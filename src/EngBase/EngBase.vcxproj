@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{B4E8A017-3C5D-4F21-9A86-E7D1C0B4A592}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>EngBase</RootNamespace>
   </PropertyGroup>

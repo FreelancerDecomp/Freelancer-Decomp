@@ -18,6 +18,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{40DEA8B4-C728-4E53-B178-DFBC3F77A534}</ProjectGuid>
+    <FlModuleKind>tool</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FLRegress</RootNamespace>
   </PropertyGroup>

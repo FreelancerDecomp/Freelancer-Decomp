@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C4E8A1B2-7D3F-4A90-9B1C-5E6F0A2D8C17}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>flmaterials</RootNamespace>
   </PropertyGroup>

@@ -17,6 +17,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{A3C49D2C-9E49-4C76-88CE-579F7126E6FF}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>MFCProj</Keyword>
     <RootNamespace>FLServer</RootNamespace>
   </PropertyGroup>

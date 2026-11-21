@@ -25,6 +25,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{D3E4F5A6-B7C8-4D90-8E12-3F4A5B6C7D8E}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>imeui</RootNamespace>
   </PropertyGroup>

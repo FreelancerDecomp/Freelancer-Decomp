@@ -18,6 +18,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{F5B79638-C977-4E81-BD1B-11325F3F0F59}</ProjectGuid>
+    <FlModuleKind>port</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FLDedicated</RootNamespace>
   </PropertyGroup>

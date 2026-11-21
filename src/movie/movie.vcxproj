@@ -17,6 +17,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{ABEDC862-E944-9257-C6D9-CF679785D867}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>movie</RootNamespace>
   </PropertyGroup>

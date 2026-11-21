@@ -17,6 +17,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{2E2460CC-3158-46C3-A5F3-445D2D6C6401}</ProjectGuid>
+    <FlModuleKind>port</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RP9</RootNamespace>
   </PropertyGroup>
