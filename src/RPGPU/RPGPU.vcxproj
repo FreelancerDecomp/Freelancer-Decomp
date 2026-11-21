@@ -25,9 +25,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{78A3AD01-32FA-4C8B-B48B-C5E137A6E5F0}</ProjectGuid>
+    <FlModuleKind>port</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RPGPU</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!-- RPGPU: the port-only SDL3 + SDL_GPU render pipeline (docs/re/rpgpu.md), built with
@@ -77,9 +77,11 @@
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClCompile Include="RpGpu.cpp" />
     <ClCompile Include="RpGpuDevice.cpp" />
+    <ClCompile Include="RpGpuNullBackend.cpp" />
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClInclude Include="RpGpu.h" />
+    <ClInclude Include="RpGpuBackend.h" />
     <ClInclude Include="RpGpuDevice.h" />
   </ItemGroup>
   <ItemGroup>

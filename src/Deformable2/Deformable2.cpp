@@ -2723,10 +2723,10 @@ static I3DMathEngine* AcquireMathEngine()
     if (G_MathEngine != nullptr)
         return G_MathEngine;
     ICOManager* Manager = DACOM_Acquire();
-    FIkMathDesc Desc;
+    FMathDesc Desc;
     Desc.Size = 0xC;
-    Desc.Name = G_Name3DMathEngine;
-    Desc.Extra = nullptr;
+    Desc.InterfaceName = G_Name3DMathEngine;
+    Desc.Implementation = nullptr;
     void* Instance = nullptr;
     Manager->CreateInstance((AGGDESC*)(&Desc), &Instance);
     G_MathEngine = (I3DMathEngine*)Instance;
@@ -4694,9 +4694,9 @@ static void ApplyParsedRate(unsigned long Rate)
 }
 
 // FUN_065f1900 (thiscall on the component, RET 4: Desc), 065f1900..1be5.
-static GENRESULT ApplyCreateInstanceInit(FDeformableObject* Object, FAggDesc18* Desc)
+static GENRESULT ApplyCreateInstanceInit(FDeformableObject* Object, FAGGDESC18* Desc)
 {
-    G_System = Desc->SystemAt14;
+    G_System = Desc->SystemContainer;
     if (G_System == nullptr)
         return GR_GENERIC;
 
@@ -6218,8 +6218,8 @@ static GENRESULT DACOM_API FactoryCreateInstance(FDeformableFactory* This, AGGDE
     // FUN_065f22f0 (RET 0xC), 065f22f0..23fb. Size != 0x18 or strcmp(desc+4, factory+8) != 0
     // -> *Out = 0, 0xFFFFFFFD. operator new(0x18) (VC6 MSVCRT: null on failure, tested at
     // 065f2352) null -> *Out = 0, 0xFFFFFFFC. No test of This, Desc, Out or either name.
-    FAggDesc18* Extended = (FAggDesc18*)Desc;
-    if (Extended->Size != 0x18 || std::strcmp(Extended->NameAt4, This->Name) != 0)
+    FAGGDESC18* Extended = (FAGGDESC18*)Desc;
+    if (Extended->Size != 0x18 || std::strcmp(Extended->Name, This->Name) != 0)
     {
         *Out = nullptr;
         return GR_INTERFACE_UNSUPPORTED;
@@ -6243,7 +6243,7 @@ static GENRESULT DACOM_API FactoryCreateInstance(FDeformableFactory* This, AGGDE
     else
     {
         // 065f23c5: *InnerOut = &inner with no test (only the failure path tests it).
-        Object->Controlling = (IDAComponent*)Extended->Outer;
+        Object->Controlling = Extended->Outer;
         *Extended->InnerOut = InnerUnknown;
     }
 

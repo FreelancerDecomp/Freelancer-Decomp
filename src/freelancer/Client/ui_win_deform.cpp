@@ -16,6 +16,7 @@
 #include "win_factory.h"
 
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "common_reputation.h" // GetCostumeDescriptions, CostumeDescriptions, Costume
 #include "dacom.h"             // FDUMP
 #include "engine/engbase.h"    // IDeformable

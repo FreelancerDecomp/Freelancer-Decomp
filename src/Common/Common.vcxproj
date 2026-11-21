@@ -25,9 +25,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Common</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -54,10 +54,6 @@
     <ClCompile>
       <PreprocessorDefinitions>COMMON_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4251;4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <!-- /sdl makes the compiler give every dllexport class an exported
-           __autoclassinit2 member. Retail Common.dll exports none, and the
-           module exports exactly the names retail exports. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>
@@ -92,7 +88,7 @@
     <ClInclude Include="..\include\common_archetype.h" />
     <ClInclude Include="..\include\common_universe.h" />
     <ClInclude Include="..\include\common_spatial.h" />
-    <ClInclude Include="..\include\common_zone.h" />
+    <ClInclude Include="common_zone.h" />
     <ClInclude Include="..\include\common_goods.h" />
     <ClInclude Include="..\include\common_reputation.h" />
     <ClInclude Include="..\include\common_fuses.h" />
@@ -113,30 +109,30 @@
     <ClInclude Include="..\include\common_systemmanager.h" />
     <ClInclude Include="..\include\common_pub.h" />
     <ClInclude Include="..\include\common_aisteer.h" />
-    <ClInclude Include="..\include\common_iustategraph.h" />
-    <ClInclude Include="..\include\common_idea.h" />
+    <ClInclude Include="common_iustategraph.h" />
+    <ClInclude Include="common_idea.h" />
     <ClInclude Include="..\include\common_misc.h" />
-    <ClInclude Include="..\include\common_behavior.h" />
-    <ClInclude Include="..\include\common_dockbehavior.h" />
-    <ClInclude Include="..\include\common_buzzbehavior.h" />
-    <ClInclude Include="..\include\common_itlbehavior.h" />
-    <ClInclude Include="..\include\common_idlebehavior.h" />
-    <ClInclude Include="..\include\common_followbehavior.h" />
-    <ClInclude Include="..\include\common_drasticevadebehavior.h" />
-    <ClInclude Include="..\include\common_evadebehavior.h" />
-    <ClInclude Include="..\include\common_trailbehavior.h" />
-    <ClInclude Include="..\include\common_launchbehavior.h" />
-    <ClInclude Include="..\include\common_cruisebehavior.h" />
-    <ClInclude Include="..\include\common_lootbehavior.h" />
-    <ClInclude Include="..\include\common_nullbehavior.h" />
-    <ClInclude Include="..\include\common_strafebehavior.h" />
-    <ClInclude Include="..\include\common_delaybehavior.h" />
-    <ClInclude Include="..\include\common_fleebehavior.h" />
-    <ClInclude Include="..\include\common_gotobehavior.h" />
-    <ClInclude Include="..\include\common_freeflightbehavior.h" />
-    <ClInclude Include="..\include\common_facebehavior.h" />
-    <ClInclude Include="..\include\common_guidebehavior.h" />
-    <ClInclude Include="..\include\common_largeshipbehavior.h" />
+    <ClInclude Include="common_behavior.h" />
+    <ClInclude Include="common_dockbehavior.h" />
+    <ClInclude Include="common_buzzbehavior.h" />
+    <ClInclude Include="common_itlbehavior.h" />
+    <ClInclude Include="common_idlebehavior.h" />
+    <ClInclude Include="common_followbehavior.h" />
+    <ClInclude Include="common_drasticevadebehavior.h" />
+    <ClInclude Include="common_evadebehavior.h" />
+    <ClInclude Include="common_trailbehavior.h" />
+    <ClInclude Include="common_launchbehavior.h" />
+    <ClInclude Include="common_cruisebehavior.h" />
+    <ClInclude Include="common_lootbehavior.h" />
+    <ClInclude Include="common_nullbehavior.h" />
+    <ClInclude Include="common_strafebehavior.h" />
+    <ClInclude Include="common_delaybehavior.h" />
+    <ClInclude Include="common_fleebehavior.h" />
+    <ClInclude Include="common_gotobehavior.h" />
+    <ClInclude Include="common_freeflightbehavior.h" />
+    <ClInclude Include="common_facebehavior.h" />
+    <ClInclude Include="common_guidebehavior.h" />
+    <ClInclude Include="common_largeshipbehavior.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common_tractorarm.cpp" />

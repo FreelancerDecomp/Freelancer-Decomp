@@ -14,17 +14,6 @@
 
 // VMeshWire.cpp of retail rendcomp.dll (06c2f4e0..06c308b0).
 
-// The 0x18 AGGDESC the factory accepts (LAB_06c2f4e0).
-struct FWireAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;       // +0x08
-    IDAComponent** InnerOut;   // +0x0C
-    const char* Value;
-    IDAComponent* Parent;
-};
-
 // The per-archetype wrapper, 0xC bytes: {vtable PTR_LAB_06c365a4, VWireData blob, refcount}.
 class FVmeshWireInstance : public IVMeshWire
 {
@@ -383,7 +372,7 @@ int DACOM_API FVMeshWire::QueryInstance(void* Instance, const char* Iid, void** 
 // when set the inner goes to *(AGGDESC+0xC), otherwise the object is its own outer.
 GENRESULT DACOM_API VMeshWireFactoryCreate(FDacomFactory* This, AGGDESC* Desc, void** Out)
 {
-    FWireAggDesc* Extended = (FWireAggDesc*)Desc;
+    FAGGDESC18* Extended = (FAGGDESC18*)Desc;
     if (Extended->Size != 0x18 || std::strcmp(Extended->Name, This->Name) != 0)
     {
         *Out = nullptr;

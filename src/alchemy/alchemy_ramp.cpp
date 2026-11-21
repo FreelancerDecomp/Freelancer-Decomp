@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "alchemy_ramp.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "alchemy_common.h"
 #include "alchemy_appearances.h"
@@ -28,15 +29,6 @@ namespace AlchemyImpl
     }
 
     // ---- Shared helpers ---------------------------------------------------------------
-
-    // MSVCRT ftol: truncation toward zero of the x87 value, low 32 bits of the 64-bit
-    // result (a NaN or an out-of-range value gives 0x80000000'00000000, low half 0).
-    // The value arrives unrounded from the x87 stack; the process runs at 53-bit
-    // precision control (exe DAT_00610848 = 0x35), so the port passes a double.
-    static long RampFtol(double Value)
-    {
-        return static_cast<long>(static_cast<long long>(Value));
-    }
 
     // SetMode's CPUID test (06242930 / 06241c0a): `MOV EAX,1; CPUID; TEST EDX,0x2000000`
     // -- bit 25, SSE. Executed on every SetMode call, as retail does.
@@ -144,7 +136,7 @@ namespace AlchemyImpl
     // and B; the top byte comes out 0. The weight never leaves the x87 stack, hence double.
     static unsigned long RampColorBlend(unsigned long A, unsigned long B, double Weight)
     {
-        const long W = RampFtol(Weight * kRamp255);
+        const long W = MsvcrtFtol(Weight * kRamp255);
         const long RedA = static_cast<long>((A >> 16) & 0xFF);
         const long GreenA = static_cast<long>((A >> 8) & 0xFF);
         const long BlueA = static_cast<long>(A & 0xFF);
@@ -257,13 +249,13 @@ namespace AlchemyImpl
     static unsigned long RampPackRgb(const float* Rgb)
     {
         const unsigned long Green =
-            static_cast<unsigned long>(RampFtol(static_cast<double>(Rgb[1]) * kRamp255));
+            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[1]) * kRamp255));
         const unsigned long Red =
-            static_cast<unsigned long>(RampFtol(static_cast<double>(Rgb[0]) * kRamp255));
+            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[0]) * kRamp255));
         unsigned long Packed = Green | (Red << 8);
         Packed <<= 8;
         const unsigned long Blue =
-            static_cast<unsigned long>(RampFtol(static_cast<double>(Rgb[2]) * kRamp255));
+            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[2]) * kRamp255));
         return Packed | Blue;
     }
 
@@ -1332,7 +1324,7 @@ namespace AlchemyImpl
 
         const unsigned long Next = Keys_.At(Index + 1).Value->EvalPacked(InnerTime);
         const unsigned long Floor = Keys_.At(Index).Value->EvalPacked(InnerTime);
-        const long W = RampFtol(static_cast<double>(InnerTime) * kRamp255);
+        const long W = MsvcrtFtol(static_cast<double>(InnerTime) * kRamp255);
         const long RedNext = static_cast<long>((Next >> 16) & 0xFF);
         const long GreenNext = static_cast<long>((Next >> 8) & 0xFF);
         const long BlueNext = static_cast<long>(Next & 0xFF);
@@ -1970,7 +1962,7 @@ namespace AlchemyImpl
             double Q = static_cast<double>(RelF) / Span;
             if (Q < 0.0f)
                 Q = Q - 1.0f;
-            const float N = static_cast<float>(RampFtol(Q));
+            const float N = static_cast<float>(MsvcrtFtol(Q));
             switch (Mode)
             {
             case 1:
@@ -1981,7 +1973,7 @@ namespace AlchemyImpl
                 Offset = static_cast<float>((static_cast<double>(Vl) - V0) * N);
                 break;
             case 3:
-                if ((RampFtol(N) & 1) == 0)
+                if ((MsvcrtFtol(N) & 1) == 0)
                     Time = static_cast<float>(static_cast<double>(Fm) + Tl);
                 else
                     Time = static_cast<float>(static_cast<double>(T0) - Fm);
@@ -2003,7 +1995,7 @@ namespace AlchemyImpl
             double Q = static_cast<double>(RelF) / Span;
             if (Q < 0.0f)
                 Q = Q - 1.0f;
-            const float N = static_cast<float>(RampFtol(Q));
+            const float N = static_cast<float>(MsvcrtFtol(Q));
             switch (Mode)
             {
             case 0x10:
@@ -2014,7 +2006,7 @@ namespace AlchemyImpl
                 Offset = static_cast<float>((static_cast<double>(Vl) - V0) * N);
                 break;
             case 0x30:
-                if ((RampFtol(N) & 1) == 0)
+                if ((MsvcrtFtol(N) & 1) == 0)
                     Time = static_cast<float>(static_cast<double>(Fm) + T0);
                 else
                     Time = static_cast<float>(static_cast<double>(Tl) - Fm);
@@ -2026,7 +2018,7 @@ namespace AlchemyImpl
             }
         }
 
-        const long Guess = RampFtol((static_cast<double>(Time) - T0) / Span * Last);
+        const long Guess = MsvcrtFtol((static_cast<double>(Time) - T0) / Span * Last);
         const FKey* Probe = Begin + Guess;
         const FKey* SegmentA = nullptr;
         const FKey* SegmentB = nullptr;

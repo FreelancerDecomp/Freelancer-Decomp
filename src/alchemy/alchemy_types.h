@@ -31,19 +31,7 @@ namespace AlchemyImpl
     using ::IFxEffectLibrary;
     using ::IFxEffect;
 
-    struct FAggDesc8
-    {
-        unsigned long Size;
-        const char* NameAt4;
-    };
-
-    struct FAggDesc14
-    {
-        unsigned long Size;
-        const char* NameAt4;
-        void* InnerAt8;
-        void** WritebackAtC;
-    };
+    // The DACOM aggregate descriptors (AGGDESC, FAGGDESC14) are in dacom.h.
 
     // FxEffect initialization is not a DACOM aggregation descriptor.
     struct FFxEffectCreateDesc

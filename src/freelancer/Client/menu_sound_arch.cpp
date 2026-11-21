@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "menu_sound_arch.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "perf_options.h"
 
@@ -642,15 +643,6 @@ namespace
         *OutMode = ModeDb;
     }
 
-    // The low dword of MSVCRT ftol's 64-bit truncation: a value outside the int64 range (NaN
-    // included) is the integer indefinite 0x8000000000000000, whose low dword is 0.
-    long FtolLow32(double Value)
-    {
-        if (Value >= -9223372036854775808.0 && Value < 9223372036854775808.0)
-            return static_cast<long>(static_cast<long long>(Value));
-        return 0;
-    }
-
     // LAB_0044fce0 -- slot 0 of all three source tables is `MOV EAX,0xfffffff9; RET 0xC`: a
     // source answers no interface query and writes nothing to Out. (The port used to hand back
     // this with an AddRef.)
@@ -902,12 +894,6 @@ namespace
         return GR_OK;
     }
 
-    // ftol() truncates toward zero.
-    int Ftol(float Value)
-    {
-        return static_cast<int>(Value);
-    }
-
     // The cone gate every Source3D cone getter opens with (00429ec0 / 00429f20 / 00429f60):
     // +0x54 FCOMP 0 / TEST AH,0x41 / JZ: above 0 (ordered) passes; otherwise +0x58 FCOMP 360.0f
     // (DAT_005ca23c) / TEST AH,0x5 / JP: >= 360 or unordered fails, below 360 passes. So a
@@ -924,8 +910,8 @@ namespace
     {
         if (!SourceHasCone(this))
             return kGrNoValue;
-        *Inside = static_cast<unsigned long>(Ftol(Spatial[9]));
-        *Outside = static_cast<unsigned long>(Ftol(Spatial[10]));
+        *Inside = static_cast<unsigned long>(MsvcrtFtol(Spatial[9]));
+        *Outside = static_cast<unsigned long>(MsvcrtFtol(Spatial[10]));
         return GR_OK;
     }
 
@@ -1272,7 +1258,7 @@ namespace
             double const Adjusted = static_cast<double>(Result) /
                 pow(2.0, static_cast<double>(Pitch) * static_cast<double>(0.01f));
             // Retail ftol returns the low dword of a signed 64-bit truncation.
-            Result = static_cast<unsigned long>(FtolLow32(Adjusted));
+            Result = static_cast<unsigned long>(MsvcrtFtol(Adjusted));
         }
         return Result;
     }
@@ -1550,7 +1536,7 @@ namespace
         else if (Hundredths > 0.f)
             Volume = 0;
         else
-            Volume = FtolLow32(Hundredths);
+            Volume = MsvcrtFtol(Hundredths);
         DALib::Streamer->SetVolume(Source->StreamHandle, Volume);
     }
 
@@ -2041,16 +2027,16 @@ namespace
             ? static_cast<IComponentFactory*>(static_cast<IFileSystem*>(ParentFs))
             : static_cast<IComponentFactory*>(DALib::Data);
 
-        FFileSystemAggDesc Desc;
+        FFileSystemDesc Desc;
         memset(&Desc, 0, sizeof(Desc));
         Desc.Size = 0x34;
         Desc.ComponentName = "FileSystem";
-        Desc.BackendName = ParentFs != nullptr ? "UTF" : "DOS";
-        Desc.DataPath = RelPath;
-        Desc.Field10 = 0x80000000u;
-        Desc.Field14 = 1;
-        Desc.Field1C = 3;
-        Desc.Field20 = 0x8000080u;
+        Desc.Implementation = ParentFs != nullptr ? "UTF" : "DOS";
+        Desc.Path = RelPath;
+        Desc.Access = 0x80000000u;
+        Desc.ShareMode = 1;
+        Desc.Creation = 3;
+        Desc.Flags = 0x8000080u;
         Desc.Field30 = 0xffffffffu;
 
         return Factory->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), OutFs);
@@ -2478,8 +2464,8 @@ namespace
         // OUTSIDE_CONE_ANGLE, GR_OK.
         GENRESULT DACOM_API GetConeAngles(unsigned long* Inside, unsigned long* Outside) override
         {
-            *Inside = static_cast<unsigned long>(Ftol(ThrusterEquipConsts::INSIDE_CONE_ANGLE));
-            *Outside = static_cast<unsigned long>(Ftol(ThrusterEquipConsts::OUTSIDE_CONE_ANGLE));
+            *Inside = static_cast<unsigned long>(MsvcrtFtol(ThrusterEquipConsts::INSIDE_CONE_ANGLE));
+            *Outside = static_cast<unsigned long>(MsvcrtFtol(ThrusterEquipConsts::OUTSIDE_CONE_ANGLE));
             return GR_OK;
         }
         // LAB_0052f460 -- slot 16: the ship's transform (IObjInspect slot 3) third column,

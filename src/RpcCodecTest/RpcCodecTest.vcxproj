@@ -19,9 +19,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{AA24E38D-DC16-4273-AC9B-86E6E0A25CA8}</ProjectGuid>
+    <FlModuleKind>tool</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>RpcCodecTest</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -37,10 +37,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <!-- RemoteClient.vcxproj's defines and /sdl setting, so the codecs compile as they do in
-           RemoteClient.dll. -->
+      <!-- RemoteClient.vcxproj's defines, so the codecs compile as they do in RemoteClient.dll. -->
       <PreprocessorDefinitions>FL_SERVER;REMOTECLIENT_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>false</SDLCheck>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>

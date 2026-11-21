@@ -2116,14 +2116,14 @@ void FMaterialImpl::ReleaseMaterialResources()
     // MaterialLibrary_ is borrowed from the outer container, just like Pipeline_.
 }
 
-void FMaterialImpl::ConfigureAggregation(FMaterialAggregateDesc* Desc)
+void FMaterialImpl::ConfigureAggregation(FAGGDESC14* Desc)
 {
     // 066f52cb..066f52fc: controller is installed before Slot22.
-    ControllingOuter_ = Desc->OuterAt8;
+    ControllingOuter_ = Desc->Outer;
     if (ControllingOuter_ == nullptr)
         ControllingOuter_ = &Inner_;
     else
-        *Desc->InnerOutAtC = &Inner_;
+        *Desc->InnerOut = &Inner_;
 }
 
 GENRESULT DACOM_API FMaterialImpl::QueryInterface(const char* Iid, void** Out)
@@ -2924,16 +2924,16 @@ GENRESULT __thiscall FMaterialImpl::InitializeFromDescriptor(void* Arg)
         // 066f884b/884e: both accumulators reset before the required name lookup.
         NomadLive6C_ = 0.0f;
         NomadDead68_ = 0.0f;
-        const FMaterialAggregateDesc* Agg = (const FMaterialAggregateDesc*)(Arg);
-        bNomadRegular_ = std::strcmp(Agg->NameAt4, G_NameNomadNoBendy) == 0 ? 0 : 1;
+        const FAGGDESC14* Agg = (const FAGGDESC14*)(Arg);
+        bNomadRegular_ = std::strcmp(Agg->Name, G_NameNomadNoBendy) == 0 ? 0 : 1;
         bSecondTexture_ = 1;
         return GR_OK;
     }
 
     if (Kind_ == KindBackdrop)
     {
-        const FMaterialAggregateDesc* Agg = (const FMaterialAggregateDesc*)(Arg);
-        bBackdrop_ = std::strcmp(Agg->NameAt4, G_NameBackdropMaterial) == 0 ? 1 : 0;
+        const FAGGDESC14* Agg = (const FAGGDESC14*)(Arg);
+        bBackdrop_ = std::strcmp(Agg->Name, G_NameBackdropMaterial) == 0 ? 1 : 0;
         bBackdropNameMatchCopy_ = bBackdrop_; // 066f2d2f/2d47: identical stored name-equality predicate.
         return GR_OK;
     }

@@ -39,14 +39,6 @@ static const GUID kClsidDirectSound = {
 static const GUID kIidDirectSoundRetail = {
     0x279AFA83, 0x4981, 0x11CE, {0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
 
-struct FStreamerAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
 
 class FSoundStreamer;
 
@@ -162,7 +154,7 @@ public:
 
     GENRESULT DACOM_API Initialize() override;
 
-    void BindOuter(FStreamerAggDesc* Desc);
+    void BindOuter(FAGGDESC14* Desc);
     void ShutdownDevice();
     unsigned long PumpStreams();
     void PumpOneStream(FStreamingSound* Stream);

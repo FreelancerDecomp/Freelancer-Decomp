@@ -11,6 +11,7 @@
 #include "common_misc.h"
 #include "game_options.h"
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "dacom.h"
 #include "globals.h"
 #include "room_camera.h" // LightsCameraMath (DAT_006799bc)

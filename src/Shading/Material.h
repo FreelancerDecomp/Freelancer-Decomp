@@ -73,7 +73,7 @@ public:
     GENRESULT DACOM_API InnerQueryInterface(const char* Iid, void** Out) override;
     unsigned long DACOM_API InnerAddRef() override;
     unsigned long DACOM_API InnerRelease() override;
-    void ConfigureAggregation(FMaterialAggregateDesc* Desc);
+    void ConfigureAggregation(FAGGDESC14* Desc);
     IRenderPipeline* Pipeline; // +4
     ITextureLibrary2* TexLib;    // Borrowed from the outer component.
     IVertexBufferManager* VBMgr;
@@ -227,8 +227,8 @@ public:
     GENRESULT DACOM_API InnerQueryInterface(const char* Iid, void** Out) override;
     unsigned long DACOM_API InnerAddRef() override;
     unsigned long DACOM_API InnerRelease() override;
-    void ConfigureAggregation(FMaterialAggregateDesc* Desc);
-    GENRESULT InitializeFromDescriptor(FMaterialAggregateDesc* Desc);
+    void ConfigureAggregation(FAGGDESC14* Desc);
+    GENRESULT InitializeFromDescriptor(FAGGDESC14* Desc);
     FBatchedFace Batched; // +4  QI 1.11_IBatchedMaterial (vptr only)
     unsigned long Field8; // +8  LAB_06eb4480 / FUN_06eb40f0 default -1
     IDAComponent* InnerController; // +C retained nondelegating factory controller

@@ -465,14 +465,6 @@ inline bool MatchSimplePattern(const char* Pattern, const char* Text)
     return FMaterialRegex::Search(Expression.get(), Text);
 }
 
-struct FSystemAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
 
 // Shared ReadFile descriptor; Size selects its DOS/UTF prefix.
 inline void InitializeShadingFileDesc(FFileSystemDesc* Desc, const char* Path,

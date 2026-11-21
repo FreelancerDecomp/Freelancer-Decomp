@@ -2131,7 +2131,7 @@ static void PlayerDB_LeaveSystem(PlayerData& Slot, unsigned int SessionId) {
 //
 // CORRECTION to the previous note on this function: FUN_06d15650 is not an
 // unported "base-manager singleton". Its entire body is `return &DAT_06d8da70;`
-// (Server.dll.c 42248) -- the BaseDB global (src/include/server_basedb.h,
+// (Server.dll.c 42248) -- the BaseDB global (src/Server/server_basedb.h,
 // GetBaseDB()). The two teardown entry points are BaseDB::exit_location
 // (FUN_06d143e0) and BaseDB::unload_base (FUN_06d142c0).
 static void PlayerDB_LeaveBase(PlayerData& Slot, unsigned int SessionId) {

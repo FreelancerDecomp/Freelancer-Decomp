@@ -264,7 +264,7 @@ IObjRW const* GuideBehavior::get_target()
 //
 // PORTED IN FULL 2026-09-17 (claude:common-guide) from EXE/Disasm/Common.dll.txt
 // 206092-206730 and 211770-211808. The class, its layout and the per-step reasoning live in
-// src/include/common_guidebehavior.h; this file holds the bodies.
+// src/Common/common_guidebehavior.h; this file holds the bodies.
 //
 // MOVED HERE from src/Common/common_stubs.cpp on 2026-09-17 (claude:w16-behavior). The
 // original placement note read "this file holds only the bodies, because Update() calls

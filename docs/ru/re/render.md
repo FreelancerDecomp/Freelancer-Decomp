@@ -73,7 +73,7 @@ Engine           ([Engine])
 Один объект `DirectX8` отдаёт сразу восемь интерфейсов (каждый — свой подобъект со своим vtable):
 `IRenderPipeline8B`, `IVertexBufferManager`, `IRPDraw`, `IRPIndexBuffer`, `IRPVertexBuffer`,
 `IGammaControl`, `IRPTexture`, `IAggregateComponent`. Основной интерфейс — 77 слотов; имена слотов,
-сигнатуры и retail-адреса — в `src/include/render/IRenderPipeline.h`, `slots.h` и в карточках
+сигнатуры и retail-адреса — в `src/include/render/IRenderPipeline.h` и в карточках
 decomp-tracker. Имя метода известно только там, где в теле retail-функции есть `FDUMP`-строка с ним.
 
 Жизненный цикл устройства:

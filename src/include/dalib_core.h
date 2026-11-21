@@ -5,9 +5,9 @@
 // Author: Giperion.
 
 // dalib_core.h -- the part of DALib.dll's public ABI that needs neither the engine nor the
-// render-pipeline headers: the DALIB_API macro, the FileSystem AGGDESC, the two error hooks
-// and Startup / OpenData / CloseData / Shutdown. DALib.h includes it and adds the subsystem
-// globals; dalib_net.h needs only this part.
+// render-pipeline headers: the DALIB_API macro, the two error hooks and
+// Startup / OpenData / CloseData / Shutdown. DALib.h includes it and adds the subsystem globals;
+// dalib_net.h needs only this part.
 //
 // Split out because render/IRenderPipeline.h pulls the DirectX 8 headers (d3d8types.h), and
 // every MFC translation unit already has d3d9types.h through afxwin.h -> afxrendertarget.h:
@@ -17,29 +17,13 @@
 
 #include <windows.h>
 
+#include "dacom.h" // FFileSystemDesc, the descriptor OpenData (0x1610) fills
+
 #ifdef DALIB_EXPORTS
 #define DALIB_API __declspec(dllexport)
 #else
 #define DALIB_API __declspec(dllimport)
 #endif
-
-// Retail DALib::OpenData AGGDESC size 0x34 @ 0x1610 — ReadFile DOS FileSystem factory.
-struct FFileSystemAggDesc
-{
-    unsigned long Size;
-    const char* ComponentName;
-    const char* BackendName;
-    const char* DataPath;
-    unsigned long Field10;
-    unsigned long Field14;
-    void* Field18;              // FFileSystemDesc::Security: the pointer-sized fields are
-    unsigned long Field1C;      // pointers, so the two descriptors agree on x64 as well
-    unsigned long Field20;
-    void* Field24;              // FFileSystemDesc::TemplateFile
-    void* Field28;              // FFileSystemDesc::Parent
-    unsigned long Field2C;
-    unsigned long Field30;
-};
 
 using FatalErrorFnType = void(__cdecl*)(unsigned int, const char*);
 using CriticalWarningFnType = bool(__cdecl*)(unsigned int, const char*);

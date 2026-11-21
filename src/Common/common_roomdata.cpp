@@ -200,10 +200,10 @@ IScriptEngine* __cdecl ThornScriptLoad(char const* Path)
     FL_LAYOUT_ASSERT(sizeof(FAGGDESC14) == 0x14, "retail descriptor is 0x14 bytes");
     FAGGDESC14 Desc;
     Desc.Size = 0x14;
-    Desc.NameAt4 = "IScriptEngine";
-    Desc.OuterUnknown = nullptr;
-    Desc.InnerUnknown = nullptr;
-    Desc.Reserved10 = 0;
+    Desc.Name = "IScriptEngine";
+    Desc.Outer = nullptr;
+    Desc.InnerOut = nullptr;
+    Desc.Value = nullptr;
 
     void* Instance = nullptr;
     Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), &Instance);

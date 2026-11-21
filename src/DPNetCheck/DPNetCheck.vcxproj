@@ -11,9 +11,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{8FB348A7-E6C0-4967-A85C-116EBA236F5A}</ProjectGuid>
+    <FlModuleKind>tool</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DPNetCheck</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">

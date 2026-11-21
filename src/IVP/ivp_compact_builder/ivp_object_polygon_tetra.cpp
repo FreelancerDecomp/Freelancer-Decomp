@@ -28,12 +28,12 @@
 namespace
 {
     // .rdata constants, decoded from their raw bytes.
-    const float kEpsilon1e10 = IVP_BuilderBitsToFloat(0x2edbe6ffu);     // DAT_063a53d8, 1e-10f
-    const float kEpsilon1e4 = IVP_BuilderBitsToFloat(0x38d1b717u);      // DAT_063a547c, 1e-4f
-    const float kEpsilon1e8 = IVP_BuilderBitsToFloat(0x322bcc77u);      // DAT_063a5990, 1e-8f
-    const float kEpsilon1e8Below = IVP_BuilderBitsToFloat(0x322bcc76u); // DAT_063a5994, 1e-8f minus one ulp
-    const float kEpsilon1e9 = IVP_BuilderBitsToFloat(0x3089705fu);      // DAT_063a5914, 1e-9f
-    const float kMinusEpsilon1e6 = IVP_BuilderBitsToFloat(0xb58637bdu); // immediate at 0637a274, -1e-6f
+    const float kEpsilon1e10 = FloatFromBits(0x2edbe6ffu);     // DAT_063a53d8, 1e-10f
+    const float kEpsilon1e4 = FloatFromBits(0x38d1b717u);      // DAT_063a547c, 1e-4f
+    const float kEpsilon1e8 = FloatFromBits(0x322bcc77u);      // DAT_063a5990, 1e-8f
+    const float kEpsilon1e8Below = FloatFromBits(0x322bcc76u); // DAT_063a5994, 1e-8f minus one ulp
+    const float kEpsilon1e9 = FloatFromBits(0x3089705fu);      // DAT_063a5914, 1e-9f
+    const float kMinusEpsilon1e6 = FloatFromBits(0xb58637bdu); // immediate at 0637a274, -1e-6f
 
     // .data:DAT_0658b9c8 -- a float in the zero-filled tail of .data with a
     // single XREF (the read at 06378b1e) and no writer, so it is always 0.

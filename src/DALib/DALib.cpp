@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "readfile.h" // FFileSystemDesc, the layout ReadFile reads
 #include <cstddef>
 #include "dacom.h"
@@ -37,16 +38,6 @@ namespace
         va_end(Args);
         OutputDebugStringA(Buffer);
     }
-
-    // SystemContainer uses the extended descriptor; other factories consume its prefix.
-    struct FNamedAggDesc
-    {
-        unsigned long Size;
-        const char* Name;
-        void* Outer;
-        void* InnerOut;
-        const char* Extra;
-    };
 
     // Kept across calls for Shutdown's trailing-reference checks.
     unsigned long GLastReleaseCount = 0;
@@ -144,7 +135,9 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
     bool bResult = true; // .text:065c1253 byte [ESP+0x17] = 1
     ISystemContainer* Container = nullptr;
     {
-        FNamedAggDesc Desc = {0x14, "SystemContainer", nullptr, nullptr, nullptr};
+        // SystemContainer takes the 0x14 descriptor; Engine and FxEffectLibrary below read only
+        // the 8-byte prefix of the same five-dword block.
+        FAGGDESC14 Desc = {0x14, "SystemContainer", nullptr, nullptr, nullptr};
         IDAComponent* System = nullptr;
         if (Dacom->CreateInstance((AGGDESC*)(&Desc), (void**)(&System)) ==
             GR_OK)
@@ -226,7 +219,7 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
     // .text:065c14a4-1553: CreateInstance writes DALib::Engine itself; on success the engine
     // loads its components from the container (NULL when the container failed) and is queried.
     {
-        FNamedAggDesc Desc = {8, "Engine", nullptr, nullptr, nullptr};
+        FAGGDESC14 Desc = {8, "Engine", nullptr, nullptr, nullptr};
         if (Dacom->CreateInstance((AGGDESC*)(&Desc), (void**)(&Engine)) ==
             GR_OK)
         {
@@ -242,7 +235,7 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
 
     // .text:065c1555-1590: no Alchemy check -- a NULL Alchemy is passed through.
     {
-        FNamedAggDesc Desc = {8, "FxEffectLibrary", nullptr, nullptr, nullptr};
+        FAGGDESC14 Desc = {8, "FxEffectLibrary", nullptr, nullptr, nullptr};
         if (Dacom->CreateInstance((AGGDESC*)(&Desc),
                                   (void**)(&FxEffectLibrary)) == GR_OK)
         {
@@ -256,26 +249,19 @@ bool __cdecl DALib::Startup(HWND Hwnd, const char* IniPath)
     return bResult;
 }
 
-// The descriptor DALib fills is read by ReadFile as an FFileSystemDesc, on every platform.
-static_assert(offsetof(FFileSystemAggDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
-static_assert(offsetof(FFileSystemAggDesc, Field10) == offsetof(FFileSystemDesc, Access), "Access");
-static_assert(offsetof(FFileSystemAggDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
-static_assert(offsetof(FFileSystemAggDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
-static_assert(offsetof(FFileSystemAggDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
-
 // Retail .text:065c1610 DALib::OpenData -- 0x34-byte "FileSystem"/"DOS" descriptor, result
 // written straight into DALib::Data; neither Dacom nor the result is checked.
 void __cdecl DALib::OpenData(const char* DataPath)
 {
-    FFileSystemAggDesc Desc = {};
+    FFileSystemDesc Desc = {};
     Desc.Size = 0x34;
     Desc.ComponentName = "FileSystem";
-    Desc.BackendName = "DOS";
-    Desc.DataPath = DataPath;
-    Desc.Field10 = 0x80000000; // GENERIC_READ
-    Desc.Field14 = 1;          // FILE_SHARE_READ
-    Desc.Field1C = 3;          // OPEN_EXISTING
-    Desc.Field20 = 0x08000080;
+    Desc.Implementation = "DOS";
+    Desc.Path = DataPath;
+    Desc.Access = 0x80000000;     // GENERIC_READ
+    Desc.ShareMode = 1;           // FILE_SHARE_READ
+    Desc.Creation = 3;            // OPEN_EXISTING
+    Desc.Flags = 0x08000080;
     Desc.Field30 = 0xFFFFFFFF;
     Dacom->CreateInstance((AGGDESC*)(&Desc), (void**)(&Data));
 }

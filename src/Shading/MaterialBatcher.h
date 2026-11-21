@@ -132,7 +132,7 @@ public:
     FMaterialBatcherController Controller; // retail nondelegating unknown @ +0x94
     IDAComponent* ControllingUnknown; // retail +90, distinct from initialized Outer+50
 
-    GENRESULT InitializeFromDescriptor(const FMaterialAggregateDesc* Desc);
+    GENRESULT InitializeFromDescriptor(const FAGGDESC14* Desc);
     GENRESULT StartupFromOuter();
     void ResetScratch();
     void InitializeScratch(unsigned long Size);

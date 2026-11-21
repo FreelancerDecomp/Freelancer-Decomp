@@ -16,6 +16,7 @@
 #include <iterator>
 #include <string>
 #include "x87_portable.h"
+#include "float_bits.h"
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
 static constexpr unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
@@ -1134,11 +1135,11 @@ FL_LAYOUT_ASSERT(offsetof(FMaterial, MatAnim) == 0x68, "MatAnim +68");
 FL_LAYOUT_ASSERT(offsetof(FMaterial, Inner) == 0x70, "inner QI +70");
 FL_LAYOUT_ASSERT(offsetof(FMaterial, bAtmosphereReady) == 0x74, "Atmosphere +74");
 
-void FMaterial::ConfigureAggregation(FMaterialAggregateDesc* Desc)
+void FMaterial::ConfigureAggregation(FAGGDESC14* Desc)
 {
-    Outer = Desc->OuterAt8;
+    Outer = Desc->Outer;
     if (Outer != nullptr)
-        *Desc->InnerOutAtC = (IDAComponent*)(&Inner);
+        *Desc->InnerOut = (IDAComponent*)(&Inner);
 }
 
 GENRESULT DACOM_API FMaterial::QueryInterface(const char* Iid, void** Out)
@@ -2821,24 +2822,17 @@ GENRESULT __thiscall FMaterial::Setup()
     return GR_OK;
 }
 
-static float ShadingPropertyFloat(unsigned long Bits)
-{
-    float Value = 0.0f;
-    std::memcpy(&Value, &Bits, sizeof(Value));
-    return Value;
-}
-
 static bool IsShadingPropertyValueWithinRange(unsigned long ValueBits, unsigned long MinimumBits,
                                               unsigned long MaximumBits)
 {
     // Compare widened bounds against the stored float without rounding the bounds.
     static constexpr unsigned long kRangeEpsilonBits = 0x34000000;
-    const double Value = ShadingPropertyFloat(ValueBits);
-    const double Epsilon = ShadingPropertyFloat(kRangeEpsilonBits);
-    const double Upper = (double)(ShadingPropertyFloat(MaximumBits)) + Epsilon;
+    const double Value = FloatFromBits(ValueBits);
+    const double Epsilon = FloatFromBits(kRangeEpsilonBits);
+    const double Upper = (double)(FloatFromBits(MaximumBits)) + Epsilon;
     if (Upper <= Value)
         return false;
-    const double Lower = (double)(ShadingPropertyFloat(MinimumBits)) - Epsilon;
+    const double Lower = (double)(FloatFromBits(MinimumBits)) - Epsilon;
     return !(Lower >= Value);
 }
 
@@ -3307,12 +3301,12 @@ GENRESULT DACOM_API FBatchedFace::CreateInnerMaterial(void* Name)
         Owner->InnerController->Release();
         Owner->InnerController = nullptr;
     }
-    FMaterialAggregateDesc Desc = {};
+    FAGGDESC14 Desc = {};
     Desc.Size = sizeof(Desc);
-    Desc.NameAt4 = (const char*)Name;
-    Desc.OuterAt8 = (IBatchedMaterial*)this;
-    Desc.InnerOutAtC = (void**)(&Owner->InnerController);
-    Desc.ExtraAt10 = nullptr;
+    Desc.Name = (const char*)Name;
+    Desc.Outer = (IBatchedMaterial*)this;
+    Desc.InnerOut = &Owner->InnerController;
+    Desc.Value = nullptr;
     void* Created = nullptr;
     const GENRESULT Result = DACOM_Acquire()->CreateInstance((AGGDESC*)(&Desc), &Created);
     if (Result >= 0)
@@ -3454,7 +3448,7 @@ unsigned long DACOM_API FBatchedController::Release()
     return Remaining;
 }
 
-GENRESULT FBatchedMaterial::InitializeFromDescriptor(FMaterialAggregateDesc* Desc)
+GENRESULT FBatchedMaterial::InitializeFromDescriptor(FAGGDESC14* Desc)
 {
     // FUN_06eb3e80, also called by factory4530 after controller publication.
     InnerController = nullptr;
@@ -3463,11 +3457,11 @@ GENRESULT FBatchedMaterial::InitializeFromDescriptor(FMaterialAggregateDesc* Des
     return GR_OK;
 }
 
-void FBatchedMaterial::ConfigureAggregation(FMaterialAggregateDesc* Desc)
+void FBatchedMaterial::ConfigureAggregation(FAGGDESC14* Desc)
 {
-    Outer = Desc->OuterAt8;
+    Outer = Desc->Outer;
     if (Outer != nullptr)
-        *Desc->InnerOutAtC = (IDAComponent*)(&Controller);
+        *Desc->InnerOut = (IDAComponent*)(&Controller);
 }
 
 GENRESULT DACOM_API FBatchedMaterial::QueryInterface(const char* Iid, void** Out)

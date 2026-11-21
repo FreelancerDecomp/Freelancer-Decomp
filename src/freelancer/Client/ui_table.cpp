@@ -12,6 +12,7 @@
 #include "win_factory.h"
 
 #include "DALib.h"
+#include "render/IRenderPipeline.h"
 #include "common_csys.h"
 #include "x86math.h"
 

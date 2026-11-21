@@ -15,11 +15,12 @@
 #include "render/IRenderPipeline.h"
 #include "x64_low_arena.h"
 
-#include "RpGpuDevice.h"
+#include "RpGpuBackend.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -254,7 +255,12 @@ private:
     FRpGpuTexture* LiveTexture(void* Handle) const;
     static bool LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* OutStart);
 
-    FRpGpuDevice Device_;
+    // The backend for the current setting (NULL_DEVICE), made on first use.
+    IRpGpuBackend& Backend();
+
+    std::unique_ptr<IRpGpuBackend> Backend_;
+    bool bNullDevice_ = false;    // [RenderPipeline] NULL_DEVICE
+    bool bBackendIsNull_ = false; // which kind Backend_ is
 
 public:
     char Section_[64] = {}; // the ini section (CreateInstance's descriptor or Startup)

@@ -27,7 +27,7 @@
 // rpc_payload_ch2.cpp, whose Marshal side reads the sender's arguments as the retail
 // stack image -- one dword per argument slot, a by-reference or pointer argument as its
 // address, a by-value Costume as its thirteen dwords. Each slot below converts its typed
-// arguments into that image explicitly (RpcArgAddress / RpcArgPointer / RpcArgFloatBits);
+// arguments into that image explicitly (RpcArgAddress / RpcArgPointer / BitsFromFloatRef);
 // every (channel, opcode) a slot sends has a codec (checked 2026-09-24: 102 of 102).
 
 #include "rpc_transport.h"
@@ -37,6 +37,7 @@
 #include "common_server_types.h"
 #include "common_reputation.h"  // Costume, by value in SendServerSendComm
 #include "platform.h"
+#include "float_bits.h"
 
 #include <cstdint>
 #include <cstring>
@@ -74,12 +75,6 @@ static unsigned int RpcArgAddress(const T& Value) {
 
 static unsigned int RpcArgPointer(const void* Value) {
     return static_cast<unsigned int>(reinterpret_cast<uintptr_t>(Value));
-}
-
-static unsigned int RpcArgFloatBits(const float& Value) {
-    unsigned int Bits = 0;
-    std::memcpy(&Bits, &Value, sizeof(Bits));
-    return Bits;
 }
 
 // A Costume by value occupies thirteen argument dwords (RET 0x5c of 0x06d88fc0).
@@ -442,7 +437,7 @@ public:
     // +0x058  0x06d88420  ch2 op 0x49  FLPACKET_SERVER_SETHULLSTATUS
     // The codec copies the argument slot's bits (retail 06d8843d FLD float ptr [ESP+0x10]).
     void SendServerSetHullStatus(unsigned int ClientId, float HullStatus) override {
-        const unsigned int Args[2] = { ClientId, RpcArgFloatBits(HullStatus) };
+        const unsigned int Args[2] = { ClientId, BitsFromFloatRef(HullStatus) };
         SendPacket(2, 0x49, Args, 2);
     }
 
@@ -752,7 +747,7 @@ public:
         Args[18] = RpcArgPointer(TextIds);
         Args[19] = static_cast<unsigned int>(TextCount);
         Args[20] = Mood;
-        Args[21] = RpcArgFloatBits(Duration);
+        Args[21] = BitsFromFloatRef(Duration);
         // The sender keeps one byte of this slot (06d890db); a bool argument is 0 or 1.
         Args[22] = bReceiverIsOwnShip ? 1u : 0u;
         Args[23] = (unsigned int)(uintptr_t)_ReturnAddress();
@@ -1114,7 +1109,7 @@ public:
                             unsigned int BattleMusic, unsigned int OverrideMusic, bool bFlag,
                             float Fade) override {
         const unsigned int Args[7] = { ClientId, SpaceMusic, DangerMusic, BattleMusic, OverrideMusic,
-                                       bFlag ? 1u : 0u, RpcArgFloatBits(Fade) };
+                                       bFlag ? 1u : 0u, BitsFromFloatRef(Fade) };
         SendPacket(2, 0x57, Args, 7);
     }
 

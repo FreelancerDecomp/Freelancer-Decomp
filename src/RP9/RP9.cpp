@@ -1001,7 +1001,7 @@ GENRESULT DACOM_API FRp9Factory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
     GENRESULT Result = GR_OK;
     FDirectX9* Object = nullptr;
-    FRp9AggDesc* Ext = (FRp9AggDesc*)(Desc);
+    FAGGDESC14* Ext = (FAGGDESC14*)(Desc);
     if (Ext->Size != 0x14 || std::strcmp(Ext->Name, Name) != 0)
     {
         Result = GR_INTERFACE_UNSUPPORTED;
@@ -1173,10 +1173,10 @@ unsigned long DACOM_API FDirectX9::Release()
 // 0x80-byte name buffer +0x24 (unbounded, as in retail), else "RenderPipeline"; then
 // FDUMP(0x100003 NOTICE, rp_dx8.cpp line 0x2fb, the buffer). Always 0.
 // RP8: FDirectX8::ApplySectionName
-GENRESULT FDirectX9::ApplySectionName(const FRp9AggDesc* Desc)
+GENRESULT FDirectX9::ApplySectionName(const FAGGDESC14* Desc)
 {
-    if (Desc->Extra != nullptr && Desc->Extra[0] != '\0')
-        strcpy(SectionName_, Desc->Extra);
+    if (Desc->Value != nullptr && Desc->Value[0] != '\0')
+        strcpy(SectionName_, Desc->Value);
     else
         strcpy(SectionName_, kRp9DefaultSection);
     Rp9Fdump(kFdumpNotice, 0x2fb, "NOTICE", SectionName_);

@@ -20,14 +20,6 @@ static constexpr unsigned long kRp8ObjectSize = 0x230C;
 static constexpr unsigned long kRp8RegisterPriority = 0x40000000;
 static constexpr unsigned int kAbilityCount = 21;
 
-struct FRp8AggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
 
 struct FRp8Mode
 {
@@ -498,7 +490,7 @@ public:
 
     GENRESULT QueryLocal(const char* Iid, void** Out);
     void FlushDrawState(IDirect3DDevice8* Device); // formerly static FlushDrawState
-    GENRESULT ApplySectionName(const FRp8AggDesc* Desc);
+    GENRESULT ApplySectionName(const FAGGDESC14* Desc);
     // FUN_06d020ab (startup and create_buffers call it with the device caps). The flag part
     // runs only after the MGSDB database loaded; the ability-map overrides run on every path.
     void ApplyDeviceCaps(const D3DCAPS8* Caps);

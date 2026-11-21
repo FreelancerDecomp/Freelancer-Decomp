@@ -7,7 +7,7 @@
 // Common.dll BaseIdea family, shared part: BaseIdea, StopIdea, AfterburnerIdea, IdleIdea,
 // the FDirectionPicker base of DodgeIdea / BreakAwayIdea, and GenericWeightedPick
 // (FUN_062d76d0, the weighted pick over FDirectionPicker's tag + four weights).
-// See src/include/common_idea.h for the RTTI/layout writeup. Ported from
+// See src/Common/common_idea.h for the RTTI/layout writeup. Ported from
 // EXE/Disasm/Common.dll.txt (raw disassembly is authoritative in this module over
 // Ghidra's Common.dll.c -- most functions in this cluster have no Ghidra decompile).
 //

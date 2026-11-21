@@ -25,9 +25,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{7E2C0A19-8B3C-4D4E-9516-A7B8C9D0E1F2}</ProjectGuid>
+    <FlModuleKind>retail</FlModuleKind>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>freelancer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -54,16 +54,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Content;$(ProjectDir)..\imeui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FREELANCER_EXPORTS selects the declarations freelancer.exe exports itself
            (retail FreeLancer.exe carries a 69-name export table, no .def): see the
            export macros in src/include/rpc_iclient.h and src/include/common_exports.h. -->
       <PreprocessorDefinitions>FREELANCER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /sdl makes the compiler give every dllexport class with data members an
-           exported __autoclassinit2 member (bin\Server.dll showed 12 before Server.vcxproj
-           turned it off). Retail FreeLancer.exe exports none, and the exe must export
-           exactly the names retail exports. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>

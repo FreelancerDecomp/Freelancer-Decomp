@@ -450,7 +450,7 @@ namespace
         GENRESULT DACOM_API DrawFixedShadows(void* A, void* B, void* C, void* D) override;
         GENRESULT DACOM_API CountVisibleGeometry(void* A, void* B, void* C) override;
 
-        GENRESULT FinishCreate(FAggDesc18* Desc, void** Instance);
+        GENRESULT FinishCreate(FAGGDESC18* Desc, void** Instance);
         GENRESULT EngineInitialize();
 
         FEngineFace EngineFace_;
@@ -578,12 +578,12 @@ namespace
         return Next;
     }
 
-    GENRESULT FFLAppearanceBase::FinishCreate(FAggDesc18* Desc, void** Instance)
+    GENRESULT FFLAppearanceBase::FinishCreate(FAGGDESC18* Desc, void** Instance)
     {
-        if (Desc->OuterAt8 != nullptr)
+        if (Desc->Outer != nullptr)
         {
-            Outer_ = (IDAComponent*)Desc->OuterAt8;
-            *Desc->InnerOutAtC = (IDAComponent*)(&Inner_);
+            Outer_ = (IDAComponent*)Desc->Outer;
+            *Desc->InnerOut = (IDAComponent*)(&Inner_);
         }
         else
         {
@@ -600,7 +600,7 @@ namespace
         }
         Engine_->Release();
 
-        System_ = Desc->SystemAt14;
+        System_ = Desc->SystemContainer;
         if (System_ == nullptr)
         {
             FlmFdump(kFdumpError, kFlmFile, 0xD1, "ERROR",
@@ -953,7 +953,7 @@ namespace
     {
         (void)D;
         unsigned long Ability = 0;
-        PipelineQueryDeviceAbility(Appearance->Pipeline_, 9, &Ability);
+        Appearance->Pipeline_->QueryDeviceAbility(Render::DepthBias, &Ability);
         if (Ability == 0)
             return (GENRESULT)-1;
         const int InstanceCount = (int)((unsigned long)(C));
@@ -1217,7 +1217,7 @@ bool FlmLookupIdValue(int Id, void** Out)
     return true;
 }
 
-GENRESULT FlmCreateAppearanceInstance(FAggDesc18* Desc, void** Instance)
+GENRESULT FlmCreateAppearanceInstance(FAGGDESC18* Desc, void** Instance)
 {
     FFLAppearance* Appearance = new (std::nothrow) FFLAppearance();
     if (Appearance == nullptr)
@@ -1229,8 +1229,8 @@ GENRESULT FlmCreateAppearanceInstance(FAggDesc18* Desc, void** Instance)
     if (Result < 0)
     {
         // LAB_066fd92a: clear published inner before base destruction callbacks.
-        if (Desc->InnerOutAtC != nullptr)
-            *Desc->InnerOutAtC = nullptr;
+        if (Desc->InnerOut != nullptr)
+            *Desc->InnerOut = nullptr;
         delete Appearance;
         *Instance = nullptr;
     }

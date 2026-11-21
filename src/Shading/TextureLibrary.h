@@ -84,7 +84,7 @@ public:
     FTextureLibrary();
     ~FTextureLibrary();
 
-    GENRESULT InitializeFromDescriptor(const FSystemAggDesc* Desc);
+    GENRESULT InitializeFromDescriptor(const FAGGDESC14* Desc);
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
     unsigned long DACOM_API AddRef() override;

@@ -7,6 +7,7 @@
 // Animation mixer: linked leaf, blend and overlay nodes evaluate channel values.
 
 #include "x86math.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 #include "EngBase.h"
 
 #include <cmath>
@@ -37,12 +38,6 @@ const double G_MixerEaseStep = 0x1.93B352540C735p-7;
 // DAT_0662acf8 float[256] and its ready byte DAT_0662b0fc.
 float G_MixerEaseTable[0x100];
 unsigned char G_bMixerEaseReady = 0;
-
-// MSVCRT _ftol: truncation to a 64-bit integer; the callers keep EAX only.
-long MixerFtol(double Value)
-{
-    return (long)((long long)(Value));
-}
 
 // The joint-type table FUN_066152d0 (0661558e..066155c0) and FUN_0661d5b0 (0661d68e..0661d6c0)
 // share: IEngine+0xC4's first dword to the number of floats the joint's parameters take.
@@ -251,7 +246,7 @@ void FMixerBlend::Evaluate(float* Out, FMixerStack* Stack)
     if (Duration > 0.0f)
     {
         // FLD Inv; FMUL Time; FMUL 255.0f; FSTP qword; floor; _ftol (0661d1aa..c5).
-        WeightIndex = MixerFtol(std::floor((double)(InvDuration) *
+        WeightIndex = MsvcrtFtol(std::floor((double)(InvDuration) *
                                            (double)(Time) * 255.0));
     }
     const float Weight = MixerEase(WeightIndex);                 // 0661d1d2..dd FSTP dword
