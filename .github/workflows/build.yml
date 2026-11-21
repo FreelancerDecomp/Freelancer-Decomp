@@ -230,6 +230,113 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # CMake against MSBuild: both build the same configuration into the same output directory
+  # (so that every path the linker records is the same), one after the other, and are compared
+  # command line by command line and binary by binary (.github/scripts/build_parity.py).
+  parity:
+    name: CMake parity (Release|${{ matrix.platform }})
+    runs-on: windows-2022
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Win32, x64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache DirectX 8.1 SDK
+        id: dx8-cache
+        uses: actions/cache@v4
+        with:
+          path: dx8
+          key: dx8-sdk-${{ env.DX8_SDK_MD5 }}
+
+      - name: Fetch DirectX 8.1 SDK headers and libraries
+        if: steps.dx8-cache.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = Join-Path $env:RUNNER_TEMP 'dx81sdk_full.exe'
+          curl.exe --fail --location --retry 3 --silent --show-error -o $exe $env:DX8_SDK_URL
+          $md5 = (Get-FileHash -Algorithm MD5 $exe).Hash.ToLowerInvariant()
+          if ($md5 -ne $env:DX8_SDK_MD5) { throw "DX8 SDK checksum mismatch: $md5" }
+          $tmp = Join-Path $env:RUNNER_TEMP 'dx8x'
+          New-Item -ItemType Directory -Force $tmp | Out-Null
+          tar -xf $exe -C $tmp DXF/DXSDK/include DXF/DXSDK/lib
+          if ($LASTEXITCODE -ne 0) { throw "tar failed with exit code $LASTEXITCODE" }
+          New-Item -ItemType Directory -Force dx8 | Out-Null
+          Move-Item (Join-Path $tmp 'DXF/DXSDK/include') dx8/include
+          Move-Item (Join-Path $tmp 'DXF/DXSDK/lib') dx8/lib
+
+      - name: vcpkg cache key
+        id: vcpkg-key
+        shell: pwsh
+        env:
+          TRIPLET: ${{ matrix.platform == 'x64' && 'x64-windows' || 'x86-windows' }}
+          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
+        run: |
+          $prefix = "vcpkg-$env:TRIPLET-$env:ImageOS-"
+          "prefix=$prefix" >> $env:GITHUB_OUTPUT
+          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
+
+      - name: Restore vcpkg packages
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
+
+      - name: Point vcpkg at the cache
+        shell: pwsh
+        run: |
+          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Build with MSBuild
+        run: >-
+          msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
+          -p:Configuration=Release -p:Platform=${{ matrix.platform }}
+          -p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true
+          -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
+
+      - name: Set the MSBuild binaries aside
+        shell: pwsh
+        env:
+          BIN: ${{ matrix.platform == 'x64' && 'bin_x64' || 'bin' }}
+        run: |
+          New-Item -ItemType Directory bin-msbuild | Out-Null
+          Move-Item "$env:BIN\*.exe", "$env:BIN\*.dll", "$env:BIN\*.pdb", "$env:BIN\*.lib", "$env:BIN\*.exp" bin-msbuild
+
+      - name: Build with CMake
+        shell: cmd
+        env:
+          ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'x86' }}
+          PRESET: ${{ matrix.platform == 'x64' && 'release-x64' || 'release' }}
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VSDIR=%%i"
+          call "%VSDIR%\VC\Auxiliary\Build\vcvarsall.bat" %ARCH% || exit /b 1
+          cmake --version || exit /b 1
+          cmake --preset %PRESET% -DFreelancerRpGpu=1 -DFreelancerRequireVcpkg=ON || exit /b 1
+          cmake --build --preset %PRESET% || exit /b 1
+
+      - name: Compare command lines
+        env:
+          BUILD: ${{ matrix.platform == 'x64' && 'build/release-x64' || 'build/release' }}
+        run: python .github/scripts/build_parity.py commands --repo . --cmake-build ${{ env.BUILD }} --platform ${{ matrix.platform }}
+
+      - name: Compare binaries
+        if: success() || failure()
+        env:
+          BIN: ${{ matrix.platform == 'x64' && 'bin_x64' || 'bin' }}
+        run: |
+          python -m pip install --quiet pefile
+          python .github/scripts/build_parity.py binaries bin-msbuild ${{ env.BIN }}
+
   regress:
     name: Regression (FLRegress)
     needs: [build, data]
@@ -613,8 +720,62 @@ jobs:
           python .github/scripts/check_def_twins.py --undname $undname src
           if ($LASTEXITCODE -ne 0) { throw 'An x64 .def file is out of step with its Win32 twin' }
 
-  # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
-  # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
+  # The portable modules (cmake/Freelancer.cmake: the ones that use no Windows API, DPNet and
+  # its tests among them), built with the root CMake build on Linux and macOS. Debug with
+  # AddressSanitizer and UndefinedBehaviorSanitizer, and Release.
+  portable:
+    name: Portable modules (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux GCC
+            os: ubuntu-24.04
+            cc: gcc
+            cxx: g++
+          - name: Linux Clang
+            os: ubuntu-24.04
+            cc: clang
+            cxx: clang++
+          - name: macOS Clang
+            os: macos-14
+            cc: clang
+            cxx: clang++
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ninja-build
+          else
+            brew install ninja
+          fi
+
+      - name: Debug, ASan + UBSan
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake --preset portable-asan
+          cmake --build --preset portable-asan
+          ctest --preset portable-asan
+
+      - name: Release
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake --preset portable
+          cmake --build --preset portable
+          ctest --preset portable
+
+  # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md), on its own with
+  # its tests on Windows (MSVC, 32 and 64 bit). Linux and macOS build it in the portable job.
   dpnet:
     name: DirectPlay protocol (DPNet, ${{ matrix.name }})
     runs-on: ${{ matrix.os }}
@@ -623,9 +784,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux GCC
-            os: ubuntu-latest
-            configure: -DCMAKE_BUILD_TYPE=Debug -DDPNET_SANITIZE=ON
           - name: Windows Win32
             os: windows-2022
             configure: -A Win32
