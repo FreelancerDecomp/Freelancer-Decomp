@@ -20,7 +20,7 @@
 #include "NpcShip.h"            // FContentNpcShipParams (TU43)
 #include "NpcShips.h"           // FNpcShipArch, GNpcShipArchs, FindNpcShipArch (TU42)
 #include "RandomMissionDB.h"    // FindShipClass, GRmShipMissionProperties (TU51)
-#include "common_server.h"      // pub::Reputation::GetReputation, pub::GetCargoHoldSize
+#include "server_pub.h"      // pub::Reputation::GetReputation, pub::GetCargoHoldSize
 #include "server_cobject.h"     // pub::SpaceObj::CargoDesc
 
 #include <cstdlib>

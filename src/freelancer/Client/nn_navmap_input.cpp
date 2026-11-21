@@ -36,7 +36,7 @@
 #include "common_iface.h"            // IObjRW, IObjInspectImpl
 #include "common_id.h"               // CreateID
 #include "common_misc.h"             // SUBOBJ_ID_NONE
-#include "common_server.h"           // IServer
+#include "server_pub.h"           // IServer
 #include "common_text.h"             // FmtStr, RenderDisplayList, StyleNode
 #include "common_universe.h"
 #include "dacom.h"                   // FDUMP

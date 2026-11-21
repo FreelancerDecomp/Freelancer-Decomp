@@ -28,8 +28,8 @@
 #include "common_id.h"
 #include "common_iface.h"
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 
 #include <cmath>
 #include <cstddef>
@@ -78,7 +78,7 @@ namespace
     // One Cnd_* key of FUN_06ebb850: the class and the message ids pushed into trigger +0x18
     // after Parse (MOV [ESP+0x10],id before the shared tails LAB_06ebcbbc / LAB_06ebbbdf /
     // LAB_06ebc059 / LAB_06ebceb2, or the inline FUN_06f937c0 / FUN_06eec320 pushes).
-    // The controller message ids (common_server_controller.h), used throughout this file.
+    // The controller message ids (server_controller.h), used throughout this file.
     using pub::Controller::EMessage;
 
     struct FCndFactoryEntry

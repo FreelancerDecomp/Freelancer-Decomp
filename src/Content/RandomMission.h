@@ -10,7 +10,7 @@
 #include "ContentRefObject.h"       // FContentRefObject
 #include "RandomMissionGen.h"
 #include "RandomMissionOffer.h"     // FRmOffer (the +0x7c offers, TRmRef<FRmOffer>)
-#include "common_server_controller.h"
+#include "server_controller.h"
 #include "common_text.h"
 
 #include <cstdio>

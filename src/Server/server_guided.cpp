@@ -22,7 +22,7 @@
 #include "common_id.h"          // ID_String::IsEmpty
 #include "common_csys.h"        // Matrix, Transform (get_transform)
 #include "DALib.h"              // DALib::Engine (create, IEngine +0x6c)
-#include "common_ivp_controller.h" // IVP_Event_Sim::delta_time
+#include "ivp_physics/ivp_controller.h" // IVP_Event_Sim::delta_time
 
 #include <cmath>
 #include <cstdio>

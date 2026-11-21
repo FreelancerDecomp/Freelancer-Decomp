@@ -18,7 +18,7 @@
 #include "common_misc.h"     // SinglePlayer
 #include "common_physys.h"
 #include "common_universe.h"
-#include "../IVP/ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
+#include "ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
 #include "x87_trig.h"        // retail's inline FSIN / FCOS (BuildRingTransform, 062c19d0)
 
 #include <math.h>

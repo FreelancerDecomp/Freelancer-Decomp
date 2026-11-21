@@ -20,7 +20,7 @@
 #include "ContentInternal.h"      // SubtractVectors (FUN_06eeaee0)
 #include "common_id.h"            // CreateID
 #include "common_ini.h"
-#include "common_server.h"        // pub::GetNicknameId, pub::SpaceObj, pub::Zone
+#include "server_pub.h"        // pub::GetNicknameId, pub::SpaceObj, pub::Zone
 
 #include <cmath>
 #include <cstdint>

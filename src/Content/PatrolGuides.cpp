@@ -20,7 +20,7 @@
 #include "SpacePaths.h"           // Register/UnregisterGuidedShip, IsSameShipOrFormation, ...
 #include "SystemInfo.h"
 #include "common_goods.h"         // EquipDesc, EquipDescVector
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"       // pub::SpaceObj::EQInfo, ActivateEquipment
 
 #include <algorithm>

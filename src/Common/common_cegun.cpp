@@ -25,8 +25,8 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "x87_trig.h"        // retail's inline FCOS / FPTAN / FPATAN
-#include "../IVP/ivp_physics/ivp_real_object.h"
-#include "../IVP/ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
+#include "ivp_physics/ivp_real_object.h"
+#include "ivp_physics/ivp_controller.h"  // IVP_Event_Sim (do_simulation_controller)
 
 #include <cstdarg>
 #include <cstdint>

@@ -8,10 +8,10 @@
 // Split out of server_classes.cpp unchanged. It uses none of the declarations the other split
 // files share (server_classes_internal.h), so it does not include them.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_net.h"
 #include "common_physys.h"
-#include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
 #include "common_cequip.h" // TractorArm
 #include "common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
 #include "common_id.h"

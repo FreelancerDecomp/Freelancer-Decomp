@@ -17,7 +17,7 @@
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_misc.h"   // GetFileSysPath
-#include "common_server.h" // OWNERLIST_CARGODESC_EXPORTS
+#include "server_pub.h" // OWNERLIST_CARGODESC_EXPORTS
 #include "DALib.h"
 #include "dacom.h"
 
@@ -642,14 +642,14 @@ bool __cdecl arch_is_combinable(unsigned int ArchId)
 
 // ===========================================================================
 // OwnerList<pub::SpaceObj::CargoDesc> -- template defined in src/include/
-// common_server.h. This explicit instantiation definition makes Common.dll emit
+// server_pub.h. This explicit instantiation definition makes Common.dll emit
 // and export the six members retail's Common.dll exports: ??0 (ord 4,
 // .text:062ed4d0), copy ??0 (ord 3, .text:062ed4f0), ??1 (ord 495, .text:062eed20),
 // ??4 (ord 697, .text:062ed500, ICF-shared with OwnerList<GoodDesc>::operator= and
 // others), ??_7 (ord 962, .rdata:063a0880) and free (ord 2562, .text:062eecb0).
 // Server.dll and freelancer.exe carry the same instantiation.
 // ===========================================================================
-// Member-level export (common_server.h): ??_7 is the one retail export this cannot emit.
+// Member-level export (server_pub.h): ??_7 is the one retail export this cannot emit.
 OWNERLIST_CARGODESC_EXPORTS
 
 // MetaList<GoodDesc> and OwnerList<GoodDesc>: Common.dll exports every member of both

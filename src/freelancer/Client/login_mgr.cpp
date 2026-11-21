@@ -10,7 +10,7 @@
 #include "character_select_equip.h" // ApplyCharacterSelectEquipFields (FUN_005ab250 tail)
 #include "common_ini.h"
 #include "common_misc.h"   // ParseGUID
-#include "common_server.h" // IServer
+#include "server_pub.h" // IServer
 #include "dacom.h"         // FDUMP
 #include "globals.h"       // g_client.packed_version (DAT_0067ecb8)
 #include "perf_options.h"  // GetPerfOptionSlot (FUN_005b3510)

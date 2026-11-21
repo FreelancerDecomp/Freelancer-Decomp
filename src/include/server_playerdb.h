@@ -5,9 +5,9 @@
 // Author: Giperion.
 
 // Server.dll's account database: ci_char_traits / ci_wchar_traits, CiString / CiWString,
-// CAccount, PlayerDB and the `Players` singleton. Split out of common_server.h (which
+// CAccount, PlayerDB and the `Players` singleton. Split out of server_pub.h (which
 // includes it back, so every existing consumer is unchanged) because FLServer.exe needs
-// these types in MFC translation units, where common_server.h's closure (common_cobject.h,
+// these types in MFC translation units, where server_pub.h's closure (common_cobject.h,
 // Freelancer's `class CObject`) collides with MFC's CObject. This header's include closure
 // must stay free of common_cobject.h.
 #pragma once
@@ -146,7 +146,7 @@ public:
 // ============================================================================
 // PlayerData & PlayerDB
 // ============================================================================
-// PlayerData used to be declared in common_server.h a second time, as an opaque
+// PlayerData used to be declared in server_pub.h a second time, as an opaque
 // `unsigned char data[0x418]` blob, while common_server_playerdb.h carried the
 // real record under the name PlayerSlot. PlayerDB::m_PlayerArray was calloc'd
 // from the blob version and poked at retail byte offsets, and everything else

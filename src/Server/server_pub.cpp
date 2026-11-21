@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_pathfind.h" // PathfindManager (pub::AI::SubmitState)
 #include "common_id.h"
 #include "common_goods.h"
@@ -1169,7 +1169,7 @@ static void Server_CopyCostumeCounted(Costume& Dst, Costume const& Src) {
 //      .text:06d4db7f) are plain nickname getters, and the port reads that field.
 //  (7) CLOSED 2026-09-24 (claude-code:w6-rpc): the MP position source is the
 //      CRemotePhysicsController __RTDynamicCast at .text:06d4d672, ported below
-//      against the class Common now really builds (src/include/common_server.h).
+//      against the class Common now really builds (src/include/server_pub.h).
 // ---------------------------------------------------------------------------
 bool __cdecl PlayerData_SerializeToFile(PlayerSlot& Player, char const* FileName,
                                        wchar_t const* Description,
@@ -2100,7 +2100,7 @@ SERVER_API int __cdecl Save(unsigned int PlayerId, unsigned int SaveType) {
 
 } // namespace pub
 // Server_ControllerDispatch, pub::Controller::_SendMessage's dispatch core, is declared in
-// common_server_controller.h (defined in IServerImpl.cpp).
+// server_controller.h (defined in IServerImpl.cpp).
 extern "C" int __cdecl Server_ControllerSetHeartbeat(unsigned int Flid, float Interval);
 extern "C" int __cdecl Server_ControllerSetTimer(unsigned int Flid, unsigned int Param1,
                                                  unsigned int Param2, float Timeout);
@@ -6953,7 +6953,7 @@ SERVER_API int __cdecl InZones(unsigned int system_id, const Transform& transfor
 // The pub::pub_GetSystemID / pub_GetSystemGateConnection / pub_GetSystemNickname /
 // pub_BuildSystemReader / pub_BuildBaseReader / pub_GetBaseID / pub_GetBaseNickname /
 // pub_GetSystemFromBase block that stood here was a second, pointer-taking copy of the
-// real exports (pub::GetSystemID etc., declared in common_server.h with retail's
+// real exports (pub::GetSystemID etc., declared in server_pub.h with retail's
 // reference signatures). Nothing called them and retail exports none of those names.
 
 // ===========================================================================

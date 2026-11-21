@@ -13,7 +13,7 @@
 #include "ContentPlayerState.h" // IsContentGateLocked (TU53 FUN_06f6ce90)
 #include "ContentStaticIds.h"   // TU41's 16 static-init thunks 06f28f60-06f29140
 #include "SystemInfo.h"         // GSystemInfos, FindSystemInfo
-#include "common_server.h"  // pub::System::EnumerateConnections, ConnectionEnumerator
+#include "server_pub.h"  // pub::System::EnumerateConnections, ConnectionEnumerator
 #include "common_tstring.h"     // TString
 #include "readfile.h"           // IFileSystem (pub::GetDataPath)
 

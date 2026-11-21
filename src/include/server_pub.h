@@ -6,30 +6,39 @@
 
 #pragma once
 
+// Server.dll's public API (SERVER_API: pub::*, the server-side object classes). Formerly
+// common_server.h; renamed because it declares Server.dll's exports, none of Common.dll's.
+
 #include "common_pub.h"
 #include "common_text.h"
 #include "common_csys.h"
 #include "common_server_types.h"
-#include "common_server_controller.h"
+#include "server_controller.h"
 // CPlayerAccount, by value: retail embeds one in PlayerDB at this+0x10 (the ctor
 // at 0x06d50b10 does LEA ECX,[ESI+0x10] / CALL COMMON.DLL::CPlayerAccount::
 // CPlayerAccount, and the GetServerSig thunk at 0x06ce1ac0 is ADD ECX,0x10 /
 // JMP [COMMON.DLL::CPlayerAccount::GetAccountNameSigChar]). A by-value member
 // needs the complete type, hence this include. Verified acyclic: common_net.h
 // reaches only common_exports/common_universe/common_reputation and their
-// leaves, none of which include common_server.h.
+// leaves, none of which include server_pub.h.
 #include "common_metalist.h"
 #include "common_net.h"
 #include "common_exports.h"
 #include "server_exports.h"
+// IServer (92 slots), IChatServer, GetServerInterface / GetChatServerInterface and the three
+// chat hooks live in server_iserver.h; ci traits, CiString / CiWString, CAccount, PlayerDB and
+// `Players` in server_playerdb.h. Both closures avoid common_cobject.h so FLServer.exe's MFC
+// TUs can include them on their own.
+#include "server_iserver.h"
+#include "server_playerdb.h"
 // CDeadReckonedVector, complete: CRemotePhysicsSimulation's copy constructor and
 // operator= below are defined in this header (retail compiled them inline into
 // Common.dll, Server.dll and freelancer.exe) and copy-construct / assign its three
 // embedded sub-objects. Verified acyclic: common_cobject.h's include closure does
-// not reach common_server.h.
+// not reach server_pub.h.
 #include "common_cobject.h"
 #include "dacom.h"
-#include "common_ivp_controller.h"  // IVP_Controller_Golem, CRemotePhysicsController's first base
+#include "ivp_physics/ivp_controller.h"  // IVP_Controller_Golem, CRemotePhysicsController's first base
 #include <cmath>     // sqrt (CRemotePhysicsSimulation::CalcPositionError)
 #include <new>
 #include <string>
@@ -470,22 +479,12 @@ SERVER_API int __cdecl GetName(unsigned int zone_id, unsigned int& out_name_id);
 // ID_String — global struct (already defined in common_id.h, forward-declare if needed)
 // Used in Zone::GetLootableInfo
 
-// IServer (92 slots), IChatServer, GetServerInterface / GetChatServerInterface and the three
-// chat hooks live in server_iserver.h, whose closure avoids common_cobject.h so FLServer.exe's
-// MFC TUs can include it.
-#include "server_iserver.h"
-
 // Retail FUN_06d18ea0 (Server.dll internal, cdecl): format, wrap as
 // StyleNode(Style) + TextNode(text) rich text, encode into the chat command
 // buffer and send it to Target from the console id. Defined in
 // src/Server/server_chat.cpp; called by CPlayerGroup::SendChat.
 void __cdecl Server_SendStyledChat(unsigned short Style, unsigned int Target,
                                    const wchar_t* Fmt, ...);
-
-// ci traits, CiString / CiWString, CAccount, PlayerDB and `Players` live in
-// server_playerdb.h (its closure avoids common_cobject.h, so MFC TUs of FLServer.exe
-// can include it).
-#include "server_playerdb.h"
 
 
 // ============================================================================

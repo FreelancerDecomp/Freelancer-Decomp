@@ -14,7 +14,7 @@
 
 #include "FactionProps.h"
 #include "NpcShips.h"            // FMsnNpc, the name value readers
-#include "common_server.h"       // pub::Reputation, pub::GetType, pub::GetShipArchSTRID
+#include "server_pub.h"       // pub::Reputation, pub::GetType, pub::GetShipArchSTRID
 
 #include <cstdint>
 

@@ -18,7 +18,7 @@
 #include "ContentStaticIds.h"     // TU40's 16 static-init thunks 06f24670-06f24850
 #include "ContentInternal.h"      // SubtractVectors (FUN_06eeaee0)
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <cstring>
 #include <iterator>

@@ -14,7 +14,7 @@
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_newchar.h"       // pub::StateGraph::get_state_graph
-#include "common_server.h"
+#include "server_pub.h"
 
 // FUN_06ed5590 (06ed5590-06ed571f). Result starts true and is cleared only when no key
 // matched:

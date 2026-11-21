@@ -8,7 +8,7 @@
 
 #include "chat_init.h"          // ChatResetForDisconnect (FUN_0046b170)
 #include "common_ini.h"         // RefreshLoadingProgress
-#include "common_server.h"      // IServer
+#include "server_pub.h"      // IServer
 #include "common_server_types.h" // SStartupInfo
 #include "common_misc.h"        // SinglePlayer, SetMultiPlayer, CleanUpDatabases
 #include "connect_lists.h"      // TeardownConnectLists (FUN_004c4bc0)

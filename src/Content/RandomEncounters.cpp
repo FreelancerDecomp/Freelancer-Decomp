@@ -28,7 +28,7 @@
 #include "SystemInfo.h"     // FSystemInfo, FSystemZone
 #include "common_csys.h"    // Matrix (pub::SpaceObj::GetLocation)
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_weighted_vector.h"
 #include "msvcrt_compat.h"
 

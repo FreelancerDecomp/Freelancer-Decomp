@@ -18653,7 +18653,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 128,
    "module": "(public)",
@@ -18716,7 +18716,7 @@
    "base_resolved": true,
    "base_slots": 7,
    "bases": "public IVP_Controller",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 256,
    "module": "(public)",
@@ -18737,7 +18737,7 @@
    "base_resolved": true,
    "base_slots": 7,
    "bases": "public IVP_Controller",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 280,
    "module": "(public)",
@@ -18765,7 +18765,7 @@
    "base_resolved": true,
    "base_slots": 9,
    "bases": "public IVP_Controller_Independent",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 337,
    "module": "(public)",
@@ -18807,7 +18807,7 @@
    "base_resolved": true,
    "base_slots": 13,
    "bases": "public IVP_Controller_Motion",
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "kind": "class",
    "line": 408,
    "module": "(public)",
@@ -18849,7 +18849,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
    "line": 590,
    "module": "(public)",
@@ -18870,7 +18870,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
    "line": 707,
    "module": "(public)",
@@ -18891,9 +18891,9 @@
    "base_resolved": false,
    "base_slots": 0,
    "bases": "public IVP_Real_Object_Fast_Static",
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
-   "line": 736,
+   "line": 742,
    "module": "(public)",
    "name": "IVP_Real_Object",
    "public": true,
@@ -19535,7 +19535,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "struct",
    "line": 139,
    "module": "(public)",
@@ -19556,7 +19556,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "struct",
    "line": 161,
    "module": "(public)",
@@ -19577,7 +19577,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "struct",
    "line": 381,
    "module": "(public)",
@@ -19598,7 +19598,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "struct",
    "line": 388,
    "module": "(public)",
@@ -19619,7 +19619,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "class",
    "line": 602,
    "module": "(public)",
@@ -19640,7 +19640,7 @@
    "base_resolved": true,
    "base_slots": 0,
    "bases": "",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "class",
    "line": 961,
    "module": "(public)",
@@ -19668,7 +19668,7 @@
    "base_resolved": true,
    "base_slots": 17,
    "bases": "public IVP_Controller_Golem, public CRemotePhysicsSimulation",
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "kind": "class",
    "line": 1251,
    "module": "(public)",
@@ -28115,7 +28115,7 @@
      "method": "SendServerGFMissionVendorWhyEmpty",
      "offset": 168,
      "slot_index": 42,
-     "text": "// +0x0a8  0x06d88af0  ch2 op 0x5a  FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY (size 0x24)  (was Slot42) // Reason is pub::GF::ReportWhyMissionVendorEmpty's MVEmptyReason (common_server.h), which // has no fixed underlying type and so cannot be forward-declared here; the sender keeps // its low byte (06d88b0d MOV DL,byte ptr [ESP+0x10]). virtual void SendServerGFMissionVendorWhyEmpty(unsigned int ClientId, unsigned int Reason) = 0;"
+     "text": "// +0x0a8  0x06d88af0  ch2 op 0x5a  FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY (size 0x24)  (was Slot42) // Reason is pub::GF::ReportWhyMissionVendorEmpty's MVEmptyReason (server_pub.h), which // has no fixed underlying type and so cannot be forward-declared here; the sender keeps // its low byte (06d88b0d MOV DL,byte ptr [ESP+0x10]). virtual void SendServerGFMissionVendorWhyEmpty(unsigned int ClientId, unsigned int Reason) = 0;"
     },
     {
      "derived": false,
@@ -39154,91 +39154,91 @@
    "name": "Behavior"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 49,
    "module": "(public)",
    "name": "IVP_Core"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 50,
    "module": "(public)",
    "name": "IVP_Environment"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 79,
    "module": "(public)",
    "name": "IVP_Simulation_Unit"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 226,
    "module": "(public)",
    "name": "IVP_Real_Object"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 227,
    "module": "(public)",
    "name": "Vector"
   },
   {
-   "file": "src/include/common_ivp_controller.h",
+   "file": "src/IVP/ivp_physics/ivp_controller.h",
    "line": 228,
    "module": "(public)",
    "name": "FLControllerGolemParms"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 23,
    "module": "(public)",
    "name": "IVP_Environment"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 24,
    "module": "(public)",
    "name": "IVP_Core"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 25,
    "module": "(public)",
    "name": "IVP_Material"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 26,
    "module": "(public)",
    "name": "IVP_OV_Element"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 29,
    "module": "(public)",
    "name": "IVP_Synapse_Real"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 30,
    "module": "(public)",
    "name": "IVP_Controller_Phantom"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 31,
    "module": "(public)",
    "name": "IVP_Template_Phantom"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 588,
    "module": "(public)",
    "name": "IVP_Cluster"
   },
   {
-   "file": "src/include/common_ivp_real_object.h",
+   "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "line": 704,
    "module": "(public)",
    "name": "IVP_Anchor"
@@ -39490,97 +39490,97 @@
    "name": "ISave"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 43,
    "module": "(public)",
    "name": "FmtStr"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 44,
    "module": "(public)",
    "name": "BaseHint"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 45,
    "module": "(public)",
    "name": "AmbientScriptDescription"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 46,
    "module": "(public)",
    "name": "CharacterBehaviorDescription"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 47,
    "module": "(public)",
    "name": "NewsBroadcastDescription"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 48,
    "module": "(public)",
    "name": "MissionVendorOfferDescription"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 49,
    "module": "(public)",
    "name": "EquipDescVector"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 50,
    "module": "(public)",
    "name": "Transform"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 105,
    "module": "(public)",
    "name": "weighted_vector"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 144,
    "module": "(public)",
    "name": "Costume"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 145,
    "module": "(public)",
    "name": "CharacterDescription"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 489,
    "module": "(public)",
    "name": "CAsteroidSystem"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 490,
    "module": "(public)",
    "name": "CAsteroidField"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 497,
    "module": "(public)",
    "name": "FSrvAsteroidField"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 586,
    "module": "(public)",
    "name": "CSetMissionMessage"
   },
   {
-   "file": "src/include/common_server.h",
+   "file": "src/include/server_pub.h",
    "line": 1297,
    "module": "(public)",
    "name": "CargoDesc"

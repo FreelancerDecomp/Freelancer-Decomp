@@ -36,7 +36,7 @@
 #include "dacom.h"
 #include "common_csys.h"     // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_iface.h"    // IObjRW (NotifyCinematicView)
-#include "common_server.h"   // IServer::SPRequestInvincibility (DAT_0067ecd0 slot 57)
+#include "server_pub.h"   // IServer::SPRequestInvincibility (DAT_0067ecd0 slot 57)
 #include "x86math.h"         // I3DMathEngine::InverseTransform (slot 0x3c)
 
 #include <math.h>

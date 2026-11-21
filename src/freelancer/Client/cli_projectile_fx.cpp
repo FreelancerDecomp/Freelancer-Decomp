@@ -36,7 +36,7 @@
 #include "common_iface.h"
 #include "common_misc.h"
 #include "common_animdb.h"
-#include "common_server.h"        // IServer (DAT_0067ecd0) -- CliShipActivateEquip
+#include "server_pub.h"        // IServer (DAT_0067ecd0) -- CliShipActivateEquip
 #include "common_server_types.h"
 #include "engine/engbase.h"
 #include "soundmanager.h"

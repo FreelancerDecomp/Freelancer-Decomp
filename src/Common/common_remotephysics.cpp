@@ -14,30 +14,30 @@
 #include "common_net.h"  // IsMPServer -- CRemotePhysicsSimulation::tracef (.text:06291be6)
 #include "common_phyarch.h"
 #include "common_misc.h"     // SinglePlayer
-#include "common_server.h"
+#include "server_pub.h"
 
 #include "dacom.h"
 #include "DALib.h"
 #include "x86math.h"  // I3DMathEngine::MatrixToQuaternion, FQuaternion, FMatrix
-#include "../IVP/ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
-#include "../IVP/ivp_physics/ivp_core.h"
-#include "../IVP/ivp_physics/ivp_real_object.h"
-#include "../IVP/ivp_physics/ivp_environment.h"
-#include "../IVP/ivp_physics/ivp_controller.h"
-#include "../IVP/ivp_physics/ivp_material.h"
-#include "../IVP/ivp_physics/ivp_listener.h"
-#include "../IVP/ivp_physics/ivp_mindist_settings.h"
-#include "../IVP/ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
+#include "ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
+#include "ivp_physics/ivp_core.h"
+#include "ivp_physics/ivp_real_object.h"
+#include "ivp_physics/ivp_environment.h"
+#include "ivp_physics/ivp_controller.h"
+#include "ivp_physics/ivp_material.h"
+#include "ivp_physics/ivp_listener.h"
+#include "ivp_physics/ivp_mindist_settings.h"
+#include "ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
 #include "common_csys.h"  // Acquire3DMathEngine
 // PhySys::CalcClosestPointOnSynapse (FUN_0628b7a0, near GetClosestPhantomIntruderPos
 // below) walks retail's compact half-edge mesh directly -- IVP_Compact_Edge /
 // IVP_Compact_Triangle / IVP_Compact_Ledge and IVP_U_Float_Point.
-#include "../IVP/ivp_compact_builder/ivp_compact_ledge.h"
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
-#include "../IVP/ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
-#include "../IVP/ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
-#include "../IVP/ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
+#include "ivp_compact_builder/ivp_compact_ledge.h"
+#include "ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
+#include "ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
+#include "ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
+#include "ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
+#include "ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
 
 #include <assert.h>
 #include <float.h>   // FLT_MAX (PhySys::GetClosestPhantomIntruderPos, DAT_0639c39c)
@@ -71,7 +71,7 @@ using namespace CmnPhySys;
 //
 // PORTED 2026-09-24 (claude-code:w6-rpc). Until then RCBegin allocated a memset-zeroed
 // 0x3c0 block with two hand-made "mock" vtables and RCSet/RCEnd called into it by raw slot
-// index. The class is declared in src/include/common_server.h (it has to be public: Server.dll
+// index. The class is declared in src/include/server_pub.h (it has to be public: Server.dll
 // names it in the __RTDynamicCast at .text:06d4d672); its RTTI, both vftables and its layout
 // are documented there. Everything below is read off Common.dll.txt.
 
@@ -293,7 +293,7 @@ void __cdecl PhySys::RCEnd(CSimple* Object)
 // CRemotePhysicsSimulation's eight members that retail compiled into Common.dll,
 // Server.dll AND freelancer.exe -- GetSimulationTime, CalcPositionError,
 // GetSampleCount, GetLatestUpdate, GetSample, SetLogging, the copy constructor and
-// operator= -- are defined inline in src/include/common_server.h, the one place
+// operator= -- are defined inline in src/include/server_pub.h, the one place
 // all three modules compile them from (each exports its own copy, as retail's do).
 // Only the seven Common-only members live in this file, below.
 
@@ -366,7 +366,7 @@ static FILE* G_RemotePhysTraceFile = nullptr;
 // (.text:06291bb0 `MOV EAX,dword ptr [ESP + 0x4]`, then
 //  .text:06291bb4 `MOV CL,byte ptr [EAX + 0x2e0]` == m_bLogging). MSVC gives a
 // varargs member function __cdecl automatically, which is what the QAAX..ZZ
-// mangling encodes, so the declaration in common_server.h already matches.
+// mangling encodes, so the declaration in server_pub.h already matches.
 //
 // The buffer is 0x400 bytes (.text:06291bba `SUB ESP,0x400`). The header comment
 // on this member is right about the two destinations but wrong about both fopen
@@ -439,7 +439,7 @@ CRemotePhysicsSimulation::CRemotePhysicsSimulation()
 }
 
 // Copy constructor (Common 0x235b0 ord 179) and operator= (0x23b30 ord 742): inline
-// in src/include/common_server.h, shared with Server.dll and freelancer.exe.
+// in src/include/server_pub.h, shared with Server.dll and freelancer.exe.
 
 
 // .text:06291d50 -- ??1CRemotePhysicsSimulation@@UAE@XZ, ordinal 571. Six

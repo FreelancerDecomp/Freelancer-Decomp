@@ -30,7 +30,7 @@
 #include "RefHandle.h"              // TRefHandle
 #include "SystemInfo.h"             // FSystemInfo::SystemId
 #include "common_misc.h"            // SMM_TIMEOUT
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"         // pub::SpaceObj::GetHealth
 #include "server_gameobject.h"      // FSubObjDamageEvent (controller message 0xd)
 
@@ -97,7 +97,7 @@ namespace
         return Fired;
     }
 
-    // The controller message ids (common_server_controller.h), used throughout this file.
+    // The controller message ids (server_controller.h), used throughout this file.
     using pub::Controller::EMessage;
 
     // A controller event (type 4) of message MessageId. The event's int +0x08 (named

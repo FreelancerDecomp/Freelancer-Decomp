@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "physics_tick_profile.h"
+#include "ivp_utility/ivp_tick_profile.h"
 #if FREELANCER_ENABLE_TICK_PROFILE
 #include "platform.h"
 

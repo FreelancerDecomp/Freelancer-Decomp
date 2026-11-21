@@ -41,7 +41,7 @@
 #include "common_iface.h"     // IObjRW, IObjInspectImpl, ObjRwFromWatchable
 #include "common_ini.h"       // INI_Reader, Vector
 #include "common_misc.h"      // ICamera
-#include "common_server.h"    // IServer (G_Server, CommComplete vt+0xfc)
+#include "server_pub.h"    // IServer (G_Server, CommComplete vt+0xfc)
 #include "soundmanager.h"     // ISoundSource
 
 #include "DALib.h"

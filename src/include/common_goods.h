@@ -670,7 +670,7 @@ public:
 // an FmtStr -- that field was previously misnamed/mistyped as one). Separately,
 // pub::GF::AmbientScriptCreate itself reads one dword at +0x10 and passes it on as the
 // record's session filter (see the field). No field beyond it is read by anyone.
-// Lives here (not common_server.h) because it pairs with the other pub::GF
+// Lives here (not server_pub.h) because it pairs with the other pub::GF
 // property-bag classes below.
 struct AmbientScriptDescription
 {

@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "ivp_environment.h"
-#include "../../Common/physics_tick_profile.h" // PORT(diag): owner-requested profiling
+#include "../ivp_utility/ivp_tick_profile.h" // PORT(diag): owner-requested profiling
 #include "ivp_core.h"
 #include "ivp_anomaly_manager.h"
 #include "ivp_material.h"

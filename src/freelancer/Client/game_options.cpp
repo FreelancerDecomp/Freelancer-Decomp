@@ -11,7 +11,7 @@
 #include "login_mgr.h"    // G_Server (DAT_0067ecd0)
 #include "player_spawn.h" // GetPlayerConnectionId (DAT_00673344)
 
-#include "common_server.h" // IServer::SetInterfaceState (slot 77)
+#include "server_pub.h" // IServer::SetInterfaceState (slot 77)
 
 #include <cstring>
 #include <iterator>

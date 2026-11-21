@@ -10,7 +10,7 @@
 #include "common_id.h"
 #include "common_newchar.h"
 #include "common_reputation.h" // Reputation::Vibe::SetClientID
-#include "common_server.h"     // IServer::SetVisitedState
+#include "server_pub.h"     // IServer::SetVisitedState
 #include "common_misc.h"       // SinglePlayer
 #include "common_universe.h"
 #include "dacom.h"       // FDUMP

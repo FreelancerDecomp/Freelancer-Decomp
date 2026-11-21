@@ -17,9 +17,9 @@
 #include "common_misc.h"    // SUBOBJ_ID_*, DamageList
 #include "common_id.h"      // ID_String::IsEmpty
 #include "DALib.h"          // DALib::Engine (Mine::create, IEngine +0x6c)
-#include "../IVP/ivp_physics/ivp_core.h"        // IVP_Core::Speed (+0xa4)
-#include "common_ivp_real_object.h" // IVP_Real_Object::core (+0x98)
-#include "common_ivp_controller.h"  // IVP_Event_Sim::delta_time
+#include "ivp_physics/ivp_core.h"        // IVP_Core::Speed (+0xa4)
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object::core (+0x98)
+#include "ivp_physics/ivp_controller.h"  // IVP_Event_Sim::delta_time
 
 #include <cfloat>
 #include <cmath>

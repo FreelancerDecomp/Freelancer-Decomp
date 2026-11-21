@@ -32,7 +32,7 @@
 
 #include "DALib.h"
 #include "common_csys.h"         // Acquire3DMathEngine (FUN_005b73e0)
-#include "common_server.h"       // IServer
+#include "server_pub.h"       // IServer
 #include "common_misc.h"         // SinglePlayer
 #include "engine/engbase.h"
 #include "x86math.h"

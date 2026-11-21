@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_iserverimpl.h"   // IServerImpl, Server
 #include "server_cobject.h"
 #include "server_gameobject.h"
@@ -19,7 +19,7 @@
 #include "server_savegame.h"
 #include "server_characterset.h" // CCharacterSet (CharacterInfoReq)
 #include "common_misc.h"      // safe_strcpy (CharacterSelect key)
-#include "common_server_controller.h"
+#include "server_controller.h"
 #include "content.h"   // IDLL, CreateInstance / DestroyInstance (controller DLL entry points)
 #include "server_sysdb.h"
 #include "server_basedb.h"
@@ -50,7 +50,7 @@
 
 #pragma comment(lib, "winmm.lib")
 
-// Server_ControllerDispatch (common_server_controller.h), pub::Controller::_SendMessage's
+// Server_ControllerDispatch (server_controller.h), pub::Controller::_SendMessage's
 // dispatch core, is defined further down this file. Retail's FUN_06d43650 (exported by the
 // port from Common.dll as Server_SendMessage) is only `_SendMessage(0 /* broadcast */,
 // MsgId, MsgData)`, so every call site that used to go through the empty Common.dll
@@ -2775,7 +2775,7 @@ void IServerImpl::GetServerStats(ServerStats& OutStats) {
     // retail has no such member, and 4096 is not derived from anything. It was
     // memset by the ctor and then `reinterpret_cast<PlayerDB*>`-ed and called
     // through, running container code over zeroed std::wstring/std::map state.
-    // The real table is the exported global `Players` (see common_server.h).
+    // The real table is the exported global `Players` (see server_pub.h).
 
 // Field_0x8 (retail +0x8, the single data member) is declared in server_iserverimpl.h.
 

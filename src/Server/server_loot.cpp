@@ -20,8 +20,8 @@
 #include <list>
 #include <vector>
 
-// Server_ControllerDispatch (common_server_controller.h, through server_sysdb.h ->
-// common_server.h): pub::Controller::_SendMessage's dispatch core; retail FUN_06d43650 is
+// Server_ControllerDispatch (server_controller.h, through server_sysdb.h ->
+// server_pub.h): pub::Controller::_SendMessage's dispatch core; retail FUN_06d43650 is
 // `_SendMessage(0 /* broadcast */, MsgId, MsgData)`.
 
 namespace

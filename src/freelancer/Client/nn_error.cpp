@@ -8,7 +8,7 @@
 
 #include "client_frame_tick.h"  // BeginClientRenderFrame / EndClientRenderFrame
 #include "common_misc.h"        // WaitForClientRunPermission / GiveServerRunPermission
-#include "common_server.h"      // IServer
+#include "server_pub.h"      // IServer
 #include "font_string.h"        // FFontString (+0x28 LayoutGen, +0x30 bMultiLine)
 #include "globals.h"            // PumpMessages, GetClientFrameTimeCapped, timing pause
 #include "hud_command_dispatch.h"

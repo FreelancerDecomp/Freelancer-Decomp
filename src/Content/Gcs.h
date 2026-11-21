@@ -22,7 +22,7 @@
 // QueueConversation.
 
 #include "common_ini.h"    // Vector
-#include "common_server_controller.h" // pub::Controller::EMessage
+#include "server_controller.h" // pub::Controller::EMessage
 #include "common_tstring.h" // TString
 
 #include <list>

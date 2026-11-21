@@ -23,7 +23,7 @@
 #include "RandomEncounters.h"   // FRandEncTLParams, CreateRandEncParamsByType (TU31 FUN_06efb8e0)
 #include "RefHandle.h"          // TRefHandle (FUN_06f28e10)
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"     // pub::SpaceObj::Destroy, DESTROY_NORMAL
 
 #include <algorithm>

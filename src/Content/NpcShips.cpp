@@ -17,7 +17,7 @@
 #include "ContentStaticIds.h"
 #include "common_ini.h"
 #include "common_newchar.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_text.h"
 #include "msvcrt_compat.h"
 

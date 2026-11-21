@@ -19,9 +19,8 @@
 //   +0x18 ConfirmPlayerText FontString* вЂ” CLIENT ONLY (alloc 0x1c)
 // Base sizeof = 0x18; client wrapper sizeof = 0x1c.
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
+// No WIN32_LEAN_AND_MEAN here: defined in a public header it trimmed <windows.h> for every client
+// file that happened to include this header first. imeui.vcxproj defines it for imeui's own build.
 #include <windows.h>
 
 #if defined(IMEUI_EXPORTS)

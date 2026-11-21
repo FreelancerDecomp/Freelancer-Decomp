@@ -23,8 +23,8 @@
 #include "Populators.h"         // BasePopHasPlayer (FUN_06eb3390)
 #include "RandomMission.h"      // FRandomMissionLoader::CanAccept / Release
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 #include "common_text.h"        // FmtStr
 #include "common_tstring.h"
 

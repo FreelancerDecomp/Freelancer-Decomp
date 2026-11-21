@@ -4,10 +4,10 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_net.h"
 #include "common_physys.h"
-#include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
 #include "common_cequip.h" // TractorArm
 #include "common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
 #include "common_id.h"
@@ -70,7 +70,7 @@
 // i.e. a BROADCAST to every loaded controller's slot 0 (retail 0x06d44080). The port used
 // to route it through Common.dll's Server_SendMessage, whose handler table is never
 // populated, so all of it was dead. Server_ControllerDispatch (IServerImpl.cpp, declared in
-// common_server_controller.h) is the real walk.
+// server_controller.h) is the real walk.
 
 // Retail reaches IServerImpl members through the exported `Server` object
 // (e.g. .text:06d50b03 `MOV ECX,.data:Server` / .text:06d50b08 `CALL
@@ -113,7 +113,7 @@ void Server_BroadcastGroupControl(unsigned int MsgType, unsigned int Param) {
 // ===========================================================================
 
 // ===========================================================================
-// CRemotePhysicsSimulation -- declared once in common_server.h; the class is
+// CRemotePhysicsSimulation -- declared once in server_pub.h; the class is
 // Common.dll's. The eight members retail emits into Common.dll, Server.dll and
 // freelancer.exe alike (copy ctor ord 8, operator= ord 27, CalcPositionError 70,
 // GetLatestUpdate 200, GetSample 258, GetSampleCount 259, GetSimulationTime 273,
@@ -131,7 +131,7 @@ void Server_BroadcastGroupControl(unsigned int MsgType, unsigned int Param) {
 // ===========================================================================
 
 // Retail .data:06d90400, the protected static CPlayerGroup::s_GroupIDToGroupPtrMap
-// (export ordinal 508; see common_server.h for the declared type).
+// (export ordinal 508; see server_pub.h for the declared type).
 CPlayerGroup::GroupMapType CPlayerGroup::s_GroupIDToGroupPtrMap;
 
 // SrvAsteroid's system map, kept with this module's other globals (see the top of the file).
@@ -145,13 +145,13 @@ FSrvAsteroidSystemMap GSrvAsteroidSystems;
 
 // ===========================================================================
 // OwnerList<pub::SpaceObj::CargoDesc> -- the template's members are defined in
-// src/include/common_server.h. This explicit instantiation definition is what makes
+// src/include/server_pub.h. This explicit instantiation definition is what makes
 // Server.dll emit and export the six members retail's Server.dll exports: ??0 (ord
 // 2, .text:06ce3040), copy ??0 (ord 1, .text:06ce3060), ??1 (ord 18, .text:06ce5810),
 // ??4 (ord 23, .text:06ce10d0), ??_7 (ord 34, .rdata:06d64f24) and free (ord 483,
 // .text:06ce57a0). Common.dll and freelancer.exe carry the same instantiation.
 // ===========================================================================
-// Member-level export (common_server.h): ??_7 is the one retail export this cannot emit.
+// Member-level export (server_pub.h): ??_7 is the one retail export this cannot emit.
 OWNERLIST_CARGODESC_EXPORTS
 
 // ===========================================================================

@@ -58,7 +58,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\common_server.h" />
+    <ClInclude Include="..\include\server_pub.h" />
     <ClInclude Include="..\include\common_server_types.h" />
     <ClInclude Include="server_savegame.h" />
     <ClInclude Include="..\include\server_savefile.h" />

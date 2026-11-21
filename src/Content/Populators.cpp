@@ -20,8 +20,8 @@
 #include "RandomMissionDB.h"           // ReleaseRmDestSystems (TU47 FUN_06f4d650)
 #include "SpaceSupport.h"              // TestExclusionSpheres (TU53 FUN_06f616e0)
 #include "SystemInfo.h"                // FSystemInfo, FSystemZone, FZonePopulation
-#include "common_server.h"             // pub::SinglePlayer
-#include "common_server_controller.h"
+#include "server_pub.h"             // pub::SinglePlayer
+#include "server_controller.h"
 #include "x86math.h"
 
 #include <algorithm>

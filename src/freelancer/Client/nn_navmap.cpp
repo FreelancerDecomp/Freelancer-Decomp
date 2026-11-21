@@ -29,7 +29,7 @@
 #include "x86math.h"                 // FTransform, I3DMathEngine
 #include "common_csys.h"             // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_id.h"               // CreateID
-#include "common_server.h"           // IServer
+#include "server_pub.h"           // IServer
 #include "common_misc.h"             // SinglePlayer, GetFileSysPath
 #include "common_universe.h"
 #include "dacom.h"

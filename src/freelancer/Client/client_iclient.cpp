@@ -25,7 +25,7 @@
 #include "common_id.h"                // MakeId
 #include "common_net.h"               // MarshalBuffer
 #include "common_reputation.h"        // Reputation::Vibe
-#include "common_server.h"            // IServer (DAT_0067ecd0)
+#include "server_pub.h"            // IServer (DAT_0067ecd0)
 #include "common_misc.h"              // SinglePlayer
 #include "dacom.h"
 #include "hud_target.h"               // G_bTradeRequested (DAT_00674b00)

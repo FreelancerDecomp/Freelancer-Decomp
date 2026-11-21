@@ -74,7 +74,7 @@ class IVP_Time;
 class IVP_Mindist_Base;
 class IVP_Controller_Phantom;
 // The event every controller's do_simulation_controller receives; defined in
-// common_ivp_controller.h (only the name is needed here).
+// ivp_physics/ivp_controller.h (only the name is needed here).
 class IVP_Event_Sim;
 
 // Retail's golem force controller, CObject+0x60. RTTI-confirmed global-scope class name (see
@@ -84,10 +84,10 @@ class FLControllerGolem;
 // IVP_Controller -- PhySys::Controller's base (retail CHD: PhySys::Controller,
 // IVP_Controller_Dependent, IVP_Controller) -- and the IVP_CONTROLLER_PRIORITY enum its
 // slot 5 returns (moved there 2026-09-25; the value 0x5dc is still retail's, 06285c80).
-#include "common_ivp_controller.h"
+#include "ivp_physics/ivp_controller.h"
 // IVP_Listener_Phantom -- PhyCollisionStateManager's base (RTTI COL 063a6948:
 // PhyCollisionStateManager, IVP_Listener_Phantom at 0).
-#include "../IVP/ivp_physics/ivp_phantom.h"
+#include "ivp_physics/ivp_phantom.h"
 // CheapSet<CObject*> -- PhyCollisionStateManager::get_intruding_cobjs' out set.
 #include "common_cheapset.h"
 
@@ -316,7 +316,7 @@ namespace PhySys
     // Retail's vftable has 7 slots, not 3+dtor -- confirmed via RTTI class hierarchy
     // (COL 0639b608 -> CHD 063a681c -> base array 063a680c): PhySys::Controller
     // derives from IVP_Controller_Dependent, which derives from IVP_Controller (the
-    // third-party Ipion physics SDK base, declared in common_ivp_controller.h).
+    // third-party Ipion physics SDK base, declared in ivp_physics/ivp_controller.h).
     // The 3 extra vtable slots between
     // core_is_going_to_be_deleted_event and get_controller_priority are IVP_Controller's:
     // slot 1 (LAB_0627cd20, `FLD 1.0; RET`) and slot 3 (a `RET 0x8` no-op) are its
@@ -332,7 +332,7 @@ namespace PhySys
     // controller subclass therefore had its overrides in the wrong slots (Server.dll's Mine /
     // Guided tables .rdata:06d6622c / 06d66700 put do_simulation_controller at +0x10 and the
     // deleting destructor at +0x18, exactly as .rdata:0639b60c here). The slot order now
-    // comes from IVP_Controller (common_ivp_controller.h):
+    // comes from IVP_Controller (ivp_physics/ivp_controller.h):
     //   +0x00 core_is_going_to_be_deleted_event  this class (06285c30)
     //   +0x04 get_minimum_simulation_frequency    IVP_Controller's default (0627cd20, 1.0f)
     //   +0x08 get_associated_controlled_cores     this class (0632e7a0 / ICF)
@@ -470,7 +470,7 @@ namespace PhySys
     // core via IVP_Core::register_controller (FUN_06349020 -> FUN_06349180) and its destructor
     // detaches via FUN_06349030 -> FUN_06349110. It therefore derives from IVP_Controller, and
     // its full definition lives in common_controllergolem.cpp rather than here: this header is pulled
-    // into Server.dll and Freelancer.exe translation units (common_cobject.h, common_server.h,
+    // into Server.dll and Freelancer.exe translation units (common_cobject.h, server_pub.h,
     // space_scene_load.cpp) that have no src/IVP include path, and dragging ivp_controller.h
     // across that boundary is not worth it for three call sites. The three entry points below
     // are port-local free functions standing in for retail's __thiscall methods. None of the

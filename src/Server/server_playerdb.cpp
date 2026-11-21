@@ -8,10 +8,10 @@
 // Split out of server_classes.cpp unchanged; the declarations the split files share are in
 // server_classes_internal.h.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_net.h"
 #include "common_physys.h"
-#include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
 #include "common_cequip.h" // TractorArm
 #include "common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
 #include "common_id.h"
@@ -80,7 +80,7 @@
 //
 // The object itself is defined in server_classes.cpp, in its "Missing global exports" block,
 // which keeps the globals with constructors in their teardown order; it is declared in
-// common_server.h.
+// server_pub.h.
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
@@ -307,8 +307,8 @@ PlayerDB& PlayerDB::operator=(const PlayerDB& Other) {
 
 // The translation-unit singleton `GServerAccount` that used to stand in for
 // retail's PlayerDB+0x10 is gone: PlayerDB::m_ServerAccount is a real
-// CPlayerAccount member now (see common_server.h). It only ever existed to keep
-// common_net.h out of common_server.h's include graph, and that include has
+// CPlayerAccount member now (see server_pub.h). It only ever existed to keep
+// common_net.h out of server_pub.h's include graph, and that include has
 // been verified acyclic.
 
 // Retail keeps the accounts root in the global char buffer at DAT_06d90158.
@@ -1921,7 +1921,7 @@ void PlayerDB::init(unsigned int MaxPlayers, bool bAllowNewPlayers) {
 //
 // Retail's map values are bare CAccount* pointers, and so are the port's
 // (the invented FAccountInfo wrapper was removed 2026-09-24); the flags are
-// the bytes at CAccount+0x30..+0x32 -- see CAccount in common_server.h.
+// the bytes at CAccount+0x30..+0x32 -- see CAccount in server_pub.h.
 // FUN_06d46150, called once at the end of phase (E), is LoadCheatMessage; it is
 // ported above and called from init() rather than from here.
 // ---------------------------------------------------------------------------
@@ -2241,7 +2241,7 @@ bool PlayerDB::is_valid(const unsigned int& Id) {
 // Raw listing 0x06ce1a40: the FIRST reference argument is the player id
 // (TEST EDX,EDX -> CMP (id-1) against [this+0x4] -> [base+(id-1)*0x418+0x348]),
 // the SECOND is the ship flid, compared against [base + id*0x418 - 0x34]
-// (= slot+0x3E4). The declaration in common_server.h still names the
+// (= slot+0x3E4). The declaration in server_pub.h still names the
 // parameters the other way round; the names there are cosmetic only, both
 // are `const unsigned int&`, but they should be swapped as well.
 // ---------------------------------------------------------------------------

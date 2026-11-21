@@ -30,7 +30,7 @@
 | `CAccount` | 1 | 1 | `src/include/server_playerdb.h:69` | **public** | — |
 | `CAccountsDlg` | 2 | 2 | `src/FLServer/AccountsDlg.h:11` | private (FLServer) | `public CDialog` |
 | `CAreYouSureDlg` | 1 | 1 | `src/FLServer/AreYouSureDlg.h:6` | private (FLServer) | `public CDialog` |
-| `CargoEnumerator` | 1 | 1 | `src/include/common_server.h:139` | **public** | — |
+| `CargoEnumerator` | 1 | 1 | `src/include/server_pub.h:139` | **public** | — |
 | `CargoPod` | 2 | 19 | `src/include/common_archetype.h:1237` | **public** | `public AttachedEquipment` |
 | `CAsteroid` | 4 | 65 | `src/include/common_cobject.h:971` | **public** | `public CSimple` |
 | `CAttachedEquip` | 15 | 51 | `src/include/common_cequip.h:441` | **public** | `public CExternalEquip` |
@@ -114,11 +114,11 @@
 | `CPhysAttachment` | 6 | 12 | `src/include/common_cequip.h:420` | **public** | `public CAttachmentObj` |
 | `CPhysControllerEquip` | 5 | 14 | `src/include/common_cequip.h:692` | **public** | `public PhySys::Controller` |
 | `CPlayerAccount` | 1 | 1 | `src/include/common_net.h:568` | **public** | — |
-| `CPlayerGroup` | 1 | 1 | `src/include/common_server.h:602` | **public** | — |
+| `CPlayerGroup` | 1 | 1 | `src/include/server_pub.h:602` | **public** | — |
 | `CPlayerTradeOffer` | 1 | 1 | `src/include/common_tradeoffer.h:32` | **public** | — |
 | `CProjectile` | 5 | 66 | `src/include/common_cobject.h:611` | **public** | `public CSimple` |
-| `CRemotePhysicsController` | 4 | 21 | `src/include/common_server.h:1251` | **public** | `public IVP_Controller_Golem, public CRemotePhysicsSimulation` |
-| `CRemotePhysicsSimulation` | 2 | 2 | `src/include/common_server.h:961` | **public** | — |
+| `CRemotePhysicsController` | 4 | 21 | `src/include/server_pub.h:1251` | **public** | `public IVP_Controller_Golem, public CRemotePhysicsSimulation` |
+| `CRemotePhysicsSimulation` | 2 | 2 | `src/include/server_pub.h:961` | **public** | — |
 | `CSelectStarSystemDlg` | 4 | 4 | `src/FLServer/SelectStarSystemDlg.h:13` | private (FLServer) | `public CDialog` |
 | `CServerConfigDlg` | 3 | 3 | `src/FLServer/ServerConfigDlg.h:13` | private (FLServer) | `public CDialog` |
 | `CServerInfoDlg` | 1 | 1 | `src/FLServer/ServerInfoDlg.h:14` | private (FLServer) | `public CDialog` |
@@ -145,7 +145,7 @@
 | `DynamicAsteroid` | 2 | 8 | `src/include/common_archetype.h:1578` | **public** | `public Root` |
 | `Engine` | 4 | 17 | `src/include/common_archetype.h:945` | **public** | `public Equipment` |
 | `EngineObject` | 19 | 33 | `src/include/common_cobject.h:81` | **public** | `public IEngineInstance` |
-| `Enumerator` | 1 | 1 | `src/include/common_server.h:161` | **public** | — |
+| `Enumerator` | 1 | 1 | `src/include/server_pub.h:161` | **public** | — |
 | `EqObj` | 4 | 10 | `src/include/common_archetype.h:598` | **public** | `public Root` |
 | `EqObj` | 39 | 67 | `src/include/server_gameobject.h:638` | **public** | `public GameObject` |
 | `Equipment` | 7 | 13 | `src/include/common_archetype.h:814` | **public** | `public Root` |
@@ -326,7 +326,7 @@
 | `IImaInstance` | 4 | 7 | `src/include/render/shading.h:267` | **public** | `public IDAComponent` |
 | `IInputEvent` | 5 | 5 | `src/freelancer/Client/client_environment.h:40` | private (freelancer) | — |
 | `IInstanceTransform` | 14 | 14 | `src/include/engine/engbase.h:25` | **public** | — |
-| `IIVPAnchorEvents` | 1 | 1 | `src/include/common_ivp_real_object.h:707` | **public** | — |
+| `IIVPAnchorEvents` | 1 | 1 | `src/IVP/ivp_physics/ivp_real_object.h:707` | **public** | — |
 | `ILightControl` | 17 | 20 | `src/include/thorn_controls.h:154` | **public** | `IDAComponent` |
 | `ILoadingScreen` | 2 | 2 | `src/include/common_ini.h:331` | **public** | — |
 | `ILua` | 1 | 4 | `src/include/luaprofile.h:24` | **public** | `IDAComponent` |
@@ -414,11 +414,11 @@
 | `IVP_Collision_Delegator_Root` | 3 | 6 | `src/IVP/ivp_collision/ivp_collision.h:108` | private (Common) | `public IVP_Collision_Delegator` |
 | `IVP_Collision_Filter` | 3 | 3 | `src/IVP/ivp_physics/ivp_listener.h:144` | private (Common) | — |
 | `IVP_Collision_Filter_Coll_Group_Ident` | 3 | 6 | `src/IVP/ivp_physics/ivp_listener.h:156` | private (Common) | `public IVP_Collision_Filter` |
-| `IVP_Controller` | 7 | 7 | `src/include/common_ivp_controller.h:128` | **public** | — |
-| `IVP_Controller_Dependent` | 1 | 8 | `src/include/common_ivp_controller.h:256` | **public** | `public IVP_Controller` |
-| `IVP_Controller_Golem` | 4 | 17 | `src/include/common_ivp_controller.h:408` | **public** | `public IVP_Controller_Motion` |
-| `IVP_Controller_Independent` | 2 | 9 | `src/include/common_ivp_controller.h:280` | **public** | `public IVP_Controller` |
-| `IVP_Controller_Motion` | 4 | 13 | `src/include/common_ivp_controller.h:337` | **public** | `public IVP_Controller_Independent` |
+| `IVP_Controller` | 7 | 7 | `src/IVP/ivp_physics/ivp_controller.h:128` | **public** | — |
+| `IVP_Controller_Dependent` | 1 | 8 | `src/IVP/ivp_physics/ivp_controller.h:256` | **public** | `public IVP_Controller` |
+| `IVP_Controller_Golem` | 4 | 17 | `src/IVP/ivp_physics/ivp_controller.h:408` | **public** | `public IVP_Controller_Motion` |
+| `IVP_Controller_Independent` | 2 | 9 | `src/IVP/ivp_physics/ivp_controller.h:280` | **public** | `public IVP_Controller` |
+| `IVP_Controller_Motion` | 4 | 13 | `src/IVP/ivp_physics/ivp_controller.h:337` | **public** | `public IVP_Controller_Independent` |
 | `IVP_Event_Manager` | 2 | 2 | `src/IVP/ivp_physics/ivp_environment.h:119` | private (Common) | — |
 | `IVP_Friction_Sys_Energy` | 2 | 11 | `src/IVP/ivp_physics/ivp_mindist.h:1638` | private (Common) | `public IVP_Controller_Independent` |
 | `IVP_Friction_Sys_Static` | 4 | 13 | `src/IVP/ivp_physics/ivp_mindist.h:1603` | private (Common) | `public IVP_Controller_Independent` |
@@ -435,13 +435,13 @@
 | `IVP_Material_Manager` | 5 | 5 | `src/IVP/ivp_physics/ivp_material.h:95` | private (Common) | — |
 | `IVP_Material_Simple` | 5 | 11 | `src/IVP/ivp_physics/ivp_material.h:66` | private (Common) | `public IVP_Material` |
 | `IVP_Message_Router` | 2 | 2 | `src/IVP/ivp_utility/ivp_message_router.h:19` | private (Common) | — |
-| `IVP_Object` | 1 | 1 | `src/include/common_ivp_real_object.h:590` | **public** | — |
+| `IVP_Object` | 1 | 1 | `src/IVP/ivp_physics/ivp_real_object.h:590` | **public** | — |
 | `IVP_OV_Element` | 1 | 5 | `src/IVP/ivp_physics/ivp_ov_element.h:161` | private (Common) | `public IVP_Listener_Hull` |
 | `IVP_PerformanceCounter` | 6 | 6 | `src/IVP/ivp_physics/ivp_listener.h:175` | private (Common) | — |
 | `IVP_Range_Manager` | 3 | 3 | `src/IVP/ivp_physics/ivp_environment.h:318` | private (Common) | — |
 | `IVP_Ray_Hit_Listener` | 2 | 2 | `src/IVP/ivp_collision/ivp_ray_solver.h:42` | private (Common) | — |
 | `IVP_Ray_Solver_Os` | 1 | 1 | `src/IVP/ivp_collision/ivp_ray_solver.h:140` | private (Common) | — |
-| `IVP_Real_Object` | 2 | 2 | `src/include/common_ivp_real_object.h:736` | **public** | `public IVP_Real_Object_Fast_Static` |
+| `IVP_Real_Object` | 2 | 2 | `src/IVP/ivp_physics/ivp_real_object.h:742` | **public** | `public IVP_Real_Object_Fast_Static` |
 | `IVP_SurfaceManager` | 11 | 11 | `src/IVP/ivp_physics/ivp_surface_manager.h:123` | private (Common) | — |
 | `IVP_Synapse_OO` | 1 | 5 | `src/IVP/ivp_collision/ivp_oo_watcher.h:42` | private (Common) | `public IVP_Listener_Hull` |
 | `IVP_Synapse_Real` | 1 | 5 | `src/IVP/ivp_physics/ivp_mindist.h:51` | private (Common) | `public IVP_Listener_Hull` |
@@ -523,7 +523,7 @@
 | `StartExplosionAction` | 1 | 1 | `src/freelancer/Client/client_fuse.h:81` | private (freelancer) | `public ClientFuseAction` |
 | `StateMachine` | 1 | 1 | `src/include/common_net.h:452` | **public** | — |
 | `StyleNode` | 9 | 41 | `src/include/common_text.h:1015` | **public** | `public RDLNode` |
-| `SysObjEnumerator` | 1 | 1 | `src/include/common_server.h:381` | **public** | — |
+| `SysObjEnumerator` | 1 | 1 | `src/include/server_pub.h:381` | **public** | — |
 | `TextNode` | 9 | 41 | `src/include/common_text.h:725` | **public** | `public RDLNode` |
 | `TextPtrNode` | 9 | 41 | `src/include/common_text.h:764` | **public** | `public RDLNode` |
 | `TextRenderContext` | 13 | 13 | `src/include/common_text.h:315` | **public** | — |
@@ -541,5 +541,5 @@
 | `WireButtonControl` | 1 | 1 | `src/freelancer/Client/wire_controls.h:121` | private (freelancer) | `public WireStaticControl` |
 | `XMLReader` | 3 | 3 | `src/include/common_text.h:1212` | **public** | — |
 | `XMLWriter` | 2 | 2 | `src/include/common_text.h:1242` | **public** | — |
-| `ZoneEnumerator` | 1 | 1 | `src/include/common_server.h:388` | **public** | — |
+| `ZoneEnumerator` | 1 | 1 | `src/include/server_pub.h:388` | **public** | — |
 

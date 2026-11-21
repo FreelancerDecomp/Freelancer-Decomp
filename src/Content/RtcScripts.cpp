@@ -14,7 +14,7 @@
 #include "NpcShips.h"           // GSpecificNpcs (DAT_06fd081c)
 #include "common_id.h"          // CreateID
 #include "common_ini.h"         // INI_Reader
-#include "common_server.h"      // pub::GetBaseID, pub::GF::*
+#include "server_pub.h"      // pub::GetBaseID, pub::GF::*
 
 #include <cstring>
 #include <stdlib.h>

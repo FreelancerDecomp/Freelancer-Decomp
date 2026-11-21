@@ -34,7 +34,7 @@
 #include "common_misc.h"            // SUBOBJ_ID_NONE
 #include "common_newchar.h"         // pub::StateGraph::get_state_graph
 #include "common_pub.h"             // SetZoneBehaviorParams, SetPersonalityParams
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"         // SolarInfo, LootInfo, CreateSolar, CreateLoot
 
 #include <cstdlib>

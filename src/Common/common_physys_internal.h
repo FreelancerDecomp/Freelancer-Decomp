@@ -19,11 +19,11 @@
 #include "x86math.h"  // FQuaternion, FMatrix
 #include "DALib.h"    // DALib::Engine (the instance-id helpers below)
 #include "engine/engbase.h"
-#include "../IVP/ivp_physics/ivp_core.h"
-#include "../IVP/ivp_physics/ivp_real_object.h"
-#include "../IVP/ivp_physics/ivp_environment.h"
-#include "../IVP/ivp_physics/ivp_controller.h"
-#include "../IVP/ivp_physics/ivp_listener.h"
+#include "ivp_physics/ivp_core.h"
+#include "ivp_physics/ivp_real_object.h"
+#include "ivp_physics/ivp_environment.h"
+#include "ivp_physics/ivp_controller.h"
+#include "ivp_physics/ivp_listener.h"
 
 #include <cstdint>
 #include <map>

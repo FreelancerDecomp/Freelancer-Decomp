@@ -14,30 +14,30 @@
 #include "common_net.h"  // IsMPServer -- CRemotePhysicsSimulation::tracef (.text:06291be6)
 #include "common_phyarch.h"
 #include "common_misc.h"     // SinglePlayer
-#include "common_server.h"
+#include "server_pub.h"
 
 #include "dacom.h"
 #include "DALib.h"
 #include "x86math.h"  // I3DMathEngine::MatrixToQuaternion, FQuaternion, FMatrix
-#include "../IVP/ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
-#include "../IVP/ivp_physics/ivp_core.h"
-#include "../IVP/ivp_physics/ivp_real_object.h"
-#include "../IVP/ivp_physics/ivp_environment.h"
-#include "../IVP/ivp_physics/ivp_controller.h"
-#include "../IVP/ivp_physics/ivp_material.h"
-#include "../IVP/ivp_physics/ivp_listener.h"
-#include "../IVP/ivp_physics/ivp_mindist_settings.h"
-#include "../IVP/ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
+#include "ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
+#include "ivp_physics/ivp_core.h"
+#include "ivp_physics/ivp_real_object.h"
+#include "ivp_physics/ivp_environment.h"
+#include "ivp_physics/ivp_controller.h"
+#include "ivp_physics/ivp_material.h"
+#include "ivp_physics/ivp_listener.h"
+#include "ivp_physics/ivp_mindist_settings.h"
+#include "ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
 #include "common_csys.h"  // Acquire3DMathEngine
 // PhySys::CalcClosestPointOnSynapse (FUN_0628b7a0, near GetClosestPhantomIntruderPos
 // below) walks retail's compact half-edge mesh directly -- IVP_Compact_Edge /
 // IVP_Compact_Triangle / IVP_Compact_Ledge and IVP_U_Float_Point.
-#include "../IVP/ivp_compact_builder/ivp_compact_ledge.h"
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
-#include "../IVP/ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
-#include "../IVP/ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
-#include "../IVP/ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
+#include "ivp_compact_builder/ivp_compact_ledge.h"
+#include "ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
+#include "ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
+#include "ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
+#include "ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
+#include "ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
 
 #include <assert.h>
 #include <float.h>   // FLT_MAX (PhySys::GetClosestPhantomIntruderPos, DAT_0639c39c)
@@ -156,7 +156,7 @@ FL_LAYOUT_ASSERT(offsetof(IVP_Event_Sim, environment) == 0x08, "IVP_Event_Sim+0x
 // one class; retail has two -- the abstract IVP_Controller_Golem (vftable .rdata:063a53dc,
 // slot 7 _purecall) and the leaf FLControllerGolem (.rdata:0639c1c8, slot 7 LAB_06288950) --
 // and a second leaf, CRemotePhysicsController (.rdata:0639ba38), built on the same base. The
-// split is what lets CRemotePhysicsController (src/include/common_server.h) exist at all.
+// split is what lets CRemotePhysicsController (src/include/server_pub.h) exist at all.
 // Since 2026-09-25 (claude-code:h-ivp) the chain above the golem is retail's too:
 // IVP_Controller_Golem : IVP_Controller_Motion : IVP_Controller_Independent : IVP_Controller
 // (CHDs 063a70d0 / 063a6af8). Motion owns +0x04..+0x5c and its constructor/destructor are

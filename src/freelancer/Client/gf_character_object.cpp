@@ -35,7 +35,7 @@
 #include "common_misc.h"       // malloc_strcpy / malloc_strfree / malloc_wstrcpy / get_projected_bounding_sphere
 #include "common_newchar.h"    // RtcSlider
 #include "common_reputation.h" // CostumeDescriptions, DetailSwitchTable
-#include "common_server.h"     // IServer
+#include "server_pub.h"     // IServer
 #include "common_universe.h"   // Universe::get_base (FUN_00445720)
 #include "dacom.h"             // FDUMP, DACOM_CRC
 #include "engine/engbase.h"

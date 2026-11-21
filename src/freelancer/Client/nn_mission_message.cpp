@@ -35,7 +35,7 @@
 #include "common_cobject.h"         // CObject::ObjectClass
 #include "common_goods.h"           // Arch2Good / Good2Arch, EquipDesc, CBase
 #include "common_iface.h"           // IObjRW, IObjAffect::slot_38
-#include "common_server.h"          // IServer::PopUpDialog (slot 74)
+#include "server_pub.h"          // IServer::PopUpDialog (slot 74)
 
 #include <list>
 #include <stdint.h>

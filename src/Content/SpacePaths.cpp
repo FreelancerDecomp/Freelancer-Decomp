@@ -19,7 +19,7 @@
 #include "Populators.h"           // SpacePopGetSolarDetection (FUN_06f5a7e0)
 #include "SpaceSupport.h"         // GSpaceSupportGuidedShips
 #include "SystemInfo.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "x86math.h"
 
 #include <cmath>

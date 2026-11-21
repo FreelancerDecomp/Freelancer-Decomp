@@ -26,7 +26,7 @@
 //    is PlayerData_LoadSelectedCharacter below.
 
 #include "common_pub.h"
-#include "common_server.h"          // Players (PlayerDB::operator[])
+#include "server_pub.h"          // Players (PlayerDB::operator[])
 #include "common_server_playerdb.h"
 #include "server_savegame.h"
 #include "server_savefile.h"        // FLS1, account paths, last saved path
@@ -63,7 +63,7 @@
 
 // IServerImpl.cpp: the rpclocal client interface (DAT_06d8fb14) and the single-player
 // [Time] / feelings load (FUN_06d44810). The controller broadcast (FUN_06d43650,
-// Server_ControllerDispatch) is declared in common_server_controller.h.
+// Server_ControllerDispatch) is declared in server_controller.h.
 extern IClient* g_pClientInterface;
 void Server_LoadSinglePlayerState(INI_Reader& Reader);
 

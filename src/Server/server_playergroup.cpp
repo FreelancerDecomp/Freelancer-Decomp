@@ -8,10 +8,10 @@
 // Split out of server_classes.cpp unchanged; the declarations the split files share are in
 // server_classes_internal.h.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_net.h"
 #include "common_physys.h"
-#include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
+#include "ivp_physics/ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
 #include "common_cequip.h" // TractorArm
 #include "common_casteroid.h" // CmnAsteroid::CAsteroidSystem (SrvAsteroidSystem AddRef/Release/get_sys_id)
 #include "common_id.h"
@@ -63,7 +63,7 @@
 // CPlayerGroup class implementation
 // ===========================================================================
 
-// (`Players` is declared in common_server.h and defined in server_classes.cpp;
+// (`Players` is declared in server_pub.h and defined in server_classes.cpp;
 // CPlayerGroup's member add/remove paths route the group-id notification
 // through it, as retail does on .data:Players.)
 
@@ -477,7 +477,7 @@ void CPlayerGroup::DeliverChat(unsigned long MsgType, const void* MsgData) {
 // loaded and called per member (.text:06d5bfe2..06d5bfef) -- and the address pushed is
 // the set node's own value (LEA EDX,[ESI+0xc]), not a copy: both now as retail.
 // The record retail calls CMissionObjectives IS the 0x40-byte SETMISSIONOBJECTIVES
-// argument (rpc_iclient_args.h's FServerSetMissionObjectivesInfo); common_server.h still
+// argument (rpc_iclient_args.h's FServerSetMissionObjectivesInfo); server_pub.h still
 // declares CMissionObjectives as a one-pointer placeholder, so the reference is
 // reinterpreted here, as the old dword cast did.
 void CPlayerGroup::SetMissionObjectives(CMissionObjectives& Objs) {

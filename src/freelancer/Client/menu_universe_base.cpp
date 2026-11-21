@@ -36,7 +36,7 @@
 #include "common_id.h"
 #include "common_iface.h"           // ScriptBehavior (the room state's +0x18 bucket)
 #include "common_ini.h"
-#include "common_server.h"          // IServer
+#include "server_pub.h"          // IServer
 #include "common_universe.h"
 #include "dacom.h"
 

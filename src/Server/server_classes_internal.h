@@ -12,7 +12,7 @@
 
 #include <map>
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "rpc_iclient.h"
 
 // Forward declaration for IClient (defined in rpc_iclient.h)

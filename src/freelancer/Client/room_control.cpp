@@ -47,7 +47,7 @@
 #include "common_iface.h"
 #include "common_misc.h"
 #include "common_newchar.h"
-#include "common_server.h"      // IServer
+#include "server_pub.h"      // IServer
 #include "dacom.h"
 #include "engine/engbase.h"
 #include "render/IFLAppearance.h"

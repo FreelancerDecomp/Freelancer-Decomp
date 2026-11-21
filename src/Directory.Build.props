@@ -56,9 +56,14 @@
            dllexport class an exported __autoclassinit2 that retail does not export. -->
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- src/include, and src/IVP as the root of the Ipion physics headers ("ivp_physics/...")
+           that Common.dll's public ABI is built on. -->
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;$(MSBuildThisFileDirectory)IVP;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FL_LAYOUT_ASSERT: the retail struct size and offset checks (Win32 only). -->
       <ForcedIncludeFiles>fl_layout.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <!-- C4251 / C4275: exported classes hold STL members and derive from non-exported bases
+           (common_exports.h); their consumers do not need the dll-interface. -->
+      <DisableSpecificWarnings>4251;4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='DebugASan'">MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
