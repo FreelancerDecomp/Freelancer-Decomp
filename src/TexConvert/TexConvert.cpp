@@ -362,14 +362,16 @@ namespace TexConvert
             Write32(Block + 4, Indices);
         }
 
-        void EncodeBlock(unsigned int Format, const FColor* In, unsigned char* Block)
+        // bPremultiplied: the pixels already carry colour x alpha (a DXT2 or DXT4 source, which the
+        // decoder hands back premultiplied), so a DXT2 / DXT4 target must not multiply again.
+        void EncodeBlock(unsigned int Format, const FColor* In, unsigned char* Block, bool bPremultiplied)
         {
             if (Format == kDxt1)
             {
                 EncodeColorBlock(In, true, Block);
                 return;
             }
-            if (Format == kDxt2 || Format == kDxt4)
+            if ((Format == kDxt2 || Format == kDxt4) && !bPremultiplied)
             {
                 FColor Premultiplied[16];
                 for (int Index = 0; Index < 16; ++Index)
@@ -467,7 +469,7 @@ namespace TexConvert
             return Pixels;
         }
 
-        void EncodeImage(const FImage& Destination, const std::vector<FColor>& Pixels)
+        void EncodeImage(const FImage& Destination, const std::vector<FColor>& Pixels, bool bPremultiplied)
         {
             unsigned char* const Base = static_cast<unsigned char*>(Destination.Bits);
             if (IsBlock(Destination.Format))
@@ -486,7 +488,8 @@ namespace TexConvert
                             Block[Index] = Pixels[static_cast<std::size_t>(Y) * Destination.Width + X];
                         }
                         EncodeBlock(Destination.Format, Block,
-                                    Base + static_cast<std::size_t>(By) * Destination.Pitch + Bx * Bytes);
+                                    Base + static_cast<std::size_t>(By) * Destination.Pitch + Bx * Bytes,
+                                    bPremultiplied);
                     }
                 }
                 return;
@@ -576,8 +579,7 @@ namespace TexConvert
         if (IsBlock(Source.Format))
             Source.Pitch = RowPitch(Source.Format, Source.Width);
 
-        if (!IsKnown(Destination.Format) || !IsKnown(Source.Format) || Destination.Format == kP8 ||
-            Destination.Bits == nullptr || Source.Bits == nullptr || Destination.Width == 0 ||
+        if (!IsKnown(Destination.Format) || !IsKnown(Source.Format) || Destination.Bits == nullptr || Source.Bits == nullptr || Destination.Width == 0 ||
             Destination.Height == 0 || Source.Width == 0 || Source.Height == 0)
             return EResult::Failed;
         if (Source.Format == kP8 && Source.PaletteRgb == nullptr)
@@ -597,10 +599,15 @@ namespace TexConvert
             return EResult::Exact;
         }
 
+        // A P8 target is only filled by a P8 source of the same size (the copy above): there is no
+        // palette quantizer.
+        if (Destination.Format == kP8)
+            return EResult::Failed;
+
         std::vector<FColor> Pixels = DecodeImage(Source);
         if (!bSameSize)
             Pixels = Resize(Pixels, Source.Width, Source.Height, Destination.Width, Destination.Height);
-        EncodeImage(Destination, Pixels);
+        EncodeImage(Destination, Pixels, Source.Format == kDxt2 || Source.Format == kDxt4);
         return (bSameSize && !IsBlock(Destination.Format)) ? EResult::Exact : EResult::Filtered;
     }
 }

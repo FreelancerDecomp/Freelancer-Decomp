@@ -281,7 +281,7 @@ void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* B
         Src.Height = 4;
         Src.Pitch = Bytes;
         Src.Bits = Block;
-        TexConvert::Load(Image, Src);
+        const TexConvert::EResult Result = TexConvert::Load(Image, Src);
         D3DLOCKED_RECT Locked;
         if (Surface->LockRect(&Locked, nullptr, D3DLOCK_READONLY) >= 0)
         {
@@ -289,7 +289,12 @@ void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* B
             for (int Row = 0; Row < 4; ++Row)
                 std::memcpy(Theirs + Row * 4, static_cast<const unsigned char*>(Locked.pBits) + Row * Locked.Pitch, 16);
             Surface->UnlockRect();
-            if (std::memcmp(Theirs, Ours, sizeof(Ours)) != 0 && G_ProbeLines < 60)
+            ++G_Compared;
+            const bool bDifferent =
+                Result != TexConvert::EResult::Exact || std::memcmp(Theirs, Ours, sizeof(Ours)) != 0;
+            if (bDifferent)
+                ++G_Different;
+            if (bDifferent && G_ProbeLines < 60)
             {
                 ++G_ProbeLines;
                 std::printf("PROBE %s block", Name(Format));

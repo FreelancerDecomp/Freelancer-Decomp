@@ -118,6 +118,9 @@ GENRESULT DACOM_API FRpGpu::CreateTexture(int Width, int Height, unsigned int* F
     const unsigned int Concrete = ConcreteFormat(*Format);
     if (!IsKnownFormat(Concrete))
         return GR_GENERIC;
+    // P8 only with TEXTURE_ALLOW_8BIT, as in RP8; TexConvert fills it only from a P8 source.
+    if (Concrete == 1 && PipelineState_[kPsAllow8Bit] == 0)
+        return GR_GENERIC;
 
     // 0 asks for the full chain down to 1x1; more levels than that is an invalid request, as
     // Direct3D's CreateTexture answers it.
