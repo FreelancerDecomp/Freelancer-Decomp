@@ -165,17 +165,17 @@ The section name is `RenderPipeline` unless `[System]` says `DirectX8 = OtherNam
 | `TEXTURE_ALLOW_DXT` (5) | 0x1 | `BROKEN_FLIP` (13) | 0x0 |
 | `BROKEN_MULTITEXTURE` (6) | 0x1 | `VIEWSPACE_LIGHTS` (7) | 0x1 |
 
-Source: table [RP8.cpp](../../src/RP8/RP8.cpp#L103), read in [RP8.cpp](../../src/RP8/RP8.cpp#L2640). Each value is stored in the pipeline-state slot of that id. When `TEXTURE_ALLOW_8BIT`, `TEXTURE_ALLOW_32BIT` or `TEXTURE_ALLOW_DXT` is 0, the texture-format check rejects 8-bit palettised, 32-bit-per-pixel or DXT formats respectively.
+Source: table `kRp8PipelineProperties` in [rp8_semantics.h](../../src/include/render/rp8_semantics.h), read in [RP8.cpp](../../src/RP8/RP8.cpp#L2640). Each value is stored in the pipeline-state slot of that id. When `TEXTURE_ALLOW_8BIT`, `TEXTURE_ALLOW_32BIT` or `TEXTURE_ALLOW_DXT` is 0, the texture-format check rejects 8-bit palettised, 32-bit-per-pixel or DXT formats respectively.
 
 ### 8.3 Device ability overrides (honoured only when the key is present)
 
-These keys override the capabilities derived from the Direct3D device caps (and from the MGSDB database). Each is read **only if the key exists** in the section; absent keys leave the detected value untouched. The value is a retail integer. Table and ability index: [RP8.cpp](../../src/RP8/RP8.cpp#L121).
+These keys override the capabilities derived from the Direct3D device caps (and from the MGSDB database). Each is read **only if the key exists** in the section; absent keys leave the detected value untouched. The value is a retail integer. Table and ability index: `kRp8AbilityProperties` in [rp8_semantics.h](../../src/include/render/rp8_semantics.h).
 
 `DEVICE_GEOMETRY` (4), `TEXTURE_SQUARE_ONLY` (5), `TEXTURE_MAX_WIDTH` (6), `TEXTURE_MAX_HEIGHT` (7), `TEXTURE_CUBEMAPS` (8), `DEPTH_BIAS` (9), `FOG_VERTEX` (10), `FOG_PIXEL` (11), `FOG_RANGE` (12), `FOG_W` (13), `RASTER_ANTIALIASEDGES` (14), `DEVICE_SUPPORT_LEVEL` (15), `TEXTURE_TRILINEAR` (16), `DEVICE_BAD_MODE` (17), `DEVICE_BAD_4444` (18). Meaning of the numbers beyond "0 = off / non-zero = on or a limit" is not validated.
 
 ### 8.4 Direct3D render states (default applies when absent)
 
-Every name below is read and applied as the initial value of the Direct3D render state of the same name; the value is the raw DWORD handed to the device (no validation; float-typed states take the float's bit pattern in hex). Source: table [RP8.cpp](../../src/RP8/RP8.cpp#L140), read in [RP8.cpp](../../src/RP8/RP8.cpp#L2687). Defaults in parentheses.
+Every name below is read and applied as the initial value of the Direct3D render state of the same name; the value is the raw DWORD handed to the device (no validation; float-typed states take the float's bit pattern in hex). Source: table `kRp8RenderStateProperties` in [rp8_semantics.h](../../src/include/render/rp8_semantics.h), read in [RP8.cpp](../../src/RP8/RP8.cpp#L2687). Defaults in parentheses.
 
 `ZENABLE` (0x1), `FILLMODE` (0x3), `SHADEMODE` (0x2), `LINEPATTERN` (0x0), `ZWRITEENABLE` (0x1), `ALPHATESTENABLE` (0x0), `LASTPIXEL` (0x1), `SRCBLEND` (0x2), `DESTBLEND` (0x1), `CULLMODE` (0x1), `ZFUNC` (0x2), `ALPHAREF` (0x0), `ALPHAFUNC` (0x8), `DITHERENABLE` (0x0), `ALPHABLENDENABLE` (0x0), `FOGENABLE` (0x0), `SPECULARENABLE` (0x0), `ZVISIBLE` (0x1), `FOGCOLOR` (0x0), `FOGTABLEMODE` (0x1), `FOGSTART` (0x0), `FOGEND` (0x0), `FOGDENSITY` (0x0), `EDGEANTIALIAS` (0x0), `ZBIAS` (0x0), `RANGEFOGENABLE` (0x0), `STENCILENABLE` (0x0), `STENCILFAIL` (0x1), `STENCILZFAIL` (0x1), `STENCILPASS` (0x1), `STENCILFUNC` (0x8), `STENCILREF` (0xFFFFFFFF), `STENCILMASK` (0xFFFFFFFF), `STENCILWRITEMASK` (0xFFFFFFFF), `TEXTUREFACTOR` (0x0), `WRAP0` to `WRAP7` (0x0), `CLIPPING` (0x1), `LIGHTING` (0x0), `AMBIENT` (0x0), `FOGVERTEXMODE` (0x0), `COLORVERTEX` (0x0), `LOCALVIEWER` (0x0), `NORMALIZENORMALS` (0x0), `DIFFUSEMATERIALSOURCE` (0x1), `SPECULARMATERIALSOURCE` (0x2), `AMBIENTMATERIALSOURCE` (0x2), `EMISSIVEMATERIALSOURCE` (0x0), `VERTEXBLEND` (0x0), `CLIPPLANEENABLE` (0x0), `SOFTWAREVERTEXPROCESSING` (0x0), `POINTSIZE` (0x3F800000), `POINTSIZE_MIN` (0x3F800000), `POINTSPRITEENABLE` (0x0), `POINTSCALEENABLE` (0x0), `POINTSCALE_A` (0x3F800000), `POINTSCALE_B` (0x0), `POINTSCALE_C` (0x0), `MULTISAMPLEANTIALIAS` (0x1), `MULTISAMPLEMASK` (0xFFFFFFFF), `PATCHEDGESTYLE` (0x0), `PATCHSEGMENTS` (0x0), `DEBUGMONITORTOKEN` (0x0), `POINTSIZE_MAX` (0x3F800000), `INDEXEDVERTEXBLENDENABLE` (0x0), `COLORWRITEENABLE` (0xF), `TWEENFACTOR` (0x0), `BLENDOP` (0x1), `POSITIONORDER` (0x1), `NORMALORDER` (0x1).
 
@@ -184,6 +184,8 @@ Notes:
 * `LIGHTING` is **read twice by name**: once as a pipeline property (8.2, default 1) and once as the render state (default 0). A single `LIGHTING =` line therefore sets both. `TEXTURE`, `TEXTURE_LOD` etc. are not render-state names and appear only once.
 * Per-texture-stage states (`COLOROP`, `ALPHAOP`, `COLORARG1/2`, `ADDRESSU/V`, ...) have built-in defaults in the port but are **not read from the INI** (the stage maps are filled only with their defaults).
 * Keys that are listed in the retail `DACOM.INI` as comments, for example `DEVICE_GAMMA`, are not read by this code.
+* The value is converted by `Rp8IniNumber` ([rp8_semantics.h](../../src/include/render/rp8_semantics.h)): the text is cut after its leading run of `0123456789truefalsynoxTRUEFALSYNOX+-` (no `b`, `c` or `d`, so `0x1C` reads as `0x1`, which is 1); `true` / `yes` are 1, `false` / `no` are 0; a text with an `x` is hex; anything else is decimal through msvcrt's wrapping `atoi`.
+* The port-only pipelines RP9 and RPGPU ([rpgpu.md](../re/rpgpu.md)) read the keys of 8.2 to 8.4 the same way, from the same tables. RPGPU ignores the device-creation keys of 8.1, which have no SDL_GPU meaning.
 
 ### 8.5 `[TextureFormatClasses]` (optional)
 
