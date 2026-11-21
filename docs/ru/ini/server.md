@@ -92,26 +92,26 @@ DLL = Content.dll, SpacePop, LOWEST   ; priority tokens, comments after ';'
 ## Файлы систем и баз на сервере
 
 * `pub::BuildSystemReader` / `pub::BuildBaseReader` / `pub::System::EnumerateZones` лишь **открывают** файл системы или файл базы для вызывающей DLL-контроллера и передают ей читатель (или по одному читателю на зону); сами они не читают ни одного ключа ([server_pub.cpp:349](../../../src/Server/server_pub.cpp#L349), [:367](../../../src/Server/server_pub.cpp#L367), [:6827](../../../src/Server/server_pub.cpp#L6827)). Путь к файлу системы — это `universe.ini` `[system] file`, превращённый в абсолютный относительно каталога вселенной (файл, который не удаётся открыть, пишет в лог «missing System file»); путь к файлу базы — каталог данных плюс `[Base] file` (если открыть не удалось, сообщения нет). См. [systems-and-bases.md](systems-and-bases.md).
-* **Загрузка системы в мультиплеере** (`StarSystem::load`, [server_classes.cpp:6779](../../../src/Server/server_classes.cpp#L6779)): файл системы открывается, и каждая секция `[Object]` создаётся как solar через `CSolar::ReadObj` (ключи — в [archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#секции-object-системных-файлов-через-архетипы-solar-csolarreadobj)). В одиночной игре сервер повторно использует solar-объекты и астероидные поля, уже построенные клиентом, и ничего не читает из файла системы.
+* **Загрузка системы в мультиплеере** (`StarSystem::load`, [server_starsystem.cpp:686](../../../src/Server/server_starsystem.cpp#L686)): файл системы открывается, и каждая секция `[Object]` создаётся как solar через `CSolar::ReadObj` (ключи — в [archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#секции-object-системных-файлов-через-архетипы-solar-csolarreadobj)). В одиночной игре сервер повторно использует solar-объекты и астероидные поля, уже построенные клиентом, и ничего не читает из файла системы.
 
 ### Астероидные поля на сервере
 
-`SrvAsteroidSystem::load` ([server_classes.cpp:5798](../../../src/Server/server_classes.cpp#L5798), только при загрузке системы в мультиплеере) читает каждую секцию `[Asteroids]` файла системы:
+`SrvAsteroidSystem::load` ([server_asteroid.cpp:666](../../../src/Server/server_asteroid.cpp#L666), только при загрузке системы в мультиплеере) читает каждую секцию `[Asteroids]` файла системы:
 
 | Ключ | Тип | По умолчанию | Значение | Источник |
 |---|---|---|---|---|
-| `file` | str (всё значение, до 255 символов) | пусто | Файл астероидного поля относительно каталога данных. | [L5817](../../../src/Server/server_classes.cpp#L5817) |
-| `zone` | str (всё значение, до 63 символов) | пусто | Nickname зоны, которую заполняет поле. | [L5825](../../../src/Server/server_classes.cpp#L5825) |
+| `file` | str (всё значение, до 255 символов) | пусто | Файл астероидного поля относительно каталога данных. | [L685](../../../src/Server/server_asteroid.cpp#L685) |
+| `zone` | str (всё значение, до 63 символов) | пусто | Nickname зоны, которую заполняет поле. | [L693](../../../src/Server/server_asteroid.cpp#L693) |
 
 Если любое из значений пусто, секция молча пропускается. Неизвестная зона пишет в лог «AsteroidField linked to missing Zone (%s)», после чего сервер разыменовывает её (поведение retail).
 
-Затем `FSrvAsteroidField::load` ([server_classes.cpp:5668](../../../src/Server/server_classes.cpp#L5668)) открывает файл поля и делает первый проход по его секции(ям) `[Field]`, читая эти ключи как **целые числа** (число разбирается как float и усекается, так что `0.5` становится 0):
+Затем `FSrvAsteroidField::load` ([server_asteroid.cpp:536](../../../src/Server/server_asteroid.cpp#L536)) открывает файл поля и делает первый проход по его секции(ям) `[Field]`, читая эти ключи как **целые числа** (число разбирается как float и усекается, так что `0.5` становится 0):
 
 | Ключ | Тип | По умолчанию | Значение | Источник |
 |---|---|---|---|---|
-| `cube_size` | int | 250 (или текущий размер поля) | Длина ребра кубика сетки. | [L5685](../../../src/Server/server_classes.cpp#L5685) |
-| `fill_dist` | int | 0 | Расстояние вокруг игрока, в пределах которого заполняются кубики. (Значение из файла применяется всегда, поэтому отсутствующий ключ даёт 0.) | [L5687](../../../src/Server/server_classes.cpp#L5687) |
-| `empty_cube_frequency` | int | 0 | Доля пустых кубиков; на сервере усекается до целого. | [L5689](../../../src/Server/server_classes.cpp#L5689) |
+| `cube_size` | int | 250 (или текущий размер поля) | Длина ребра кубика сетки. | [L553](../../../src/Server/server_asteroid.cpp#L553) |
+| `fill_dist` | int | 0 | Расстояние вокруг игрока, в пределах которого заполняются кубики. (Значение из файла применяется всегда, поэтому отсутствующий ключ даёт 0.) | [L555](../../../src/Server/server_asteroid.cpp#L555) |
+| `empty_cube_frequency` | int | 0 | Доля пустых кубиков; на сервере усекается до целого. | [L557](../../../src/Server/server_asteroid.cpp#L557) |
 
 а затем перечитывает файл с начала через `CAsteroidField::load` для секций `[Cube]`, `[Exclusion Zones]` и `[LootableZone]` ([archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#файлы-полей-астероидов-casteroidfieldload)).
 
@@ -219,7 +219,7 @@ DLL = Content.dll, SpacePop, LOWEST   ; priority tokens, comments after ';'
 | `log` | `[0]` id mad-lib, `[1]` количество, затем количество x (данные, тег, флаги) | - | Одна запись журнала миссий (repeat). Тег 0x21 начинает вложенную запись, параметры которой идут в той же строке. | [L606](../../../src/Server/server_savegame.cpp#L606) |
 | `logid` | - | - | Проверяется и игнорируется. | [L611](../../../src/Server/server_savegame.cpp#L611) |
 
-`PlayerDB::ReadCharacterName` ([server_classes.cpp:3669](../../../src/Server/server_classes.cpp#L3669)) читает только `name` (то же hex-правило, тот же пропуск комментариев `/*` ... `*/`) первой секции `[Player]`, чтобы построить список персонажей; файл, который не удаётся загрузить, даёт пустое имя. После загрузки читатель выбранного персонажа также передаётся контроллерам как сообщение `PlayerLoad`.
+`PlayerDB::ReadCharacterName` ([server_playerdb.cpp:3611](../../../src/Server/server_playerdb.cpp#L3611)) читает только `name` (то же hex-правило, тот же пропуск комментариев `/*` ... `*/`) первой секции `[Player]`, чтобы построить список персонажей; файл, который не удаётся загрузить, даёт пустое имя. После загрузки читатель выбранного персонажа также передаётся контроллерам как сообщение `PlayerLoad`.
 
 ### Шаблоны новых персонажей  ([PlayerData_CreateNewCharacter, server_savegame.cpp:1082](../../../src/Server/server_savegame.cpp#L1082))
 
@@ -236,4 +236,4 @@ DLL = Content.dll, SpacePop, LOWEST   ; priority tokens, comments after ';'
 
 Данные фракции/пакета/пилота/базы берутся из базы данных персонажей, указанной как `[Data] NewCharDB` ([data-driven-files.md](data-driven-files.md)). Если отсутствует любой из четырёх выборов, файл не создаётся; если шаблон не удаётся открыть или он является файлом `FLSG`, записывается пустой файл. Ключ без значений повторно выводит объединённое значение предыдущего ключа (поведение retail).
 
-`NewPlayer.fl` — шаблон `Restart.fl`: `PlayerDB::create_restart_file` копирует его в `Restart.fl` и дописывает весь текст файла начального мира ([server_classes.cpp:3506](../../../src/Server/server_classes.cpp#L3506)).
+`NewPlayer.fl` — шаблон `Restart.fl`: `PlayerDB::create_restart_file` копирует его в `Restart.fl` и дописывает весь текст файла начального мира ([server_playerdb.cpp:3429](../../../src/Server/server_playerdb.cpp#L3429)).

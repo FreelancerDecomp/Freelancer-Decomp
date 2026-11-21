@@ -121,7 +121,7 @@ docking_sphere = berth, HpDockMountA, 2, Sc_open dock A
 
 ## Секции `[Object]` системных файлов через архетипы solar (`CSolar::ReadObj`)
 
-Каждая секция `[Object]` системного файла (например, `universe\systems\<sys>\<sys>.ini`) читается `CSolar::ReadObj` ([common_csolar.cpp:692](../../../src/Common/common_csolar.cpp#L692)) при создании solar — на сервере в мультиплеере ([server_classes.cpp:6932](../../../src/Server/server_classes.cpp#L6947)) и на клиенте. Системный файл содержит много других секций и ключей, принадлежащих другим reader ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); здесь потребляются только перечисленные ниже ключи, остальные ключи секции пропускаются.
+Каждая секция `[Object]` системного файла (например, `universe\systems\<sys>\<sys>.ini`) читается `CSolar::ReadObj` ([common_csolar.cpp:692](../../../src/Common/common_csolar.cpp#L692)) при создании solar — на сервере в мультиплеере ([server_starsystem.cpp:885](../../../src/Server/server_starsystem.cpp#L885)) и на клиенте. Системный файл содержит много других секций и ключей, принадлежащих другим reader ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); здесь потребляются только перечисленные ниже ключи, остальные ключи секции пропускаются.
 
 | Ключ | Тип | По умолчанию | Значение / допустимые значения | Источник |
 |---|---|---|---|---|

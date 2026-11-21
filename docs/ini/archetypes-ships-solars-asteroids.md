@@ -121,7 +121,7 @@ Describes one destructible/detachable part of the nearest preceding record ([com
 
 ## System-file `[Object]` sections through the solar archetypes (`CSolar::ReadObj`)
 
-Every `[Object]` section of a system file (e.g. `universe\systems\<sys>\<sys>.ini`) is read by `CSolar::ReadObj` ([common_csolar.cpp:692](../../src/Common/common_csolar.cpp#L692)) when the solar is created, on the server in multiplayer ([server_classes.cpp:6932](../../src/Server/server_classes.cpp#L6947)) and by the client. The system file contains many more sections and keys that belong to other readers ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); only the keys below are consumed here, other keys of the section are skipped.
+Every `[Object]` section of a system file (e.g. `universe\systems\<sys>\<sys>.ini`) is read by `CSolar::ReadObj` ([common_csolar.cpp:692](../../src/Common/common_csolar.cpp#L692)) when the solar is created, on the server in multiplayer ([server_starsystem.cpp:885](../../src/Server/server_starsystem.cpp#L885)) and by the client. The system file contains many more sections and keys that belong to other readers ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); only the keys below are consumed here, other keys of the section are skipped.
 
 | Key | Type | Default | Meaning / allowed values | Source |
 |---|---|---|---|---|

@@ -34,7 +34,7 @@
 | `Reputation::Startup` ([common_reputation.cpp](../../../src/Common/common_reputation.cpp)) | при запуске, из `[Data] Groups = ...` (клиент и сервер) | заголовки `[Group]`: идентичность группы и строковые ID |
 | `Server_LoadWorldState` ([IServerImpl.cpp](../../../src/Server/IServerImpl.cpp)) | запуск сервера мультиплеера; в одиночной игре тот же шаг выполняется над загруженным сохранением персонажа | `[Time]`, затем `Reputation::LoadFeelings` (строки `rep` секций `[Group]`), затем открытый ридер передаётся всем контроллерам как сообщение *LoadGame* |
 | Content `GameSupport` (сообщение *LoadGame*) | сразу после предыдущего | `[DynBaseInfo]`, `[locked_gates]`, `[DynSysInfo]` (см. ниже) |
-| `PlayerDB::create_restart_file` ([server_classes.cpp](../../../src/Server/server_classes.cpp)) | создание `Restart.fl` | весь файл копируется дословно после шаблона `NewPlayer.fl` |
+| `PlayerDB::create_restart_file` ([server_playerdb.cpp](../../../src/Server/server_playerdb.cpp)) | создание `Restart.fl` | весь файл копируется дословно после шаблона `NewPlayer.fl` |
 
 ### `[Group]` (повторяется, по одной на группу фракции)
 

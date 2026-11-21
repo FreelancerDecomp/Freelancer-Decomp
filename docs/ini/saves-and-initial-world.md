@@ -34,7 +34,7 @@ It is read in four places:
 | `Reputation::Startup` ([common_reputation.cpp](../../src/Common/common_reputation.cpp)) | at start-up, from `[Data] Groups = ...` (client and server) | the `[Group]` headers: group identity and string IDs |
 | `Server_LoadWorldState` ([IServerImpl.cpp](../../src/Server/IServerImpl.cpp)) | multiplayer server start-up; in single-player the same step runs on the loaded character save instead | `[Time]`, then `Reputation::LoadFeelings` (`rep` lines of `[Group]`), then the open reader is handed to all controllers as the *LoadGame* message |
 | Content `GameSupport` (message *LoadGame*) | right after the above | `[DynBaseInfo]`, `[locked_gates]`, `[DynSysInfo]` (see below) |
-| `PlayerDB::create_restart_file` ([server_classes.cpp](../../src/Server/server_classes.cpp)) | creating `Restart.fl` | the whole file is copied verbatim behind the `NewPlayer.fl` template |
+| `PlayerDB::create_restart_file` ([server_playerdb.cpp](../../src/Server/server_playerdb.cpp)) | creating `Restart.fl` | the whole file is copied verbatim behind the `NewPlayer.fl` template |
 
 ### `[Group]` (repeated, one per faction group)
 
