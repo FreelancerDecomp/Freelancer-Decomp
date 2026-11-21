@@ -1,0 +1,3 @@
+
+# RPGPU shader bytecode, generated with LF line endings (tools/rpgpu_shaders.ps1)
+src/RPGPU/shaders/*.generated.inc text eol=lf

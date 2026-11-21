@@ -531,6 +531,70 @@ jobs:
 
   # The x64 .def files (dacom_x64.def, Content_x64.def) repeat their Win32 twins with the C++
   # names decorated for x64 (docs/x64.md). Their undecorated names, ordinals and flags must agree.
+  # RPGPU's shaders are compiled offline (tools/rpgpu_shaders.ps1, SDL_shadercross from vcpkg's
+  # shader-tools feature) and the bytecode is committed. This job compiles them again and fails
+  # when the committed RpGpuShaderBytecode.generated.inc differs; the fresh one is uploaded.
+  rpgpu-shaders:
+    name: RPGPU shaders
+    runs-on: windows-2022
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The runner image in the key, as in the build job: a new image may bring a new compiler,
+      # and an exact-key hit would otherwise keep restoring packages vcpkg then rebuilds.
+      # ImageOS and ImageVersion are the runner's own environment, so the key is built here.
+      - name: vcpkg cache key
+        id: vcpkg-key
+        shell: pwsh
+        env:
+          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
+        run: |
+          $prefix = "vcpkg-shader-tools-$env:ImageOS-"
+          "prefix=$prefix" >> $env:GITHUB_OUTPUT
+          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
+
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
+
+      - name: Install shadercross
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
+          New-Item -ItemType Directory -Force $cache | Out-Null
+          $env:VCPKG_DEFAULT_BINARY_CACHE = $cache
+          $install = Join-Path $env:RUNNER_TEMP 'vcpkg-shader-tools'
+          & (Join-Path $env:VCPKG_INSTALLATION_ROOT 'vcpkg.exe') install --triplet x64-windows `
+            --x-manifest-root=src --x-install-root=$install --x-feature=shader-tools --x-no-default-features
+          if ($LASTEXITCODE -ne 0) { throw "vcpkg install failed ($LASTEXITCODE)" }
+          $tool = Get-ChildItem -Recurse -Path (Join-Path $install 'x64-windows/tools') -Filter shadercross.exe | Select-Object -First 1
+          if (-not $tool) { throw 'shadercross.exe not found' }
+          "SHADERCROSS=$($tool.FullName)" >> $env:GITHUB_ENV
+
+      - name: Compile and compare
+        id: compare
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & ./tools/rpgpu_shaders.ps1 -ShaderCross $env:SHADERCROSS
+          git diff --exit-code --stat -- src/RPGPU/shaders/RpGpuShaderBytecode.generated.inc
+          if ($LASTEXITCODE -ne 0) { throw 'The committed shader bytecode is stale: commit the uploaded RpGpuShaderBytecode.generated.inc' }
+
+      - name: Upload the compiled shaders
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpgpu-shader-bytecode
+          path: src/RPGPU/shaders/RpGpuShaderBytecode.generated.inc
+          retention-days: 14
+
   def-twins:
     name: x64 .def files match Win32
     runs-on: windows-2022

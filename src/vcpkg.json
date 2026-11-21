@@ -1,5 +1,5 @@
 {
-  "$comment": "Third-party packages of the port-only modules, one manifest and one baseline for all of them (src/Vcpkg.props). Each consumer is a feature, installed only when its opt-in property is on: rpgpu (FreelancerRpGpu, docs/re/rpgpu.md). Retail modules never import Vcpkg.props, so none of them sees these packages. builtin-baseline pins vcpkg release 2026.10.16 (SDL 3.4.18).",
+  "$comment": "Third-party packages of the port-only modules, one manifest and one baseline for all of them (src/Vcpkg.props). Each consumer is a feature, installed only when its opt-in property is on: rpgpu (FreelancerRpGpu, docs/re/rpgpu.md). shader-tools is not a build consumer: only the RPGPU shaders CI job installs it, for the shadercross compiler (tools/rpgpu_shaders.ps1). Retail modules never import Vcpkg.props, so none of them sees these packages. builtin-baseline pins vcpkg release 2026.10.16 (SDL 3.4.18).",
   "name": "freelancer-port",
   "version-string": "0",
   "builtin-baseline": "9eec002df1cd109f8f104cd966a763daf9751489",
@@ -12,6 +12,12 @@
           "name": "sdl3",
           "default-features": false
         }
+      ]
+    },
+    "shader-tools": {
+      "description": "SDL_shadercross, the offline compiler for RPGPU's shaders (tools/rpgpu_shaders.ps1); not part of any build",
+      "dependencies": [
+        "sdl3-shadercross"
       ]
     }
   }
