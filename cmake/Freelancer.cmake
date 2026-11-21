@@ -539,6 +539,7 @@ function(fl_add_module name kind)
   endif()
   if(kind STREQUAL "EXE")
     add_executable(${name} ${A_SOURCES})
+    set_property(GLOBAL APPEND PROPERTY FL_EXE_TARGETS ${name})
   elseif(kind STREQUAL "DLL" OR kind STREQUAL "RESOURCE_DLL")
     add_library(${name} SHARED ${A_SOURCES})
   elseif(kind STREQUAL "LIB")
@@ -899,6 +900,11 @@ function(fl_copy_dev_ini)
   add_custom_target(dev_ini ALL
     COMMAND "$<IF:${_cond},${Python3_EXECUTABLE};${FL_SRC_DIR}/copy_dev_ini.py;${FL_BIN_DIR},${CMAKE_COMMAND};-E;true>"
     COMMAND_EXPAND_LISTS VERBATIM)
+  # Building one program (--target freelancer) refreshes the copies too.
+  get_property(_exes GLOBAL PROPERTY FL_EXE_TARGETS)
+  foreach(_exe IN LISTS _exes)
+    add_dependencies(${_exe} dev_ini)
+  endforeach()
 endfunction()
 
 # DebugASan: the AddressSanitizer runtime DLLs next to the client (Directory.Build.targets).

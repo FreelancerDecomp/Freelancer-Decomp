@@ -70,7 +70,7 @@ Port-only features, `-D<Name>=0|1` at configure time (for example
 |---|---|---|
 | `FreelancerWidescreenSupport` | 1 | Widescreen (Hor+) display modes and HUD; 0 builds retail's 4:3 client |
 | `FreelancerWalkMode` | 1 | Walking through base rooms ([walk_mode.md](walk_mode.md)) |
-| `FreelancerRp9` | 0 | `RP9.dll` and the client's Direct3D 9 hooks ([re/rp9.md](re/rp9.md)), Win32 only |
+| `FreelancerRp9` | 0 | `RP9.dll` (Win32 only) and the client's Direct3D 9 hooks ([re/rp9.md](re/rp9.md)) |
 | `FreelancerRpGpu` | 1 on x64, 0 on Win32 | `RPGPU.dll`, the SDL3 + SDL_GPU renderer ([re/rpgpu.md](re/rpgpu.md)) |
 | `FreelancerBetaLabel` | 0 | The "Beta 2" label in the corner of the screen |
 | `FreelancerEnableTickProfile` | 0 | On-screen frame profiler |
@@ -81,9 +81,12 @@ Port-only modules that need third-party packages (today RPGPU, with SDL3) get th
 one manifest, `src/vcpkg.json`, with a feature per module. The root `CMakeLists.txt` turns on the
 features of the modules that are on and installs them while it configures (vcpkg's toolchain
 file, found through `VCPKG_ROOT`, `VCPKG_INSTALLATION_ROOT` or Visual Studio's copy, unless
-`CMAKE_TOOLCHAIN_FILE` is given). With no such module on, vcpkg is not used at all. CMake reads a
-toolchain file only when a build tree is first configured, so turning such a module on in a tree
-configured without vcpkg asks for `cmake --fresh --preset <preset> -D<Switch>=1`. Without
+`CMAKE_TOOLCHAIN_FILE` is given). In a new build tree with no such module on, vcpkg is not used at
+all; a tree first configured with one on keeps vcpkg's toolchain but installs nothing once they
+are all off. CMake reads a toolchain file only when a build tree is first configured, so turning
+such a module on in a tree configured without vcpkg asks for
+`cmake --fresh --preset <preset> -D<Switch>=1`. `--fresh` starts from an empty cache: repeat every
+other `-D` option the tree had. Without
 vcpkg a module that is on is skipped with a warning, or fails the configure step with
 `-DFreelancerRequireVcpkg=ON`, as in CI.
 

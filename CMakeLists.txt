@@ -40,14 +40,20 @@ if(CMAKE_HOST_WIN32)
         # first configured with (its CMakeSystem.cmake, written by the first project()).
         if(EXISTS "${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_VERSION}/CMakeSystem.cmake")
           message(FATAL_ERROR "A vcpkg module was turned on in a build tree configured without "
-                              "vcpkg. Configure it afresh, keeping the switch: cmake --fresh "
-                              "--preset <preset> -DFreelancerRpGpu=${FreelancerRpGpu}")
+                              "vcpkg. Configure it afresh, keeping the switch and any other -D "
+                              "options: cmake --fresh --preset <preset> "
+                              "-DFreelancerRpGpu=${FreelancerRpGpu} ...")
         endif()
         set(CMAKE_TOOLCHAIN_FILE "${_fl_toolchain}" CACHE FILEPATH "vcpkg's toolchain file")
         set(_fl_vcpkg_ours ON CACHE INTERNAL "CMAKE_TOOLCHAIN_FILE is vcpkg's, set by this file")
         break()
       endif()
     endforeach()
+  endif()
+  if(_fl_vcpkg_ours AND NOT EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+    message(FATAL_ERROR "This build tree was configured with vcpkg at '${CMAKE_TOOLCHAIN_FILE}', "
+                        "which is gone. Configure it afresh: cmake --fresh --preset <preset>, "
+                        "repeating any -D options.")
   endif()
   if(DEFINED CMAKE_TOOLCHAIN_FILE)
     set(VCPKG_MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE PATH "")

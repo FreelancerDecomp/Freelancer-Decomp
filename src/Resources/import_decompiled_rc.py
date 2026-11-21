@@ -291,7 +291,7 @@ def insert_resource_compile(cmakelists_path, rc_rel):
     text = open(cmakelists_path, encoding="utf-8").read()
     rc_rel = rc_rel.replace("\\", "/")
     # The call ends at a line holding only ")": comments inside it may contain parentheses.
-    m = re.search(r"fl_add_module\(.*?\n\)[ \t]*$", text, re.S | re.M)
+    m = re.search(r"fl_add_module\(.*?\n\)(?=[ \t]*$)", text, re.S | re.M)
     if not m:
         raise RuntimeError("no fl_add_module(... SOURCES ...) in " + cmakelists_path)
     block = m.group(0)
