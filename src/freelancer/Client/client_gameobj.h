@@ -533,7 +533,9 @@ public:
     // slot 106 (FUN_005356c0) and applied by FUN_005357f0. The port keeps a std::map of its own
     // in the same 0x14 bytes (no retail ABI).
     std::map<unsigned short, FEquipSubTarget> SubTargets; // +0xcc
+#if defined(_M_IX86)
     unsigned char PadSubTargets[0x14 - sizeof(std::map<unsigned short, FEquipSubTarget>)];
+#endif
     unsigned char Field_0xe0;          // +0xe0
     unsigned char Pade1[3];
 };
