@@ -992,21 +992,20 @@ GENRESULT DACOM_API FRpGpu::CreateTexture(int Width, int Height, unsigned int* F
     if (!IsKnownFormat(Concrete))
         return GR_GENERIC;
 
+    // 0 asks for the full chain down to 1x1; more levels than that is an invalid request, as
+    // Direct3D's CreateTexture answers it.
+    const unsigned int MaxLevels =
+        MaxMipLevels(static_cast<unsigned int>(Width), static_cast<unsigned int>(Height));
+    if (Levels > MaxLevels)
+        return GR_GENERIC;
+    const unsigned int Count = Levels == 0 ? MaxLevels : Levels;
+
     FRpGpuTexture* const Texture = new (std::nothrow) FRpGpuTexture();
     if (Texture == nullptr)
         return GR_OUT_OF_MEMORY;
     Texture->Width = static_cast<unsigned int>(Width);
     Texture->Height = static_cast<unsigned int>(Height);
     Texture->Format = Concrete;
-    // 0 asks for the full chain down to 1x1; more levels than that is an invalid request, as
-    // Direct3D's CreateTexture answers it.
-    const unsigned int MaxLevels = MaxMipLevels(Texture->Width, Texture->Height);
-    if (Levels > MaxLevels)
-    {
-        delete Texture;
-        return GR_GENERIC;
-    }
-    const unsigned int Count = Levels == 0 ? MaxLevels : Levels;
     Texture->Levels = Count;
     for (unsigned int Level = 0; Level < Count; ++Level)
     {
