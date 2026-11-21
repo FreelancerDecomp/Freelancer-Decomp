@@ -1286,13 +1286,13 @@ FDirectX9::~FDirectX9()
     FormatCatalogBegin_ = nullptr;
     FormatCatalogEnd_ = nullptr;
     FormatCatalogCap_ = nullptr;
-    // RP9 Ex (port-only): ShutdownPipeline above released the GPU objects; free the handles.
+    // PORT(rp9): RP9 Ex: ShutdownPipeline above released the GPU objects; free the handles.
     ExDestroyAll();
     delete Ex_;
     Ex_ = nullptr;
 }
 
-// RP8: FDirectX8::QueryLocal (the same eight IIDs as RP8, plus the two port-only Direct3D 9
+// RP8: FDirectX8::QueryLocal (the same eight IIDs as RP8, plus the two PORT(rp9) Direct3D 9
 // extensions RP8 does not answer -- render/IRenderPipelineEx.h)
 GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
 {
@@ -2840,7 +2840,7 @@ void FDirectX9::UnbindTextureHandle(void* Handle)
     }
 }
 
-// ---- RP9 Ex helpers on the RP8-mirrored caches (port-only; callers in RP9Ex.cpp) ----
+// ---- RP9 Ex helpers on the RP8-mirrored caches (PORT(rp9); callers in RP9Ex.cpp) ----
 
 // The D3D8 texture-stage numbers whose state D3D9 keeps per sampler (see
 // Rp9SamplerStateFromTss): the entries an Ex sampler binding can change behind the cache.
@@ -3176,7 +3176,7 @@ GENRESULT DACOM_API FDirectX9::ShutdownPipeline()
     // adapter vector (06d07b1a..06d08147: the inlined resize(0) -- its grow branch is dead),
     // release the device and IDirect3D8. +0x1A8 is left as it is.
     DestroyGpuResources();
-    // RP9 Ex (port-only): shaders and managed volume textures die with the device; their
+    // PORT(rp9): RP9 Ex: shaders and managed volume textures die with the device; their
     // bytecode / texel data stays for a later device.
     ExReleaseAllGpu();
     std::vector<FRp9Adapter>& Adapters = Adapters_;
@@ -3536,7 +3536,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     Present.Windowed = Windowed;
     Present.EnableAutoDepthStencil = TRUE;
     Present.AutoDepthStencilFormat = Depth;
-    // RP9 Ex (port-only): a picked 24-bit depth format on an adapter with INTZ becomes an INTZ
+    // PORT(rp9): RP9 Ex: a picked 24-bit depth format on an adapter with INTZ becomes an INTZ
     // depth texture created right after the device (IRenderPipelineEx::GetSceneDepth), so no
     // auto depth-stencil is made. AutoDepthStencilFormat keeps the picked format: the mode
     // blob's depth/stencil bits and the ZBIAS scale below are the same either way.
@@ -3591,7 +3591,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
         }
     }
 
-    // RP9 Ex (port-only): the explicit depth surface (INTZ) and the Ex D3DPOOL_DEFAULT
+    // PORT(rp9): RP9 Ex: the explicit depth surface (INTZ) and the Ex D3DPOOL_DEFAULT
     // resources DestroyGpuResources released. Without INTZ and Ex objects this does nothing.
     Hr = ExCreateDeviceResources(bIntzDepth, Depth);
     if (Hr < 0)
@@ -3649,7 +3649,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
 // RP8: FDirectX8::DestroyGpuResources
 GENRESULT DACOM_API FDirectX9::DestroyGpuResources()
 {
-    // RP9 Ex (port-only): an open Ex pass is ended, the INTZ depth and the Ex render targets
+    // PORT(rp9): RP9 Ex: an open Ex pass is ended, the INTZ depth and the Ex render targets
     // (D3DPOOL_DEFAULT) are released before a Reset. Nothing to do when Ex was never used.
     ExReleaseDeviceResources();
     // 06d09988: stream cache +0x138 = {0, 0, 0, -1, 0}.

@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "nn_button_control.h"
-#include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "hud_widescreen.h"   // PORT(widescreen)
 
 #include "game_options.h"         // GetGameOption (FUN_005792b0)
 #include "globals.h"              // GetClientFrameTimeCapped (FUN_0042d680)
@@ -531,7 +531,7 @@ void NnButtonControl::Update()
 void NnButtonControl::Draw()
 {
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only: owners that walk their children themselves (HudTargetBase, NN_MainButton)
+    // PORT(widescreen): owners that walk their children themselves (HudTargetBase, NN_MainButton)
     // reach this without the Win3D draw walk, so the control sets its own HUD shift.
     FWidescreenHudShiftScope const WidescreenScope(WidescreenHudShiftPixelsFor(this), true);
 #endif

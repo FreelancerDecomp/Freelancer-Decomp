@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // Two things a run must not take from the machine it runs on, redirected in this process only by
 // rewriting the import tables of the game modules (the DLLs beside the executable). No game

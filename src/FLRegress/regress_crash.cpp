@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // See regress_crash.h. The dump and report are written from a helper thread: the crashed
 // thread may have run out of stack, and StackWalk64 wants to walk a thread that is stopped.

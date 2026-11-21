@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // Text dumps of game state, one record per line. Floats are written as their exact bit pattern
 // (followed by a readable value), so any change in a result shows up as a diff.

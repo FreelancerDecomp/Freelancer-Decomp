@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 
 #include "regress_client.h"
 

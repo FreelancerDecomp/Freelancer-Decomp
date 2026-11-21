@@ -33,7 +33,7 @@
 #include "hud_waypoint.h"   // HudWaypointGetObjectCount / HudWaypointGetObject (FUN_004c83c0 / 83e0)
 #include "menu_ui_draw.h"
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h"  // NebulaVolume (port-only Direct3D 9 volumetric nebula)
+#include "nebula_volume.h"  // PORT(rp9): NebulaVolume
 #endif
 #include "part_cache.h"
 #include "space_camera.h"
@@ -41,7 +41,7 @@
 #include "player_behavior.h"
 #include "perf_options.h"
 #ifdef FREELANCER_RP9
-#include "render_ex.h"      // RenderEx::AfterSpaceScene (port-only Direct3D 9 extensions)
+#include "render_ex.h"      // PORT(rp9): RenderEx::AfterSpaceScene
 #endif
 #include "screen_quad_state.h"
 #include "space_scene_draw.h"
@@ -956,7 +956,7 @@ namespace
             using FSlot38 = float(__thiscall*)(void*);
             using FSlot30 = float const*(__thiscall*)(void*, float*);
 #ifdef FREELANCER_RP9
-            // Port-only: while the Direct3D 9 volumetric nebula draws this nebula's inside
+            // PORT(rp9): while the Direct3D 9 volumetric nebula draws this nebula's inside
             // (nebula_volume.cpp) it fogs the object by its depth; the D3D fog stays off (the
             // FUN_00421ed0(0xb60) above). The ambient lerp above is kept.
             if (!NebulaVolume::ReplacesObjectFog(Nebula))
@@ -1718,7 +1718,7 @@ namespace
         ((FNebulaEffect*)Object)->DrawFogShell(Cam);
         ((FNebulaEffect*)Object)->DrawBoltsPass(Cam);
 #ifdef FREELANCER_RP9
-        // Port-only: a nebula the Direct3D 9 volumetric nebula draws from beyond the opaque
+        // PORT(rp9): a nebula the Direct3D 9 volumetric nebula draws from beyond the opaque
         // scene's far plane is ray-marched here, in this bucket's painter order (its retail
         // fill sheets and bits above are then left out by their own gates). A no-op otherwise.
         NebulaVolume::DrawBackground((FNebulaEffect*)Object, AsCamera(Cam));
@@ -1867,7 +1867,7 @@ namespace
         CliAsteroidTickFields(Cam);
         DrainBucket(Cam, 4, false);
 #ifdef FREELANCER_RP9
-        // Port-only: the volumetric nebula (nebula_volume.cpp) replaces the interior puffs.
+        // PORT(rp9): the volumetric nebula (nebula_volume.cpp) replaces the interior puffs.
         if (!NebulaVolume::ReplacesClouds(G_FieldController))
 #endif
             G_FieldController->DrawCloudsPanels(Cam);
@@ -2548,7 +2548,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     G_DrawCtxParam2 = Param2;
     SelectFieldControllers(Cam);
 #ifdef FREELANCER_RP9
-    // Port-only: which nebulae the Direct3D 9 volumetric nebula draws this frame, from inside
+    // PORT(rp9): which nebulae the Direct3D 9 volumetric nebula draws this frame, from inside
     // and from outside (nebula_volume.cpp); the opaque scene outside a nebula's core is drawn
     // out to DAT_006164d4. A no-op on RP8 and with no nebula in range.
     NebulaVolume::BeginFrame(Camera, G_FieldController, G_FieldEnclosure,
@@ -2584,7 +2584,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
         if (Far > G_SpaceDrawFar)
             Far = G_SpaceDrawFar;
 #ifdef FREELANCER_RP9
-        // Port-only: the volumetric nebula's thinner haze would show objects popping in at
+        // PORT(rp9): the volumetric nebula's thinner haze would show objects popping in at
         // retail's clamp; while it is drawn the plane goes out to where its haze hides
         // everything (nebula_volume.cpp). Unchanged on RP8 / with the volume off.
         Far = NebulaVolume::InsideFarPlane(Far, G_SpaceDrawFar);
@@ -2694,7 +2694,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     // 0x0051c6b9..0x0051c6e0: the background star sphere, unless the camera sits fully inside a
     // nebula (DAT_0067524c == 2), BACKGROUND (option 0x19) is off, or layer bit 0 is clear.
 #ifdef FREELANCER_RP9
-    // Port-only: while the volumetric nebula is drawn with real_background, also fully inside
+    // PORT(rp9): while the volumetric nebula is drawn with real_background, also fully inside
     // (its haze fogs the stars with distance instead).
     if ((G_FieldEnclosure != 2 || NebulaVolume::ShowsRealBackground()) &&
         GetGameOption(kGameOptBackgroundGroup) != 0 && (LayerFlags & 1u) != 0)
@@ -2707,7 +2707,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     DrainMeshAndAsteroids(Cam); // FUN_0051f950
 
 #ifdef FREELANCER_RP9
-    // Port-only: the volumetric nebula over the opaque scene, before the effects (which retail
+    // PORT(rp9): the volumetric nebula over the opaque scene, before the effects (which retail
     // also draws over its fog). The scene above was drawn with near = GetZNear, far = Far.
     NebulaVolume::Draw(Camera, Camera->GetZNear(), Far);
 #endif
@@ -2758,7 +2758,7 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
     unsigned char ClearB = SpaceColor[2];
     if (G_FieldController != nullptr)
     {
-        // Port-only (FREELANCER_RP9): with the volumetric nebula's real_background the clear
+        // PORT(rp9): with the volumetric nebula's real_background the clear
         // stays the space colour; FillFogRgb still runs (it advances the background-lightning
         // timer and rand()).
         if (G_FieldController->GetFloat294() >= 1.0f)
@@ -2791,7 +2791,7 @@ void SpaceCameraRenderSlot78(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Pa
     SpaceObjDrawPass(Cam, LayerFlags, Param2); // 0x0051b26e..0x0051b270
 
 #ifdef FREELANCER_RP9
-    // Port-only (no retail counterpart): the Direct3D 9 extension passes that need the finished
+    // PORT(rp9): the Direct3D 9 extension passes that need the finished
     // 3D scene and its depth, before the HUD clears the depth buffer below. A no-op on RP8.
     RenderEx::AfterSpaceScene();
 #endif

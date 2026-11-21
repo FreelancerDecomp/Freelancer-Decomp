@@ -6,7 +6,7 @@
 
 #pragma once
 
-// Port-only (FREELANCER_WIDESCREEN_SUPPORT): the in-flight HUD's corner windows pushed out to
+// PORT(widescreen): the in-flight HUD's corner windows pushed out to
 // the edges of a widescreen surface, the job retail-era HudShift did by patching the exe.
 //
 // Under Hor+ (widescreen.h) the Win3D interface keeps a 4:3 layout in the middle of the

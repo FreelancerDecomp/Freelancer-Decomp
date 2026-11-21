@@ -14,7 +14,7 @@
 #include "font_string.h"
 #include "game_options.h"
 #include "globals.h"
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_status_core.h"
 #include "input_manager.h"
 #include "nn_ui_pulse.h"
@@ -660,7 +660,7 @@ void HUD_Steer::Render(FSpaceCamera* Camera, float DeltaSeconds)
     float const HalfW = static_cast<float>(SurfaceW / 2);
     float const HalfH = static_cast<float>(SurfaceH / 2);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the steering circle is interface, scaled by height like the rest of it.
+    // PORT(widescreen): the steering circle is interface, scaled by height like the rest of it.
     float const RangePixels = static_cast<float>(
         static_cast<double>(Range) * WidescreenEquivalentSurfaceWidth() * 0.0012499999720603228);
 #else

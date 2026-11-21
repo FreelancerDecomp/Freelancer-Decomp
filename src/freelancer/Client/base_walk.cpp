@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Port-only feature, compiled only with FREELANCER_WALK_MODE (src/Directory.Build.props).
+// PORT(walk): compiled only with FREELANCER_WALK_MODE (src/Directory.Build.props).
 #ifdef FREELANCER_WALK_MODE
 
 #include "base_walk.h"

@@ -1,4 +1,4 @@
-// Freelancer Decomp: DPNet tests (port-only, not part of retail).
+// Freelancer Decomp: DPNet tests -- PORT(dpnet), not part of retail.
 //
 // 1. The byte-level examples of [MC-DPL8R] section 4 and [MC-DPL8CS] section 4: our encoders
 //    must produce, and our decoders accept, exactly what Windows put on the wire.

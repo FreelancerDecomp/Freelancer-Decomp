@@ -1399,7 +1399,7 @@ namespace AlchemyImpl
     // FUN_06244580 (appearance +0xB4, entered through `ADD this,0xc` on every
     // appearance vtable): for each field in node+0x9c..+0xa0 call the field's +0x9c
     // with [node+0x18], the appearance. That slot is the port's BeginField.
-    // BeginField's Dt is port-only -- retail Begin takes the appearance alone
+    // PORT(api): BeginField's Dt -- retail Begin takes the appearance alone
     // (Gravity LAB_062241a0, Air LAB_06214bf0 and Radial LAB_06236ea0 read one stack
     // argument) -- so 0.0f goes in here. No field's BeginField reads it: the radial
     // blend that needs Dt lives in its own update (FxRadialField::Pad5 = LAB_06236450).
@@ -1432,7 +1432,7 @@ namespace AlchemyImpl
     //   Duration; AND 0x4100; JZ -> return -1 (neither C0 nor C3: AgeCopy >
     //   Duration).
     //   Return 0 after the walk.
-    // Field +0xa4 is the port's ApplyFieldToVel; its Dt is port-only (retail RET 0xc,
+    // Field +0xa4 is the port's ApplyFieldToVel; its Dt is PORT(api) (retail RET 0xc,
     // two arguments) and nothing has elapsed for a particle being spawned, so 0.0f.
     GENRESULT DACOM_API FGenericFxObjectBase::Pad46(const float* Six, float Age, float Duration)
     {

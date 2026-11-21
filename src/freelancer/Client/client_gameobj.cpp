@@ -32,7 +32,7 @@
 #include "globals.h"             // G_RenderSurfaceWidth (DAT_00610850)
 #include "menu_sound_arch.h"     // LookupClientSoundArch (FUN_0042ae40), Source3D factory
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h"       // NebulaVolume::NoteOpaqueSphere (port-only Direct3D 9 nebula)
+#include "nebula_volume.h"       // NebulaVolume::NoteOpaqueSphere PORT(rp9)
 #endif
 #include "nn_messaging.h"        // NnVoiceEnqueue (FUN_00489e80)
 #include "nn_modal.h"            // G_bNnScreenUp (DAT_0067dcc8), NnArrivalTextShow (FUN_0045b310)
@@ -2025,7 +2025,7 @@ unsigned* FClientSolarGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned 
         }
         bSubmit = true;
 #ifdef FREELANCER_RP9
-        // Port-only: the far bucket draws planets without depth; the Direct3D 9 volumetric
+        // PORT(rp9): the far bucket draws planets without depth; the Direct3D 9 volumetric
         // nebula ends its rays on their bounding sphere instead (nebula_volume.cpp). Only while
         // it is active.
         if (NebulaVolume::IsActive())

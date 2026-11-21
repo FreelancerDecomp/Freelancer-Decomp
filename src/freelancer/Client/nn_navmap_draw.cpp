@@ -22,7 +22,7 @@
 #include "font_string.h"            // Font::String (FUN_004144b0 ...)
 #include "game_options.h"           // GetGameOption (FUN_005792b0)
 #include "globals.h"                // G_RenderSurfaceWidth / Height, GetClientFrameTimeCapped
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_target.h"             // HudShipOfObjRw (FUN_00543320)
 #include "ids_strings.h"            // GetIdsStringWWithRawFallback (FUN_004347e0)
 #include "input_manager.h"          // GetClientSoftwareCursor (DAT_00616840 / 44)
@@ -1235,7 +1235,7 @@ void NeuroNetNavMap::DrawLabels()
 
     // 0x00499a3b..0x00499a8d: the label font by the surface width (compared signed).
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: retail knows only its five 4:3 widths. The map is interface, so the font
+    // PORT(widescreen): retail knows only its five 4:3 widths. The map is interface, so the font
     // follows the width of a 4:3 surface of this height, by range rather than exact match.
     int const SurfaceWidth = static_cast<int>(WidescreenEquivalentSurfaceWidth() + 0.5);
     char const* FontName = "NavMap800";
@@ -1346,7 +1346,7 @@ void NeuroNetNavMap::DrawItemLabel(IFont* Font, FNavMapItem* Item)
                                             static_cast<double>(kNavMapLabelHeightScale) *
                                             static_cast<double>(kNavMapLabelHeightFactor));
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: pixels to map units through the width of a 4:3 surface of this height.
+    // PORT(widescreen): pixels to map units through the width of a 4:3 surface of this height.
     double const WidthExt =
         static_cast<double>(Item->LabelWidth) / WidescreenEquivalentSurfaceWidth();
 #else
@@ -1494,7 +1494,7 @@ bool NeuroNetNavMap::PlaceLabel(float* X, float* Y, float W, float H, FNavMapIte
     if (!bPlaced)
     {
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: as the label width above.
+        // PORT(widescreen): as the label width above.
         float const InvWidth = static_cast<float>(kNavMapOne / WidescreenEquivalentSurfaceWidth());
 #else
         float const InvWidth = static_cast<float>(

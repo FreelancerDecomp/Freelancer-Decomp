@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // Starts Server.dll as a multiplayer server, as FLServer.exe does, but with FLRegress itself as
 // the client module instead of RemoteClient.dll: no window, renderer, sound or network. It

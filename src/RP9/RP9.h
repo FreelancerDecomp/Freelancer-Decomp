@@ -249,7 +249,7 @@ struct FRp9DeviceStateCaches
     FRp9TransformCache TextureTransforms[StageCount];
 };
 
-// RP9 Ex (port-only, RP9Ex.cpp): a fixed-function stage (0..7) the Ex pass binds a texture
+// PORT(rp9): RP9 Ex (RP9Ex.cpp): a fixed-function stage (0..7) the Ex pass binds a texture
 // on. The stage's cached binding and its sampler-state entries (D3D8 TSS 13..21, 25) are saved
 // here and marked invalid for the pass (so in-pass IRenderPipeline calls reach the device);
 // EndExPass re-sends the saved values (FDirectX9::ExSaveStage / ExRestoreStage).
@@ -366,7 +366,7 @@ class FDirectX9 final : public IRenderPipeline,
                         public IGammaControl,
                         public IRPTexture,
                         public IAggregateComponent,
-                        // Port-only Direct3D 9 extensions (render/IRenderPipelineEx.h, RP9Ex.cpp).
+                        // PORT(rp9): Direct3D 9 extensions (render/IRenderPipelineEx.h, RP9Ex.cpp).
                         public IRenderPipelineEx,
                         public IRPDrawEx
 {
@@ -711,7 +711,7 @@ public:
     INT DeviceBaseVertex_;
     IDAComponent* Outer_;
     FRp9Inner Inner_;
-    // RP9 Ex state (port-only; RP9Ex.h): programs, Ex textures, the INTZ scene depth, the open
+    // PORT(rp9): RP9 Ex state (RP9Ex.h): programs, Ex textures, the INTZ scene depth, the open
     // pass. Allocated by the constructor, freed by the destructor.
     FRp9ExState* Ex_;
 };

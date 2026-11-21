@@ -26,9 +26,9 @@
 #include "game_options.h"
 #include "globals.h"
 #ifdef FREELANCER_RP9
-#include "nebula_volume.h" // NebulaVolume::NoteStarGlow (port-only Direct3D 9 nebula)
+#include "nebula_volume.h" // NebulaVolume::NoteStarGlow PORT(rp9)
 #endif
-#include "hud_widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "hud_widescreen.h"   // PORT(widescreen)
 #include "pixel_format.h" // PixelFormatFromD3D / PixelFormatGetDesc (FUN_005b7010 / 005b7030)
 #include "player_behavior.h"
 #include "render/IRenderPipeline.h"
@@ -1777,7 +1777,7 @@ static FStarFxChild40* AllocChild40(float Field38, float Field3C)
         }
 
 #ifdef FREELANCER_RP9
-        // Port-only: the Direct3D 9 volumetric nebula composites after this sprite, which has no
+        // PORT(rp9): the Direct3D 9 volumetric nebula composites after this sprite, which has no
         // depth; it is told where the glow is (nebula_volume.cpp). A no-op while inactive.
         if (this->StarGlow->Field48 != 0)
         {
@@ -2106,7 +2106,7 @@ void Win3DBindModelview(void* ObjectOrNull, float const* Matrix12)
     FTransform Local;
     float const* Src = Matrix12; // 004226d1..004226d5
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only: without a camera the matrix is the modelview as it stands (the Win3D camera
+    // PORT(widescreen): without a camera the matrix is the modelview as it stands (the Win3D camera
     // is the identity), so a shifted HUD window's shear goes onto it here.
     float Sheared[12];
     if (ObjectOrNull == nullptr && WidescreenHudShearModelview(Matrix12, Sheared))

@@ -785,7 +785,7 @@ struct IObjRW : IObjInspect, IObjAffect, Watchable
 {
 };
 
-// IObjRW's base offsets: retail's 4 and 8 on Win32, the class layout's on the port-only x64
+// IObjRW's base offsets: retail's 4 and 8 on Win32, the class layout's on the x64 (PORT(x64))
 // build, where each vtable pointer is 8 bytes (facet_offset.h).
 #define FL_OBJRW_AFFECT_OFFSET FL_FACET_OFFSET(4, IObjRW, IObjAffect)
 #define FL_OBJRW_WATCHABLE_OFFSET FL_FACET_OFFSET(8, IObjRW, Watchable)
