@@ -27,7 +27,6 @@
     <ProjectGuid>{C0A4E8B1-2D5F-4A17-9C36-E8B0D1F2A405}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Common</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -54,10 +53,6 @@
     <ClCompile>
       <PreprocessorDefinitions>COMMON_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4251;4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <!-- /sdl makes the compiler give every dllexport class an exported
-           __autoclassinit2 member. Retail Common.dll exports none, and the
-           module exports exactly the names retail exports. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>

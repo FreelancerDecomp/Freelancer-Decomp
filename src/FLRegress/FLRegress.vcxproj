@@ -20,7 +20,6 @@
     <ProjectGuid>{40DEA8B4-C728-4E53-B178-DFBC3F77A534}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FLRegress</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">

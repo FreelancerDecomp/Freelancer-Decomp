@@ -19,7 +19,6 @@
     <ProjectGuid>{A3C49D2C-9E49-4C76-88CE-579F7126E6FF}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
     <RootNamespace>FLServer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!-- Retail FLServer.exe is an MFC42 doc/view application linked against the ANSI
@@ -57,9 +56,6 @@
       <!-- Every translation unit includes StdAfx.h first (MFC must see windows.h first);
            no precompiled header, so a file another lane adds cannot break the PCH chain. -->
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <!-- Retail FLServer.exe exports nothing; /sdl would add nothing here but keep it in
-           line with freelancer.vcxproj. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
