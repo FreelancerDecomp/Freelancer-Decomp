@@ -194,9 +194,8 @@ get their own evaluation once the screenshot comparison from step 4.2 exists:
 - Capture the step 4.2 scenes with the extras on and off, next to the RP8 reference, and look
   at what they change.
 - Decide from that whether they stay, change, or go, on Win32 too.
-- Only if they stay: turn on the Ex-hook switch from step 2.5 for x64 and port `render_ex.*`,
-  `nebula_volume.*` and RP9's Ex side (`RP9Ex.cpp`). The check is that x64 draws what the Win32
-  RP9 build draws with the same `volumetric.ini`.
+- Only if they stay: port `render_ex.*` and `nebula_volume.*` to x64 and give RPGPU an Ex side.
+  The check is that RPGPU draws what the Win32 RP9 build draws with the same `volumetric.ini`.
 
 RP9 is Win32-only, so on x64 the extras would need RPGPU's own Ex side. That is a separate
 decision.
@@ -254,8 +253,8 @@ byte-identical Win32 output again.
 
 1. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
 
-Decided: step 2.5 splits RP9's Ex hooks into their own switch, off on x64. Whether they come
-to x64 is decided in the optional stage after phase 4, from the screenshot comparison.
+Decided: whether RP9's extras come to x64 is decided in the optional stage after phase 4, from
+the screenshot comparison.
 Step 2.2: the movie module's authorizer and big-number code stay out of x64; if the reader then
 refuses the intros, x64 skips them.
 Step 2.5: no RP9 on x64; RPGPU is the x64 client's first renderer. Step 3.1: RPNull is the RPGPU
