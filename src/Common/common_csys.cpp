@@ -738,23 +738,16 @@ I3DMathEngine* __cdecl Acquire3DMathEngine()
     if (CachedEngine != nullptr)
         return CachedEngine;
 
-    // A 12-byte descriptor: AGGDESC's {size, interface name} plus a null third dword.
-    struct FAGGDESC12
-    {
-        AGGDESC Base;
-        void* Reserved08;
-    };
-
-    FAGGDESC12 Desc;
-    Desc.Base.size = 12;
-    Desc.Base.interface_name = "3DMathEngine";
-    Desc.Reserved08 = nullptr;
+    FMathDesc Desc;
+    Desc.Size = 12;
+    Desc.InterfaceName = "3DMathEngine";
+    Desc.Implementation = nullptr;
 
     // .text:06391d0b..06391d1e: DACOM_Acquire, then its slot +0x0c CreateInstance with no test
     // of the manager.
     void* Engine = nullptr;
     ICOManager* const Manager = DACOM_Acquire();
-    Manager->CreateInstance(&Desc.Base, &Engine);
+    Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc), &Engine);
 
     CachedEngine = (I3DMathEngine*)Engine;
     return CachedEngine;

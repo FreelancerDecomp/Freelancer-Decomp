@@ -18,7 +18,7 @@ struct IEngine2;
 // in d3d8.h) themselves. Declared as a struct so the export still mangles as PAUIRenderPipeline.
 struct IRenderPipeline;
 
-// DALIB_API, FFileSystemAggDesc, FatalErrorFn / CriticalWarningFn and Startup / OpenData /
+// DALIB_API, FatalErrorFn / CriticalWarningFn and Startup / OpenData /
 // CloseData / Shutdown (the part MFC translation units can include).
 #include "dalib_core.h"
 

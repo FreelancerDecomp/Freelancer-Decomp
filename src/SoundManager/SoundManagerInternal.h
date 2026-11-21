@@ -55,15 +55,7 @@ static const GUID kDsPropSetEax20Listener = {
 static const GUID kDsPropSetEax20Buffer = {
     0x4A4E6FC1, 0xC341, 0x11D1, {0xB7, 0x3A, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}};
 
-// AGGDESC 0x14 for this factory (same layout as SystemContainer children).
-struct FSoundAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    const char* Extra;
-};
+// This factory takes dacom.h's FAGGDESC14, as SystemContainer children do.
 
 // Nested vtbl @ object +0x08 — not in the aggregator QI table. Slot 3 binds IProfileParser.
 struct ISoundManagerParserBind : IDAComponent
@@ -260,7 +252,7 @@ public:
     GENRESULT DACOM_API GetInstanceStatus(int Index, void* Out) override;
     GENRESULT DACOM_API BindParser() override;
 
-    void BindOuter(FSoundAggDesc* Desc);
+    void BindOuter(FAGGDESC14* Desc);
     GENRESULT CreateDirectSound(); // FUN_06ee5730
     void DumpDeviceNotices();      // FUN_06ee5b20
     void ApplyListener();          // FUN_06ee6d50

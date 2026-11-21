@@ -172,44 +172,20 @@ namespace
         return Stream->Pan;
     }
 
-    struct FFileSystemAggDesc
-    {
-        unsigned long Size;
-        const char* ComponentName;
-        const char* BackendName;
-        const char* DataPath;
-        unsigned long Field10;
-        unsigned long Field14;
-        void* Field18;      // security attributes: a pointer, as in FFileSystemDesc
-        unsigned long Field1C;
-        unsigned long Field20;
-        void* Field24;      // template file
-        void* Field28;      // parent
-        unsigned long Field2C;
-        unsigned long Field30;
-    };
-
-    // ReadFile reads this descriptor as an FFileSystemDesc (readfile.h), on every platform.
-    static_assert(offsetof(FFileSystemAggDesc, DataPath) == offsetof(FFileSystemDesc, Path), "Path");
-    static_assert(offsetof(FFileSystemAggDesc, Field1C) == offsetof(FFileSystemDesc, Creation), "Creation");
-    static_assert(offsetof(FFileSystemAggDesc, Field20) == offsetof(FFileSystemDesc, Flags), "Flags");
-    static_assert(offsetof(FFileSystemAggDesc, Field28) == offsetof(FFileSystemDesc, Parent), "Parent");
-    static_assert(offsetof(FFileSystemAggDesc, Field30) == offsetof(FFileSystemDesc, Field30), "Field30");
-
     // 06ef30af..3109: 0x34 desc {size, "FileSystem", 0, Path, 0x80000000, 1, 0, 3, 0x8000080,
     // 0, 0, 0, -1} (REP STOSD zeroes +8..+0x33 first), DACOM_Acquire() unchecked, slot 0xC
     // CreateInstance straight into the caller's out slot; its result is returned.
     GENRESULT CreateFileSystem(const char* Path, IDAComponent** Out)
     {
-        FFileSystemAggDesc Desc = {};
+        FFileSystemDesc Desc = {};
         Desc.Size = 0x34;
         Desc.ComponentName = "FileSystem";
-        Desc.DataPath = Path;
-        Desc.Field10 = 0x80000000;
-        Desc.Field14 = 1;
-        Desc.Field18 = nullptr;
-        Desc.Field1C = 3;
-        Desc.Field20 = 0x8000080;
+        Desc.Path = Path;
+        Desc.Access = 0x80000000;
+        Desc.ShareMode = 1;
+        Desc.Security = nullptr;
+        Desc.Creation = 3;
+        Desc.Flags = 0x8000080;
         Desc.Field30 = 0xFFFFFFFF;
         ICOManager* Dacom = DACOM_Acquire();
         return Dacom->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc),
@@ -351,14 +327,14 @@ namespace
             Stream->FileHandle = 0;
             return;
         }
-        FFileSystemAggDesc Desc = {};
+        FFileSystemDesc Desc = {};
         Desc.Size = 0x34;
         Desc.ComponentName = "FileSystem";
-        Desc.DataPath = Stream->Path;
-        Desc.Field10 = 0x80000000;
-        Desc.Field14 = 1;
-        Desc.Field1C = 3;
-        Desc.Field20 = 0x8000080;
+        Desc.Path = Stream->Path;
+        Desc.Access = 0x80000000;
+        Desc.ShareMode = 1;
+        Desc.Creation = 3;
+        Desc.Flags = 0x8000080;
         Desc.Field30 = 0xFFFFFFFF;
         Stream->FileHandle = static_cast<IFileSystem*>(Stream->FileSystem) // +0x7C
                                  ->OpenByDesc(reinterpret_cast<FFileSystemDesc*>(&Desc));
@@ -1009,7 +985,7 @@ GENRESULT DACOM_API FSoundStreamerFactory::CreateInstance(AGGDESC* Desc, void** 
     if (Instance == nullptr)
         return GR_GENERIC;
     *Instance = nullptr;
-    FStreamerAggDesc* StreamDesc = reinterpret_cast<FStreamerAggDesc*>(Desc);
+    FAGGDESC14* StreamDesc = reinterpret_cast<FAGGDESC14*>(Desc);
     if (StreamDesc == nullptr || StreamDesc->Size != kAggDescSize)
         return GR_INTERFACE_UNSUPPORTED;
     if (StreamDesc->Name == nullptr || strcmp(StreamDesc->Name, Name) != 0)
@@ -1065,7 +1041,7 @@ FSoundStreamer::~FSoundStreamer()
     Platform::LockDelete(&Lock);
 }
 
-void FSoundStreamer::BindOuter(FStreamerAggDesc* Desc)
+void FSoundStreamer::BindOuter(FAGGDESC14* Desc)
 {
     Inner.RefCount = 1;
     Inner.Self = this;

@@ -2198,7 +2198,7 @@ static void PlayerDB_LeaveSystem(PlayerData& Slot, unsigned int SessionId) {
 //
 // CORRECTION to the previous note on this function: FUN_06d15650 is not an
 // unported "base-manager singleton". Its entire body is `return &DAT_06d8da70;`
-// (Server.dll.c 42248) -- the BaseDB global (src/include/server_basedb.h,
+// (Server.dll.c 42248) -- the BaseDB global (src/Server/server_basedb.h,
 // GetBaseDB()). The two teardown entry points are BaseDB::exit_location
 // (FUN_06d143e0) and BaseDB::unload_base (FUN_06d142c0).
 static void PlayerDB_LeaveBase(PlayerData& Slot, unsigned int SessionId) {
@@ -6059,23 +6059,14 @@ SERVER_API ChatHookFn g_pSystemChatHook = nullptr;    // RVA 0xAF60C
 unsigned int StarSystem::count_players(unsigned int ExcludeId) const
 {
     unsigned int Count = 0;
-    // PlayerListHead at this+0x0C is a pointer to the list sentinel
-    unsigned int const* Sentinel = reinterpret_cast<unsigned int const*>(
-        *reinterpret_cast<void* const*>(
-            reinterpret_cast<unsigned char const*>(this) + 0x0C));
-    // No null test: .text:06d0bcb0 `MOV EDX,[ECX+0xc]` / .text:06d0bcb3
-    // `MOV ECX,[EDX]` dereferences the sentinel at once.
-
-    // First node: dereference the sentinel to get the head pointer
-    // Retail: puVar1 = **(this + 0xc)
-    unsigned int const* Node = reinterpret_cast<unsigned int const*>(*Sentinel);
-    while (Node != Sentinel) {
-        // node[0x10] = player ID at offset 0x40 bytes (0x10 dwords)
-        if (Node[0x10] != ExcludeId) {
+    // PlayerListHead (+0x0C) points at the list sentinel. No null test: .text:06d0bcb0
+    // `MOV EDX,[ECX+0xc]` / .text:06d0bcb3 `MOV ECX,[EDX]` dereferences it at once.
+    SystemPlayerNode const* const Sentinel = static_cast<SystemPlayerNode const*>(PlayerListHead);
+    // Retail: node = **(this + 0xc); node[0x10] (+0x40, View.PlayerId) != ExcludeId; node = *node.
+    for (SystemPlayerNode const* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
+        if (Node->View.PlayerId != ExcludeId) {
             Count++;
         }
-        // Advance to next node: node = *node (first dword = next pointer)
-        Node = reinterpret_cast<unsigned int const*>(*Node);
     }
     return Count;
 }

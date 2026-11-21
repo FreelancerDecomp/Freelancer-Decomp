@@ -56,15 +56,7 @@ struct IMaterial : IDAComponent
     virtual unsigned long DACOM_API InnerRelease() = 0;
 };
 static constexpr unsigned long kMaterialParamDescSize = 0x4C;
-// Descriptor shared by material factories and their controlling outer component.
-struct FMaterialAggregateDesc
-{
-    unsigned long Size;
-    const char* NameAt4;
-    IDAComponent* OuterAt8;
-    void** InnerOutAtC;
-    const char* ExtraAt10;
-};
+// Material factories take dacom.h's FAGGDESC14 (formerly FMaterialAggregateDesc here).
 // Material properties retain their contiguous 17-float storage.
 FL_LAYOUT_ASSERT(sizeof(D3DMATERIAL8) == 17 * sizeof(float), "material render block size");
 

@@ -31,7 +31,6 @@
 
 // FUN_062cee50 forwards its own type-id argument to FUN_062d2020 at .text:062cee58.
 InstantTradeLaneBehaviorFields::InstantTradeLaneBehaviorFields(int InTypeId)
-    : TypeId(InTypeId)
 {
     ConstructBase(InTypeId);   // FUN_062d2020 -- Behavior's own field initialisation
 }
@@ -101,7 +100,7 @@ void InstantTradeLaneBehavior::TurnOff()
     // 2026-10-08 (claude-code:cmn-ai3), all 16 instructions: `[ESI+0x14]` null -> RET;
     // FUN_062d21d0(0, 3) (Behavior::SetCruiseLock); +0x30 = 0; FUN_062d20d0
     // (Behavior::Slot3); ThrustManager::engage_cruise(false) on [ESI+0x24]+0x18.
-    if (TargetPtr14 == nullptr)
+    if (OwnerContextPtr14 == nullptr)
         return;
     SetCruiseLock(0, 3);                                                    // 062cef1e
     State30 = 0;                                                            // 062cef25
@@ -113,11 +112,11 @@ void InstantTradeLaneBehavior::TurnOff()
 // (FUN_062cef40).
 void InstantTradeLaneBehavior::RequestExitTradeLane()
 {
-    // `TEST ECX,ECX; JZ LAB_062cefa0` -- the null-check on TargetPtr14 gates
+    // `TEST ECX,ECX; JZ LAB_062cefa0` -- the null-check on OwnerContextPtr14 gates
     // the ENTIRE function body, including the FUN_062d20f0/SubObjPtr34-clear/
     // FUN_062d21d0 tail below (confirmed: the JZ target is the function's
     // final POP/RET, not a mid-function rejoin point).
-    if (TargetPtr14 == nullptr)
+    if (OwnerContextPtr14 == nullptr)
         return;
 
     bool const bWasStatusSet = (Flags54 != 0);
@@ -130,13 +129,13 @@ void InstantTradeLaneBehavior::RequestExitTradeLane()
         Flags54 = 0;
 
         // CLOSED 2026-09-17 (claude:common-largeship-itl). The old reason here --
-        // "TargetPtr14's real interface is not identified, so this port cannot resolve a
-        // genuine CShip*" -- is disproved. TargetPtr14 is an IObjRW* (see its field note in
+        // "OwnerContextPtr14's real interface is not identified, so this port cannot resolve a
+        // genuine CShip*" -- is disproved. OwnerContextPtr14 is an IObjRW* (see its field note in
         // the header), so vtbl+0x150 is IObjInspect::cobject(), returning a CObject const*;
         // and the "+0x4c" the old note described as an opaque status mask is simply
         // CObject::ObjectClass, which common_cobject.h has had typed and static_asserted at
         // that exact offset all along. Retail, .text:062cef66-062cef87:
-        CObject const* const Obj = TargetPtr14->cobject();
+        CObject const* const Obj = OwnerRw()->cobject();
 
         CShip* Ship = nullptr;
         if (Obj != nullptr && (Obj->ObjectClass & CObject::ClassShip) == CObject::ClassShip)
@@ -162,10 +161,10 @@ int InstantTradeLaneBehavior::UpdateMode()
 {
     int Mode = 2;
 
-    // `TEST EAX,EAX; JZ LAB_062ceeee` -- TargetPtr14==nullptr skips BOTH the
+    // `TEST EAX,EAX; JZ LAB_062ceeee` -- OwnerContextPtr14==nullptr skips BOTH the
     // Flags54 check AND the SubObjPtr34 vcall below, falling straight
     // through to the Flag29 check.
-    if (TargetPtr14 != nullptr)
+    if (OwnerContextPtr14 != nullptr)
     {
         if (Flags54 != 0)
             Mode = 1;
@@ -209,7 +208,7 @@ int InstantTradeLaneBehavior::Update()
     }
 
     // `MOV ECX,[ESI+0x14]; TEST ECX,ECX; JNZ dispatch` -- no target yet.
-    if (TargetPtr14 == nullptr)
+    if (OwnerContextPtr14 == nullptr)
     {
         UpdateResult10 = 3;
         return UpdateResult10;
@@ -221,9 +220,9 @@ int InstantTradeLaneBehavior::Update()
     // THIS SWITCH IS REAL CODE AS OF 2026-09-17 (claude:common-largeship-itl). It had been one
     // FULLPORT-DEFERRED block on the grounds that state 0 dispatches "through `*this`'s own
     // vtable at byte offset 0x138, which exceeds this class's own 27-slot vtable, so the real
-    // target is not resolvable". That was a register misread: ECX is loaded with TargetPtr14
+    // target is not resolvable". That was a register misread: ECX is loaded with OwnerContextPtr14
     // at .text:062cefcc (the guard above) and is NEVER reloaded before or inside the switch,
-    // so 0x138 and 0x64 below are slots on TargetPtr14, not on this object. See the header.
+    // so 0x138 and 0x64 below are slots on OwnerContextPtr14, not on this object. See the header.
     switch (State30)
     {
     case 0:
@@ -237,7 +236,7 @@ int InstantTradeLaneBehavior::Update()
             // OutEnd), slot 78. The pushes are right-to-left, so OutEnd (+0x48) going on the
             // stack first makes it the LAST argument.
             IObjInspect const* OutLane = nullptr;
-            int const LaneResult = TargetPtr14->get_lane_start(
+            int const LaneResult = OwnerRw()->get_lane_start(
                 SubObjPtr34, OutLane, LaneStart3c, LaneEnd48);
 
             // `TEST EAX,EAX; JZ LAB_062cf02f` -- ZERO is the success path. (An earlier
@@ -262,11 +261,11 @@ int InstantTradeLaneBehavior::Update()
     case 3:
     {
         // .text:062cf04e-062cf09c. `MOV EDX,[ECX+0x4]` reads the vtable pointer of the
-        // IObjAffect sub-object at TargetPtr14+4; `ADD ECX,0x4` makes it the call's `this`.
+        // IObjAffect sub-object at OwnerContextPtr14+4; `ADD ECX,0x4` makes it the call's `this`.
         // Arguments, right-to-left off the stack: (SubObjPtr34, LanePtr38, 1, Field58).
         // That is IObjAffect slot 25, go_tradelane(EntranceRing, ExitRing, bFastExit, Speed)
         // (named 2026-09-24 from Server.dll's Ship body .text:06d028c0).
-        int const AffectResult = TargetPtr14->go_tradelane(SubObjPtr34, LanePtr38, true, Field58);
+        int const AffectResult = OwnerRw()->go_tradelane(SubObjPtr34, LanePtr38, true, Field58);
 
         // `TEST EAX,EAX; JNZ LAB_062cf08d` -- zero is success.
         if (AffectResult != 0)
@@ -282,11 +281,11 @@ int InstantTradeLaneBehavior::Update()
         // FUN_062d4520 is decomp-tracker item 1561, ported for real (ready_unverified) as
         // IBehaviorManager::QueueNotification(IObjRW* Target, unsigned Extra, float Duration)
         // in common_behaviormanager.cpp -- the "unprocessed" note that used to stand here was stale.
-        // Retail pushes EAX (== 0) twice then TargetPtr14, with ECX = BehaviorMgrPtr20, so
+        // Retail pushes EAX (== 0) twice then OwnerContextPtr14, with ECX = BehaviorMgrPtr20, so
         // Extra == 0 and Duration == 0.0f (the zero dword is a valid 0.0f bit pattern) -- the
-        // immediate path: TargetPtr14's formation followers get notification 0 now.
+        // immediate path: OwnerContextPtr14's formation followers get notification 0 now.
         // .text:062cf069-062cf072: no null test on [ESI+0x20] before the call.
-        BehaviorMgrPtr20->QueueNotification(TargetPtr14, 0, 0.0f);
+        BehaviorMgrPtr20->QueueNotification(OwnerRw(), 0, 0.0f);
 
         UpdateResult10 = 0;
         Flags54 = 1;
@@ -373,11 +372,11 @@ void InstantTradeLaneBehavior::HandleTargetEvent(void* Event)
     if (Ev->Tag != 4 || Ev->Payload[0] != 0)                         // 062cf1d7-062cf1e3, no null test
         return;
 
-    // CLOSED 2026-09-17 (claude:common-largeship-itl). TargetPtr14 is an IObjRW*, so
+    // CLOSED 2026-09-17 (claude:common-largeship-itl). OwnerContextPtr14 is an IObjRW*, so
     // vtbl+0x20 is IObjInspect::get_id() -- the very slot the family's own shared context
     // initializer (item 1532) reaches through the same offset on the same kind of pointer.
     // Retail, .text:062cf1e5-062cf1f0.
-    if (TargetPtr14->get_id() != *reinterpret_cast<unsigned const*>(Ev->Payload + 0xc))
+    if (OwnerRw()->get_id() != *reinterpret_cast<unsigned const*>(Ev->Payload + 0xc))
         return;
 
     // `MOV dword ptr [ESI+0x30],5` -- State30=5 is set UNCONDITIONALLY once
@@ -391,13 +390,13 @@ void InstantTradeLaneBehavior::HandleTargetEvent(void* Event)
 
     // .text:062cf208-062cf222. SubObjPtr34's vtbl+0x20 is also IObjInspect::get_id(); the
     // id it returns is stashed in a stack slot whose ADDRESS is then handed to the
-    // IObjAffect sub-object at TargetPtr14+4, slot 0x60, as (2, &SavedId, 0). Retail reuses
+    // IObjAffect sub-object at OwnerContextPtr14+4, slot 0x60, as (2, &SavedId, 0). Retail reuses
     // its own incoming parameter slot as that scratch (`MOV [ESP+0xc],0` at .text:062cf1fe
     // pre-zeroes it), which is why the old reading saw a "localbuf" with no declaration.
     // Slot 24's signature is declared in common_iface.h since 2026-09-24 (Server.dll's Ship
     // body .text:06d027a0, RET 0xc).
     unsigned SavedId = SubObjPtr34->get_id();
-    (void)TargetPtr14->slot_60(2, &SavedId, 0);
+    (void)OwnerRw()->slot_60(2, &SavedId, 0);
 }
 
 // IObjAffect::RequestCB override -- own single secondary-vtable slot.
@@ -406,7 +405,7 @@ bool InstantTradeLaneBehavior::OnResult(int /*Param1*/, int /*Param2*/, int Para
 {
     // Retail (outer_this recovered via a further -0x18 adjustment from the
     // already-adjusted RequestCB `this`, i.e. outer+0x14 relative to the
-    // secondary vtable's own base -- confirmed against TargetPtr14's offset):
+    // secondary vtable's own base -- confirmed against OwnerContextPtr14's offset):
     Flag55 = 0;
 
     // `CMP EAX,-1; JZ LAB_062cf174` -- Param3 != -1 is the FALL-THROUGH path
@@ -434,13 +433,13 @@ bool InstantTradeLaneBehavior::OnResult(int /*Param1*/, int /*Param2*/, int Para
         //     an IObjInspect const* is get_id(). The "0x8" in the old note was the field
         //     offset being mistaken for the vtable slot.
         // (2) Both owning interfaces ARE identified now: SubObjPtr34 is IObjInspect const*
-        //     and TargetPtr14 (reached at [ESI-0x18] == outer+0x14) is IObjRW*, whose
+        //     and OwnerContextPtr14 (reached at [ESI-0x18] == outer+0x14) is IObjRW*, whose
         //     IObjAffect sub-object sits at +4. Same (2, &SavedId, 0) shape as
         //     HandleTargetEvent()'s call, with the id written into the scratch slot first
         //     (`MOV [ESP+0x14],EAX` at .text:062cf21a / .text:062cf19a-062cf1a2 here).
         // Both calls are unguarded in retail (.text:062cf185-062cf1a2).
         unsigned SavedId = SubObjPtr34->get_id();
-        (void)TargetPtr14->slot_60(2, &SavedId, 0);
+        (void)OwnerRw()->slot_60(2, &SavedId, 0);
 
         // Retail then unconditionally clears Flag55/Flag56.
         Flag55 = 0;

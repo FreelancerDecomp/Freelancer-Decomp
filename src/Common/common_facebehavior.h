@@ -165,7 +165,7 @@ public:
     // DockBehavior's SetContext, FaceBehavior's own retail body does NOT also
     // call SubObjectA's slot 0 here (re-confirmed this pass -- SubObjectA's
     // own vtable pointer at +0x68 is simply never read in this function).
-    // Then computes `Field1cc = FUN_062e5b20(ThreatSourcePtr14, 0, 1.0f)`,
+    // Then computes `Field1cc = FUN_062e5b20(OwnerContextPtr14, 0, 1.0f)`,
     // PORTED 2026-09-17 (claude:w18-behavior) as Behavior_InvokeManagerSlotF0
     // (item 1763, common_behavior.h) -- the recorded "not yet ported" reason
     // was stale -- and returns true. NOTHING in this method is deferred now.
@@ -231,8 +231,8 @@ public:
     // Own vtable slot 6 (offset 0x18). Common.dll.txt 196164-196193
     // (LAB_062c8d80), 26 instructions, fully traced (one deferred helper
     // call). If the global PlayerTrailAvailable is false, returns 2.
-    // Otherwise queries `ThreatSourcePtr14->vtbl[0x74](&out)` (FULLPORT-
-    // DEFERRED, ThreatSourcePtr14's real class unidentified) and calls
+    // Otherwise queries `OwnerContextPtr14->vtbl[0x74](&out)` (FULLPORT-
+    // DEFERRED, OwnerContextPtr14's real class unidentified) and calls
     // FUN_062ee940(NavHelperPtr24+0x142c, out, SUBOBJ_ID_NONE) (FULLPORT-
     // DEFERRED), returning 1.
     // PORTED IN FULL 2026-10-08 (claude-code:cmn-ai4): get_target (+0x74) and
@@ -345,74 +345,13 @@ public:
     // Confirmed fields, ascending absolute-offset order. Everything else is
     // Opaque padding. The +0x04..+0x2c span is the shared Behavior-family
     // context prefix (same shape/roles as every sibling: CachedHandle08 is
-    // set by SetContext() via a getter vcall on Param1; ThreatSourcePtr14/
+    // set by SetContext() via a getter vcall on Param1; OwnerContextPtr14/
     // BehaviorMgrPtr20/NavHelperPtr24 are Param1/Param2/Param3 respectively;
     // Flags28/Flag29 are the usual bit-flag pair). +0x2c onward is
     // FaceBehavior's own data, confirmed directly from the ctor and the
     // vtable-slot bodies ported above.
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.        // +0x08. Set by SetContext() via Param1's own vtbl+0x20 getter.
-    int ModeSelector0xc;         // +0x0c. Shared context-prefix slot; not directly written by
-                                  // anything this pass ported (SetModeFromFlags() writes it, see
-                                  // the ModeSelector0xc assignments inside that method).
-    int UpdateResult10;          // +0x10. Update()'s own tri-state result.
-    void* ThreatSourcePtr14;     // +0x14. Set by SetContext() (Param1); read by
-                                  // RefreshPlayerTrailState() and Update()'s GAP body.
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;            // +0x1c. Per-tick delta time; read by Update()'s GAP body (feeds
-                                   // Field1d8 and the SubObjectB/SubObjectC per-tick vcalls, all now real). Not
-                                   // written by anything this pass ported (set by the owning
-                                   // behavior-manager tick call, same convention as every sibling).
-    // +0x20. Set by SetContext() (Param2); read by SetModeFromFlags()'s GAP branch and by
-    // SetTargetOffset(), which is where the type comes from.
-    // TYPED 2026-09-17 (claude:common-behavior-fields) from FaceBehavior's OWN call site, not
-    // by carrying a sibling's proof across: .text:062c9429 `MOV ECX,dword ptr [ESI + 0x20]`
-    // (ESI is `this`, set at .text:062c93c1) then .text:062c9432 `CALL FUN_062d4b20`, with
-    // nothing touching ECX in between -- the field IS the __thiscall receiver. FUN_062d4b20's
-    // entire body is `FLD float ptr [ECX + 0x164]; RET`, and +0x164 is IBehaviorManager::
-    // TurnSensitivity; common_behaviormanager.cpp already ports it as
-    // `IBehaviorManager::get_turn_sensitivity_factor()` and names 0x062d4b20 in its comment.
-    // The receiver class of that folded two-instruction getter is settled independently of
-    // FaceBehavior: (a) it sits immediately before the NAMED retail symbol
-    // `IBehaviorManager::get_docking_port` (.text:062d4b40) in the contiguous IBehaviorManager
-    // method run, so the surviving /OPT:ICF copy is IBehaviorManager's; and (b) two of its four
-    // XREFs call it on a +0x20 field already proven to be an IBehaviorManager* -- .text:062cc9c7
-    // (BaseFollowerBehavior, whose BehaviorMgrPtr common_behavior.h types from
-    // `IBehaviorManager::lock_maneuvers`) and .text:062cb173.
-    // Corroborating, from this class's OTHER dereference: .text:062c8c77
-    // `MOV EAX,[ESI+0x20]; MOV EAX,[EAX+0xc]` walks IBehaviorManager+0x0c, the same pointer
-    // field the NAMED symbol `IBehaviorManager::update_current_behavior_cruise` loads at
-    // .text:062d3bfa.
-    // The shared writer FUN_062d2090 was deliberately NOT used as evidence (fourteen callers).
-    IBehaviorManager* BehaviorMgrPtr20;
-    // +0x24. Set by SetContext() (Param3).
-    //
-    // TYPED 2026-09-17 (claude:w18-behavior): this is a `SystemManager*` (common_systemmanager.h),
-    // and every "nested sub-object at a large raw offset" note attached to this field was really a
-    // named SystemManager member all along. Proof, all from Update()'s own body:
-    //   * `.text:062c8e0a ADD EAX,0x14fc; MOV EAX,[EAX+0x84]` is a SINGLE load of +0x1580 --
-    //     NOT the double indirection prior notes described. +0x1580 is SystemManager::ExternalIface,
-    //     the only field at that offset in the module (common_systemmanager.h's own FUN_062e92e0
-    //     writeup makes exactly this argument), and the vtable slots this function calls on it
-    //     (+0x0c, +0x2c, +0xbc) are IObjInspect::get_transform / get_physical_radius / is_player
-    //     in common_iface.h's RTTI-verified table.
-    //   * `.text:062c91b1 MOV ECX,[EBP+0x24]; ADD ECX,0x18; CALL FUN_062e92e0` passes Sys+0x18,
-    //     which is SystemManager::Thrust -- CheckSystemManagerSteeringGate's own receiver.
-    //   * `[+0x14fc+0xc/+0x18/+0x7e]` == CachedPhysicalCenter / CachedPhysicalRadius /
-    //     Flags1578[2], and Update() inlines FUN_062e6d40's own refresh of exactly that triple.
-    //   * +0x16d4/+0x16d8/+0x16dc/+0x16e0/+0x16e4 are the FIVE consecutive floats of
-    //     PersonalityData.EngineKillParams (Personality+0x150 == absolute 0x16d4,
-    //     pub::AI::Personality::EngineKillUseStruct, five fields, exact fit). That is what
-    //     this whole class is: the engine-kill / coast-and-face manoeuvre, tuned per personality.
-    SystemManager* NavHelperPtr24;
-    unsigned char Flags28;       // +0x28. Bit 0x2 = "have a valid target" (set/cleared by
-                                  // ApplyTargetMessage(), tested by SetModeFromFlags()/Disengage()).
-    unsigned char Flag29;        // +0x29. Tested by SetModeFromFlags() (forces mode 3 either path).
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     int TargetKind2c;             // +0x2c. Zeroed by ctor. "Target kind" selector (1=watched-object
                                    // candidate, 2=fixed Vector, 3=fixed Matrix, 4=flag-only) --
@@ -505,7 +444,7 @@ public:
     // DeltaTime1c and compared against Personality::EngineKillParams.EngineKillSearchTime/EngineKillFaceTime.
     float Field1c8;                  // +0x1c8. Zeroed by ctor/ResetApproachState().
     float Field1cc;                  // +0x1cc. Zeroed by ctor. SetContext() computes it via the
-                                      // FULLPORT-DEFERRED FUN_062e5b20(ThreatSourcePtr14, 0, 1.0f)
+                                      // FULLPORT-DEFERRED FUN_062e5b20(OwnerContextPtr14, 0, 1.0f)
                                       // call (not reproduced -- field stays at its ctor default).
     float Field1d0;                  // +0x1d0. Set to 0.9f by ctor. Not otherwise read/written by
                                       // anything this pass ported.
@@ -523,15 +462,6 @@ public:
     float Field1d8;                   // +0x1d8. Zeroed by ctor/ResetApproachState().
 };
 
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, CachedHandle08) == 0x08, "FaceBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, ModeSelector0xc) == 0x0c, "FaceBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, UpdateResult10) == 0x10, "FaceBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, ThreatSourcePtr14) == 0x14, "FaceBehavior::ThreatSourcePtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, DeltaTime1c) == 0x1c, "FaceBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, BehaviorMgrPtr20) == 0x20, "FaceBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, NavHelperPtr24) == 0x24, "FaceBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flags28) == 0x28, "FaceBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Flag29) == 0x29, "FaceBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(FaceBehavior, TargetKind2c) == 0x2c, "FaceBehavior::TargetKind2c offset");
 FL_LAYOUT_ASSERT(offsetof(FaceBehavior, Watcher30) == 0x30, "FaceBehavior::Watcher30 offset");
 FL_LAYOUT_ASSERT(offsetof(FaceBehavior, OrientMatrix38) == 0x38, "FaceBehavior::OrientMatrix38 offset");

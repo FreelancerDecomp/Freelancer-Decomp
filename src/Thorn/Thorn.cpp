@@ -58,10 +58,10 @@ I3DMathEngine* ThornAcquire3DMathEngine()
     I3DMathEngine* MathEngine;
     ICOManager* Manager = DACOM_Acquire();
 
-    FAggDescC Desc;
+    FMathDesc Desc;
     Desc.Size = G_AggDescSizeMath;
-    Desc.NameAt4 = G_Name3DMathEngine;
-    Desc.Field8 = nullptr;
+    Desc.InterfaceName = G_Name3DMathEngine;
+    Desc.Implementation = nullptr;
     Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc),
                             reinterpret_cast<void**>(&MathEngine));
     return MathEngine;
@@ -833,8 +833,8 @@ namespace
                 return GR_INTERFACE_UNSUPPORTED;
             }
 
-            FThornAggDesc14* Extended = reinterpret_cast<FThornAggDesc14*>(Desc);
-            if (std::strcmp(Extended->NameAt4, Name_) != 0)
+            FAGGDESC14* Extended = reinterpret_cast<FAGGDESC14*>(Desc);
+            if (std::strcmp(Extended->Name, Name_) != 0)
             {
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;

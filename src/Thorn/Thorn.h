@@ -34,24 +34,8 @@ struct FQuat
     float Z;
 };
 
-// Retail FUN_06f57de0 stack desc (size + name + unused +8).
-struct FAggDescC
-{
-    unsigned long Size;
-    const char* NameAt4;
-    void* Field8;
-};
-
-// Thorn factories: size 0x14, +4 name, +8 outer, +0xC inner-out (not FAGGDESC14 IID layout).
-struct FThornAggDesc14
-{
-    unsigned long Size;
-    const char* NameAt4;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    unsigned int Field_0x10; // TODO: meaning unknown; Lua producers store zero.
-};
-FL_LAYOUT_ASSERT(sizeof(FThornAggDesc14) == 0x14, "Thorn creation descriptor size");
+// The math engine request (FUN_06f57de0) is dacom.h's FMathDesc; the Thorn factories take
+// dacom.h's FAGGDESC14 (the Lua producers leave Outer, InnerOut and Value null).
 
 // Retail COM aggregation shape shared by the CV_CRSplinePath object
 // (controlling unknown at +0x70, embedded inner unknown at +0x74) and the

@@ -15,6 +15,7 @@
 #include "../ivp_collision/ivp_listmanager_topology.h" // IVP_ResolvePairRecordSideMaterialSlots (FUN_06358bb0)
 #include "../ivp_utility/ivp_vector_math.h"
 #include "x87_trig.h"
+#include "float_bits.h"
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -410,14 +411,6 @@ namespace
 
     double IVP_NormalizeX87(Vector* V); // FUN_06347ef0, defined below
 
-    // A .rdata float constant by its exact bits.
-    inline float IVP_Contact_Float_From_Bits(uint32_t Bits)
-    {
-        float Value;
-        std::memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
-    }
-
     // The 2x2 solve both paths of FUN_06354120 inline (06354401-06354496 and
     // 06354793-0635480f), from the context's A00 (+0xd4), A01 (+0xd8), A11
     // (+0xe8): Det = A00*A11 - A01*A01 kept; Det*Det FCOMP 1e-20 (DAT_063a5658
@@ -431,7 +424,7 @@ namespace
         const double A01 = Ctx.A01();
         const double A11 = Ctx.A11();
         const double Det = A00 * A11 - A01 * A01;
-        if (!(Det * Det >= (double)(IVP_Contact_Float_From_Bits(0x1e3ce509u))))
+        if (!(Det * Det >= (double)(FloatFromBits(0x1e3ce509u))))
         {
             return false;
         }

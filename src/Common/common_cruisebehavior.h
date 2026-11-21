@@ -217,65 +217,9 @@ public:
     // sized only to the smallest confirmed bound (0x2a) -- nothing past
     // Flag29 is read or written by any traced CruiseBehavior call site.
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.      // +0x08. Set by SetContext() (== FUN_062d2090) from
-                               // `Param1->vtbl[0x20](Param1)`. Same role/offset as
-                               // DockBehaviorFields::CachedHandle08 / IdleBehavior::CachedHandle08.
-    int ModeSelector0xc;       // +0x0c. Written by Engage() (=1, via the shared
-                               // FUN_062d20d0 effect) and SetModeFromFlags() (1 or 3).
-    int UpdateResult10;        // +0x10. Update()'s own tri-state result (1=active/3=idle)
-                               // and Engage()'s own write (=1, via FUN_062d20d0).
-    void* OwnerContextPtr14;   // +0x14. Set by SetContext() (Param1); null-checked by Update().
-    unsigned char Opaque18[0x20 - 0x18];
-    // +0x20. Set by SetContext() (Param2); read by Disengage()'s shared FUN_062d20f0 tail-call.
-    //
-    // LEFT `void*` DELIBERATELY. SEARCHED AND NOT FOUND, 2026-09-17
-    // (claude:common-behavior-fields) -- this is a recorded negative result, not an
-    // unexamined field.
-    //
-    // The lead is real: the same +0x20 on TrailBehavior IS proven to be an `IBehaviorManager*`
-    // (.text:062cb094 `MOV ECX,dword ptr [EBP + 0x20]` immediately followed by
-    // `CALL IBehaviorManager::get_camera_level_status`, a mangled retail symbol), and
-    // FaceBehavior / GotoBehavior / GuideBehavior / DelayBehavior were all typed this same pass
-    // from their own equivalent sites. The shared writer FUN_062d2090 still does NOT carry it
-    // across: fourteen separate SetContext() bodies call it, so Param2's type is supplied from
-    // outside and must be established per class.
-    //
-    // WHAT WAS SEARCHED: every instruction of CruiseBehavior's own five methods
-    // (.text:062ce360 ctor, 062ce380 Engage, 062ce3a0 Disengage, 062ce3c0 SetModeFromFlags,
-    // 062ce3e0 Update -- .text:062ce360..062ce3f0 inclusive) was scanned for any operand of the
-    // form `[reg + 0x20]`. There is not one, of any shape: no `MOV reg,[this+0x20]`, no
-    // `PUSH dword ptr [this+0x20]`, no `[[this+0x20]+disp]` chain. Retail writes this field in
-    // SetContext() and the only thing that ever reads it back is the SHARED helper
-    // FUN_062d20f0, which is called by a dozen unrelated classes and therefore cannot type it
-    // for CruiseBehavior any more than FUN_062d2090 can.
-    //
-    // WHAT WOULD CLOSE IT: a site -- here or in a not-yet-ported module that calls into
-    // CruiseBehavior -- that loads +0x20 into ECX ahead of a call, or walks it to one of
-    // IBehaviorManager's own confirmed offsets (+0x08 Sys, +0xc0 CurrentBehaviorIndex,
-    // +0xc4 directive, +0x110 ContentCbPtr, +0x118/+0x11c, +0x164 TurnSensitivity,
-    // +0x174 BehaviorDispatchTable). Until then the type stays open.
-    void* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3). Engage()/Disengage()
-                               // pass `(char*)NavHelperPtr24 + 0x18` as the ThrustManager*
-                               // to ThrustManager::engage_cruise.
-    unsigned char Flags28;     // +0x28. Cleared bit 0x1 by Engage()'s shared FUN_062d20d0 effect.
-                               // Not otherwise read by anything this pass ported.
-    unsigned char Flag29;      // +0x29. Read by SetModeFromFlags(); cleared by Disengage()'s
-                               // shared FUN_062d20f0 effect.
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 };
 
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, CachedHandle08) == 0x08, "CruiseBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, ModeSelector0xc) == 0x0c, "CruiseBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, UpdateResult10) == 0x10, "CruiseBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, OwnerContextPtr14) == 0x14, "CruiseBehavior::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, BehaviorMgrPtr20) == 0x20, "CruiseBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, NavHelperPtr24) == 0x24, "CruiseBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, Flags28) == 0x28, "CruiseBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(CruiseBehavior, Flag29) == 0x29, "CruiseBehavior::Flag29 offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x2c`
 // immediately before `CALL operator_new`). This is an UPPER bound on purpose: the existing

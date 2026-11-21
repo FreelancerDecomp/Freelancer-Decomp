@@ -22,18 +22,9 @@ static constexpr char kInnerILua[] = "ILua";
 static constexpr char kInnerProfileParser[] = "IProfileParser";
 static constexpr char kInnerAggregate[] = "IAggregateComponent";
 
-// AGGDESC size 0x14 overlay. Same offsets as dacom.h FAGGDESC14; +8 is outer
-// IUnknown* (not an IID string). +0x10 Extra is not read. Header dacom.h unchanged.
-struct FLuaAggDesc
-{
-    unsigned long Size;
-    const char* Name;
-    IDAComponent* Outer;
-    IDAComponent** InnerOut;
-    void* Extra;
-};
+// The factory takes dacom.h's FAGGDESC14 (kAggDescSize); +0x10 Value is not read.
 
-FL_LAYOUT_ASSERT(sizeof(FLuaAggDesc) == kAggDescSize, "retail AGGDESC size 0x14");
+FL_LAYOUT_ASSERT(sizeof(FAGGDESC14) == kAggDescSize, "retail AGGDESC size 0x14");
 FL_LAYOUT_ASSERT(sizeof(Iids::ComponentFactory) == kIidComponentFactoryBytes, "cmpsb ECX=0x17");
 FL_LAYOUT_ASSERT(sizeof(kComponentName) == 5, "ILua + NUL");
 

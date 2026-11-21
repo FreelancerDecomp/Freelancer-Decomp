@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 // gf/BaseDB.cpp -- Server.dll's runtime base / room database.
-// See src/include/server_basedb.h for the object model and the RTTI evidence.
+// See src/Server/server_basedb.h for the object model and the RTTI evidence.
 // Every function below names the retail address it was traced from.
 
 #include "server_basedb.h"

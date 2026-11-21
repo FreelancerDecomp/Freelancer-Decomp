@@ -1,0 +1,41 @@
+<Project>
+  <!-- vcpkg for the port-only modules: one manifest (src/vcpkg.json), one baseline, one install
+       per platform (src/vcpkg_installed/<triplet>/), so every consumer links and ships the same
+       copy of a package. Retail modules must never import this sheet
+       (FlModuleKind, checked in Directory.Build.targets).
+
+       A consumer imports this sheet after Microsoft.Cpp.Default.props (which brings in
+       Directory.Build.props and so the opt-in defaults) and before its configuration groups,
+       imports Vcpkg.targets after Microsoft.Cpp.targets, and sets FlVcpkgWanted to its opt-in
+       property first:
+
+         <PropertyGroup><FlVcpkgWanted>$(FreelancerRpGpu)</FlVcpkgWanted></PropertyGroup>
+         <Import Project="..\Vcpkg.props" />
+
+       FlVcpkgEnabled is then true when the consumer is on and vcpkg was found; the project
+       turns itself into an empty Utility build otherwise. A consumer that is on while vcpkg is
+       missing gets a warning, or an error with FreelancerRequireVcpkg=true (CI passes it). -->
+  <PropertyGroup>
+    <FlVcpkgImported>true</FlVcpkgImported>
+    <!-- vcpkg's root: VCPKG_ROOT (Visual Studio's developer prompt), VCPKG_INSTALLATION_ROOT
+         (GitHub's Windows runners) or Visual Studio's own copy. Override: /p:FlVcpkgRoot=... -->
+    <FlVcpkgRoot Condition="'$(FlVcpkgRoot)'=='' and '$(VCPKG_ROOT)'!='' and Exists('$(VCPKG_ROOT)\scripts\buildsystems\msbuild\vcpkg.props')">$(VCPKG_ROOT)</FlVcpkgRoot>
+    <FlVcpkgRoot Condition="'$(FlVcpkgRoot)'=='' and '$(VCPKG_INSTALLATION_ROOT)'!='' and Exists('$(VCPKG_INSTALLATION_ROOT)\scripts\buildsystems\msbuild\vcpkg.props')">$(VCPKG_INSTALLATION_ROOT)</FlVcpkgRoot>
+    <FlVcpkgRoot Condition="'$(FlVcpkgRoot)'=='' and '$(VsInstallRoot)'!='' and Exists('$(VsInstallRoot)\VC\vcpkg\scripts\buildsystems\msbuild\vcpkg.props')">$(VsInstallRoot)\VC\vcpkg</FlVcpkgRoot>
+    <FlVcpkgEnabled>false</FlVcpkgEnabled>
+    <FlVcpkgEnabled Condition="'$(FlVcpkgWanted)'=='1' and '$(FlVcpkgRoot)'!=''">true</FlVcpkgEnabled>
+    <!-- The manifest features of every consumer that is on, not only this project's: all
+         consumers install into the same folder, and an install with fewer features would
+         remove the packages another consumer needs. One line per src/vcpkg.json feature. -->
+    <FlVcpkgFeatures />
+    <FlVcpkgFeatures Condition="'$(FreelancerRpGpu)'=='1'">$(FlVcpkgFeatures) --x-feature=rpgpu</FlVcpkgFeatures>
+  </PropertyGroup>
+  <!-- VcpkgManifestRoot is left to vcpkg's own search, which finds src/vcpkg.json above the
+       project; the install goes to src/vcpkg_installed/<triplet>/ next to it. -->
+  <PropertyGroup Label="Vcpkg" Condition="'$(FlVcpkgEnabled)'=='true'">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgRoot>$(FlVcpkgRoot)\</VcpkgRoot>
+    <VcpkgAdditionalInstallOptions>$(FlVcpkgFeatures)</VcpkgAdditionalInstallOptions>
+  </PropertyGroup>
+  <Import Project="$(FlVcpkgRoot)\scripts\buildsystems\msbuild\vcpkg.props" Condition="'$(FlVcpkgEnabled)'=='true'" />
+</Project>

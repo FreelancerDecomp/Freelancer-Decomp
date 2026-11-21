@@ -24,18 +24,6 @@
 // which is what the field block added to the header this pass fixes.
 NullBehavior::NullBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(2)
-    , UpdateResult10(1)
-    , OwnerContext(nullptr)
-    , Opaque18{}
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
 {
     ConstructBase(InTypeId);   // FUN_062d2020 -- Behavior's own field initialisation
     // Every value above is FUN_062d2020's own: +0x0c = 2 (.text:062d2049), +0x10 = 1

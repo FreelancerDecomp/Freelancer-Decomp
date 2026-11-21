@@ -9,6 +9,7 @@
 //
 
 #include "Cargo.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "BaseDB.h"             // FContentBase, FBaseCommodity (TU17)
 #include "ContentPlayerState.h" // FContentPlayerStateBase::GetAffiliation (FUN_06eb6bb0)
@@ -352,12 +353,6 @@ FCargoPick::FCargoPick(FBaseCommodity const* Entry, float const* InWeight)
 
 namespace
 {
-    // MSVCRT ftol: truncation to a 64-bit integer, the low dword kept.
-    unsigned int FtolLow(double Value)
-    {
-        return static_cast<unsigned int>(static_cast<long long>(Value));
-    }
-
     // The unsigned count loaded with FILD qword {count, 0} (count 0 -> 1), stored as a float.
     float CargoWeightOf(unsigned int Count)
     {
@@ -396,20 +391,23 @@ void __cdecl FitCargoToHold(unsigned int ShipArchId, std::vector<FCargoPick>* Ca
     unsigned int HoldSize = 0;                                             // local_2c
     pub::GetCargoHoldSize(ShipArchId, HoldSize);                           // 06f35c0d
     // 06f35c13-06f35c30: FILD qword (unsigned), FMUL 0.8, ftol.
-    unsigned int FreeSpace = FtolLow(static_cast<double>(HoldSize) * 0.8);
+    unsigned int FreeSpace =
+        static_cast<unsigned int>(MsvcrtFtol(static_cast<double>(HoldSize) * 0.8));
 
     // 06f35c41-06f35ca8: the summed weights (ftol after every float add) and the volume the
     // listed counts already take.
     unsigned int TotalWeight = 0;
     for (std::vector<FCargoPick>::iterator It = Cargo->begin(); It != Cargo->end(); ++It)
     {
-        TotalWeight = FtolLow(static_cast<double>(TotalWeight) + It->Weight);
+        TotalWeight =
+            static_cast<unsigned int>(MsvcrtFtol(static_cast<double>(TotalWeight) + It->Weight));
         if (It->Count == 0)                                                // CMP / JBE
             continue;
         float Volume = 0.0f;
         float Mass;
         pub::GetGoodProperties(It->GoodId, Volume, Mass);                  // 06f35c6f
-        unsigned int const Used = FtolLow(static_cast<double>(It->Count) * Volume);
+        unsigned int const Used =
+            static_cast<unsigned int>(MsvcrtFtol(static_cast<double>(It->Count) * Volume));
         // 06f35c90-06f35c9c: CMP / JC -> subtract only when below the free space.
         if (Used < FreeSpace)
             FreeSpace -= Used;
@@ -435,7 +433,7 @@ void __cdecl FitCargoToHold(unsigned int ShipArchId, std::vector<FCargoPick>* Ca
             // 06f35d10-06f35d45: volume > 0 (TEST AH,0x41, JNZ) and not greater than the share
             // (TEST AH,0x41, JP) -> share / volume, else 0.
             if (Volume > 0.0f && Volume <= Share)
-                It->Count = FtolLow(static_cast<double>(Share) / Volume);
+                It->Count = static_cast<unsigned int>(MsvcrtFtol(static_cast<double>(Share) / Volume));
             else
                 It->Count = 0;
         }

@@ -91,6 +91,7 @@
 // keep (and the second copy in ivp_ledge_sweep_solver.cpp) are gone; the
 // accessors below keep their names and read the global.
 #include "../ivp_physics/ivp_mindist_settings.h"
+#include "float_bits.h"
 
 namespace
 {
@@ -846,13 +847,6 @@ namespace
         return reinterpret_cast<IVP_U_Point*>(Slot);
     }
 
-    uint32_t IVP_ContactFrameFloatBits(float Value)
-    {
-        uint32_t Bits;
-        std::memcpy(&Bits, &Value, sizeof(Bits));
-        return Bits;
-    }
-
     // ---------------------------------------------------------------------------
     // FUN_063599f0 (.text:063599f0-06359ad4, thiscall, RET 0x10): the point vs
     // point leaf of 0635a1e0 (second switch cases 0 and 3). this = the pair
@@ -938,8 +932,8 @@ namespace
             Candidate->_flags60 &= 0xFFFFFF00u;
             IVP_Unscaled_QR_Result Qr;
             IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(CacheF->compact_ledge, F, &LocalPoint, &Qr); // :063598ac
-            const uint32_t SignBits = (IVP_ContactFrameFloatBits(Qr.Checks[1]) | IVP_ContactFrameFloatBits(Qr.Checks[2])) |
-                                      IVP_ContactFrameFloatBits(Qr.Checks[0]);
+            const uint32_t SignBits = (BitsFromFloat(Qr.Checks[1]) | BitsFromFloat(Qr.Checks[2])) |
+                                      BitsFromFloat(Qr.Checks[0]);
             if ((SignBits & 0x80000000u) != 0u)
                 IVP_FlagOwnerContactOutsideFeature(Owner);
         }

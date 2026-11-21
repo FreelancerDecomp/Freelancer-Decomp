@@ -21,31 +21,11 @@
 // Generic aligned-block allocator pair (FUN_06343fc0 / FUN_06343ff0,
 // decomp-tracker items 2750/2751).
 #include "../ivp_utility/ivp_malloc.h"
+#include "float_bits.h"
+#include "msvcrt_compat.h" // MsvcrtFtol (only the low byte is kept)
 
 namespace
 {
-    // Reinterprets raw IEEE-754 bits as a float without any UB / strict-aliasing
-    // risk (memcpy is the standard-sanctioned way pre-C++20 std::bit_cast).
-    // Used to reproduce the constructor's exact bounding-box sentinel bit
-    // pattern rather than approximating it with a round decimal -- the actual
-    // magnitude is functionally inert in this pass (nothing in the currently
-    // ported code reads or updates the bbox yet; that lives in the unported
-    // Compile() callee chain), so byte-fidelity to retail is what matters here,
-    // not a "nice" numeric value.
-    float BitsToFloat(uint32_t bits)
-    {
-        float f;
-        std::memcpy(&f, &bits, sizeof(f));
-        return f;
-    }
-
-    // MSVCRT ftol: truncation of the x87 value. Every use in this file only
-    // keeps the low byte (AL), so a 32-bit truncation gives the same byte.
-    int32_t RetailFtol(double Value)
-    {
-        return static_cast<int32_t>(Value);
-    }
-
     // Retail's IVP_U_BigVector on the stack of FUN_0636d650 / FUN_0635ada0:
     // {memsize, n_elems, elems} with a heap buffer of the given capacity
     // (FUN_06343f70 = malloc). get_all_ledges (FUN_0635abf0) grows it through
@@ -163,8 +143,8 @@ IVP_SurfaceBuilder_Ledge_Soup::IVP_SurfaceBuilder_Ledge_Soup()
     , m_Ledges()
     , m_VectorB()
     , m_VectorC()
-    , m_BBoxMin{ BitsToFloat(0x49742400), BitsToFloat(0x49742400), BitsToFloat(0x49742400), 0.0f }
-    , m_BBoxMax{ BitsToFloat(0xc9742400), BitsToFloat(0xc9742400), BitsToFloat(0xc9742400), 0.0f }
+    , m_BBoxMin{ FloatFromBits(0x49742400), FloatFromBits(0x49742400), FloatFromBits(0x49742400), 0.0f }
+    , m_BBoxMax{ FloatFromBits(0xc9742400), FloatFromBits(0xc9742400), FloatFromBits(0xc9742400), 0.0f }
     , m_SplitAxis(0)
     , m_Unknown54{}
     , m_Unknown58(0)
@@ -181,7 +161,7 @@ IVP_SurfaceBuilder_Ledge_Soup::IVP_SurfaceBuilder_Ledge_Soup()
 {
     // Matches Common.dll+0x6369e70 field-for-field: a REP STOSD zeroes the
     // whole 0x94-byte object first, then the min/max bbox corners are
-    // overwritten with the sentinel bit patterns above (see BitsToFloat).
+    // overwritten with the sentinel bit patterns above (see FloatFromBits).
     // Every IVP_U_Vector<T> member's own default constructor already
     // reproduces the zeroed {capacity=0, count=0, elems=nullptr} state
     // retail's ctor writes by hand for each of the 6 vectors.
@@ -203,10 +183,10 @@ IVP_SurfaceBuilder_Ledge_Soup::IVP_SurfaceBuilder_Ledge_Soup()
 // the Z term (FIMUL) and the Z max candidate stay extended -- see the body.
 void IVP_SurfaceBuilder_Ledge_Soup::ComputeNodeListBounds(const IVP_U_Vector<BuildNode>& nodes, float outMin[3], float outMax[3])
 {
-    outMin[0] = outMin[1] = outMin[2] = BitsToFloat(0x49742400);
-    outMax[0] = outMax[1] = outMax[2] = BitsToFloat(0xc9742400);
+    outMin[0] = outMin[1] = outMin[2] = FloatFromBits(0x49742400);
+    outMax[0] = outMax[1] = outMax[2] = FloatFromBits(0xc9742400);
 
-    const double kExtentScale = (double)(BitsToFloat(0x3B83126Fu)); // DAT_063ee784
+    const double kExtentScale = (double)(FloatFromBits(0x3B83126Fu)); // DAT_063ee784
 
     // :0636a74e-0636a851: n_elems (word) re-read every pass; JBE skips 0.
     for (int i = 0; i < nodes.Len(); ++i)
@@ -349,7 +329,7 @@ void IVP_SurfaceBuilder_Ledge_Soup::BuildLeafNodes()
     BuildTreeScratchEntry* scratch = static_cast<BuildTreeScratchEntry*>(m_BuildTreeScratch);
     scratch[0].NextIndexOrCount = 1;                      // :0636a383
 
-    const double kExtentScale = (double)(BitsToFloat(0x3B83126Fu)); // DAT_063a54b4
+    const double kExtentScale = (double)(FloatFromBits(0x3B83126Fu)); // DAT_063a54b4
 
     int32_t ScratchIndex = 1; // EBP
     int32_t LoopIndex = 0;    // local_40
@@ -392,9 +372,9 @@ void IVP_SurfaceBuilder_Ledge_Soup::BuildLeafNodes()
 
         // :0636a4d6-0636a51a: octant bytes, ratio and division on the x87 stack.
         const double Scaled = (double)(node->Radius) * kExtentScale;
-        node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[0]) - node->CenterX) / Scaled)) + 1);
-        node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[1]) - node->CenterY) / Scaled)) + 1);
-        node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[2]) - node->CenterZ) / Scaled)) + 1);
+        node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[0]) - node->CenterX) / Scaled)) + 1);
+        node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[1]) - node->CenterY) / Scaled)) + 1);
+        node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[2]) - node->CenterZ) / Scaled)) + 1);
 
         m_LeafByteTotal += 0x28;              // :0636a51d
         node->Ledge = ledge;                  // :0636a521
@@ -649,7 +629,7 @@ IVP_SurfaceBuilder_Ledge_Soup::BuildNode* IVP_SurfaceBuilder_Ledge_Soup::SplitBu
     HalfDiagonal.k[1] = ScratchMax->k[1] - Center.k[1];
     HalfDiagonal.k[2] = ScratchMax->k[2] - Center.k[2];
     const float Radius = (float)(HalfDiagonal.real_length());                                  // :0636a8fe, FSTP local_b8
-    const float Scaled = (float)((double)(BitsToFloat(0x3B83126Fu)) * Radius);       // DAT_063ee788, FSTP local_c4
+    const float Scaled = (float)((double)(FloatFromBits(0x3B83126Fu)) * Radius);       // DAT_063ee788, FSTP local_c4
 
     BuildNode* node = new BuildNode();
     m_VectorF.Add(node);
@@ -663,9 +643,9 @@ IVP_SurfaceBuilder_Ledge_Soup::BuildNode* IVP_SurfaceBuilder_Ledge_Soup::SplitBu
     node->Ledge = nullptr;                                            // :0636a990
 
     // :0636a997-0636a9df: FLD max[k]; FSUB center[k]; FDIV scaled; ftol; INC AL.
-    node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[0]) - Center.k[0]) / Scaled)) + 1);
-    node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[1]) - Center.k[1]) / Scaled)) + 1);
-    node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[2]) - Center.k[2]) / Scaled)) + 1);
+    node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[0]) - Center.k[0]) / Scaled)) + 1);
+    node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[1]) - Center.k[1]) / Scaled)) + 1);
+    node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[2]) - Center.k[2]) / Scaled)) + 1);
 
     if (list.n_elems == 2)
     {
@@ -693,14 +673,14 @@ IVP_SurfaceBuilder_Ledge_Soup::BuildNode* IVP_SurfaceBuilder_Ledge_Soup::SplitBu
     BucketHigh[1] = new IVP_U_Vector<BuildNode>(Count);
     BucketHigh[2] = new IVP_U_Vector<BuildNode>(Count);
 
-    const float kMeanEpsilon = BitsToFloat(0x358637BDu); // DAT_063a5610
+    const float kMeanEpsilon = FloatFromBits(0x358637BDu); // DAT_063a5610
     float Score[3];                                      // local_68
 
     for (int32_t Axis = 0; Axis < 3; ++Axis)
     {
         // :0636ace8-0636ad29
         const int32_t N = list.n_elems;
-        double Sum = (double)(BitsToFloat(0x00000000u)); // DAT_063a53d4
+        double Sum = (double)(FloatFromBits(0x00000000u)); // DAT_063a53d4
         for (int32_t I = 0; I < N; ++I)
             Sum += GetCenterAxis(list[I], Axis);
         const float Mean = (float)(Sum / (double)(N)); // local_80
@@ -784,7 +764,7 @@ IVP_SurfaceBuilder_Ledge_Soup::BuildNode* IVP_SurfaceBuilder_Ledge_Soup::SplitBu
 
     // :0636afe5-0636b01a
     int32_t ChosenAxis = 0;                              // ESI
-    float RunningBest = BitsToFloat(0x60AD78ECu);        // DAT_063a58cc
+    float RunningBest = FloatFromBits(0x60AD78ECu);        // DAT_063a58cc
     for (int32_t Axis = 0; Axis < 3; ++Axis)
     {
         if (RunningBest > Score[Axis])
@@ -1227,7 +1207,7 @@ void IVP_SurfaceBuilder_Ledge_Soup::AccumulateTriangleVolume(FVolumeIntegralAccu
                                            Acc.NormalQuadSum);
     Acc.Volume6 = (float)((double)(D) + Acc.Volume6);
 
-    const double Q = (double)(D) * (double)(BitsToFloat(0x3E800000u)); // DAT_063a5674 = 0.25f
+    const double Q = (double)(D) * (double)(FloatFromBits(0x3E800000u)); // DAT_063a5674 = 0.25f
     const IVP_U_Float_Point* const Points[3] = { P0, P1, P2 };
     for (int32_t I = 0; I < 3; ++I)
     {
@@ -1266,12 +1246,12 @@ void IVP_SurfaceBuilder_Ledge_Soup::AccumulateTriangleAxisIntegral(FAxisIntegral
                                                                    const IVP_Compact_Triangle* Triangle,
                                                                    int32_t AxisA, int32_t AxisB, int32_t AxisC)
 {
-    const double kEpsilon = (double)(BitsToFloat(0x358637BDu));   // DAT_063a5610
-    const double kHalf = (double)(BitsToFloat(0x3F000000u));      // DAT_063a5460
-    const double kMinusHalf = (double)(BitsToFloat(0xBF000000u)); // DAT_063a56f0
-    const double kQuarter = (double)(BitsToFloat(0x3E800000u));   // DAT_063a5674
-    const double kOneThird = (double)(BitsToFloat(0x3EAAAAABu));  // DAT_063a58f4
-    const double kOneFifth = (double)(BitsToFloat(0x3E4CCCCDu));  // DAT_063a5748
+    const double kEpsilon = (double)(FloatFromBits(0x358637BDu));   // DAT_063a5610
+    const double kHalf = (double)(FloatFromBits(0x3F000000u));      // DAT_063a5460
+    const double kMinusHalf = (double)(FloatFromBits(0xBF000000u)); // DAT_063a56f0
+    const double kQuarter = (double)(FloatFromBits(0x3E800000u));   // DAT_063a5674
+    const double kOneThird = (double)(FloatFromBits(0x3EAAAAABu));  // DAT_063a58f4
+    const double kOneFifth = (double)(FloatFromBits(0x3E4CCCCDu));  // DAT_063a5748
 
     // :0636d04f-0636d067: the face normal of edge0, normalised in place (the
     // normize result is not tested).
@@ -1408,7 +1388,7 @@ void IVP_SurfaceBuilder_Ledge_Soup::AccumulateAxisIntegral(const IVP_SurfaceMana
             AccumulateTriangleAxisIntegral(Acc, Ledge, Triangle, AxisA, AxisB, AxisC);
     }
 
-    if (!(Acc.Mass >= BitsToFloat(0x2EDBE6FFu))) // DAT_063a53d8
+    if (!(Acc.Mass >= FloatFromBits(0x2EDBE6FFu))) // DAT_063a53d8
     {
         *OutRawMass = 0.0f;
         *OutNormalized1 = 0.0f;
@@ -1450,7 +1430,7 @@ bool IVP_SurfaceBuilder_Ledge_Soup::ComputeMassProperties(const IVP_SurfaceManag
     // C0|C3 = acc[5] < metric, acc[5] == metric or unordered -> fallback;
     // the Mirtich path is taken only when acc[5] > metric.
     const double SqrtTerm = std::sqrt((double)(Accumulator.NormalQuadSum));
-    const double VolumeMetric = SqrtTerm * SqrtTerm * SqrtTerm * (double)(BitsToFloat(0x3089705Fu));
+    const double VolumeMetric = SqrtTerm * SqrtTerm * SqrtTerm * (double)(FloatFromBits(0x3089705Fu));
     if (!((double)(Accumulator.Volume6) > VolumeMetric))
     {
         ComputeBoundingSphereMassPropertiesFallback(leaves, outCenterOfMass, outRotationInertia);
@@ -1635,7 +1615,7 @@ void IVP_SurfaceBuilder_Ledge_Soup::ApplyMassPropertyHeader()
     // .text:0636b709-0636b734: FLD upper; FMUL DAT_063a54b4; FDIVR aux;
     // FADD 1.0f (DAT_063a53d0); ftol (truncation of the x87 value);
     // [+0x1c] = (old & ~0xff) | (result & 0xff).
-    const double Scaled = (double)(UpperLimitRadius) * (double)(BitsToFloat(0x3B83126Fu));
+    const double Scaled = (double)(UpperLimitRadius) * (double)(FloatFromBits(0x3B83126Fu));
     const double Bucket = (double)(AuxRadiusMetric) / Scaled + 1.0;
     const uint32_t ClassifiedByte = static_cast<uint32_t>(static_cast<int32_t>(Bucket)) & 0xffu;
 

@@ -1019,7 +1019,7 @@ namespace
         GENRESULT DACOM_API CreateInstance(AGGDESC* Desc, void** Instance) override
         {
             FAGGDESC14* Aggregate = (FAGGDESC14*)Desc;
-            if (Aggregate->Size != 0x14 || std::strcmp(Aggregate->NameAt4, Name) != 0)
+            if (Aggregate->Size != 0x14 || std::strcmp(Aggregate->Name, Name) != 0)
             {
                 *Instance = nullptr;
                 return GR_INTERFACE_UNSUPPORTED;
@@ -1030,18 +1030,18 @@ namespace
                 *Instance = nullptr;
                 return GR_OUT_OF_MEMORY;
             }
-            IDAComponent* OuterIn = Aggregate->OuterUnknown;
+            IDAComponent* OuterIn = Aggregate->Outer;
             Object->Outer = OuterIn;
             if (OuterIn == nullptr)
                 Object->Outer = &Object->Inner;
             else
-                *Aggregate->InnerUnknown = (IDAComponent*)(&Object->Inner);
+                *Aggregate->InnerOut = (IDAComponent*)(&Object->Inner);
 
             const GENRESULT Result = Object->Initialize(Desc);
             if (Result != GR_OK)
             {
-                if (Aggregate->InnerUnknown != nullptr)
-                    *Aggregate->InnerUnknown = nullptr;
+                if (Aggregate->InnerOut != nullptr)
+                    *Aggregate->InnerOut = nullptr;
                 delete Object;
                 *Instance = nullptr;
                 return Result;
@@ -1169,9 +1169,9 @@ namespace
         // IProfileParser* lands in +0x28 and its inner unknown in +0x2c.
         FAGGDESC14 Desc = {};
         Desc.Size = 0x14;
-        Desc.NameAt4 = "ProfileParser2";
-        Desc.OuterUnknown = (ICOManager*)this;
-        Desc.InnerUnknown = &ParserInner;
+        Desc.Name = "ProfileParser2";
+        Desc.Outer = (ICOManager*)this;
+        Desc.InnerOut = &ParserInner;
         Factory->CreateInstance((AGGDESC*)(&Desc), (void**)(&Parser));
         Factory->Release();
     }

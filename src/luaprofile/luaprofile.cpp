@@ -54,7 +54,7 @@ public:
 
     GENRESULT DACOM_API Initialize() override;
 
-    void BindOuter(FLuaAggDesc* Desc);
+    void BindOuter(FAGGDESC14* Desc);
     void OpenLuaVm();
     void CloseLuaVm();
 
@@ -330,7 +330,7 @@ void FLuaObject::CloseLuaVm()
 
 // LAB_06801950 @ 068019e3: +0x18 = Desc->Outer; a null outer means +0x18 = &inner, else
 // *Desc->InnerOut = &inner (no null test on InnerOut).
-void FLuaObject::BindOuter(FLuaAggDesc* Desc)
+void FLuaObject::BindOuter(FAGGDESC14* Desc)
 {
     Controlling = Desc->Outer;
     if (Desc->Outer == nullptr)
@@ -646,7 +646,7 @@ unsigned long DACOM_API FLuaFactory::Release()
 
 GENRESULT DACOM_API FLuaFactory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
-    FLuaAggDesc* LuaDesc = (FLuaAggDesc*)(Desc);
+    FAGGDESC14* LuaDesc = (FAGGDESC14*)(Desc);
     if (LuaDesc->Size != kAggDescSize || !ExactMatch(LuaDesc->Name, Name))
     {
         *Instance = nullptr;

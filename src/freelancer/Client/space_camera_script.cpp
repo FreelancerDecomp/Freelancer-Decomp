@@ -512,29 +512,19 @@ void* ScriptCameraWatchedObject(const FScriptCamera* Cam)
 bool ScriptCameraActivate(FScriptCamera* Cam, const int* ViewRect4)
 {
     // 0x0051e4d9 .. 0x0051e515: build an IScriptEngine through DACOM and query the interface off
-    // it. Retail's descriptor says 0x14 bytes even though dacom.h's plain AGGDESC is 0xC, which
-    // is the same five-dword shape ThornScriptLoad uses -- declared locally at the retail size so
-    // the callee cannot read past the end.
-    struct FScriptAggDesc
-    {
-        unsigned long Size;
-        const char* Name;
-        void* Field08;
-        void* Field0C;
-        void* Field10;
-    };
-    FL_LAYOUT_ASSERT(sizeof(FScriptAggDesc) == 0x14, "retail descriptor is 0x14 bytes");
+    // it. Retail's descriptor is the 0x14-byte FAGGDESC14 (the shape ThornScriptLoad uses), with
+    // no outer, inner or value.
 
     // 0x0051e4d9: DALib::Dacom is read and used with no null test.
     ICOManager* const Manager = DALib::Dacom;
 
     // 0x0051e4c9 .. 0x0051e4eb: the out slot and the three trailing descriptor dwords are zeroed.
-    FScriptAggDesc Desc;
+    FAGGDESC14 Desc;
     Desc.Size = 0x14;
     Desc.Name = kScriptEngineFactory;
-    Desc.Field08 = nullptr;
-    Desc.Field0C = nullptr;
-    Desc.Field10 = nullptr;
+    Desc.Outer = nullptr;
+    Desc.InnerOut = nullptr;
+    Desc.Value = nullptr;
 
     // 0x0051e4ff: ICOManager slot 3 (CreateInstance); the result is not tested.
     void* Instance = nullptr;

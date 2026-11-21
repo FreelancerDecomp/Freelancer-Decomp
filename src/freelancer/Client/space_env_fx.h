@@ -112,8 +112,8 @@ struct JumpShipEffectDesc
 // {type,value,next} triples at DAT_005db108/DAT_005db140/DAT_005db178 (SetTextureStageState,
 // one table per texture stage) and DAT_005db0d8 (SetRenderState) through the global Pipeline
 // object (Pipeline_exref), using slot offsets 0xf8/0x108/0xf0/0x110 -- these match
-// kPipelineSetTextureStageState/kPipelineSetTextureStageTexture/kPipelineSetRenderState/
-// kPipelineVerifyState in src/include/render/RenderPipeline.h EXACTLY. This *confirms* (not just
+// IRenderPipeline's SetTextureStageState/SetTextureStageTexture/SetRenderState/VerifyState
+// (slots 62/66/60/68 in src/include/render/IRenderPipeline.h) EXACTLY. This *confirms* (not just
 // suspects, per batch46a's open question) that this whole area's Draw() methods are ordinary
 // Pipeline consumers, structurally identical to the already-ported PipelineApplyRsTable/
 // PipelineApplyTssTable table-walk helpers -- only the owning renderable class/vtable and its

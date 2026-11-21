@@ -86,16 +86,6 @@ namespace
         return lua_gettable();
     }
 
-    // MSVCRT _ftol saves CW, forces RC=11 (chop), FISTP qword, restores CW,
-    // and returns EAX (low 32 bits). Qword indefinite on invalid input is
-    // 0x8000000000000000, whose low word is zero.
-    int RetailFtol(double Value)
-    {
-        if (!(Value >= -9223372036854775808.0 && Value < 9223372036854775808.0))
-            return 0;
-        return static_cast<int>(static_cast<unsigned int>(static_cast<long long>(Value)));
-    }
-
     // Keep the FMUL result on x87 through the retail chop-to-qword conversion.
     int LuaMillisecondsToRetailInt(lua_Object Object)
     {
@@ -357,12 +347,12 @@ namespace
 
         char Message[8192];
         const char* const DiagnosticSource = "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\THORN\\LuaScriptParser.cpp";
-        FThornAggDesc14 Desc;
+        FAGGDESC14 Desc;
         Desc.Size = G_AggDescSizeThorn;
-        Desc.NameAt4 = lua_getstring(ClsidObj);
+        Desc.Name = lua_getstring(ClsidObj);
         Desc.Outer = nullptr;
         Desc.InnerOut = nullptr;
-        Desc.Field_0x10 = 0;
+        Desc.Value = nullptr;
         if (Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Desc),
                                     reinterpret_cast<void**>(&Component.Object)) == GR_OK)
         {
@@ -606,12 +596,12 @@ namespace
         const bool bExplicitType = lua_isnil(TypeObject) == 0;
         const char* FactoryName = bExplicitType ? lua_getstring(TypeObject) : "CV_CRSplinePath";
         Descriptor->MotionPath.PathType = FactoryName;
-        FThornAggDesc14 Creation;
+        FAGGDESC14 Creation;
         Creation.Size = G_AggDescSizeThorn;
-        Creation.NameAt4 = FactoryName;
+        Creation.Name = FactoryName;
         Creation.Outer = nullptr;
         Creation.InnerOut = nullptr;
-        Creation.Field_0x10 = 0;
+        Creation.Value = nullptr;
         const GENRESULT Created = Manager->CreateInstance(reinterpret_cast<AGGDESC*>(&Creation),
                                                           reinterpret_cast<void**>(&Component.Object));
         if (Created != GR_OK && !bExplicitType)

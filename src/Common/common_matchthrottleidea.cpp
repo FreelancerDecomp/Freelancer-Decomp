@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Common.dll MatchThrottle2Idea (ctor 0x062d5aa0). See src/include/common_idea.h.
+// Common.dll MatchThrottle2Idea (ctor 0x062d5aa0). See src/Common/common_idea.h.
 //
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_idea.cpp, code unchanged.
 

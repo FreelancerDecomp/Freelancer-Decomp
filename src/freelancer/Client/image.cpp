@@ -16,7 +16,7 @@
 #include "DALib.h"
 #include "dacom.h"
 #include "readfile.h"
-#include "render/IBigImage2.h"
+#include "ximage.h"
 #include "render/IRenderPipeline.h"
 
 #include <windows.h>
@@ -487,25 +487,20 @@ void Image::Draw()
 
     // 0x00565c4b..0x00565ca9: alpha 1, colour {1, 1, 1}, then Draw(null, {0, height, width, 0}).
     RECT Dest;
+    Dest.left = 0;
+    Dest.top = static_cast<LONG>(G_RenderSurfaceHeight);  // DAT_00610854
+    Dest.right = static_cast<LONG>(G_RenderSurfaceWidth); // DAT_00610850
+    Dest.bottom = 0;
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
     // PORT(widescreen): the 4:3 picture keeps its own aspect instead of stretching -- centred,
     // or against the edge ImageSetWidescreenAlign asked for (the main menu logo).
     LONG const ImageWidth = static_cast<LONG>(WidescreenEquivalentSurfaceWidth() + 0.5);
     LONG const Spare = static_cast<LONG>(G_RenderSurfaceWidth) - ImageWidth;
-    if (G_ImageWidescreenAlign < 0)
-        Dest.left = 0;
-    else if (G_ImageWidescreenAlign > 0)
+    if (G_ImageWidescreenAlign > 0)
         Dest.left = Spare;
-    else
+    else if (G_ImageWidescreenAlign == 0)
         Dest.left = Spare / 2;
-    Dest.top = static_cast<LONG>(G_RenderSurfaceHeight);
     Dest.right = Dest.left + ImageWidth;
-    Dest.bottom = 0;
-#else
-    Dest.left = 0;
-    Dest.top = static_cast<LONG>(G_RenderSurfaceHeight);  // DAT_00610854
-    Dest.right = static_cast<LONG>(G_RenderSurfaceWidth); // DAT_00610850
-    Dest.bottom = 0;
 #endif
     float const Color[3] = {1.0f, 1.0f, 1.0f};
     BigImage->SetAlpha(1.0f); // +0x18

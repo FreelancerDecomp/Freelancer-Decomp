@@ -862,12 +862,6 @@ namespace
         return pow(2.0, static_cast<double>(Pitch) * static_cast<double>(0.01f));
     }
 
-    // MSVCRT ftol: truncate toward zero into a 64-bit integer; the callers keep EAX.
-    unsigned long Ftol32(double Value)
-    {
-        return static_cast<unsigned long>(static_cast<long long>(Value));
-    }
-
     // FUN_06ee16c0 cdecl (archetype, play-key): archetype null -> 0; DurationMs (+0x1C) if
     // flags (+0x20) bit1 clear, GetPitch (+0x28, stdcall) nonzero, or pitch == 0.0f
     // (TEST AH,0x44 + JNP: only C3 alone skips, NaN goes on); else
@@ -886,7 +880,8 @@ namespace
         if (Pitch == 0.0f)
             return Duration;
         const float DurationF = static_cast<float>(static_cast<unsigned long long>(Duration));
-        return Ftol32(static_cast<double>(DurationF) / PitchToMultiplier(Pitch));
+        return static_cast<unsigned long>(
+            MsvcrtFtol(static_cast<double>(DurationF) / PitchToMultiplier(Pitch)));
     }
 
     // FUN_06ee1040 thiscall: zero payload fields (not +0x18 / +0x30 / +0x34).
@@ -1277,7 +1272,8 @@ GENRESULT FSoundArchetype::FillFromPcm(const unsigned short* Fmt8, unsigned long
         static_cast<unsigned short>(static_cast<int>(nBlockAlign) * 8 / static_cast<int>(nChannels));
     Wave.wBitsPerSample = Bits;
     const unsigned short AvgAlign = static_cast<unsigned short>(
-        Ftol32(static_cast<double>(static_cast<int>(Bits) * static_cast<int>(nChannels)) * 0.125));
+        static_cast<unsigned long>(MsvcrtFtol(
+            static_cast<double>(static_cast<int>(Bits) * static_cast<int>(nChannels)) * 0.125)));
     Wave.nBlockAlign = AvgAlign;
     Wave.nAvgBytesPerSec = static_cast<unsigned long>(AvgAlign) * nSamplesPerSec;
     Wave.cbSize = 0;
@@ -1444,7 +1440,7 @@ unsigned long DACOM_API FSoundManagerFactory::Release()
 GENRESULT DACOM_API FSoundManagerFactory::CreateInstance(AGGDESC* Desc, void** Instance)
 {
     // FUN_06ee8310 RET 0xC. No null checks on Desc, its name or Instance.
-    FSoundAggDesc* SoundDesc = reinterpret_cast<FSoundAggDesc*>(Desc);
+    FAGGDESC14* SoundDesc = reinterpret_cast<FAGGDESC14*>(Desc);
     if (SoundDesc->Size != kAggDescSize || strcmp(SoundDesc->Name, Name) != 0)
     {
         *Instance = nullptr; // 06ee841a
@@ -1535,7 +1531,7 @@ FSoundManager::~FSoundManager()
     ReleaseCom();
 }
 
-void FSoundManager::BindOuter(FSoundAggDesc* Desc)
+void FSoundManager::BindOuter(FAGGDESC14* Desc)
 {
     // 06ee8387..83be: inner unknown at +0x140 = {vtbl 95c0, count 1, Self}; +0x13C = desc outer
     // if set, and then *desc+0xC = inner unconditionally (06ee8400); else +0x13C = inner.
@@ -2543,7 +2539,7 @@ unsigned char FSoundManager::MixerApplyInstance(FSoundInstanceNode* Node)
                 const double Dot = (static_cast<double>(Node->Direction.Z) * RightZ +
                                     static_cast<double>(Node->Direction.Y) * RightY) +
                                    static_cast<double>(Node->Direction.X) * RightX;
-                const long WantPan = static_cast<long>(Ftol32(Dot * Max3dPan));
+                const long WantPan = MsvcrtFtol(Dot * Max3dPan);
                 long CurrentPan = 0;
                 Node->Buffer->GetPan(&CurrentPan);
                 if (WantPan != CurrentPan)
@@ -2593,7 +2589,8 @@ unsigned char FSoundManager::MixerApplyInstance(FSoundInstanceNode* Node)
         float Pitch;
         if (PlayKey->GetPitch(&Pitch) >= 0)
         {
-            unsigned long Frequency = Ftol32(PitchToMultiplier(Pitch) * static_cast<double>(Rate));
+            unsigned long Frequency = static_cast<unsigned long>(
+                MsvcrtFtol(PitchToMultiplier(Pitch) * static_cast<double>(Rate)));
             if (Frequency > 100000)
                 Frequency = 100000;
             else if (Frequency < 100)
@@ -2618,7 +2615,7 @@ unsigned char FSoundManager::MixerApplyInstance(FSoundInstanceNode* Node)
         Volume = 0.0;
     else if (Volume < -10000.0)
         Volume = -10000.0;
-    const long WantVolume = static_cast<long>(Ftol32(Volume));
+    const long WantVolume = MsvcrtFtol(Volume);
     long CurrentVolume = 0;
     Node->Buffer->GetVolume(&CurrentVolume);
     if (WantVolume != CurrentVolume)
@@ -2718,13 +2715,14 @@ unsigned char FSoundManager::MixerSetStartOffset(FSoundInstanceNode* Node)
             Multiplier = PitchToMultiplier(Pitch);
         else
             Node->StatusFlags &= ~0x20u;
-        Delta = Ftol32(static_cast<double>(static_cast<unsigned long long>(Delta)) * Multiplier);
+        Delta = static_cast<unsigned long>(
+            MsvcrtFtol(static_cast<double>(static_cast<unsigned long long>(Delta)) * Multiplier));
     }
     // 06ee6c4a: ftol(FILD qword(u32 Delta) * 0.001f (DAT_06ee949c) * FIMUL int32 word rate).
-    unsigned long Samples =
-        Ftol32((static_cast<double>(static_cast<unsigned long long>(Delta)) *
-                static_cast<double>(0.001f)) *
-               static_cast<double>(static_cast<int>(Archetype->nSamplesPerSec)));
+    unsigned long Samples = static_cast<unsigned long>(
+        MsvcrtFtol((static_cast<double>(static_cast<unsigned long long>(Delta)) *
+                    static_cast<double>(0.001f)) *
+                   static_cast<double>(static_cast<int>(Archetype->nSamplesPerSec))));
     // 06ee6c7c: looping and past LoopEnd (unsigned JBE) -> wrap with an unsigned DIV; no
     // zero-length guard in retail.
     if (PlayKey->IsLooping() != 0 && Samples > Archetype->LoopEnd)

@@ -936,7 +936,7 @@ FTextureLibrary::~FTextureLibrary()
     GroupRecords.clear();
 }
 
-GENRESULT FTextureLibrary::InitializeFromDescriptor(const FSystemAggDesc* Desc)
+GENRESULT FTextureLibrary::InitializeFromDescriptor(const FAGGDESC14* Desc)
 {
     // FUN_06ec0bc0: no QI, allocation or aggregate Initialize call.
     AggregateOwner = Desc->Outer;

@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Common.dll MoveIdea (ctor 0x062d4e60). See src/include/common_idea.h.
+// Common.dll MoveIdea (ctor 0x062d4e60). See src/Common/common_idea.h.
 //
 // CMN-SPLIT stage 1 (2026-10-14): split out of common_idea.cpp, code unchanged.
 

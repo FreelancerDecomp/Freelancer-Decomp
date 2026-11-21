@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "ui_page_desc.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include <ctype.h>
 #include <locale.h>
@@ -25,12 +26,6 @@ namespace
     bool TypeIs(char const* Type, char const (&Literal)[N])
     {
         return memcmp(Type, Literal, N) == 0;
-    }
-
-    // MSVCRT ftol — truncation toward zero.
-    int Ftol(float Value)
-    {
-        return static_cast<int>(Value);
     }
 }
 
@@ -150,8 +145,8 @@ FUiWidgetEntry* FUiPageDesc::ParseTableLine(char const* Line, char* Type, char* 
     Entry->Payload = Payload;
     Payload->Right = F3;
     Payload->Bottom = F4;
-    Payload->Int6 = Ftol(F6);
-    Payload->Int5 = Ftol(F5);
+    Payload->Int6 = MsvcrtFtol(F6);
+    Payload->Int5 = MsvcrtFtol(F5);
     return Entry;
 }
 
@@ -267,7 +262,7 @@ bool FUiPageDesc::LoadFromFile(char const* FullPath)
                     Payload->Right = F3;
                     Payload->Bottom = F4;
                     Payload->CaptionUtf16 = TrackedWiden(Caption);
-                    Payload->ExtraInt = Ftol(MsgExtraFloat);
+                    Payload->ExtraInt = MsvcrtFtol(MsgExtraFloat);
                     Payload->ExtraId = ExtraId;
                     // 00592994: 7-byte compare with "<none>" → null; empty or equal to
                     // "<default>" → the shared .data string; otherwise a tracked copy.

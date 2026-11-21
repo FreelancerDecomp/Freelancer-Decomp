@@ -62,7 +62,7 @@
 #include "wincontrol_base.h"
 
 #include "common_text.h"
-#include "render/IBigImage2.h"
+#include "ximage.h"
 
 #include <set>
 #include <stddef.h>

@@ -16,6 +16,7 @@
 #include <cstddef>
 
 struct IObjDB; // common_cobjdb.h -- Behavior::Slot2's argument (pointer-only use here)
+class SystemManager; // common_systemmanager.h -- Behavior::NavHelperPtr24 (pointer-only use here)
 
 // Common.dll AI/formation-flying state machine family (FormationBehavior and friends).
 //
@@ -98,7 +99,7 @@ struct IObjDB; // common_cobjdb.h -- Behavior::Slot2's argument (pointer-only us
 // and the "written lazily by Update()/EnterState()" rationalisation was circular:
 // those two bodies (FUN_062c4900/FUN_062c3d10) are DockBehavior's, not this
 // class's, which is why everything they touch fits in 0x470 and not in 0x2b8.
-// Both have MOVED to src/include/common_dockbehavior.h this pass, together with
+// Both have MOVED to src/Common/common_dockbehavior.h this pass, together with
 // the whole >= 0x2b8 field block they addressed. See FormationBehavior's own
 // class comment below and decomp-tracker items 1279/1285.
 
@@ -176,17 +177,16 @@ float Behavior_InvokeManagerSlotD4(IObjInspect const* Obj, float Value, ThrustEq
 // Flags28 byte -- the same byte BaseFollowerBehavior_DefaultRequestFlag
 // (LAB_062cd630) sets bit 0x2 of, which this function then clears.
 //
-// The parameter stays `void*` rather than `Behavior*` for one honest reason: Flags28
-// is declared per derived class (BaseFollowerBehavior, DockBehavior, ...) and not on
-// the `Behavior` base, so there is no member to name yet. TODO: hoist Flags28 onto
-// Behavior and retype this, once one lane owns the whole family's layout.
+// The parameter is `Behavior*` since Flags28 was hoisted onto the base (2026-11-21); it
+// was `void*` with a raw `+0x28` store until then, which hit the wrong byte on x64.
 //
 // TWO OTHER CLAIMS IN THAT NOTE MEASURED WRONG. It says "only 2 callers, confirmed
 // via list_references"; a grep of the listing for `CALL FUN_062d21c0` finds five
 // (the recurring XREF-completeness trap). And it says both callers are "inside this
 // same unbuilt class ... ported once in a different, now-lost agent worktree" --
 // DockBehavior and GuideBehavior are both real, built classes today.
-void Behavior_ReleaseDirectiveTarget(void* Target);
+class Behavior;
+void Behavior_ReleaseDirectiveTarget(Behavior* Target);
 
 // FUN_062e5af0 (decomp-tracker item 1762). PORTED FOR REAL 2026-09-11
 // (d301:common-port). Sibling of Behavior_InvokeManagerSlotD4 immediately
@@ -568,15 +568,13 @@ public:
     // (FUN_062d2830, .text:062d2846-062d286a), which hands every dispatch-table entry the
     // manager's IObjDB -- so +0x18 is the behavior's object database (LaunchBehavior already
     // reads its +0x18 as `->vtbl[8]()`, IObjDB::GetZoneDb). WIRED 2026-09-24: until then this
-    // body was empty and no behavior ever received the database. The store goes through the
-    // same raw-offset device as SetTickDelta, for the same reason (the +0x04..+0x29 block is
-    // still declared on the subclasses, see below). No subclass overrides this slot.
-    virtual void Slot2(IObjDB* ObjectDb);
+    // body was empty and no behavior ever received the database. It stores ObjectDb (below).
+    // No subclass overrides this slot.
+    virtual void Slot2(IObjDB* InObjectDb);
     // 3 +0x0c. FUN_062d20d0, decomp-tracker item 1533, fold count 1 -- Behavior's own.
     // Retail: `+0xc = 1; +0x10 = 1; +0x28 &= 0xfe; +0x1c = 0`, i.e. it re-arms the same
     // fields the constructor set (the constructor leaves +0xc = 2), then RET with no
-    // arguments. Written through the same raw-offset device as Slot2 (the +0x04..+0x29
-    // block is still declared on the subclasses). Derived slot-3 bodies that begin with
+    // arguments. Derived slot-3 bodies that begin with
     // `CALL FUN_062d20d0` call it as Behavior::Slot3().
     virtual void Slot3();
     // 4 +0x10. FUN_062d20f0, decomp-tracker item 1534, fold count 1 -- Behavior's own.
@@ -635,8 +633,8 @@ public:
     // 8 +0x20. Bare `RET` -- a real, empty, zero-argument base implementation.
     virtual void Slot8() {}
     // 9 +0x24. `MOV EAX,[ECX+0x10]; RET` (ICF fold Ghidra labels IObjInspectImpl::cobject) --
-    // a getter for Behavior's own +0x10 (the subclasses' UpdateResult10). Read through the
-    // raw-offset device; until 2026-10-08 this returned a constant 0.
+    // a getter for Behavior's own +0x10, UpdateResult10. Until 2026-10-08 this returned a
+    // constant 0.
     virtual int Slot9();
     // 10 +0x28. `MOV AL,1; RET 4` -- returns true, pops one dword the body never reads.
     // The argument width comes from `RET 4`, and from the confirmed derived override
@@ -718,8 +716,7 @@ public:
     virtual void Slot22(void* Arg) { (void)Arg; }
     // 23 +0x5C. LAB_062c2f50, `AND byte ptr [ECX+0x28],0xfd; RET` -- clears exactly the
     // +0x28 bit slot 10's derived override sets. All 21 Behavior vtables point here
-    // (LAB_062c2f50's XREF list); no subclass overrides it. Written with the same raw-offset
-    // device as SetTickDelta/Slot2, since +0x28 is declared on the subclasses.
+    // (LAB_062c2f50's XREF list); no subclass overrides it.
     virtual void cancel_notify();
     virtual IObjRW const* get_target() { return nullptr; }                   // 24 +0x60
     // 25 +0x64. ADDED 2026-09-17 -- previously missing, which left every Behavior object
@@ -752,64 +749,60 @@ public:
     // from +0x04 through +0x29 belongs to Behavior itself: not to BaseFollowerBehavior, and
     // not to any individual leaf behavior.
     //
-    // THE PORT DOES NOT MODEL IT THAT WAY, and this pass deliberately did not change that.
-    // COUNT UPDATED 2026-09-17 (claude:common-factory): it is now TWENTY-ONE, not nineteen --
-    // NullBehavior gained the block (it had none, against a 0x2c retail object, which would
-    // have made Behavior::SetTickDelta write past the end of a four-byte object the moment
-    // the factory could build one) and the newly created StrafeBehavior declares it too.
-    // Twenty-one classes across src/include/common_*behavior.h each re-declare the same block on
-    // THEMSELVES -- BuzzBehavior::DeltaTime, IdleBehavior::DeltaTime1c, EvadeBehavior::
-    // DeltaTime1c, DockBehaviorFields::..., BaseFollowerBehavior::DeltaTime, and so on, each
-    // one pinned by its own offsetof static_assert. Those asserts pass only because
-    // `sizeof(Behavior) == 4` today. Hoisting the block up into this class would move every
-    // one of those twenty-one classes' members 0x28 bytes at a stroke, so the migration has to
-    // retire all twenty-one duplicates in the same commit. It cannot be done from this file
-    // alone and it is NOT done here. Open TODO, not an accepted state.
-    //
-    // What IS closed here is the one call site that had to reach into the base by raw offset
-    // regardless of which class declares the storage. IBehaviorManager::UpdateBehaviorTick
-    // hands the active behavior its accumulated per-tick delta immediately before calling
-    // Slot7(): Common.dll.txt .text:062d335d-062d336a,
+    // HOISTED 2026-11-21. Until then the block was re-declared on each of nineteen classes
+    // (BaseFollowerBehavior, BuzzBehavior, DockBehaviorFields, ...) under per-class names, and
+    // this class reached it through raw `this + 0x..` offsets. That only worked on Win32: on
+    // x64 the vptr is 8 bytes, every declared field moves, and the subclasses did not even
+    // agree with each other at +0x18 (a 4-byte opaque gap on most, an `IObjDB*` on two, an
+    // 8-byte gap on three), so Slot2's pointer store overlapped the tick delta and
+    // SetTickDelta / cancel_notify / Slot3 / Slot4 / BindContext hit the wrong fields. The
+    // block now lives here once, in retail order, so Win32 offsets are unchanged (pinned by
+    // the FL_LAYOUT_ASSERTs after the class) and x64 gets a consistent layout of its own.
+    // The default member initialisers are the zeroes the subclasses' mem-initialiser lists
+    // used to write; every derived constructor then runs ConstructBase (FUN_062d2020).
+    int TypeId = 0;                         // +0x04, FUN_062d2020's argument (see GetTypeId)
+    unsigned CachedHandle08 = 0;            // +0x08, the binder's Owner->get_id()
+    int ModeSelector0xc = 0;                // +0x0c, Slot5's result
+    int UpdateResult10 = 0;                 // +0x10, Slot7's result (Slot9 returns it)
+    void* OwnerContextPtr14 = nullptr;      // +0x14, the owner object (binder)
+    IObjDB* ObjectDb = nullptr;             // +0x18, the manager's object database (Slot2)
+    float DeltaTime1c = 0.0f;               // +0x1c, stored by the manager before Slot7
+    IBehaviorManager* BehaviorMgrPtr20 = nullptr; // +0x20, the manager (binder)
+    SystemManager* NavHelperPtr24 = nullptr; // +0x24, the SystemManager (binder)
+    unsigned char Flags28 = 0;              // +0x28, bit 0 cleared by Slot3, bit 1 by slot 23
+    unsigned char Flag29 = 0;               // +0x29, cleared by Slot4
+    // +0x2a..+0x2b: alignment only. Derived members start at +0x2c on Win32 (MSVC does not
+    // place derived members in a base's tail padding).
+
+    // IBehaviorManager::UpdateBehaviorTick hands the active behavior its accumulated per-tick
+    // delta immediately before calling Slot7(): Common.dll.txt .text:062d335d-062d336a,
     //     FLD float ptr [ESI + 0xd4]      ; the manager's own float accumulator
     //     FSTP float ptr [EDI + 0x1c]     ; EDI is a bare Behavior* out of the dispatch table
     //     CALL dword ptr [EAX + 0x1c]     ; vtable +0x1c IS Slot7
     // An `FSTP float` is a four-byte float store, which is independent confirmation of the
-    // constructor's own dword zero at the same offset. The two accessors below own that
-    // offset so common_behaviormanager.cpp does not have to open-code it. They are deliberately NOT
-    // backed by a data member: adding one here is precisely the 0x28-byte shift above.
-    float GetTickDelta() const;
-    void SetTickDelta(float Delta);
+    // constructor's own dword zero at the same offset.
+    float GetTickDelta() const { return DeltaTime1c; }
+    void SetTickDelta(float Delta) { DeltaTime1c = Delta; }
 
-    // +0x24, THE NAVHELPER POINTER, reached the same way and for the same reason
-    // GetTickDelta reaches +0x1c: the shared context binder FUN_062d2090 writes this field
-    // on every behavior in the family, but the storage is declared twenty-one times over on
-    // the subclasses (DrasticEvadeBehavior::NavHelperPtr24, FormationBehavior::NavHelper,
-    // LargeShipBehavior::NavHelperPtr24, ...) rather than here, because `sizeof(Behavior)`
-    // has to stay 4 until the whole +0x04..+0x29 prefix can be hoisted in one commit.
-    // ADDED 2026-09-17 (claude:w23-stubsweep2) so slots 16 and 17 above can be real bodies
-    // on this class instead of empty stubs waiting on that migration. Deliberately NOT
-    // backed by a data member, for exactly the reason the block above gives.
-    void* GetNavHelper() const;
+    // +0x24, the NavHelper (SystemManager) the binder FUN_062d2090 stores.
+    SystemManager* GetNavHelper() const { return NavHelperPtr24; }
 
     // FUN_062d2020 (item 1529), Behavior's constructor body, RET 4: +0x04 = TypeId,
     // +0x08/+0x14/+0x24/+0x18/+0x1c = 0, byte +0x29 = 0, byte +0x28 &= 0xfc, vptr,
     // +0x0c = 2, +0x10 = 1. Every derived constructor calls it first; the port's derived
-    // constructors call this from their bodies (the +0x04..+0x29 block is still declared on
-    // the subclasses, so it cannot run from Behavior's own constructor before their member
-    // initialisers). Added 2026-10-08: until then most subclasses started with
-    // +0x0c = 0 / +0x10 = 0 instead of retail's 2 / 1.
-    void ConstructBase(int TypeId);
+    // constructors call it from their bodies. Added 2026-10-08: until then most subclasses
+    // started with +0x0c = 0 / +0x10 = 0 instead of retail's 2 / 1.
+    void ConstructBase(int InTypeId);
 
     // FUN_062d2090 (item 1532), non-virtual, thiscall, RET 0xc, 15 call sites (the slot-1
     // SetContext overrides): Owner && Sys required, else false; then +0x14 = Owner,
-    // +0x08 = Owner->get_id(), +0x24 = Sys, +0x20 = Manager, true. Raw-offset device.
+    // +0x08 = Owner->get_id(), +0x24 = Sys, +0x20 = Manager, true.
     bool BindContext(void* Owner, void* Manager, void* Sys);
 
     // FUN_062d21d0 (item 1538), non-virtual, thiscall, 20 call sites across the family:
     // `MOV EDX,[ESP+4]; MOV EAX,[ECX+0x20]; MOV ECX,[EAX+0xc]; MOV [ESP+4],EDX;
     // JMP FUN_062dd3d0` -- a forwarder (not an MI adjustor thunk) to the manager's
-    // PathfindManager::SetCruiseLock with both stack arguments passed through. +0x20 is read
-    // through the raw-offset device, for the reason GetNavHelper gives.
+    // PathfindManager::SetCruiseLock with both stack arguments passed through.
     void SetCruiseLock(int Value, int Mask);
 
     // ---- +0x04 IS THE TYPE ID, and every behavior constructor takes it -------------------
@@ -827,17 +820,18 @@ public:
     // descriptor's own type id is handed to the concrete constructor, which forwards it (via
     // whatever intermediate bases it has) to FUN_062d2020, which parks it at +0x04. Every one
     // of the twenty-one constructors in this port therefore takes `int TypeId`, and passes it
-    // down; the storage lives on each derived class, at +0x04, for exactly the reason the
-    // comment above gives (`sizeof(Behavior)` has to stay 4 until the whole +0x04..+0x29 block
-    // can be hoisted in one commit).
+    // down to ConstructBase, which stores it in TypeId above.
     //
     // NOTHING in retail reads +0x04 back except Behavior's own vtable slot 0 equivalent on the
     // DESCRIPTOR class (BehaviorTypeDesc::get_type_id, a different object) -- this field is
     // written once and, so far as this pass could find, never consumed inside Common.dll. It
     // is stored anyway because retail stores it, and because an out-of-module caller can read
     // it off a Behavior* at a fixed offset.
-    int GetTypeId() const;
+    int GetTypeId() const { return TypeId; }
 };
+// Retail offsets of the block above (Win32 only; FL_LAYOUT_ASSERT checks nothing on x64,
+// where the same members simply follow the 8-byte vptr).
+FL_LAYOUT_ASSERT(sizeof(Behavior) == 0x2c, "Behavior size: derived members start at +0x2c");
 
 // ============================================================================
 // BaseFollowerBehavior -- RTTI ".?AVBaseFollowerBehavior@@" (TypeDescriptor .data:063ebf30),
@@ -922,23 +916,11 @@ public:
 
 protected:
     // FUN_062cbcf0 (RET 4), Slot7's "final leg" payload, called at .text:062cbca4 with
-    // DeltaTime. A switch on SystemManager+0x1810 (0..3; anything above 3 does nothing).
+    // DeltaTime1c. A switch on SystemManager+0x1810 (0..3; anything above 3 does nothing).
     void UpdateTickPayload(float Delta);
 
 public:
-    // ---- Behavior's own +0x04..+0x2b block, still declared per class ----
-    int TypeId;                     // +0x04, FUN_062d2020's argument
-    unsigned CachedHandle08;        // +0x08, the binder's Owner->get_id()
-    int ModeSelector0xc;            // +0x0c, Slot5's result
-    int UpdateResult;               // +0x10, Slot7's result
-    void* OwnerContext;             // +0x14, the owner IObjRW* (binder)
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime;                // +0x1c, stored by the manager before Slot7
-    IBehaviorManager* BehaviorMgrPtr; // +0x20 (binder)
-    SystemManager* NavHelper;       // +0x24 (binder)
-    unsigned char Flags28;          // +0x28, bit 1 set/cleared by slot 10
-    unsigned char Flag29;           // +0x29
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // ---- BaseFollowerBehavior's own block, built by FUN_062cb2b0 ----
     // +0x2c: the ship being followed. Slot7 re-points it every tick from the SystemManager's
@@ -952,7 +934,7 @@ public:
     AfterburnerIdea Afterburner;    // +0x264 (ctor FUN_062da500)
     // +0x278 / +0x27c: the manager's own Dock (BehaviorDispatchTable[7], Manager+0x190) and
     // Goto (BehaviorDispatchTable[2], Manager+0x17c) behaviors, captured by Slot3
-    // (062cb58f / 062cb5c7). Slot7 drives them as child behaviors: it stores its DeltaTime
+    // (062cb58f / 062cb5c7). Slot7 drives them as child behaviors: it stores its DeltaTime1c
     // to their +0x1c and dispatches slots 3/4/7/10, the manager's own protocol.
     Behavior* DockDelegate;         // +0x278
     Behavior* GotoDelegate;         // +0x27c
@@ -971,15 +953,6 @@ public:
     Vector Offset290;               // +0x290
     int Field29c;                   // +0x29c: Slot4 zeroes it; no reader found in this class
 };
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, TypeId) == 0x04, "BaseFollowerBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, ModeSelector0xc) == 0x0c, "BaseFollowerBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, UpdateResult) == 0x10, "BaseFollowerBehavior::UpdateResult offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, OwnerContext) == 0x14, "BaseFollowerBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, DeltaTime) == 0x1c, "BaseFollowerBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, BehaviorMgrPtr) == 0x20, "BaseFollowerBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, NavHelper) == 0x24, "BaseFollowerBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flags28) == 0x28, "BaseFollowerBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Flag29) == 0x29, "BaseFollowerBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, LeadWatcher) == 0x2c, "BaseFollowerBehavior::LeadWatcher offset");
 FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, MatchThrottle) == 0x34, "BaseFollowerBehavior::MatchThrottle offset");
 FL_LAYOUT_ASSERT(offsetof(BaseFollowerBehavior, Face) == 0x90, "BaseFollowerBehavior::Face offset");

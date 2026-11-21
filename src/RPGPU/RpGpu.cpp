@@ -221,6 +221,57 @@ namespace
                 Out[Col * 4 + Row] = In[Row * 4 + Col];
     }
 
+    void PutU16(unsigned char* Out, std::uint16_t Value)
+    {
+        Out[0] = static_cast<unsigned char>(Value & 0xFF);
+        Out[1] = static_cast<unsigned char>(Value >> 8);
+    }
+
+    void PutU32(unsigned char* Out, std::uint32_t Value)
+    {
+        for (int Byte = 0; Byte < 4; ++Byte)
+            Out[Byte] = static_cast<unsigned char>((Value >> (Byte * 8)) & 0xFF);
+    }
+
+    // A 24-bit BMP of the frame (rows bottom to top, padded to 4 bytes), as D3DX saves a
+    // surface to .BMP.
+    bool WriteBmp(const char* FileName, const FRpGpuFrame& Frame)
+    {
+        if (Frame.Width == 0 || Frame.Height == 0 || Frame.Width > 0x8000 || Frame.Height > 0x8000 ||
+            Frame.Bgra.size() < static_cast<std::size_t>(Frame.Width) * Frame.Height * 4)
+            return false;
+        const std::uint32_t RowBytes = (Frame.Width * 3 + 3) & ~3u;
+        const std::uint32_t ImageBytes = RowBytes * Frame.Height;
+        unsigned char Header[54] = {};
+        Header[0] = 'B';
+        Header[1] = 'M';
+        PutU32(Header + 2, 54 + ImageBytes); // file size
+        PutU32(Header + 10, 54);             // pixel data offset
+        PutU32(Header + 14, 40);             // BITMAPINFOHEADER
+        PutU32(Header + 18, Frame.Width);
+        PutU32(Header + 22, Frame.Height);   // positive: bottom-up
+        PutU16(Header + 26, 1);              // planes
+        PutU16(Header + 28, 24);             // bits per pixel
+        PutU32(Header + 34, ImageBytes);
+        std::FILE* const File = std::fopen(FileName, "wb");
+        if (File == nullptr)
+            return false;
+        bool bOk = std::fwrite(Header, sizeof(Header), 1, File) == 1;
+        std::vector<unsigned char> Row(RowBytes, 0);
+        for (std::uint32_t Y = Frame.Height; bOk && Y-- > 0;)
+        {
+            const std::uint8_t* const Source = Frame.Bgra.data() + static_cast<std::size_t>(Y) * Frame.Width * 4;
+            for (std::uint32_t X = 0; X < Frame.Width; ++X)
+            {
+                Row[X * 3 + 0] = Source[X * 4 + 0];
+                Row[X * 3 + 1] = Source[X * 4 + 1];
+                Row[X * 3 + 2] = Source[X * 4 + 2];
+            }
+            bOk = std::fwrite(Row.data(), RowBytes, 1, File) == 1;
+        }
+        return std::fclose(File) == 0 && bOk;
+    }
+
     // DDS file header fields GetImageInfo reads (offsets from the start of the file).
     std::uint32_t ReadU32(const unsigned char* Data, unsigned int Offset)
     {
@@ -339,7 +390,7 @@ FRpGpu::FRpGpu()
 
 FRpGpu::~FRpGpu()
 {
-    Device_.Destroy();
+    Backend_.reset();
     for (FRpGpuTexture* Texture : Textures_)
         delete Texture;
     for (FRpGpuBuffer* Buffer : VertexBuffers_)
@@ -419,6 +470,7 @@ void FRpGpu::ReadSettings()
         DefaultStageStates_[Row.Id] = static_cast<int>(Row.Default);
     std::memset(AbilityOverrides_, 0, sizeof(AbilityOverrides_));
     std::memset(bAbilityOverridden_, 0, sizeof(bAbilityOverridden_));
+    bNullDevice_ = false;
 
     IProfileParser* const Parser = AcquireProfileParser();
     if (Parser != nullptr)
@@ -441,6 +493,9 @@ void FRpGpu::ReadSettings()
             for (const FRp8StateKey& Row : kRp8RenderStateProperties)
                 if (ReadNumber(Parser, Section, Row.Name, &Value))
                     DefaultRenderStates_[Row.Id] = static_cast<int>(Value);
+            // RPGPU's own key: no device, for runs without a GPU (RpGpuBackend.h).
+            if (ReadNumber(Parser, Section, "NULL_DEVICE", &Value))
+                bNullDevice_ = Value != 0;
             Parser->CloseSection(Section);
         }
         Parser->Release();
@@ -464,10 +519,20 @@ void FRpGpu::ResetDeviceState()
     Identity(Projection_);
     Viewport_[0] = 0;
     Viewport_[1] = 0;
-    Viewport_[2] = static_cast<int>(Device_.Width());
-    Viewport_[3] = static_cast<int>(Device_.Height());
+    Viewport_[2] = static_cast<int>(Backend().Width());
+    Viewport_[3] = static_cast<int>(Backend().Height());
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
+}
+
+IRpGpuBackend& FRpGpu::Backend()
+{
+    if (Backend_ == nullptr)
+    {
+        Backend_ = bNullDevice_ ? CreateRpGpuNullBackend() : CreateRpGpuSdlBackend();
+        bBackendIsNull_ = bNullDevice_;
+    }
+    return *Backend_;
 }
 
 void FRpGpu::LoadModes()
@@ -475,7 +540,7 @@ void FRpGpu::LoadModes()
     if (bModesLoaded_)
         return;
     std::vector<FRpGpuDisplayMode> Found;
-    if (!FRpGpuDevice::QueryDisplayModes(&Found))
+    if (!Backend().QueryDisplayModes(&Found))
         return; // asked again next time
     bModesLoaded_ = true;
     Modes_.clear();
@@ -503,6 +568,15 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
         Section_[sizeof(Section_) - 1] = '\0';
     }
     ReadSettings();
+    // A changed NULL_DEVICE replaces the backend; the client's next CreateBuffers brings the new
+    // one up.
+    if (Backend_ != nullptr && bBackendIsNull_ != bNullDevice_)
+    {
+        Backend_.reset();
+        bBuffersActive_ = false;
+        bModesLoaded_ = false;
+        Modes_.clear(); // a failed query on the new backend must not report the old one's modes
+    }
     ResetStateToDefaults();
     bStarted_ = true;
     return GR_OK;
@@ -510,7 +584,8 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
 
 GENRESULT DACOM_API FRpGpu::ShutdownPipeline()
 {
-    Device_.Destroy();
+    if (Backend_ != nullptr)
+        Backend_->Destroy();
     return GR_OK;
 }
 
@@ -624,9 +699,10 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     const unsigned char* const ModeBytes = reinterpret_cast<const unsigned char*>(Mode);
     const int Interval = Mode[7];
     bBuffersActive_ = false;
-    if (!Device_.Create(Hwnd, Interval != 0))
+    if (!Backend().Create(Hwnd, static_cast<std::uint32_t>(std::max(0, Mode[2])),
+                          static_cast<std::uint32_t>(std::max(0, Mode[3])), Interval != 0))
     {
-        Log("RPGPU: no SDL_GPU device for the window: %s\n", Device_.LastError());
+        Log("RPGPU: no device for the window: %s\n", Backend().LastError());
         return GR_GENERIC;
     }
     if (OutMode != nullptr)
@@ -681,7 +757,7 @@ GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
 {
     (void)Rects;
     if ((Flags & 1) != 0)
-        Device_.SetClearColor(static_cast<std::uint32_t>(PipelineState_[kPsClearColor]));
+        Backend().SetClearColor(static_cast<std::uint32_t>(PipelineState_[kPsClearColor]));
     return GR_OK;
 }
 
@@ -689,11 +765,11 @@ GENRESULT DACOM_API FRpGpu::SwapBuffers()
 {
     // A failure sends the client through its buffer recovery (CreateBuffers again), which
     // rebuilds the device.
-    if (!bBuffersActive_ || !Device_.IsReady())
+    if (!bBuffersActive_ || !Backend().IsReady())
         return GR_GENERIC;
-    if (!Device_.Present())
+    if (!Backend().Present())
     {
-        Log("RPGPU: present failed: %s\n", Device_.LastError());
+        Log("RPGPU: present failed: %s\n", Backend().LastError());
         return GR_GENERIC;
     }
     return GR_OK;
@@ -774,15 +850,15 @@ GENRESULT DACOM_API FRpGpu::SetWindow(HWND Hwnd, int X, int Y, int W, int H)
 GENRESULT DACOM_API FRpGpu::GetWindow(HWND* OutHwnd, int* OutLeft, int* OutRight, int* OutW, int* OutH)
 {
     if (OutHwnd != nullptr)
-        *OutHwnd = Device_.Hwnd();
+        *OutHwnd = Backend().Hwnd();
     if (OutLeft != nullptr)
         *OutLeft = 0;
     if (OutRight != nullptr)
         *OutRight = 0;
     if (OutW != nullptr)
-        *OutW = static_cast<int>(Device_.Width());
+        *OutW = static_cast<int>(Backend().Width());
     if (OutH != nullptr)
-        *OutH = static_cast<int>(Device_.Height());
+        *OutH = static_cast<int>(Backend().Height());
     return GR_OK;
 }
 
@@ -1103,7 +1179,7 @@ GENRESULT DACOM_API FRpGpu::GetRenderTarget(void* Handle)
 
 GENRESULT DACOM_API FRpGpu::BeginScene()
 {
-    return (bBuffersActive_ && Device_.IsReady()) ? GR_OK : GR_GENERIC;
+    return (bBuffersActive_ && Backend().IsReady()) ? GR_OK : GR_GENERIC;
 }
 
 GENRESULT DACOM_API FRpGpu::EndScene()
@@ -1719,11 +1795,29 @@ GENRESULT DACOM_API FRpGpu::GetGammaEnable()
 
 // --- IRPTexture ------------------------------------------------------------------------------
 
+// RP8's checks and answers (FUN_06d13d70): buffers must be up, a parent file system and a
+// missing name are invalid parameters, the extension picks the format. RP8 saves through D3DX in
+// seven formats; RPGPU writes BMP (.BMP, .DIB) itself and fails the others. The image is the
+// backend's last presented frame; a backend that cannot read frames back fails.
 GENRESULT DACOM_API FRpGpu::PrintScreen(void* ParentFileSystem, const char* FileName)
 {
-    (void)ParentFileSystem;
-    (void)FileName;
-    return GR_GENERIC;
+    if (!bBuffersActive_ || !Backend().IsReady())
+        return GR_GENERIC;
+    if (ParentFileSystem != nullptr || FileName == nullptr)
+        return GR_INVALID_PARMS;
+    const char* const Extension = std::strrchr(FileName, '.');
+    if (Extension == nullptr || (_stricmp(Extension, ".BMP") != 0 && _stricmp(Extension, ".DIB") != 0))
+    {
+        Log("RPGPU: print_screen: no BMP extension on %s\n", FileName);
+        return GR_GENERIC;
+    }
+    FRpGpuFrame Frame;
+    if (!Backend().ReadBack(&Frame))
+    {
+        Log("RPGPU: print_screen: the backend cannot read the frame back\n");
+        return GR_GENERIC;
+    }
+    return WriteBmp(FileName, Frame) ? GR_OK : GR_GENERIC;
 }
 
 GENRESULT DACOM_API FRpGpu::LoadTexture(IFileSystem* FileSystem, const char* FileName, void** OutHandle)

@@ -1801,7 +1801,7 @@ void IBehaviorManager::UpdateBehaviorTick(float Dt)
             // at the top of the loop body -- reproduced here rather than
             // hoisted, because Behavior::Slot5 below can change either.
             float const* const TransitionWeights =
-                reinterpret_cast<float const*>(reinterpret_cast<char const*>(StateGraph) + 0x48);
+                &StateGraph->Weights[0][0];   // StateGraph+0x48
             float Weight = TransitionWeights[CurrentBehaviorIndex * 21 + Index];
 
             // 212483-212489: an armed directive naming this very behavior gets
@@ -1930,16 +1930,8 @@ void IBehaviorManager::UpdateBehaviorTick(float Dt)
     {
         if (BehaviorTimerB >= 0.2f || BehaviorDirty != 0 || bReevaluate)
         {
-            // Behavior+0x1c, reached through the accessor rather than by raw
-            // offset since 2026-09-17. It is deliberately NOT a data member:
-            // Behavior's ctor (FUN_062d2020) writes the whole +0x04..+0x29
-            // block, so that block is the base class's, but nineteen classes
-            // across common_*behavior.h currently re-declare it on themselves,
-            // each pinned by an offsetof assert that only passes because
-            // sizeof(Behavior) == 4. Hoisting the block would shift all
-            // nineteen at once, so it has to happen in one commit across every
-            // one of those files -- see the write-up on common_behavior.h.
-            // The offset itself is doubly corroborated: the ctor's dword zero,
+            // Behavior+0x1c (Behavior::DeltaTime1c, set through the accessor).
+            // The offset is doubly corroborated: the ctor's dword zero,
             // and .text:062d335d `FLD [ESI+0xd4]; FSTP float [EDI+0x1c];
             // CALL [EAX+0x1c]` through a bare Behavior*.
             TickBehavior->SetTickDelta(BehaviorTimerB);

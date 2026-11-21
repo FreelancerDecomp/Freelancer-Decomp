@@ -6,7 +6,7 @@ The DLL has no named PE exports: only `DllMain`, which registers the `"SystemCon
 
 ## Creation descriptor (`0x14` bytes)
 
-`CreateInstance` requires size `0x14` and the name `"SystemContainer"`; anything else gives `0xFFFFFFFD`. Fields: `+8` is the outer (controlling) `IUnknown`, `+0xC` is the `IUnknown**` for the inner one (written if an outer one is given), `+0x10` is reserved (if it equals `"SystemContainer"`, creation refuses with `-1`). Out of memory gives `0xFFFFFFFC`. This is `FAGGDESC14` from `src/include/dacom.h` (the flat two-field `AGGDESC` is for ordinary factories); for other components (ILua) the `+8` field may mean something else, so `system.cpp` has its own local `FSystemAggDesc`.
+`CreateInstance` requires size `0x14` and the name `"SystemContainer"`; anything else gives `0xFFFFFFFD`. Fields: `+8` is the outer (controlling) `IUnknown`, `+0xC` is the `IUnknown**` for the inner one (written if an outer one is given), `+0x10` is reserved (if it equals `"SystemContainer"`, creation refuses with `-1`). Out of memory gives `0xFFFFFFFC`. This is `FAGGDESC14` from `src/include/dacom.h` (the flat two-field `AGGDESC` is for ordinary factories); `+0x10` is its `Value` field, the `= Value` part of the child's line. The children SystemContainer creates read the same descriptor.
 
 ## Object (`0x28` bytes, `calloc`)
 

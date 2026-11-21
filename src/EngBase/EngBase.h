@@ -118,22 +118,8 @@ static constexpr unsigned long G_AnimationObjectSize = 0x60;
 static constexpr unsigned long G_HardpointObjectSize = 0x44;
 static constexpr unsigned long G_ChannelArchetypeObjectSize = 0x20;
 
-struct FAggDesc8
-{
-    unsigned long Size;
-    const char* Name;
-};
-
-// load_engine_components stack @ 0661fac5–0661fad9 + factory FUN_0661a750 / FUN_06627c40.
-struct FAggDesc18
-{
-    unsigned long Size;
-    const char* Name;
-    void* Inner;
-    void** Outer;
-    const char* Value;
-    void* SystemContainer;
-};
+// load_engine_components (0661fac5–0661fad9) and the factories FUN_0661a750 / FUN_06627c40 use
+// dacom.h's AGGDESC and FAGGDESC18.
 
 struct FDacomFactory : IComponentFactory
 {
@@ -302,13 +288,6 @@ struct FEngineInstance
     float Extent;
     float ExtentVec[3];
     FArchetypeChild* PartChild;
-};
-
-struct FAggDescC
-{
-    unsigned long Size;
-    const char* Name;
-    unsigned long Extra;
 };
 
 // Engine component lists, archetype map and root-instance cache.

@@ -42,12 +42,12 @@ extern "C" {
 
 namespace
 {
-    const float kDegenerateTriangle = IVP_BuilderBitsToFloat(0x358637bdu); // DAT_063a5610, 1e-6f
-    const float kJoggleStart = IVP_BuilderBitsToFloat(0x2b8cbcccu);        // immediate at 0636c3d5, 1e-12f
-    const float kJoggleAdd = IVP_BuilderBitsToFloat(0x2b8cbcccu);          // DAT_063a5494, 1e-12f
-    const float kJoggleScale = IVP_BuilderBitsToFloat(0x3f99999au);        // DAT_063a5668, 1.2f
-    const float kJoggleLimit = IVP_BuilderBitsToFloat(0x3ca3d70au);        // DAT_063a5908, 0.02f
-    const float kMinusOne = IVP_BuilderBitsToFloat(0xbf800000u);           // DAT_063a5498 / immediates, -1.0f
+    const float kDegenerateTriangle = FloatFromBits(0x358637bdu); // DAT_063a5610, 1e-6f
+    const float kJoggleStart = FloatFromBits(0x2b8cbcccu);        // immediate at 0636c3d5, 1e-12f
+    const float kJoggleAdd = FloatFromBits(0x2b8cbcccu);          // DAT_063a5494, 1e-12f
+    const float kJoggleScale = FloatFromBits(0x3f99999au);        // DAT_063a5668, 1.2f
+    const float kJoggleLimit = FloatFromBits(0x3ca3d70au);        // DAT_063a5908, 0.02f
+    const float kMinusOne = FloatFromBits(0xbf800000u);           // DAT_063a5498 / immediates, -1.0f
     const double kSmallAreaFactor = IVP_BuilderBitsToDouble(0x3f747ae140000000ull); // DAT_063a5900 (double), 0.005f widened
 
     // Point hash of the pointsoup builder, vtable .rdata:063a590c

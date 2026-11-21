@@ -41,6 +41,7 @@
 #include "rpc_iclient_args.h"         // FServerSetReputationInfo (slot 66)
 #include "server_connect.h"           // GetLocalServerInterface (DAT_0067ecd0)
 #include "win_factory.h"              // WinFactoryCreate (FUN_0059db20)
+#include "float_bits.h"
 
 #include <list>
 #include <map>
@@ -68,13 +69,6 @@ namespace
         return static_cast<IServer*>(GetLocalServerInterface());
     }
 
-    // The four-byte float every GF / player-state slot receives as a dword.
-    float DwordAsFloat(unsigned int Bits)
-    {
-        float Value = 0.0f;
-        memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
-    }
 }
 
 // Retail .text:005b0840 (the static initializer of .data:Client): the two vptrs and +0x08 = 0.
@@ -482,12 +476,12 @@ void IClientImpl::SendServerCfgInterfaceNotification(const unsigned int& /*Clien
     unsigned int const StatusWindow = MakeId("status_window");
     if (Info.Field_0x00 == TargetWindow)
     {
-        SetUnknownFloat673568(DwordAsFloat(Info.Field_0x04));
+        SetUnknownFloat673568(FloatFromBits(Info.Field_0x04));
         return;
     }
     if (Info.Field_0x00 == StatusWindow)
     {
-        SetUnknownFloat67356c(DwordAsFloat(Info.Field_0x04));
+        SetUnknownFloat67356c(FloatFromBits(Info.Field_0x04));
     }
 }
 

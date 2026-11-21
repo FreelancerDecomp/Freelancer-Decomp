@@ -284,62 +284,7 @@ public:
     // FormationBehavior/DockBehavior are, since IdleWatcher's own true size
     // is not independently confirmed (see class comment).
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.      // +0x08. Set by SetContext() from
-                               // `Param1->vtbl[0x20](Param1)` (via the shared
-                               // FUN_062d2090) -- same role/offset as
-                               // DockBehaviorFields::CachedHandle08.
-    int ModeSelector0xc;       // +0x0c. Written by ResetTickState() (=1) and
-                               // SetModeFromFlags() (1 or 3) -- same
-                               // role/offset as DockBehaviorFields::ModeSelector0xc.
-    int UpdateResult10;        // +0x10. Update()'s own tri-state result
-                               // (1=active/3=idle) and ResetTickState()'s
-                               // own write (=1) -- same role/offset as
-                               // DockBehaviorFields::UpdateResult10.
-    void* OwnerContextPtr14;   // +0x14. Set by SetContext() (Param1); null-checked by
-                               // Update(). Same role/offset as
-                               // BaseFollowerBehavior::OwnerContext /
-                               // DockBehaviorFields::ThreatSourcePtr14.
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;         // +0x1c. Zeroed by ResetTickState(); passed to
-                               // IdleWatcher's Evaluate(dt) call in Update().
-                               // Same role/offset as
-                               // BaseFollowerBehavior::DeltaTime.
-    // +0x20. Set by SetContext() (Param2); read (and its own +0xc field dereferenced) by the
-    // shared FUN_062d20f0 Disengage() tail-calls. Same role/offset as
-    // BaseFollowerBehavior::BehaviorMgrPtr / DockBehaviorFields::Field20.
-    //
-    // LEFT `void*` DELIBERATELY. SEARCHED AND NOT FOUND, 2026-09-17
-    // (claude:common-behavior-fields) -- a recorded negative result, not an unexamined field.
-    // The lead is real (TrailBehavior's own +0x20 is PROVEN `IBehaviorManager*` at
-    // .text:062cb094-062cb097, `MOV ECX,[EBP+0x20]` into
-    // `CALL IBehaviorManager::get_camera_level_status`; FaceBehavior, GotoBehavior,
-    // GuideBehavior and DelayBehavior were typed this same pass from their own such sites),
-    // but the shared writer FUN_062d2090 has fourteen SetContext() callers and so cannot carry
-    // a type across. Every instruction of IdleBehavior's own methods (.text:062cd530 ctor,
-    // 062cd590 SetContext, 062cd5d0 ResetTickState, 062cd5e0 Disengage, 062cd600 Update,
-    // 062cd630 RequestFlag -- .text:062cd530..062cd640) was scanned for `[reg + 0x20]` in any
-    // form. There is not a single one. Note also that Disengage()'s own FUN_062d20f0 address is
-    // ICF-shared with DelayBehavior's slot 4, which proves nothing about the receiver.
-    // WHAT WOULD CLOSE IT: a site that loads +0x20 into ECX ahead of a call, or walks it to a
-    // confirmed IBehaviorManager offset (+0x08 Sys, +0xc0 CurrentBehaviorIndex, +0xc4,
-    // +0x110 ContentCbPtr, +0x118/+0x11c, +0x164 TurnSensitivity, +0x174 dispatch table).
-    void* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3). Same
-                               // role/offset as BaseFollowerBehavior::NavHelper /
-                               // DockBehaviorFields::Field24.
-    unsigned char Flags28;     // +0x28. Bit 0x1 cleared by ResetTickState();
-                               // bit 0x2 set by RequestFlag(). Same role/offset
-                               // as BaseFollowerBehavior::Flags28 /
-                               // DockBehaviorFields::Flags28.
-    unsigned char Flag29;      // +0x29. Read by SetModeFromFlags(); cleared by
-                               // Disengage()'s FUN_062d20f0 tail-call. Same
-                               // role/offset as DockBehaviorFields::Flag29.
-    unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only (identical shape to
-                               // DockBehaviorFields::Pad2a).
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     IdleIdea Watcher2c;        // +0x2c. IDENTIFIED 2026-10-08: an IdleIdea (common_idea.h;
                                // ctor FUN_062d9b10, vtable 063a054c, RTTI COL 063a9bd0),
@@ -354,15 +299,6 @@ public:
                                // sizeof(IdleBehavior) as a result.
 };
 
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, CachedHandle08) == 0x08, "IdleBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, ModeSelector0xc) == 0x0c, "IdleBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, UpdateResult10) == 0x10, "IdleBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, OwnerContextPtr14) == 0x14, "IdleBehavior::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, DeltaTime1c) == 0x1c, "IdleBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, BehaviorMgrPtr20) == 0x20, "IdleBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, NavHelperPtr24) == 0x24, "IdleBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Flags28) == 0x28, "IdleBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Flag29) == 0x29, "IdleBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(IdleBehavior, Watcher2c) == 0x2c, "IdleBehavior::Watcher2c offset");
 
 // Retail object size, read off the factory body that allocates this class (`PUSH 0x40`

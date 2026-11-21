@@ -198,9 +198,9 @@ public:
     // Own vtable slot 5 (offset 0x14). Common.dll.txt 207091-207126 (LAB_062cfff0), 33
     // instructions. CLOSED 2026-09-17 (claude:common-largeship-itl) -- every instruction is
     // now real code. Both of this method's FULLPORT-DEFERRED stubs were stale:
-    // ThreatSourcePtr14's vtbl+0x88 is IObjInspect::get_type(uint&) and FUN_062ed5a0 is fully
+    // OwnerContextPtr14's vtbl+0x88 is IObjInspect::get_type(uint&) and FUN_062ed5a0 is fully
     // decoded (see ResolveNavHelperTarget). Retail:
-    //   uint Type = 0; ThreatSourcePtr14->get_type(Type);       // .text:062d0004
+    //   uint Type = 0; OwnerContextPtr14->get_type(Type);       // .text:062d0004
     //   int Mode = 2;
     //   if (Type & 0x80000)                                      // .text:062d000a
     //       if (ResolveNavHelperTarget(NavHelperPtr24 + 0x142c)) Mode = 1;
@@ -241,9 +241,9 @@ private:
     //       identification is now settled. SetContext() calls SubObjectA.SetEnabled(true).
     //   RefreshApproachDistance     -> FUN_062eb5a0 is ComputeWeaponSlotStat (item 1846,
     //       ready_unverified, common_aisteer.h). Engage() calls it for real.
-    //   QueryThreatFlags            -> ThreatSourcePtr14's vtbl+0x88 is IObjInspect::get_type
+    //   QueryThreatFlags            -> OwnerContextPtr14's vtbl+0x88 is IObjInspect::get_type
     //       (uint& OutType), slot 34 of the retail-order table rebuilt 2026-09-16 in
-    //       common_iface.h. ThreatSourcePtr14 was never an unidentified class: SetContext()
+    //       common_iface.h. OwnerContextPtr14 was never an unidentified class: SetContext()
     //       in this very file already reads get_id() off it through ObjInspectOf().
     //   CheckNavHelperCondition     -> FUN_062ed5a0 (item 1891) is fully decoded; see
     //       ResolveNavHelperTarget() below, which replaces it with the real body.
@@ -289,49 +289,7 @@ public:
     // Update()'s own class-comment writeup for how Field168/Field16c/Field170 were confirmed
     // (and Field168/Field16c re-typed from a placeholder `int` to `float`) this pass.
     // ------------------------------------------------------------------
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.       // +0x08. Set by SetContext() via the shared FUN_062d2090 effect.
-    int ModeSelector0xc;        // +0x0c. Written by Engage() (=1) and SetModeFromFlags() (1/2/3).
-    int UpdateResult10;         // +0x10. Update()'s own tri-state result (1/2/3-shaped, see Update()).
-    void* ThreatSourcePtr14;    // +0x14. Set by SetContext() (Param1); vcall receiver for
-                                 // SetModeFromFlags()'s own vtbl+0x88 query.
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;           // +0x1c. Zeroed by the shared FUN_062d20d0 reset effect inside
-                                  // Engage() (CONFIRMED: FUN_062d20d0 is the SAME shared routine
-                                  // every other sibling's own ResetTickState()/Engage() calls,
-                                  // re-verified this pass by reading its own body directly,
-                                  // Common.dll.txt 210738-210749 -- it unconditionally zeroes a
-                                  // dword at [this+0x1c] regardless of caller). Not touched by
-                                  // the ctor itself.
-    // +0x20. Set by SetContext() (Param2).
-    //
-    // LEFT `void*` DELIBERATELY. SEARCHED AND NOT FOUND, 2026-09-17
-    // (claude:common-behavior-fields) -- a recorded negative result, not an unexamined field.
-    // The lead is real: TrailBehavior's own +0x20 is PROVEN `IBehaviorManager*`
-    // (.text:062cb094 `MOV ECX,dword ptr [EBP + 0x20]` into
-    // `CALL IBehaviorManager::get_camera_level_status`), and FaceBehavior, GotoBehavior,
-    // GuideBehavior and DelayBehavior were typed this same pass from their own such sites. The
-    // shared writer FUN_062d2090 does NOT carry it across (fourteen SetContext() callers).
-    // WHAT WAS SEARCHED: every instruction of LargeShipBehavior's own methods
-    // (.text:062cfe20 ctor, 062cfea0, 062cfec0, 062cff40, 062cffa0, 062cfff0, 062d0050,
-    // 062d095a, 062d09e0 -- .text:062cfe20..062d0a10) scanned for `[reg + 0x20]`. Every hit is
-    // ESP-relative stack scratch or a vtable dispatch on a DIFFERENT object
-    // (`CALL dword ptr [EDX + 0x20]` at .text:062d02ed, 062d02f8, 062d06af, 062d06ba -- slot 8
-    // on an owner interface, not a field read). No `MOV reg,[this+0x20]`, no
-    // `PUSH dword ptr [this+0x20]`, no `[[this+0x20]+disp]` chain: this class writes the field
-    // in SetContext() and never reads it back except through the shared FUN_062d20f0 tail.
-    // WHAT WOULD CLOSE IT: a site that loads +0x20 into ECX ahead of a call, or walks it to a
-    // confirmed IBehaviorManager offset (+0x08 Sys, +0xc0 CurrentBehaviorIndex, +0xc4,
-    // +0x110 ContentCbPtr, +0x118/+0x11c, +0x164 TurnSensitivity, +0x174 dispatch table).
-    void* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24. Set by SetContext() (Param3); read by
-                                 // SetModeFromFlags()/Engage() at its own +0x142c/+0x12c.
-    unsigned char Flags28;      // +0x28. Cleared bit 0x1 by Engage() (shared reset effect).
-    unsigned char Flag29;       // +0x29. Read by SetModeFromFlags().
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     float Field2c;               // +0x2c. Set to 1500.0f by ctor (bit-exact, verified). The
                                   // Engage() now REFRESHES this for real (2026-09-17) from
@@ -372,15 +330,6 @@ public:
     Vector Field170;
 };
 
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, CachedHandle08) == 0x08, "LargeShipBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, ModeSelector0xc) == 0x0c, "LargeShipBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, UpdateResult10) == 0x10, "LargeShipBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, ThreatSourcePtr14) == 0x14, "LargeShipBehavior::ThreatSourcePtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, DeltaTime1c) == 0x1c, "LargeShipBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, BehaviorMgrPtr20) == 0x20, "LargeShipBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, NavHelperPtr24) == 0x24, "LargeShipBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Flags28) == 0x28, "LargeShipBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Flag29) == 0x29, "LargeShipBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, Field2c) == 0x2c, "LargeShipBehavior::Field2c offset");
 FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, SubObjectA) == 0x30, "LargeShipBehavior::SubObjectA offset");
 FL_LAYOUT_ASSERT(offsetof(LargeShipBehavior, SubObjectB) == 0xa8, "LargeShipBehavior::SubObjectB offset");

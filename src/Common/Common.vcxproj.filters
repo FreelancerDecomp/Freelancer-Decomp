@@ -807,10 +807,10 @@
     <ClInclude Include="..\include\common_async.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_behavior.h">
+    <ClInclude Include="common_behavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_buzzbehavior.h">
+    <ClInclude Include="common_buzzbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_casteroid.h">
@@ -828,7 +828,7 @@
     <ClInclude Include="..\include\common_cobject.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_cruisebehavior.h">
+    <ClInclude Include="common_cruisebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_csys.h">
@@ -837,34 +837,34 @@
     <ClInclude Include="..\include\common_dataconfig.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_delaybehavior.h">
+    <ClInclude Include="common_delaybehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_dockbehavior.h">
+    <ClInclude Include="common_dockbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_drasticevadebehavior.h">
+    <ClInclude Include="common_drasticevadebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_errorhandler.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_evadebehavior.h">
+    <ClInclude Include="common_evadebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_exports.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_facebehavior.h">
+    <ClInclude Include="common_facebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_fleebehavior.h">
+    <ClInclude Include="common_fleebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_followbehavior.h">
+    <ClInclude Include="common_followbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_freeflightbehavior.h">
+    <ClInclude Include="common_freeflightbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_fuses.h">
@@ -873,10 +873,10 @@
     <ClInclude Include="..\include\common_goods.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_gotobehavior.h">
+    <ClInclude Include="common_gotobehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_guidebehavior.h">
+    <ClInclude Include="common_guidebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_id.h">
@@ -885,10 +885,10 @@
     <ClInclude Include="..\include\vc6_sort.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_idea.h">
+    <ClInclude Include="common_idea.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_idlebehavior.h">
+    <ClInclude Include="common_idlebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_iface.h">
@@ -897,19 +897,19 @@
     <ClInclude Include="..\include\common_ini.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_itlbehavior.h">
+    <ClInclude Include="common_itlbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_iustategraph.h">
+    <ClInclude Include="common_iustategraph.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_largeshipbehavior.h">
+    <ClInclude Include="common_largeshipbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_launchbehavior.h">
+    <ClInclude Include="common_launchbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_lootbehavior.h">
+    <ClInclude Include="common_lootbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_misc.h">
@@ -921,7 +921,7 @@
     <ClInclude Include="..\include\common_newchar.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_nullbehavior.h">
+    <ClInclude Include="common_nullbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_phyarch.h">
@@ -939,7 +939,7 @@
     <ClInclude Include="..\include\common_spatial.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_strafebehavior.h">
+    <ClInclude Include="common_strafebehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_systemmanager.h">
@@ -957,13 +957,13 @@
     <ClInclude Include="..\include\common_tradeoffer.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_trailbehavior.h">
+    <ClInclude Include="common_trailbehavior.h">
       <Filter>Public headers</Filter>
     </ClInclude>
     <ClInclude Include="..\include\common_universe.h">
       <Filter>Public headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\common_zone.h">
+    <ClInclude Include="common_zone.h">
       <Filter>Public headers</Filter>
     </ClInclude>
   </ItemGroup>
