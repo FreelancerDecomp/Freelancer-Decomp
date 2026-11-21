@@ -474,7 +474,7 @@ unsigned* FClientGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned Cache
     return GameobjSubmitDrawRetail(this, OutLod, Camera, CachedLod, Matrix, Extra);
 }
 
-unsigned FClientGameobj::Slot18c(unsigned* OutB)
+std::uintptr_t FClientGameobj::Slot18c(unsigned* OutB)
 {
     // LAB_00524e50.
     *OutB = DrawStateB;
@@ -1918,7 +1918,7 @@ void FClientSolarGameobj::Slot170()
     FClientEquippedObj::Slot170();
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 void FClientSolarGameobj::update(float Dt)
@@ -2235,7 +2235,7 @@ void FClientSolarGameobj::ReadIni(INI_Reader& Reader)
     // into +0x3c (FUN_005553b0, no hint).
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 // ===========================================================================
@@ -3497,10 +3497,10 @@ void FClientShipGameobj::Slot1b8(float Dt)
 
     // 0x00545628..0x00545643: FUN_005553b0(get_position() (vt+0), &+0x3c, hint +0x38) into
     // +0x38.
-    FNebulaEffect* const Hint = reinterpret_cast<FNebulaEffect*>(static_cast<uintptr_t>(DrawStateA));
+    FNebulaEffect* const Hint = reinterpret_cast<FNebulaEffect*>(DrawStateA);
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), Hint);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 
     // 0x0054563c..0x0054565f: the clock reloaded; above the period it is reduced on the FPU
     // stack (FSUB / FCOM / TEST AH,0x41 / JZ loops while still greater) and stored once.
@@ -4769,7 +4769,7 @@ namespace
             return;
         FNebulaEffect* const Nebula = StarSysFindNebula(
             &Self->get_position(), reinterpret_cast<float*>(&Self->DrawStateB), nullptr);
-        Self->DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+        Self->DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
         Self->Field_0x34 = 1.0f;
     }
 
@@ -5197,7 +5197,7 @@ void FClientLootGameobj::Slot170()
     // 0x0053e677..0x0053e68c: FUN_005553b0(&get_position(), &DrawStateB, 0) into DrawStateA.
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 void FClientLootGameobj::update(float Dt)

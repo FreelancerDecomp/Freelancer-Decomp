@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "room_control.h"
+#include <cstdint>
 #ifdef FREELANCER_WALK_MODE
 #include "base_walk.h"
 #endif
@@ -2118,7 +2119,7 @@ FRoomRuntime* CreateRoomRuntime(RoomData* Room)
     Runtime->MainScript = 0xffffffffu;
     // 0x004496ef FUN_0044a030; 0x004496f4..0x004496fb RoomData::fixup(+0x44).
     RoomControlLoadProps(Runtime);
-    Room->fixup(reinterpret_cast<long>(Runtime->MainInstance));
+    Room->fixup(static_cast<long>(reinterpret_cast<std::intptr_t>(Runtime->MainInstance)));
     // 0x00449701..0x0044970c: FUN_00555bf0 on +0x4c with +0x48 unless -1.
     if (Runtime->MainScript != 0xffffffffu)
         Runtime->Scripts.Load(Runtime->MainScript);

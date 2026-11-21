@@ -25,6 +25,7 @@
 #include "sound_config.h"
 #include "soundstreamer.h"
 #include "x86math.h"
+#include "x87_portable.h" // the x64 forms of the mixer arithmetic below
 #include "common_misc.h"
 #include "game_options.h"   // GetGameOption (FUN_005792b0)
 #include "sound_archetype.h"
@@ -343,6 +344,7 @@ namespace
                 float Y;
                 float Z;
                 // Only the Z product is rounded to float before adding the old position.
+#if defined(_M_IX86)
                 __asm
                 {
                     mov eax, Position
@@ -362,6 +364,15 @@ namespace
                     fadd dword ptr [eax + 8]
                     fstp Z
                 }
+#else
+                // 53-bit precision outside the scene (docs/x64.md, "Client precision").
+                const double XStep = static_cast<double>(DeltaSeconds) * Position[6];
+                const double YStep = static_cast<double>(DeltaSeconds) * Position[7];
+                ZStep = static_cast<float>(static_cast<double>(DeltaSeconds) * Position[8]);
+                X = static_cast<float>(XStep + Position[0]);
+                Y = static_cast<float>(YStep + Position[1]);
+                Z = static_cast<float>(static_cast<double>(ZStep) + Position[2]);
+#endif
                 Spatial[0] = X;
                 Spatial[1] = Y;
                 Spatial[2] = Z;
@@ -1326,12 +1337,16 @@ namespace
             float SourceDb = AttenuationDb;
             float CombinedDb;
             // Retail rounds this sum to float, but keeps the following category sum in x87.
+#if defined(_M_IX86)
             __asm
             {
                 fild ArchDb
                 fadd SourceDb
                 fstp CombinedDb
             }
+#else
+            CombinedDb = static_cast<float>(static_cast<double>(ArchDb) + SourceDb);
+#endif
             float Base = 0.f;
             float ModeDb = 0.f;
             bool bDuck = false;
@@ -1366,6 +1381,7 @@ namespace
                 break;
             }
             unsigned char bSilent;
+#if defined(_M_IX86)
             __asm
             {
                 fld Base
@@ -1380,6 +1396,14 @@ namespace
                 test ah, 41h
                 setnp bSilent
             }
+#else
+            double Sum = Base;
+            if (bDuck)
+                Sum = Sum + G_DuckCurrentDb;
+            Sum = Sum + ModeDb;
+            Sum = Sum + CombinedDb;
+            bSilent = X87TestParityEven(X87CompareStatus(Sum, kSilenceDb), 0x41) ? 0 : 1;
+#endif
             if (bSilent != 0)
             {
                 MixerScale = kMixerNoScore;
@@ -1397,6 +1421,7 @@ namespace
         GetPosition(&Pos);
         float DistSq;
         // No intermediate float stores: retail adds Z squared, Y squared, then X squared.
+#if defined(_M_IX86)
         __asm
         {
             mov eax, Listener
@@ -1420,11 +1445,20 @@ namespace
             fstp st(0)
             fstp st(0)
         }
+#else
+        {
+            const double DX = static_cast<double>(Listener[0]) - Pos.X;
+            const double DY = static_cast<double>(Listener[1]) - Pos.Y;
+            const double DZ = static_cast<double>(Listener[2]) - Pos.Z;
+            DistSq = static_cast<float>(DZ * DZ + DY * DY + DX * DX);
+        }
+#endif
 
         float MaxRange;
         if (GetMaxDistance(&MaxRange) == GR_OK)
         {
             unsigned char bOutside;
+#if defined(_M_IX86)
             __asm
             {
                 fld MaxRange
@@ -1434,6 +1468,10 @@ namespace
                 test ah, 5
                 setnp bOutside
             }
+#else
+            const double MaxRangeSq = static_cast<double>(MaxRange) * MaxRange;
+            bOutside = X87TestParityEven(X87CompareStatus(MaxRangeSq, DistSq), 5) ? 0 : 1;
+#endif
             if (bOutside != 0)
             {
                 MixerScale = kMixerNoScore;
@@ -1454,6 +1492,7 @@ namespace
         double const Ten = 10.0;
         float Score;
         // A float inverse-sqrt intermediate or libm log10 changes retail's final rounding.
+#if defined(_M_IX86)
         __asm
         {
             fld MinRange
@@ -1471,6 +1510,15 @@ namespace
             fstp st(1)
             fstp Score
         }
+#else
+        double InvSqrt = static_cast<double>(Guess) * Guess;
+        InvSqrt = InvSqrt * DistSq;
+        InvSqrt = InvSqrt * Half;
+        InvSqrt = ThreeHalves - InvSqrt;
+        InvSqrt = InvSqrt * Guess;
+        const double Ratio = InvSqrt * MinRange;
+        Score = static_cast<float>(X87Log10(Ratio) * Ten);
+#endif
         MixerScale = Score;
     }
 

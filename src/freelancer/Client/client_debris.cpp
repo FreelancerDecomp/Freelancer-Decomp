@@ -425,7 +425,7 @@ void FClientDebrisGameobj::Init(FDebrisArch const* Arch)
     // +0x3c (FUN_005553b0, no hint).
     FNebulaEffect* const Nebula =
         StarSysFindNebula(&get_position(), reinterpret_cast<float*>(&DrawStateB), nullptr);
-    DrawStateA = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Nebula));
+    DrawStateA = reinterpret_cast<std::uintptr_t>(Nebula);
 }
 
 FClientDebrisGameobj* CreateDebrisGameobjForObject(CObject* Object, FDebrisArch const* Arch)
