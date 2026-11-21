@@ -184,7 +184,8 @@ public:
     // integrator LAB_06343150 is its override (common_physys.cpp).
     // Retail's only dispatcher is the per-PSI controller loop FUN_063496a0
     // (.text:063498fa-0634990d: `PUSH element+4; PUSH EBX(event); CALL [EDX+0x10]`),
-    // which this port has not ported -- nothing in src/IVP calls this slot yet.
+    // ported as IVP_Simulation_Unit_Process_One_Psi_Step (ivp_simulation_unit.cpp), which
+    // calls this slot once per controller bucket with that bucket's core list.
     virtual void do_simulation_controller(IVP_Event_Sim* EventSim, IVP_U_Vector<IVP_Core>* CoreList) = 0;
 
     // Slot 5: get_controller_priority. RESOLVED 2026-09-17, and it resolves the

@@ -18893,7 +18893,7 @@
    "bases": "public IVP_Real_Object_Fast_Static",
    "file": "src/IVP/ivp_physics/ivp_real_object.h",
    "kind": "class",
-   "line": 736,
+   "line": 742,
    "module": "(public)",
    "name": "IVP_Real_Object",
    "public": true,

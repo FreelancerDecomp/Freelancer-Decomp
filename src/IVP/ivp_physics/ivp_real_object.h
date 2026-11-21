@@ -955,8 +955,8 @@ public:
     // this object's narrow-phase cache slot (see field_40 above and
     // IVP_NarrowPhaseCacheSlot's comment in ivp_real_object.cpp for the
     // full evidence trail), bumps its refcount, and conditionally
-    // refreshes it. Opaque return type: the slot layout is a file-local
-    // detail of ivp_real_object.cpp.
+    // refreshes it. The slot layout is defined in this header; see
+    // IVP_NarrowPhaseCacheSlot above.
     struct IVP_NarrowPhaseCacheSlot* ResolveNarrowPhaseCacheSlot();
 
     // The library's get_cache_object_no_lock (cmn-ivp2b, 2026-10-08): the

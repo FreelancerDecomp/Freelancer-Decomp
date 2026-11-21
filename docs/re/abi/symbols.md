@@ -441,7 +441,7 @@
 | `IVP_Range_Manager` | 3 | 3 | `src/IVP/ivp_physics/ivp_environment.h:318` | private (Common) | — |
 | `IVP_Ray_Hit_Listener` | 2 | 2 | `src/IVP/ivp_collision/ivp_ray_solver.h:42` | private (Common) | — |
 | `IVP_Ray_Solver_Os` | 1 | 1 | `src/IVP/ivp_collision/ivp_ray_solver.h:140` | private (Common) | — |
-| `IVP_Real_Object` | 2 | 2 | `src/IVP/ivp_physics/ivp_real_object.h:736` | **public** | `public IVP_Real_Object_Fast_Static` |
+| `IVP_Real_Object` | 2 | 2 | `src/IVP/ivp_physics/ivp_real_object.h:742` | **public** | `public IVP_Real_Object_Fast_Static` |
 | `IVP_SurfaceManager` | 11 | 11 | `src/IVP/ivp_physics/ivp_surface_manager.h:123` | private (Common) | — |
 | `IVP_Synapse_OO` | 1 | 5 | `src/IVP/ivp_collision/ivp_oo_watcher.h:42` | private (Common) | `public IVP_Listener_Hull` |
 | `IVP_Synapse_Real` | 1 | 5 | `src/IVP/ivp_physics/ivp_mindist.h:51` | private (Common) | `public IVP_Listener_Hull` |
