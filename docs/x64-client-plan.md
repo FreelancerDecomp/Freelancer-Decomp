@@ -45,7 +45,7 @@ What the client adds, from a survey of `master` (counts are from grep, then spot
 | Hard-coded retail byte offsets | 133 (freelancer, flmaterials, movie) |
 | Facet and `this` adjustments without `FL_FACET_OFFSET` | `gf_thorn_component.cpp`, `Deformable2.cpp`, about 18 `Watchable` ±8 sites |
 | Data loaders | 25 found: the file formats are all fixed-width, so the formats themselves are fine. 10 break on x64 because of how they store pointers (step 1.1) |
-| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). RP9 (Direct3D 9) can |
+| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). The x64 client gets RPGPU (phase 5) |
 
 Rough total for phases 1–3: 5 to 7 weeks of work, plus the runtime surprises a first run always
 brings.
@@ -139,26 +139,22 @@ RpcCodecTest.
   so x64 cannot load it. The x64 client skips the agreement, as FLDedicated does (#44,
   `RunEulaGate` in `main.cpp`); Win32 still shows it.
 
-**2.5 RP9 for x64, as a stopgap renderer.** Link the x64 `d3dx9.lib`. Today `FreelancerRp9=1`
-also turns on the client's Ex hooks (volumetric nebulae). Split those into their own switch,
-off for x64, so the x64 client draws what RP8 draws. On Win32 nothing changes: `FreelancerRp9=1`
-still builds both. Note the `RP9-GAP` list in
-[re/rp9.md](re/rp9.md): these are visual-only differences. No effort goes into closing them;
-phase 5 replaces RP9 on x64.
+**2.5 (dropped) RP9 for x64.** RP9 was to be a stopgap x64 renderer. The x64 client goes
+straight to RPGPU instead (phase 5, now in parallel with phases 2 to 4). RP9 stays a Win32-only
+option.
 
 **Gate:** `Release|x64` of the whole solution is required in CI. Win32 FLRegress and RpcCodecTest
 output is unchanged.
 
 ## Phase 3: the x64 client runs and plays with retail
 
-**3.1 RPNull.** A port-only DACOM module that answers RP8's IIDs (`IRenderPipeline`,
-`IVertexBufferManager`, `IRPDraw`, buffers, textures, `IGammaControl`) and draws nothing. Selected
-in `DACOM.INI` like RP9. It lets the client run on a CI machine without a GPU, and it becomes the
-skeleton of RPGPU in phase 5.
+**3.1 (folded into 5.2) RPNull.** The RPGPU skeleton answers RP8's IIDs and draws nothing but a
+cleared frame, which is what RPNull was for. A no-device mode of the skeleton covers CI machines
+without a GPU.
 
 **3.2 Client smoke test.** A scripted run of the real client: start, new game, first base,
-launch, fly, dock, save, load, quit. It runs on Win32 (RP8 and RPNull) and x64 (RPNull) in CI,
-and runs on x64 with RP9 by hand. It also runs with the "everything above 4 GB" switch from
+launch, fly, dock, save, load, quit. It runs on Win32 (RP8) and x64 (RPGPU without a device) in CI,
+and runs on x64 with RPGPU by hand. It also runs with the "everything above 4 GB" switch from
 step 1.1.
 
 **3.3 Interop.** Report-only CI first, required once stable:
@@ -178,7 +174,7 @@ resource DLL, on x64.
 
 ## Phase 4: rendering without D3DX
 
-Still on Windows. This prepares both RP9-on-x64 and RPGPU.
+Still on Windows. This prepares RPGPU, which needs it before it can draw textures.
 
 **4.1 Texture decoder.** Our own loader for what D3DX 8.1 reads in Freelancer's data (DDS,
 including DXT; TGA; BMP; cube maps), with D3DX 8.1's choice of format and mip chain.
@@ -188,7 +184,7 @@ and compare the surfaces byte for byte.
 
 **4.2 Screenshot comparison.** A set of fixed scenes (fixed camera, frozen time, fixed
 resolution), captured through the existing screenshot path and compared with a tolerance. RP8 on
-Win32 is the reference. RP9 on x64 gets measured too, for its known gaps.
+Win32 is the reference.
 
 ## Optional stage: RP9's extras on x64
 
@@ -202,20 +198,24 @@ get their own evaluation once the screenshot comparison from step 4.2 exists:
   `nebula_volume.*` and RP9's Ex side (`RP9Ex.cpp`). The check is that x64 draws what the Win32
   RP9 build draws with the same `volumetric.ini`.
 
-When RPGPU replaces RP9 on x64 in phase 5, the extras go with it unless RPGPU gets its own Ex
-side. That is a separate decision.
+RP9 is Win32-only, so on x64 the extras would need RPGPU's own Ex side. That is a separate
+decision.
 
 ## Phase 5: RPGPU, the SDL3 + SDL_GPU renderer
 
 A port-only DACOM module, selected in `DACOM.INI`. It is developed on Windows first, with its
-output compared against RP8.
+output compared against RP8. It is the x64 client's first renderer, so it starts now, in
+parallel with the rest of phase 2.
 
-**5.1 SDL3 dependency.** Pinned to a release, built from source for Win32 and x64. The window
+**5.1 SDL3 dependency.** From vcpkg in manifest mode (`src/RPGPU/vcpkg.json`), with
+`builtin-baseline` pinned to a vcpkg release, built from source for Win32 and x64. Only
+`RPGPU.vcxproj` enables vcpkg, so no retail module sees SDL. CI caches vcpkg's binary packages.
+Without vcpkg the project is skipped. The same manifest works under CMake later. The window
 stays the client's own. SDL wraps the existing `HWND`
 (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), so nothing else in the client changes yet.
 
-**5.2 Skeleton.** Start from RPNull. Bring up the device and swap chain, display modes, gamma,
-clear, and present.
+**5.2 Skeleton.** Every RP8 interface, with state kept and resources held in CPU memory. Bring
+up the device and swap chain, display modes, gamma, clear, and present.
 
 **5.3 Fixed-function emulation.** What reaches the device is small: 33 render states, 11
 texture-stage states, a few vertex formats (FVF), and no programmable shaders in RP8. Write one
@@ -227,12 +227,13 @@ alpha test and z-bias come first, because the menu and space scenes need them.
 lock/discard pattern), textures through the phase 4.1 decoder, render targets, and screenshots.
 
 **5.5 Parity.** RPGPU on Win32 passes the phase 4.2 scene set within tolerance against RP8, the
-smoke test passes on it, and then it becomes the default on x64, replacing RP9. Win32's default
-stays RP8.
+smoke test passes on it, and then it becomes the default on x64. Win32's default stays RP8.
 
 ## Phase 6: other platforms (Linux, macOS, Windows ARM64)
 
-Not started until the hold on the non-Windows port is lifted. It needs CMake (#11).
+Not started until the hold on the non-Windows port is lifted. It needs CMake (#11), which is
+not on the critical path before then: MSBuild builds Win32 and x64, and #11 would have to prove
+byte-identical Win32 output again.
 
 - An SDL3 implementation of `platform.h` (window, timers, threads, files, modules).
 - Input: DirectInput replaced by SDL events.
@@ -251,11 +252,12 @@ Not started until the hold on the non-Windows port is lifted. It needs CMake (#1
 
 ## Decisions needed
 
-1. Step 3.1: adding RPNull, a port-only module.
-2. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
-3. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
+1. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
 
 Decided: step 2.5 splits RP9's Ex hooks into their own switch, off on x64. Whether they come
 to x64 is decided in the optional stage after phase 4, from the screenshot comparison.
 Step 2.2: the movie module's authorizer and big-number code stay out of x64; if the reader then
 refuses the intros, x64 skips them.
+Step 2.5: no RP9 on x64; RPGPU is the x64 client's first renderer. Step 3.1: RPNull is the RPGPU
+skeleton. Step 5.1: SDL3 from vcpkg in manifest mode, scoped to RPGPU. CMake (#11) waits until
+phase 6.
