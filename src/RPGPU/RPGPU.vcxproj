@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugASan|Win32">
+      <Configuration>DebugASan</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{78A3AD01-32FA-4C8B-B48B-C5E137A6E5F0}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>RPGPU</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- RPGPU: the port-only SDL3 + SDL_GPU render pipeline (docs/re/rpgpu.md). SDL3 comes from vcpkg
+       in manifest mode (vcpkg.json next to this file), enabled for this project only, so no
+       retail module sees it. vcpkg is found through VCPKG_ROOT (Visual Studio's developer prompt),
+       VCPKG_INSTALLATION_ROOT (GitHub's Windows runners) or Visual Studio's own copy. Without
+       vcpkg the project is an empty Utility build and RPGPU.dll is not produced; nothing else
+       depends on it. -->
+  <PropertyGroup>
+    <RpGpuVcpkgRoot Condition="'$(RpGpuVcpkgRoot)'=='' and '$(VCPKG_ROOT)'!='' and Exists('$(VCPKG_ROOT)\scripts\buildsystems\msbuild\vcpkg.props')">$(VCPKG_ROOT)</RpGpuVcpkgRoot>
+    <RpGpuVcpkgRoot Condition="'$(RpGpuVcpkgRoot)'=='' and '$(VCPKG_INSTALLATION_ROOT)'!='' and Exists('$(VCPKG_INSTALLATION_ROOT)\scripts\buildsystems\msbuild\vcpkg.props')">$(VCPKG_INSTALLATION_ROOT)</RpGpuVcpkgRoot>
+    <RpGpuVcpkgRoot Condition="'$(RpGpuVcpkgRoot)'=='' and '$(VsInstallRoot)'!='' and Exists('$(VsInstallRoot)\VC\vcpkg\scripts\buildsystems\msbuild\vcpkg.props')">$(VsInstallRoot)\VC\vcpkg</RpGpuVcpkgRoot>
+    <RpGpuEnabled>false</RpGpuEnabled>
+    <RpGpuEnabled Condition="'$(RpGpuVcpkgRoot)'!=''">true</RpGpuEnabled>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(RpGpuEnabled)'=='true'">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgRoot>$(RpGpuVcpkgRoot)\</VcpkgRoot>
+  </PropertyGroup>
+  <Import Project="$(RpGpuVcpkgRoot)\scripts\buildsystems\msbuild\vcpkg.props" Condition="'$(RpGpuEnabled)'=='true'" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DebugASan'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(RpGpuEnabled)'!='true'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\Freelancer.Diagnostics.props" />
+  </ImportGroup>
+  <PropertyGroup>
+    <TargetName>RPGPU</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <!-- render/d3d8_min.h's Direct3D 9 branch: RP8's interface types from the Windows SDK's
+           d3d9.h (identical layouts), so no DirectX 8 SDK is needed on either platform.
+           NOMINMAX: windows.h's min / max macros would break std::max. -->
+      <PreprocessorDefinitions>RP_DIRECT3D9;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>dacom.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(RpGpuEnabled)'=='true'">
+    <ClCompile Include="RpGpu.cpp" />
+    <ClCompile Include="RpGpuDevice.cpp" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(RpGpuEnabled)'=='true'">
+    <ClInclude Include="RpGpu.h" />
+    <ClInclude Include="RpGpuDefaults.h" />
+    <ClInclude Include="RpGpuDevice.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(RpGpuEnabled)'=='true'">
+    <ProjectReference Include="..\dacom\dacom.vcxproj">
+      <Project>{8F3A1B20-9C4D-4E5F-A617-B8C9D0E1F203}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(RpGpuVcpkgRoot)\scripts\buildsystems\msbuild\vcpkg.targets" Condition="'$(RpGpuEnabled)'=='true'" />
+  <Target Name="RpGpuReportSkipped" BeforeTargets="PrepareForBuild" Condition="'$(RpGpuEnabled)'!='true'">
+    <Message Importance="high" Text="RPGPU: skipped, vcpkg not found (set VCPKG_ROOT to build RPGPU.dll)." />
+  </Target>
+</Project>
