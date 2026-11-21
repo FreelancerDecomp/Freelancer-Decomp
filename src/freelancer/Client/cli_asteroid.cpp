@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "cli_asteroid.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "asteroid_billboard.h"
 #include "cli_asteroid_dynamic.h"
@@ -2476,20 +2477,14 @@ namespace
             Pipe->SetRenderState((D3DRENDERSTATETYPE)Pair[0], static_cast<int>(Pair[1]));
     }
 
-    // MSVCRT _ftol (FUN_005b7ec0): truncation toward zero; the callers keep EAX.
-    int AsteroidFtol(double X)
-    {
-        return static_cast<int>(static_cast<long long>(X));
-    }
-
     // 0x00523064..0x0052308d (and the fourteen copies after it): a snapped coordinate strictly
     // greater than 0 (TEST AH,0x41 / JNE) gets + 0.1f (DAT_005d3ee0), anything else - 0.1f, on the
     // FPU, then _ftol.
     int AsteroidCubeCoord(float V)
     {
         if (V > 0.0f)
-            return AsteroidFtol(static_cast<double>(V) + 0.1f);
-        return AsteroidFtol(static_cast<double>(V) - 0.1f);
+            return MsvcrtFtol(static_cast<double>(V) + 0.1f);
+        return MsvcrtFtol(static_cast<double>(V) - 0.1f);
     }
 
     // The bound update after every later seed: below the minimum (JGE not taken) replaces it,
@@ -2745,8 +2740,8 @@ namespace
 #else
         double const Fill = static_cast<double>(Field->FillDistAt24) * Field->Scale230;
 #endif
-        int const ExtX = AsteroidFtol(TanX * Fill);
-        int const ExtY = AsteroidFtol(TanY * Fill);
+        int const ExtX = MsvcrtFtol(TanX * Fill);
+        int const ExtY = MsvcrtFtol(TanY * Fill);
 
         // 0x00522fe4..0x005230f9: the first seed, eye + Col2 * cube size, snapped
         // (closest_cube_pos) and set as both bounds on every axis.

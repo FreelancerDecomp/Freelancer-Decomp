@@ -26,3 +26,13 @@ inline unsigned int BitsFromFloat(float Value)
     std::memcpy(&Bits, &Value, sizeof(Bits));
     return Bits;
 }
+
+// The bits of a float read where it lies. Taking it by reference keeps the value off the x87
+// stack on Win32 (/arch:IA32), so a signaling NaN comes back unchanged; for the RPC codecs,
+// whose retail senders copy float fields with plain dword MOVs.
+inline unsigned int BitsFromFloatRef(const float& Value)
+{
+    unsigned int Bits;
+    std::memcpy(&Bits, &Value, sizeof(Bits));
+    return Bits;
+}

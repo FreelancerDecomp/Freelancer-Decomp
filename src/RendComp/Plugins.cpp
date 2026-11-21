@@ -270,12 +270,6 @@ static GENRESULT TriMeshPluginReadProfile(int* Flag, const FRenderPluginDesc* De
     return GR_OK;
 }
 
-// MSVCRT _ftol: truncation towards zero into a 64-bit integer; the callers keep EAX.
-static unsigned long TriMeshFtol(double Value)
-{
-    return (unsigned long)((long long)Value);
-}
-
 // Animated TriMesh instance with material and UV-animation facets.
 class FTriMeshAnim : public IMesh
 {
@@ -358,7 +352,8 @@ public:
             if (Sum >= (double)Uv->Period)
                 Anim->Clock = (float)(Sum - (double)Uv->Period);
             const double Position = (double)Anim->Clock * (double)Uv->Fps;
-            const unsigned long Frame = TriMeshFtol(Position) % (Uv->FrameCount - 1);
+            const unsigned long Frame =
+                static_cast<unsigned long>(MsvcrtFtol(Position)) % (Uv->FrameCount - 1);
             const float T = (float)(Position - (double)((long)Frame));
             const unsigned long Count = Uv->LookupCount;
             if (Uv->Interpolate != 0)
@@ -379,8 +374,8 @@ public:
                 }
                 return;
             }
-            const unsigned long Previous = TriMeshFtol(
-                ((double)Anim->Clock - (double)Dt) * (double)Uv->Fps);
+            const unsigned long Previous = static_cast<unsigned long>(MsvcrtFtol(
+                ((double)Anim->Clock - (double)Dt) * (double)Uv->Fps));
             if (Frame == Previous)
                 return;
             const float* A = Uv->Frames + Count * Frame * 2;

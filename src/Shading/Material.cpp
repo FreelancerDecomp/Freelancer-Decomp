@@ -16,6 +16,7 @@
 #include <iterator>
 #include <string>
 #include "x87_portable.h"
+#include "float_bits.h"
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
 static constexpr unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
@@ -2821,24 +2822,17 @@ GENRESULT __thiscall FMaterial::Setup()
     return GR_OK;
 }
 
-static float ShadingPropertyFloat(unsigned long Bits)
-{
-    float Value = 0.0f;
-    std::memcpy(&Value, &Bits, sizeof(Value));
-    return Value;
-}
-
 static bool IsShadingPropertyValueWithinRange(unsigned long ValueBits, unsigned long MinimumBits,
                                               unsigned long MaximumBits)
 {
     // Compare widened bounds against the stored float without rounding the bounds.
     static constexpr unsigned long kRangeEpsilonBits = 0x34000000;
-    const double Value = ShadingPropertyFloat(ValueBits);
-    const double Epsilon = ShadingPropertyFloat(kRangeEpsilonBits);
-    const double Upper = (double)(ShadingPropertyFloat(MaximumBits)) + Epsilon;
+    const double Value = FloatFromBits(ValueBits);
+    const double Epsilon = FloatFromBits(kRangeEpsilonBits);
+    const double Upper = (double)(FloatFromBits(MaximumBits)) + Epsilon;
     if (Upper <= Value)
         return false;
-    const double Lower = (double)(ShadingPropertyFloat(MinimumBits)) - Epsilon;
+    const double Lower = (double)(FloatFromBits(MinimumBits)) - Epsilon;
     return !(Lower >= Value);
 }
 

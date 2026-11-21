@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "dacom.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 #include "ximage.h"
 #include "render/factory_names.h"
 #include "render/IRenderPipeline.h"
@@ -209,12 +210,6 @@ namespace
             Handle, 0, (int)(SrcW), (int)(SrcH),
             (unsigned int)(Pitch), (unsigned int*)(Format), Pixels,
             nullptr, nullptr);
-    }
-
-    long FtolLow(double Value)
-    {
-        // MSVCRT _ftol: truncate toward zero into EDX:EAX; callers use EAX.
-        return (long)((long long)(Value));
     }
 
     // 0x48-byte object (operator_new(0x48) @06f82445).
@@ -446,7 +441,7 @@ namespace
         // LAB_06f82670: FMUL 255.0f (DAT_06f830e0), _ftol, low byte -> +0x2c; EAX = _ftol result.
         GENRESULT DACOM_API SetAlpha(float Alpha) override
         {
-            const long Value = FtolLow((double)(Alpha) * 255.0);
+            const long Value = MsvcrtFtol((double)(Alpha) * 255.0);
             Alpha_ = (unsigned char)(Value & 0xFF);
             return (GENRESULT)(Value);
         }
@@ -455,13 +450,13 @@ namespace
         // RET 8 with EAX = this.
         GENRESULT DACOM_API SetColor(const float* Rgb) override
         {
-            unsigned long Packed = (unsigned long)(FtolLow((double)(Rgb[1]) * 255.0)) & 0xFFu;
-            unsigned long Red = (unsigned long)(FtolLow((double)(Rgb[0]) * 255.0));
+            unsigned long Packed = (unsigned long)(MsvcrtFtol((double)(Rgb[1]) * 255.0)) & 0xFFu;
+            unsigned long Red = (unsigned long)(MsvcrtFtol((double)(Rgb[0]) * 255.0));
             Red = Red | 0xFFFFFF00u;
             Red = Red << 8;
             Packed = Packed | Red;
             Packed = Packed << 8;
-            const unsigned long Blue = (unsigned long)(FtolLow((double)(Rgb[2]) * 255.0)) & 0xFFu;
+            const unsigned long Blue = (unsigned long)(MsvcrtFtol((double)(Rgb[2]) * 255.0)) & 0xFFu;
             Packed = Packed | Blue;
             PackedRgb_ = Packed;
             return (GENRESULT)((intptr_t)((IBigImage2*)(this)));

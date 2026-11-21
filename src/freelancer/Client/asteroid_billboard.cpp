@@ -10,6 +10,7 @@
 // FUN_0054f9c0, FUN_0054f9f0, FUN_0054fd30, FUN_00552b10.
 
 #include "asteroid_billboard.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "engine_light.h"
 #include "game_options.h"
@@ -191,7 +192,7 @@ namespace
     int Ftol255(float Value)
     {
         // FLD float / FMUL float 255 / CALL ftol: the product unrounded, then truncated.
-        return static_cast<int>(static_cast<double>(Value) * 255.0);
+        return MsvcrtFtol(static_cast<double>(Value) * 255.0);
     }
 
     unsigned PackColor(float Alpha, float const* Rgb)

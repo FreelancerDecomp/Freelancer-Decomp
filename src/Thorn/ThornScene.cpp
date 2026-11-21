@@ -9,6 +9,7 @@
 #include "ThornModernAdapters.h"
 #include "ThornControlCalls.h"
 #include "vc6_sort.h" // Vc6Sort::Sort (SortMasterEvents, SortActiveEventTypes)
+#include "float_bits.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -124,10 +125,7 @@ namespace
 
     unsigned int BitsAsUInt(const float* Slot)
     {
-        unsigned int Value = 0;
-        if (Slot != nullptr)
-            std::memcpy(&Value, Slot, sizeof(Value));
-        return Value;
+        return Slot != nullptr ? BitsFromFloatRef(*Slot) : 0u;
     }
 
     // Literal DWORD pose transport for 38950/38a80. Forward reads/stores

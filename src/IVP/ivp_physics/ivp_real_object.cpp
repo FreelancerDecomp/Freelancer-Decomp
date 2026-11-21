@@ -25,6 +25,7 @@
 #include "../ivp_utility/ivp_core_trap.h"   // IVP_CoreTrap (retail's `MOV dword ptr [0],0`)
 #include "../ivp_utility/ivp_malloc.h"      // ivp_malloc_aligned / ivp_free_aligned (06343fc0 / 06343ff0)
 #include "../ivp_utility/ivp_u_bigvector.h" // IVP_U_BigVector_Grow (0635d3e0)
+#include "float_bits.h"
 
 // Forward declaration
 
@@ -38,17 +39,6 @@ namespace
         Anchor->l_actuator->AnchorWillBeDeleted(Anchor);
     }
 
-    // Reinterprets raw IEEE-754 bits as a float without UB / strict-aliasing
-    // risk (memcpy is the standard-sanctioned way pre-C++20 std::bit_cast).
-    // Matches the convention already established in
-    // ivp_mindist_limiter.cpp/ivp_surface_builder_ledge_soup.cpp's own
-    // BitsToFloat.
-    inline float BitsToFloat(uint32_t Bits)
-    {
-        float Result;
-        std::memcpy(&Result, &Bits, sizeof(Result));
-        return Result;
-    }
 }
 
 // ============================================================================
@@ -78,7 +68,7 @@ void IVP_Priority_Pool::Init(uint16_t InitialCapacity)
     for (uint32_t I = 0; I < PoolCapacity; ++I)
         PoolEntries[I].Next = static_cast<uint16_t>(I + 1);
     PoolEntries[PoolCapacity - 1].Next = 0xffff;
-    PoolKeyThreshold = BitsToFloat(0x501502f9); // Common.dll.txt:06362f59 -- literal retail bit pattern, purpose unconfirmed.
+    PoolKeyThreshold = FloatFromBits(0x501502f9); // Common.dll.txt:06362f59 -- literal retail bit pattern, purpose unconfirmed.
     PoolLiveIndex = 0xffff;  // Common.dll.txt:06362f4d (`MOV word [ESI+0xe],0xffff`)
     PoolSortedHead = 0xffff; // Common.dll.txt:06362f53 (`MOV word [ESI+0xc],0xffff`)
 }
@@ -385,7 +375,7 @@ void IVP_Priority_Pool::Remove(uint16_t Slot)
         {
             // LAB_063632e5 -- empty pool: back to the same +1e10f sentinel the
             // constructor installs (raw bits 0x501502f9).
-            PoolKeyThreshold = BitsToFloat(0x501502f9);
+            PoolKeyThreshold = FloatFromBits(0x501502f9);
         }
     }
 
@@ -1553,7 +1543,7 @@ void IVP_Real_Object::ApplyLocalCsys(const IVP_U_Matrix* NewLocalCsys)
     // squared length is below a small epsilon (DAT_063a5438, decoded below --
     // a genuine ~9e-6 epsilon, unlike DAT_063a53d0's exact-1.0f sentinel
     // below).
-    const float ShiftEpsilon = BitsToFloat(0x3716feb5); // DAT_063a5438, Common.dll.txt:568740-568743 (B5 FE 16 37)
+    const float ShiftEpsilon = FloatFromBits(0x3716feb5); // DAT_063a5438, Common.dll.txt:568740-568743 (B5 FE 16 37)
     // :06344e2a-:06344e51 -- (z*z + y*y) + x*x stays on the FPU; FCOMP eps;
     // TEST AH,0x1; JZ -> the zero branch runs on C0 (less or unordered).
     const double ShiftQuadLen = ((double)CoreFObject.vv.k[2] * CoreFObject.vv.k[2]
@@ -1586,7 +1576,7 @@ void IVP_Real_Object::ApplyLocalCsys(const IVP_U_Matrix* NewLocalCsys)
     // for why testing NewLocalCsys's pre-inversion diagonal here is safe.
     // FCOMP 1.0f; TEST AH,0x40; JZ -> each test passes on C3, i.e. equal OR
     // unordered (a NaN diagonal counts as identity).
-    const float IdentitySentinel = BitsToFloat(0x3f800000); // DAT_063a53d0, exact 1.0f
+    const float IdentitySentinel = FloatFromBits(0x3f800000); // DAT_063a53d0, exact 1.0f
     if (!(NewLocalCsys->rows[0].k[0] < IdentitySentinel) && !(NewLocalCsys->rows[0].k[0] > IdentitySentinel) &&
         !(NewLocalCsys->rows[1].k[1] < IdentitySentinel) && !(NewLocalCsys->rows[1].k[1] > IdentitySentinel) &&
         !(NewLocalCsys->rows[2].k[2] < IdentitySentinel) && !(NewLocalCsys->rows[2].k[2] > IdentitySentinel))
@@ -2401,7 +2391,7 @@ void IVP_InitCoreRestStateAndDamping(IVP_Real_Object* Self, IVP_Environment* Env
         // of 1.0f whenever it falls below that epsilon.
         // :06345c43-:06345c5a `FCOMP eps` / `TEST AH,0x1` / `JZ`: C0 set (less, or
         // unordered) -> 1.0f.
-        const float MassEpsilon = BitsToFloat(0x3b449ba6); // DAT_063a545c
+        const float MassEpsilon = FloatFromBits(0x3b449ba6); // DAT_063a545c
         const float MassValue = !(Template->MassInput >= MassEpsilon) ? 1.0f : Template->MassInput;
 
         // ROTINERTIA SHAPE SWITCH (:06345c62-:06345cfa). Both scaled shapes
@@ -2451,7 +2441,7 @@ void IVP_InitCoreRestStateAndDamping(IVP_Real_Object* Self, IVP_Environment* Env
             // MassValue, matching the box branch's own shared tail formula.
             // :06345c84-:06345c9a: r*r*0.4f as one x87 product, then FST /
             // FST / FSTP float into all three slots.
-            const float SphereCoefficient = BitsToFloat(0x3ecccccd); // DAT_063a5458 == 0.4f
+            const float SphereCoefficient = FloatFromBits(0x3ecccccd); // DAT_063a5458 == 0.4f
             const float Scratch = (float)((double)(Radius) * Radius * SphereCoefficient);
             ScaleScratch[0] = Scratch;
             ScaleScratch[1] = Scratch;
@@ -2567,11 +2557,11 @@ IVP_RealObjectConstructionTemplate::IVP_RealObjectConstructionTemplate()
     InertiaBoxVector.x = 1.0f;                       // 063486e3
     InertiaBoxVector.y = 1.0f;                       // 063486e6
     InertiaBoxVector.z = 1.0f;                       // 063486e9
-    SpeedDampInput = BitsToFloat(0x3c23d70a);        // 063486f1
-    RotInertiaClampFactor = BitsToFloat(0x3cf5c28f); // 063486f4
-    RotSpeedDampInputX = BitsToFloat(0x3c23d70a);    // 063486fb
-    RotSpeedDampInputY = BitsToFloat(0x3c23d70a);    // 063486fe
-    RotSpeedDampInputZ = BitsToFloat(0x3c23d70a);    // 06348701
+    SpeedDampInput = FloatFromBits(0x3c23d70a);        // 063486f1
+    RotInertiaClampFactor = FloatFromBits(0x3cf5c28f); // 063486f4
+    RotSpeedDampInputX = FloatFromBits(0x3c23d70a);    // 063486fb
+    RotSpeedDampInputY = FloatFromBits(0x3c23d70a);    // 063486fe
+    RotSpeedDampInputZ = FloatFromBits(0x3c23d70a);    // 06348701
     std::memset(_unknown_0x14, 0, sizeof(_unknown_0x14)); // 06348705, second zeroing
 }
 

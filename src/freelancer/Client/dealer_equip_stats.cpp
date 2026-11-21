@@ -8,6 +8,7 @@
 // Listing: freelancer.exe.txt 0x00484090–0x004854d8. Table: docs/re/dealer_equip_stats.md
 
 #include "dealer_equip_stats.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 
 #include "ids_rdl.h"
 #include "ids_strings.h"
@@ -29,12 +30,6 @@ namespace
     // .rdata:DAT_005d1d00 / DAT_005d1cfc — thruster speed estimate.
     const float kThrusterSpeedBias = 48000.0f;
     const float kThrusterSpeedScale = 0.0016666667f; // 1/600
-
-    int FtolTrunc(float Value)
-    {
-        // MSVCRT _ftol: convert toward zero.
-        return static_cast<int>(Value);
-    }
 
     void ClearLine()
     {
@@ -155,7 +150,7 @@ namespace
         if (!bEmitValues)
             EmitNewlineOnly(ValueBuf);
         else
-            EmitIntNewline(ValueBuf, FtolTrunc(Value));
+            EmitIntNewline(ValueBuf, MsvcrtFtol(Value));
         wcscat(G_DealerStatLine, ValueBuf);
         FlushLine(OutRdl);
     }
@@ -171,7 +166,7 @@ namespace
         }
         else
         {
-            EmitIntNoNewline(ValueBuf, FtolTrunc(Value));
+            EmitIntNoNewline(ValueBuf, MsvcrtFtol(Value));
             AppendUnitSuffix(ValueBuf, UnitIds);
         }
         wcscat(G_DealerStatLine, ValueBuf);

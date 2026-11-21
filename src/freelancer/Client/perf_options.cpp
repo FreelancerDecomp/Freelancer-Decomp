@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "perf_options.h"
+#include "msvcrt_compat.h" // MsvcrtFtol
 #include "gf_script_object.h" // LAB_004548f0 / FUN_00454910: one transition-script latch.
 
 #include "cli_asteroid.h"
@@ -59,12 +60,6 @@ namespace
     int   G_DefaultGraphics = 0;            // DAT_0067ed40
     float G_SpaceDustDetail = 1.0f;         // DAT_00614080 (.data initial 0x3f800000)
     float G_GenericEffectPerf = 1.0f;       // DAT_006129c8 (.data initial 0x3f800000)
-
-    // ftol() truncates toward zero; retail relies on that everywhere below.
-    int Ftol(float Value)
-    {
-        return static_cast<int>(Value);
-    }
 
     // ------------------------------------------------------------------
     // Apply callbacks. Each is one retail function; its address is on the line.
@@ -121,9 +116,9 @@ namespace
         G_bAutohideManeuverBar = Value > 0.5f;
     }
 
-    void ApplyGeneralGraphics(float Value) { G_GeneralGraphics = Ftol(Value); }     // LAB_005b3890
+    void ApplyGeneralGraphics(float Value) { G_GeneralGraphics = MsvcrtFtol(Value); }     // LAB_005b3890
     void ApplyAdvancedGraphics(float Value) { G_bAdvancedGraphics = Value != 0.f; } // LAB_005b38a0
-    void ApplyDefaultGraphics(float Value) { G_DefaultGraphics = Ftol(Value); }     // LAB_005b38c0
+    void ApplyDefaultGraphics(float Value) { G_DefaultGraphics = MsvcrtFtol(Value); }     // LAB_005b38c0
 
     void ApplySpaceDustDetail(float Value) { G_SpaceDustDetail = Value; }           // LAB_0054c3e0
     // LAB_004f7090: FLD float Value; FSUBR double 1.0 (DAT_005c89b8); FSTP float DAT_006129c8.
@@ -545,7 +540,7 @@ bool LoadPerfOptions(char const* FileName, FPerfDisplaySettings* Display)
                 do
                 {
                     if (Ini.is_value("count"))
-                        Expected = Ftol(Ini.get_value_float(0));
+                        Expected = MsvcrtFtol(Ini.get_value_float(0));
                 } while (Ini.read_value());
             }
             else if (Ini.is_header("PerfOptions"))
