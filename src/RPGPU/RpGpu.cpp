@@ -4,6 +4,9 @@
 #include "RpGpu.h"
 
 #include "dacom_iids.h"
+#include "luaprofile.h" // IProfileParser
+
+#include "RpGpuDefaults.h"
 
 #include <algorithm>
 #include <cmath>
@@ -78,7 +81,7 @@ namespace
     unsigned char* AllocateLow(std::size_t Size)
     {
 #if defined(_WIN64)
-        return static_cast<unsigned char*>(LowArena::Allocate(Size));
+        return static_cast<unsigned char*>(LowArena::TryAllocate(Size));
 #else
         return static_cast<unsigned char*>(std::malloc(Size));
 #endif
@@ -194,6 +197,51 @@ namespace
         if (Image.Bits != nullptr)
             std::memset(Image.Bits, 0, Image.Size);
         return Image;
+    }
+
+    // RP8's ini number syntax: true / yes, false / no, hex with an x, otherwise decimal.
+    bool ReadNumber(IProfileParser* Parser, void* Section, const char* Key, unsigned long* Out)
+    {
+        char Text[64] = {};
+        if (Parser->GetString(Section, Key, Text, sizeof(Text)) == 0 || Text[0] == '\0')
+            return false;
+        const std::size_t Span = std::strspn(Text, "0123456789truefalsynoxTRUEFALSYNOX+-");
+        if (Span != 0)
+            Text[Span] = '\0';
+        if (_stricmp(Text, "true") == 0 || _stricmp(Text, "yes") == 0)
+            *Out = 1;
+        else if (_stricmp(Text, "false") == 0 || _stricmp(Text, "no") == 0)
+            *Out = 0;
+        else if (std::strchr(Text, 'x') != nullptr || std::strchr(Text, 'X') != nullptr)
+            *Out = std::strtoul(Text, nullptr, 16);
+        else
+            *Out = static_cast<unsigned long>(std::strtol(Text, nullptr, 10));
+        return true;
+    }
+
+    // The byte size of a DDS mip chain (all faces of a cube), for the payload check.
+    std::uint64_t DdsPayloadBytes(std::uint32_t Width, std::uint32_t Height, std::uint32_t Levels,
+                                  std::uint32_t BlockBytes, std::uint32_t BitsPerPixel, std::uint32_t Faces)
+    {
+        std::uint64_t Total = 0;
+        for (std::uint32_t Level = 0; Level < Levels; ++Level)
+        {
+            const std::uint64_t W = std::max<std::uint32_t>(1u, Width >> Level);
+            const std::uint64_t H = std::max<std::uint32_t>(1u, Height >> Level);
+            if (BlockBytes != 0)
+                Total += ((W + 3) / 4) * ((H + 3) / 4) * BlockBytes;
+            else
+                Total += W * H * BitsPerPixel / 8;
+        }
+        return Total * Faces;
+    }
+
+    unsigned int MaxMipLevels(unsigned int Width, unsigned int Height)
+    {
+        unsigned int Levels = 1;
+        for (unsigned int Size = std::max(Width, Height); Size > 1; Size >>= 1)
+            ++Levels;
+        return Levels;
     }
 
     void Identity(float* M)
@@ -389,16 +437,65 @@ GENRESULT DACOM_API FRpGpu::Initialize()
     return GR_OK;
 }
 
-void FRpGpu::ResetDeviceState()
+// RP8's defaults (RpGpuDefaults.h), each overridden by its key in the ini section when present.
+void FRpGpu::ReadSettings()
 {
-    std::memset(RenderStates_, 0, sizeof(RenderStates_));
-    std::memset(StageStates_, 0, sizeof(StageStates_));
-    // D3D8 defaults the game relies on: every stage disabled (COLOROP / ALPHAOP = DISABLE).
+    PipelineState_[6] = 7; // the blend-stage limit
+    for (const FRpGpuStateInit& Row : kRpGpuPipelineStates)
+        PipelineState_[Row.Id] = static_cast<int>(Row.Default);
+    std::memset(DefaultRenderStates_, 0, sizeof(DefaultRenderStates_));
+    for (const FRpGpuStateInit& Row : kRpGpuRenderStates)
+        DefaultRenderStates_[Row.Id] = static_cast<int>(Row.Default);
+    std::memset(DefaultStageStates_, 0, sizeof(DefaultStageStates_));
+    for (const FRpGpuStateInit& Row : kRpGpuFirstStageOps)
+        DefaultStageStates_[0][Row.Id] = static_cast<int>(Row.Default);
+    for (const FRpGpuStateInit& Row : kRpGpuOtherStageOps)
+        DefaultStageStates_[1][Row.Id] = static_cast<int>(Row.Default);
+    for (const FRpGpuStateInit& Row : kRpGpuStageStates)
+    {
+        DefaultStageStates_[0][Row.Id] = static_cast<int>(Row.Default);
+        DefaultStageStates_[1][Row.Id] = static_cast<int>(Row.Default);
+    }
+
+    IProfileParser* const Parser = AcquireProfileParser();
+    if (Parser == nullptr)
+        return;
+    void* const Section = Parser->OpenSection(Section_, 3);
+    if (Section != nullptr)
+    {
+        unsigned long Value = 0;
+        for (const FRpGpuStateInit& Row : kRpGpuPipelineStates)
+            if (ReadNumber(Parser, Section, Row.Key, &Value))
+                PipelineState_[Row.Id] = static_cast<int>(Value);
+        for (const FRpGpuStateInit& Row : kRpGpuRenderStates)
+            if (ReadNumber(Parser, Section, Row.Key, &Value))
+                DefaultRenderStates_[Row.Id] = static_cast<int>(Value);
+        for (const FRpGpuStateInit& Row : kRpGpuStageStates)
+        {
+            if (ReadNumber(Parser, Section, Row.Key, &Value))
+            {
+                DefaultStageStates_[0][Row.Id] = static_cast<int>(Value);
+                DefaultStageStates_[1][Row.Id] = static_cast<int>(Value);
+            }
+        }
+        Parser->CloseSection(Section);
+    }
+    Parser->Release();
+}
+
+void FRpGpu::ResetStateToDefaults()
+{
+    std::memcpy(RenderStates_, DefaultRenderStates_, sizeof(RenderStates_));
     for (int Stage = 0; Stage < 8; ++Stage)
     {
-        StageStates_[Stage][1] = 1; // D3DTSS_COLOROP
-        StageStates_[Stage][4] = 1; // D3DTSS_ALPHAOP
+        std::memcpy(StageStates_[Stage], DefaultStageStates_[Stage == 0 ? 0 : 1], sizeof(StageStates_[Stage]));
+        StageStates_[Stage][0xB] = Stage; // TEXCOORDINDEX: each stage its own set, as in D3D
     }
+}
+
+void FRpGpu::ResetDeviceState()
+{
+    ResetStateToDefaults();
     Identity(Projection_);
     Viewport_[0] = 0;
     Viewport_[1] = 0;
@@ -412,9 +509,11 @@ void FRpGpu::LoadModes()
 {
     if (bModesLoaded_)
         return;
-    bModesLoaded_ = true;
     std::vector<FRpGpuDisplayMode> Found;
-    FRpGpuDevice::QueryDisplayModes(&Found);
+    if (!FRpGpuDevice::QueryDisplayModes(&Found))
+        return; // asked again next time
+    bModesLoaded_ = true;
+    Modes_.clear();
     for (const FRpGpuDisplayMode& Mode : Found)
     {
         bool bSeen = false;
@@ -438,20 +537,8 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
         std::strncpy(Section_, SectionName, sizeof(Section_) - 1);
         Section_[sizeof(Section_) - 1] = '\0';
     }
-    PipelineState_[kPsTexture] = 1;
-    PipelineState_[kPsLighting] = 1;
-    PipelineState_[kPsTextureLod] = 1;
-    PipelineState_[kPsAllow8Bit] = 0;
-    PipelineState_[kPsAllow32Bit] = 1;
-    PipelineState_[kPsAllowDxt] = 1;
-    PipelineState_[kPsMaxBlendStages] = 7;
-    PipelineState_[kPsViewspaceLights] = 1;
-    PipelineState_[kPsClearColor] = 0;
-    PipelineState_[kPsClearZDepth] = 0x3F800000; // 1.0f
-    PipelineState_[kPsClearStencil] = -1;
-    PipelineState_[kPsStateCache] = 1;
-    PipelineState_[kPsBrokenMod2x] = 0;
-    PipelineState_[kPsBrokenFlip] = 0;
+    ReadSettings();
+    ResetStateToDefaults();
     bStarted_ = true;
     return GR_OK;
 }
@@ -568,6 +655,7 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
         return GR_GENERIC;
     const unsigned char* const ModeBytes = reinterpret_cast<const unsigned char*>(Mode);
     const int Interval = Mode[7];
+    bBuffersActive_ = false;
     if (!Device_.Create(Hwnd, Interval != 0))
     {
         Log("RPGPU: no SDL_GPU device for the window: %s\n", Device_.LastError());
@@ -598,6 +686,7 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
         Viewport_[2] = Mode[2];
         Viewport_[3] = Mode[3];
     }
+    bBuffersActive_ = true;
     return GR_OK;
 }
 
@@ -610,8 +699,11 @@ GENRESULT DACOM_API FRpGpu::GetModeBlob(void* OutAdapter, void* OutMode10Dwords)
     return GR_OK;
 }
 
+// RP8 releases the device's buffers here and keeps its handles; the next CreateBuffers starts a
+// new session. RPGPU's buffers and textures live in CPU memory and survive as they are.
 GENRESULT DACOM_API FRpGpu::DestroyGpuResources()
 {
+    bBuffersActive_ = false;
     return GR_OK;
 }
 
@@ -627,10 +719,15 @@ GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
 
 GENRESULT DACOM_API FRpGpu::SwapBuffers()
 {
-    if (!Device_.IsReady())
+    // A failure sends the client through its buffer recovery (CreateBuffers again), which
+    // rebuilds the device.
+    if (!bBuffersActive_ || !Device_.IsReady())
         return GR_GENERIC;
     if (!Device_.Present())
+    {
         Log("RPGPU: present failed: %s\n", Device_.LastError());
+        return GR_GENERIC;
+    }
     return GR_OK;
 }
 
@@ -895,14 +992,15 @@ GENRESULT DACOM_API FRpGpu::CreateTexture(int Width, int Height, unsigned int* F
     Texture->Width = static_cast<unsigned int>(Width);
     Texture->Height = static_cast<unsigned int>(Height);
     Texture->Format = Concrete;
-    unsigned int Count = Levels;
-    if (Count == 0)
+    // 0 asks for the full chain down to 1x1; more levels than that is an invalid request, as
+    // Direct3D's CreateTexture answers it.
+    const unsigned int MaxLevels = MaxMipLevels(Texture->Width, Texture->Height);
+    if (Levels > MaxLevels)
     {
-        // A full chain down to 1x1.
-        Count = 1;
-        for (unsigned int Size = std::max(Texture->Width, Texture->Height); Size > 1; Size >>= 1)
-            ++Count;
+        delete Texture;
+        return GR_GENERIC;
     }
+    const unsigned int Count = Levels == 0 ? MaxLevels : Levels;
     Texture->Levels = Count;
     for (unsigned int Level = 0; Level < Count; ++Level)
     {
@@ -1038,7 +1136,7 @@ GENRESULT DACOM_API FRpGpu::GetRenderTarget(void* Handle)
 
 GENRESULT DACOM_API FRpGpu::BeginScene()
 {
-    return Device_.IsReady() ? GR_OK : GR_GENERIC;
+    return (bBuffersActive_ && Device_.IsReady()) ? GR_OK : GR_GENERIC;
 }
 
 GENRESULT DACOM_API FRpGpu::EndScene()
@@ -1048,7 +1146,7 @@ GENRESULT DACOM_API FRpGpu::EndScene()
 
 GENRESULT DACOM_API FRpGpu::ResetRenderStatesToDefaults()
 {
-    std::memset(RenderStates_, 0, sizeof(RenderStates_));
+    ResetStateToDefaults();
     return GR_OK;
 }
 
@@ -1204,14 +1302,33 @@ bool FRpGpu::LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* Ou
         if (Buffer->Fvf == 0)
             return false; // the scratch index buffer has a fixed size
         const unsigned int Grown = (Count + kPoolGrowVertices - 1) / kPoolGrowVertices * kPoolGrowVertices;
-        Buffer->Count = Grown;
-        Buffer->Data.assign(static_cast<std::size_t>(Grown) * Buffer->Stride, 0);
-        Buffer->Cursor = 0;
+        if (!ResizeStorage(Buffer, Grown, Buffer->Stride))
+            return false;
     }
     if (Buffer->Cursor + Count > Buffer->Count)
         Buffer->Cursor = 0;
     *OutStart = Buffer->Cursor;
     Buffer->Cursor += Count;
+    return true;
+}
+
+// New backing for Count elements of Stride bytes. The buffer changes only when the allocation
+// succeeded; the old contents are dropped, as a re-created D3D buffer's are.
+bool FRpGpu::ResizeStorage(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int Stride)
+{
+    std::vector<unsigned char> Storage;
+    try
+    {
+        Storage.assign(static_cast<std::size_t>(Count) * Stride, 0);
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
+    Buffer->Data.swap(Storage);
+    Buffer->Count = Count;
+    Buffer->Stride = Stride;
+    Buffer->Cursor = 0;
     return true;
 }
 
@@ -1224,10 +1341,12 @@ FRpGpuBuffer* FRpGpu::PoolBuffer(unsigned int Fvf)
     if (Pool == nullptr)
         return nullptr;
     Pool->Fvf = Fvf;
-    Pool->Stride = std::max(1u, FvfStride(Fvf));
-    Pool->Count = kPoolGrowVertices;
     Pool->bRing = true;
-    Pool->Data.assign(static_cast<std::size_t>(Pool->Count) * Pool->Stride, 0);
+    if (!ResizeStorage(Pool, kPoolGrowVertices, std::max(1u, FvfStride(Fvf))))
+    {
+        delete Pool;
+        return nullptr;
+    }
     VbPools_[Fvf] = Pool;
     return Pool;
 }
@@ -1326,10 +1445,13 @@ GENRESULT DACOM_API FRpGpu::CreateIb(unsigned int Count, unsigned int** Out, uns
         *Out = nullptr;
         return GR_OUT_OF_MEMORY;
     }
-    Buffer->Stride = 2;
-    Buffer->Count = std::max(1u, Count);
     Buffer->bRing = (Flags & 1) != 0;
-    Buffer->Data.assign(static_cast<std::size_t>(Buffer->Count) * 2, 0);
+    if (!ResizeStorage(Buffer, std::max(1u, Count), 2))
+    {
+        delete Buffer;
+        *Out = nullptr;
+        return GR_OUT_OF_MEMORY;
+    }
     IndexBuffers_.insert(Buffer);
     *Out = reinterpret_cast<unsigned int*>(Buffer);
     return GR_OK;
@@ -1354,10 +1476,7 @@ GENRESULT DACOM_API FRpGpu::ResizeIb(void* Handle, unsigned int Count)
     FRpGpuBuffer* const Buffer = LiveIb(Handle);
     if (Buffer == nullptr)
         return kFail;
-    Buffer->Count = std::max(1u, Count);
-    Buffer->Data.assign(static_cast<std::size_t>(Buffer->Count) * 2, 0);
-    Buffer->Cursor = 0;
-    return GR_OK;
+    return ResizeStorage(Buffer, std::max(1u, Count), 2) ? GR_OK : GR_OUT_OF_MEMORY;
 }
 
 GENRESULT DACOM_API FRpGpu::CopyIndices(void* Handle, unsigned int* OutOffset, const unsigned short* SrcData,
@@ -1385,7 +1504,7 @@ GENRESULT DACOM_API FRpGpu::LockIb(void* Handle, unsigned int* Offset, void** Ou
         if (!LockRing(Buffer, Count, &Start))
             return kFail;
     }
-    else if (Start + Count > Buffer->Count)
+    else if (Start > Buffer->Count || Count > Buffer->Count - Start)
     {
         return kFail;
     }
@@ -1436,7 +1555,14 @@ GENRESULT DACOM_API FRpGpu::CreateVb(unsigned int Fvf, unsigned int Count, unsig
     FRpGpuBuffer* Buffer = nullptr;
     if ((Flags & 1) != 0)
     {
+        // The shared pool, grown first when it is smaller than the request.
         Buffer = PoolBuffer(Fvf);
+        if (Buffer != nullptr && Count > Buffer->Count)
+        {
+            const unsigned int Grown = (Count + kPoolGrowVertices - 1) / kPoolGrowVertices * kPoolGrowVertices;
+            if (!ResizeStorage(Buffer, Grown, Buffer->Stride))
+                Buffer = nullptr;
+        }
     }
     else
     {
@@ -1444,10 +1570,15 @@ GENRESULT DACOM_API FRpGpu::CreateVb(unsigned int Fvf, unsigned int Count, unsig
         if (Buffer != nullptr)
         {
             Buffer->Fvf = Fvf;
-            Buffer->Stride = std::max(1u, FvfStride(Fvf));
-            Buffer->Count = std::max(1u, Count);
-            Buffer->Data.assign(static_cast<std::size_t>(Buffer->Count) * Buffer->Stride, 0);
-            VertexBuffers_.insert(Buffer);
+            if (ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, FvfStride(Fvf))))
+            {
+                VertexBuffers_.insert(Buffer);
+            }
+            else
+            {
+                delete Buffer;
+                Buffer = nullptr;
+            }
         }
     }
     *Out = reinterpret_cast<unsigned int*>(Buffer);
@@ -1475,11 +1606,9 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
     FRpGpuBuffer* const Buffer = static_cast<FRpGpuBuffer*>(Handle);
     if (VertexBuffers_.count(Buffer) != 0)
     {
+        if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, FvfStride(Fvf))))
+            return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
-        Buffer->Stride = std::max(1u, FvfStride(Fvf));
-        Buffer->Count = std::max(1u, Count);
-        Buffer->Data.assign(static_cast<std::size_t>(Buffer->Count) * Buffer->Stride, 0);
-        Buffer->Cursor = 0;
     }
     return GR_OK;
 }
@@ -1504,7 +1633,7 @@ GENRESULT DACOM_API FRpGpu::CopyVertices(void* Handle, unsigned int* OutOffset, 
         return GR_OK; // the offset is already a vertex index
     // The vertices are not converted yet: nothing reads them.
     void* Bits = nullptr;
-    unsigned int Offset = OutOffset != nullptr ? *OutOffset * Buffer->Stride : 0;
+    unsigned int Offset = OutOffset != nullptr ? *OutOffset : 0; // bytes in, as LockVb takes them
     const GENRESULT Result = LockVb(Target, &Offset, &Bits, Count);
     if (Result != GR_OK)
         return Result;
@@ -1530,10 +1659,8 @@ GENRESULT DACOM_API FRpGpu::LockVb(void* Handle, unsigned int* Offset, void** Ou
     }
     else
     {
-        if (Count > Buffer->Count)
-            return kFail;
         Start = (Offset != nullptr ? *Offset : 0) / Buffer->Stride;
-        if (Start + Count > Buffer->Count)
+        if (Start > Buffer->Count || Count > Buffer->Count - Start)
             return kFail;
     }
     if (Offset != nullptr)
@@ -1686,6 +1813,31 @@ GENRESULT DACOM_API FRpGpu::GetImageInfo(_D3DXIMAGE_INFO* Info, unsigned int Src
             Format = AMask != 0 ? 25u : 24u; // A1R5G5B5 / X1R5G5B5
     }
     if (Format == 0)
+        return GR_GENERIC;
+
+    // The file must hold the pixels its header promises (D3DX rejects a truncated file).
+    const bool bCube = (Caps2 & 0x200) != 0;
+    const bool bVolume = (Caps2 & 0x200000) != 0 && Depth != 0;
+    std::uint32_t BlockBytes = 0;
+    if ((PfFlags & 0x4) != 0)
+    {
+        if (FourCc == 0x31545844u) // 'DXT1'
+            BlockBytes = 8;
+        else if (FourCc >= 0x32545844u && FourCc <= 0x35545844u) // 'DXT2'..'DXT5'
+            BlockBytes = 16;
+        else
+            return GR_GENERIC; // other FourCC formats: not loaded through this path
+    }
+    const std::uint32_t PixelBits = (PfFlags & 0x20) != 0 ? 8u : Bits;
+    // A volume's depth halves per level; its slices are not counted, so the check is a minimum.
+    const std::uint32_t Faces = bCube ? 6u : 1u;
+    const std::uint32_t Levels = Mips != 0 ? Mips : 1u;
+    if (Levels > MaxMipLevels(Width, Height) || Width == 0 || Height == 0)
+        return GR_GENERIC;
+    std::uint64_t Needed = 128 + DdsPayloadBytes(Width, Height, Levels, BlockBytes, PixelBits, Faces);
+    if ((PfFlags & 0x20) != 0)
+        Needed += 256 * 4; // the palette
+    if (Needed > SrcSize)
         return GR_GENERIC;
 
     std::uint32_t* const Out = reinterpret_cast<std::uint32_t*>(Info);

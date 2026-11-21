@@ -46,6 +46,13 @@ The first version opens the device and presents a cleared frame; it draws nothin
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
   projection (stored as D3D's row-major matrix, handed over transposed, as RP8 does) and the
   viewport.
+- **Settings and defaults are RP8's** (`RpGpuDefaults.h`). `Startup` reads the pipeline-state,
+  render-state and texture-stage keys from the `[RenderPipeline]` section, or from the section
+  the aggregation descriptor names. `CreateBuffers` and `ResetRenderStatesToDefaults` restore
+  them; stage 0 modulates its texture, and the other stages start disabled.
+- **Buffer sessions follow RP8's.** `BeginScene` and `SwapBuffers` fail between
+  `DestroyGpuResources` and the next successful `CreateBuffers`. A failed present returns a
+  failure, so the client re-creates its buffers, and the device is rebuilt on that call.
 - **Textures and buffers live in CPU memory,** with RP8's handle, lock and offset semantics:
   - vertex-buffer lock offsets go in as bytes and come back as vertex indices;
   - the pool vertex buffers and the scratch index buffer (handle -1) are rings;

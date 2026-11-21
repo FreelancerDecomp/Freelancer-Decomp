@@ -243,8 +243,11 @@ private:
         unsigned int PixelFormat; // RP8 pfenum: 3 R5G6B5, 8 X8R8G8B8
     };
 
+    void ReadSettings();
+    void ResetStateToDefaults();
     void ResetDeviceState();
     void LoadModes();
+    static bool ResizeStorage(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int Stride);
     FRpGpuBuffer* PoolBuffer(unsigned int Fvf);
     FRpGpuBuffer* LiveVb(void* Handle) const;
     FRpGpuBuffer* LiveIb(void* Handle) const;
@@ -258,12 +261,16 @@ public:
 
 private:
     bool bStarted_ = false;
+    bool bBuffersActive_ = false; // between a successful CreateBuffers and DestroyGpuResources
     bool bModesLoaded_ = false;
     std::vector<FMode> Modes_;
 
     int PipelineState_[14] = {};
     int RenderStates_[256] = {};
     int StageStates_[8][32] = {};
+    // The defaults ResetRenderStatesToDefaults and CreateBuffers restore: RP8's, then the ini's.
+    int DefaultRenderStates_[256] = {};
+    int DefaultStageStates_[2][32] = {}; // stage 0, the other stages
     float Projection_[16] = {}; // D3D row-major
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};

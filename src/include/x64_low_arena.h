@@ -61,9 +61,13 @@ namespace LowArena
             return Instance;
         }
 
-        // The first free range below Limit that holds a whole chunk, reserved and committed.
-        inline bool NewChunk(FState& Arena)
+        // The first free range below Limit that holds a whole chunk, reserved and committed. A
+        // block larger than a chunk gets a chunk of its own size.
+        inline bool NewChunk(FState& Arena, std::size_t MinBytes)
         {
+            const std::size_t Bytes =
+                MinBytes > ChunkSize ? (MinBytes + Granularity - 1) & ~(std::size_t)(Granularity - 1)
+                                     : ChunkSize;
             std::uintptr_t Address = Granularity;
             MEMORY_BASIC_INFORMATION Info;
             while (Address < Limit && VirtualQuery((void*)(Address), &Info, sizeof(Info)) == sizeof(Info))
@@ -74,14 +78,14 @@ namespace LowArena
                 {
                     const std::uintptr_t Start = (Base + Granularity - 1) & ~(Granularity - 1);
                     const std::uintptr_t Stop = End < Limit ? End : Limit;
-                    if (Start < Stop && Stop - Start >= ChunkSize)
+                    if (Start < Stop && Stop - Start >= Bytes)
                     {
-                        void* Chunk = VirtualAlloc((void*)(Start), ChunkSize, MEM_RESERVE | MEM_COMMIT,
+                        void* Chunk = VirtualAlloc((void*)(Start), Bytes, MEM_RESERVE | MEM_COMMIT,
                                                    PAGE_READWRITE);
                         if (Chunk != nullptr)
                         {
                             Arena.Cursor = (char*)(Chunk);
-                            Arena.End = Arena.Cursor + ChunkSize;
+                            Arena.End = Arena.Cursor + Bytes;
                             return true;
                         }
                     }
@@ -98,9 +102,9 @@ namespace LowArena
         }
     }
 
-    // A block of Size bytes below 2 GB, not cleared. Running out of space below 2 GB ends the
-    // process: falling back to a high address would bring the truncation back silently.
-    inline void* Allocate(std::size_t Size)
+    // A block of Size bytes below 2 GB, not cleared, or null when no free range below 2 GB holds
+    // it. For callers that can report the failure (a texture's pixels, for example).
+    inline void* TryAllocate(std::size_t Size)
     {
         const std::size_t Block = Detail::BlockSize(Size);
         Detail::FState& Arena = Detail::State();
@@ -114,14 +118,24 @@ namespace LowArena
         }
         if (Arena.Cursor == nullptr || (std::size_t)(Arena.End - Arena.Cursor) < Block)
         {
-            if (!Detail::NewChunk(Arena))
-            {
-                std::fprintf(stderr, "LowArena: no free address space below 2 GB\n");
-                std::abort();
-            }
+            if (!Detail::NewChunk(Arena, Block))
+                return nullptr;
         }
         void* Element = Arena.Cursor;
         Arena.Cursor = Arena.Cursor + Block;
+        return Element;
+    }
+
+    // A block of Size bytes below 2 GB, not cleared. Running out of space below 2 GB ends the
+    // process: falling back to a high address would bring the truncation back silently.
+    inline void* Allocate(std::size_t Size)
+    {
+        void* const Element = TryAllocate(Size);
+        if (Element == nullptr)
+        {
+            std::fprintf(stderr, "LowArena: no free address space below 2 GB\n");
+            std::abort();
+        }
         return Element;
     }
 

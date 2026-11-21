@@ -42,15 +42,17 @@ public:
     void SetClearColor(std::uint32_t Argb) { ClearArgb_ = Argb; }
 
     // Clears the swap-chain image and presents it. False when the device is missing or the
-    // frame could not be submitted; a minimised window (no swap-chain image) is not a failure.
+    // frame could not be submitted; a minimised window (no swap-chain image) is not a failure. A
+    // failed frame marks the device for a rebuild on the next Create.
     bool Present();
 
     HWND Hwnd() const { return Hwnd_; }
     std::uint32_t Width() const { return Width_; }
     std::uint32_t Height() const { return Height_; }
 
-    // The primary display's full-screen modes, largest first (SDL's order).
-    static void QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out);
+    // The primary display's full-screen modes, largest first (SDL's order). False when SDL's
+    // video subsystem or the display could not be queried.
+    static bool QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out);
 
     // The SDL error text of the last failure, for the module's log.
     const char* LastError() const;
@@ -60,6 +62,7 @@ private:
     SDL_Window* Window_ = nullptr;
     SDL_GPUDevice* Device_ = nullptr;
     bool bSdlVideo_ = false;
+    bool bNeedsRebuild_ = false;
     std::uint32_t ClearArgb_ = 0xFF000000u;
     std::uint32_t Width_ = 0;
     std::uint32_t Height_ = 0;

@@ -14,8 +14,9 @@ bool FRpGpuDevice::Create(HWND Hwnd, bool bVSync)
 {
     if (Hwnd == nullptr)
         return false;
-    if (Device_ != nullptr && Hwnd_ != Hwnd)
+    if (Device_ != nullptr && (Hwnd_ != Hwnd || bNeedsRebuild_))
         Destroy();
+    bNeedsRebuild_ = false;
 
     if (Device_ == nullptr)
     {
@@ -61,13 +62,23 @@ bool FRpGpuDevice::Create(HWND Hwnd, bool bVSync)
         Hwnd_ = Hwnd;
     }
 
-    const SDL_GPUPresentMode Mode = bVSync ? SDL_GPU_PRESENTMODE_VSYNC : SDL_GPU_PRESENTMODE_IMMEDIATE;
-    if (!SDL_WindowSupportsGPUPresentMode(Device_, Window_, Mode) ||
-        !SDL_SetGPUSwapchainParameters(Device_, Window_, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, Mode))
+    // VSync is always supported; an unsupported immediate mode falls back to it. A failed
+    // reconfiguration is a failed creation: the backend may have dropped the old swap chain.
+    SDL_GPUPresentMode Mode = bVSync ? SDL_GPU_PRESENTMODE_VSYNC : SDL_GPU_PRESENTMODE_IMMEDIATE;
+    if (!SDL_WindowSupportsGPUPresentMode(Device_, Window_, Mode))
+        Mode = SDL_GPU_PRESENTMODE_VSYNC;
+    if (!SDL_SetGPUSwapchainParameters(Device_, Window_, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, Mode))
     {
-        // VSync is always supported; fall back to it.
-        SDL_SetGPUSwapchainParameters(Device_, Window_, SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
-                                      SDL_GPU_PRESENTMODE_VSYNC);
+        Destroy();
+        return false;
+    }
+
+    int W = 0;
+    int H = 0;
+    if (SDL_GetWindowSizeInPixels(Window_, &W, &H))
+    {
+        Width_ = static_cast<std::uint32_t>(W);
+        Height_ = static_cast<std::uint32_t>(H);
     }
     return true;
 }
@@ -104,7 +115,10 @@ bool FRpGpuDevice::Present()
         return false;
     SDL_GPUCommandBuffer* const Commands = SDL_AcquireGPUCommandBuffer(Device_);
     if (Commands == nullptr)
+    {
+        bNeedsRebuild_ = true;
         return false;
+    }
 
     SDL_GPUTexture* Image = nullptr;
     Uint32 W = 0;
@@ -112,6 +126,7 @@ bool FRpGpuDevice::Present()
     if (!SDL_WaitAndAcquireGPUSwapchainTexture(Commands, Window_, &Image, &W, &H))
     {
         SDL_CancelGPUCommandBuffer(Commands);
+        bNeedsRebuild_ = true;
         return false;
     }
     if (Image != nullptr)
@@ -130,17 +145,23 @@ bool FRpGpuDevice::Present()
         if (Pass != nullptr)
             SDL_EndGPURenderPass(Pass);
     }
-    return SDL_SubmitGPUCommandBuffer(Commands);
+    if (!SDL_SubmitGPUCommandBuffer(Commands))
+    {
+        bNeedsRebuild_ = true;
+        return false;
+    }
+    return true;
 }
 
-void FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
+bool FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
 {
     Out->clear();
     // The video subsystem is reference-counted: this works before and after Create.
     if (!SDL_InitSubSystem(SDL_INIT_VIDEO))
-        return;
+        return false;
     int Count = 0;
     SDL_DisplayMode** const Modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &Count);
+    const bool bOk = Modes != nullptr;
     if (Modes != nullptr)
     {
         for (int Index = 0; Index < Count; ++Index)
@@ -155,6 +176,7 @@ void FRpGpuDevice::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
         SDL_free(Modes);
     }
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    return bOk;
 }
 
 const char* FRpGpuDevice::LastError() const
