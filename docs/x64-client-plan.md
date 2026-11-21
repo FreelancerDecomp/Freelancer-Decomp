@@ -4,7 +4,7 @@ This is the plan for a 64-bit Freelancer client that stays compatible with retai
 steps after it towards a cross-platform renderer on SDL3 and SDL_GPU. It builds on the x64
 server work in [x64.md](x64.md). Each numbered step is meant to be one pull request.
 
-Status: proposed, 2026-11-20.
+Status: proposed 2026-11-20; phases 1 and 2 mostly done, 5.1 and 5.2 merged (2026-11-21).
 
 ## Ground rules
 
@@ -25,27 +25,30 @@ Retail compatibility comes first, as for the x64 server:
 
 ## Where we are
 
+Updated 2026-11-21, from `master` after #58.
+
 | Done or in progress | |
 |---|---|
 | x64 server modules (#17) | Built in CI, packet codecs byte-identical to Win32 |
 | Thorn for x64 (#31) | Merged; the x64 server enters bases (room scripts) |
-| Engine handles below 2 GB (#37) | Merged; the x64 FLDedicated shuts down cleanly |
+| Engine handles below 2 GB (#37), render plugin handles (#38) | Merged; the x64 FLDedicated shuts down cleanly |
 | DPNet (#29) and its adapter (#30) | Merged; CI requires Microsoft's DirectPlay 8 client to join the x64 server |
-| ReadFile handles and views (#33) | Merged: step 1.1 below |
+| Phase 1 | Done: ReadFile handles and views (#33), x87 helpers (#40), resource DLLs as data files (#41), client layout checks (#43) |
+| Phase 2 | Mostly done: leaf modules (#39, #45, #46, #47), the EULA skip (#44), RemoteServer (#49), freelancer.exe (#50), `IObjRW` / `Watchable` offsets (#51), `Slot23` arguments (#52). The whole solution builds for `Release\|x64` except the Win32-only projects below |
+| Phase 5 | 5.1 and 5.2 merged (#58): the RPGPU skeleton, SDL3 from vcpkg |
 | CMake (#11) | Draft. Not needed for Windows; needed before any non-Windows build |
 
-What the client adds, from a survey of `master` (counts are from grep, then spot-checked):
+What is left, from a fresh survey of `master` (counts are from grep, then spot-checked):
 
 | Area | Size |
 |---|---|
-| Client modules without an x64 build | freelancer.exe, RemoteServer, alchemy, Deformable2, flmaterials, SoundManager, SoundStreamer, movie, ximage, imeui, luaprofile, RP9 |
-| Inline assembly | 21 blocks, none guarded: freelancer 7, RemoteServer 7, luaprofile 4, alchemy 1, flmaterials 1, SoundManager 1 |
-| Layout `static_assert`s not yet `FL_LAYOUT_ASSERT` | about 1,250 |
-| Pointers stored in 32-bit integers | about 50 sites in freelancer and alchemy; about 300 casts in movie's big-number code |
-| Hard-coded retail byte offsets | 133 (freelancer, flmaterials, movie) |
-| Facet and `this` adjustments without `FL_FACET_OFFSET` | `gf_thorn_component.cpp`, `Deformable2.cpp`, about 18 `Watchable` ±8 sites |
-| Data loaders | 25 found: the file formats are all fixed-width, so the formats themselves are fine. 10 break on x64 because of how they store pointers (step 1.1) |
-| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). The x64 client gets RPGPU (phase 5) |
+| Projects without an x64 build | movie (step 2.2); RP8 and RP9 (Win32-only renderers); FLServer (MFC), DPNetCheck, MemoryDiagnostics and the 8 resource-only DLLs, which are Win32-only by design |
+| Inline assembly | None left outside `#if defined(_M_IX86)`; every block has a portable version |
+| Layout `static_assert`s not yet `FL_LAYOUT_ASSERT` | None left in the client modules. The plain ones that remain hold on both platforms |
+| Hard-coded retail byte offsets | About 160 in the client modules (freelancer 92, of which `cli_nebula.cpp` 37; movie 48; alchemy 9; flmaterials 5; RemoteServer 2; Deformable2 1), and about 45 more in Common and Server |
+| Raw `this + 0x..` offsets in Common's AI behaviours | About 44 sites in 14 files (`common_behavior.cpp` and the behaviours). They already run in the x64 server and hit the wrong fields there; being fixed first |
+| Pointers stored in 32-bit integers | movie's big-number code (about 300 casts, left out on x64, step 2.2); the rest was fixed in phase 2 |
+| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). The x64 client gets RPGPU (phase 5), which so far presents cleared frames only |
 
 Rough total for phases 1–3: 5 to 7 weeks of work, plus the runtime surprises a first run always
 brings.
@@ -61,7 +64,7 @@ the whole address. With `FL_HIGH_MEMORY=1` the x64 programs reserve all free add
 4 GB at startup, so a remaining truncation fails at once; the x64 CI runs set it, and the client
 should call the same function when it gets an x64 build.
 
-**1.2 x87 helpers for the client.** #40. Extend `x87_portable.h`:
+**1.2 x87 helpers for the client.** Done in #40. Extend `x87_portable.h`:
 
 - a compare helper that reproduces FCOM/FCOMP plus the FNSTSW flag tests, unordered cases
   included (the six compare sites in `menu_sound_arch.cpp` and `lparser.c`);
@@ -75,13 +78,13 @@ except between `BeginScene` and `EndScene`, where it uses the precision the Dire
 `_control87` precision switches (`client_frame_tick.cpp`, `engine_init.cpp`) are Win32 only,
 since x64 has no x87 precision control.
 
-**1.3 Layout checks.** Convert the client modules' layout `static_assert`s to
+**1.3 Layout checks.** Done in #43. Convert the client modules' layout `static_assert`s to
 `FL_LAYOUT_ASSERT`, mostly with a script. Nothing changes on Win32. Checks that hold on every
 platform stay `static_assert`.
 
-**1.4 Retail resource DLLs.** `freelancer.ini` `[Resources]` DLLs and `resources.dll` are loaded
-with `LoadLibraryA`. A 64-bit process cannot load a 32-bit DLL that way, so the retail strings
-and infocards (and every mod's resource DLL) would disappear. Add
+**1.4 Retail resource DLLs.** Done in #41. `freelancer.ini` `[Resources]` DLLs and `resources.dll`
+are loaded with `LoadLibraryA`. A 64-bit process cannot load a 32-bit DLL that way, so the retail
+strings and infocards (and every mod's resource DLL) would disappear. Add
 `Platform::ResourceModuleLoad`: `LoadLibraryExA(..., LOAD_LIBRARY_AS_DATAFILE |
 LOAD_LIBRARY_AS_IMAGE_RESOURCE)` on x64, unchanged `LoadLibraryA` on Win32. Use it only at
 `dataconfig_progress.cpp:217` and `main.cpp:750`. Then check that
@@ -93,8 +96,8 @@ Compile and link only; nothing runs yet. Modules go in dependency order, one or 
 each adding `Release|x64` / `Debug|x64` to the `.vcxproj` (and to `CMakeLists.txt` if #11 has
 merged by then).
 
-**2.1 Leaf modules:** ximage, imeui, SoundStreamer, SoundManager, flmaterials, alchemy,
-Deformable2, luaprofile. Includes:
+**2.1 Leaf modules** (done: #39, #45, #46, #47)**:** ximage, imeui, SoundStreamer, SoundManager,
+flmaterials, alchemy, Deformable2, luaprofile. Includes:
 
 - the asm sites, ported with the phase 1.2 helpers;
 - alchemy's pointer casts (`alchemy_alchemy.cpp`, `alchemy_effectobject.cpp`,
@@ -120,11 +123,12 @@ Deformable2, luaprofile. Includes:
   intro movies, as it skips the EULA, and a GitHub issue tracks a way to bring them back.
   Not on the critical path: done after the exe runs.
 
-**2.3 RemoteServer:** seven asm blocks, all float copies or double-to-float narrowing (covered by
-`X87CopyFloat`). The packet codecs it shares with RemoteClient are already ported and checked by
-RpcCodecTest.
+**2.3 RemoteServer** (done: #49)**:** seven asm blocks, all float copies or double-to-float
+narrowing (covered by `X87CopyFloat`). The packet codecs it shares with RemoteClient are already
+ported and checked by RpcCodecTest.
 
-**2.4 freelancer.exe:**
+**2.4 freelancer.exe** (builds: #44, #50, #51, #52; the hard-coded offsets and Common's behaviour
+offsets in "Where we are" are what is left)**:**
 
 - the seven asm blocks;
 - pointers kept in integers: `engine_light.cpp`, the `DrawStateA` sites, `cli_asteroid.cpp`,
@@ -143,14 +147,16 @@ RpcCodecTest.
 straight to RPGPU instead (phase 5, now in parallel with phases 2 to 4). RP9 stays a Win32-only
 option.
 
-**Gate:** `Release|x64` of the whole solution is required in CI. Win32 FLRegress and RpcCodecTest
-output is unchanged.
+**Gate:** `Release|x64` of every project that is not Win32-only is required in CI, with vcpkg
+required (a missing vcpkg is a build error, not a skipped RPGPU). The Win32-only projects are RP8,
+RP9, FLServer, DPNetCheck, MemoryDiagnostics and the resource-only DLLs. Win32 FLRegress and
+RpcCodecTest output is unchanged.
 
 ## Phase 3: the x64 client runs and plays with retail
 
 **3.1 (folded into 5.2) RPNull.** The RPGPU skeleton answers RP8's IIDs and draws nothing but a
-cleared frame, which is what RPNull was for. A no-device mode of the skeleton covers CI machines
-without a GPU.
+cleared frame, which is what RPNull was for. A no-device mode of the skeleton (the Null backend in
+5.2's follow-ups) covers CI machines without a GPU.
 
 **3.2 Client smoke test.** A scripted run of the real client: start, new game, first base,
 launch, fly, dock, save, load, quit. It runs on Win32 (RP8) and x64 (RPGPU without a device) in CI,
@@ -206,15 +212,31 @@ A port-only DACOM module, selected in `DACOM.INI`. It is developed on Windows fi
 output compared against RP8. It is the x64 client's first renderer, so it starts now, in
 parallel with the rest of phase 2.
 
-**5.1 SDL3 dependency.** From vcpkg in manifest mode (`src/RPGPU/vcpkg.json`), with
-`builtin-baseline` pinned to a vcpkg release, built from source for Win32 and x64. Only
-`RPGPU.vcxproj` enables vcpkg, so no retail module sees SDL. CI caches vcpkg's binary packages.
-Without vcpkg the project is skipped. The same manifest works under CMake later. The window
-stays the client's own. SDL wraps the existing `HWND`
-(`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), so nothing else in the client changes yet.
+**5.1 SDL3 dependency.** Done in #58. From vcpkg in manifest mode (`src/RPGPU/vcpkg.json`, moving
+to one `src/vcpkg.json`), with `builtin-baseline` pinned to a vcpkg release, built from source for
+Win32 and x64. Only `RPGPU.vcxproj` enables vcpkg, so no retail module sees SDL. CI caches vcpkg's
+binary packages. RPGPU is an explicit opt-in (`FreelancerRpGpu`, like `FreelancerRp9`). On a
+developer machine without vcpkg the project is skipped with a message; CI passes
+`FreelancerRequireVcpkg=true`, so there a missing vcpkg is an error. One `src/vcpkg.json` with a
+feature per consumer serves every port-only dependency, so a later SDL platform layer or audio
+decoder shares RPGPU's SDL3. The same manifest works under CMake later. The window stays the
+client's own. SDL wraps the existing `HWND` (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), so
+nothing else in the client changes yet.
 
-**5.2 Skeleton.** Every RP8 interface, with state kept and resources held in CPU memory. Bring
-up the device and swap chain, display modes, gamma, clear, and present.
+**5.2 Skeleton.** Done in #58. Every RP8 interface, with state kept and resources held in CPU
+memory. Bring up the device and swap chain, display modes, gamma, clear, and present.
+
+Follow-ups to the skeleton, before 5.3 builds on it:
+
+- RPGPU reads the `[RenderPipeline]` keys as RP8 does, through one shared header
+  (`render/rp8_semantics.h`): the number syntax, the property tables and `FvfStride`. The
+  skeleton's own parser had drifted (`0x1C` read as 28 where RP8 reads 1).
+- A backend seam with an SDL backend and a Null backend (an ini key), so the 3.2 smoke test runs
+  on CI machines without a GPU, and `PrintScreen` reads back for the 4.2 comparison.
+- Only handles in LowArena. The font atlas gets a pointer-sized lock record on x64, so texture
+  images no longer need to live below 2 GB.
+- `RpGpu.cpp` split into state, resources, backend and DDS parsing; a port-owned
+  `render/rp_types.h` instead of `d3d9.h` in `IRenderPipeline.h`.
 
 **5.3 Fixed-function emulation.** What reaches the device is small: 33 render states, 11
 texture-stage states, a few vertex formats (FVF), and no programmable shaders in RP8. Write one
