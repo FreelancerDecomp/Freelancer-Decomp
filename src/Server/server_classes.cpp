@@ -6989,6 +6989,12 @@ MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
         return Hit->second.First;
     }
     // Every node before WalkFrom has another id; the walk goes on from there.
+#ifdef _DEBUG
+    // Port-only cross-check of the miss: no node the index covers (all readable,
+    // so the walk cannot fault here) has this id.
+    for (MetaNode<GameObject>* Node = Head; Node != Index.WalkFrom; Node = Node->Next)
+        assert(static_cast<unsigned int>(Node->Data->get_id()) != Id);
+#endif
     return ObjectList_WalkById(Index.WalkFrom, Id);
 }
 
