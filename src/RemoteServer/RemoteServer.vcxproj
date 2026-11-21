@@ -58,8 +58,6 @@
     <ClCompile>
       <PreprocessorDefinitions>REMOTESERVER_EXPORTS;FL_CLIENT;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
-      <!-- /sdl adds exported __autoclassinit2 members absent from retail. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>

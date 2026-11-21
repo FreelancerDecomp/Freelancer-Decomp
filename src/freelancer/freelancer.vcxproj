@@ -59,11 +59,6 @@
            (retail FreeLancer.exe carries a 69-name export table, no .def): see the
            export macros in src/include/rpc_iclient.h and src/include/common_exports.h. -->
       <PreprocessorDefinitions>FREELANCER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- /sdl makes the compiler give every dllexport class with data members an
-           exported __autoclassinit2 member (bin\Server.dll showed 12 before Server.vcxproj
-           turned it off). Retail FreeLancer.exe exports none, and the exe must export
-           exactly the names retail exports. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>

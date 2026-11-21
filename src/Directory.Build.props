@@ -40,7 +40,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <!-- No /sdl, for every project. /sdl zero-fills the members of a class allocated with new
+           before its constructor runs and poisons pointers after delete, which hides the
+           uninitialised-member behaviour the VC6-built retail modules have, and gives every
+           dllexport class an exported __autoclassinit2 that retail does not export. -->
+      <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- FL_LAYOUT_ASSERT: the retail struct size and offset checks (Win32 only). -->

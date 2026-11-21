@@ -53,7 +53,6 @@
        src/qhull/vendor/COPYING.txt for the Qhull license and required attribution. -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <SDLCheck>false</SDLCheck>
       <CompileAs>CompileAsC</CompileAs>
       <WarningLevel>Level1</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

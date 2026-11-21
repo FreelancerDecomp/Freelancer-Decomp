@@ -54,10 +54,6 @@
     <ClCompile>
       <PreprocessorDefinitions>COMMON_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4251;4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <!-- /sdl makes the compiler give every dllexport class an exported
-           __autoclassinit2 member. Retail Common.dll exports none, and the
-           module exports exactly the names retail exports. -->
-      <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Debug'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='DebugASan'">true</MultiProcessorCompilation>
       <MultiProcessorCompilation Condition="'$(Configuration)'=='Release'">true</MultiProcessorCompilation>

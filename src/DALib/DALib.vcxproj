@@ -57,9 +57,6 @@
     <ClCompile>
       <PreprocessorDefinitions>DALIB_EXPORTS;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);..\zlib\vendor</AdditionalIncludeDirectories>
-      <!-- /sdl adds an exported __autoclassinit2 to every dllexport class (dalib_net.h); retail
-           DALib.dll exports none. Same setting as Server/freelancer. -->
-      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

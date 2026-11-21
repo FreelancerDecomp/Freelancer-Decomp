@@ -37,10 +37,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <!-- RemoteClient.vcxproj's defines and /sdl setting, so the codecs compile as they do in
-           RemoteClient.dll. -->
+      <!-- RemoteClient.vcxproj's defines, so the codecs compile as they do in RemoteClient.dll. -->
       <PreprocessorDefinitions>FL_SERVER;REMOTECLIENT_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>false</SDLCheck>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
