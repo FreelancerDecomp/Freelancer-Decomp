@@ -13,13 +13,14 @@
 #include "common_behavior.h"
 #include "common_behavior_internal.h" // CmnBehavior:: follower helpers (common_behavior.cpp)
 #include "common_aisteer.h" // GetIfacePositionOrZero, IsWithinInterceptRangeOfIface
-#include "common_systemmanager.h" // SystemManager -- BaseFollowerBehavior::NavHelper's real type
+#include "common_systemmanager.h" // SystemManager -- BaseFollowerBehavior::NavHelperPtr24's real type
 #include "common_misc.h" // SinglePlayer() -- Slot7's multiplayer group test
 #include "common_csys.h"  // Matrix, Transform
 #include "common_iface.h" // IObjInspect / IObjRW / ObjInspectOf / ObjRwFromWatchable
 #include "x86math.h"      // FVector, FMatrix
 #include "common_pathfind.h" // PathfindManager
 #include "common_dockbehavior.h" // DockBehavior::SetDestPointOffset (FUN_062c50c0)
+#include "common_cobject.h"     // CShip::bIsPlayer (+0x2bd) / CShip::GroupId (+0x1b4)
 
 #include <cmath>
 #include <cstdint>
@@ -37,19 +38,7 @@ using CmnBehavior::FollowerPlayerShipOrNull;
 // is zeroed, then +0x281/+0x280/+0x285/+0x28c/+0x278/+0x282/+0x27c/+0x284/+0x283 = 0 and the
 // vptr. Retail leaves +0x288, +0x290..+0x29b and +0x29c unwritten; the port zeroes them.
 BaseFollowerBehavior::BaseFollowerBehavior(int InTypeId)
-    : TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(2)
-    , UpdateResult(1)
-    , OwnerContext(nullptr)
-    , Opaque18{}
-    , DeltaTime(0.0f)
-    , BehaviorMgrPtr(nullptr)
-    , NavHelper(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
-    , LeadWatcher()
+    : LeadWatcher()
     , MatchThrottle()
     , Face()
     , Move()
@@ -164,20 +153,20 @@ int BaseFollowerBehavior::Slot7()
 {
     // .text:062cb70b-062cb713. EBX is loaded from the same +0x14 later at 062cb79c;
     // one variable here, since retail re-reads the identical field.
-    IObjRW* const Owner = static_cast<IObjRW*>(OwnerContext);
+    IObjRW* const Owner = static_cast<IObjRW*>(OwnerContextPtr14);
     if (Owner == nullptr)
     {
-        UpdateResult = 3;   // LAB_062cb715
+        UpdateResult10 = 3;   // LAB_062cb715
         return 3;
     }
 
     if (Flag285 != 0)
     {
-        UpdateResult = 0;   // .text:062cb728-062cb741
+        UpdateResult10 = 0;   // .text:062cb728-062cb741
         return 0;
     }
 
-    SystemManager* const Sys = NavHelper;   // not null-tested from here on (as retail)
+    SystemManager* const Sys = NavHelperPtr24;   // not null-tested from here on (as retail)
     FGunConvergenceStateBlock* const Rec = &Sys->GunConvergenceStateBytes;   // Sys + 0x1364
 
     // .text:062cb742-062cb768. FUN_062ecaf0 hands back an already "-8"ed IObjRW*
@@ -197,7 +186,7 @@ int BaseFollowerBehavior::Slot7()
             const_cast<Watchable*>(LeadWatcher.target()));
         if (Node == nullptr)
         {
-            UpdateResult = 3;
+            UpdateResult10 = 3;
             return 3;
         }
 
@@ -211,16 +200,16 @@ int BaseFollowerBehavior::Slot7()
             CObject const* const OwnerShip = FollowerPlayerShipOrNull(Owner->cobject());
             CObject const* const LeaderShip = FollowerPlayerShipOrNull(Node->cobject());
             if (OwnerShip != nullptr && LeaderShip != nullptr &&
-                *(reinterpret_cast<unsigned char const*>(OwnerShip) + 0x2bd) != 0 &&
-                *(reinterpret_cast<unsigned char const*>(LeaderShip) + 0x2bd) != 0)
+                static_cast<CShip const*>(OwnerShip)->bIsPlayer != 0 &&     // +0x2bd
+                static_cast<CShip const*>(LeaderShip)->bIsPlayer != 0)
             {
                 unsigned int const OwnerGroup =
-                    *reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(OwnerShip) + 0x1b4);
+                    static_cast<CShip const*>(OwnerShip)->GroupId;              // +0x1b4
                 unsigned int const LeaderGroup =
-                    *reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(LeaderShip) + 0x1b4);
+                    static_cast<CShip const*>(LeaderShip)->GroupId;             // +0x1b4
                 if (OwnerGroup == 0 || LeaderGroup == 0 || OwnerGroup != LeaderGroup)
                 {
-                    UpdateResult = 3;
+                    UpdateResult10 = 3;
                     return 3;
                 }
             }
@@ -231,18 +220,18 @@ int BaseFollowerBehavior::Slot7()
         unsigned int TypeBits = 0;
         if (Node->get_type(TypeBits) != 0)
         {
-            UpdateResult = 3;
+            UpdateResult10 = 3;
             return 3;
         }
         if ((TypeBits & 0x7f0000u) == 0 || (TypeBits & 0x200000u) != 0)
         {
-            UpdateResult = 3;
+            UpdateResult10 = 3;
             return 3;
         }
         int const BehaviorId = Node->get_behavior_id();   // slot 82, +0x148
         if (BehaviorId == 0x11 || BehaviorId == 8)
         {
-            UpdateResult = 3;
+            UpdateResult10 = 3;
             return 3;
         }
 
@@ -266,7 +255,7 @@ int BaseFollowerBehavior::Slot7()
                 unsigned int const OwnerId = Owner->get_id();
                 if (Leader->get_id() == OwnerId)
                 {
-                    UpdateResult = 3;
+                    UpdateResult10 = 3;
                     return 3;
                 }
             }
@@ -285,7 +274,7 @@ int BaseFollowerBehavior::Slot7()
             // .text:062cb8f5-062cb90a: both Ideas' slot 4 (Commit).
             MatchThrottle.Commit();
             Face.Commit();
-            UpdateResult = 1;
+            UpdateResult10 = 1;
             return 1;
         }
     }
@@ -296,7 +285,7 @@ int BaseFollowerBehavior::Slot7()
         const_cast<Watchable*>(LeadWatcher.target()));
     if (Watched == nullptr)
     {
-        UpdateResult = 2;   // LAB_062cbcd0
+        UpdateResult10 = 2;   // LAB_062cbcd0
         return 2;
     }
 
@@ -343,11 +332,11 @@ int BaseFollowerBehavior::Slot7()
                 // LAB_062cba23. The tick delta is handed down the same way
                 // IBehaviorManager hands it to this behavior: store to the child's own
                 // +0x1c, then dispatch its slot 7. +0x27c is not null-tested.
-                GotoDelegate->SetTickDelta(DeltaTime);
+                GotoDelegate->SetTickDelta(DeltaTime1c);
                 int const ChildResult = GotoDelegate->Slot7();
                 if (ChildResult == 1 || ChildResult == 0)
                 {
-                    UpdateResult = ChildResult;   // LAB_062cbcd5
+                    UpdateResult10 = ChildResult;   // LAB_062cbcd5
                     return ChildResult;
                 }
             }
@@ -364,11 +353,11 @@ int BaseFollowerBehavior::Slot7()
     // LAB_062cba6f.
     if (Flag282 != 0 && DockDelegate != nullptr)
     {
-        DockDelegate->SetTickDelta(DeltaTime);
+        DockDelegate->SetTickDelta(DeltaTime1c);
         int const ChildResult = DockDelegate->Slot7();
         if (ChildResult == 1 || ChildResult == 0)
         {
-            UpdateResult = ChildResult;
+            UpdateResult10 = ChildResult;
             return ChildResult;
         }
         Flag282 = 0;
@@ -385,7 +374,7 @@ int BaseFollowerBehavior::Slot7()
     {
         if (Order.Field08 != 0 || Flag280 == 0)
         {
-            UpdateResult = 0;   // LAB_062cbb23
+            UpdateResult10 = 0;   // LAB_062cbb23
             return 0;
         }
         Flag280 = 0;
@@ -404,7 +393,7 @@ int BaseFollowerBehavior::Slot7()
         // the +0x18 block FUN_062ec610 just filled. The two arguments of the vcall are
         // therefore (&float @+0x14, &Vector @+0x28), which is exactly
         // IObjInspect::get_physical_radius(float& Radius, Vector& Center) at slot 11
-        // (+0x2c) -- the identical pair the NavHelper refresh below writes into
+        // (+0x2c) -- the identical pair the NavHelperPtr24 refresh below writes into
         // SystemManager::CachedPhysicalRadius / CachedPhysicalCenter.
         IObjInspect const* const Candidate =
             Sys->Timers.FindVerifiedObject(&Order.Field00);   // FUN_062e74a0
@@ -416,7 +405,7 @@ int BaseFollowerBehavior::Slot7()
         bool CommitDirectly = (Order.Field09 == 1);   // .text:062cbb5b CMP [ESP+0x21],BL
         if (!CommitDirectly)
         {
-            // .text:062cbb61-062cbb87 -- the same "refresh NavHelper's cached physical
+            // .text:062cbb61-062cbb87 -- the same "refresh NavHelperPtr24's cached physical
             // centre unless the +0x157a latch says this frame already did"
             // idiom DockBehavior::NavHelperRefreshLeadPoint documents.
             if (Sys->SelfTarget.bPosValid == 0)
@@ -453,11 +442,11 @@ int BaseFollowerBehavior::Slot7()
                                      Order.Field09 != 0, Order.Field0C);
             if (Committed != 0)
             {
-                UpdateResult = 1;   // LAB_062cbc54
+                UpdateResult10 = 1;   // LAB_062cbc54
                 return 1;
             }
             Flag281 = 1;
-            UpdateResult = 0;
+            UpdateResult10 = 0;
             return 0;
         }
 
@@ -475,7 +464,7 @@ int BaseFollowerBehavior::Slot7()
             DockDelegate->Slot3();
         }
         Flag282 = 1;
-        UpdateResult = 1;
+        UpdateResult10 = 1;
         return 1;
     }
 
@@ -486,7 +475,7 @@ int BaseFollowerBehavior::Slot7()
         {
             Rec->SetValueB0(0);
             Flag285 = 1;
-            UpdateResult = 0;   // LAB_062cbb23
+            UpdateResult10 = 0;   // LAB_062cbb23
             return 0;
         }
     }
@@ -499,7 +488,7 @@ int BaseFollowerBehavior::Slot7()
     if (!Rec->FollowerDirectiveGateA() || Rec->FollowerDirectiveGateB())
     {
         if (Rec->FollowerDirectiveGateB() &&
-            *(reinterpret_cast<unsigned char*>(Sys) + 0x1958) != 0)
+            Sys->PersonalityData.JobParams.bForceAttackFormation != 0)   // Sys+0x1958
         {
             ReachedPayload = true;
         }
@@ -507,13 +496,13 @@ int BaseFollowerBehavior::Slot7()
 
     if (ReachedPayload)
     {
-        UpdateTickPayload(DeltaTime);   // FUN_062cbcf0, item 1391
+        UpdateTickPayload(DeltaTime1c);   // FUN_062cbcf0, item 1391
     }
     else
     {
         Slot27();   // LAB_062cbcb9, CALL [EAX+0x6c]
     }
-    UpdateResult = 1;
+    UpdateResult10 = 1;
     return 1;
 }
 
@@ -521,7 +510,7 @@ int BaseFollowerBehavior::Slot7()
 // Personality.FormationParams.FormationExitMode (SystemManager+0x1810), compared unsigned against 3.
 void BaseFollowerBehavior::UpdateTickPayload(float Delta)
 {
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     pub::AI::Personality::FormationUseStruct const& Params = Sys->PersonalityData.FormationParams;
     switch ((unsigned int)Params.FormationExitMode)
     {
@@ -579,13 +568,13 @@ bool BaseFollowerBehavior::SetContext(void* Owner, void* Manager, void* Sys)
     {
         LeadWatcher.set(nullptr);                                   // 062cb495-062cb4a1
         // Each Idea gets (this->Owner, this->Sys, Manager); the results are discarded.
-        (void)Face.SetContext(OwnerContext, NavHelper, Manager);          // 062cb4bc
-        (void)MatchThrottle.SetContext(OwnerContext, NavHelper, Manager); // 062cb4cf
+        (void)Face.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);          // 062cb4bc
+        (void)MatchThrottle.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager); // 062cb4cf
         MatchThrottle.SetFlag3a(true);                              // 062cb4d5 FUN_062d6720
         MatchThrottle.SetFlag3b(true);                              // 062cb4de FUN_062d6730
-        (void)Move.SetContext(OwnerContext, NavHelper, Manager);          // 062cb4f8
-        (void)BreakAway.SetContext(OwnerContext, NavHelper, Manager);     // 062cb50f
-        (void)Afterburner.SetContext(OwnerContext, NavHelper, Manager);   // 062cb526
+        (void)Move.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);          // 062cb4f8
+        (void)BreakAway.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);     // 062cb50f
+        (void)Afterburner.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);   // 062cb526
     }
     return bBound;
 }
@@ -598,15 +587,15 @@ void BaseFollowerBehavior::Slot3()
     Field288 = 0;
     Flag281 = 0;
     Flag280 = 0;
-    NavHelper->Thrust.SetStrafeDir(StrafeNone);                     // 062cb56a FUN_062e9030
-    NavHelper->Thrust.SetThrustersActive(false);                    // 062cb576 FUN_062e9120
+    NavHelperPtr24->Thrust.SetStrafeDir(StrafeNone);                     // 062cb56a FUN_062e9030
+    NavHelperPtr24->Thrust.SetThrustersActive(false);                    // 062cb576 FUN_062e9120
     SetCruiseLock(1, 3);                                            // 062cb581 FUN_062d21d0
     Flag282 = 0;
-    DockDelegate = BehaviorMgrPtr->BehaviorDispatchTable[7];        // 062cb58f Manager+0x190
+    DockDelegate = BehaviorMgrPtr20->BehaviorDispatchTable[7];        // 062cb58f Manager+0x190
     Flag284 = 0;
-    if (NavHelper->SelfTarget.Iface->is_player())        // 062cb5b3 slot 0xbc
+    if (NavHelperPtr24->SelfTarget.Iface->is_player())        // 062cb5b3 slot 0xbc
         Flag283 = 1;
-    GotoDelegate = BehaviorMgrPtr->BehaviorDispatchTable[2];        // 062cb5c7 Manager+0x17c
+    GotoDelegate = BehaviorMgrPtr20->BehaviorDispatchTable[2];        // 062cb5c7 Manager+0x17c
 }
 
 // Slot 4, FUN_062cb5e0 (.text:062cb5e0-062cb6c1).
@@ -615,7 +604,7 @@ void BaseFollowerBehavior::Slot4()
     Field29c = 0;                                                   // 062cb5ee
     if (Flag281 != 0)
     {
-        IObjInspect const* const Owner = ObjInspectOf(OwnerContext);
+        IObjInspect const* const Owner = ObjInspectOf(OwnerContextPtr14);
         // 062cb5f6-062cb627: slot 0xbc (is_player), then cobject() reduced to a ship.
         if (Owner->is_player())
         {
@@ -643,12 +632,12 @@ void BaseFollowerBehavior::Slot4()
 }
 
 // Slot 8, LAB_062cb6d0: unless the dock delegate runs or a lane order is out, MatchThrottle's
-// slot 2 with DeltaTime.
+// slot 2 with DeltaTime1c.
 void BaseFollowerBehavior::Slot8()
 {
     if (Flag282 != 0 || Flag281 != 0)
         return;
-    MatchThrottle.Slot2(DeltaTime);                                 // 062cb6f0 [+0x34]+0x8
+    MatchThrottle.Slot2(DeltaTime1c);                                 // 062cb6f0 [+0x34]+0x8
 }
 
 // Slot 17, LAB_062cbfc0: `MOV ECX,[ECX+0x24]; MOV [ESP+4],0; ADD ECX,0x18; JMP FUN_062e9030`
@@ -656,7 +645,7 @@ void BaseFollowerBehavior::Slot8()
 void BaseFollowerBehavior::slide_strafe_burst(StrafeDir Dir)
 {
     (void)Dir;
-    NavHelper->Thrust.SetStrafeDir(StrafeNone);
+    NavHelperPtr24->Thrust.SetStrafeDir(StrafeNone);
 }
 
 // Slot 21, LAB_062cf300 (.text:062cf300-062cf339, RET 4).
@@ -680,22 +669,22 @@ void BaseFollowerBehavior::Slot22(void* Arg)
         return;
     FBehaviorTradelaneEvent const* const Lane =
         static_cast<FBehaviorTradelaneEvent const*>(Event->Data);
-    // 062cbecb-062cbee9: the record's watched object (FUN_062ecaf0 on NavHelper+0x1364), its
+    // 062cbecb-062cbee9: the record's watched object (FUN_062ecaf0 on NavHelperPtr24+0x1364), its
     // id or 0.
-    IObjRW* const Watched = NavHelper->GunConvergenceStateBytes.GetCurrentLeader();
+    IObjRW* const Watched = NavHelperPtr24->GunConvergenceStateBytes.GetCurrentLeader();
     unsigned int WatchedId = 0;
     if (Watched != nullptr)
         WatchedId = Watched->get_id();
     if (Lane->bEnteringLane == 0 && WatchedId == Lane->ShipId && Lane->bExitRequested != 0)
     {
         bool bInLane = false;
-        (void)ObjInspectOf(OwnerContext)->is_using_tradelane(&bInLane);   // 062cbf09 slot 0x134
+        (void)ObjInspectOf(OwnerContextPtr14)->is_using_tradelane(&bInLane);   // 062cbf09 slot 0x134
         if (bInLane)
         {
             // 062cbf17-062cbf3b: cobject() reduced to a ship (null when it is not one), then
             // CShip::request_exit_tradelane on it unconditionally -- with ECX == 0 when it is
             // not a ship, a deterministic null dereference reproduced without a guard.
-            CObject const* const Object = ObjInspectOf(OwnerContext)->cobject();
+            CObject const* const Object = ObjInspectOf(OwnerContextPtr14)->cobject();
             CShip* Ship = nullptr;
             if (Object != nullptr && (Object->ObjectClass & CObject::ClassShip) == CObject::ClassShip)
                 Ship = (CShip*)Object;
@@ -709,7 +698,7 @@ void BaseFollowerBehavior::Slot22(void* Arg)
     }
 
     // LAB_062cbf62: the own ship (ExternalIface) left a lane.
-    if (NavHelper->SelfTarget.Iface->get_id() != Lane->ShipId)
+    if (NavHelperPtr24->SelfTarget.Iface->get_id() != Lane->ShipId)
         return;
     if (Lane->bEnteringLane != 0)
         return;
@@ -717,5 +706,5 @@ void BaseFollowerBehavior::Slot22(void* Arg)
     if (Flag282 != 0)
         return;
     unsigned int Zero = 0;                                          // the argument slot, reused
-    (void)ObjAffectOf(OwnerContext)->slot_60(2, &Zero, 0);          // 062cbfab IObjAffect +0x60
+    (void)ObjAffectOf(OwnerContextPtr14)->slot_60(2, &Zero, 0);          // 062cbfab IObjAffect +0x60
 }

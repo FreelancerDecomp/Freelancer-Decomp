@@ -36,18 +36,6 @@
 // remaining scalar field writes.
 GuideBehavior::GuideBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContextPtr14(nullptr)
-    , Opaque18{}
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , WatcherA()
     , Field34(0.0f)
     , Flag38(1)
@@ -183,9 +171,9 @@ bool GuideBehavior::Slot10(void* DirectiveOp)
     std::memcpy(static_cast<void*>(&GotoOp), &Op->GotoParams, sizeof(GotoOp));
     std::memcpy(static_cast<void*>(&FollowOp), &Op->FollowParams, sizeof(FollowOp));
     bool bResult = true;                                            // 062cfcba
-    // 062cfcad-062cfcda: WatcherB = the object GotoOp+0x1c names (FUN_062e74a0).
+    // 062cfcad-062cfcda: WatcherB = the object GotoOp+0x1c (this+0x84) names (FUN_062e74a0).
     IObjRW* const GotoTarget = NavHelperPtr24->Timers.FindVerifiedObject(
-        (unsigned const*)((unsigned char*)this + 0x84));
+        reinterpret_cast<unsigned const*>(&GotoOp.Field_1C));
     WatcherB.set(GotoTarget != nullptr ? static_cast<Watchable const*>(GotoTarget) : nullptr);
     Field104 = Op->Field_A4;                                        // 062cfce5
     AngleThreshold11c = Op->Field_A8;                               // 062cfcf1
@@ -522,7 +510,7 @@ int GuideBehavior::Update()
         {
             // Still following: keep ticking CachedPtr64. Retail discards the slot-7 result here
             // (unlike the mirror-image branch below, which tests it against 2).
-            *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(CachedPtr64) + 0x1c) = DeltaTime1c;
+            CachedPtr64->SetTickDelta(DeltaTime1c);   // its +0x1c
             CachedPtr64->Slot7();
         }
         else
@@ -593,7 +581,7 @@ int GuideBehavior::Update()
         else
         {
             // Still leading: tick CachedPtr60. A result of 2 skips the radial termination test.
-            *reinterpret_cast<float*>(reinterpret_cast<unsigned char*>(CachedPtr60) + 0x1c) = DeltaTime1c;
+            CachedPtr60->SetTickDelta(DeltaTime1c);   // its +0x1c
             if (CachedPtr60->Slot7() == 2)
                 bSkipRadialTermination = true;
         }

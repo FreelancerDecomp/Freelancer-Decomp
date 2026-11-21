@@ -124,53 +124,8 @@ class GotoBehaviorFields : public Behavior
 public:
     explicit GotoBehaviorFields(int InTypeId);
 
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.       // +0x08. Family-standard shape (see class comment).
-    int ModeSelector0xc;        // +0x0c.
-    int UpdateResult10;         // +0x10.
-    void* OwnerContextPtr14;    // +0x14.
-    unsigned char Opaque18[0x1c - 0x18];
-    // +0x1c: the per-tick delta IBehaviorManager::UpdateBehaviorTick stores before it calls
-    // slot 7 (.text:062d335d-062d3364, `FSTP float [EDI+0x1c]`). Update() hands it to each
-    // Idea's Update (`PUSH [ESI+0x1c]` at .text:062fe19c / 062fe4b0 / 062fe527).
-    float DeltaTime1c;
-    // +0x20. TYPED 2026-09-17 (claude:common-behavior-fields) from GotoBehavior's OWN call
-    // sites, not by carrying a sibling's proof across. Update() (LAB_062fdb80) loads the field
-    // straight into ECX as a __thiscall receiver at seven separate sites:
-    //   * .text:062fddf2 / 062fde74 / 062fdec1 / 062fdf6e / 062fe076 / 062fe608 --
-    //     `MOV ECX,dword ptr [ESI + 0x20]` then `CALL FUN_062d29a0`, whose whole body writes
-    //     +0x118 and +0x11c. Those are exactly the two fields IBehaviorManager writes on its
-    //     OWN `this` at .text:062d2ea9-062d2eb3, in a function proven to be IBehaviorManager's
-    //     by its reads of +0xc0, +0xc4 and the +0x174 dispatch table -- all three named by
-    //     exported IBehaviorManager symbols. FUN_062d29a0 also sits inside the contiguous run
-    //     of named IBehaviorManager methods (set_state_graph @062d28b0 .. get_scan_response
-    //     @062d2b00), so the surviving /OPT:ICF copy is IBehaviorManager's.
-    //   * .text:062fe28c -- `MOV EDX,[ESI+0x20]; MOV ECX,[EDX+0xc]; TEST ECX,ECX; CALL
-    //     FUN_062de160`, byte-for-byte the same +0x0c load and same callee the NAMED retail
-    //     symbol `IBehaviorManager::update_current_behavior_cruise` performs on its own `this`
-    //     at .text:062d3bfa-062d3c01.
-    // And FUN_062fe970 does `MOV ECX,[ESI+0x20]` at .text:062fe9d9 into `CALL FUN_062d4b20`
-    // (== IBehaviorManager::get_turn_sensitivity_factor, `FLD [ECX+0x164]`, already ported in
-    // common_behaviormanager.cpp). The shared writer FUN_062d2090 was deliberately NOT used as evidence
-    // (fourteen callers, so Param2's type must come from each class's own dereferences).
-    IBehaviorManager* BehaviorMgrPtr20;
-    SystemManager* NavHelperPtr24; // +0x24, the SystemManager (binder).
-    unsigned char Flags28;      // +0x28.
-    unsigned char Flag29;       // +0x29.
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 };
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, CachedHandle08) == 0x08, "GotoBehaviorFields::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, ModeSelector0xc) == 0x0c, "GotoBehaviorFields::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, UpdateResult10) == 0x10, "GotoBehaviorFields::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, OwnerContextPtr14) == 0x14, "GotoBehaviorFields::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, DeltaTime1c) == 0x1c, "GotoBehaviorFields::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, BehaviorMgrPtr20) == 0x20, "GotoBehaviorFields::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, NavHelperPtr24) == 0x24, "GotoBehaviorFields::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, Flags28) == 0x28, "GotoBehaviorFields::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(GotoBehaviorFields, Flag29) == 0x29, "GotoBehaviorFields::Flag29 offset");
 FL_LAYOUT_ASSERT(sizeof(GotoBehaviorFields) == 0x2c, "GotoBehaviorFields size");
 
 class GotoBehavior : public GotoBehaviorFields

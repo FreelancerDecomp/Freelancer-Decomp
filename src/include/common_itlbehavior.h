@@ -172,7 +172,7 @@
 // and RequestCB (secondary), with its own remaining members (State30 onward)
 // naturally landing after both, at +0x30.
 //
-// Several of these fields (ModeSelector0xc/TargetPtr14/Flags28/Flag29) sit at
+// Several of these fields (ModeSelector0xc/OwnerContextPtr14/Flags28/Flag29) sit at
 // the EXACT SAME offsets, with the EXACT SAME confirmed semantics, as
 // DockBehaviorFields' own fields of the same name -- independently re-derived
 // here from this class's own vtable-slot bodies (LAB_062ceeb0/FUN_062cef40),
@@ -189,8 +189,8 @@ public:
     // back to opaque padding, because the one piece of evidence for it was a MISREAD. The old
     // note said it is "dereferenced exactly once, by Update()'s state-3 case (`MOV EDX,[ECX+0x4]`
     // then `CALL [EDX+0x64]`)". At that instruction ECX is NOT `this`: Update() loads
-    // `ECX = [ESI+0x14]` (TargetPtr14) at .text:062cefcc, before the switch, and never reloads
-    // it. So `[ECX+0x4]` is TargetPtr14+4 -- the IObjAffect sub-object of an IObjRW -- and the
+    // `ECX = [ESI+0x14]` (OwnerContextPtr14) at .text:062cefcc, before the switch, and never reloads
+    // it. So `[ECX+0x4]` is OwnerContextPtr14+4 -- the IObjAffect sub-object of an IObjRW -- and the
     // `ADD ECX,0x4` that follows is the standard base-adjustment for calling it, not an
     // adjustment onto this object's own +0x04. Nothing anywhere in this class touches +0x04.
     //
@@ -200,68 +200,11 @@ public:
     // Common.dll reads it back.
     explicit InstantTradeLaneBehaviorFields(int InTypeId);
 
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-
-    // +0x08. NEWLY IDENTIFIED 2026-09-17 (claude:common-largeship-itl): the old layout hid
-    // this inside opaque padding because nothing in this class was known to write it. It is
-    // written -- by this class's own vtable slot 1, which turns out to be the family's
-    // SetContext (see the method below): the shared initializer FUN_062d2090 stores
-    // IObjInspect::get_id()'s result here. Same field, same name, same type as every sibling
-    // in this family (LargeShipBehavior, DockBehavior, ...).
-    unsigned CachedHandle08;
-
-    int ModeSelector0xc;        // +0x0c. Written by UpdateMode() (values 1/2/3); not
-                                 // otherwise read by anything this pass ported.
-    int UpdateResult10;         // +0x10. Update()'s own tri-state result/early-out code
-                                 // (values 0/1/2/3 observed), analogous in spirit (not
-                                 // offset) to DockBehavior's UpdateResult10/FormationBehavior's
-                                 // BaseFollowerBehavior::UpdateResult.
-
-    // +0x14. TYPED 2026-09-17: this is an IObjRW*, not an unidentified pointer. Proof is
-    // structural, not by shape-matching: Update()'s state-0 case calls its vtbl+0x138 with
-    // exactly four arguments in exactly the order of IObjInspect::get_lane_start(IObjInspect
-    // const* Self, IObjInspect const*& OutLane, Vector& OutStart, Vector& OutEnd) -- slot 78
-    // of the retail-order table rebuilt in common_iface.h -- and its state-3/OnResult/
-    // HandleTargetEvent cases call vtbl+0x64 and vtbl+0x60 through the sub-object at +0x4,
-    // which is where IObjRW's RTTI puts its IObjAffect base. IObjInspect therefore sits at
-    // offset 0, which is what the other three call sites (vtbl+0x20 == get_id, vtbl+0x150 ==
-    // cobject) independently require. A trade-lane state machine asking its target for
-    // get_lane_start is also exactly the semantic this class's RTTI name predicts.
-    IObjRW* TargetPtr14;
-    unsigned char Opaque18[0x20 - 0x18]; // +0x18, never touched by anything read this pass
-
-    // +0x20. RENAMED 2026-09-17 from `HelperPtr20`. This is the Behavior family's ordinary
-    // IBehaviorManager back-pointer: the shared context initializer FUN_062d2090 (item 1532,
-    // ready_unverified) writes Param2 to +0x20 and Param3 to +0x24 on EVERY class in this
-    // family, and all of this class's own uses of +0x20 are IBehaviorManager operations
-    // (FUN_062d4520 == IBehaviorManager::QueueNotification, item 1561; FUN_062d29a0's two
-    // field writes at manager+0x118/+0x11c). Same field, same name, as LargeShipBehavior's.
-    IBehaviorManager* BehaviorMgrPtr20;
-
-    // +0x24. RENAMED 2026-09-17 from `ControllerPtr24`, same reasoning as above: +0x24 is the
-    // family's NavHelper pointer (FUN_062d2090's Param3). AttachDirective() passes
-    // (NavHelperPtr24 + 0x34) to FUN_062e74a0 -- the identical `NavHelper+0x34` lookup
-    // LaunchBehavior/TrailBehavior/FaceBehavior all perform. TurnOff()'s own use of it as a
-    // ThrustManager base is unchanged and still deferred.
-    SystemManager* NavHelperPtr24;
-    unsigned char Flags28;       // +0x28. RequestExitTradeLane() ORs bit 0x1;
-                                 // Update()'s very first check tests bit 0x1 (early-exit,
-                                 // matching DockBehavior's Flags28 bit 0x1 early-exit shape);
-                                 // UpdateMode() tests bit 0x2.
-    unsigned char Flag29;       // +0x29. UpdateMode() tests it (nonzero => mode 3) -- exact
-                                 // same semantics as DockBehaviorFields::Flag29.
-    unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
+    // This class reads Behavior's +0x14 (the binder's owner) as the IObjRW it is; the field
+    // was declared here as `IObjRW* TargetPtr14` before the block moved onto Behavior.
+    IObjRW* OwnerRw() const { return static_cast<IObjRW*>(OwnerContextPtr14); }
 };
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, CachedHandle08) == 0x08, "InstantTradeLaneBehaviorFields::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, ModeSelector0xc) == 0x0c, "InstantTradeLaneBehaviorFields::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, UpdateResult10) == 0x10, "InstantTradeLaneBehaviorFields::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, TargetPtr14) == 0x14, "InstantTradeLaneBehaviorFields::TargetPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, BehaviorMgrPtr20) == 0x20, "InstantTradeLaneBehaviorFields::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, NavHelperPtr24) == 0x24, "InstantTradeLaneBehaviorFields::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, Flags28) == 0x28, "InstantTradeLaneBehaviorFields::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(InstantTradeLaneBehaviorFields, Flag29) == 0x29, "InstantTradeLaneBehaviorFields::Flag29 offset");
 FL_LAYOUT_ASSERT(sizeof(InstantTradeLaneBehaviorFields) == 0x2c, "InstantTradeLaneBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
 
 class InstantTradeLaneBehavior : public InstantTradeLaneBehaviorFields, public IObjAffect::RequestCB
@@ -307,15 +250,15 @@ public:
     // Own vtable slot 4 (offset 0x10). Common.dll.txt 205326-205368
     // (FUN_062cef40). CLOSED 2026-09-17 (claude:common-largeship-itl): the
     // CShip resolution this used to defer is now real code, and the old
-    // reason ("TargetPtr14's real interface is not identified") is disproved.
+    // reason ("OwnerContextPtr14's real interface is not identified") is disproved.
     // Retail, .text:062cef66-062cef87:
-    //   CObject const* Obj = TargetPtr14->cobject();        // vtbl+0x150,
+    //   CObject const* Obj = OwnerContextPtr14->cobject();        // vtbl+0x150,
     //                                                       // IObjInspect slot 84
     //   CShip* Ship = (Obj && (Obj->ObjectClass & 0x503) == 0x503)
     //                     ? (CShip*)Obj : nullptr;          // +0x4c IS CObject::
     //                                                       // ObjectClass, common_cobject.h
     //   Ship->request_exit_tradelane();                     // called UNCONDITIONALLY
-    // The `0x4c` in the old note was never a vtable slot on TargetPtr14 -- it is a
+    // The `0x4c` in the old note was never a vtable slot on OwnerContextPtr14 -- it is a
     // plain field offset on the CObject the 0x150 call returns, and this port has
     // had that field typed all along.
     void RequestExitTradeLane();
@@ -323,9 +266,9 @@ public:
     // Own vtable slot 5 (offset 0x14). Common.dll.txt 205256-205297
     // (LAB_062ceeb0). 3-state mode selector, same overall shape as
     // DockBehavior::SetModeFromFlags() but with extra gating logic, all
-    // nested under a single TargetPtr14 guard:
+    // nested under a single OwnerContextPtr14 guard:
     //   mode = 2;
-    //   if (TargetPtr14) {
+    //   if (OwnerContextPtr14) {
     //       if (Flags54) mode = 1;
     //       if (SubObjPtr34) {
     //           uint Type = 0; SubObjPtr34->get_type(Type);   // vtbl+0x88, slot 34
@@ -347,18 +290,18 @@ public:
     // body used to be one FULLPORT-DEFERRED block whose stated reason -- "a call through
     // `*this`'s own vtable at byte offset 0x138, which exceeds this class's own 27-slot
     // vtable, so its real target is not resolvable from this function alone" -- rested on
-    // a register misread and is now disproved. ECX is loaded with TargetPtr14 at
+    // a register misread and is now disproved. ECX is loaded with OwnerContextPtr14 at
     // .text:062cefcc, BEFORE the switch, and is never reloaded; so 0x138 is a slot on
-    // TargetPtr14's vtable, not on this object's, and there is nothing paradoxical about
+    // OwnerContextPtr14's vtable, not on this object's, and there is nothing paradoxical about
     // its size. Everything follows from that one correction:
-    //   state 0: `TargetPtr14->get_lane_start(SubObjPtr34, OutLane, LaneStart3c, LaneEnd48)`
+    //   state 0: `OwnerContextPtr14->get_lane_start(SubObjPtr34, OutLane, LaneStart3c, LaneEnd48)`
     //            (IObjInspect slot 78). Nonzero return -> UpdateResult10 = 3, return 3.
     //            Zero -> LanePtr38 = OutLane, then State30 = 3, Flag56 = 1, Flag55 = 0,
     //            UpdateResult10 = 1, return 1. NOTE the polarity: an older summary had
     //            "on vcall failure (result == 0)" -- backwards; `JZ` takes the SUCCESS path.
     //            Skipped entirely when LanePtr38 is already set.
-    //   state 3: IObjAffect(TargetPtr14 + 4)'s slot 0x64, args (SubObjPtr34, LanePtr38, 1,
-    //            Field58). Zero -> BehaviorMgrPtr20->QueueNotification(TargetPtr14, 0, 0.0f)
+    //   state 3: IObjAffect(OwnerContextPtr14 + 4)'s slot 0x64, args (SubObjPtr34, LanePtr38, 1,
+    //            Field58). Zero -> BehaviorMgrPtr20->QueueNotification(OwnerContextPtr14, 0, 0.0f)
     //            (FUN_062d4520 == item 1561, ported), UpdateResult10 = 0, Flags54 = 1,
     //            State30 = 4, return 0. Nonzero -> State30 = 6, UpdateResult10 = 1,
     //            return 1. (An older summary said the failure path returns 0; it does not --
@@ -401,13 +344,13 @@ public:
 
     // Own vtable slot 22 (offset 0x58). Common.dll.txt 205627-205661
     // (LAB_062cf1d0). Tagged-event handler: if the caller-supplied event's
-    // tag == 4, its first payload byte == 0, and TargetPtr14's vtable slot
+    // tag == 4, its first payload byte == 0, and OwnerContextPtr14's vtable slot
     // 0x20 result matches the event payload's own +0xc field, transitions
     // State30 to 5 UNCONDITIONALLY (not gated on SubObjPtr34 -- confirmed via
     // raw disasm ordering), then, only if SubObjPtr34 is set, re-validates it
-    // through a vcall chain against TargetPtr14's own +4 embedded sub-object.
+    // through a vcall chain against OwnerContextPtr14's own +4 embedded sub-object.
     // 2026-09-17: both owning interfaces ARE now identified -- vtbl+0x20 on
-    // either pointer is IObjInspect::get_id(), and TargetPtr14+4 is the
+    // either pointer is IObjInspect::get_id(), and OwnerContextPtr14+4 is the
     // IObjAffect sub-object. The id-match guard is real code now; only
     // IObjAffect::slot_60(2, &SavedId, 0) remains a raw dispatch, for want of
     // a declared signature in common_iface.h.
@@ -419,9 +362,9 @@ public:
     // retail recovers the outer InstantTradeLaneBehavior* via a further
     // -0x18 adjustment from THAT pointer (ESI-0x18 relative to the adjusted
     // `this`, i.e. outer+0x14 -- confirmed by cross-referencing against the
-    // exact same TargetPtr14 field UpdateMode()/Update() read directly).
+    // exact same OwnerContextPtr14 field UpdateMode()/Update() read directly).
     // Sets State30 to 3 or 6 depending on Param3, then (only on the ==-1
-    // path) does a vcall-driven re-validation through SubObjPtr34/TargetPtr14
+    // path) does a vcall-driven re-validation through SubObjPtr34/OwnerContextPtr14
     // -- FULLPORT-DEFERRED, see .cpp.
     bool OnResult(int Param1, int Param2, int Param3) override;
 
@@ -447,8 +390,8 @@ public:
                                  // Update()'s own dispatch switch reads it.
 
     // +0x34. TYPED 2026-09-17: an IObjInspect const*. Proof: Update()'s state-0 case passes
-    // this field, unchanged, as the `Self` argument of TargetPtr14->get_lane_start(IObjInspect
-    // const* Self, ...) -- see TargetPtr14's own note above. Every other read of it agrees:
+    // this field, unchanged, as the `Self` argument of OwnerContextPtr14->get_lane_start(IObjInspect
+    // const* Self, ...) -- see OwnerContextPtr14's own note above. Every other read of it agrees:
     // UpdateMode() calls its vtbl+0x88 (IObjInspect::get_type) and HandleTargetEvent()/
     // OnResult() call its vtbl+0x20 (IObjInspect::get_id). Resolved by AttachDirective() via
     // FUN_062e74a0(NavHelperPtr24 + 0x34, Directive + 0xc). Name left at its offset spelling:
@@ -457,7 +400,7 @@ public:
     IObjInspect const* SubObjPtr34;
 
     // +0x38. RENAMED 2026-09-17 from `Field38`. This is the out-parameter of
-    // TargetPtr14->get_lane_start(...), i.e. the resolved trade lane, written at
+    // OwnerContextPtr14->get_lane_start(...), i.e. the resolved trade lane, written at
     // .text:062cf02f-062cf033; Update()'s state-0 case null-checks it as an "already
     // resolved" gate, and state 3 forwards it to IObjAffect's slot 0x64. AttachDirective()
     // also seeds it from FUN_062e74a0(NavHelperPtr24 + 0x34, Directive + 0x10).

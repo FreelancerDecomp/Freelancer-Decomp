@@ -16,18 +16,6 @@
 // Slot3 in retail; the port zeroes it (Slot3 runs before Slot7 reads it).
 DrasticEvadeBehavior::DrasticEvadeBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContextPtr14(nullptr)
-    , Opaque18{}
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , StateTimer2c(0.0f)
     , DurationThreshold30(4.0f)
     , TargetOffset{}

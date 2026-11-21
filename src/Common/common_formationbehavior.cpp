@@ -12,12 +12,13 @@
 #include "common_behavior.h"
 #include "common_behavior_internal.h" // CmnBehavior:: follower helpers (common_behavior.cpp)
 #include "common_aisteer.h"
-#include "common_systemmanager.h" // SystemManager -- NavHelper's real type
+#include "common_systemmanager.h" // SystemManager -- NavHelperPtr24's real type
 #include "common_misc.h" // SinglePlayer() -- evaluate()'s multiplayer group test
 #include "common_csys.h"  // Matrix, Transform, MatrixSetIdentity, Acquire3DMathEngine (Slot27/Slot28)
 #include "common_iface.h" // IObjInspect / IObjRW / ObjInspectOf / ObjRwFromWatchable
 #include "x86math.h"      // I3DMathEngine::TransformMatrix (+0x2c), FVector, FMatrix
 #include "common_pathfind.h"
+#include "common_cobject.h" // CShip::bIsPlayer (+0x2bd) / CShip::GroupId (+0x1b4)
 
 #include <cmath>
 #include <cstdint>
@@ -102,8 +103,8 @@ static double VecMagSq3(Vector const& V)
 void FormationBehavior::Slot3()
 {
     BaseFollowerBehavior::Slot3();                                  // 062cc3b3 FUN_062cb540
-    (void)ObjInspectOf(OwnerContext)->get_formation_offset(Offset290);   // 062cc3c4 slot 0xac
-    if (NavHelper->SelfTarget.Iface->is_player())        // 062cc3dc slot 0xbc
+    (void)ObjInspectOf(OwnerContextPtr14)->get_formation_offset(Offset290);   // 062cc3c4 slot 0xac
+    if (NavHelperPtr24->SelfTarget.Iface->is_player())        // 062cc3dc slot 0xbc
     {
         Flag28c = 1;                                                // 062cc3eb
         MatchThrottle.SetFlag39(true);                              // 062cc3f2 FUN_062d6710
@@ -116,11 +117,11 @@ void FormationBehavior::Slot3()
 void FormationBehavior::Slot4()
 {
     BaseFollowerBehavior::Slot4();                                  // 062cc414 FUN_062cb5e0
-    if (!NavHelper->SelfTarget.Iface->is_player())       // 062cc42b slot 0xbc
+    if (!NavHelperPtr24->SelfTarget.Iface->is_player())       // 062cc42b slot 0xbc
         return;
-    (void)NavHelper->GunConvergenceStateBytes.RequestRelease();     // 062cc43e FUN_062ecd30
-    unsigned int const Id = ObjInspectOf(OwnerContext)->get_id();   // 062cc448 slot 0x20
-    (void)ObjAffectOf(OwnerContext)->slot_60(1, &Id, -1);           // 062cc461 IObjAffect +0x60
+    (void)NavHelperPtr24->GunConvergenceStateBytes.RequestRelease();     // 062cc43e FUN_062ecd30
+    unsigned int const Id = ObjInspectOf(OwnerContextPtr14)->get_id();   // 062cc448 slot 0x20
+    (void)ObjAffectOf(OwnerContextPtr14)->slot_60(1, &Id, -1);           // 062cc461 IObjAffect +0x60
 }
 
 // Slot 5, FUN_062cc030 (.text:062cc030-062cc0bf, RET 4, argument unread).
@@ -128,7 +129,7 @@ int FormationBehavior::Slot5(float Value)
 {
     (void)Value;
     int Result = (Flag285 != 0) ? 1 : 2;                            // 062cc034-062cc043
-    FGunConvergenceStateBlock* const Rec = &NavHelper->GunConvergenceStateBytes;   // +0x1364
+    FGunConvergenceStateBlock* const Rec = &NavHelperPtr24->GunConvergenceStateBytes;   // +0x1364
     if (Rec->GetFollowLeader() != nullptr)                          // 062cc052 FUN_062ecad0
     {
         LeadWatcher.set(nullptr);                                   // LAB_062cc07e
@@ -150,7 +151,7 @@ int FormationBehavior::Slot5(float Value)
 EvaluateResult FormationBehavior::evaluate(unsigned int Context)
 {
     (void)Context;
-    IObjInspect const* const Owner = ObjInspectOf(OwnerContext);
+    IObjInspect const* const Owner = ObjInspectOf(OwnerContextPtr14);
     IObjRW* Target = nullptr;
     (void)Owner->get_target(Target);                                // 062cc0ed slot 0x74
 
@@ -158,7 +159,7 @@ EvaluateResult FormationBehavior::evaluate(unsigned int Context)
     CObject const* OwnShip = Owner->cobject();
     unsigned int OwnGroup = 0;
     if (OwnShip != nullptr && (static_cast<unsigned int>(OwnShip->ObjectClass) & 0x503u) == 0x503u)
-        OwnGroup = *reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(OwnShip) + 0x1b4);
+        OwnGroup = static_cast<CShip const*>(OwnShip)->GroupId;   // +0x1b4
     else
         OwnShip = nullptr;
 
@@ -175,11 +176,11 @@ EvaluateResult FormationBehavior::evaluate(unsigned int Context)
         CObject const* const A = FollowerPlayerShipOrNull(Owner->cobject());
         CObject const* const B = FollowerPlayerShipOrNull(ObjInspectOf(Target)->cobject());
         if (A != nullptr && B != nullptr &&
-            *(reinterpret_cast<unsigned char const*>(A) + 0x2bd) != 0 &&
-            *(reinterpret_cast<unsigned char const*>(B) + 0x2bd) != 0)
+            static_cast<CShip const*>(A)->bIsPlayer != 0 &&     // +0x2bd
+            static_cast<CShip const*>(B)->bIsPlayer != 0)
         {
-            unsigned int const GroupA = *reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(A) + 0x1b4);
-            unsigned int const GroupB = *reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(B) + 0x1b4);
+            unsigned int const GroupA = static_cast<CShip const*>(A)->GroupId;   // +0x1b4
+            unsigned int const GroupB = static_cast<CShip const*>(B)->GroupId;   // +0x1b4
             if (GroupA == 0 || GroupB == 0 || GroupA != GroupB)
                 return EvalSkip;
         }
@@ -226,16 +227,16 @@ EvaluateResult FormationBehavior::evaluate(unsigned int Context)
     // 062cc2b1-062cc2f8: against the owner's ship captured at the top.
     CObject const* const TargetShip = FollowerPlayerShipOrNull(ObjInspectOf(Target)->cobject());
     if (OwnShip != nullptr && TargetShip != nullptr &&
-        *(reinterpret_cast<unsigned char const*>(TargetShip) + 0x2bd) != 0)
+        static_cast<CShip const*>(TargetShip)->bIsPlayer != 0)   // +0x2bd
     {
         if (OwnGroup == 0)
             return EvalSkip;
-        if (*reinterpret_cast<unsigned int const*>(reinterpret_cast<char const*>(TargetShip) + 0x1b4) != OwnGroup)
+        if (static_cast<CShip const*>(TargetShip)->GroupId != OwnGroup)   // +0x1b4
             return EvalSkip;
     }
 
     // LAB_062cc2fe: own cached centre (latch +0x157a, set before the call).
-    SystemManager* const Sys = NavHelper;
+    SystemManager* const Sys = NavHelperPtr24;
     if (Sys->SelfTarget.bPosValid == 0)
     {
         Sys->SelfTarget.bPosValid = 1;
@@ -288,7 +289,7 @@ void FormationBehavior::set_direction(Vector const& Dir)
     FaceAxis2ac.y = -Dir.x;                                         // 062cc9ea
     // 062cc9f0-062cca22: get_turn_sensitivity_factor() > 0.0 (double DAT_0639c430) scales
     // both by 1/factor; the reciprocal stays on the x87 stack, each product is rounded once.
-    double const Factor = BehaviorMgrPtr->get_turn_sensitivity_factor();
+    double const Factor = BehaviorMgrPtr20->get_turn_sensitivity_factor();
     if (Factor > 0.0)
     {
         double const Inverse = 1.0 / Factor;                        // FDIVR 1.0f
@@ -302,7 +303,7 @@ void FormationBehavior::set_direction(Vector const& Dir)
     FaceAxis2ac.z = -Dir.z;                                         // 062ccad6
 }
 
-// The NavHelper cached-physical-bounds latch, emitted twice inside Slot27 (062cc6b6-062cc6cf
+// The NavHelperPtr24 cached-physical-bounds latch, emitted twice inside Slot27 (062cc6b6-062cc6cf
 // and 062cc748-062cc75f) and already ported byte-for-byte three other times in this port
 // (FormationMoveFx::Update here, ComputeLeadFirePosition and its neighbour in
 // common_aifirecontrol.cpp). +0x157a is the "already refreshed this frame" flag, +0x1580 the
@@ -338,9 +339,9 @@ void FormationBehavior::Slot27()
     // record currently names. Retail's `CMP EAX,[EBX]; JZ; CALL BaseWatcher::set_pointer`
     // is precisely BaseWatcher::set(), which does that same dedup internally.
     // (FollowBehavior's own slot 27 does NOT have this step -- it only reads the watcher.)
-    // NavHelper is dereferenced with no null test.
+    // NavHelperPtr24 is dereferenced with no null test.
     {
-        IObjRW* const Directed = NavHelper->GunConvergenceStateBytes.GetFormationLeader(); // FUN_062ecab0
+        IObjRW* const Directed = NavHelperPtr24->GunConvergenceStateBytes.GetFormationLeader(); // FUN_062ecab0
         LeadWatcher.set(Directed != nullptr
             ? reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char*>(Directed) + FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr);
@@ -363,10 +364,10 @@ void FormationBehavior::Slot27()
     Vector LeaderPos;
     GetIfacePositionOrZero(&LeaderPos, Leader);
 
-    // 062cc4f4-062cc503: OwnerContext's primary vtable +0xac == IObjInspect slot 43,
+    // 062cc4f4-062cc503: OwnerContextPtr14's primary vtable +0xac == IObjInspect slot 43,
     // get_formation_offset(Vector&), writing straight into this->FormationOffset (+0x290) --
     // the same out-param UpdateThreatFlag() above hands the same slot. No null test.
-    (void)ObjInspectOf(OwnerContext)->get_formation_offset(Offset290);
+    (void)ObjInspectOf(OwnerContextPtr14)->get_formation_offset(Offset290);
 
     // 062cc509-062cc535: the LEADER's own formation offset, into a zeroed local at L+0x54.
     // Same slot, different receiver -- retail re-unwraps the watcher for it.
@@ -411,17 +412,17 @@ void FormationBehavior::Slot27()
     // physical radius further down.
     bool bCruise = false;
     bool bTradeLane = false;
-    (void)ObjInspectOf(OwnerContext)->is_cruise_active(bCruise, bTradeLane);   // no null test
+    (void)ObjInspectOf(OwnerContextPtr14)->is_cruise_active(bCruise, bTradeLane);   // no null test
     float const Standoff = (bCruise && !bTradeLane) ? CruiseStandoffDistance2a4
                                                     : StandoffDistance2a0;
 
-    // 062cc642-062cc6a1: the own ship (NavHelper->ExternalIface, slot 0xc get_transform)
+    // 062cc642-062cc6a1: the own ship (NavHelperPtr24->ExternalIface, slot 0xc get_transform)
     // forward column built (FUN_0628b030) and negated (FUN_062c5a70) into L+0x14, dotted
     // with GetNegatedIfaceDirection's L+0x60 as (z*z' + y*y') + x*x' on the x87 stack.
     // `FCOMP 0.0f; TEST AH,0x41; JNZ` sends <= 0.0f (and unordered) to LAB_062cc778.
     double Clearance = 0.0f;
     {
-        Matrix const& OwnBasis = NavHelper->SelfTarget.Iface->get_transform().Rotation;
+        Matrix const& OwnBasis = NavHelperPtr24->SelfTarget.Iface->get_transform().Rotation;
         Vector const OwnBackward{ -OwnBasis.E[0][2], -OwnBasis.E[1][2], -OwnBasis.E[2][2] };
         double const Facing = static_cast<double>(OwnBackward.z) * LeaderBackward.z
                             + static_cast<double>(OwnBackward.y) * LeaderBackward.y
@@ -429,25 +430,25 @@ void FormationBehavior::Slot27()
         if (Facing > 0.0)
         {
             // 062cc6a7-062cc6cf: the latch-and-refresh of the cached physical bounds.
-            NavRefreshPhysicalBounds(NavHelper);
+            NavRefreshPhysicalBounds(NavHelperPtr24);
 
             // 062cc6d2-062cc734: (SlotPoint - cached centre) into L+0x20, the own forward
             // column again (get_transform) into L+0x14 and its negation into L+0x9c. None of
             // the three is read again; reproduced as retail computes them.
-            Vector const FromCentre{ SlotPoint.x - NavHelper->SelfTarget.CachedPos.x,
-                                     SlotPoint.y - NavHelper->SelfTarget.CachedPos.y,
-                                     SlotPoint.z - NavHelper->SelfTarget.CachedPos.z };
-            Matrix const& OwnBasis2 = NavHelper->SelfTarget.Iface->get_transform().Rotation;
+            Vector const FromCentre{ SlotPoint.x - NavHelperPtr24->SelfTarget.CachedPos.x,
+                                     SlotPoint.y - NavHelperPtr24->SelfTarget.CachedPos.y,
+                                     SlotPoint.z - NavHelperPtr24->SelfTarget.CachedPos.z };
+            Matrix const& OwnBasis2 = NavHelperPtr24->SelfTarget.Iface->get_transform().Rotation;
             Vector const OwnBackward2{ -OwnBasis2.E[0][2], -OwnBasis2.E[1][2], -OwnBasis2.E[2][2] };
             (void)FromCentre;
             (void)OwnBackward2;
 
             // 062cc739-062cc75f: the same latch-and-refresh block, emitted a second time.
-            NavRefreshPhysicalBounds(NavHelper);
+            NavRefreshPhysicalBounds(NavHelperPtr24);
 
             // 062cc762-062cc776: radius + Standoff stays on the x87 stack; `FCOM 0.0f;
             // TEST AH,0x5; JP` keeps it when >= 0 or unordered, else 0.0f.
-            double const Reach = static_cast<double>(NavHelper->SelfTarget.CachedRadius) + Standoff;
+            double const Reach = static_cast<double>(NavHelperPtr24->SelfTarget.CachedRadius) + Standoff;
             if (!(Reach < 0.0))
                 Clearance = Reach;
         }
@@ -467,16 +468,16 @@ void FormationBehavior::Slot27()
                               AdjustedWorld.z + Anchor.z };
     Face.SetPosition(TargetPoint);   // 062cc80f, FUN_062d7560
 
-    // 062cc814-062cc842: FUN_062e8840 on &NavHelper->Timers (the byte at Timers+0x78). The
+    // 062cc814-062cc842: FUN_062e8840 on &NavHelperPtr24->Timers (the byte at Timers+0x78). The
     // up-vector retail pushes is the literal (0, 0, 1): 0x3f800000 at 062cc83a.
-    if (NavHelper->Timers.IsTimer5Active())
+    if (NavHelperPtr24->Timers.IsTimer5Active())
         Face.SetUpVector(Vector{ 0.0f, 0.0f, 1.0f });   // FUN_062d7640
 
     // 062cc847-062cc8a4: while bDirectionSet2a8 is set, the Face idea takes FaceAxis2ac and
     // the Move idea the own ship's forward column (ExternalIface slot 0xc, no null test).
     if (bDirectionSet2a8 != 0)
     {
-        Matrix const& OwnBasis = NavHelper->SelfTarget.Iface->get_transform().Rotation;
+        Matrix const& OwnBasis = NavHelperPtr24->SelfTarget.Iface->get_transform().Rotation;
         Face.SetAxis(FaceAxis2ac);   // 062cc894, FUN_062d75e0, arg is LEA EAX,[EBP+0x2ac]
         // 062cc877-062cc890: three FCHS'd components of the own-ship forward column,
         // built into the frame local retail then hands to MoveIdea::SetDirection.
@@ -486,10 +487,10 @@ void FormationBehavior::Slot27()
     }
 
     // 062cc8a9-062cc8da: tick both sub-objects through their own vtable slot 1 with
-    // Behavior::DeltaTime (+0x1c), with the FormationMoveFx retarget in between.
-    (void)Face.Update(DeltaTime);
+    // Behavior::DeltaTime1c (+0x1c), with the FormationMoveFx retarget in between.
+    (void)Face.Update(DeltaTime1c);
     MatchThrottle.SetWatchAndPosition(Leader, SlotPoint);   // 062cc8cd, FUN_062d65f0
-    (void)MatchThrottle.Update(DeltaTime);
+    (void)MatchThrottle.Update(DeltaTime1c);
 }
 
 // ----------------------------------------------------------------------------
@@ -517,17 +518,17 @@ void FormationBehavior::Slot27()
 //
 // The shape is FollowBehavior::Slot28's (LAB_062cd4c0, item 1409, common_followbehavior.cpp)
 // with one extra step in front: FollowBehavior transforms its own TargetOffset member, this
-// class transforms whatever OwnerContext's slot 0xac writes into a freshly zeroed local.
+// class transforms whatever OwnerContextPtr14's slot 0xac writes into a freshly zeroed local.
 Vector FormationBehavior::Slot28()
 {
     // 062cc8fe-062cc916: three explicit zero dwords, then 062cc919 `CALL [EAX+0xac]` on
-    // OwnerContext (+0x14) with a pointer to them. Slot 0xac is
+    // OwnerContextPtr14 (+0x14) with a pointer to them. Slot 0xac is
     // IObjInspect::get_formation_offset(Vector&) -- the same slot, with a different
     // out-param, that UpdateThreatFlag() and Slot27() above both drive.
     // Note it is a LOCAL here, not this->FormationOffset (+0x290): retail's `LEA EDX,[ESP+8]`
     // is a frame address, where the other two sites use `LEA EDX,[ESI+0x290]`.
     Vector FormationOffsetLocal{ 0.0f, 0.0f, 0.0f };
-    (void)ObjInspectOf(OwnerContext)->get_formation_offset(FormationOffsetLocal);   // no null test
+    (void)ObjInspectOf(OwnerContextPtr14)->get_formation_offset(FormationOffsetLocal);   // no null test
 
     // 062cc91f-062cc936: `MOV ESI,[ESI+0x2c]` is LeadWatcher's target slot, and the
     // `LEA EAX,[ESI-8]`/`XOR EAX,EAX` pair is the module-wide Watchable adjustment.
