@@ -223,36 +223,53 @@ namespace
         *Count = Size + 1;
     }
 
-    // Body shared by FUN_0059e5c0 and FUN_0059e6e0.
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // PORT(widescreen) (hud_widescreen.h): every draw, update, hit test and mouse call on an object
-    // runs with the Win3D camera shifted for that object's HUD corner window (no-op for
-    // everything else, and on a 4:3 surface).
-    void DrawWidescreen(Win3D* Object)
+    // The per-object calls of the retail bodies below. Without FREELANCER_WIDESCREEN_SUPPORT each
+    // one is exactly the retail call.
+    // PORT(widescreen) (hud_widescreen.h): with it, the call runs with the Win3D camera shifted
+    // for the object's HUD corner window (no-op for everything else, and on a 4:3 surface).
+    void Win3DDraw(Win3D* Object)
     {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), true);
+#endif
         Object->Draw();
     }
 
-    void UpdateWidescreen(Win3D* Object)
+    // Slot 2 or 3 by the object's active flag, as every retail update walk picks them.
+    void Win3DUpdateByFlag(Win3D* Object)
     {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
+#endif
         if ((Object->Flags & kWin3DActive) != 0)
             Object->Update();
         else
             Object->UpdateInactive();
     }
 
-    // Ray is the frame's mouse ray (DAT_0067dbcc); a shifted object is tested against the
-    // cursor's ray through the shifted camera instead.
-    bool HitTestWidescreen(Win3D* Object, float const* Ray)
+    void Win3DUpdateInactive(Win3D* Object)
     {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+        FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
+#endif
+        Object->UpdateInactive();
+    }
+
+    // Ray is the frame's mouse ray (DAT_0067dbcc).
+    bool Win3DHitTest(Win3D* Object, float const* Ray)
+    {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+        // PORT(widescreen): a shifted object is tested against the cursor's ray through the
+        // shifted camera instead.
         float const Shift = WidescreenHudShiftPixelsFor(Object);
-        if (Shift == WidescreenHudCurrentShift())
-            return Object->HitTest(Ray);
-        FWidescreenHudShiftScope const Scope(Shift, false);
-        float Shifted[3];
-        return Object->HitTest(Win3DGetMouseRay(Shifted));
+        if (Shift != WidescreenHudCurrentShift())
+        {
+            FWidescreenHudShiftScope const Scope(Shift, false);
+            float Shifted[3];
+            return Object->HitTest(Win3DGetMouseRay(Shifted));
+        }
+#endif
+        return Object->HitTest(Ray);
     }
 
     enum class EMouseCall
@@ -262,11 +279,17 @@ namespace
         Leave
     };
 
-    void MouseCallWidescreen(Win3D* Object, EMouseCall Call)
+    // Retail passes the stored mouse ray DAT_0067dbcc.
+    void Win3DMouseCall(Win3D* Object, EMouseCall Call)
     {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
+        // PORT(widescreen): the ray through the shifted camera (G_MouseRay when unshifted).
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
-        float Ray[3];
-        Win3DGetMouseRay(Ray);
+        float Shifted[3];
+        float const* const Ray = Win3DGetMouseRay(Shifted);
+#else
+        float const* const Ray = G_MouseRay;
+#endif
         if (Call == EMouseCall::Enter)
             Object->MouseEnter(Ray);
         else if (Call == EMouseCall::Over)
@@ -275,18 +298,38 @@ namespace
             Object->MouseLeave(Ray);
     }
 
-    bool MouseEventWidescreen(Win3D* Object, FWin3DMouseEvent const* Event)
+    void Win3DMouseEnter(Win3D* Object)
     {
+        Win3DMouseCall(Object, EMouseCall::Enter);
+    }
+
+    void Win3DMouseOver(Win3D* Object)
+    {
+        Win3DMouseCall(Object, EMouseCall::Over);
+    }
+
+    void Win3DMouseLeave(Win3D* Object)
+    {
+        Win3DMouseCall(Object, EMouseCall::Leave);
+    }
+
+    bool Win3DMouseEvent(Win3D* Object, FWin3DMouseEvent const* Event)
+    {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
+#endif
         return Object->MouseEvent(Event);
     }
 
-    bool WheelWidescreen(Win3D* Object, int Wheel)
+    bool Win3DWheel(Win3D* Object, int Wheel)
     {
+#ifdef FREELANCER_WIDESCREEN_SUPPORT
         FWidescreenHudShiftScope const Scope(WidescreenHudShiftPixelsFor(Object), false);
+#endif
         return Object->Slot18(Wheel);
     }
-#endif
+
+    // Body shared by FUN_0059e5c0 and FUN_0059e6e0.
 
     void DrawChildrenSorted(Win3D* Parent)
     {
@@ -298,21 +341,13 @@ namespace
                 continue;
             if (Child->DrawLayer == 0)
             {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-                DrawWidescreen(Child);
-#else
-                Child->Draw();
-#endif
+                Win3DDraw(Child);
                 continue;
             }
             InsertSorted(Sorted, &Count, Child);
         }
         for (unsigned Index = 0; Index < Count; ++Index)
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            DrawWidescreen(Sorted[Index]);
-#else
-            Sorted[Index]->Draw();
-#endif
+            Win3DDraw(Sorted[Index]);
     }
 
     char const* const kWin3DSourceFile = "E:\\FL\\Scratch\\Source\\Client\\Interface\\Win3D.cpp";
@@ -451,14 +486,7 @@ void Win3D::Update()
     while (Child != nullptr)
     {
         Win3D* const Next = Child->NextSibling;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-        UpdateWidescreen(Child);
-#else
-        if ((Child->Flags & kWin3DActive) != 0)
-            Child->Update();
-        else
-            Child->UpdateInactive();
-#endif
+        Win3DUpdateByFlag(Child);
         Child = Next;
     }
 }
@@ -470,11 +498,7 @@ void Win3D::UpdateInactive()
     {
         if ((Child->Flags & kWin3DActive) == 0)
         {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            UpdateWidescreen(Child);
-#else
-            Child->UpdateInactive();
-#endif
+            Win3DUpdateInactive(Child);
         }
     }
 }
@@ -889,11 +913,7 @@ Win3D* Win3DPick(float const* Ray)
         }
         if (Depth > BestDepth)
         {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            if (HitTestWidescreen(Object, Ray))
-#else
-            if (Object->HitTest(Ray))
-#endif
+            if (Win3DHitTest(Object, Ray))
             {
                 Best = Object;
                 BestDepth = Depth;
@@ -905,11 +925,7 @@ Win3D* Win3DPick(float const* Ray)
         // 0059ddfc: FCOMP / TEST AH,0x41 / JNZ -- only a strictly greater +0x68 competes.
         if (!(Object->Position[2] > Best->Position[2]))
             continue;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-        if (HitTestWidescreen(Object, Ray))
-#else
-        if (Object->HitTest(Ray))
-#endif
+        if (Win3DHitTest(Object, Ray))
         {
             Best = Object;
             BestDepth = Depth;
@@ -955,11 +971,7 @@ Win3D* Win3DPickWithin(Win3D* Capture, float const* Ray)
             }
             if (!bVisibleChain)
                 continue;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            if (HitTestWidescreen(Object, Ray))
-#else
-            if (Object->HitTest(Ray))
-#endif
+            if (Win3DHitTest(Object, Ray))
             {
                 Best = Object;
                 BestDepth = Depth;
@@ -970,11 +982,7 @@ Win3D* Win3DPickWithin(Win3D* Capture, float const* Ray)
             continue;
         if (!(Object->Position[2] > Best->Position[2]))
             continue;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-        if (HitTestWidescreen(Object, Ray))
-#else
-        if (Object->HitTest(Ray))
-#endif
+        if (Win3DHitTest(Object, Ray))
         {
             Best = Object;
             BestDepth = Depth;
@@ -1003,29 +1011,16 @@ void Win3DSetHover(Win3D* Object)
 {
     // FUN_0059df80. Leave/enter only on a change; slot 14 runs on every call with a
     // non-null Object.
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
     if (G_Hover != Object)
     {
         if (G_Hover != nullptr)
-            MouseCallWidescreen(G_Hover, EMouseCall::Leave);
+            Win3DMouseLeave(G_Hover);
         G_Hover = Object;
         if (Object != nullptr)
-            MouseCallWidescreen(Object, EMouseCall::Enter);
+            Win3DMouseEnter(Object);
     }
     if (Object != nullptr)
-        MouseCallWidescreen(Object, EMouseCall::Over);
-#else
-    if (G_Hover != Object)
-    {
-        if (G_Hover != nullptr)
-            G_Hover->MouseLeave(G_MouseRay);
-        G_Hover = Object;
-        if (Object != nullptr)
-            Object->MouseEnter(G_MouseRay);
-    }
-    if (Object != nullptr)
-        Object->MouseOver(G_MouseRay);
-#endif
+        Win3DMouseOver(Object);
 }
 
 void Win3DUpdateAll(double DeltaSeconds)
@@ -1054,25 +1049,14 @@ void Win3DUpdateAll(double DeltaSeconds)
     // 0059e123..0059e15a: FUN_0059df80's body inlined, but slot 14 runs only on a change.
     if (G_Hover != Picked)
     {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
         if (G_Hover != nullptr)
-            MouseCallWidescreen(G_Hover, EMouseCall::Leave);
+            Win3DMouseLeave(G_Hover);
         G_Hover = Picked;
         if (Picked != nullptr)
         {
-            MouseCallWidescreen(Picked, EMouseCall::Enter);
-            MouseCallWidescreen(Picked, EMouseCall::Over);
+            Win3DMouseEnter(Picked);
+            Win3DMouseOver(Picked);
         }
-#else
-        if (G_Hover != nullptr)
-            G_Hover->MouseLeave(G_MouseRay);
-        G_Hover = Picked;
-        if (Picked != nullptr)
-        {
-            Picked->MouseEnter(G_MouseRay);
-            Picked->MouseOver(G_MouseRay);
-        }
-#endif
     }
 
     G_UpdateNodeCount = 0;
@@ -1088,14 +1072,7 @@ void Win3DUpdateAll(double DeltaSeconds)
             WinControl* const Control = Object->AsWinControl();
             if (Control == nullptr || Control->bCaptured == 0)
                 continue;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            UpdateWidescreen(Object);
-#else
-            if ((Object->Flags & kWin3DActive) != 0)
-                Object->Update();
-            else
-                Object->UpdateInactive();
-#endif
+            Win3DUpdateByFlag(Object);
             DrainPendingRemove();
             return;
         }
@@ -1107,14 +1084,7 @@ void Win3DUpdateAll(double DeltaSeconds)
         Win3D* const Object = static_cast<Win3D*>(Node->Payload);
         if (Object != nullptr && Object->Parent == nullptr)
         {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-            UpdateWidescreen(Object);
-#else
-            if ((Object->Flags & kWin3DActive) != 0)
-                Object->Update();
-            else
-                Object->UpdateInactive();
-#endif
+            Win3DUpdateByFlag(Object);
         }
         G_UpdateNodeCount = G_UpdateNodeCount + 1;
     }
@@ -1170,11 +1140,7 @@ void Win3DDrawAll()
                 continue;
             if (Object->DrawLayer == 0)
             {
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-                DrawWidescreen(Object);
-#else
-                Object->Draw();
-#endif
+                Win3DDraw(Object);
                 continue;
             }
             InsertSorted(Sorted, &Count, Object);
@@ -1185,11 +1151,7 @@ void Win3DDrawAll()
             for (unsigned Index = 0; Index < Count; ++Index)
             {
                 if (Sorted[Index]->DrawSubLayer == SubLayer)
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-                    DrawWidescreen(Sorted[Index]);
-#else
-                    Sorted[Index]->Draw();
-#endif
+                    Win3DDraw(Sorted[Index]);
             }
         }
 
@@ -1520,21 +1482,12 @@ namespace
         {
             // 0059d2fe: the wheel. The capture head alone gets slot 18 with DAT_0061684c;
             // otherwise the picked object does.
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
             if (G_CaptureHead != nullptr)
-                return WheelWidescreen(G_CaptureHead, GetClientMouseWheel());
+                return Win3DWheel(G_CaptureHead, GetClientMouseWheel());
             Win3D* const Picked = Win3DPick(G_MouseRay);
             if (Picked == nullptr)
                 return false;
-            return WheelWidescreen(Picked, GetClientMouseWheel());
-#else
-            if (G_CaptureHead != nullptr)
-                return G_CaptureHead->Slot18(GetClientMouseWheel());
-            Win3D* const Picked = Win3DPick(G_MouseRay);
-            if (Picked == nullptr)
-                return false;
-            return Picked->Slot18(GetClientMouseWheel());
-#endif
+            return Win3DWheel(Picked, GetClientMouseWheel());
         }
 
         if (MsgId == 5)
@@ -1604,17 +1557,10 @@ namespace
                     return bHandled;
                 Win3D* const Next = Capture->CaptureNext;
                 Win3D* const Hit = Win3DPickWithin(Capture, G_MouseRay);
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
                 if (Hit != nullptr)
-                    bHandled = MouseEventWidescreen(Hit, &Event);
+                    bHandled = Win3DMouseEvent(Hit, &Event);
                 if (!bHandled && Hit != Capture)
-                    bHandled = MouseEventWidescreen(Capture, &Event);
-#else
-                if (Hit != nullptr)
-                    bHandled = Hit->MouseEvent(&Event);
-                if (!bHandled && Hit != Capture)
-                    bHandled = Capture->MouseEvent(&Event);
-#endif
+                    bHandled = Win3DMouseEvent(Capture, &Event);
                 Capture = Next;
             } while (Capture != nullptr);
             if (bHandled)
@@ -1625,11 +1571,7 @@ namespace
         Win3D* const Picked = Win3DPick(G_MouseRay);
         if (Picked == nullptr)
             return bHandled;
-#ifdef FREELANCER_WIDESCREEN_SUPPORT
-        return MouseEventWidescreen(Picked, &Event);
-#else
-        return Picked->MouseEvent(&Event);
-#endif
+        return Win3DMouseEvent(Picked, &Event);
     }
 
     // DAT_0067dbf0. Constructed by the static initializer LAB_0059d060, destroyed through the

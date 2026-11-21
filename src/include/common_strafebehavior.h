@@ -76,19 +76,7 @@ public:
     // MoveIdea and FaceIdea, and every path ends with StrafeMode48 = Mode.
     void SelectStrafePoint(int Mode, IObjInspect const* Target);
 
-    // ---- Behavior's own +0x04..+0x29 block, still declared per class ----
-    int TypeId;                  // +0x04
-    unsigned CachedHandle08;     // +0x08
-    int ModeSelector0xc;         // +0x0c, Slot5's result.
-    int UpdateResult10;          // +0x10, Slot7's result.
-    void* OwnerContext;          // +0x14, the owner IObjRW* (binder).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime;             // +0x1c
-    void* BehaviorMgrPtr;        // +0x20, the IBehaviorManager (binder).
-    SystemManager* NavHelper;    // +0x24, the SystemManager (binder).
-    unsigned char Flags28;       // +0x28
-    unsigned char Flag29;        // +0x29
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // ---- StrafeBehavior's own fields ----
     float TriggerRange2c;        // +0x2c. Slot3: angular distance * (1 + the 0.1-step
@@ -113,16 +101,6 @@ public:
     AfterburnerIdea SubObjectC;  // +0x1a8, ctor FUN_062da500
 };
 
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, TypeId) == 0x04, "StrafeBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, CachedHandle08) == 0x08, "StrafeBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, ModeSelector0xc) == 0x0c, "StrafeBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, UpdateResult10) == 0x10, "StrafeBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, OwnerContext) == 0x14, "StrafeBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, DeltaTime) == 0x1c, "StrafeBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, BehaviorMgrPtr) == 0x20, "StrafeBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, NavHelper) == 0x24, "StrafeBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, Flags28) == 0x28, "StrafeBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, Flag29) == 0x29, "StrafeBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, TriggerRange2c) == 0x2c, "StrafeBehavior::TriggerRange2c offset");
 FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, StrafeDistance34) == 0x34, "StrafeBehavior::StrafeDistance34 offset");
 FL_LAYOUT_ASSERT(offsetof(StrafeBehavior, StrafeDir38) == 0x38, "StrafeBehavior::StrafeDir38 offset");

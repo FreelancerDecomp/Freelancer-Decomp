@@ -74,7 +74,7 @@ public:
     EvaluateResult evaluate(unsigned int Context) override;
     // Slot 7, LAB_062caa60 (516 instructions). Result stored at +0x10.
     int Slot7() override;
-    // Slot 8, LAB_062caa40 (RET 0): MatchThrottle2Idea::Slot2(DeltaTime) while it drives.
+    // Slot 8, LAB_062caa40 (RET 0): MatchThrottle2Idea::Slot2(DeltaTime1c) while it drives.
     void Slot8() override;
     // Slot 10, LAB_062cb110 (RET 4): take the DirectiveTrailOp's target and distance.
     bool Slot10(void* DirectiveOp) override;
@@ -83,19 +83,7 @@ public:
     // Slot 14, LAB_062cb2a0: `ADD ECX,0x2c; JMP FUN_062d6700` -- MatchThrottle2Idea::SetFlag38.
     void set_cruise(bool bOn) override;
 
-    // ---- Behavior's own +0x04..+0x2b block, still declared per class ----
-    int TypeId;                     // +0x04
-    unsigned CachedHandle08;        // +0x08
-    int ModeSelector0xc;            // +0x0c, Slot5's result.
-    int UpdateResult10;             // +0x10, Slot7's result.
-    void* OwnerContext;             // +0x14, the owner IObjRW* (binder).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime;                // +0x1c
-    IBehaviorManager* BehaviorMgrPtr; // +0x20 (binder)
-    SystemManager* NavHelper;       // +0x24 (binder)
-    unsigned char Flags28;          // +0x28
-    unsigned char Flag29;           // +0x29
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     // ---- TrailBehavior's own fields ----
     MatchThrottle2Idea MatchThrottle; // +0x2c
@@ -138,15 +126,6 @@ public:
     float CatchUpRange244;          // +0x244, ctor 1500.0f; handed to MatchThrottle2Idea
 };
 
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, TypeId) == 0x04, "TrailBehavior::TypeId offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, ModeSelector0xc) == 0x0c, "TrailBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, UpdateResult10) == 0x10, "TrailBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, OwnerContext) == 0x14, "TrailBehavior::OwnerContext offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, DeltaTime) == 0x1c, "TrailBehavior::DeltaTime offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, BehaviorMgrPtr) == 0x20, "TrailBehavior::BehaviorMgrPtr offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, NavHelper) == 0x24, "TrailBehavior::NavHelper offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, Flags28) == 0x28, "TrailBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(TrailBehavior, Flag29) == 0x29, "TrailBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(TrailBehavior, MatchThrottle) == 0x2c, "TrailBehavior::MatchThrottle offset");
 FL_LAYOUT_ASSERT(offsetof(TrailBehavior, Face) == 0x88, "TrailBehavior::Face offset");
 FL_LAYOUT_ASSERT(offsetof(TrailBehavior, Move) == 0x148, "TrailBehavior::Move offset");

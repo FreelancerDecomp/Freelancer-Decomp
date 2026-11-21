@@ -56,17 +56,6 @@ float FleeHostileRatioThreshold(int Level)
 // three delegate pointers before anything reads them); the port zeroes them.
 FleeBehavior::FleeBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContextPtr14(nullptr)
-    , Opaque18{}
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , Field2c(0)
     , Pad2d{}
     , Field30(4)

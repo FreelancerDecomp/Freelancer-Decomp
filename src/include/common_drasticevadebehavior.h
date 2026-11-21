@@ -70,21 +70,7 @@ public:
     bool Slot10(void* DirectiveOp) override;
 
 public:
-    // +0x04..+0x29 is Behavior's own block (see common_behavior.h), still declared here
-    // until the family-wide hoist.
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here.
-    unsigned CachedHandle08;   // +0x08. IObjInspect::get_id() of the owner (the binder).
-    int ModeSelector0xc;       // +0x0c. Slot5's result.
-    int UpdateResult10;        // +0x10. Slot7's result.
-    void* OwnerContextPtr14;   // +0x14. The owner IObjRW* (the binder).
-    unsigned char Opaque18[0x1c - 0x18];
-    float DeltaTime1c;         // +0x1c. Per-tick delta the manager stores before Slot7.
-    void* BehaviorMgrPtr20;    // +0x20. The IBehaviorManager (the binder); only the shared
-                               // FUN_062d20f0 reads it in this class.
-    SystemManager* NavHelperPtr24; // +0x24. The SystemManager (the binder).
-    unsigned char Flags28;     // +0x28.
-    unsigned char Flag29;      // +0x29.
-    unsigned char Pad2a[0x2c - 0x2a];
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 
     float StateTimer2c;        // +0x2c. Slot7 accumulates the delta; Slot3 zeroes it. Not
                                // written by the ctor (retail leaves it to Slot3).
@@ -93,15 +79,6 @@ public:
     int TargetKind40;          // +0x40. Ctor 0; Slot10 copies Op+0xc; Slot7 switches on it.
 };
 
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, CachedHandle08) == 0x08, "DrasticEvadeBehavior::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, ModeSelector0xc) == 0x0c, "DrasticEvadeBehavior::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, UpdateResult10) == 0x10, "DrasticEvadeBehavior::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, OwnerContextPtr14) == 0x14, "DrasticEvadeBehavior::OwnerContextPtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, DeltaTime1c) == 0x1c, "DrasticEvadeBehavior::DeltaTime1c offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, BehaviorMgrPtr20) == 0x20, "DrasticEvadeBehavior::BehaviorMgrPtr20 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, NavHelperPtr24) == 0x24, "DrasticEvadeBehavior::NavHelperPtr24 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, Flags28) == 0x28, "DrasticEvadeBehavior::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, Flag29) == 0x29, "DrasticEvadeBehavior::Flag29 offset");
 FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, StateTimer2c) == 0x2c, "DrasticEvadeBehavior::StateTimer2c offset");
 FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, DurationThreshold30) == 0x30, "DrasticEvadeBehavior::DurationThreshold30 offset");
 FL_LAYOUT_ASSERT(offsetof(DrasticEvadeBehavior, TargetOffset) == 0x34, "DrasticEvadeBehavior::TargetOffset offset");

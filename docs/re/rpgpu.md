@@ -25,17 +25,25 @@ client's next `CreateBuffers` brings the new one up.
 
 ## Build
 
-- SDL3 comes from vcpkg in manifest mode: `src/RPGPU/vcpkg.json`, with `builtin-baseline`
-  pinned to a vcpkg release.
-- Only `RPGPU.vcxproj` enables vcpkg, so no other module sees SDL. vcpkg builds SDL3 for
-  `x86-windows` and `x64-windows` and copies `SDL3.dll` next to the game.
+- `FreelancerRpGpu` (`src/Directory.Build.props`) turns RPGPU on: `1` by default on x64, whose
+  client has no other renderer, `0` on Win32, where RP8 is the renderer. Off, the project is an
+  empty Utility build. Build it on Win32 with `-p:FreelancerRpGpu=1`.
+- SDL3 comes from vcpkg in manifest mode. All port-only modules share one manifest,
+  `src/vcpkg.json`, with one `builtin-baseline` pinned to a vcpkg release; each module is a
+  feature of it (`rpgpu`), installed only when the module is on.
+- `src/Vcpkg.props` and `src/Vcpkg.targets` hold the vcpkg wiring. Only port-only projects
+  import them, so no retail module sees SDL. vcpkg installs into `src/vcpkg_installed/<triplet>/`
+  (`x86-windows`, `x64-windows`), one copy for every consumer, and copies `SDL3.dll` next to the
+  game.
 - vcpkg is found through `VCPKG_ROOT` (Visual Studio's developer prompt),
-  `VCPKG_INSTALLATION_ROOT` (GitHub's Windows runners) or Visual Studio's own copy. Without it
-  the project builds nothing and says so; nothing else depends on it.
+  `VCPKG_INSTALLATION_ROOT` (GitHub's Windows runners) or Visual Studio's own copy
+  (override: `-p:FlVcpkgRoot=...`). When RPGPU is on and vcpkg is missing, the build skips it
+  with a warning; with `-p:FreelancerRequireVcpkg=true` it fails instead.
 - `RP_DIRECT3D9` selects the Direct3D 9 branch of `render/d3d8_min.h`, so the interface types
   come from the Windows SDK's `d3d9.h`, which has the same layouts. No DirectX 8 SDK is needed.
-- CI caches vcpkg's binary packages (`VCPKG_DEFAULT_BINARY_CACHE`), so SDL3 is compiled once
-  per manifest and platform.
+- CI builds RPGPU on both platforms with `FreelancerRpGpu=1` and `FreelancerRequireVcpkg=true`.
+  It caches vcpkg's binary packages (`VCPKG_DEFAULT_BINARY_CACHE`) per triplet, runner image and
+  manifest, so SDL3 is compiled once per compiler and manifest, not per run.
 
 ## Structure
 

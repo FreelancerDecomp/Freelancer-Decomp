@@ -20,18 +20,6 @@
 // finally (implicitly, via C++ construction) installs the vtable.
 DelayBehavior::DelayBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , OwnerContextPtr14(nullptr)
-    , Opaque18{}
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , Watcher2c()   // FUN_062d9b10 (IdleIdea's ctor), .text:062d0a42
     , Field40(0.0f)
     , Field44(0.0f)

@@ -130,12 +130,12 @@
 // sites total across the class now, not 2). Reading these bodies also turned up
 // many MORE offsets that read/write byte-for-byte identically to
 // FormationBehavior's own documented fields, well beyond the original 3:
-// DockBehavior's ThreatSourcePtr14/Field20/Field24 (+0x14/+0x20/+0x24) are
+// DockBehavior's OwnerContextPtr14/BehaviorMgrPtr20/NavHelperPtr24 (+0x14/+0x20/+0x24) are
 // populated by the exact same shared initializer FUN_062d2090 (see item 1271
 // below) that other Behavior-family siblings' own +0x14/+0x20/+0x24-shaped
 // fields go through elsewhere in this module (15 call sites total, spanning
 // the whole 0x062cXXXX Behavior neighborhood) -- i.e. these are NOT
-// DockBehavior-private "Field20/Field24" ints as this pass's own predecessor
+// DockBehavior-private "BehaviorMgrPtr20/NavHelperPtr24" ints as this pass's own predecessor
 // assumed; they are genuinely BaseFollowerBehavior::BehaviorMgrPtr/NavHelper
 // -shaped pointers (FUN_062d2090 literally writes `P1`/`P2`/`P3` raw pointer
 // arguments into them). Also newly confirmed identical to FormationBehavior:
@@ -180,58 +180,8 @@ class DockBehaviorFields : public Behavior
 public:
     explicit DockBehaviorFields(int InTypeId);
 
-    int TypeId;  // +0x04. The type id retail's shared base ctor FUN_062d2020 parks here, taken
-                 // from this class's own ctor argument -- see Behavior::GetTypeId() (common_behavior.h)
-                 // for the twenty-one-factory evidence.
-    unsigned CachedHandle08;  // retyped 2026-09-16: this is IObjInspect::get_id()'s result,
-                              // an object id, not a handle. Retail slot 8 is `?get_id@IObjInspectImpl@@UBE?BIXZ`.       // +0x08. Set by item 1271 (LAB_062c31c0, own vtable slot 1) from
-                                 // `ThreatSourcePtr14->vtbl[0x20]()`'s return value, via the shared
-                                 // Behavior-family initializer FUN_062d2090 (15 xrefs across this
-                                 // module's whole 0x062cXXXX Behavior neighborhood -- see the
-                                 // class-level comment above). Not otherwise read by anything this
-                                 // pass ported.
-    int ModeSelector0xc;        // +0x0c. Written by SetModeFromFlags() (values 1/2/3); not
-                                 // otherwise read by anything this pass ported.
-    int UpdateResult10;         // +0x10. Update()'s own tri-state result/early-out code (1/2/3),
-                                 // analogous in spirit (not offset) to FormationBehavior's
-                                 // BaseFollowerBehavior::UpdateResult.
-    void* ThreatSourcePtr14;    // +0x14. Update() null-checks then dereferences this as a
-                                 // vtable-having pointer (slots 0x40/0x6c called on *its*
-                                 // vtable, not DockBehavior's own). CONFIRMED (this pass) to be
-                                 // the same structural field as FormationBehavior/
-                                 // BaseFollowerBehavior::OwnerContext@+0x14 -- both are populated by
-                                 // the identical shared initializer FUN_062d2090 at the identical
-                                 // offset (see item 1271 / the class comment above).
-    unsigned char Opaque18[0x20 - 0x18]; // +0x18, never touched by anything read this pass
-    void* Field20;                // +0x20. CONFIRMED (this pass, item 1277/LAB_062c3910) to be an
-                                   // `IBehaviorManager*` -- that function calls
-                                   // `IBehaviorManager::lock_maneuvers` on it BY LINKED SYMBOL NAME,
-                                   // matching FormationBehavior::BaseFollowerBehavior::BehaviorMgrPtr
-                                   // at the identical offset exactly. Previously typed as a plain
-                                   // `int`; retyped to `void*` this pass (still stored/read as a raw
-                                   // pointer by every confirmed caller; not yet cast to
-                                   // `IBehaviorManager*` directly since that header isn't included
-                                   // here).
-    void* Field24;                 // +0x24. CONFIRMED (this pass) structurally identical to
-                                    // FormationBehavior/BaseFollowerBehavior::NavHelper@+0x24 (same
-                                    // shared FUN_062d2090 initializer, same `+0x14fc`-offset nested
-                                    // vtable-having sub-object access pattern seen in items
-                                    // 1271/1277/1289). Update() also passes it as an argument to
-                                    // BOTH FUN_062c2af0 and FUN_062c2d90 (items 1257/1259).
-                                    // Previously typed as a plain `int`; retyped to `void*` this pass.
-    unsigned char Flags28;       // +0x28. Update() tests bit 0x1 (early-exit to state 2);
-                                  // SetModeFromFlags() tests bit 0x2.
-    unsigned char Flag29;        // +0x29. SetModeFromFlags() tests it (nonzero => mode 3).
-    unsigned char Pad2a[0x2c - 0x2a]; // +0x2a, alignment only
+    // +0x04..+0x29 is Behavior's own block, declared once on Behavior (common_behavior.h).
 };
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, CachedHandle08) == 0x08, "DockBehaviorFields::CachedHandle08 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, ModeSelector0xc) == 0x0c, "DockBehaviorFields::ModeSelector0xc offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, UpdateResult10) == 0x10, "DockBehaviorFields::UpdateResult10 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, ThreatSourcePtr14) == 0x14, "DockBehaviorFields::ThreatSourcePtr14 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Field20) == 0x20, "DockBehaviorFields::Field20 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Field24) == 0x24, "DockBehaviorFields::Field24 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Flags28) == 0x28, "DockBehaviorFields::Flags28 offset");
-FL_LAYOUT_ASSERT(offsetof(DockBehaviorFields, Flag29) == 0x29, "DockBehaviorFields::Flag29 offset");
 FL_LAYOUT_ASSERT(sizeof(DockBehaviorFields) == 0x2c, "DockBehaviorFields size (own data ends right before the RequestCB secondary vtable ptr at +0x2c)");
 
 class DockBehavior : public DockBehaviorFields, public IObjAffect::RequestCB
@@ -397,7 +347,7 @@ public:
     // Own vtable slot 1 (offset 0x04). Common.dll.txt 187726-187871
     // (LAB_062c31c0), 141 instructions. First calls the shared Behavior-family
     // context initializer FUN_062d2090(this, P1, P2, P3) (see
-    // DockBehaviorFields::ThreatSourcePtr14/Field20/Field24 above); if it
+    // DockBehaviorFields::OwnerContextPtr14/BehaviorMgrPtr20/NavHelperPtr24 above); if it
     // returns false (P1/P3 null -- NOT P1/P2; confirmed directly from
     // FUN_062d2090's own raw disassembly), returns immediately. Otherwise resets
     // AbortFlag398/Flag39b, calls SubObjectA/B/C's own vtable slot 0, clears
@@ -407,7 +357,7 @@ public:
     // +0x444/+0x448/+0x44c (Opaque444), NOT SubStateValue440(+0x440)/
     // Field330(+0x330) -- no instruction anywhere in this function touches
     // either of those two fields; the prior pass's claim was wrong, fixed in
-    // the .cpp], and (if a "hpmount" hardpoint lookup on ThreatSourcePtr14
+    // the .cpp], and (if a "hpmount" hardpoint lookup on OwnerContextPtr14
     // fails) recomputes OrientMatrix3d8 from NavHelper's nested +0x14fc/+0x84
     // sub-object via FUN_06391cf0/its own vtbl+0x38 -- that recompute branch
     // stays FULLPORT-DEFERRED (deeply coupled to NavHelper's still-
@@ -416,9 +366,9 @@ public:
     // SubObjectA/B's own vtable slot 0 calls are now WIRED FOR REAL (2026-09-11
     // d285:common-port), now that they're identified as MoveIdea/FaceIdea:
     // re-read from the raw bytes, both calls pass the identical 3 arguments
-    // `(ThreatSourcePtr14, Field24, <this function's own raw Param2>)` -- NOT
-    // `Field20` (which also holds the same value, since FUN_062d2090 sets
-    // Field20=Param2, but retail's own EDI register here is never reloaded
+    // `(OwnerContextPtr14, NavHelperPtr24, <this function's own raw Param2>)` -- NOT
+    // `BehaviorMgrPtr20` (which also holds the same value, since FUN_062d2090 sets
+    // BehaviorMgrPtr20=Param2, but retail's own EDI register here is never reloaded
     // from +0x20, it's the still-live raw incoming Param2 captured before the
     // FUN_062d2090 call). SubObjectC's own slot-0 call is wired for real
     // too as of 2026-09-17 (claude:abi-pass50), with the same three
@@ -434,13 +384,13 @@ public:
     // Watcher324's watched block is gone; otherwise resets several per-tick
     // fields (Field43c=-1, CombatFlag344=0, Field33c via FUN_062e5af0/
     // FUN_062e5ab0*3.0, SetCruiseLock(1,3) via FUN_062d21d0), then branches on
-    // StateFlags32c's sign bit: if clear, calls ThreatSourcePtr14's vtbl+0x138
+    // StateFlags32c's sign bit: if clear, calls OwnerContextPtr14's vtbl+0x138
     // "get transform" (writes Opaque388/Facing38c/an intercept-point out-param
     // -- see the field comments below for the 2026-09-11 width correction to
     // this span), builds OrientMatrix3d8 via LookMatrixYup, and updates
     // SubObjectA via FUN_062d4e50 with the watched block's vtbl+0x20 result;
     // if set and bit 0x40 set, tail-calls FUN_062c50e0 (FULLPORT-DEFERRED).
-    // Finally checks ThreatSourcePtr14's vtbl+0xbc "is threatening" bool and a
+    // Finally checks OwnerContextPtr14's vtbl+0xbc "is threatening" bool and a
     // distance-squared-vs-DAT_063fc518 test on the watched block's position to
     // decide `EnterState(0xd)` vs `EnterState(1)`, then a FUN_062d5a80 call on
     // SubObjectA (FULLPORT-DEFERRED, same "unidentified sub-object vtable" gap
@@ -463,7 +413,7 @@ public:
     //      completely separate short tail (LAB_062c3afc) that the prior port
     //      didn't reproduce AT ALL (an early-out on ApproachClearedFlag334==0,
     //      else resets SubStateValue440/Field330/ApproachClearedFlag334 and a
-    //      still-unidentified "get watched position, feed ThreatSourcePtr14's
+    //      still-unidentified "get watched position, feed OwnerContextPtr14's
     //      own +4 nested vtbl+0x60" call). Now reproduced (position/vtbl part
     //      still FULLPORT-DEFERRED, nested class unidentified).
     //   2. The prior port had the StateFlags32c-sign-bit branches INVERTED:
@@ -476,7 +426,7 @@ public:
     //      Field330/ApproachClearedFlag334 resets plus the AbortFlag398/
     //      Flag399-gated CShip::request_exit_tradelane call and the
     //      independent Flag39a-gated "position" call. Sign-bit CLEAR: level
-    //      is CONDITIONAL (2 only if ThreatSourcePtr14's nested +0x14fc+0x84
+    //      is CONDITIONAL (2 only if OwnerContextPtr14's nested +0x14fc+0x84
     //      sub-object's own vtbl+0xbc call is true AND ModeState320==1, else
     //      0) -- that nested condition is still FULLPORT-DEFERRED (unidentified
     //      class), so this port conservatively always passes 0 on this branch
@@ -488,8 +438,8 @@ public:
     //      own header comment), then `SubObjectB.Commit()`, then
     //      `SubObjectA.Commit()` (own vtable slot 4, retail `vtbl+0x10` --
     //      WIRED FOR REAL this pass now that MoveIdea/FaceIdea are identified),
-    //      `SetCruiseLock(1,3)`, `FUN_062e9a60(Field24+0x12c, 1)` -- WIRED FOR
-    //      REAL 2026-09-17, now Field24->GunGroups.SetShieldActive(1); it
+    //      `SetCruiseLock(1,3)`, `FUN_062e9a60(NavHelperPtr24+0x12c, 1)` -- WIRED FOR
+    //      REAL 2026-09-17, now NavHelperPtr24->GunGroups.SetShieldActive(1); it
     //      had been FULLPORT-DEFERRED under the guessed name "ResumeUserInput"
     //      for a function that was fully ported on 2026-09-11 -- and a
     //      still-FULLPORT-DEFERRED `FUN_062d20f0(this)`, and finally
@@ -504,10 +454,10 @@ public:
     // (LAB_062c35f0), 100 instructions. Retail returns a literal 1 or 2 (NOT
     // a bool -- both values are non-zero), so this is typed `int` to preserve
     // that. Returns 1 ("already clear"/early-out) if AbortFlag398 is set.
-    // Otherwise calls ThreatSourcePtr14's vtbl+0x74 to get a "candidate"
+    // Otherwise calls OwnerContextPtr14's vtbl+0x74 to get a "candidate"
     // object; if null, returns 2. Else calls the candidate's own vtbl+0x88 to
     // get a status dword and tests it against several bit patterns
-    // (0x600de0/0x8c0/0x120, or a fallback vtbl+0x8c + FUN_062e7400(Field24+
+    // (0x600de0/0x8c0/0x120, or a fallback vtbl+0x8c + FUN_062e7400(NavHelperPtr24+
     // 0x34, candidate) path) to decide whether to proceed to a
     // distance/facing check: candidate's vtbl+0x40 (float getter, compared to
     // DAT_06399408) then vtbl+0x4 (3-float getter, dotted against itself and
@@ -539,7 +489,7 @@ public:
     // (LAB_062c54b0), 51 instructions. A notification-message handler:
     // `param->TypeCode` (+0) selects between two "is this about MY watched
     // object" identity checks against `param->Payload` (+4) -- type 4 checks
-    // a flag byte plus two vtbl+0x20 "get id" calls (ThreatSourcePtr14's and
+    // a flag byte plus two vtbl+0x20 "get id" calls (OwnerContextPtr14's and
     // Watcher324's watched-block's) against Payload+0xc/+0x10; type 3 checks
     // NavHelper's nested +0x14fc/+0x84 sub-object's own vtbl+0x20 result
     // against Payload+8. On a match, sets Flag399=1 and calls
@@ -589,9 +539,9 @@ private:
     // The "refresh NavHelper's cached lead point unless it was already recomputed
     // this frame" idiom, verbatim from retail and used at three sites inside these
     // two bodies (Common.dll.txt 062c4a72, 062c4b0e and 062c3e97, all identical
-    // byte-for-byte): read the flag at Field24+0x157a, and if it is clear, set the
-    // byte at Field24+0x14fc+0x7e and dispatch slot 0x2c of the sub-object pointer
-    // at Field24+0x14fc+0x84 with (Field24+0x14fc+0x18, Field24+0x14fc+0xc). Same
+    // byte-for-byte): read the flag at NavHelperPtr24+0x157a, and if it is clear, set the
+    // byte at NavHelperPtr24+0x14fc+0x7e and dispatch slot 0x2c of the sub-object pointer
+    // at NavHelperPtr24+0x14fc+0x84 with (NavHelperPtr24+0x14fc+0x18, NavHelperPtr24+0x14fc+0xc). Same
     // shape FormationBehavior::DisengageSelf() documents and decomp-tracker item
     // 1996 independently confirmed.
     void NavHelperRefreshLeadPoint();
@@ -631,12 +581,6 @@ private:
     // (RunCollisionProbe, an always-true stub for FUN_062e53e0, is gone 2026-10-08: its one
     // call site, Update case 9 at .text:062c4edd, now calls IsPointOutsideHeadingCone.)
 
-    // Raw-offset reach for the two spans inside this class that retail addresses but
-    // whose width it never proves -- Opaque3a8 (+0x3a8), Opaque40c's +0x40c and
-    // +0x430. Retail only ever takes their address, so no typed member is declared;
-    // see each field's own comment. Keeping the reach in one named helper makes the
-    // remaining raw offsets greppable.
-    void* RawAt(unsigned Offset) { return reinterpret_cast<unsigned char*>(this) + Offset; }
     // ---- Not-yet-identified sub-object constructors (FULLPORT-DEFERRED). ----
     // SubObjectA/B (FUN_062d4e60/FUN_062d6750) are IDENTIFIED as real
     // MoveIdea/FaceIdea (see the field declarations below) -- their real
@@ -704,7 +648,7 @@ public:
     // vtable) -- left FULLPORT-DEFERRED, unrelated to this identification.
     // Update()'s own SubObjectA.Commit() call (retail's post-threat-check
     // tail) stays FULLPORT-DEFERRED too: it's gated behind a still-unported
-    // "is threatening"/distance check on ThreatSourcePtr14's own vtable, so
+    // "is threatening"/distance check on OwnerContextPtr14's own vtable, so
     // wiring just the now-known Commit() call in isolation would run it
     // unconditionally every Update() tick, which retail does not do.
     MoveIdea SubObjectA;    // +0x30.
@@ -803,7 +747,7 @@ public:
     // CORRECTED 2026-09-11 (d270:common-port): the prior pass's `Vector Position388`
     // (claimed to span +0x388..+0x394) is disproved by re-reading RecomputeApproach's
     // raw disassembly (Common.dll.txt 188304-188317, LAB_062c3720/item 1276) byte-for-
-    // byte: `ThreatSourcePtr14->vtbl[0x138]` takes THREE separate out-param addresses,
+    // byte: `OwnerContextPtr14->vtbl[0x138]` takes THREE separate out-param addresses,
     // `LEA EDI,[EBP+0x388]` / `LEA EDI,[EBP+0x3cc]` / `LEA ESI,[EBP+0x38c]` -- and that
     // third one (+0x38c) is independently proven to be its OWN full 3-float Vector: the
     // exact same ESI pointer is immediately re-pushed as the sole argument to
@@ -883,7 +827,7 @@ public:
     // transform's rotation here (9-dword MOVSD at .text:062c5175-062c5184) and reads its
     // column z (+0x414/+0x420/+0x42c). Split out of `Opaque40c[0x30]` 2026-10-08.
     Matrix Orient40c;
-    unsigned char Opaque430[0x43c - 0x430]; // +0x430: EnterState reads a Vector here (RawAt)
+    unsigned char Opaque430[0x43c - 0x430]; // +0x430: EnterState reads a Vector here
     int Field43c;              // +0x43c. Set by OnResult() to its own 3rd int parameter; also
                                 // reset to -1 by RecomputeApproach().
     int SubStateValue440;       // +0x440. Cleared by RecomputeApproach()/Disengage() -- CONFIRMED

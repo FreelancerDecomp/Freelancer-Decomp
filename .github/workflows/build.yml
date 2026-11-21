@@ -128,18 +128,45 @@ jobs:
             throw 'DX8 SDK layout not as expected'
           }
 
-      # RPGPU's SDL3 comes from vcpkg in manifest mode (src/RPGPU/vcpkg.json; the runner's
-      # VCPKG_INSTALLATION_ROOT). vcpkg keeps each package it builds as a zip in its binary cache;
-      # caching that folder means SDL3 is compiled once per manifest and platform, not per run.
+      # The port-only modules' packages come from vcpkg in manifest mode (src/vcpkg.json; the
+      # runner's VCPKG_INSTALLATION_ROOT). vcpkg keeps each package it builds as a zip in its
+      # binary cache, under a hash of its inputs, compiler included; caching that folder means
+      # SDL3 is compiled once per manifest, triplet and runner image, not per run. The image
+      # version is in the key so that a new compiler's packages are saved under a new key (the
+      # old key would hit and never be saved again); restore-keys still start from the newest
+      # older cache. Only the PR side saves: the base side may build fewer features, and a
+      # smaller cache saved first under the same key would stick. ImageOS and ImageVersion are
+      # the runner's environment variables, which the env context does not hold.
+      - name: vcpkg cache key
+        id: vcpkg-key
+        shell: pwsh
+        env:
+          TRIPLET: ${{ matrix.platform == 'x64' && 'x64-windows' || 'x86-windows' }}
+          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
+        run: |
+          $prefix = "vcpkg-$env:TRIPLET-$env:ImageOS-"
+          "prefix=$prefix" >> $env:GITHUB_OUTPUT
+          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
+
       - name: Cache vcpkg packages
         if: matrix.side == 'pr'
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: vcpkg-${{ matrix.platform }}-${{ hashFiles('src/RPGPU/vcpkg.json') }}
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
+
+      - name: Restore vcpkg packages
+        if: matrix.side == 'base'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/vcpkg-binary-cache
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
 
       - name: Point vcpkg at the cache
-        if: matrix.side == 'pr'
         shell: pwsh
         run: |
           $cache = Join-Path $env:RUNNER_TEMP 'vcpkg-binary-cache'
@@ -153,10 +180,14 @@ jobs:
       # count. Idle cores then pick up files from any project, so the projects on the critical
       # path (Common, freelancer) are not stuck behind small single-threaded libraries.
       # Neither changes the compiler or linker options.
+      # The PR side builds RPGPU on both platforms (FreelancerRpGpu is off by default on Win32)
+      # and fails if vcpkg is missing rather than skipping it. The base side only feeds the
+      # Win32 FLRegress and RpcCodecTest comparisons, which RPGPU is not part of.
       - name: Build
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
           -p:Configuration=Release -p:Platform=${{ matrix.platform }}
+          ${{ matrix.side == 'pr' && '-p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true' || '' }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
           -clp:PerformanceSummary -bl:msbuild.binlog
 
@@ -173,9 +204,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: freelancer-release-x64
+          # The dev ini and character files: the build copies them from bin\ (copy_dev_ini.py).
           path: |
             bin_x64/*.exe
             bin_x64/*.dll
+            bin_x64/*.ini
+            bin_x64/*.txt
+            bin_x64/*.fl
             bin_x64/*.pdb
           if-no-files-found: error
           retention-days: 14
@@ -210,25 +245,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore game data
-        uses: actions/cache/restore@v4
+      - uses: ./.github/actions/test-setup
         with:
-          path: DATA
-          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
-          fail-on-cache-miss: true
-
-      - name: Download binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: freelancer-release-win32
-          path: bin
-
-      - name: Download base binaries
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@v4
-        with:
-          name: freelancer-base-win32
-          path: base
+          data-key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          base: true
 
       # The dump holds values read from the game data, so it is compared here and never
       # uploaded; only its SHA-256 and, on a mismatch, the first differing lines are printed.
@@ -357,18 +377,14 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Download binaries
-        uses: actions/download-artifact@v4
+      # Only for the local action: this job runs the downloaded binaries.
+      - uses: actions/checkout@v4
         with:
-          name: freelancer-release-win32
-          path: bin
+          sparse-checkout: .github/actions
 
-      - name: Download base binaries
-        if: github.event_name == 'pull_request'
-        uses: actions/download-artifact@v4
+      - uses: ./.github/actions/test-setup
         with:
-          name: freelancer-base-win32
-          path: base
+          base: true
 
       - name: Run twice and compare
         shell: pwsh
@@ -444,31 +460,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore game data
-        uses: actions/cache/restore@v4
+      # RemoteClient hosts through DirectPlay 8.
+      - uses: ./.github/actions/test-setup
         with:
-          path: DATA
-          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
-          fail-on-cache-miss: true
-
-      - name: Download binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: freelancer-release-win32
-          path: bin
-
-      # RemoteClient hosts through DirectPlay 8, an optional Windows component that Windows
-      # Server does not install by default.
-      - name: Enable DirectPlay
-        shell: pwsh
-        run: |
-          $feature = Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue
-          if ($feature -and -not $feature.Installed) {
-            Install-WindowsFeature -Name Direct-Play | Format-List | Out-String | Write-Host
-          } elseif (-not $feature) {
-            Enable-WindowsOptionalFeature -Online -FeatureName DirectPlay -All -NoRestart | Out-Null
-          }
-          Write-Host "DirectPlay: $((Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue).InstallState)"
+          data-key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          directplay: true
 
       # Starts the server, joins it with Microsoft's DirectPlay 8 client (DPNetCheck, the client
       # side of a retail Freelancer), lets it stop after 45 seconds and checks the log for the
@@ -505,6 +501,26 @@ jobs:
             if (-not $log.Contains($line)) { throw "missing from the log: $line" }
           }
           if ($check -ne 0) { throw "DPNetCheck failed (exit code $check)" }
+
+  # The x64 .def files (dacom_x64.def, Content_x64.def) repeat their Win32 twins with the C++
+  # names decorated for x64 (docs/x64.md). Their undecorated names, ordinals and flags must agree.
+  def-twins:
+    name: x64 .def files match Win32
+    runs-on: windows-2022
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare the export lists
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $undname = & $vswhere -latest -products * -find 'VC\Tools\MSVC\**\bin\Hostx64\x64\undname.exe' | Select-Object -First 1
+          if (-not $undname) { throw 'undname.exe not found' }
+          python .github/scripts/check_def_twins.py --undname $undname src
+          if ($LASTEXITCODE -ne 0) { throw 'An x64 .def file is out of step with its Win32 twin' }
 
   # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
   # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
@@ -548,39 +564,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore game data
-        uses: actions/cache/restore@v4
+      - uses: ./.github/actions/test-setup
         with:
-          path: DATA
-          key: fl-data-${{ env.FL_ISO_MD5 }}-v1
-          fail-on-cache-miss: true
-
-      - name: Download Win32 binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: freelancer-release-win32
-          path: bin
-
-      - name: Download x64 binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: freelancer-release-x64
-          path: bin_x64
-
-      # The development ini and character files the server reads live only in bin\.
-      - name: Copy the server's ini files
-        shell: pwsh
-        run: Copy-Item bin/*.ini, bin/*.txt, bin/*.fl bin_x64/
-
-      - name: Enable DirectPlay
-        shell: pwsh
-        run: |
-          $feature = Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue
-          if ($feature -and -not $feature.Installed) {
-            Install-WindowsFeature -Name Direct-Play | Format-List | Out-String | Write-Host
-          } elseif (-not $feature) {
-            Enable-WindowsOptionalFeature -Online -FeatureName DirectPlay -All -NoRestart | Out-Null
-          }
+          data-key: fl-data-${{ env.FL_ISO_MD5 }}-v1
+          x64: true
+          directplay: true
 
       # The wire format must not depend on the platform: x64 must encode and decode every
       # packet exactly as Win32 does.

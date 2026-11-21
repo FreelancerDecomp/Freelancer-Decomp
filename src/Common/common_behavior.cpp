@@ -13,7 +13,8 @@
 #include "common_behavior.h"
 #include "common_behavior_internal.h" // CmnBehavior:: -- the shared follower helpers defined here
 #include "common_aisteer.h" // GetIfacePositionOrZero, IsWithinInterceptRangeOfIface
-#include "common_systemmanager.h" // SystemManager -- BaseFollowerBehavior::NavHelper's real type
+#include "common_systemmanager.h" // SystemManager -- Behavior::NavHelperPtr24's real type
+#include "common_cobject.h"       // CObject::ObjectClass (+0x4c) -- FollowerPlayerShipOrNull
 #include "common_misc.h" // FastInvSqrt
 #include "common_csys.h"  // Matrix, Transform, MatrixSetIdentity, Acquire3DMathEngine
 #include "common_iface.h" // IObjInspect / IObjRW / ObjInspectOf / ObjRwFromWatchable
@@ -41,10 +42,9 @@ float Behavior_InvokeManagerSlotD4(IObjInspect const* Obj, float Value, ThrustEq
 // through the `RET` at .text:062d21ca. See common_behavior.h for the receiver proof
 // and for the three claims in the tracker note that did not survive re-measuring.
 // No null test, as retail: every call site has already called through the same pointer.
-void Behavior_ReleaseDirectiveTarget(void* Target)
+void Behavior_ReleaseDirectiveTarget(Behavior* Target)
 {
-    unsigned char* const Flags28 = reinterpret_cast<unsigned char*>(Target) + 0x28;
-    *Flags28 = static_cast<unsigned char>((*Flags28 & 0xfd) | 0x01);  // 062d21c3 / 062d21c5
+    Target->Flags28 = static_cast<unsigned char>((Target->Flags28 & 0xfd) | 0x01);  // 062d21c3 / 062d21c5
 }
 
 // FUN_062e5af0 (decomp-tracker item 1762). See common_behavior.h for the full
@@ -252,60 +252,22 @@ Transform const* Behavior_InvokeNodeSlotC(void* Node)
 
 
 // ============================================================================
-// Behavior -- the base class's own +0x1c per-tick delta.
-//
-// See the long comment on Behavior's declaration (common_behavior.h) for why this is an
-// accessor pair over a raw offset and not a data member: nineteen classes in this port
-// re-declare Behavior's whole +0x04..+0x29 block on themselves, and every one of their
-// offsetof static_asserts depends on sizeof(Behavior) staying 4. Giving the base a member
-// would slide all nineteen by 0x28 bytes in one edit, so the migration is an open TODO for a
-// wave that can touch all of them at once -- not something to sneak in from six files.
-//
-// The offset itself is retail's, from two independent places: the constructor FUN_062d2020
-// zeroes a dword at +0x1c (.text:062d2037), and IBehaviorManager::UpdateBehaviorTick stores a
-// float there through a bare Behavior* immediately before dispatching Slot7
-// (.text:062d335d-062d336a, `FLD [ESI+0xd4]` / `FSTP [EDI+0x1c]` / `CALL [EAX+0x1c]`).
+// Behavior's own non-inline members. The +0x04..+0x29 block they touch is declared on
+// Behavior itself (common_behavior.h); the retail offsets are in the comments and pinned by
+// that header's FL_LAYOUT_ASSERTs.
 // ============================================================================
 
-float Behavior::GetTickDelta() const
+// Vtable slot 2 (+0x08), 0x0629afd0: `MOV EAX,[ESP+4]; MOV [ECX+0x18],EAX; RET 4`.
+void Behavior::Slot2(IObjDB* InObjectDb)
 {
-    return *reinterpret_cast<float const*>(reinterpret_cast<char const*>(this) + 0x1c);
-}
-
-void Behavior::SetTickDelta(float Delta)
-{
-    *reinterpret_cast<float*>(reinterpret_cast<char*>(this) + 0x1c) = Delta;
-}
-
-// Vtable slot 2 (+0x08), 0x0629afd0: `MOV EAX,[ESP+4]; MOV [ECX+0x18],EAX; RET 4`. Same
-// raw-offset device as SetTickDelta -- +0x18 is declared on each subclass (see common_behavior.h).
-void Behavior::Slot2(IObjDB* ObjectDb)
-{
-    *reinterpret_cast<IObjDB**>(reinterpret_cast<char*>(this) + 0x18) = ObjectDb;
+    ObjectDb = InObjectDb;
 }
 
 // Vtable slot 23 (+0x5c), LAB_062c2f50: `AND byte ptr [ECX+0x28],0xfd; RET`. Shared by all 21
 // Behavior vtables. Callers: IBehaviorManager::set_current_directive (one entry, then all 21).
 void Behavior::cancel_notify()
 {
-    unsigned char* const Flags28 = reinterpret_cast<unsigned char*>(this) + 0x28;
-    *Flags28 = static_cast<unsigned char>(*Flags28 & 0xfd);
-}
-
-// Same raw-offset device, same reason, for the type id FUN_062d2020 parks at +0x04 -- see the
-// declaration's comment in common_behavior.h for the factory-side evidence. Read-only: the
-// storage is written by whichever derived class declares it, from its own `int TypeId`
-// constructor argument.
-int Behavior::GetTypeId() const
-{
-    return *reinterpret_cast<int const*>(reinterpret_cast<char const*>(this) + 0x04);
-}
-
-// Same raw-offset device again, for the NavHelper pointer at +0x24 -- see the declaration's
-// comment in common_behavior.h. Read-only; the binder FUN_062d2090 is what writes it.
-void* Behavior::GetNavHelper() const
-{
-    return *reinterpret_cast<void* const*>(reinterpret_cast<char const*>(this) + 0x24);
+    Flags28 = static_cast<unsigned char>(Flags28 & 0xfd);
 }
 
 // Vtable slot 3 (+0x0c), FUN_062d20d0 (Common.dll.txt 210738-210750), 6 instructions:
@@ -313,12 +275,10 @@ void* Behavior::GetNavHelper() const
 // MOV dword [ECX+0x1c],0; RET`.
 void Behavior::Slot3()
 {
-    char* const Self = reinterpret_cast<char*>(this);
-    *reinterpret_cast<int*>(Self + 0x0c) = 1;                        // 062d20d5
-    *reinterpret_cast<int*>(Self + 0x10) = 1;                        // 062d20d8
-    unsigned char* const Flags28 = reinterpret_cast<unsigned char*>(Self + 0x28);
-    *Flags28 = static_cast<unsigned char>(*Flags28 & 0xfe);          // 062d20db
-    *reinterpret_cast<float*>(Self + 0x1c) = 0.0f;                   // 062d20df (dword 0)
+    ModeSelector0xc = 1;                                             // 062d20d5
+    UpdateResult10 = 1;                                              // 062d20d8
+    Flags28 = static_cast<unsigned char>(Flags28 & 0xfe);            // 062d20db
+    DeltaTime1c = 0.0f;                                              // 062d20df (dword 0)
 }
 
 // Vtable slot 4 (+0x10), FUN_062d20f0 (Common.dll.txt 210760-210776), 8 instructions:
@@ -326,29 +286,25 @@ void Behavior::Slot3()
 // pointer itself is not null-tested.
 void Behavior::Slot4()
 {
-    char* const Self = reinterpret_cast<char*>(this);
-    IBehaviorManager* const Manager = *reinterpret_cast<IBehaviorManager* const*>(Self + 0x20);
-    PathfindManager* const Pathfind = Manager->Pathfind;              // 062d20f3
+    PathfindManager* const Pathfind = BehaviorMgrPtr20->Pathfind;    // 062d20f3
     if (Pathfind != nullptr)
         Pathfind->Field_064 = 0;                                     // 062d20fc
-    *reinterpret_cast<unsigned char*>(Self + 0x29) = 0;              // 062d20ff
+    Flag29 = 0;                                                      // 062d20ff
 }
 
 // FUN_062d2020 (.text:062d2020-062d205a), all 16 instructions, the vptr store aside.
-void Behavior::ConstructBase(int TypeId)
+void Behavior::ConstructBase(int InTypeId)
 {
-    char* const Self = reinterpret_cast<char*>(this);
-    *reinterpret_cast<int*>(Self + 0x04) = TypeId;                         // 062d2026
-    *reinterpret_cast<unsigned int*>(Self + 0x08) = 0;                     // 062d202b
-    *reinterpret_cast<void**>(Self + 0x14) = nullptr;                      // 062d202e
-    *reinterpret_cast<void**>(Self + 0x24) = nullptr;                      // 062d2031
-    *reinterpret_cast<void**>(Self + 0x18) = nullptr;                      // 062d2034
-    *reinterpret_cast<unsigned int*>(Self + 0x1c) = 0;                     // 062d2037
-    *reinterpret_cast<unsigned char*>(Self + 0x29) = 0;                    // 062d203a
-    unsigned char* const Flags28 = reinterpret_cast<unsigned char*>(Self + 0x28);
-    *Flags28 = static_cast<unsigned char>(*Flags28 & 0xfc);                // 062d2040
-    *reinterpret_cast<int*>(Self + 0x0c) = 2;                              // 062d2049
-    *reinterpret_cast<int*>(Self + 0x10) = 1;                              // 062d2050
+    TypeId = InTypeId;                                                     // 062d2026
+    CachedHandle08 = 0;                                                    // 062d202b
+    OwnerContextPtr14 = nullptr;                                           // 062d202e
+    NavHelperPtr24 = nullptr;                                              // 062d2031
+    ObjectDb = nullptr;                                                    // 062d2034
+    DeltaTime1c = 0.0f;                                                    // 062d2037 (dword 0)
+    Flag29 = 0;                                                            // 062d203a
+    Flags28 = static_cast<unsigned char>(Flags28 & 0xfc);                  // 062d2040
+    ModeSelector0xc = 2;                                                   // 062d2049
+    UpdateResult10 = 1;                                                    // 062d2050
 }
 
 // FUN_062d2090 (Common.dll.txt 210691-210725), all 24 instructions: Owner null or Sys
@@ -358,28 +314,25 @@ bool Behavior::BindContext(void* Owner, void* Manager, void* Sys)
 {
     if (Owner == nullptr || Sys == nullptr)
         return false;
-    char* const Self = reinterpret_cast<char*>(this);
-    *reinterpret_cast<void**>(Self + 0x14) = Owner;                         // 062d20a4
+    OwnerContextPtr14 = Owner;                                              // 062d20a4
     unsigned int const Id = ObjInspectOf(Owner)->get_id();                  // 062d20a9
-    *reinterpret_cast<void**>(Self + 0x24) = Sys;                           // 062d20b0
-    *reinterpret_cast<unsigned int*>(Self + 0x08) = Id;                     // 062d20b3
-    *reinterpret_cast<void**>(Self + 0x20) = Manager;                       // 062d20b7
+    NavHelperPtr24 = static_cast<SystemManager*>(Sys);                      // 062d20b0
+    CachedHandle08 = Id;                                                    // 062d20b3
+    BehaviorMgrPtr20 = static_cast<IBehaviorManager*>(Manager);             // 062d20b7
     return true;
 }
 
 // Vtable slot 9 (+0x24): `MOV EAX,[ECX+0x10]; RET`.
 int Behavior::Slot9()
 {
-    return *reinterpret_cast<int const*>(reinterpret_cast<char const*>(this) + 0x10);
+    return UpdateResult10;
 }
 
 // FUN_062d21d0 (Common.dll.txt 210910-210923): tail-jump to FUN_062dd3d0 with
 // this = [[this+0x20]+0xc] and both stack arguments unchanged; no null tests.
 void Behavior::SetCruiseLock(int Value, int Mask)
 {
-    IBehaviorManager* const Manager =
-        *reinterpret_cast<IBehaviorManager* const*>(reinterpret_cast<char const*>(this) + 0x20);
-    Manager->Pathfind->SetCruiseLock(Value, static_cast<unsigned int>(Mask));
+    BehaviorMgrPtr20->Pathfind->SetCruiseLock(Value, static_cast<unsigned int>(Mask));
 }
 
 // ----------------------------------------------------------------------------
@@ -418,10 +371,10 @@ void Behavior::SetCruiseLock(int Value, int Mask)
 // IBehaviorManager and every subclass, which is not this pass's scope.
 void Behavior::set_afterburner(bool bOn)
 {
-    void* const NavHelper = GetNavHelper();
+    SystemManager* const NavHelper = NavHelperPtr24;
 
     // 062d2114-062d213d: both out-bytes pre-cleared, then slot 0x5c on the -8 adjusted head.
-    void* const Head = *reinterpret_cast<void* const*>(static_cast<char*>(NavHelper) + 0x8);
+    void* const Head = const_cast<Watchable*>(NavHelper->Watcher.target());   // NavHelper+0x8
     bool bCruise = false;
     bool bTradeLane = false;
     (void)ObjInspectOf(ObjRwFromWatchable(Head))->is_cruise_active(bCruise, bTradeLane);
@@ -430,7 +383,7 @@ void Behavior::set_afterburner(bool bOn)
     if (bCruise && !bTradeLane)
         return;
 
-    ThrustManager* const Thrust = &((SystemManager*)NavHelper)->Thrust;
+    ThrustManager* const Thrust = &NavHelper->Thrust;
 
     if (!bOn)
     {
@@ -454,7 +407,7 @@ void Behavior::set_afterburner(bool bOn)
 // three exits all `RET 4`).
 void Behavior::slide_strafe_burst(StrafeDir Dir)
 {
-    ((SystemManager*)GetNavHelper())->Thrust.SetStrafeDir(Dir);
+    NavHelperPtr24->Thrust.SetStrafeDir(Dir);
 }
 
 // ============================================================================
@@ -480,7 +433,6 @@ CObject const* CmnBehavior::FollowerPlayerShipOrNull(CObject const* Object)
 {
     if (Object == nullptr)
         return nullptr;
-    unsigned int const Class = *reinterpret_cast<unsigned int const*>(
-        reinterpret_cast<char const*>(Object) + 0x4c);
+    unsigned int const Class = static_cast<unsigned int>(Object->ObjectClass);   // +0x4c
     return ((Class & 0x503u) == 0x503u) ? Object : nullptr;
 }

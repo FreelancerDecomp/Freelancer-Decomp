@@ -25,18 +25,6 @@
 // Field168/Field16c.
 LargeShipBehavior::LargeShipBehavior(int InTypeId)
     : Behavior()
-    , TypeId(InTypeId)
-    , CachedHandle08(0)
-    , ModeSelector0xc(0)
-    , UpdateResult10(0)
-    , ThreatSourcePtr14(nullptr)
-    , Opaque18{}
-    , DeltaTime1c(0.0f)
-    , BehaviorMgrPtr20(nullptr)
-    , NavHelperPtr24(nullptr)
-    , Flags28(0)
-    , Flag29(0)
-    , Pad2a{}
     , Field2c(1500.0f)
     , SubObjectA()
     , SubObjectB()
@@ -77,7 +65,7 @@ bool LargeShipBehavior::SetContext(void* Owner, void* Manager, void* Sys)
 
     // 062cff5c-062cff6f: MoveIdea slot 0 with (this->+0x14, this->+0x24, Manager arg).
     // Return value discarded.
-    SubObjectA.SetContext(ThreatSourcePtr14, NavHelperPtr24, Manager);
+    SubObjectA.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);
 
     // retail: `CALL FUN_062d5a10(&SubObjectA, 1)`. Correctly observed to be a direct CALL and
     // not a vtable dispatch -- but that is exactly what MoveIdea's setter family IS: retail
@@ -88,7 +76,7 @@ bool LargeShipBehavior::SetContext(void* Owner, void* Manager, void* Sys)
 
     // retail: SubObjectB's own vtbl slot 0 (SetContext), SAME arg shape as SubObjectA's own
     // call above (Common.dll.txt 062cff7a-062cff8f).
-    SubObjectB.SetContext(ThreatSourcePtr14, NavHelperPtr24, Manager);
+    SubObjectB.SetContext(OwnerContextPtr14, NavHelperPtr24, Manager);
 
     return bBound;                                                  // 062cff94 MOV AL,BL
 }
@@ -147,14 +135,14 @@ int LargeShipBehavior::Slot5(float Value)
     (void)Value;   // RET 4, argument unread
     int Mode = 2;
 
-    // retail (.text:062cfff4-062d000a): `ECX = ThreatSourcePtr14; EAX = [ECX]; LEA EDX,[ESP+8];
+    // retail (.text:062cfff4-062d000a): `ECX = OwnerContextPtr14; EAX = [ECX]; LEA EDX,[ESP+8];
     // PUSH EDX; CALL [EAX+0x88]; TEST dword ptr [ESP+8], 0x80000`. CLOSED 2026-09-17: vtbl+0x88
     // is IObjInspect::get_type(uint& OutType), slot 34 of the retail-order table rebuilt in
-    // common_iface.h. ThreatSourcePtr14 was never an unidentified class -- SetContext() above
+    // common_iface.h. OwnerContextPtr14 was never an unidentified class -- SetContext() above
     // already reads get_id() off this very field through ObjInspectOf(). Note the mask is
     // tested against the OUT-PARAMETER; get_type's int return value is discarded by retail.
     unsigned ObjectType = 0;
-    ObjInspectOf(ThreatSourcePtr14)->get_type(ObjectType);
+    ObjInspectOf(OwnerContextPtr14)->get_type(ObjectType);
     if ((ObjectType & 0x80000) != 0)
     {
         // retail (.text:062d0014-062d0024): `ECX = NavHelperPtr24 + 0x142c;
@@ -206,7 +194,7 @@ int LargeShipBehavior::Slot5(float Value)
 
 // FUN_062d09b0 (FAiTarget::Init: clears the four cache guards +0x7C..+0x7F, stores
 // AttitudeRefIface +0x80 and Iface +0x84; argument order from this file's call site, PUSH
-// Handle, PUSH ThreatSourcePtr14) and FUN_062c47c0 (FAiTarget::RefreshPos: guard +0x7E raised
+// Handle, PUSH OwnerContextPtr14) and FUN_062c47c0 (FAiTarget::RefreshPos: guard +0x7E raised
 // BEFORE get_physical_radius) are the FAiTarget members in common_aitarget.cpp.
 
 // The lazily-cached type-flags fetch retail INLINES at six sites in Update()
@@ -313,7 +301,7 @@ int LargeShipBehavior::Update()
     // own port makes for this struct. Every field the code below reads is set
     // by FAiTarget::Init or by one of the two lazy refreshes.
     FAiTarget Scratch = {};
-    Scratch.Init(ObjInspectOf(ThreatSourcePtr14), ObjInspectOf(Handle));
+    Scratch.Init(ObjInspectOf(OwnerContextPtr14), ObjInspectOf(Handle));
 
     // retail: .text:062d008f-062d00b9. Field16c is a cooldown timer decremented
     // every tick and clamped at zero (compared against DAT_0639c430, confirmed
