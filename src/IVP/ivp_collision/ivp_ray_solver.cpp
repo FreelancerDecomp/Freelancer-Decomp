@@ -22,6 +22,7 @@
 #include "../ivp_physics/ivp_ov_element.h"
 #include "../ivp_physics/ivp_real_object.h"
 #include "../ivp_physics/ivp_surface_manager.h"
+#include "float_bits.h"
 
 namespace
 {
@@ -48,13 +49,6 @@ namespace
     {
         return ((double)(N->k[2]) * Pz + (double)(N->k[1]) * Py) +
                (double)(N->k[0]) * Px;
-    }
-
-    uint32_t IVP_RayFloatBits(float Value)
-    {
-        uint32_t Bits;
-        std::memcpy(&Bits, &Value, sizeof(Bits));
-        return Bits;
     }
 
     // FUN_0635d3e0 (IVP_U_BigVector_Grow, ivp_utility/ivp_u_bigvector.cpp): IVP_U_BigVector grow, shared with the surface
@@ -422,7 +416,7 @@ int IVP_Ray_Solver_Os::check_ray_against_compact_ledge_os(const IVP_Compact_Ledg
         IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(Ledge, Edge, &HitPoint, &QR);
 
         // :0634a0bc-0634a0d4: any sign bit set (including -0.0) -> outside the triangle.
-        if (((IVP_RayFloatBits(QR.Checks[1]) | IVP_RayFloatBits(QR.Checks[2]) | IVP_RayFloatBits(QR.Checks[0])) &
+        if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) | BitsFromFloat(QR.Checks[0])) &
              0x80000000u) != 0)
             return 0;
 

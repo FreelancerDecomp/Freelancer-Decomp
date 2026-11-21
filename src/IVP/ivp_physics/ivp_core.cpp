@@ -33,6 +33,7 @@
 // because the single-slot mode stores a candidate pointer in it directly.
 #include "../ivp_utility/ivp_vhash.h"
 #include "../ivp_utility/ivp_signed_byte.h" // IVP_SignedLowByte
+#include "float_bits.h"
 
 
 // Internal IVP helper types
@@ -50,14 +51,6 @@
 // IVP_Synapse_Friction / IVP_Core_Fast_Sim structs that stood here are gone.
 namespace
 {
-    // A .rdata float constant by its exact bits (some differ from the nearest
-    // decimal literal by one ulp).
-    float IVP_Core_Float_From_Bits(uint32_t Bits)
-    {
-        float Value;
-        std::memcpy(&Value, &Bits, sizeof(Value));
-        return Value;
-    }
 
     char* IVP_Contact_Node_Next(char* Node)
     {
@@ -1678,11 +1671,11 @@ int IVP_Core::classify_motion_state(float CurrentTimeBase, float CurrentTimeOffs
     // greater, so NaN never counts as movement and the elapsed tests give the
     // "recent" result (2 / 1) on NaN. Constants by their exact bits: 0.01 and
     // 0.04 are one ulp above the nearest float literal.
-    const double ShortPosThresholdSq = IVP_Core_Float_From_Bits(0x38d1b717u); // DAT_063a547c
-    const double ShortRotThreshold = IVP_Core_Float_From_Bits(0x37d1b717u);   // DAT_063a5478
-    const double LongPosThresholdSq = IVP_Core_Float_From_Bits(0x3c23d70bu);  // DAT_063a5474
-    const double LongRotThreshold = IVP_Core_Float_From_Bits(0x3d23d70bu);    // DAT_063a5470
-    const double LongElapsedThreshold = IVP_Core_Float_From_Bits(0x40800000u); // DAT_063a546c, 4.0f
+    const double ShortPosThresholdSq = FloatFromBits(0x38d1b717u); // DAT_063a547c
+    const double ShortRotThreshold = FloatFromBits(0x37d1b717u);   // DAT_063a5478
+    const double LongPosThresholdSq = FloatFromBits(0x3c23d70bu);  // DAT_063a5474
+    const double LongRotThreshold = FloatFromBits(0x3d23d70bu);    // DAT_063a5470
+    const double LongElapsedThreshold = FloatFromBits(0x40800000u); // DAT_063a546c, 4.0f
 
     // :063478f6-0634793b: ((dz*dz + dy*dy) + dx*dx) on unrounded differences.
     const double ShortDX = (double)(PosWorldFCore.x) - PosLastMotion.x;

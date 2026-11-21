@@ -26,6 +26,7 @@
 
 #if !defined(_M_IX86)
 #include "ThornX87.h"
+#include "float_bits.h"
 
 namespace
 {
@@ -124,10 +125,7 @@ namespace
 
     unsigned int BitsAsUInt(const float* Slot)
     {
-        unsigned int Value = 0;
-        if (Slot != nullptr)
-            std::memcpy(&Value, Slot, sizeof(Value));
-        return Value;
+        return Slot != nullptr ? BitsFromFloatRef(*Slot) : 0u;
     }
 
     // Literal DWORD pose transport for 38950/38a80. Forward reads/stores

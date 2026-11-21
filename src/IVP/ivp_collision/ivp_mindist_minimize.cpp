@@ -23,17 +23,12 @@
 #include "../ivp_physics/ivp_real_object.h"
 #include "common_ini.h" // Vector (IVP_Ledge_Mindist::SeparatingNormal)
 #include "../ivp_utility/ivp_core_trap.h" // IVP_CoreTrap: retail's `MOV dword ptr [0],0`
+#include "float_bits.h"
 
 IVP_MRC_TYPE (*IVP_Mindist_Minimize_Solver::mms_function_table[4][4])(IVP_Mindist_Minimize_Solver* Solver) = {};
 
 namespace
 {
-    uint32_t IVP_MinimizeFloatBits(float Value)
-    {
-        uint32_t Bits;
-        std::memcpy(&Bits, &Value, sizeof(Bits));
-        return Bits;
-    }
 
     // 0x60ad78ec: the "no candidate yet" start of the minimum searches.
     constexpr float MinimizeSearchStart = 1.0e20f;
@@ -317,7 +312,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_PF(IVP_Compact_Edge* P, IVP
     IVP_Unscaled_QR_Result QR;
     IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(CacheF->compact_ledge, F, &PosPInFSpace, &QR);
 
-    if (((IVP_MinimizeFloatBits(QR.Checks[1]) | IVP_MinimizeFloatBits(QR.Checks[2]) | IVP_MinimizeFloatBits(QR.Checks[0])) &
+    if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) | BitsFromFloat(QR.Checks[0])) &
          0x80000000u) == 0)
         return p_minimize_Leave_PF(P, &PosPInFSpace, F, CacheP, CacheF);
 
@@ -469,7 +464,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_Leave_PF(IVP_Compact_Edge* 
     IVP_Compact_Ledge_Solver::calc_pos_other_space(BestEdge, CacheP, CacheF, &PosBestInFSpace);
     IVP_Unscaled_QR_Result QR;
     IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(F->GetCompactLedge(), F, &PosBestInFSpace, &QR);
-    if (((IVP_MinimizeFloatBits(QR.Checks[1]) | IVP_MinimizeFloatBits(QR.Checks[2]) | IVP_MinimizeFloatBits(QR.Checks[0])) &
+    if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) | BitsFromFloat(QR.Checks[0])) &
          0x80000000u) == 0)
         return p_minimize_Leave_PF(BestEdge, &PosBestInFSpace, F, CacheP, CacheF);
 
@@ -909,7 +904,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_KK(IVP_Compact_Edge* K, IVP
     IVP_Unscaled_KK_Result Result;                   // local_b4
     IVP_Compact_Ledge_Solver::calc_unscaled_KK_vals(&KKInput, &Result);
 
-    if (((IVP_MinimizeFloatBits(Result.checks_L[0]) | IVP_MinimizeFloatBits(Result.checks_L[1])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(Result.checks_L[0]) | BitsFromFloat(Result.checks_L[1])) & 0x80000000u) == 0)
     {
         if (!(Result.checks_K[0] >= 0.0f))
             return p_minimize_PK(K, L, CacheK, CacheL);
@@ -919,7 +914,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_KK(IVP_Compact_Edge* K, IVP
     }
 
     IVP_Ledge_Mindist* const Mindist = mindist;
-    if (((IVP_MinimizeFloatBits(Result.checks_K[1]) | IVP_MinimizeFloatBits(Result.checks_K[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(Result.checks_K[1]) | BitsFromFloat(Result.checks_K[0])) & 0x80000000u) == 0)
     {
         if (CacheL->synapse != Mindist->get_sorted_synapse(0))
             Mindist->StateFlags ^= 0x100u;
@@ -957,14 +952,14 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_KK(IVP_Compact_Edge* K, IVP
     IVP_Compact_Ledge_Solver::calc_pos_other_space(PointK, CacheK, CacheL, &PosKInL);
     IVP_Unscaled_S_Result SK; // local_98
     IVP_Compact_Ledge_Solver::calc_unscaled_s_val_K_space(CacheL->compact_ledge, L, &PosKInL, &SK);
-    if (((IVP_MinimizeFloatBits(SK.Checks[1]) | IVP_MinimizeFloatBits(SK.Checks[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(SK.Checks[1]) | BitsFromFloat(SK.Checks[0])) & 0x80000000u) == 0)
         return p_minimize_PK(PointK, L, CacheK, CacheL);
 
     IVP_U_Point PosLInK; // local_78
     IVP_Compact_Ledge_Solver::calc_pos_other_space(PointL, CacheL, CacheK, &PosLInK);
     IVP_Unscaled_S_Result SL; // local_90
     IVP_Compact_Ledge_Solver::calc_unscaled_s_val_K_space(CacheK->compact_ledge, K, &PosLInK, &SL);
-    if (((IVP_MinimizeFloatBits(SL.Checks[1]) | IVP_MinimizeFloatBits(SL.Checks[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(SL.Checks[1]) | BitsFromFloat(SL.Checks[0])) & 0x80000000u) == 0)
     {
         if (CacheL->synapse != Mindist->get_sorted_synapse(0))
             Mindist->StateFlags ^= 0x100u;
@@ -1036,7 +1031,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_Leave_KK(IVP_Compact_Edge* 
     const double Dy = (double)(L0->Y) - KStart->k[1];
     const double Dz = (double)(L0->Z) - KStart->k[2];
     const float Dist = (float)((Dy * Cross->k[1] + Dz * Cross->k[2]) + Dx * Cross->k[0]); // local_160
-    const int32_t DistSign = static_cast<int32_t>(IVP_MinimizeFloatBits(Dist) >> 31);               // EBP
+    const int32_t DistSign = static_cast<int32_t>(BitsFromFloat(Dist) >> 31);               // EBP
     const float InvLength = (float)(
         1.0 / std::sqrt(((double)(Cross->k[0]) * Cross->k[0] + (double)(Cross->k[1]) * Cross->k[1]) +
                         (double)(Cross->k[2]) * Cross->k[2])); // local_164
@@ -1103,7 +1098,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_Leave_KK(IVP_Compact_Edge* 
         const float Side = (float)(
             ((double)(Record.Hesse.k[2]) * N->k[2] + (double)(N->k[1]) * Record.Hesse.k[1]) +
             (double)(N->k[0]) * Record.Hesse.k[0]);
-        Flags[I] = static_cast<int32_t>(IVP_MinimizeFloatBits(Side) >> 31) ^ (I >> 1) ^ DistSign;
+        Flags[I] = static_cast<int32_t>(BitsFromFloat(Side) >> 31) ^ (I >> 1) ^ DistSign;
     }
 
     float MaxValue = -4.0e-6f;                            // 0xb68637bd, local_13c
@@ -1187,8 +1182,8 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_Leave_KK(IVP_Compact_Edge* 
     if (BestCachePoint->synapse != Mindist->get_sorted_synapse(0))
         Mindist->StateFlags ^= 0x100u;
 
-    if (((IVP_MinimizeFloatBits(BestQR.Checks[1]) | IVP_MinimizeFloatBits(BestQR.Checks[2]) |
-          IVP_MinimizeFloatBits(BestQR.Checks[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(BestQR.Checks[1]) | BitsFromFloat(BestQR.Checks[2]) |
+          BitsFromFloat(BestQR.Checks[0])) & 0x80000000u) == 0)
     {
         IVP_U_Point PosInF; // local_110
         IVP_Compact_Ledge_Solver::calc_pos_other_space(BestPointEdge, BestCachePoint, BestCacheTriangle, &PosInF);
@@ -1285,8 +1280,8 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_FF(IVP_Compact_Edge* F0, IV
             IVP_Compact_Ledge_Solver::calc_pos_other_space(Point, PointCache, TriangleCache, &Pos);
             IVP_Unscaled_QR_Result QR; // local_78
             IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(TriangleCache->compact_ledge, Triangle, &Pos, &QR);
-            if (((IVP_MinimizeFloatBits(QR.Checks[1]) | IVP_MinimizeFloatBits(QR.Checks[2]) |
-                  IVP_MinimizeFloatBits(QR.Checks[0])) & 0x80000000u) == 0)
+            if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) |
+                  BitsFromFloat(QR.Checks[0])) & 0x80000000u) == 0)
             {
                 const double Dist = (((double)(Hesse.k[2]) * Pos.k[2] + (double)(Hesse.k[1]) * Pos.k[1]) +
                                      (double)(Pos.k[0]) * Hesse.k[0]) +
@@ -1320,7 +1315,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_FF(IVP_Compact_Edge* F0, IV
             {
                 IVP_Unscaled_S_Result S; // local_ac
                 IVP_Compact_Ledge_Solver::calc_unscaled_s_val_K_space(EdgeCache->compact_ledge, Edge, &Pos, &S);
-                if (((IVP_MinimizeFloatBits(S.Checks[1]) | IVP_MinimizeFloatBits(S.Checks[0])) & 0x80000000u) == 0)
+                if (((BitsFromFloat(S.Checks[1]) | BitsFromFloat(S.Checks[0])) & 0x80000000u) == 0)
                 {
                     const double QuadDist =
                         IVP_Compact_Ledge_Solver::quad_dist_edge_to_point_K_space(EdgeCache->compact_ledge, Edge, &Pos);
@@ -1349,8 +1344,8 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_FF(IVP_Compact_Edge* F0, IV
                 const IVP_KK_Input KKInput(K, L, Cache0, Cache1); // local_68
                 IVP_Unscaled_KK_Result Result;                   // local_bc
                 IVP_Compact_Ledge_Solver::calc_unscaled_KK_vals(&KKInput, &Result);
-                if (((IVP_MinimizeFloatBits(Result.checks_K[1]) | IVP_MinimizeFloatBits(Result.checks_K[0])) & 0x80000000u) == 0 &&
-                    ((IVP_MinimizeFloatBits(Result.checks_L[0]) | IVP_MinimizeFloatBits(Result.checks_L[1])) & 0x80000000u) == 0)
+                if (((BitsFromFloat(Result.checks_K[1]) | BitsFromFloat(Result.checks_K[0])) & 0x80000000u) == 0 &&
+                    ((BitsFromFloat(Result.checks_L[0]) | BitsFromFloat(Result.checks_L[1])) & 0x80000000u) == 0)
                 {
                     const double QuadDist = KKInput.calc_quad_distance_edge_edge();
                     if (!(QuadDist * 1.000001f >= MinQuadDist))
@@ -1680,7 +1675,7 @@ IVP_MRC_TYPE IVP_Mindist_Minimize_Solver::p_minimize_BF(IVP_Cache_Ball* Ball, IV
     IVP_Unscaled_QR_Result QR; // local_20
     IVP_Compact_Ledge_Solver::calc_unscaled_qr_vals_F_space(CacheF->compact_ledge, F, &BallInF, &QR);
 
-    if (((IVP_MinimizeFloatBits(QR.Checks[1]) | IVP_MinimizeFloatBits(QR.Checks[2]) | IVP_MinimizeFloatBits(QR.Checks[0])) &
+    if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) | BitsFromFloat(QR.Checks[0])) &
          0x80000000u) == 0)
     {
         const IVP_U_Float_Point* const V = CacheF->compact_poly_points + F->GetStartPointIndex();

@@ -43,6 +43,7 @@
 #include "common_misc.h"
 // FMineExplosion, the EXPLODEASTEROIDMINE argument (IClient::SendServerExplodeAsteroidMine).
 #include "server_sysdb.h"
+#include "float_bits.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -55,14 +56,6 @@
 // RpcCopyIntoPacketBlock (rpc_payloads.h); retail's REPNE SCASB strlen has no null test,
 // and neither has the std::strlen that stands in for it below.
 // ---------------------------------------------------------------------------
-
-// A float field moved as its bit pattern -- retail's senders and receivers copy these
-// with plain dword MOVs (no FLD/FSTP), so the port copies the bits, never the value.
-static unsigned int RpcCh2FloatBits(const float& Value) {
-    unsigned int Bits = 0;
-    std::memcpy(&Bits, &Value, sizeof(Bits));
-    return Bits;
-}
 
 static void RpcCh2SetFloatBits(float& Out, unsigned int Bits) {
     std::memcpy(&Out, &Bits, sizeof(Bits));
@@ -404,19 +397,19 @@ static bool MarshalCreateMine(FPacketBase* Packet, const unsigned int* Args, uns
     Wire.Field_0x08 = Info->OwnerId;                                  // arg +0x08
     Wire.Field_0x0c = Info->SubObjId;                                 // arg +0x0c, a word
     Wire.Pad_0x0e = 0;
-    Wire.Field_0x10 = RpcCh2FloatBits(Info->Orientation.w);           // arg +0x1c
-    Wire.Field_0x14 = RpcCh2FloatBits(Info->Orientation.x);           // arg +0x20
-    Wire.Field_0x18 = RpcCh2FloatBits(Info->Orientation.y);           // arg +0x24
-    Wire.Field_0x1c = RpcCh2FloatBits(Info->Orientation.z);           // arg +0x28
-    Wire.Field_0x20 = RpcCh2FloatBits(Info->Position.x);              // arg +0x10
-    Wire.Field_0x24 = RpcCh2FloatBits(Info->Position.y);              // arg +0x14
-    Wire.Field_0x28 = RpcCh2FloatBits(Info->Position.z);              // arg +0x18
-    Wire.Field_0x2c = RpcCh2FloatBits(Info->Velocity.x);              // arg +0x2c
-    Wire.Field_0x30 = RpcCh2FloatBits(Info->Velocity.y);              // arg +0x30
-    Wire.Field_0x34 = RpcCh2FloatBits(Info->Velocity.z);              // arg +0x34
-    Wire.Field_0x38 = RpcCh2FloatBits(Info->Field_0x38.x);            // arg +0x38
-    Wire.Field_0x3c = RpcCh2FloatBits(Info->Field_0x38.y);            // arg +0x3c
-    Wire.Field_0x40 = RpcCh2FloatBits(Info->Field_0x38.z);            // arg +0x40
+    Wire.Field_0x10 = BitsFromFloatRef(Info->Orientation.w);           // arg +0x1c
+    Wire.Field_0x14 = BitsFromFloatRef(Info->Orientation.x);           // arg +0x20
+    Wire.Field_0x18 = BitsFromFloatRef(Info->Orientation.y);           // arg +0x24
+    Wire.Field_0x1c = BitsFromFloatRef(Info->Orientation.z);           // arg +0x28
+    Wire.Field_0x20 = BitsFromFloatRef(Info->Position.x);              // arg +0x10
+    Wire.Field_0x24 = BitsFromFloatRef(Info->Position.y);              // arg +0x14
+    Wire.Field_0x28 = BitsFromFloatRef(Info->Position.z);              // arg +0x18
+    Wire.Field_0x2c = BitsFromFloatRef(Info->Velocity.x);              // arg +0x2c
+    Wire.Field_0x30 = BitsFromFloatRef(Info->Velocity.y);              // arg +0x30
+    Wire.Field_0x34 = BitsFromFloatRef(Info->Velocity.z);              // arg +0x34
+    Wire.Field_0x38 = BitsFromFloatRef(Info->Field_0x38.x);            // arg +0x38
+    Wire.Field_0x3c = BitsFromFloatRef(Info->Field_0x38.y);            // arg +0x3c
+    Wire.Field_0x40 = BitsFromFloatRef(Info->Field_0x38.z);            // arg +0x40
     Wire.Field_0x44 = Info->Field_0x44;                               // arg +0x44
     return RpcPayloadWrite(Packet, 0, Wire);
 }
@@ -559,9 +552,9 @@ static bool MarshalFourDwordsByRef(FPacketBase* Packet, const unsigned int* Args
     const FMineExplosion* Info = reinterpret_cast<const FMineExplosion*>(Args[1]);
     FPayloadServerFourDwords* Wire = Ch2Payload<FPayloadServerFourDwords>(Packet);
     Wire->Field_0x00 = Info->MineId;
-    Wire->Field_0x04 = RpcCh2FloatBits(Info->Offset.x);
-    Wire->Field_0x08 = RpcCh2FloatBits(Info->Offset.y);
-    Wire->Field_0x0c = RpcCh2FloatBits(Info->Offset.z);
+    Wire->Field_0x04 = BitsFromFloatRef(Info->Offset.x);
+    Wire->Field_0x08 = BitsFromFloatRef(Info->Offset.y);
+    Wire->Field_0x0c = BitsFromFloatRef(Info->Offset.z);
     return true;
 }
 
@@ -1596,22 +1589,22 @@ static bool MarshalCreateLoot(FPacketBase* Packet, const unsigned int* Args,
         FRpcLootWireRecord Out;
         Out.Field_0x00 = In.LootId;                                        // record +0x00
         Out.Field_0x04 = In.ContentsNickname;                              // record +0x04
-        Out.Field_0x08 = RpcCh2FloatBits(In.ContentsHitPts);               // record +0x08
+        Out.Field_0x08 = BitsFromFloatRef(In.ContentsHitPts);               // record +0x08
         Out.Field_0x0c = (unsigned short)(In.Units & 0xffffu);             // record +0x0c, a word
         Out.Pad_0x0e = 0;
         Out.Field_0x10 = In.ContainerNickname;                             // record +0x10
-        Out.Field_0x14 = RpcCh2FloatBits(In.HitPts);                       // record +0x14
+        Out.Field_0x14 = BitsFromFloatRef(In.HitPts);                       // record +0x14
         Out.Field_0x18 = In.NameOverride;                                  // record +0x18
-        Out.Field_0x1c = RpcCh2FloatBits(In.Position.x);                   // record +0x1c
-        Out.Field_0x20 = RpcCh2FloatBits(In.Position.y);                   // record +0x20
-        Out.Field_0x24 = RpcCh2FloatBits(In.Position.z);                   // record +0x24
-        Out.Field_0x28 = RpcCh2FloatBits(In.Velocity.x);                   // record +0x38
-        Out.Field_0x2c = RpcCh2FloatBits(In.Velocity.y);                   // record +0x3c
-        Out.Field_0x30 = RpcCh2FloatBits(In.Velocity.z);                   // record +0x40
-        Out.Field_0x34 = RpcCh2FloatBits(In.Orientation.w);                // record +0x28
-        Out.Field_0x38 = RpcCh2FloatBits(In.Orientation.y);   // record +0x30; 06d8abe3 -- the transposed pair, see the header
-        Out.Field_0x3c = RpcCh2FloatBits(In.Orientation.x);   // record +0x2c; 06d8abea
-        Out.Field_0x40 = RpcCh2FloatBits(In.Orientation.z);                // record +0x34
+        Out.Field_0x1c = BitsFromFloatRef(In.Position.x);                   // record +0x1c
+        Out.Field_0x20 = BitsFromFloatRef(In.Position.y);                   // record +0x20
+        Out.Field_0x24 = BitsFromFloatRef(In.Position.z);                   // record +0x24
+        Out.Field_0x28 = BitsFromFloatRef(In.Velocity.x);                   // record +0x38
+        Out.Field_0x2c = BitsFromFloatRef(In.Velocity.y);                   // record +0x3c
+        Out.Field_0x30 = BitsFromFloatRef(In.Velocity.z);                   // record +0x40
+        Out.Field_0x34 = BitsFromFloatRef(In.Orientation.w);                // record +0x28
+        Out.Field_0x38 = BitsFromFloatRef(In.Orientation.y);   // record +0x30; 06d8abe3 -- the transposed pair, see the header
+        Out.Field_0x3c = BitsFromFloatRef(In.Orientation.x);   // record +0x2c; 06d8abea
+        Out.Field_0x40 = BitsFromFloatRef(In.Orientation.z);                // record +0x34
         Out.Field_0x44 = In.bMarkedBy;                                     // record +0x46
         Out.Field_0x45 = In.bTemporary;                                    // record +0x45
         Out.Pad_0x46[0] = 0;
@@ -1716,19 +1709,19 @@ static bool MarshalCreateCounter(FPacketBase* Packet, const unsigned int* Args,
     Wire.Field_0x0c = Source->OwnerId;                                // arg +0x08
     Wire.Field_0x10 = Source->SubObjId;                               // arg +0x0c, a word
     Wire.Pad_0x12 = 0;
-    Wire.Field_0x14 = RpcCh2FloatBits(Source->Orientation.w);         // arg +0x1c
-    Wire.Field_0x18 = RpcCh2FloatBits(Source->Orientation.x);         // arg +0x20
-    Wire.Field_0x1c = RpcCh2FloatBits(Source->Orientation.y);         // arg +0x24
-    Wire.Field_0x20 = RpcCh2FloatBits(Source->Orientation.z);         // arg +0x28
-    Wire.Field_0x24 = RpcCh2FloatBits(Source->Position.x);            // arg +0x10
-    Wire.Field_0x28 = RpcCh2FloatBits(Source->Position.y);            // arg +0x14
-    Wire.Field_0x2c = RpcCh2FloatBits(Source->Position.z);            // arg +0x18
-    Wire.Field_0x30 = RpcCh2FloatBits(Source->Velocity.x);            // arg +0x2c
-    Wire.Field_0x34 = RpcCh2FloatBits(Source->Velocity.y);            // arg +0x30
-    Wire.Field_0x38 = RpcCh2FloatBits(Source->Velocity.z);            // arg +0x34
-    Wire.Field_0x3c = RpcCh2FloatBits(Source->Field_0x38.x);          // arg +0x38
-    Wire.Field_0x40 = RpcCh2FloatBits(Source->Field_0x38.y);          // arg +0x3c
-    Wire.Field_0x44 = RpcCh2FloatBits(Source->Field_0x38.z);          // arg +0x40
+    Wire.Field_0x14 = BitsFromFloatRef(Source->Orientation.w);         // arg +0x1c
+    Wire.Field_0x18 = BitsFromFloatRef(Source->Orientation.x);         // arg +0x20
+    Wire.Field_0x1c = BitsFromFloatRef(Source->Orientation.y);         // arg +0x24
+    Wire.Field_0x20 = BitsFromFloatRef(Source->Orientation.z);         // arg +0x28
+    Wire.Field_0x24 = BitsFromFloatRef(Source->Position.x);            // arg +0x10
+    Wire.Field_0x28 = BitsFromFloatRef(Source->Position.y);            // arg +0x14
+    Wire.Field_0x2c = BitsFromFloatRef(Source->Position.z);            // arg +0x18
+    Wire.Field_0x30 = BitsFromFloatRef(Source->Velocity.x);            // arg +0x2c
+    Wire.Field_0x34 = BitsFromFloatRef(Source->Velocity.y);            // arg +0x30
+    Wire.Field_0x38 = BitsFromFloatRef(Source->Velocity.z);            // arg +0x34
+    Wire.Field_0x3c = BitsFromFloatRef(Source->Field_0x38.x);          // arg +0x38
+    Wire.Field_0x40 = BitsFromFloatRef(Source->Field_0x38.y);          // arg +0x3c
+    Wire.Field_0x44 = BitsFromFloatRef(Source->Field_0x38.z);          // arg +0x40
     return RpcPayloadWrite(Packet, 0, Wire);
 }
 

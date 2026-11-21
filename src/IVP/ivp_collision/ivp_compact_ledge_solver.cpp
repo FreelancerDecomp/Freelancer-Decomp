@@ -17,15 +17,10 @@
 #include "../ivp_physics/ivp_real_object.h" // IVP_NarrowPhaseCacheSlot (the cache object)
 #include "../ivp_utility/ivp_u_bigvector.h" // IVP_U_BigVector_Grow (FUN_0635d3e0)
 #include "../ivp_utility/ivp_core_trap.h"   // IVP_CoreTrap: retail's `MOV dword ptr [0],0`
+#include "float_bits.h"
 
 namespace
 {
-    uint32_t IVP_SolverFloatBits(float Value)
-    {
-        uint32_t Bits;
-        std::memcpy(&Bits, &Value, sizeof(Bits));
-        return Bits;
-    }
 
     // The sample parameters of calc_unscaled_KK_vals' near-parallel branch, stored to the stack
     // at :0635b6ea-:0635b753 (0xbf800000, 0x3f000000, ...). The K samples use the first 11, the
@@ -114,8 +109,8 @@ double IVP_Compact_Ledge_Solver::calc_qlen_PF_F_space(const IVP_Compact_Ledge* L
     IVP_Unscaled_QR_Result QR;
     calc_unscaled_qr_vals_F_space(Ledge, Edge0, Point, &QR);
 
-    if (((IVP_SolverFloatBits(QR.Checks[1]) | IVP_SolverFloatBits(QR.Checks[2]) |
-          IVP_SolverFloatBits(QR.Checks[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(QR.Checks[1]) | BitsFromFloat(QR.Checks[2]) |
+          BitsFromFloat(QR.Checks[0])) & 0x80000000u) == 0)
     {
         const IVP_U_Float_Point* P = Ledge->GetPoint(Edge0);
         IVP_U_Point Normal;
@@ -252,7 +247,7 @@ double IVP_Compact_Ledge_Solver::calc_qlen_PK_K_space(const IVP_U_Point* Point, 
 {
     IVP_Unscaled_S_Result S;
     calc_unscaled_s_val_K_space(Ledge, Edge, Point, &S);
-    if (((IVP_SolverFloatBits(S.Checks[1]) | IVP_SolverFloatBits(S.Checks[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(S.Checks[1]) | BitsFromFloat(S.Checks[0])) & 0x80000000u) == 0)
         return quad_dist_edge_to_point_K_space(Ledge, Edge, Point);
     if (!(S.Checks[0] >= 0.0f))
         return quad_dist_edge_start_to_point(Ledge, Edge, Point);
@@ -526,7 +521,7 @@ double IVP_Compact_Ledge_Solver::calc_qlen_KK(const IVP_Compact_Edge* K, const I
     IVP_Unscaled_KK_Result Result;
     calc_unscaled_KK_vals(&In, &Result);
 
-    if (((IVP_SolverFloatBits(Result.checks_L[0]) | IVP_SolverFloatBits(Result.checks_L[1])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(Result.checks_L[0]) | BitsFromFloat(Result.checks_L[1])) & 0x80000000u) == 0)
     {
         if (!(Result.checks_K[0] > 0.0f))
             return calc_qlen_PK_K_space(&In.K_Los[0], CacheL->compact_ledge, L);
@@ -535,7 +530,7 @@ double IVP_Compact_Ledge_Solver::calc_qlen_KK(const IVP_Compact_Edge* K, const I
         return In.calc_quad_distance_edge_edge();
     }
 
-    if (((IVP_SolverFloatBits(Result.checks_K[1]) | IVP_SolverFloatBits(Result.checks_K[0])) & 0x80000000u) == 0)
+    if (((BitsFromFloat(Result.checks_K[1]) | BitsFromFloat(Result.checks_K[0])) & 0x80000000u) == 0)
     {
         if (!(Result.checks_L[0] > 0.0f))
         {
