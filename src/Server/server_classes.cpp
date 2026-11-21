@@ -12158,6 +12158,21 @@ bool Server_DestroyInTransit(GameObject* Obj)
     return true;
 }
 
+// Port-only (no retail counterpart): true when every block StarSystem::find_object
+// searches is empty. SysDB::SysMap holds every system of the universe, loaded or
+// not, and Server_FindObject's miss path asks each one in turn. For such a system
+// find_object(Id) returns null and does nothing else: it is non-virtual, writes
+// no global and no counter, and each find_by_id walk starts at a null Head, so no
+// get_id is called and nothing can fault. (The port's id index may record a
+// lookup on the block; that only steers when the index is rebuilt.)
+static bool StarSystem_FindObjectBlocksEmpty(StarSystem const& System)
+{
+    return System.Ships.Head == nullptr && System.Loot.Head == nullptr
+        && System.List70.Head == nullptr && System.List98.Head == nullptr
+        && System.ListAC.Head == nullptr && System.ListC0.Head == nullptr
+        && System.Solars.Head == nullptr;
+}
+
 // FUN_06d00560 (.text:06d00560, cdecl, 39 instructions). Only caller:
 // .text:06cfa4fa (the system-transfer path, when the target system is null).
 //   .text:06d00563 .. 06d00580  a 0x38-byte local: 0xd dwords of Parms, then
@@ -12239,6 +12254,10 @@ bool Server_FindObject(unsigned int const& Id, GameObject*& OutObj, StarSystem*&
                      SysIt != SysDB::SysMap.end(); ++SysIt)
                 {
                     if (&SysIt->second == GLookupCacheSystem)
+                        continue;
+                    // Port-only: a system with nothing in find_object's blocks
+                    // can only answer null (see StarSystem_FindObjectBlocksEmpty).
+                    if (StarSystem_FindObjectBlocksEmpty(SysIt->second))
                         continue;
                     OutObj = SysIt->second.find_object(Id);
                     if (OutObj != nullptr)
