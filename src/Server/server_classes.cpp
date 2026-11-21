@@ -6556,17 +6556,14 @@ void StarSystem::sp_obj_update(SSPObjUpdateInfo const& Info, unsigned int Sessio
     // node ? node->Next : Head`, a null node returns. Each node's wrapper (null
     // tested), its CBase::Object under (& 3), and that CSimple's Id (+0xb0) read
     // without a test on the narrowing.
-    CSimple* Ship = nullptr;
-    FSystemListNode* Node = nullptr;
-    for (;;)
-    {
-        Node = (Node == nullptr) ? Ships.Head : Node->Next;
-        if (Node == nullptr)
-            return;
-        Ship = (Node->Data != nullptr) ? Node->Data->csimple() : nullptr;
-        if (Ship->Id == Info.ObjectId)
-            break;
-    }
+    // Port-only: the walk is ObjectList::find_by_id's (FUN_06cf4f00) -- the first node whose
+    // object's get_id, the same CSimple::Id (+0xb0) read, matches -- so the Ships block's id
+    // index answers it. A node without a CSimple faults there as it does here: a null-page
+    // read before any side effect.
+    FSystemListNode* const Node = Ships.find_by_id(Info.ObjectId);
+    if (Node == nullptr)
+        return;
+    CSimple* const Ship = Node->Data->csimple();
 
     // .text:06d0bc0f .. 06d0bc21 -- PhySys::RCSet(ship, &Position, &Orientation,
     // the double timestamp).
