@@ -246,8 +246,10 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     Command.FirstIndex = FirstIndex;
     Command.IndexCount = IndexTotal;
     std::memcpy(Command.Viewport, Viewport_, sizeof(Command.Viewport));
-    Command.MinZ = DepthRange_[0];
-    Command.MaxZ = DepthRange_[1];
+    // Pre-transformed vertices skip Direct3D's viewport transform, depth included: their z is
+    // drawn as it is, whatever SetDepthRange says (the 3D draws will record DepthRange_).
+    Command.MinZ = 0.0f;
+    Command.MaxZ = 1.0f;
     Command.Ops[0] = static_cast<std::uint32_t>(Stage0[kTssColorOp]);
     Command.Ops[1] = static_cast<std::uint32_t>(Stage0[kTssAlphaOp]);
     Command.Ops[2] = Texture != nullptr ? 1u : 0u;
