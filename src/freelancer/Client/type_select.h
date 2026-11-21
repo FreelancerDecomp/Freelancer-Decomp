@@ -74,7 +74,7 @@ public:
     // slot 13 FUN_00566500 -- JMP FUN_0059e5c0
     void Draw() override;
     // slot 23 FUN_00566bd0 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // Event::Handler slot 0 at +0x7c, FUN_00566fc0 (RET 4) -- 0xf -> FUN_00471f30(0), true.
     bool OnEvent(unsigned MsgId) override;

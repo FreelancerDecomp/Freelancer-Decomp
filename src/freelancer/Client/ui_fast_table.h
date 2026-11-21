@@ -388,7 +388,7 @@ public:
     // slot 9 FUN_0058f7a0 (RET 8)
     bool Create(Win3D* NewParent, void* Data) override;
     // slot 23 LAB_0058f8b0 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // FUN_0058f640 (RET 8) -- the scrollbar's range for ItemCount items with FixedRows rows
     // not scrolled; hidden (value 0) when everything fits.

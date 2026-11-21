@@ -45,7 +45,7 @@ namespace
     const char kCockpitCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\Cockpit.cpp";
 
     // A BaseWatcher holds the Watchable eight bytes into the client object.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // FUN_00518f20's constants, every one read out of the exe.
     const float  kMinDeltaTime = 9.999999747378752e-06f;   // .rdata 0x005d7e84

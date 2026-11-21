@@ -67,7 +67,7 @@ namespace
 {
     // Retail keeps the object as its Watchable subobject, which sits 8 bytes into IObjRW.
     // Both directions are spelled out inline at every use site rather than in a helper.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // .rdata 0x005dbfe8, the source path FUN_0051b4b0 / FUN_0051b500 hand FUN_00422610.
     const char kGamecamCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\Gamecam.cpp";

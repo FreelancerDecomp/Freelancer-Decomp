@@ -132,7 +132,7 @@ public:
     // slot 13 FUN_00479700
     void Draw() override;
     // slot 23 FUN_0047ade0 -- 0xef02 closes the window, 0xef01 shows it
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 FUN_00479d10
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

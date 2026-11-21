@@ -41,7 +41,7 @@ public:
     // slot 10 is LAB_00573640 = JMP FUN_00591de0 (MasterWin::Destroy): not overridden.
 
     // slot 23 FUN_005736a0 (RET 0xc).
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     FUiPageDesc Desc;        // retail +0x8c
     int Result;              // retail +0xb4 -- DAT_0067a884

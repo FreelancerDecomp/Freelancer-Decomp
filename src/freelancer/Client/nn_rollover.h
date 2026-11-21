@@ -47,7 +47,7 @@ public:
     // slot 13 LAB_004b5720.
     void Draw() override;
     // slot 23 LAB_004b5700 -- message 0xef02 hides the rollover.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
 
     // FUN_004b4f10 -- the post-vtable part of the factory constructor.
     void InitRolloverDefaults();

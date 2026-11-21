@@ -410,7 +410,7 @@ intptr_t NnPlayerInfo::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     return 0;
 }
 
-bool NnPlayerInfo::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnPlayerInfo::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_00475430 (RET 0xc) -- the body NN_Help's slot 23 (nn_help.cpp) is folded with.
     if (Msg != 0xef02)

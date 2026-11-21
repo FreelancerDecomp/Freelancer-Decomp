@@ -35,7 +35,7 @@ namespace
 {
     // Same convention as the other cameras: a watcher holds the Watchable subobject, which sits
     // eight bytes into the IObjRW, which is where retail's ubiquitous `- 8` comes from.
-    const int kWatchableOffset = 8;
+    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // The name literal at .rdata 0x005dc1e4, returned by slot 0x54.
     const char kScriptCameraClassName[] = "ScriptCamera";

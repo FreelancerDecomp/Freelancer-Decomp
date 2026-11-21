@@ -302,7 +302,7 @@ bool ListBox::MouseEvent(FWin3DMouseEvent const* Event)
     if (Selected >= 0 && Selected < ItemCount && Selected < 0x100 && Items[Selected] != nullptr)
         Text = Items[Selected]->Text_; // slot 4 (+0x10)
 
-    unsigned const TextArg = static_cast<unsigned>(reinterpret_cast<uintptr_t>(Text));
+    std::uintptr_t const TextArg = reinterpret_cast<std::uintptr_t>(Text);
     if (Event->Field1 == 2)
     {
         Parent->Slot23(0xf001, TextArg, static_cast<unsigned>(SelectedIndex));

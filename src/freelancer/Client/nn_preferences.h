@@ -114,7 +114,7 @@ public:
     // slot 20 FUN_004adac0 (RET 8)
     bool KeyEvent(unsigned Key, unsigned char* Modifiers) override;
     // slot 23 FUN_004ada30 (RET 0xc)
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 FUN_004ac0a0 (RET 0xc)
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;
 

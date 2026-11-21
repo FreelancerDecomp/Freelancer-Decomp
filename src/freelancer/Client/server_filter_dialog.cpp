@@ -352,7 +352,7 @@ bool ServerFilterDialog::KeyEvent(unsigned Key, unsigned char* Modifiers)
     return true;
 }
 
-bool ServerFilterDialog::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool ServerFilterDialog::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_00563630.
     if (Msg == 0xf004)

@@ -480,7 +480,7 @@ void PageCharacterCreate::Confirm()
     BeginLeave();
 }
 
-bool PageCharacterCreate::Slot23(unsigned Msg, unsigned A, unsigned /*B*/)
+bool PageCharacterCreate::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t /*B*/)
 {
     // LAB_00561630 (RET 0xc).
     bool bBack = false;

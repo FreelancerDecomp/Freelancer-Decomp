@@ -687,7 +687,7 @@ void PageCharacterSelect::FillRow(unsigned Row, CCharacterSet::CharacterInfo con
     Data->Release();
 }
 
-bool PageCharacterSelect::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool PageCharacterSelect::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // FUN_00569670.
     if (Msg == 0x3004)

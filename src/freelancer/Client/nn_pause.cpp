@@ -260,7 +260,7 @@ void NnPause::Draw()
     WinControl::Draw();            // JMP FUN_005a0760
 }
 
-bool NnPause::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnPause::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_004a70a0 (RET 0xc): 0x3006 (NN_Confirm's answer) goes on to slot 42 with A and B;
     // always false.

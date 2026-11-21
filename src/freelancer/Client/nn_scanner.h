@@ -49,7 +49,7 @@ public:
     // and the rows of the scanned cargo.
     void Update() override;
     // slot 23 LAB_004b7180 (RET 0xc) -- 0xef02: UI sound 0xe and FUN_0047ad20; else NN_Inventory.
-    bool Slot23(unsigned Msg, unsigned A, unsigned B) override;
+    bool Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B) override;
     // slot 42 LAB_004b7050 (RET 0xc) -- 0x26 on the close button, 0x49 (A = the cargo list,
     // B = the scanned ship's archetype), 0x4a (show); then NN_Inventory's SetProperty.
     intptr_t SetProperty(int Msg, uintptr_t A, uintptr_t B) override;

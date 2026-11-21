@@ -259,7 +259,7 @@ bool NnPrompt::OnEvent(unsigned MsgId)
     return true;
 }
 
-bool NnPrompt::Slot23(unsigned Msg, unsigned A, unsigned B)
+bool NnPrompt::Slot23(unsigned Msg, std::uintptr_t A, std::uintptr_t B)
 {
     // LAB_00473240 (RET 0xc): 0xf003 answers 0, 0xf004 answers 1, both close and return true;
     // anything else goes to WinControl's FUN_005a0840.
