@@ -1,0 +1,64 @@
+name: Test job setup
+description: >-
+  The common start of the jobs that run the built binaries: restore the game data, download the
+  Win32 (and optionally the base and x64) binaries, and enable DirectPlay.
+
+inputs:
+  data-key:
+    description: Cache key of the game data (the data job's key); empty skips the restore
+    default: ''
+  base:
+    description: On a pull request, also download the base commit's Win32 binaries into base/
+    default: 'false'
+  x64:
+    description: Also download the x64 binaries into bin_x64/
+    default: 'false'
+  directplay:
+    description: Enable the DirectPlay Windows feature (RemoteClient hosts through DirectPlay 8)
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    # DATA/ is only ever used inside the runner: never commit it and never upload it.
+    - name: Restore game data
+      if: inputs.data-key != ''
+      uses: actions/cache/restore@v4
+      with:
+        path: DATA
+        key: ${{ inputs.data-key }}
+        fail-on-cache-miss: true
+
+    - name: Download binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: freelancer-release-win32
+        path: bin
+
+    - name: Download base binaries
+      if: inputs.base == 'true' && github.event_name == 'pull_request'
+      uses: actions/download-artifact@v4
+      with:
+        name: freelancer-base-win32
+        path: base
+
+    - name: Download x64 binaries
+      if: inputs.x64 == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: freelancer-release-x64
+        path: bin_x64
+
+    # DirectPlay 8 is an optional Windows component that Windows Server does not install by
+    # default.
+    - name: Enable DirectPlay
+      if: inputs.directplay == 'true'
+      shell: pwsh
+      run: |
+        $feature = Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue
+        if ($feature -and -not $feature.Installed) {
+          Install-WindowsFeature -Name Direct-Play | Format-List | Out-String | Write-Host
+        } elseif (-not $feature) {
+          Enable-WindowsOptionalFeature -Online -FeatureName DirectPlay -All -NoRestart | Out-Null
+        }
+        Write-Host "DirectPlay: $((Get-WindowsFeature -Name Direct-Play -ErrorAction SilentlyContinue).InstallState)"
