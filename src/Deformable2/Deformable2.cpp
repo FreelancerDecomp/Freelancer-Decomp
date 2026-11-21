@@ -6,6 +6,7 @@
 
 #include "Deformable2.h"
 #include "EyeMaterial.h"     // RegisterEyeMaterialFactory (FUN_065fdfd0)
+#include "facet_offset.h"   // FL_FACET_OFFSET for G_InnerIidTable
 #include "common_misc.h"   // ICamera (GetViewTransform +0x40, ClassifySphere +0x3C)
 #include "msvcrt_compat.h" // MsvcrtAtoi: retail MSVCRT.DLL wraps mod 2^32, the UCRT saturates
 
@@ -5246,12 +5247,13 @@ struct FInnerIidEntry
     int Offset;
 };
 
+// The offsets are retail's on Win32 and the class layout's on x64 (facet_offset.h).
 static const FInnerIidEntry G_InnerIidTable[] = {
-    {G_IidDeformableShort, 0},
-    {G_IidEngineComponentShort, 4},
-    {Iids::Deformable, 0},
-    {Iids::EngineComponent, 4},
-    {Iids::AggregateComponent, 4},
+    {G_IidDeformableShort, FL_FACET_OFFSET(0, FDeformableObject, IDeformable)},
+    {G_IidEngineComponentShort, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
+    {Iids::Deformable, FL_FACET_OFFSET(0, FDeformableObject, IDeformable)},
+    {Iids::EngineComponent, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
+    {Iids::AggregateComponent, FL_FACET_OFFSET(4, FDeformableObject, IEngineComponent)},
     {nullptr, 0},
 };
 
