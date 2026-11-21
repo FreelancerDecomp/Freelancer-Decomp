@@ -198,7 +198,9 @@ SERVER_API ChatHookFn g_pSystemChatHook = nullptr;    // RVA 0xAF60C
 // The `Server` export (ordinal 524, RVA 0xAFACC) is the IServerImpl object
 // itself, not a string -- it is defined next to IServerImpl in IServerImpl.cpp.
 
-// The in-transit list (server_space.cpp), kept here for the same reason.
+// The in-transit list (server_space.cpp). It is defined here only so that the globals keep the
+// construction order they had before the split; being declared after SysDB::SysMap, it is
+// destroyed first, and ~StarSystem does not touch it.
 // LAB_06d002e0 (CRT init: allocator byte DAT_06d8d8d4, head node DAT_06d8d8d8 =
 // operator new(0x40) linked to itself, size DAT_06d8d8dc = 0, atexit of
 // FUN_06d00320) and FUN_06d00320 (every node unlinked and freed with the size
