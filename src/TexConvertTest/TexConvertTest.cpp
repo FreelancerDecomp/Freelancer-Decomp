@@ -313,6 +313,100 @@ void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* B
     Surface->Release();
 }
 
+// The filtered path into a DXT format: an A8R8G8B8 image with partial alpha, compressed by D3DX
+// and by TexConvert, both decoded back with TexConvert's (D3DX-matching) decoder. The encoders
+// differ by design, so the check is the largest channel difference against a tolerance.
+void CompareEncode(IDirect3DDevice8* Device, unsigned int Format)
+{
+    const unsigned int Width = 64;
+    const unsigned int Height = 64;
+    std::vector<std::uint32_t> Image(Width * Height);
+    for (unsigned int Y = 0; Y < Height; ++Y)
+        for (unsigned int X = 0; X < Width; ++X)
+            Image[Y * Width + X] = ((X * 4u) << 24) | ((Y * 4u) << 16) | (((X + Y) * 2u) << 8) | (255u - X * 3u);
+    IDirect3DSurface8* Surface = nullptr;
+    if (Device->CreateImageSurface(Width, Height, ToD3d(Format), &Surface) < 0)
+    {
+        ++G_Skipped;
+        return;
+    }
+    RECT Rect = {0, 0, static_cast<LONG>(Width), static_cast<LONG>(Height)};
+    if (D3DXLoadSurfaceFromMemory(Surface, nullptr, nullptr, Image.data(), D3DFMT_A8R8G8B8, Width * 4, nullptr,
+                                  &Rect, D3DX_FILTER_NONE, 0) < 0)
+    {
+        ++G_Skipped;
+        Surface->Release();
+        return;
+    }
+    const unsigned int Pitch = TexConvert::RowPitch(Format, Width);
+    const unsigned int Rows = TexConvert::RowCount(Format, Height);
+    std::vector<unsigned char> Theirs(static_cast<std::size_t>(Pitch) * Rows);
+    D3DLOCKED_RECT Locked;
+    if (Surface->LockRect(&Locked, nullptr, D3DLOCK_READONLY) < 0)
+    {
+        ++G_Skipped;
+        Surface->Release();
+        return;
+    }
+    for (unsigned int Row = 0; Row < Rows; ++Row)
+        std::memcpy(Theirs.data() + static_cast<std::size_t>(Row) * Pitch,
+                    static_cast<const unsigned char*>(Locked.pBits) + Row * Locked.Pitch, Pitch);
+    Surface->UnlockRect();
+    Surface->Release();
+
+    std::vector<unsigned char> Ours(Theirs.size());
+    TexConvert::FImage Encoded;
+    Encoded.Format = Format;
+    Encoded.Width = Width;
+    Encoded.Height = Height;
+    Encoded.Pitch = Pitch;
+    Encoded.Bits = Ours.data();
+    TexConvert::FSource Straight;
+    Straight.Format = TexConvert::kA8R8G8B8;
+    Straight.Width = Width;
+    Straight.Height = Height;
+    Straight.Pitch = Width * 4;
+    Straight.Bits = Image.data();
+    TexConvert::Load(Encoded, Straight);
+
+    // Both compressed images decoded the same way.
+    std::vector<std::uint32_t> Back[2] = {std::vector<std::uint32_t>(Width * Height),
+                                          std::vector<std::uint32_t>(Width * Height)};
+    const std::vector<unsigned char>* Compressed[2] = {&Theirs, &Ours};
+    for (int Side = 0; Side < 2; ++Side)
+    {
+        TexConvert::FImage Decoded;
+        Decoded.Format = TexConvert::kA8R8G8B8;
+        Decoded.Width = Width;
+        Decoded.Height = Height;
+        Decoded.Pitch = Width * 4;
+        Decoded.Bits = Back[Side].data();
+        TexConvert::FSource Source;
+        Source.Format = Format;
+        Source.Width = Width;
+        Source.Height = Height;
+        Source.Pitch = Pitch;
+        Source.Bits = Compressed[Side]->data();
+        TexConvert::Load(Decoded, Source);
+    }
+    int Largest = 0;
+    for (std::size_t Index = 0; Index < Back[0].size(); ++Index)
+    {
+        for (int Shift = 0; Shift < 32; Shift += 8)
+        {
+            const int A = static_cast<int>((Back[0][Index] >> Shift) & 0xFF);
+            const int B = static_cast<int>((Back[1][Index] >> Shift) & 0xFF);
+            Largest = std::max(Largest, A > B ? A - B : B - A);
+        }
+    }
+    const int Tolerance = 24;
+    ++G_Compared;
+    std::printf("ENCODE A8R8G8B8 -> %s: largest channel difference %d (tolerance %d)\n", Name(Format), Largest,
+                Tolerance);
+    if (Largest > Tolerance)
+        ++G_Different;
+}
+
 void RunProbes(IDirect3DDevice8* Device)
 {
     // Endpoint pairs across the range in both orders; indices 0,1,2,3 in every row.
@@ -363,6 +457,10 @@ int main()
         return 2;
     }
     RunProbes(D3d.Device);
+    const unsigned int EncodeTargets[] = {TexConvert::kDxt1, TexConvert::kDxt2, TexConvert::kDxt3,
+                                          TexConvert::kDxt4, TexConvert::kDxt5};
+    for (unsigned int Format : EncodeTargets)
+        CompareEncode(D3d.Device, Format);
     const unsigned int Sources[] = {TexConvert::kP8,       TexConvert::kR8G8B8,   TexConvert::kR5G6B5,
                                     TexConvert::kX1R5G5B5, TexConvert::kA4R4G4B4, TexConvert::kA1R5G5B5,
                                     TexConvert::kA8R8G8B8, TexConvert::kX8R8G8B8, TexConvert::kDxt1,
