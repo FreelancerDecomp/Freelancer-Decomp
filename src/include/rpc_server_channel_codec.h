@@ -9,6 +9,10 @@
 #include "x87_portable.h"
 #include "rpc_packet_codec.h"
 #include "common_misc.h"
+#include "rpc_equipment_codec.h" // FRpcServerEquipHandle (+0x70), the equipment codecs
+#include "common_archetype.h"    // CollisionGroupDesc (+0x74, 0x48)
+#include "common_reputation.h"   // Costume (0x4f), Reputation::Relation (0x29, 0x2b)
+#include "rpc_iclient_args.h"    // FPayloadServerSetDirective (0x4e) and the other payload structs
 #include <cstring>
 #include <iostream>
 #include <list>
@@ -57,8 +61,6 @@ void RpcServerExpand127(unsigned char Encoded, float* Value);
 // list<CollisionGroupDesc> ctor at +0x74 and DamageList() at +0x80) and torn down by the
 // base part of the destructor (RS 06bf0c79..06bf0d36): the DamageList, the collision
 // list, the equipment handle (06bdc790), then the costume's id array.
-#include "rpc_equipment_codec.h" // FRpcServerEquipHandle (+0x70)
-#include "common_archetype.h"    // CollisionGroupDesc (+0x74)
 
 struct CEqObjCreateInfo;
 
@@ -1124,8 +1126,6 @@ public:
     unsigned int Kind;            // +0x28  BaseHint::Kind
 };
 
-#include "rpc_iclient_args.h" // FPayloadServerSetDirective (0x4e)
-
 // 0x4e FLPACKET_SERVER_SETDIRECTIVE (RS-P4). RC 06b4ac60 / ctor 06b4aca0 / deleting dtor
 // 06b4ad70, RS 06be5780 / 06be57c0 / 06be5890. Carries one FPayloadServerSetDirective at
 // +0x20. The ctor seeds it as Server's default construction does (+0x18 = -1, +0x40 = 3,
@@ -1178,8 +1178,6 @@ public:
     unsigned char Field_0x2c;     // +0x2c
 };
 
-#include "common_archetype.h" // CollisionGroupDesc (0x48)
-
 // 0x48 FLPACKET_SERVER_SETCOLLISIONGROUPS (RS-P4). RC 06b4ca50 / ctor 06b4ca90 / deleting
 // dtor 06b4cb10 (body 06b4cb30), RS 06be7650 / 06be7690 / 06be7710. Holds a
 // std::list<CollisionGroupDesc> at +0x20 (VC6: allocator byte +0x20, head +0x24, size
@@ -1199,8 +1197,6 @@ public:
     }
     std::list<CollisionGroupDesc> Groups; // +0x20
 };
-
-#include "common_reputation.h" // Costume (0x4f)
 
 // 0x4f FLPACKET_SERVER_SENDCOMM (RS-P9). RC factory 06b4ccd0 / ctor 06b4cd10 / deleting dtor
 // 06b4cd50 (body 06b4cd70), RS 06be78d0 / 06be7910 / 06be7950 (body 06be7970); RC and RS are
@@ -1328,8 +1324,6 @@ public:
 // addresses (RS-S1/RS-S2 dossiers); comments name the RC address first, then RS.
 // Constructors write exactly the payload fields the native constructors write.
 
-#include "common_reputation.h" // Reputation::Relation (0x29, 0x2b)
-
 struct EquipDescVector;
 
 // --- equipment list: 0x24 SETEQUIPMENT, 0x25 SETCARGO ---
@@ -1337,7 +1331,6 @@ struct EquipDescVector;
 // FRpcServerEquipRecord, FRpcServerEquipHandle and FRpcServerEquipListPacketBase are
 // declared once in rpc_equipment_codec.h; their bodies stay in
 // remote_server_channel_codecs.cpp.
-#include "rpc_equipment_codec.h"
 
 // RC 06b38210 (__cdecl, the senders' builder): one record per EquipDesc of Source;
 // bAll false keeps only the items whose bEquipped byte is 0.
@@ -1912,7 +1905,6 @@ public:
 // ===== SERVER 0x01..0x1f (RS-P1) part 2 =====
 // 0x03 CHARACTERINFO sits here, after RS-P2's block, because its wire record holds
 // RS-P2's FRpcServerEquipHandle by value.
-#include "common_archetype.h" // CollisionGroupDesc
 
 // The id block a wire record points to: operator new(0x18), four dwords, a count and
 // an operator new(Count * 4) array. Built from a Costume by the sender (RC 06b355f8 /

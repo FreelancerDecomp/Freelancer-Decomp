@@ -6,10 +6,7 @@
 
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
+#include <windows.h> // WIN32_LEAN_AND_MEAN comes from imeui.vcxproj
 #include <imm.h>
 
 #include "imeui.h" // _IMEUI_APPEARANCE (single declaration)
