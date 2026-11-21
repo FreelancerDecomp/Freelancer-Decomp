@@ -25,7 +25,7 @@ Retail compatibility comes first, as for the x64 server:
 
 ## Where we are
 
-Updated 2026-11-21, from `master` after #58.
+Updated 2026-11-21, from `master` after #96.
 
 | Done or in progress | |
 |---|---|
@@ -35,7 +35,7 @@ Updated 2026-11-21, from `master` after #58.
 | DPNet (#29) and its adapter (#30) | Merged; CI requires Microsoft's DirectPlay 8 client to join the x64 server |
 | Phase 1 | Done: ReadFile handles and views (#33), x87 helpers (#40), resource DLLs as data files (#41), client layout checks (#43) |
 | Phase 2 | Mostly done: leaf modules (#39, #45, #46, #47), the EULA skip (#44), RemoteServer (#49), freelancer.exe (#50), `IObjRW` / `Watchable` offsets (#51), `Slot23` arguments (#52). The whole solution builds for `Release\|x64` except the Win32-only projects below |
-| Phase 5 | 5.1 and 5.2 merged (#58): the RPGPU skeleton, SDL3 from vcpkg |
+| Phase 5 | 5.1 and 5.2 merged (#58, #60), with their follow-ups (#78, #81). 5.3 under way: TexConvert, the D3DX-free texture loader (#59), the shader toolchain (#94) and the 2D draws (#96) are merged; the 3D draws are next |
 | CMake (#11) | Draft. Not needed for Windows; needed before any non-Windows build |
 
 What is left, from a fresh survey of `master` (counts are from grep, then spot-checked):
@@ -48,7 +48,7 @@ What is left, from a fresh survey of `master` (counts are from grep, then spot-c
 | Hard-coded retail byte offsets | About 160 in the client modules (freelancer 92, of which `cli_nebula.cpp` 37; movie 48; alchemy 9; flmaterials 5; RemoteServer 2; Deformable2 1), and about 45 more in Common and Server |
 | Raw `this + 0x..` offsets in Common's AI behaviours | About 44 sites in 14 files (`common_behavior.cpp` and the behaviours). They already run in the x64 server and hit the wrong fields there; being fixed first |
 | Pointers stored in 32-bit integers | movie's big-number code (about 300 casts, left out on x64, step 2.2); the rest was fixed in phase 2 |
-| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). The x64 client gets RPGPU (phase 5), which so far presents cleared frames only |
+| Renderer | RP8 cannot be built for x64 (D3DX8 has no 64-bit version). The x64 client gets RPGPU (phase 5), which so far draws the 2D draws (menus, HUD) |
 
 Rough total for phases 1–3: 5 to 7 weeks of work, plus the runtime surprises a first run always
 brings.
@@ -242,13 +242,25 @@ Follow-ups to the skeleton, before 5.3 builds on it:
   `render/rp_types.h` instead of `d3d9.h` in `IRenderPipeline.h`.
 
 **5.3 Fixed-function emulation.** What reaches the device is small: 33 render states, 11
-texture-stage states, a few vertex formats (FVF), and no programmable shaders in RP8. Write one
-HLSL source with permutations keyed on that state, convert it offline with SDL_shadercross to
-DXIL, SPIR-V and MSL, and keep the bytecode in the repository. Fog, lighting, texture stages,
-alpha test and z-bias come first, because the menu and space scenes need them.
+texture-stage states, a few vertex formats (FVF), and no programmable shaders in RP8. Write the
+fixed-function pipeline in HLSL, convert it offline with SDL_shadercross to DXIL, SPIR-V and
+MSL, and keep the bytecode in the repository. In parts, each its own PR:
 
-**5.4 Buffers and textures.** Vertex and index buffers (static, dynamic, and the
-lock/discard pattern), textures through the phase 4.1 decoder, render targets, and screenshots.
+1. Done in #59: TexConvert, the D3DX-free replacement for `D3DXLoadSurfaceFromMemory`, checked
+   against D3DX 8.1 in CI.
+2. Done in #94: the shader toolchain (offline compile, committed bytecode, a CI check).
+3. Done in #96: the 2D draws (pre-transformed vertices: menus, HUD), texture stage 0 and the
+   alpha test.
+4. 3D geometry: world, view and projection as RP8 keeps them, vertex- and index-buffer draws,
+   culling, fill mode, z-bias, mip maps, DXT textures uploaded as blocks. Ships and stations
+   draw unlit.
+5. Lighting and fog.
+6. Texture stages above 0, texture transforms and texture-coordinate generation.
+
+**5.4 Buffers and textures.** Vertex and index buffers that stay on the GPU (static, dynamic,
+and the lock/discard pattern), render targets, and screenshots. Already in place: buffers in CPU
+memory with RP8's lock semantics (#58), textures through TexConvert (#59), and mip chains and DXT
+uploads (5.3, part 4). Until then every draw's vertices are copied into the frame.
 
 **5.5 Parity.** RPGPU on Win32 passes the phase 4.2 scene set within tolerance against RP8, the
 smoke test passes on it, and then it becomes the default on x64. Win32's default stays RP8.

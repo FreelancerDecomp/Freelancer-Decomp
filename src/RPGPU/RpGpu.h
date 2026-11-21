@@ -7,8 +7,8 @@
 // interfaces as RP8 (render/IRenderPipeline.h) and registers as the "SDLGPU" component, so the
 // game selects it in DACOM.INI and talks to it through RP8's IIDs.
 //
-// This is the skeleton: it keeps every state the game reads back, holds textures and buffers
-// in CPU memory, and on the GPU only clears and presents (backend/). The return values and
+// It keeps every state the game reads back, holds textures and buffers in CPU memory, and
+// records each frame's draws for the backend (backend/) to replay. The return values and
 // output layouts follow RP8's, since the game checks them.
 
 #include "dacom.h"
@@ -216,11 +216,19 @@ private:
     // The backend for the current setting (NULL_DEVICE), made on first use.
     IRpGpuBackend& Backend();
 
-    // RpGpuDraw.cpp: records one draw into Frame_ (Stride: bytes per vertex; Indices null for a
-    // draw without indices), and uploads a texture whose level 0 changed.
+    // RpGpuDraw.cpp: records one draw into Frame_, and uploads a texture that changed. Verts is
+    // the first vertex the draw (or its indices) may use and VertCount how many follow it;
+    // Stride is bytes per vertex; Indices is null for a draw without indices.
     void RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
                     unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount);
     void RefreshTexture(FRpGpuTexture* Texture);
+
+    // RpGpuState.cpp: RP8's transform stores (FRp8TransformCache). The world and view matrices
+    // are kept as Direct3D's 4x4 (row-major, row vectors), as RP8 sends them to the device.
+    void StoreViewIdentity(bool bFlip);
+    void ApplyIdentityTransforms(); // CreateBuffers: RP8's FUN_06d03c94
+    void CommitTransforms();        // every draw: what RP8's FlushDrawState does to the view
+    void ResetStreams();            // RP8's FRp8StreamCache::Reset
 
     std::unique_ptr<IRpGpuBackend> Backend_;
     bool bNullDevice_ = false;    // [RenderPipeline] NULL_DEVICE
@@ -245,6 +253,19 @@ private:
     unsigned long AbilityOverrides_[0x15] = {};
     bool bAbilityOverridden_[0x15] = {};
     float Projection_[16] = {}; // D3D row-major
+    float World_[16] = {};
+    float View_[16] = {};
+    // RP8's view store flags: bViewCommitted_ is cleared by every store and set by the next
+    // draw; bViewMarker_ is set when SetModelview or SetLookat put in their identity view, and
+    // cleared when a draw commits a changed view. While it is set they leave the view alone.
+    bool bViewCommitted_ = false;
+    bool bViewMarker_ = false;
+    // RP8's stream selection (FRp8StreamCache): SelectVb, SelectIb and the draws that set them.
+    // SelectedIb_ is an index buffer or kMinusOne (the scratch ring); IbBaseVertex_ is
+    // SelectIb's base vertex. 0xFFFFFFFF after a reset, as in RP8.
+    void* SelectedVb_ = nullptr;
+    void* SelectedIb_ = nullptr;
+    unsigned int IbBaseVertex_ = 0xFFFFFFFFu;
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};
     void* StageTextures_[8] = {}; // SetTextureStageTexture's handles

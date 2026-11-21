@@ -49,8 +49,8 @@ public:
     // rebuild on the next Create.
     bool Present(const FRpGpuFrameRecording& Frame) override;
 
-    void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
-                       const std::uint8_t* Bgra) override;
+    void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) override;
+    bool SupportsBlockCompression() const override { return bBlockCompression_; }
     void ForgetTexture(std::uint64_t Key) override;
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }
@@ -72,15 +72,15 @@ private:
     struct FTexture
     {
         SDL_GPUTexture* Texture = nullptr;
+        ERpGpuTextureFormat Format = ERpGpuTextureFormat::Bgra8;
         std::uint32_t Width = 0;
         std::uint32_t Height = 0;
+        std::uint32_t Levels = 0;
     };
     struct FPendingUpload
     {
         std::uint64_t Key;
-        std::uint32_t Width;
-        std::uint32_t Height;
-        std::vector<std::uint8_t> Bgra;
+        FRpGpuTextureImage Image;
     };
 
     bool CreateShaders();
@@ -98,6 +98,7 @@ private:
     SDL_GPUDevice* Device_ = nullptr;
     bool bSdlVideo_ = false;
     bool bNeedsRebuild_ = false;
+    bool bBlockCompression_ = false; // the device samples BC1, BC2 and BC3
     // A failed swap-chain reconfiguration leaves SDL 3.4.18's D3D12 backend with records it has
     // already freed, and releasing the window would free them again. Such a device and window
     // are abandoned, not released, and the module stops creating devices: the flag is shared by

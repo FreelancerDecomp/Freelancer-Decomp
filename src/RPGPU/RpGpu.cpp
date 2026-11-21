@@ -191,6 +191,8 @@ FRpGpu::FRpGpu()
     ScratchIb_.bRing = true;
     ScratchIb_.Data.resize(static_cast<std::size_t>(kScratchIbIndices) * 2);
     Identity(Projection_);
+    Identity(World_);
+    Identity(View_);
 }
 
 FRpGpu::~FRpGpu()
@@ -436,6 +438,8 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
         OutBytes[0x27] = 0;
     }
     ResetDeviceState();
+    ApplyIdentityTransforms();
+    ResetStreams();
     if (Viewport_[2] == 0)
     {
         Viewport_[2] = Mode[2];
@@ -569,12 +573,16 @@ GENRESULT DACOM_API FRpGpu::EndScene()
 }
 
 // The draw calls record into the frame (RpGpuDraw.cpp); the return values stay RP8's: the
-// game only propagates them.
+// game only propagates them. The stream selection (SelectedVb_, SelectedIb_) changes as RP8's
+// stream cache does: the user-pointer draws reset it, the vertex-buffer draws select their
+// buffers, and IRPDraw::DrawIndexedPrimitive draws from it.
 GENRESULT DACOM_API FRpGpu::DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts,
                                           unsigned int Count, void* Unused)
 {
     (void)Unused;
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), Count, nullptr, 0);
+    if (bBuffersActive_ && static_cast<int>(Count) > 0)
+        ResetStreams();
     return GR_OK;
 }
 
@@ -585,6 +593,8 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(unsigned long Prim, unsigned 
     (void)Unused;
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), VertCount,
                static_cast<const std::uint16_t*>(Indices), IndexCount);
+    if (bBuffersActive_ && PrimCountFromVerts(Prim, IndexCount) > 0)
+        ResetStreams();
     return GR_OK;
 }
 
@@ -592,6 +602,9 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
                                             unsigned int Count, void* Unused)
 {
     (void)Unused;
+    if (!bBuffersActive_ || PrimCountFromVerts(Prim, Count) <= 0)
+        return GR_OK;
+    SelectedVb_ = Vb;
     const FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && StartVertex <= Buffer->Count && Count <= Buffer->Count - StartVertex)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(StartVertex) * Buffer->Stride,
@@ -599,27 +612,53 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
     return GR_OK;
 }
 
-// Indices count from BaseVertex, as with Direct3D 8's SetIndices base vertex.
+// RP8 copies the indices into its scratch index buffer and draws from there with BaseVertex as
+// the base vertex, which leaves the vertex buffer and the scratch buffer selected. NumVerts is
+// Direct3D's hint; the vertices the indices reach are what is drawn.
 GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb, unsigned int BaseVertex,
                                                    unsigned int NumVerts, const void* Indices,
                                                    unsigned int IndexCount, unsigned long Unused)
 {
     (void)Unused;
+    (void)NumVerts;
+    if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0 || Indices == nullptr)
+        return GR_OK;
+    unsigned int Start = 0;
+    if (!LockRing(&ScratchIb_, IndexCount, &Start))
+        return kFail;
+    std::memcpy(ScratchIb_.Data.data() + static_cast<std::size_t>(Start) * 2, Indices,
+                static_cast<std::size_t>(IndexCount) * 2);
+    SelectedVb_ = Vb;
+    SelectedIb_ = kMinusOne;
+    IbBaseVertex_ = BaseVertex;
     const FRpGpuBuffer* const Buffer = LiveVb(Vb);
-    if (Buffer != nullptr && BaseVertex <= Buffer->Count && NumVerts <= Buffer->Count - BaseVertex)
+    if (Buffer != nullptr && BaseVertex < Buffer->Count)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(BaseVertex) * Buffer->Stride,
-                   Buffer->Stride, NumVerts, static_cast<const std::uint16_t*>(Indices), IndexCount);
+                   Buffer->Stride, Buffer->Count - BaseVertex,
+                   reinterpret_cast<const std::uint16_t*>(ScratchIb_.Data.data()) + Start, IndexCount);
     return GR_OK;
 }
 
+// Direct3D 8's DrawIndexedPrimitive on the selected buffers: Count indices from StartIndex, each
+// counted from SelectIb's base vertex. MinIndex and NumVertices are Direct3D's hints.
 GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned int MinIndex, unsigned int NumVertices,
                                                  unsigned int StartIndex, unsigned int Count)
 {
-    (void)Prim;
     (void)MinIndex;
     (void)NumVertices;
-    (void)StartIndex;
-    (void)Count;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (PrimCountFromVerts(Prim, Count) <= 0)
+        return kFail;
+    const FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
+    const FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
+    if (Vertices == nullptr || IndexBuffer == nullptr || IbBaseVertex_ >= Vertices->Count ||
+        StartIndex > IndexBuffer->Count || Count > IndexBuffer->Count - StartIndex)
+        return kFail;
+    RecordDraw(Prim, Vertices->Fvf,
+               Vertices->Data.data() + static_cast<std::size_t>(IbBaseVertex_) * Vertices->Stride, Vertices->Stride,
+               Vertices->Count - IbBaseVertex_,
+               reinterpret_cast<const std::uint16_t*>(IndexBuffer->Data.data()) + StartIndex, Count);
     return GR_OK;
 }
 

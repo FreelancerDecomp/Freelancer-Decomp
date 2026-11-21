@@ -62,14 +62,14 @@ namespace
             return true;
         }
 
-        void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
-                           const std::uint8_t* Bgra) override
+        void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) override
         {
             (void)Key;
-            (void)Width;
-            (void)Height;
-            (void)Bgra;
+            (void)Image;
         }
+
+        // Takes anything: the images are dropped. Saying yes spares RPGPU the DXT decode.
+        bool SupportsBlockCompression() const override { return true; }
 
         void ForgetTexture(std::uint64_t Key) override { (void)Key; }
 

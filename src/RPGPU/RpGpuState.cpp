@@ -168,43 +168,217 @@ GENRESULT DACOM_API FRpGpu::GetDepthRange(float* OutMinZ, float* OutMaxZ)
     return GR_OK;
 }
 
-// The world, view and model-view transforms have no reader yet; the skeleton draws nothing.
+// --- transforms -------------------------------------------------------------------------------
+//
+// RP8's stores, call for call (RP8.cpp, SetWorld to SetLookat): the 12-float DA transforms
+// (rotation rows, then translation) are kept as Direct3D's 4x4, and the view (or, with
+// VIEWSPACE_LIGHTS, the world) carries RP8's z flip, which turns the game's right-handed space
+// into Direct3D's left-handed one. RP8 multiplies through the 3DMathEngine; these products keep
+// its double sums.
+
+namespace
+{
+    // FRp8TransformCache::StoreAffine / LoadAffine.
+    void StoreAffine(float* Values, const float* M12)
+    {
+        Values[0] = M12[0];
+        Values[4] = M12[1];
+        Values[8] = M12[2];
+        Values[1] = M12[3];
+        Values[5] = M12[4];
+        Values[9] = M12[5];
+        Values[2] = M12[6];
+        Values[6] = M12[7];
+        Values[10] = M12[8];
+        Values[12] = M12[9];
+        Values[13] = M12[10];
+        Values[14] = M12[11];
+        Values[3] = 0.0f;
+        Values[7] = 0.0f;
+        Values[11] = 0.0f;
+        Values[15] = 1.0f;
+    }
+
+    void LoadAffine(const float* Values, float* Out12)
+    {
+        Out12[0] = Values[0];
+        Out12[1] = Values[4];
+        Out12[2] = Values[8];
+        Out12[3] = Values[1];
+        Out12[4] = Values[5];
+        Out12[5] = Values[9];
+        Out12[6] = Values[2];
+        Out12[7] = Values[6];
+        Out12[8] = Values[10];
+        Out12[9] = Values[12];
+        Out12[10] = Values[13];
+        Out12[11] = Values[14];
+    }
+
+    // The 3DMathEngine's MulTransform: rotation A * B, translation A * Tb + Ta. Out may alias.
+    void MulTransform12(float* Out12, const float* A, const float* B)
+    {
+        float R[12];
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            for (int Col = 0; Col < 3; ++Col)
+            {
+                R[Row * 3 + Col] = static_cast<float>(static_cast<double>(A[Row * 3]) * B[Col] +
+                                                      static_cast<double>(A[Row * 3 + 1]) * B[3 + Col] +
+                                                      static_cast<double>(A[Row * 3 + 2]) * B[6 + Col]);
+            }
+            R[9 + Row] = static_cast<float>(static_cast<double>(A[Row * 3]) * B[9] +
+                                            static_cast<double>(A[Row * 3 + 1]) * B[10] +
+                                            static_cast<double>(A[Row * 3 + 2]) * B[11] + A[9 + Row]);
+        }
+        std::memcpy(Out12, R, sizeof(R));
+    }
+
+    // RP8's MulZFlip12: diag(1, 1, -1) * M, which negates the rotation's third row and Tz.
+    void ZFlip12(float* Out12, const float* In12)
+    {
+        float R[12];
+        std::memcpy(R, In12, sizeof(R));
+        R[6] = -R[6];
+        R[7] = -R[7];
+        R[8] = -R[8];
+        R[11] = -R[11];
+        std::memcpy(Out12, R, sizeof(R));
+    }
+
+    constexpr float kIdentity12[12] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+
+    // RP8's Rp8NormalizeInPlace: double length, float reciprocal, no zero check.
+    void Normalize(float* V)
+    {
+        const double Length = std::sqrt(static_cast<double>(V[0]) * V[0] + static_cast<double>(V[1]) * V[1] +
+                                        static_cast<double>(V[2]) * V[2]);
+        const float Inverse = static_cast<float>(1.0 / Length);
+        V[0] = static_cast<float>(static_cast<double>(V[0]) * Inverse);
+        V[1] = static_cast<float>(static_cast<double>(V[1]) * Inverse);
+        V[2] = static_cast<float>(static_cast<double>(V[2]) * Inverse);
+    }
+}
+
+void FRpGpu::StoreViewIdentity(bool bFlip)
+{
+    float M12[12];
+    if (bFlip)
+        ZFlip12(M12, kIdentity12);
+    else
+        std::memcpy(M12, kIdentity12, sizeof(M12));
+    StoreAffine(View_, M12);
+    bViewCommitted_ = false;
+}
+
+// RP8's ApplyIdentityTransforms (CreateBuffers): identity view, world and projection, the z flip
+// on the view without VIEWSPACE_LIGHTS and on the world with it; all three committed and marked.
+void FRpGpu::ApplyIdentityTransforms()
+{
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    StoreViewIdentity(bViewspaceLightsOff);
+    float World12[12];
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, kIdentity12);
+    else
+        std::memcpy(World12, kIdentity12, sizeof(World12));
+    StoreAffine(World_, World12);
+    Identity(Projection_);
+    bViewCommitted_ = true;
+    bViewMarker_ = true;
+}
+
+// FRp8TransformCache::Commit on the view, as every draw's FlushDrawState runs it: a changed view
+// is sent, and that clears the marker.
+void FRpGpu::CommitTransforms()
+{
+    if (bViewCommitted_)
+        return;
+    bViewMarker_ = false;
+    bViewCommitted_ = true;
+}
+
+void FRpGpu::ResetStreams()
+{
+    SelectedVb_ = nullptr;
+    SelectedIb_ = nullptr;
+    IbBaseVertex_ = 0xFFFFFFFFu;
+}
+
 GENRESULT DACOM_API FRpGpu::SetWorld(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    StoreAffine(World_, M12);
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetWorld(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    LoadAffine(World_, Out12);
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::SetView(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    float Flipped[12];
+    ZFlip12(Flipped, M12);
+    StoreAffine(View_, Flipped);
+    bViewCommitted_ = false;
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetView(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    float Stored[12];
+    LoadAffine(View_, Stored);
+    ZFlip12(Out12, Stored);
     return GR_OK;
 }
 
+// The model-view goes into the world; the view becomes the identity (flipped without
+// VIEWSPACE_LIGHTS) unless SetModelview or SetLookat already put it there since the last draw
+// that committed a view.
 GENRESULT DACOM_API FRpGpu::SetModelview(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    float World12[12];
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, M12);
+    else
+        std::memcpy(World12, M12, sizeof(World12));
+    StoreAffine(World_, World12);
+    if (!bViewMarker_)
+    {
+        StoreViewIdentity(bViewspaceLightsOff);
+        bViewMarker_ = true;
+    }
     return GR_OK;
 }
 
+// View * world, each with its stored flip undone.
 GENRESULT DACOM_API FRpGpu::GetModelview(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    float World12[12];
+    LoadAffine(World_, World12);
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, World12);
+    float View12[12];
+    LoadAffine(View_, View12);
+    if (bViewspaceLightsOff)
+        ZFlip12(View12, View12);
+    MulTransform12(Out12, View12, World12);
     return GR_OK;
 }
 
@@ -226,31 +400,72 @@ GENRESULT DACOM_API FRpGpu::GetProjection(float* Out16)
     return GR_OK;
 }
 
+// RP8's set_lookat: a camera transform from eye, target and up (rotation rows X, Y, Z with Z
+// pointing away from the target), into the world with VIEWSPACE_LIGHTS (and the identity view,
+// as SetModelview puts it) or into the view without. Nothing is checked, as in RP8.
 GENRESULT DACOM_API FRpGpu::SetLookat(float EyeX, float EyeY, float EyeZ, float AtX, float AtY,
                                       float AtZ, float UpX, float UpY, float UpZ)
 {
-    (void)EyeX;
-    (void)EyeY;
-    (void)EyeZ;
-    (void)AtX;
-    (void)AtY;
-    (void)AtZ;
-    (void)UpX;
-    (void)UpY;
-    (void)UpZ;
+    float Forward[3] = {AtX - EyeX, AtY - EyeY, AtZ - EyeZ};
+    Normalize(Forward);
+    const float AxisZ[3] = {-Forward[0], -Forward[1], -Forward[2]};
+    float AxisX[3] = {
+        static_cast<float>(static_cast<double>(UpY) * AxisZ[2] - static_cast<double>(UpZ) * AxisZ[1]),
+        static_cast<float>(static_cast<double>(UpZ) * AxisZ[0] - static_cast<double>(UpX) * AxisZ[2]),
+        static_cast<float>(static_cast<double>(UpX) * AxisZ[1] - static_cast<double>(UpY) * AxisZ[0]),
+    };
+    Normalize(AxisX);
+    float AxisY[3] = {
+        static_cast<float>(static_cast<double>(AxisZ[1]) * AxisX[2] - static_cast<double>(AxisZ[2]) * AxisX[1]),
+        static_cast<float>(static_cast<double>(AxisZ[2]) * AxisX[0] - static_cast<double>(AxisZ[0]) * AxisX[2]),
+        static_cast<float>(static_cast<double>(AxisZ[0]) * AxisX[1] - static_cast<double>(AxisZ[1]) * AxisX[0]),
+    };
+    Normalize(AxisY);
+
+    float Xform[12] = {AxisX[0], AxisX[1], AxisX[2], AxisY[0], AxisY[1], AxisY[2], AxisZ[0], AxisZ[1], AxisZ[2]};
+    const float Eye[3] = {EyeX, EyeY, EyeZ};
+    for (int Row = 0; Row < 3; ++Row)
+    {
+        // The 3DMathEngine's TransformMatrix (rotation * eye), negated into the translation.
+        const float Rotated = static_cast<float>(static_cast<double>(Xform[Row * 3 + 2]) * Eye[2] +
+                                                 static_cast<double>(Xform[Row * 3 + 1]) * Eye[1] +
+                                                 static_cast<double>(Xform[Row * 3]) * Eye[0]);
+        Xform[9 + Row] = -Rotated;
+    }
+
+    float Flipped[12];
+    ZFlip12(Flipped, Xform);
+    if (PipelineState_[kPsViewspaceLights] != 0)
+    {
+        StoreAffine(World_, Flipped);
+        if (!bViewMarker_)
+        {
+            StoreViewIdentity(false);
+            bViewMarker_ = true;
+        }
+    }
+    else
+    {
+        StoreAffine(View_, Flipped);
+        bViewCommitted_ = false;
+    }
     return GR_OK;
 }
 
+// RP8's set_ortho and set_perspective: the differences in double, each element stored as float.
 GENRESULT DACOM_API FRpGpu::SetOrtho(float Left, float Right, float Bottom, float Top, float NearPlane,
                                      float FarPlane)
 {
+    const double Width = static_cast<double>(Right) - Left;
+    const double Height = static_cast<double>(Top) - Bottom;
+    const double Depth = static_cast<double>(FarPlane) - NearPlane;
     std::memset(Projection_, 0, sizeof(Projection_));
-    Projection_[0] = 2.0f / (Right - Left);
-    Projection_[5] = 2.0f / (Top - Bottom);
-    Projection_[10] = 2.0f / (FarPlane - NearPlane);
-    Projection_[12] = -(Right + Left) / (Right - Left);
-    Projection_[13] = -(Bottom + Top) / (Top - Bottom);
-    Projection_[14] = -NearPlane / (FarPlane - NearPlane);
+    Projection_[0] = static_cast<float>(2.0 / Width);
+    Projection_[5] = static_cast<float>(2.0 / Height);
+    Projection_[10] = static_cast<float>(2.0 / Depth);
+    Projection_[12] = static_cast<float>(-(static_cast<double>(Right) + Left) / Width);
+    Projection_[13] = static_cast<float>(-(static_cast<double>(Bottom) + Top) / Height);
+    Projection_[14] = static_cast<float>(-static_cast<double>(NearPlane) / Depth);
     Projection_[15] = 1.0f;
     return GR_OK;
 }
@@ -259,13 +474,14 @@ GENRESULT DACOM_API FRpGpu::SetPerspective(float FovDeg, float Aspect, float Nea
 {
     if (NearPlane <= 0.0f || FarPlane <= 0.0f || FarPlane == NearPlane)
         return GR_GENERIC;
-    const float C = 1.0f / std::tan(FovDeg * 3.14159265358979f / 180.0f);
+    const float Cot = static_cast<float>(1.0 / std::tan(3.141592653589793 / 180.0 * FovDeg));
+    const float InvDepth = static_cast<float>(1.0 / (static_cast<double>(FarPlane) - NearPlane));
     std::memset(Projection_, 0, sizeof(Projection_));
-    Projection_[0] = C / Aspect;
-    Projection_[5] = C;
-    Projection_[10] = FarPlane / (FarPlane - NearPlane);
+    Projection_[0] = static_cast<float>(static_cast<double>(Cot) / Aspect);
+    Projection_[5] = Cot;
+    Projection_[10] = static_cast<float>(static_cast<double>(FarPlane) * InvDepth);
     Projection_[11] = 1.0f;
-    Projection_[14] = -FarPlane * NearPlane / (FarPlane - NearPlane);
+    Projection_[14] = static_cast<float>(-static_cast<double>(FarPlane) * NearPlane * InvDepth);
     return GR_OK;
 }
 

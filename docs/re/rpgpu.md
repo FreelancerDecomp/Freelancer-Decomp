@@ -73,15 +73,20 @@ client's next `CreateBuffers` brings the new one up.
   - `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour
     at the size `CreateBuffers` asked for, and it reads that back.
 
-## Status: 2D draws
+## Status: 2D and unlit 3D draws
 
 RPGPU opens the device and presents the frames it records. It draws the 2D draws (pre-transformed
-vertices: the menus, the HUD), with texture stage 0 and the alpha test; see "Drawing". The 3D
-draws (transformed vertices), lighting, fog and the texture stages above 0 are not drawn yet.
+vertices: the menus, the HUD) and the 3D draws (transformed vertices, through world, view and
+projection), with texture stage 0, mip maps, culling and the alpha test; see "Drawing". Lighting,
+fog and the texture stages above 0 are not drawn yet, so 3D draws show their vertex colour (white
+without one) times their texture.
 
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
-  projection (stored as D3D's row-major matrix, handed over transposed, as RP8 does) and the
-  viewport.
+  transforms and the viewport. The transforms follow RP8's stores ("Transforms").
+- **The stream selection is RP8's:** `SelectVb` and `SelectIb` (with its base vertex) choose
+  what `IRPDraw::DrawIndexedPrimitive` draws from; the user-pointer draws clear the selection,
+  and the vertex-buffer draws leave theirs selected, `DrawIndexedPrimitiveVb` with the scratch
+  index buffer, into which it copies its indices as RP8 does.
 - **Settings and defaults are RP8's,** from `render/rp8_semantics.h`, the tables and the value
   parser RP8 itself uses (so `0x1C` reads 1 in both). `Startup` reads, from the `[RenderPipeline]`
   section or the section the aggregation descriptor names, the keys RP8 reads: the pipeline
@@ -107,8 +112,7 @@ draws (transformed vertices), lighting, fog and the texture stages above 0 are n
   - **Close to D3DX, not identical (also a goal):** resized loads, and any load that has to
     compress into DXT, even at the same size. TexConvertTest measures only part of this; see
     the test scope in [texconvert.md](texconvert.md).
-- **The draw calls** record the 2D draws and draw them at `SwapBuffers` ("Drawing"). The others
-  are accepted and dropped until the 3D part of step 5.3.
+- **The draw calls** record the frame and draw it at `SwapBuffers` ("Drawing").
 - **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none) and no cube
   maps until `LoadCubemap` loads them.
 - **`PrintScreen`** answers RP8's argument checks and writes a 24-bit BMP (`.BMP`, `.DIB`) of
@@ -147,34 +151,68 @@ They are compiled offline, not at run time, and the bytecode is committed:
 - That job compiles everything again and fails when the committed file differs. It uploads
   the fresh file as the `rpgpu-shader-bytecode` artifact, ready to commit.
 
-The first shaders cover the 2D draws (menus, HUD), which use pre-transformed vertices:
-- `rpgpu_pretransformed.vert` maps `D3DFVF_XYZRHW` positions to clip space, with Direct3D 8's
-  pixel centres.
+The shaders so far:
+- `rpgpu_fixed.vert` is Direct3D 8's transform. It maps `D3DFVF_XYZRHW` positions from pixels
+  to clip space, and other positions through world * view * projection; both land on Direct3D
+  8's pixel centres (integer coordinates, half a pixel from today's).
 - `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
   modulate) and the alpha test.
 
+## Transforms
+
+RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `SetWorld` to
+`SetLookat`):
+- The game's 12-float transforms (rotation rows, then translation) are stored as Direct3D's
+  4x4 matrices, for row vectors.
+- `SetView` stores the view with RP8's z flip (the third rotation row and the z translation
+  negated), which takes the game's right-handed space to Direct3D's left-handed one. `GetView`
+  undoes it.
+- `SetModelview` puts the model-view into the world, flipped when `VIEWSPACE_LIGHTS` is on, and
+  makes the view the identity (flipped when it is off). It sets the view only when no
+  `SetModelview` or `SetLookat` has since the last draw that committed a changed view: RP8's
+  apply marker.
+- `SetLookat` builds the camera transform from eye, target and up, and stores it as the world
+  (with `VIEWSPACE_LIGHTS`) or the view.
+- `SetOrtho` and `SetPerspective` build RP8's matrices, with its double intermediates.
+- `CreateBuffers` resets all three to RP8's identity transforms.
+- RP8 multiplies through the 3DMathEngine; RPGPU does the same products itself, with the same
+  double sums, so `GetModelview` can differ from RP8's in the last bit.
+- `SetWorldN` (the vertex-blend matrices) and the texture transforms are not kept yet.
+
 ## Drawing
 
-RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3. The 2D draws
-come first.
+RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 
 **Recording** (`RpGpuDraw.cpp`):
-- **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb` and
-  `DrawIndexedPrimitiveVb` convert the game's vertices into `FRpGpuVertex2D` (position, RHW,
-  diffuse, texture set 0). Each records one command with the render state of the moment:
-  - blending, the depth test, the colour write mask;
-  - texture stage 0's operations, sampler and texture;
-  - the alpha test, the viewport and the depth range.
+- **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb`,
+  `DrawIndexedPrimitiveVb` and `IRPDraw::DrawIndexedPrimitive` convert the game's vertices
+  into `FRpGpuVertex` (position, diffuse, the texture set stage 0's `TEXCOORDINDEX` names).
+  Every Direct3D 8 position format is read: XYZ, XYZRHW, and XYZB1 to XYZB5, whose blend
+  weights are skipped. Each draw records one command with the state of the moment:
+  - blending, the depth test, the colour write mask, `CULLMODE`, `FILLMODE` and `ZBIAS`;
+  - texture stage 0's operations, sampler (with `MIPFILTER` and `MAXMIPLEVEL`) and texture;
+  - the alpha test and the viewport;
+  - for transformed vertices, world * view * projection and the depth range (`SetDepthRange`).
+    Pre-transformed vertices keep their z, as in Direct3D.
+- **Indexed draws** copy only the vertices their indices reach, and rebase the indices onto
+  them. `MinIndex` and `NumVertices` are Direct3D's hints and not used; an index past the
+  vertices given (or past the vertex buffer) drops the draw.
 - **Clears:** `ClearBuffers` records a clear in order with the draws.
 - **Triangle fans** become indexed triangle lists, since SDL_GPU has none.
-- **Not drawn yet:** points, and every draw without pre-transformed vertices (the 3D draws,
-  which wait for the transform stage). An index past the vertices it came with drops the
-  draw.
-- **Textures:** a texture whose level 0 changed (`SetTextureLevelData`, `UnlockTexture`) goes
-  to the backend as B, G, R, A bytes through TexConvert when it is next drawn, as a new image
-  version: draws recorded before the change keep the image they saw. Replaced versions, and
-  the image of a texture destroyed during the frame, are released only after `SwapBuffers`
-  has presented the frame. After a new device every texture goes up again.
+- **Not drawn yet:** points.
+- **Textures:** a texture with a changed level (`SetTextureLevelData`, `UnlockTexture`) goes to
+  the backend when it is next drawn, every level of it, as a new image version: draws recorded
+  before the change keep the image they saw. Replaced versions, and the image of a texture
+  destroyed during the frame, are released only after `SwapBuffers` has presented the frame.
+  After a new device every texture goes up again.
+  - DXT textures go up as their blocks (BC1, BC2, BC3), as Direct3D 8 hardware samples them,
+    when the device samples those formats and level 0 is a whole number of 4x4 blocks
+    (Direct3D 12 requires it). Otherwise, and for every other format, TexConvert converts each
+    level to B, G, R, A bytes. DXT2 and DXT4 are sampled as their stored (premultiplied)
+    colours, as hardware did; TexConvert's decode divides by alpha instead (texconvert.md).
+  - Levels the game never filled (`TEXTURE_LOD` off) stay zero, as RP8's managed textures
+    start; with `MIPFILTER` none only level 0 is sampled.
+  - A cube map goes up as its first face, one level, until cube maps are drawn.
 
 **The SDL backend's `Present`:**
 1. One copy pass uploads the pending textures and the frame's vertices and indices, through
@@ -182,14 +220,23 @@ come first.
 2. The commands replay on the swap-chain image and a depth buffer, in one render pass per
    clear. The first pass clears colour and depth.
 3. Pipelines are cached per `FRpGpuPipelineKey`, and samplers per `FRpGpuSamplerKey`.
+   - `CULLMODE` culls by the winding on screen, pre-transformed triangles included, as Direct3D
+     8 does. RP8's default is 1 (none).
+   - `FILLMODE` 2 draws wireframe; points (1) draw solid.
+   - `ZBIAS` has no unit in Direct3D 8: each driver picked its own. RPGPU moves depth by one
+     16-bit depth step (1 / 65535 of the range) per `ZBIAS` step, towards the viewer.
 4. A draw whose texture has no GPU copy samples a 1x1 white texture with the texture flag
    off.
 
 **Known gaps** for the later parts of step 5.3:
 - clear rectangles (the whole target is cleared);
-- `CULLMODE` (2D draws do not cull);
-- mip levels above 0;
-- texture stages above 0;
+- lighting and fog (the next part), and specular colour;
+- texture stages above 0, texture transforms and texture-coordinate generation
+  (`TEXCOORDINDEX`'s high bits);
+- vertex blending (`SetWorldN`, `VERTEXBLEND`: Deformable2's skinned meshes draw unblended);
+- `MIPMAPLODBIAS` (the game does not set it) and cube maps;
+- every draw's vertices are copied into the frame; vertex and index buffers that stay on the
+  GPU are plan step 5.4;
 - the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);
 - a border colour, so `BORDER` addressing clamps instead.
 

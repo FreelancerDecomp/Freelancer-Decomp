@@ -38,7 +38,7 @@ struct FRpGpuTexture
     unsigned int Levels = 0;
     bool bCube = false;
     std::vector<FRpGpuImage> Images; // level, or face for a cube
-    // Level 0 changed since its last upload to the backend (or never went up).
+    // A level changed since the last upload to the backend (or it never went up).
     bool bGpuStale = true;
     // The backend image version of the last upload (0: none). Each upload gets a new one, so draws
     // recorded before a change keep the image they saw.

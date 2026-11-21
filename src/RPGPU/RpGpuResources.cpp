@@ -206,8 +206,8 @@ GENRESULT DACOM_API FRpGpu::UnlockTexture(void* Handle, int Level)
     FRpGpuTexture* const Texture = LiveTexture(Handle);
     if (Texture == nullptr)
         return GR_INVALID_PARMS;
-    if (Level == 0)
-        Texture->bGpuStale = true; // the caller may have written level 0
+    if (Level >= 0)
+        Texture->bGpuStale = true; // the caller may have written the level
     return GR_OK;
 }
 
@@ -277,8 +277,7 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
     {
         if (TexConvert::Load(Destination, Source) == TexConvert::EResult::Failed)
             return GR_GENERIC;
-        if (Level == 0)
-            Texture->bGpuStale = true;
+        Texture->bGpuStale = true;
         return GR_OK;
     }
     catch (const std::bad_alloc&)
@@ -479,6 +478,8 @@ GENRESULT DACOM_API FRpGpu::DestroyIb(void** Handle)
     if (Buffer != nullptr)
     {
         IndexBuffers_.erase(Buffer);
+        if (SelectedIb_ == Buffer)
+            SelectedIb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
     }
     *Handle = nullptr;
@@ -538,13 +539,26 @@ GENRESULT DACOM_API FRpGpu::UnlockIb(void* Handle)
     return GR_OK;
 }
 
+// RP8's select_ib: the index buffer (or the scratch ring, -1) and the base vertex its indices
+// count from, used by IRPDraw::DrawIndexedPrimitive. A null handle clears both and fails.
 GENRESULT DACOM_API FRpGpu::SelectIb(void* Handle, unsigned int BaseVertexIndex, unsigned int Unused3,
                                      unsigned int Unused4)
 {
-    (void)BaseVertexIndex;
     (void)Unused3;
     (void)Unused4;
-    return (Handle == kMinusOne || LiveIb(Handle) != nullptr) ? GR_OK : kFail;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Handle == nullptr)
+    {
+        SelectedIb_ = nullptr;
+        IbBaseVertex_ = 0;
+        return kFail;
+    }
+    if (Handle != kMinusOne && LiveIb(Handle) == nullptr)
+        return kFail;
+    SelectedIb_ = Handle;
+    IbBaseVertex_ = BaseVertexIndex;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetIbCapacity(void* Handle, unsigned int* OutCapacity)
@@ -609,6 +623,8 @@ GENRESULT DACOM_API FRpGpu::DestroyVb(void** Handle)
     if (VertexBuffers_.count(Buffer) != 0)
     {
         VertexBuffers_.erase(Buffer);
+        if (SelectedVb_ == Buffer)
+            SelectedVb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
     }
     *Handle = nullptr; // a pool buffer stays alive
@@ -701,9 +717,22 @@ GENRESULT DACOM_API FRpGpu::UnsupportedVertexBufferOperation(void* Handle)
     return kUnsupported;
 }
 
+// RP8's select_vb: the vertex buffer IRPDraw::DrawIndexedPrimitive draws from; -1 keeps the
+// current one. A null handle resets the whole selection (RP8's stream cache) and fails.
 GENRESULT DACOM_API FRpGpu::SelectVb(void* Handle)
 {
-    return LiveVb(Handle) != nullptr ? GR_OK : kFail;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Handle == nullptr)
+    {
+        ResetStreams();
+        return kFail;
+    }
+    void* const Wanted = Handle == kMinusOne ? SelectedVb_ : Handle;
+    if (LiveVb(Wanted) == nullptr)
+        return kFail;
+    SelectedVb_ = Wanted;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetVbInfo(void* Handle, unsigned int* OutFvf, unsigned int* OutCount)

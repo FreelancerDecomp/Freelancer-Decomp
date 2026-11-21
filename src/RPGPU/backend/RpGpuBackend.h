@@ -39,19 +39,20 @@ struct FRpGpuFrame
 // vertices and indices of every draw, and the clears and draws in the order the game issued
 // them. The backend uploads the geometry once and replays the commands in one pass per clear.
 
-// A pre-transformed vertex (D3DFVF_XYZRHW), whatever the game's own layout was: position in
-// pixels, z 0..1 and 1 / w; the diffuse colour as D3DCOLOR (B, G, R, A bytes); texture set 0.
-struct FRpGpuVertex2D
+// One vertex, whatever the game's own layout (FVF) was. Pre-transformed (D3DFVF_XYZRHW): X, Y
+// in pixels, Z 0..1, W = 1 / w. Transformed: the model-space position, W = 1. The diffuse colour
+// as D3DCOLOR (B, G, R, A bytes); U, V: the texture coordinates stage 0 reads.
+struct FRpGpuVertex
 {
     float X;
     float Y;
     float Z;
-    float Rhw;
+    float W;
     std::uint32_t Diffuse;
     float U;
     float V;
 };
-static_assert(sizeof(FRpGpuVertex2D) == 28, "the vertex layout the shaders read");
+static_assert(sizeof(FRpGpuVertex) == 28, "the vertex layout the shaders read");
 
 enum class ERpGpuTopology : std::uint8_t
 {
@@ -62,8 +63,8 @@ enum class ERpGpuTopology : std::uint8_t
 };
 
 // Everything a GPU pipeline object depends on, as Direct3D 8 numbers: render states 7 (ZENABLE),
-// 14 (ZWRITEENABLE), 23 (ZFUNC), 27 (ALPHABLENDENABLE), 19 / 20 (SRCBLEND / DESTBLEND) and 0xA8
-// (COLORWRITEENABLE).
+// 14 (ZWRITEENABLE), 23 (ZFUNC), 27 (ALPHABLENDENABLE), 19 / 20 (SRCBLEND / DESTBLEND), 0xA8
+// (COLORWRITEENABLE), 22 (CULLMODE), 8 (FILLMODE) and 47 (ZBIAS).
 struct FRpGpuPipelineKey
 {
     ERpGpuTopology Topology = ERpGpuTopology::Triangles;
@@ -74,18 +75,26 @@ struct FRpGpuPipelineKey
     std::uint8_t SrcBlend = 2; // D3DBLEND
     std::uint8_t DstBlend = 1;
     std::uint8_t ColorWriteMask = 0xF; // R 1, G 2, B 4, A 8
+    std::uint8_t CullMode = 1;         // D3DCULL: 1 none, 2 clockwise, 3 counter-clockwise
+    std::uint8_t FillMode = 3;         // D3DFILLMODE: 1 point, 2 wireframe, 3 solid
+    std::uint8_t ZBias = 0;            // 0..16
 
+    // One 64-bit key. The narrow fields share bytes: ColorWriteMask has 4 bits, CullMode and
+    // FillMode 2 each (their values are 1..3) and ZBias 5 (Direct3D 8 allows 0..16).
     std::uint64_t Packed() const
     {
         return static_cast<std::uint64_t>(Topology) | (static_cast<std::uint64_t>(bZEnable) << 8) |
-               (static_cast<std::uint64_t>(bZWrite) << 16) | (static_cast<std::uint64_t>(ZFunc) << 24) |
-               (static_cast<std::uint64_t>(bBlend) << 32) | (static_cast<std::uint64_t>(SrcBlend) << 40) |
-               (static_cast<std::uint64_t>(DstBlend) << 48) | (static_cast<std::uint64_t>(ColorWriteMask) << 56);
+               (static_cast<std::uint64_t>(bZWrite) << 12) | (static_cast<std::uint64_t>(ZFunc) << 16) |
+               (static_cast<std::uint64_t>(bBlend) << 24) | (static_cast<std::uint64_t>(SrcBlend) << 32) |
+               (static_cast<std::uint64_t>(DstBlend) << 40) | (static_cast<std::uint64_t>(ColorWriteMask) << 48) |
+               (static_cast<std::uint64_t>(CullMode & 3) << 52) | (static_cast<std::uint64_t>(FillMode & 3) << 54) |
+               (static_cast<std::uint64_t>(ZBias & 31) << 56);
     }
 };
 
-// Texture stage 0's sampler, as Direct3D 8 numbers: ADDRESSU / ADDRESSV (D3DTEXTUREADDRESS) and
-// MAGFILTER / MINFILTER / MIPFILTER (D3DTEXTUREFILTERTYPE).
+// Texture stage 0's sampler, as Direct3D 8 numbers: ADDRESSU / ADDRESSV (D3DTEXTUREADDRESS),
+// MAGFILTER / MINFILTER / MIPFILTER (D3DTEXTUREFILTERTYPE) and MAXMIPLEVEL (the largest level
+// sampled, 0 being the full-size one).
 struct FRpGpuSamplerKey
 {
     std::uint8_t AddressU = 1;
@@ -93,13 +102,33 @@ struct FRpGpuSamplerKey
     std::uint8_t MagFilter = 2;
     std::uint8_t MinFilter = 2;
     std::uint8_t MipFilter = 0;
+    std::uint8_t MaxMipLevel = 0;
 
     std::uint64_t Packed() const
     {
         return static_cast<std::uint64_t>(AddressU) | (static_cast<std::uint64_t>(AddressV) << 8) |
                (static_cast<std::uint64_t>(MagFilter) << 16) | (static_cast<std::uint64_t>(MinFilter) << 24) |
-               (static_cast<std::uint64_t>(MipFilter) << 32);
+               (static_cast<std::uint64_t>(MipFilter) << 32) | (static_cast<std::uint64_t>(MaxMipLevel) << 40);
     }
+};
+
+// A texture image for the GPU: every mip level, largest first, tightly packed. Bgra8: 4 bytes a
+// pixel, B, G, R, A. Bc1 / Bc2 / Bc3: DXT1, DXT2 or DXT3, DXT4 or DXT5 blocks as the game stores
+// them, uploaded as they are.
+enum class ERpGpuTextureFormat : std::uint8_t
+{
+    Bgra8,
+    Bc1,
+    Bc2,
+    Bc3,
+};
+
+struct FRpGpuTextureImage
+{
+    ERpGpuTextureFormat Format = ERpGpuTextureFormat::Bgra8;
+    std::uint32_t Width = 0; // level 0
+    std::uint32_t Height = 0;
+    std::vector<std::vector<std::uint8_t>> Levels;
 };
 
 struct FRpGpuCommand
@@ -118,6 +147,8 @@ struct FRpGpuCommand
     float ClearDepth = 1.0f;
 
     // Draw: the pipeline and sampler, the texture image (0: none), the geometry, and the uniforms.
+    // Pre-transformed vertices are drawn in pixels; the others through WorldViewProjection,
+    // Direct3D's world * view * projection (row vectors, row-major).
     FRpGpuPipelineKey Pipeline;
     FRpGpuSamplerKey Sampler;
     std::uint64_t Texture = 0;
@@ -128,13 +159,15 @@ struct FRpGpuCommand
     int Viewport[4] = {};         // x, y, width, height in pixels
     float MinZ = 0.0f;
     float MaxZ = 1.0f;
+    bool bPretransformed = true;
+    float WorldViewProjection[16] = {};
     std::uint32_t Ops[4] = {};       // rpgpu_stage0.frag's FStage.Ops
     std::uint32_t AlphaTest[4] = {}; // rpgpu_stage0.frag's FStage.AlphaTest
 };
 
 struct FRpGpuFrameRecording
 {
-    std::vector<FRpGpuVertex2D> Vertices;
+    std::vector<FRpGpuVertex> Vertices;
     std::vector<std::uint16_t> Indices;
     std::vector<FRpGpuCommand> Commands;
 
@@ -166,12 +199,13 @@ public:
     // could not be submitted; the next Create then rebuilds the device.
     virtual bool Present(const FRpGpuFrameRecording& Frame) = 0;
 
-    // A texture image: level 0 as B, G, R, A bytes (Width x Height, no padding), uploaded before
-    // the next frame's draws. Key names this image version (never 0) and is never reused: when a
-    // texture changes, RPGPU uploads a new version under a new key, so draws recorded earlier in
-    // the frame keep the image they saw.
-    virtual void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
-                               const std::uint8_t* Bgra) = 0;
+    // A texture image, uploaded before the next frame's draws. Key names this image version
+    // (never 0) and is never reused: when a texture changes, RPGPU uploads a new version under a
+    // new key, so draws recorded earlier in the frame keep the image they saw.
+    virtual void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) = 0;
+    // Whether UploadTexture takes Bc1 / Bc2 / Bc3 images; when it does not, RPGPU converts DXT
+    // textures to Bgra8 first. Asked after Create.
+    virtual bool SupportsBlockCompression() const = 0;
     // The image version of Key is no longer needed. RPGPU calls this only after the frame that
     // last used it has been presented.
     virtual void ForgetTexture(std::uint64_t Key) = 0;

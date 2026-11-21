@@ -1,10 +1,8 @@
-// Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
-// faithful to the behaviour of the original game.
-
 // RPGPU's draw recording (docs/re/rpgpu.md, "Drawing"): every draw call converts the game's
-// vertices into FRpGpuVertex2D and records one command with the render state of the moment;
-// SwapBuffers hands the frame to the backend. So far only pre-transformed vertices
-// (D3DFVF_XYZRHW: the menus, the HUD) are drawn; the 3D draws come with the transform stage.
+// vertices into FRpGpuVertex and records one command with the render state and transforms of
+// the moment; SwapBuffers hands the frame to the backend. Pre-transformed vertices
+// (D3DFVF_XYZRHW: the menus, the HUD) are drawn in pixels, the others through world * view *
+// projection. Lighting, fog and the texture stages above 0 are not drawn yet.
 
 #include "RpGpu.h"
 
@@ -12,6 +10,7 @@
 #include "render/rp8_semantics.h"
 #include "TexConvert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <new>
 
@@ -23,28 +22,34 @@ namespace
     enum : int
     {
         kRsZEnable = 7,
+        kRsFillMode = 8,
         kRsZWriteEnable = 14,
         kRsAlphaTestEnable = 15,
         kRsSrcBlend = 19,
         kRsDestBlend = 20,
+        kRsCullMode = 22,
         kRsZFunc = 23,
         kRsAlphaRef = 24,
         kRsAlphaFunc = 25,
         kRsAlphaBlendEnable = 27,
+        kRsZBias = 47,
         kRsColorWriteEnable = 0xA8,
 
         kTssColorOp = 1,
         kTssAlphaOp = 4,
+        kTssTexCoordIndex = 11,
         kTssAddressU = 13,
         kTssAddressV = 14,
         kTssMagFilter = 16,
         kTssMinFilter = 17,
         kTssMipFilter = 18,
+        kTssMaxMipLevel = 20,
     };
 
     constexpr unsigned int kFvfPositionMask = 0xE;
     constexpr unsigned int kFvfXyzRhw = 0x4;
     constexpr unsigned int kFvfNormal = 0x10;
+    constexpr unsigned int kFvfPSize = 0x20;
     constexpr unsigned int kFvfDiffuse = 0x40;
     constexpr unsigned int kFvfSpecular = 0x80;
 
@@ -62,37 +67,38 @@ namespace
         return Value;
     }
 
-    // Where an XYZRHW vertex keeps its diffuse colour and first texture coordinate.
+    // Where a vertex of an FVF keeps what RPGPU reads, in bytes from its start (-1: absent).
     struct FLayout
     {
+        bool bPretransformed = false;
         int Diffuse = -1;
-        int Tex0 = -1;
-        int Tex0Floats = 0;
+        int TexCount = 0;
+        int Tex[8] = {};
+        int TexFloats[8] = {};
+        int Size = 0; // the bytes all of it takes; at most the stride
     };
 
-    // RP8's PrimCountFromVerts: primitives from a vertex or index count, with RP8's signed
-    // divisions, so a count too small stays <= 0.
-    int PrimCountFromVerts(unsigned long Prim, unsigned int Count)
-    {
-        const int Signed = static_cast<int>(Count);
-        switch (Prim)
-        {
-        case 1: return Signed;
-        case 2: return Signed / 2;
-        case 3: return Signed - 1;
-        case 4: return Signed / 3;
-        case 5:
-        case 6: return Signed - 2;
-        default: return 0;
-        }
-    }
-
+    // Direct3D 8's vertex layout: the position (XYZ 12 bytes, XYZRHW 16, XYZB1..XYZB5 12 plus 4
+    // per blend weight), then normal, point size, diffuse, specular and the texture sets.
     FLayout LayoutOf(unsigned int Fvf)
     {
         FLayout Layout;
-        int Offset = 16; // x, y, z, rhw
+        int Offset = 0;
+        switch (Fvf & kFvfPositionMask)
+        {
+        case 0x2: Offset = 12; break;
+        case kFvfXyzRhw: Offset = 16; Layout.bPretransformed = true; break;
+        case 0x6: Offset = 16; break;
+        case 0x8: Offset = 20; break;
+        case 0xA: Offset = 24; break;
+        case 0xC: Offset = 28; break;
+        case 0xE: Offset = 32; break;
+        default: break;
+        }
         if ((Fvf & kFvfNormal) != 0)
             Offset += 12;
+        if ((Fvf & kFvfPSize) != 0)
+            Offset += 4;
         if ((Fvf & kFvfDiffuse) != 0)
         {
             Layout.Diffuse = Offset;
@@ -100,39 +106,96 @@ namespace
         }
         if ((Fvf & kFvfSpecular) != 0)
             Offset += 4;
-        if (((Fvf >> 8) & 0xF) != 0)
+        Layout.TexCount = static_cast<int>((Fvf >> 8) & 0xF);
+        if (Layout.TexCount > 8)
+            Layout.TexCount = 8;
+        for (int Set = 0; Set < Layout.TexCount; ++Set)
         {
-            const unsigned int Size = (Fvf >> 16) & 3; // D3DFVF_TEXCOORDSIZEn of set 0
-            Layout.Tex0 = Offset;
-            Layout.Tex0Floats = Size == 0 ? 2 : Size == 1 ? 3 : Size == 2 ? 4 : 1;
+            const unsigned int Size = (Fvf >> (16 + Set * 2)) & 3; // D3DFVF_TEXCOORDSIZEn
+            Layout.Tex[Set] = Offset;
+            Layout.TexFloats[Set] = Size == 0 ? 2 : Size == 1 ? 3 : Size == 2 ? 4 : 1;
+            Offset += Layout.TexFloats[Set] * 4;
         }
+        Layout.Size = Offset;
         return Layout;
+    }
+
+    // RP8 pixel formats that go to the GPU as block-compressed images.
+    bool BlockFormat(unsigned int Format, ERpGpuTextureFormat* Out)
+    {
+        switch (Format)
+        {
+        case TexConvert::kDxt1: *Out = ERpGpuTextureFormat::Bc1; return true;
+        case TexConvert::kDxt2:
+        case TexConvert::kDxt3: *Out = ERpGpuTextureFormat::Bc2; return true;
+        case TexConvert::kDxt4:
+        case TexConvert::kDxt5: *Out = ERpGpuTextureFormat::Bc3; return true;
+        default: return false;
+        }
+    }
+
+    void Multiply(float* Out, const float* A, const float* B)
+    {
+        float R[16];
+        for (int Row = 0; Row < 4; ++Row)
+        {
+            for (int Col = 0; Col < 4; ++Col)
+            {
+                R[Row * 4 + Col] = A[Row * 4] * B[Col] + A[Row * 4 + 1] * B[4 + Col] + A[Row * 4 + 2] * B[8 + Col] +
+                                   A[Row * 4 + 3] * B[12 + Col];
+            }
+        }
+        std::memcpy(Out, R, sizeof(R));
     }
 }
 
+// The whole texture, every level, as the backend takes it: DXT blocks as they are when the
+// backend samples them and level 0 is a whole number of blocks (Direct3D 12 requires that),
+// everything else converted to B, G, R, A bytes by TexConvert. A cube map goes up as its first
+// face only, until cube maps are drawn.
 void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
 {
     if (Texture == nullptr || !Texture->bGpuStale || Texture->Images.empty())
         return;
-    // Level 0 as B, G, R, A bytes: TexConvert's A8R8G8B8 is exactly that in memory.
-    const FRpGpuImage& Image = Texture->Images[0];
-    std::vector<std::uint8_t> Bgra(static_cast<std::size_t>(Image.Width) * Image.Height * 4);
-    TexConvert::FImage Destination;
-    Destination.Format = TexConvert::kA8R8G8B8;
-    Destination.Width = Image.Width;
-    Destination.Height = Image.Height;
-    Destination.Pitch = Image.Width * 4;
-    Destination.Bits = Bgra.data();
-    TexConvert::FSource Source;
-    Source.Format = Texture->Format;
-    Source.Width = Image.Width;
-    Source.Height = Image.Height;
-    Source.Pitch = Image.Pitch;
-    Source.Bits = Image.Bits.data();
+    const std::size_t Levels = Texture->bCube ? 1u : Texture->Images.size();
+    FRpGpuTextureImage Image;
+    Image.Width = Texture->Images[0].Width;
+    Image.Height = Texture->Images[0].Height;
     try
     {
-        if (TexConvert::Load(Destination, Source) == TexConvert::EResult::Failed)
-            return; // e.g. P8 with no palette kept: drawn untextured
+        Image.Levels.resize(Levels);
+        if (BlockFormat(Texture->Format, &Image.Format) && Backend().SupportsBlockCompression() &&
+            Image.Width % 4 == 0 && Image.Height % 4 == 0)
+        {
+            // RPGPU keeps DXT levels tightly packed (RpGpuResources.cpp, MakeImage).
+            for (std::size_t Level = 0; Level < Levels; ++Level)
+                Image.Levels[Level] = Texture->Images[Level].Bits;
+        }
+        else
+        {
+            Image.Format = ERpGpuTextureFormat::Bgra8;
+            for (std::size_t Level = 0; Level < Levels; ++Level)
+            {
+                const FRpGpuImage& Source = Texture->Images[Level];
+                std::vector<std::uint8_t>& Bgra = Image.Levels[Level];
+                Bgra.resize(static_cast<std::size_t>(Source.Width) * Source.Height * 4);
+                // TexConvert's A8R8G8B8 is B, G, R, A in memory.
+                TexConvert::FImage To;
+                To.Format = TexConvert::kA8R8G8B8;
+                To.Width = Source.Width;
+                To.Height = Source.Height;
+                To.Pitch = Source.Width * 4;
+                To.Bits = Bgra.data();
+                TexConvert::FSource From;
+                From.Format = Texture->Format;
+                From.Width = Source.Width;
+                From.Height = Source.Height;
+                From.Pitch = Source.Pitch;
+                From.Bits = Source.Bits.data();
+                if (TexConvert::Load(To, From) == TexConvert::EResult::Failed)
+                    return; // e.g. P8 with no palette kept: drawn untextured
+            }
+        }
     }
     catch (const std::bad_alloc&)
     {
@@ -142,7 +205,7 @@ void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
     if (Texture->GpuVersion != 0)
         RetiredVersions_.push_back(Texture->GpuVersion);
     Texture->GpuVersion = NextTextureVersion_++;
-    Backend().UploadTexture(Texture->GpuVersion, Image.Width, Image.Height, Bgra.data());
+    Backend().UploadTexture(Texture->GpuVersion, std::move(Image));
     Texture->bGpuStale = false;
 }
 
@@ -151,12 +214,15 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
 {
     if (!bBuffersActive_ || Verts == nullptr || Stride == 0 || VertCount == 0)
         return;
-    if ((Fvf & kFvfPositionMask) != kFvfXyzRhw)
-        return; // transformed vertices: drawn once the transform stage exists
+    const FLayout Layout = LayoutOf(Fvf);
+    if (Layout.Size == 0 || static_cast<unsigned int>(Layout.Size) > Stride)
+        return; // no position, or a stride too small for the format: nothing safe to read
     const unsigned int Count = Indices != nullptr ? IndexCount : VertCount;
     const int Primitives = PrimCountFromVerts(Prim, Count);
-    if (Primitives <= 0 || VertCount > 0x10000u)
+    if (Primitives <= 0)
         return;
+    // The draw is going ahead, as RP8's FlushDrawState would: a changed view is now committed.
+    CommitTransforms();
 
     // The topology, and how many of the vertices or indices it uses.
     ERpGpuTopology Topology = ERpGpuTopology::Triangles;
@@ -173,30 +239,50 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     }
     if (Used > Count)
         return;
+
+    // The vertices the draw uses: [First, First + Span). With indices, only the range they
+    // reach is copied, and the indices are rebased onto it.
+    unsigned int First = 0;
+    unsigned int Span = Used;
     if (Indices != nullptr)
     {
+        unsigned int Lowest = 0xFFFFu;
+        unsigned int Highest = 0;
         for (unsigned int Index = 0; Index < Used; ++Index)
         {
-            if (Indices[Index] >= VertCount)
-                return; // an index past the vertices it was given: nothing safe to draw
+            Lowest = std::min<unsigned int>(Lowest, Indices[Index]);
+            Highest = std::max<unsigned int>(Highest, Indices[Index]);
         }
+        if (Highest >= VertCount)
+            return; // an index past the vertices it was given: nothing safe to draw
+        First = Lowest;
+        Span = Highest - Lowest + 1;
+    }
+    else if (Used > VertCount || (bFan && Used > 0x10000u))
+    {
+        return; // more vertices than given; or a fan too long for the 16-bit list it becomes
     }
 
-    // The vertices, in the shared layout.
-    const FLayout Layout = LayoutOf(Fvf);
+    // The texture-coordinate set stage 0 reads (TEXCOORDINDEX's low bits; the texture-coordinate
+    // generation in its high bits is not done yet).
+    const int* const Stage0 = StageStates_[0];
+    const int TexSet = Stage0[kTssTexCoordIndex] & 0xFFFF;
+    const int TexOffset = TexSet < Layout.TexCount ? Layout.Tex[TexSet] : -1;
+    const int TexFloats = TexSet < Layout.TexCount ? Layout.TexFloats[TexSet] : 0;
+
     const std::uint32_t FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
-    Frame_.Vertices.reserve(Frame_.Vertices.size() + VertCount);
-    for (unsigned int Index = 0; Index < VertCount; ++Index)
+    Frame_.Vertices.reserve(Frame_.Vertices.size() + Span);
+    for (unsigned int Index = 0; Index < Span; ++Index)
     {
-        const unsigned char* const P = Verts + static_cast<std::size_t>(Index) * Stride;
-        FRpGpuVertex2D Vertex;
+        const unsigned char* const P = Verts + static_cast<std::size_t>(First + Index) * Stride;
+        FRpGpuVertex Vertex;
         Vertex.X = ReadFloat(P);
         Vertex.Y = ReadFloat(P + 4);
         Vertex.Z = ReadFloat(P + 8);
-        Vertex.Rhw = ReadFloat(P + 12);
+        Vertex.W = Layout.bPretransformed ? ReadFloat(P + 12) : 1.0f;
         Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
-        Vertex.U = Layout.Tex0Floats >= 1 ? ReadFloat(P + Layout.Tex0) : 0.0f;
-        Vertex.V = Layout.Tex0Floats >= 2 ? ReadFloat(P + Layout.Tex0 + 4) : 0.0f;
+        Vertex.U = TexFloats >= 1 ? ReadFloat(P + TexOffset) : 0.0f;
+        Vertex.V = TexFloats >= 2 ? ReadFloat(P + TexOffset + 4) : 0.0f;
         Frame_.Vertices.push_back(Vertex);
     }
 
@@ -204,7 +290,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     const std::uint32_t FirstIndex = static_cast<std::uint32_t>(Frame_.Indices.size());
     std::uint32_t IndexTotal = 0;
     auto Source = [&](unsigned int At) -> std::uint16_t {
-        return Indices != nullptr ? Indices[At] : static_cast<std::uint16_t>(At);
+        return static_cast<std::uint16_t>(Indices != nullptr ? Indices[At] - First : At);
     };
     if (bFan)
     {
@@ -218,7 +304,8 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     }
     else if (Indices != nullptr)
     {
-        Frame_.Indices.insert(Frame_.Indices.end(), Indices, Indices + Used);
+        for (unsigned int Index = 0; Index < Used; ++Index)
+            Frame_.Indices.push_back(Source(Index));
         IndexTotal = Used;
     }
 
@@ -232,7 +319,9 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     Command.Pipeline.SrcBlend = static_cast<std::uint8_t>(RenderStates_[kRsSrcBlend]);
     Command.Pipeline.DstBlend = static_cast<std::uint8_t>(RenderStates_[kRsDestBlend]);
     Command.Pipeline.ColorWriteMask = static_cast<std::uint8_t>(RenderStates_[kRsColorWriteEnable] & 0xF);
-    const int* const Stage0 = StageStates_[0];
+    Command.Pipeline.CullMode = static_cast<std::uint8_t>(RenderStates_[kRsCullMode]);
+    Command.Pipeline.FillMode = static_cast<std::uint8_t>(RenderStates_[kRsFillMode]);
+    Command.Pipeline.ZBias = static_cast<std::uint8_t>(std::clamp(RenderStates_[kRsZBias], 0, 16));
     Command.Sampler.AddressU = static_cast<std::uint8_t>(Stage0[kTssAddressU]);
     Command.Sampler.AddressV = static_cast<std::uint8_t>(Stage0[kTssAddressV]);
     Command.Sampler.MagFilter = static_cast<std::uint8_t>(Stage0[kTssMagFilter]);
@@ -241,15 +330,30 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     FRpGpuTexture* const Texture = LiveTexture(StageTextures_[0]);
     RefreshTexture(Texture);
     Command.Texture = Texture != nullptr ? Texture->GpuVersion : 0;
+    // MAXMIPLEVEL past the texture's last level samples that last level, as in Direct3D. A cube
+    // map has one level on the GPU so far (RefreshTexture).
+    const int LastLevel = Texture != nullptr && !Texture->bCube ? static_cast<int>(Texture->Levels) - 1 : 0;
+    Command.Sampler.MaxMipLevel = static_cast<std::uint8_t>(std::clamp(Stage0[kTssMaxMipLevel], 0, std::max(0, LastLevel)));
     Command.FirstVertex = FirstVertex;
-    Command.VertexCount = VertCount;
+    Command.VertexCount = Span;
     Command.FirstIndex = FirstIndex;
     Command.IndexCount = IndexTotal;
     std::memcpy(Command.Viewport, Viewport_, sizeof(Command.Viewport));
-    // Pre-transformed vertices skip Direct3D's viewport transform, depth included: their z is
-    // drawn as it is, whatever SetDepthRange says (the 3D draws will record DepthRange_).
-    Command.MinZ = 0.0f;
-    Command.MaxZ = 1.0f;
+    Command.bPretransformed = Layout.bPretransformed;
+    if (Layout.bPretransformed)
+    {
+        // Pre-transformed vertices skip Direct3D's viewport transform, depth included: their z
+        // is drawn as it is, whatever SetDepthRange says.
+        Command.MinZ = 0.0f;
+        Command.MaxZ = 1.0f;
+    }
+    else
+    {
+        Command.MinZ = DepthRange_[0];
+        Command.MaxZ = DepthRange_[1];
+        Multiply(Command.WorldViewProjection, World_, View_);
+        Multiply(Command.WorldViewProjection, Command.WorldViewProjection, Projection_);
+    }
     Command.Ops[0] = static_cast<std::uint32_t>(Stage0[kTssColorOp]);
     Command.Ops[1] = static_cast<std::uint32_t>(Stage0[kTssAlphaOp]);
     Command.Ops[2] = Texture != nullptr ? 1u : 0u;
