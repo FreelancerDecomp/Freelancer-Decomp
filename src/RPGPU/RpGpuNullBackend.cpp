@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <iterator>
+#include <new>
 
 namespace
 {
@@ -69,8 +70,24 @@ namespace
                 return false;
             Out->Width = FrameWidth_;
             Out->Height = FrameHeight_;
-            const std::size_t Pixels = static_cast<std::size_t>(FrameWidth_) * FrameHeight_;
-            Out->Bgra.resize(Pixels * 4);
+            // Readback is for display-sized frames. Bound each side first, so neither the pixel
+            // count nor the byte count can wrap a 32-bit size_t, and fail instead of throwing.
+            constexpr std::uint32_t kMaxReadBackSide = 16384;
+            if (FrameWidth_ > kMaxReadBackSide || FrameHeight_ > kMaxReadBackSide)
+                return false;
+            const std::uint64_t Pixels64 = static_cast<std::uint64_t>(FrameWidth_) * FrameHeight_;
+            const std::uint64_t Bytes64 = Pixels64 * 4;
+            if (Bytes64 > Out->Bgra.max_size())
+                return false;
+            const std::size_t Pixels = static_cast<std::size_t>(Pixels64);
+            try
+            {
+                Out->Bgra.resize(static_cast<std::size_t>(Bytes64));
+            }
+            catch (const std::bad_alloc&)
+            {
+                return false;
+            }
             const std::uint8_t Pixel[4] = {
                 static_cast<std::uint8_t>(FrameArgb_ & 0xFF),
                 static_cast<std::uint8_t>((FrameArgb_ >> 8) & 0xFF),
