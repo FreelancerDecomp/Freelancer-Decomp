@@ -662,6 +662,7 @@ function(_fl_resource_dll name)
     ${_safeseh} "$<${_fl_cfg_debug}:/INCREMENTAL>"
     /SUBSYSTEM:WINDOWS "${FL_MANIFESTUAC}" /ERRORREPORT:PROMPT /NOLOGO /TLBID:1)
   target_link_libraries(${name} PRIVATE ${FL_DEFAULT_LIBS})
+  target_link_directories(${name} PRIVATE "${FL_BIN_DIR}")
 endfunction()
 
 # The CoreLibraryDependencies MSBuild puts in place of %(AdditionalDependencies).

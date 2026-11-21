@@ -75,7 +75,10 @@ def norm_path(path, base=None):
     # <build>/vcpkg_installed/<triplet>/ for CMake: the same package either way.
     m = re.search(r"/vcpkg_installed/(?:[^/]+/)*?([^/]+-windows)(/.*)?$", path)
     if m:
-        path = "<vcpkg>/" + m.group(1) + (m.group(2) or "")
+        rest = m.group(2) or ""
+        if rest.startswith("/" + m.group(1)):
+            rest = rest[len(m.group(1)) + 1:]
+        path = "<vcpkg>/" + m.group(1) + rest
     return path
 
 
