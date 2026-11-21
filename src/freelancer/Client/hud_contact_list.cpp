@@ -15,7 +15,7 @@
 #include "font_string.h"             // FontStringSetFont / SetScale / SetText
 #include "game_options.h"            // GetGameOption (FUN_005792b0)
 #include "globals.h"                 // GetClientFrameTimeCapped, ShouldSkipLocalServerTick
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "hud_comm.h"                // HudCommIsWatchedObjectId (FUN_004cc880)
 #include "hud_command_dispatch.h"    // FSpaceCommand, SpaceSendCommand (FUN_0054bcb0)
 #include "hud_status_core.h"         // G_HudTargetPanel (DAT_00674b04)
@@ -360,7 +360,7 @@ namespace
         int Size[2] = {0, 0};
         Measure->MeasureString(Size, Name, -1);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-        // Port-only Hor+: the list is interface, sized by height; its limit follows the width
+        // PORT(widescreen): the list is interface, sized by height; its limit follows the width
         // of a 4:3 surface of this height.
         float const Limit = static_cast<float>(
             WidescreenEquivalentSurfaceWidth() * kLabelWidthScale * kLabelWidthFactor);

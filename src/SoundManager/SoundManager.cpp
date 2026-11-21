@@ -43,12 +43,12 @@ namespace
     FSoundInstanceNode G_InstanceSentinel;
     unsigned long G_InstanceCount = 0;
 
-    // Port-only side index of one PlayKey list (no retail counterpart): key -> the linked nodes
-    // holding it. A key held by one node is answered directly; a key held by several is left
-    // to the list walk, which yields the first in list order. Updated at every link and
-    // unlink; a linked node's PlayKey is never rewritten (it is set before the link, and
-    // ReleaseInstancePayload clears it only after the unlink). Only the API thread uses it:
-    // the notify thread reads NotifyEvent / Buffer, never the keys.
+    // PORT(perf-index): side index of one PlayKey list (no retail counterpart): key -> the linked
+    // nodes holding it. A key held by one node is answered directly; a key held by several is left
+    // to the list walk, which yields the first in list order. Updated at every link and unlink; a
+    // linked node's PlayKey is never rewritten (it is set before the link, and
+    // ReleaseInstancePayload clears it only after the unlink). Only the API thread uses it: the
+    // notify thread reads NotifyEvent / Buffer, never the keys.
     template <class TNode>
     class TPlayKeyIndex
     {
@@ -97,13 +97,13 @@ namespace
         FNodeMap Nodes;
     };
 
-    // The DAT_06eeaf00 list's keys (FSoundManager::FindInstanceByKey). Declared before
-    // G_InstanceListInit, whose _onexit drain still unlinks through it.
+    // PORT(perf-index): the DAT_06eeaf00 list's keys (FSoundManager::FindInstanceByKey). Declared
+    // before G_InstanceListInit, whose _onexit drain still unlinks through it.
     TPlayKeyIndex<FSoundInstanceNode> G_InstanceKeys;
 
-    // Each manager's attached-list keys (FSoundManager::FindAttached); FSoundManager keeps
-    // retail's layout, so the index lives here keyed by the manager. Created on first use and
-    // never freed, so a manager released late in static teardown still finds it.
+    // PORT(perf-index): each manager's attached-list keys (FSoundManager::FindAttached);
+    // FSoundManager keeps retail's layout, so the index lives here keyed by the manager. Created on
+    // first use and never freed, so a manager released late in static teardown still finds it.
     typedef std::unordered_map<FSoundManager const*, TPlayKeyIndex<FAttachedNode>> FAttachedKeyTable;
     FAttachedKeyTable* G_AttachedKeys = nullptr;
 
@@ -812,7 +812,7 @@ namespace
     {
         static constexpr double kTen = 10.0; // DAT_06ee9480
 #if !defined(_M_IX86)
-        // Port-only x64: the sound update runs outside the scene, at 53-bit precision
+        // PORT(x64): the sound update runs outside the scene, at 53-bit precision
         // (docs/x64.md, "Client precision"), so each x87 step is one double operation;
         // X87Log10 stands in for FLDLG2 / FYL2X (last-bit differences possible).
         const double Min = MinDistance;
@@ -945,7 +945,7 @@ namespace
             FSoundInstanceNode* Next = Node->Next;
             Node->Prev->Next = Node->Next;
             Node->Next->Prev = Node->Prev;
-            G_InstanceKeys.Remove(Node); // port-only
+            G_InstanceKeys.Remove(Node); // PORT(perf-index)
             ReleaseInstancePayload(Node);
             free(Node);
             --G_InstanceCount;
@@ -1585,7 +1585,7 @@ void FSoundManager::ReleaseCom()
     AttachedSentinel = nullptr;
     AttachedCount = 0;
     if (G_AttachedKeys != nullptr)
-        G_AttachedKeys->erase(this); // port-only: the attached-list index
+        G_AttachedKeys->erase(this); // PORT(perf-index): the attached-list index
     // +0xF8 map: FUN_06ee7ad0 erase-all + FUN_06ee7cd0 node frees. Already emptied by
     // FUN_06ee4800 inside ShutdownDevice; only the storage is left.
     free(ArchEntries);
@@ -2224,7 +2224,7 @@ void FSoundManager::ClearAttached()
         --AttachedCount;
         Node = Next;
     }
-    AttachedKeys(this).Clear(); // port-only: every node is gone
+    AttachedKeys(this).Clear(); // PORT(perf-index): every node is gone
 }
 
 void FSoundManager::UnlinkInstance(FSoundInstanceNode* Node)
@@ -2234,7 +2234,7 @@ void FSoundManager::UnlinkInstance(FSoundInstanceNode* Node)
     // to the allocator, DAT_06eeaf08-- (no underflow check).
     Node->Prev->Next = Node->Next;
     Node->Next->Prev = Node->Prev;
-    G_InstanceKeys.Remove(Node); // port-only, while PlayKey is still set
+    G_InstanceKeys.Remove(Node); // PORT(perf-index): while PlayKey is still set
     ReleaseInstancePayload(Node);
     free(Node);
     --G_InstanceCount;
@@ -2243,7 +2243,7 @@ void FSoundManager::UnlinkInstance(FSoundInstanceNode* Node)
 FSoundInstanceNode* FSoundManager::FindInstanceByKey(ISoundSource* PlayKey)
 {
     // Inline walks of DAT_06eeaf00 comparing node+8 with the key (06ee4ca0, 06ee4fd1, 06ee34d0,
-    // LAB_06ee6f30/6f70); no key test. The port answers from G_InstanceKeys unless several
+    // LAB_06ee6f30/6f70); no key test. PORT(perf-index) answers from G_InstanceKeys unless several
     // nodes hold the key; the walk below gives the first of them.
     FSoundInstanceNode* Node = G_InstanceSentinel.Next;
     FSoundInstanceNode* Indexed = nullptr;
@@ -2268,8 +2268,8 @@ FSoundInstanceNode* FSoundManager::FindInstanceByKey(ISoundSource* PlayKey)
 
 FAttachedNode* FSoundManager::FindAttached(ISoundSource* PlayKey)
 {
-    // 06ee4ba0..4bbd: walk the attached list (+0x110 head) comparing node+8 with the key. The
-    // port answers from the manager's attached index unless several nodes hold the key.
+    // 06ee4ba0..4bbd: walk the attached list (+0x110 head) comparing node+8 with the key.
+    // PORT(perf-index) answers from the manager's attached index unless several nodes hold the key.
     FAttachedNode* Node = AttachedSentinel->Next;
     FAttachedNode* Indexed = nullptr;
     const bool bSettled = AttachedKeys(this).Lookup(PlayKey, Indexed);
@@ -2373,7 +2373,7 @@ void FSoundManager::SplicePendingInstances()
     FSoundInstanceNode* First = InstanceSentinel->Next;
     FSoundInstanceNode* Last = InstanceSentinel->Prev;
     for (FSoundInstanceNode* Node = First; Node != InstanceSentinel; Node = Node->Next)
-        G_InstanceKeys.Add(Node); // port-only: the chain joins DAT_06eeaf00
+        G_InstanceKeys.Add(Node); // PORT(perf-index): the chain joins DAT_06eeaf00
     InstanceSentinel->Next = InstanceSentinel;
     InstanceSentinel->Prev = InstanceSentinel;
     First->Prev = G_InstanceSentinel.Prev;
@@ -2773,7 +2773,7 @@ FSoundInstanceNode* FSoundManager::CreateInstanceFromKey(ISoundSource* PlayKey)
         return nullptr;
     }
 
-    // Port-only allocation (retail's list node comes from FUN_06ee7c00 in MixerTick).
+    // PORT(deviation): allocation (retail's list node comes from FUN_06ee7c00 in MixerTick).
     FSoundInstanceNode* Node = static_cast<FSoundInstanceNode*>(calloc(1, sizeof(FSoundInstanceNode)));
     if (Node == nullptr)
     {
@@ -3008,7 +3008,7 @@ GENRESULT DACOM_API FSoundManager::AttachPlayKey(ISoundSource* PlayKey, unsigned
     InsertBefore->Prev->Next = Node;
     InsertBefore->Prev = Node;
     ++AttachedCount;
-    AttachedKeys(this).Add(Node); // port-only
+    AttachedKeys(this).Add(Node); // PORT(perf-index)
     return GR_OK;
 }
 
@@ -3034,7 +3034,7 @@ GENRESULT DACOM_API FSoundManager::DetachPlayKey(ISoundSource* PlayKey)
             FAttachedNode* Next = Attached->Next;
             Attached->Prev->Next = Attached->Next;
             Attached->Next->Prev = Attached->Prev;
-            AttachedKeys(this).Remove(Attached); // port-only
+            AttachedKeys(this).Remove(Attached); // PORT(perf-index)
             free(Attached);
             --AttachedCount;
             Attached = Next;
@@ -3080,7 +3080,7 @@ GENRESULT DACOM_API FSoundManager::ReplaceAttachedList(void** Keys, unsigned lon
         AttachedSentinel->Prev->Next = Node;
         AttachedSentinel->Prev = Node;
         ++AttachedCount;
-        AttachedKeys(this).Add(Node); // port-only
+        AttachedKeys(this).Add(Node); // PORT(perf-index)
         Key->AddRef();
     }
     return GR_OK;
@@ -3685,7 +3685,7 @@ GENRESULT DACOM_API FSoundManager::ShutdownDevice()
             FSoundInstanceNode* Next = Node->Next;
             Node->Prev->Next = Node->Next;
             Node->Next->Prev = Node->Prev;
-            G_InstanceKeys.Remove(Node); // port-only
+            G_InstanceKeys.Remove(Node); // PORT(perf-index)
             ReleaseInstancePayload(Node);
             free(Node);
             --G_InstanceCount;
@@ -3702,7 +3702,7 @@ GENRESULT DACOM_API FSoundManager::ShutdownDevice()
             FAttachedNode* Next = Attached->Next;
             Attached->Prev->Next = Attached->Next;
             Attached->Next->Prev = Attached->Prev;
-            AttachedKeys(this).Remove(Attached); // port-only
+            AttachedKeys(this).Remove(Attached); // PORT(perf-index)
             free(Attached);
             --AttachedCount;
             Attached = Next;

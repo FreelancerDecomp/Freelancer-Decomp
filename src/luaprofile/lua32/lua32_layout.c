@@ -13,7 +13,7 @@
 #include "lobject.h"
 #include "lstate.h"
 
-/* Retail's 32-bit layout; the port-only x64 build (docs/x64.md) has 8-byte pointers. */
+/* Retail's 32-bit layout; the x64 build (PORT(x64), docs/x64.md) has 8-byte pointers. */
 #if defined(_M_IX86)
 typedef char LuaStateSizeCheck[(sizeof(struct lua_State) == 0x7C) ? 1 : -1];
 #endif

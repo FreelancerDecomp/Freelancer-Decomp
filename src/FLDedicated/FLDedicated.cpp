@@ -1,8 +1,9 @@
-// Freelancer Decomp: FLDedicated, a console dedicated server (port-only, not part of retail).
+// Freelancer Decomp: FLDedicated, a console dedicated server -- PORT(dedicated), not part of retail.
 //
 // Runs the multiplayer server the way FLServer.exe does (Server.dll with RemoteClient.dll as its
 // client module), without MFC, windows or dialogs. It loads the same DLLs and follows the same
-// startup, frame loop and shutdown as FLServer (src/FLServer/FLServer.cpp); the settings
+// startup, frame loop and shutdown as FLServer (src/FLServer/FLServer.cpp): the parts that do
+// not need MFC are shared with it (src/ServerHost/server_host.cpp); the settings
 // FLServer asks for in its Server Configuration dialog come from FLServer.cfg and the command
 // line instead. See docs/dedicated_server.md.
 //
@@ -20,7 +21,6 @@
 #include <mmsystem.h>
 
 #include <algorithm>
-#include <cfloat>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -30,13 +30,12 @@
 #include <vector>
 
 #include "common_ini.h"           // INI_Reader, ILoadingScreen, RegisterLoadingScreen
-#include "common_misc.h"          // WaitForServerRunPermission, GiveClientRunPermission
 #include "common_net.h"           // SetIsMPServer
 #include "common_server_types.h"  // SStartupInfo, ServerStats
-#include "common_timing.h"        // Timing
-#include "dacom.h"                // FDUMP, DACOM_GetDllVersion
+#include "dacom.h"                // FDUMP
 #include "dalib_core.h"           // DALib::Startup / OpenData / CloseData / Shutdown, CriticalWarningFn
-#include "remoteclient.h"         // SetRemoteClient*, GetNumClients, SetServerLogFunction
+#include "remoteclient.h"         // GetNumClients, SetServerLogFunction
+#include "server_host.h"          // the host shared with FLServer (src/ServerHost)
 #include "server_iserverimpl.h"   // Server
 #include "server_playerdb.h"      // Players
 #include "x64_high_memory.h"      // ReserveLowAddressSpaceIfRequested
@@ -48,21 +47,6 @@ namespace
     const size_t MaxDescriptionLength = 0x80;
     const size_t MaxPasswordLength = 0x10;
     const int MaxPlayersLimit = 0x80;
-
-    // FLServer.cfg, as CServerConfigDlg reads and writes it field by field (binary).
-    struct FServerConfigFile
-    {
-        int Version = 3;
-        wchar_t ServerName[0x21] = {};
-        wchar_t Description[0x81] = {};
-        wchar_t Password[0x11] = {};
-        bool bAllowNewPlayers = true;
-        bool bInternetAccessible = true;
-        int MaxPlayers = 0x10;
-        bool bAllowPvp = false;
-    };
-
-    const char* const ConfigFileName = "FLServer.cfg";
 
     // A command-line value that may be absent.
     template <typename T>
@@ -117,9 +101,6 @@ namespace
     HANDLE GStopEvent = nullptr;   // set by Ctrl+C, the console's close button and "quit"
     HANDLE GDoneEvent = nullptr;   // set once shutdown has finished
 
-    // The server thread's frame period in seconds (FLServer .data:00425548).
-    const float ServerFramePeriod = 0.0333333351f;
-
     // What the server thread last measured, for the "status" command.
     CRITICAL_SECTION GStatsLock;
     ServerStats GLastStats = {};
@@ -127,15 +108,6 @@ namespace
     unsigned int GFrameCount = 0;
 
     std::wstring GMotd;
-
-    // FLServer's loading screen: both slots do nothing.
-    class FServerLoadingScreen : public ILoadingScreen
-    {
-    public:
-        virtual void Refresh() override {}
-        virtual void Slot01() override {}
-    };
-    FServerLoadingScreen GLoadingScreen;
 
     std::string Narrow(const std::wstring& Text)
     {
@@ -416,28 +388,16 @@ namespace
     // FLServer.cfg's values, then the command line on top, then the dialog's checks.
     bool ConfigureServer()
     {
-        FServerConfigFile Config;
+        FServerConfigFile Config = {};
+        Config.Version = 3;
+        Config.bAllowNewPlayers = true;
+        Config.bInternetAccessible = true;
+        Config.MaxPlayers = 0x10;
+        Config.bAllowPvp = false;
 
         char Path[0x400] = "";
-        Players.MakeLocalUserPath(Path, ConfigFileName);
-        FILE* File = fopen(Path, "rb");
-        if (File != nullptr)
+        if (ReadServerConfigFile(Config, Path))
         {
-            fread(&Config.Version, 4, 1, File);
-            if (Config.Version == 2 || Config.Version == 3)
-            {
-                fread(Config.ServerName, sizeof(Config.ServerName), 1, File);
-                fread(Config.Description, sizeof(Config.Description), 1, File);
-                fread(Config.Password, sizeof(Config.Password), 1, File);
-                fread(&Config.bAllowNewPlayers, 1, 1, File);
-                fread(&Config.bInternetAccessible, 1, 1, File);
-                fread(&Config.MaxPlayers, 4, 1, File);
-                if (Config.Version == 3)
-                {
-                    fread(&Config.bAllowPvp, 1, 1, File);
-                }
-            }
-            fclose(File);
             Config.ServerName[0x20] = L'\0';
             Config.Description[0x80] = L'\0';
             Config.Password[0x10] = L'\0';
@@ -497,131 +457,88 @@ namespace
         Players.BuildLocalUserDir();
         if (Options.bSaveConfig)
         {
-            Players.MakeLocalUserPath(Path, ConfigFileName);
-            File = fopen(Path, "wb");
-            if (File == nullptr)
+            if (!WriteServerConfigFile(Config, Path))
             {
                 fprintf(stderr, "FLDedicated: cannot write %s\n", Path);
                 return false;
             }
-            fwrite(&Config.Version, 4, 1, File);
-            fwrite(Config.ServerName, sizeof(Config.ServerName), 1, File);
-            fwrite(Config.Description, sizeof(Config.Description), 1, File);
-            fwrite(Config.Password, sizeof(Config.Password), 1, File);
-            fwrite(&Config.bAllowNewPlayers, 1, 1, File);
-            fwrite(&Config.bInternetAccessible, 1, 1, File);
-            fwrite(&Config.MaxPlayers, 4, 1, File);
-            fwrite(&Config.bAllowPvp, 1, 1, File);
-            fclose(File);
             ServerLog(ErrorCode{ 0x100004 }, "Saved the server settings to %s", Path);
         }
         return true;
-    }
-
-    // FLServer's SetupServerFpu.
-    void SetupServerFpu(bool bUnmaskExceptions)
-    {
-        if (bUnmaskExceptions)
-        {
-            _clearfp();
-            _control87(_controlfp(0, 0) & ~(_EM_ZERODIVIDE | _EM_OVERFLOW | _EM_INVALID), 0x8001f);
-        }
-        else
-        {
-            _control87(0x9001f, 0xfffff);
-        }
     }
 
     // FLServer's StartupThreadProc (.text:0040be90): IServerImpl::Startup on a thread of its
     // own with COM initialised; exit code 1 when it succeeded.
     DWORD WINAPI StartupThreadProc(LPVOID)
     {
-        const HRESULT Result = CoInitialize(nullptr);
-        const DWORD bStarted = Server.Startup(GStartupInfo) ? 1 : 0;
-        if (Result == S_OK || Result == S_FALSE)
-        {
-            CoUninitialize();
-        }
-        return bStarted;
+        return RunServerStartup(GStartupInfo);
     }
 
     // FLServer's ShutdownThreadProc (.text:0040b710).
     DWORD WINAPI ShutdownThreadProc(LPVOID)
     {
-        const HRESULT Result = CoInitialize(nullptr);
-        Server.Shutdown();
-        if (Result == S_OK || Result == S_FALSE)
-        {
-            CoUninitialize();
-        }
-        return 1;
+        return RunServerShutdown();
+    }
+
+    // The server thread's FLDedicated parts; the loop itself is RunServerThread
+    // (src/ServerHost/server_host.cpp).
+    bool IsServerRunning()
+    {
+        return GServerRunning != 0;
+    }
+
+    // ApplyServerNews (.text:00413780).
+    void ApplyMotd()
+    {
+        WaitForSingleObject(GServerMutex, INFINITE);
+        Players.SetMOTD(GMotd);
+        ReleaseMutex(GServerMutex);
+    }
+
+    void* OnServerLoopStart()
+    {
+        SetupServerFpu(GOptions.bUnmaskFpuExceptions);
+        LogStatus("Server running, ready for log in.");
+        return nullptr;
+    }
+
+    void LockServer()
+    {
+        WaitForSingleObject(GServerMutex, INFINITE);
+    }
+
+    void UnlockServer()
+    {
+        ReleaseMutex(GServerMutex);
+    }
+
+    // The frame time and ServerStats go to the "status" command instead of the summary form.
+    void OnServerFrameDone(void*, DWORD FrameStart, DWORD FrameEnd)
+    {
+        ServerStats Stats;
+        Server.GetServerStats(Stats);
+        EnterCriticalSection(&GStatsLock);
+        GLastStats = Stats;
+        GLastLoadMs = (unsigned int)(FrameEnd - FrameStart);
+        ++GFrameCount;
+        LeaveCriticalSection(&GStatsLock);
     }
 
     // FLServer's ServerThreadProc (.text:0040cb40): loads motd.dat, then runs
     // IServerImpl::Update / ElapseTime at 30 Hz under the server mutex, handing the run
-    // permission back and forth with the client side. The frame time and ServerStats go to
-    // the "status" command instead of the summary form.
+    // permission back and forth with the client side.
     DWORD WINAPI ServerThreadProc(LPVOID)
     {
-        const HRESULT Result = CoInitialize(nullptr);
-
-        char MotdPath[0x400] = "";
-        Players.MakeLocalUserPath(MotdPath, "motd.dat");
-        FILE* MotdFile = fopen(MotdPath, "rb");
-        if (MotdFile != nullptr)
-        {
-            static wchar_t MotdText[0x1400];
-            memset(MotdText, 0, sizeof(MotdText));
-            fread(MotdText, 0x2800, 1, MotdFile);
-            MotdText[0x13ff] = L'\0';
-            fclose(MotdFile);
-            GMotd.assign(MotdText, wcslen(MotdText));
-            // ApplyServerNews (.text:00413780).
-            WaitForSingleObject(GServerMutex, INFINITE);
-            Players.SetMOTD(GMotd);
-            ReleaseMutex(GServerMutex);
-        }
-
-        SetupServerFpu(GOptions.bUnmaskFpuExceptions);
-        LogStatus("Server running, ready for log in.");
-
-        long long LastTicks = Timing::read_ticks();
-        srand(timeGetTime());
-        while (GServerRunning != 0)
-        {
-            const long long Ticks = Timing::read_ticks();
-            const long long DeltaTicks = Ticks - LastTicks;
-            const double Elapsed = Timing::seconds(DeltaTicks);
-            if ((double)ServerFramePeriod > Elapsed)
-            {
-                SleepEx((DWORD)(long)(((double)ServerFramePeriod - Elapsed) * 1000.0), FALSE);
-            }
-            const DWORD FrameStart = timeGetTime();
-            WaitForServerRunPermission();
-            LastTicks = Ticks;
-            Timing::read();
-            WaitForSingleObject(GServerMutex, INFINITE);
-            Server.Update();
-            Timing::UpdateGlobalTime(Elapsed);
-            Server.ElapseTime((float)Elapsed);
-            ReleaseMutex(GServerMutex);
-            Timing::read();
-            GiveClientRunPermission();
-            const DWORD FrameEnd = timeGetTime();
-
-            ServerStats Stats;
-            Server.GetServerStats(Stats);
-            EnterCriticalSection(&GStatsLock);
-            GLastStats = Stats;
-            GLastLoadMs = (unsigned int)(FrameEnd - FrameStart);
-            ++GFrameCount;
-            LeaveCriticalSection(&GStatsLock);
-        }
-        if (Result == S_OK || Result == S_FALSE)
-        {
-            CoUninitialize();
-        }
-        return 0;
+        FServerThreadHooks Hooks;
+        Hooks.IsRunning = IsServerRunning;
+        Hooks.Motd = &GMotd;
+        Hooks.ApplyMotd = ApplyMotd;
+        Hooks.OnLoopStart = OnServerLoopStart;
+        Hooks.LockServer = LockServer;
+        Hooks.UnlockServer = UnlockServer;
+        Hooks.OnFrameRun = nullptr;
+        Hooks.OnFrameDone = OnServerFrameDone;
+        return RunServerThread(Hooks);
     }
 
     void PrintStatus()
@@ -740,19 +657,10 @@ namespace
 
         // CFLServerApp::InitInstance (.text:0040b840), in its order, minus the EULA, the
         // windows, the crash reporter and the configuration dialog.
-        unsigned int Major = 0;
-        unsigned int Minor = 0;
-        unsigned int Build = 0;
-        if (DACOM_GetDllVersion(ModulePath, &Major, &Minor, &Build) != 0)
-        {
-            Major = 1;
-            Minor = 0;
-            Build = 0xb;
-        }
-        GServerVersion = (((Minor & 0xff) | (Major << 8)) << 16) | (Build & 0xffff);
+        GServerVersion = ReadServerVersion(ModulePath);
 
         SetIsMPServer(true);
-        RegisterLoadingScreen(&GLoadingScreen);
+        RegisterLoadingScreen(GetServerLoadingScreen());
 
         // FServerControl's ctor, then InitInstance's SetServerPort(0) / SetMaxPlayers(16).
         memset(&GStartupInfo, 0, sizeof(GStartupInfo));
@@ -826,10 +734,8 @@ namespace
 
         if (Result == 0)
         {
-            SetRemoteClientSessionName(GServerName.c_str());
-            SetRemoteClientPassword(GServerPassword.c_str());
-            SetRemoteClientResponseData(GStartupInfo.bAllowPvp != 0, GStartupInfo.bAllowNewPlayers != 0,
-                (int)GServerVersion, GServerDescription.c_str(), Server.GetServerID(), Server.GetServerSig());
+            PublishServerSession(GServerName.c_str(), GServerPassword.c_str(), GStartupInfo.bAllowPvp != 0,
+                GStartupInfo.bAllowNewPlayers != 0, GServerVersion, GServerDescription.c_str());
 
             ServerLog(ErrorCode{ 0x100004 }, "Server \"%s\": %u players, port %u, PvP %s, new players %s%s",
                 Narrow(GServerName).c_str(), GStartupInfo.MaxPlayers, GStartupInfo.Port,

@@ -8,7 +8,7 @@
 // src/Directory.Build.props).
 //
 // The retail layouts are those of the 32-bit build, so the checks apply to Win32 only. The
-// port-only x64 build (docs/x64.md) has 8-byte pointers, and with them other sizes and
+// x64 build (PORT(x64), docs/x64.md) has 8-byte pointers, and with them other sizes and
 // offsets; there the macro checks nothing. It still expands to a declaration, so it is valid
 // wherever static_assert is, followed by the same semicolon.
 //

@@ -8,6 +8,29 @@ Closed entries are deleted from the file; their history lives in git. An entry i
 
 Differences that follow from the "No retail ABI" rule (modern `std::` containers instead of VC6 nodes, struct sizes) are not counted as debt and are not recorded here.
 
+## Port-only features
+
+Features the port adds on purpose, with no retail counterpart. Their code is tagged
+`// PORT(<tag>)` (see [refactoring.md](refactoring.md#port-only-code)). Switches are MSBuild
+properties in `src/Directory.Build.props` (and the "Freelancer — diagnostics" property sheet)
+unless the row says otherwise. "Off" in the compatibility column means the switch at 0.
+
+| Feature (tag) | Switch → define | Default | Where | Retail compatibility | Doc |
+|---|---|---|---|---|---|
+| Walk mode (`walk`) | `FreelancerWalkMode` → `FREELANCER_WALK_MODE` (client only) | 1 | `freelancer/Client/base_walk.cpp`; hooks in `gameflow`, `gf_character_object`, `input_manager`, `menu_keymap`, `nav_bar`, `nn_main_button`, `room_control`, `screen_quad_state`, `win3d*` | Off: the client is retail's. On: controlling Trent in base rooms, client-side only; no save, server or packet change | [walk_mode.md](../walk_mode.md) |
+| Widescreen (`widescreen`) | `FreelancerWidescreenSupport` → `FREELANCER_WIDESCREEN_SUPPORT` (client only) | 1 | `freelancer/Client/widescreen.h`, `hud_widescreen.*`; cameras, HUD, fonts, nav map, settings page, `win3d.cpp` | Off: retail's 4:3 client. On: Hor+ cameras and device resolutions; the interface stays 4:3 in the centre | [below](#client-widescreen-resolutions-hor-cameras-widescreen-2026-10-16), [hd_edition.md](../hd_edition.md) |
+| Direct3D 9 pipeline and volumetric nebula (`rp9`) | `FreelancerRp9` → `FREELANCER_RP9` (client hooks); `RP9.vcxproj` builds nothing at 0 | 0 | `src/RP9`, `freelancer/Client/render_ex.cpp`, `nebula_volume.cpp`; hooks in `cli_nebula`, `cli_asteroid`, `space_scene_obj_draw`, `star_sphere`, `star_sys`, `client_gameobj`, `engine_init`, `main` | Off: neither RP9.dll nor the hooks are built. On: RP9 runs only when `DACOM.INI` selects `DirectX9`; with RP8 every hook takes the retail path | [rp9.md](rp9.md) |
+| SDL3 + SDL_GPU pipeline (`rpgpu`) | Built when vcpkg is found; chosen in `DACOM.INI` | RP8 selected | `src/RPGPU` | Opt-in renderer behind RP8's interface IDs; no other module changes | [rpgpu.md](rpgpu.md) |
+| Diagnostics (`diag`) | `FreelancerBetaLabel` → `FREELANCER_BETA_LABEL`; `FreelancerEnableTickProfile` → `FREELANCER_ENABLE_TICK_PROFILE`; the FDUMP echo is always on | 0, 0 | `freelancer/Client/client_tick_profile.*`, `client_frame_tick.cpp`, `include/common_tick_profile.h`, `Common/physics_tick_profile.h`, IVP environment, `Common/common_errorhandler.cpp` | Both off: nothing is drawn. Adds the port-only export `PhySys::SetTickProfile`; the FDUMP echo also writes to the debugger | [below](#client-beta-label-and-on-screen-profiler-client-beta-label-2026-10-12), [FdumpHook](#commondll-errorhandlerfdumphook-extra-debugger-output-2026-09-27) |
+| Side indexes (`perf-index`) | None: always compiled | On | `freelancer/Client/client_objdb.cpp`, `Server/server_classes.cpp`, `include/server_sysdb.h`, `Common/common_cobject.cpp` (+ the `ClassListKeysChanged` callers), `SoundManager/SoundManager.cpp` | Same results in the same order as the retail walks they answer; containers, layouts and packets unchanged; `_DEBUG` builds cross-check against the walk | [scaling.md](../scaling.md), part A |
+| x64 build (`x64`) | `Platform=x64` | Win32 | `_WIN64` / non-`_M_IX86` branches; `include/x64_low_arena.h`, `x87_portable.h`, `x87_trig.h`, `facet_offset.h`, `fl_layout.h` | Win32 output unchanged (CI compares FLRegress and RpcCodecTest). x64 modules do not mix with retail DLLs; the wire protocol is the same | [x64.md](../x64.md) |
+| DPNet (`dpnet`) | `FREELANCER_DPNET`, set by `DALib.vcxproj` for x64 | x64 only | `src/DPNet`, `DALib/DPNetAdapter.*`, `DALib/CDPServer.cpp`, `src/DPNetCheck` | Win32 keeps Microsoft's `dpnet.dll`; the x64 server is wire-compatible with retail clients | [dpnet.md](../dpnet.md) |
+| FLRegress (`flregress`) | Own program | Built | `src/FLRegress` | Changes no retail module | [flregress.md](../flregress.md) |
+| FLDedicated (`dedicated`) | Own program | Built | `src/FLDedicated` | Loads the same modules as FLServer.exe; retail clients see the same server | [dedicated_server.md](../dedicated_server.md) |
+| Test tools (`tools`) | Own programs | Built | `src/RpcCodecTest`, `src/MemoryDiagnostics` | Changes no retail module | [testing.md](../testing.md), [memory_diagnostics.md](../memory_diagnostics.md) |
+| Platform layer (untagged) | None | On | `include/platform.h`, `platform_folders.h` | Each function is the single Win32 call retail made, with the same arguments | [platform.md](../platform.md) |
+| Single-instance guard (`deviation`) | `FL_SINGLE_INSTANCE` (nothing defines it) | Undefined: guard off | `freelancer/Client/main.cpp` | Several clients can run on one machine; defining it restores retail | [below](#client-single-instance-guard-behind-fl_single_instance) |
+
 ## Client: Beta label and on-screen profiler (CLIENT-BETA-LABEL, 2026-10-12)
 
 Status: OPEN — intentional deviation at the owner's direct request. Owner: Giperion; freelancer.exe / Client and Common.dll / IVP. Removal condition: only an explicit instruction from Giperion; do not close on a retail audit, a version change or completion of the port.

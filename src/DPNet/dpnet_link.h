@@ -1,4 +1,4 @@
-// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation (port-only, not part of retail).
+// Freelancer Decomp: DPNet, a DirectPlay 8 protocol implementation -- PORT(dpnet), not part of retail.
 //
 // FLink is one [MC-DPL8R] connection: the CONNECT/CONNECTED handshake, sequenced data frames
 // with acknowledgements, SACK and send masks, retries, coalescing, large-message reassembly,

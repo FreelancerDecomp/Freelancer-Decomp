@@ -314,7 +314,7 @@ namespace ErrorHandler
         // (dacom.h) is void.
         void __cdecl FdumpHook(int Flags, char const* Format, ...)
         {
-            // Port-only debugger echo (owner's lines, kept on purpose): format once and
+            // PORT(diag): debugger echo (owner's lines, kept on purpose): format once and
             // send it to the debugger. Not part of retail.
             char Buffer[1024];
             va_list Args;

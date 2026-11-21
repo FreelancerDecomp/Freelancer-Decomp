@@ -60,7 +60,7 @@ namespace AlchemyImpl
     __declspec(noinline) std::int64_t ConvertAlchemyFpuInteger(const double& Value)
     {
 #if !defined(_M_IX86)
-        // Port-only x64: no x87 control word; truncation is the conversion's own rounding, and
+        // PORT(x64): no x87 control word; truncation is the conversion's own rounding, and
         // NaN / overflow give the integer indefinite, as FISTP does (x87_portable.h).
         return X87TruncateToInt64(Value);
 #else

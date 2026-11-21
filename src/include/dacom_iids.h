@@ -117,7 +117,7 @@ namespace Iids
     static constexpr char VMeshLibrary[] = "1.11_IVMeshLibrary";
     static constexpr char VMeshWire[] = "1.11_IVMeshWire";
 
-    // PORT-ONLY ids (no retail binary has them): the Direct3D 9 extensions of RP9.dll
+    // PORT(rp9): ids no retail binary has: the Direct3D 9 extensions of RP9.dll
     // (render/IRenderPipelineEx.h). RP8.dll does not answer them -- a failed QueryInterface
     // means "Direct3D 8, use the retail path".
     static constexpr char RenderPipelineEx[] = "RP9_IRenderPipelineEx";

@@ -51,8 +51,8 @@
 #include <wchar.h>
 #include <stdarg.h>
 #include <algorithm>
-#include <unordered_map> // port-only id index of the ObjectList blocks (ObjectList::find_by_id)
-#include <cassert>       // port-only: the id index's _DEBUG cross-check
+#include <unordered_map> // PORT(perf-index): the ObjectList blocks' id index (find_by_id)
+#include <cassert>       // PORT(perf-index): the id index's _DEBUG cross-check
 
 #pragma comment(lib, "winmm.lib")
 
@@ -6557,7 +6557,7 @@ void StarSystem::sp_obj_update(SSPObjUpdateInfo const& Info, unsigned int Sessio
     // node ? node->Next : Head`, a null node returns. Each node's wrapper (null
     // tested), its CBase::Object under (& 3), and that CSimple's Id (+0xb0) read
     // without a test on the narrowing.
-    // Port-only: the walk is ObjectList::find_by_id's (FUN_06cf4f00) -- the first node whose
+    // PORT(perf-index): the walk is ObjectList::find_by_id's (FUN_06cf4f00) -- the first node whose
     // object's get_id, the same CSimple::Id (+0xb0) read, matches -- so the Ships block's id
     // index answers it. A node without a CSimple faults there as it does here: a null-page
     // read before any side effect.
@@ -6764,7 +6764,7 @@ unsigned int ObjectList::collect_in_sphere(unsigned int* OutIds, unsigned int Ma
 //   .text:06cf4f27  CMP EAX,EDI / JNZ -- the first match ends the walk
 //   .text:06cf4f2c  return node (null when nothing matched)
 //
-// Port-only id index (no retail counterpart). StarSystem::find_object runs this
+// PORT(perf-index): id index (no retail counterpart). StarSystem::find_object runs this
 // walk on up to seven blocks per lookup, so a station costs a get_id call on
 // every ship, projectile and loot crate first. The index below remembers, per
 // block, the FIRST node of each id in list order -- exactly the node the walk
@@ -6979,7 +6979,7 @@ MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
     std::unordered_map<unsigned int, FObjectListIdEntry>::const_iterator const Hit = Index.ById.find(Id);
     if (Hit != Index.ById.end()) {
 #ifdef _DEBUG
-        // Port-only cross-check: the index's node is the retail walk's. Every
+        // PORT(perf-index): cross-check: the index's node is the retail walk's. Every
         // node before it is indexed, so the walk cannot fault on the way.
         assert(ObjectList_WalkById(Head, Id) == Hit->second.First);
 #endif
@@ -6987,7 +6987,7 @@ MetaNode<GameObject>* ObjectList::find_by_id(unsigned int Id) const
     }
     // Every node before WalkFrom has another id; the walk goes on from there.
 #ifdef _DEBUG
-    // Port-only cross-check of the miss: no node the index covers (all readable,
+    // PORT(perf-index): cross-check of the miss: no node the index covers (all readable,
     // so the walk cannot fault here) has this id.
     for (MetaNode<GameObject>* Node = Head; Node != Index.WalkFrom; Node = Node->Next)
         assert(static_cast<unsigned int>(Node->Data->get_id()) != Id);
@@ -7939,7 +7939,7 @@ static float const kViewRadiusSqGroupMate = 1.0e8f;   // .rdata:06d66af4
 static unsigned int const kSolarTypeBits = 0x0000FDFFu;
 
 // ---------------------------------------------------------------------------
-// Port-only index of an Observer's tracked list (no retail counterpart).
+// PORT(perf-index): index of an Observer's tracked list (no retail counterpart).
 //
 // Retail answers "is this object in the player's view" with a walk of the
 // view's tracked list: FUN_06cf73d0 compares each record's object pointer,
@@ -8095,7 +8095,7 @@ FObserverTrackedList::FObserverTrackedList()
     Sentinel->Prev = Sentinel;
     Head = Sentinel;                  // .text:06cf5214
     Size = 0;                         // .text:06cf5217
-    TrackedIndex_Reset(*this); // port-only (see the index above)
+    TrackedIndex_Reset(*this); // PORT(perf-index) (see the index above)
 }
 
 // .text:06d0f705 .. 06d0f778 (inside FUN_06d0f6d0).
@@ -8123,7 +8123,7 @@ FObserverTrackedList::FObserverTrackedList(FObserverTrackedList const& Source)
         Node->Data = Src->Data;
         ++Size;
     }
-    TrackedIndex_Reset(*this); // port-only: usable only when the copy is empty
+    TrackedIndex_Reset(*this); // PORT(perf-index): usable only when the copy is empty
 }
 
 // .text:06cf538d .. 06cf53ca (the tail of FUN_06cf52d0). MSVC6's ~list():
@@ -8147,7 +8147,7 @@ FObserverTrackedList::~FObserverTrackedList()
     delete Sentinel;                  // .text:06cf53bb
     Head = nullptr;                   // .text:06cf53c7
     Size = 0;                         // .text:06cf53ca
-    TrackedIndex_Drop(*this); // port-only (see the index above)
+    TrackedIndex_Drop(*this); // PORT(perf-index) (see the index above)
 }
 
 // ---------------------------------------------------------------------------
@@ -8232,7 +8232,7 @@ Observer::~Observer()
         delete Node->Data;
     }
     // Pass 2, .text:06cf532f .. 06cf5353: FUN_06d0f620 = list::erase(node) on
-    // every node -- unlink, free, --size. The port-only index forgets them all
+    // every node -- unlink, free, --size. The PORT(perf-index) index forgets them all
     // first (pass 1 freed the records it would otherwise read).
     TrackedIndex_Drop(Tracked);
     Node = Sentinel->Next;
@@ -8286,7 +8286,7 @@ SystemTrackedObject* SystemPlayerView_AddTrackedObject(Observer* View, GameObjec
 
     // .text:06cf71e4  INC dword ptr [EDI + 0x10]
     ++View->Tracked.Size;
-    TrackedIndex_OnAppend(View->Tracked, Node); // port-only (see the index above)
+    TrackedIndex_OnAppend(View->Tracked, Node); // PORT(perf-index) (see the index above)
 
     // .text:06cf71e7 .. .text:06cf7237 -- outside single player, prime the
     // simulation with the object's current state. SinglePlayer() is called a
@@ -8413,7 +8413,7 @@ static SystemTrackedNode* SystemPlayerView_FindByPointer(Observer* View, GameObj
     // (AddTrackedObject is the only producer), so retail tests neither:
     // `MOV ECX,[EAX + 0x8]` / `CMP [ECX],ESI`.
     SystemTrackedNode* Indexed;
-    if (TrackedIndex_FindByObject(View->Tracked, Obj, Indexed)) // port-only
+    if (TrackedIndex_FindByObject(View->Tracked, Obj, Indexed)) // PORT(perf-index)
         return Indexed;
     SystemTrackedNode* const Sentinel = View->Tracked.Head;
     for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
@@ -8430,7 +8430,7 @@ static SystemTrackedNode* SystemPlayerView_FindById(Observer* View, unsigned int
     // / 06cf6853 `MOV ESI,[EAX]`, then per node 06cf6860 `MOV EDX,[ESI+0x8]` /
     // 06cf6863 `MOV ECX,[EDX]` / 06cf6867 `CALL [EAX+0x20]` (get_id).
     SystemTrackedNode* Indexed;
-    if (TrackedIndex_FindById(View->Tracked, ObjId, Indexed)) // port-only
+    if (TrackedIndex_FindById(View->Tracked, ObjId, Indexed)) // PORT(perf-index)
         return Indexed;
     SystemTrackedNode* const Sentinel = View->Tracked.Head;
     for (SystemTrackedNode* Node = Sentinel->Next; Node != Sentinel; Node = Node->Next) {
@@ -8502,7 +8502,7 @@ void SystemPlayerView_SendObjectUpdate(Observer* View, FCommonUpdateObjectInfo c
         return;
 
     // The walk is SystemPlayerView_FindById's (first record whose object's
-    // get_id() is the id), answered from the port-only index when it can.
+    // get_id() is the id), answered from the PORT(perf-index) index when it can.
     SystemTrackedNode* const Node = SystemPlayerView_FindById(View, Rec->ObjectId);
     if (Node == nullptr)
         return;
@@ -8722,7 +8722,7 @@ bool SystemPlayerView_OnObjectDestroyed(Observer* View, GameObject* Obj, int Kin
     // CRemotePhysicsSimulation (FUN_06cf6940 is `ADD ECX,8` then a tail jump
     // into COMMON.DLL::CRemotePhysicsSimulation::~CRemotePhysicsSimulation)
     // and free the record.
-    TrackedIndex_OnRemove(View->Tracked, Node); // port-only, before the record goes
+    TrackedIndex_OnRemove(View->Tracked, Node); // PORT(perf-index): before the record goes
     if (Record != nullptr) {
         // Record::Simulation is a real CRemotePhysicsSimulation by value now, so
         // `delete` runs its destructor -- which is exactly what FUN_06cf6940
@@ -9244,7 +9244,7 @@ void SystemPlayerView_OnObjectLeftSystem(Observer* View,
     if (Node != nullptr) {
         SystemTrackedObject* const Record = Node->Data;
         bWasCreatedOnClient = (Record->bCreatedOnClient != false);
-        TrackedIndex_OnRemove(View->Tracked, Node); // port-only
+        TrackedIndex_OnRemove(View->Tracked, Node); // PORT(perf-index)
         delete Record;                   // .text:06cf6eaa FUN_06cf6940 + free
         Node->Prev->Next = Node->Next;
         Node->Next->Prev = Node->Prev;
@@ -9307,7 +9307,7 @@ void SystemPlayerView_OnObjectLanded(Observer* View,
     if (Node != nullptr) {
         SystemTrackedObject* const Record = Node->Data;
         bWasCreatedOnClient = (Record->bCreatedOnClient != false);
-        TrackedIndex_OnRemove(View->Tracked, Node); // port-only
+        TrackedIndex_OnRemove(View->Tracked, Node); // PORT(perf-index)
         delete Record;
         Node->Prev->Next = Node->Next;
         Node->Next->Prev = Node->Prev;
@@ -11468,7 +11468,7 @@ static void StarSystem_DeleteBlock(ObjectList& List)
     }
     List.Tail = nullptr;
     List.Head = nullptr;
-    List.invalidate_index(); // port-only: the id index (ObjectList::find_by_id)
+    List.invalidate_index(); // PORT(perf-index): the id index (ObjectList::find_by_id)
 }
 
 void StarSystem::unload()
@@ -12269,7 +12269,7 @@ bool Server_DestroyInTransit(GameObject* Obj)
     return true;
 }
 
-// Port-only (no retail counterpart): true when every block StarSystem::find_object
+// PORT(perf-index): true when every block StarSystem::find_object
 // searches is empty. SysDB::SysMap holds every system of the universe, loaded or
 // not, and Server_FindObject's miss path asks each one in turn. For such a system
 // find_object(Id) returns null and does nothing else: it is non-virtual, writes
@@ -12366,7 +12366,7 @@ bool Server_FindObject(unsigned int const& Id, GameObject*& OutObj, StarSystem*&
                 {
                     if (&SysIt->second == GLookupCacheSystem)
                         continue;
-                    // Port-only: a system with nothing in find_object's blocks
+                    // PORT(perf-index): a system with nothing in find_object's blocks
                     // can only answer null (see StarSystem_FindObjectBlocksEmpty).
                     if (StarSystem_FindObjectBlocksEmpty(SysIt->second))
                         continue;

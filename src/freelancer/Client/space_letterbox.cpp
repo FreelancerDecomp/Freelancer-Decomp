@@ -14,7 +14,7 @@
 #include "globals.h"
 #include "room_camera.h"
 #include "space_camera.h"
-#include "widescreen.h"   // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 
 #include "common_text.h"
 
@@ -149,8 +149,8 @@ int GetLetterboxBarHeight(float Amount)
     // 0x0041a525 / 0x0041a52b: floor then ftol, in that order, so the +0.5 above is the rounding
     // and the floor is what makes it a round-half-up rather than a truncation.
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only: retail never sees a surface wider than 1.85, where the formula goes negative
-    // and the "bars" would grow the viewport past the surface. Such a surface gets none.
+    // PORT(widescreen): retail never sees a surface wider than 1.85, where the formula goes
+    // negative and the "bars" would grow the viewport past the surface. Such a surface gets none.
     const int BarHeight = static_cast<int>(floor(Bars));
     return BarHeight > 0 ? BarHeight : 0;
 #else
@@ -255,7 +255,7 @@ void UpdateRoomLetterbox(FRoomCamera* Cam, float DeltaSeconds)
     const double TanX =
         tan((static_cast<double>(HalfFovXDeg) + static_cast<double>(HalfFovXDeg)) * kPiOver360);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+ (room_camera.cpp): +0x14 keeps the 4:3 angle; the full-width rectangle
+    // PORT(widescreen) (room_camera.cpp): +0x14 keeps the 4:3 angle; the full-width rectangle
     // widens +0x24 and the X plane, so the bars only crop height.
     const double TanXWide = TanX * WidescreenHorPlusScale(Bounds.Width);
 #else

@@ -715,7 +715,7 @@ FCommWindow::FCommWindow()
     Rect[1] = 0;
     Rect[2] = 1;
     Rect[3] = 1;
-    memset(Unknown14, 0, sizeof(Unknown14)); // port-only: retail never writes +0x14..+0x23
+    memset(Unknown14, 0, sizeof(Unknown14)); // PORT(deviation): retail never writes +0x14..+0x23
     WinPos.X = 0.3f;
     WinPos.Y = 0.3f;
     WinPos.Z = -1.0f;

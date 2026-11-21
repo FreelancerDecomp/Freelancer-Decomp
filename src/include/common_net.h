@@ -623,7 +623,7 @@ FL_LAYOUT_ASSERT(sizeof(CPlayerAccount) == 0x0C, "CPlayerAccount size");
 // Freelancer.exe's inlined copy of AsteroidExclusionZoneMgr::set_max_cliasteroid_exclusion_
 // distance (defined in cli_asteroid.cpp; befriended below, not exported).
 struct FCliAsteroidExclusionInline;
-// Port-only reader of NebulaExclusionZoneMgr's zone list for the Direct3D 9 volumetric nebula
+// PORT(rp9): reader of NebulaExclusionZoneMgr's zone list for the Direct3D 9 volumetric nebula
 // (freelancer.exe Client/nebula_volume.cpp; befriended below, not exported, read-only).
 struct FNebulaVolumeExclusionAccess;
 
@@ -836,7 +836,7 @@ public:
     void set_max_distance(float Dist);
 
 private:
-    // Port-only: reads [Begin, End) (Client/nebula_volume.cpp). No layout or export change.
+    // PORT(rp9): reads [Begin, End) (Client/nebula_volume.cpp). No layout or export change.
     friend struct ::FNebulaVolumeExclusionAccess;
 
     unsigned char         ZonesAllocator;         // +0x04 VC6 vector allocator byte, never read

@@ -25,7 +25,7 @@
 #include "server_connect.h"    // GetLocalServerInterface (DAT_0067ecd0)
 #include "space_camera.h"      // FSpaceCamera (DAT_0067dbf8)
 #include "tooltip_hover.h"     // FToolTipHoverInfo / NnToolTipFeedHover (FUN_004be370)
-#include "widescreen.h"      // port-only Hor+ (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"      // PORT(widescreen)
 #include "win3d.h"
 
 #include "DALib.h"
@@ -753,7 +753,7 @@ void FCharacterObject::PickLods(ICamera* Camera)
     // 0x00445023..0x0044503f: the half field of view (ICamera slot 6) and the surface width.
     float const HalfFov = Camera->GetHalfFovXDeg();
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: slot 6 is the angle on a 4:3 surface, so the LOD pairs it with the width
+    // PORT(widescreen): slot 6 is the angle on a 4:3 surface, so the LOD pairs it with the width
     // of that surface and picks what a 4:3 screen of this height would.
     float const SurfaceWidth = static_cast<float>(WidescreenEquivalentSurfaceWidth());
 #else

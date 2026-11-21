@@ -4,7 +4,7 @@
 #pragma once
 
 // Portable equivalents of the short x87 sequences retail is built from (the packet codecs, the
-// client's compare-and-branch blocks), for the port-only x64 build (docs/x64.md), which has no
+// client's compare-and-branch blocks), for the x64 build (PORT(x64), docs/x64.md), which has no
 // inline assembly. The Win32 build keeps
 // its inline x87; these are used only where _M_IX86 is not defined.
 //

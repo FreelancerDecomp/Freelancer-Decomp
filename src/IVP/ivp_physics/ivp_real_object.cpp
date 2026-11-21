@@ -2132,7 +2132,7 @@ int32_t IVP_SurfaceManager_Default::get_type()
 // object with a constructor and destructor is exactly that.
 IVP_SurfaceManager_Default g_IVP_DefaultSurfaceManager_0658afe0;
 
-// Port-only accessor (retail has no getter -- see ivp_surface_manager.h).
+// PORT(api): accessor (retail has no getter -- see ivp_surface_manager.h).
 IVP_SurfaceManager* IVP_GetDefaultSurfaceManager()
 {
     return &g_IVP_DefaultSurfaceManager_0658afe0;

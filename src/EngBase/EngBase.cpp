@@ -3089,7 +3089,7 @@ static void* FreeListAlloc(FEngBaseFreeList* List)
         return Element;
     }
 #if defined(_WIN64)
-    // Port-only: handles stay below 2 GB, where retail's 32-bit fields keep them (x64_low_arena.h).
+    // PORT(x64): handles stay below 2 GB, where retail's 32-bit fields keep them (x64_low_arena.h).
     return LowArena::Allocate(List->ElementSize);
 #else
     return std::malloc(List->ElementSize);

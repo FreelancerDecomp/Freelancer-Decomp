@@ -4,7 +4,7 @@
 Это расширение клиента, а не восстановление поведения оригинальной игры.
 
 Сборка — свойство `FreelancerWalkMode` (`src/Directory.Build.props`,
-`src/Freelancer.Diagnostics.props`, страница свойств VS «Features»), по умолчанию `0`. Весь код
+`src/Freelancer.Diagnostics.props`, страница свойств VS «Features»), по умолчанию `1`. Весь код
 (`base_walk.cpp` и хуки в `gameflow`, `gf_character_object`, `input_manager`, `menu_keymap`,
 `nav_bar`, `nn_main_button`, `room_control`, `screen_quad_state`, `win3d*`) стоит под
 `#ifdef FREELANCER_WALK_MODE`; при `0` клиент совпадает с master.

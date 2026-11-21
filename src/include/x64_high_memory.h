@@ -3,7 +3,7 @@
 
 #pragma once
 
-// A test switch for the port-only x64 build (docs/x64.md): with FL_HIGH_MEMORY=1 in the
+// A test switch for the x64 build (PORT(x64), docs/x64.md): with FL_HIGH_MEMORY=1 in the
 // environment, a program reserves all free address space below 4 GB when it starts, so later
 // allocations, file mappings and DLLs land above it. Code that still keeps an address in 32 bits
 // then fails at once, not only when the address happens to be high.

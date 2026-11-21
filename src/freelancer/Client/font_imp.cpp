@@ -12,7 +12,7 @@
 #include "font_atlas.h"
 #include "font_string.h"
 #include "globals.h"
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "screen_quad_state.h"
 
 #include <cmath>
@@ -211,7 +211,7 @@ int FontImp::SearchScaleDelta(float Fixed, int ScreenW, int ScreenH, float Targe
 
 namespace
 {
-    // DAT_00610850 as both scale-delta searches read it. Port-only under
+    // DAT_00610850 as both scale-delta searches read it. PORT(widescreen), under
     // FREELANCER_WIDESCREEN_SUPPORT: the width a 4:3 surface of this height would have, so the
     // pangram is fitted to the same share of the (Hor+, height-scaled) interface as on 4:3 --
     // the full width would grow every font by the Hor+ factor. It is also the cache key, which

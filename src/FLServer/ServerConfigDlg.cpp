@@ -15,6 +15,7 @@
 #include "RichEditText.h"
 #include "msvcrt_compat.h"      // MsvcrtAtoi
 #include "server_playerdb.h"    // Players
+#include "server_host.h"        // FServerConfigFile, Read/WriteServerConfigFile
 
 namespace
 {
@@ -22,24 +23,10 @@ namespace
 	const UINT IdsBadMaxPlayers = 0xf006;   // "...That number must be between 1 and 128."
 	const UINT IdsNoServerName = 0xf007;    // "You must provide a name for your server."
 	const UINT IdsLegalNotice = 0xf02d;
-
-	// FLServer.cfg — written and read field by field in this order (binary, "wb" / "rb").
-	// Version 2 files lack the trailing bAllowPvp byte. Retail keeps every field as a separate
-	// local of OnInitDialog / OnOK.
-	struct FServerConfigFile
-	{
-		int Version;                   // 3 when written
-		wchar_t ServerName[0x21];      // 0x42 bytes
-		wchar_t Description[0x81];     // 0x102 bytes
-		wchar_t Password[0x11];        // 0x22 bytes
-		bool bAllowNewPlayers;         // 1 byte
-		bool bInternetAccessible;      // 1 byte
-		int MaxPlayers;                // 4 bytes
-		bool bAllowPvp;                // 1 byte, version 3 only
-	};
-
-	const char* const ConfigFileName = "FLServer.cfg";
 }
+
+// FServerConfigFile and its read and write (FLServer.cfg) are shared with FLDedicated:
+// src/ServerHost/server_host.cpp.
 
 CServerConfigDlg::CServerConfigDlg(CWnd* Parent)
 	: CDialog(IDD, Parent)
@@ -80,26 +67,7 @@ BOOL CServerConfigDlg::OnInitDialog()
 	Config.MaxPlayers = 0x10;
 
 	char Path[0x400] = "";
-	Players.MakeLocalUserPath(Path, ConfigFileName);
-	FILE* File = fopen(Path, "rb");
-	if (File != nullptr)
-	{
-		fread(&Config.Version, 4, 1, File);
-		if (Config.Version == 2 || Config.Version == 3)
-		{
-			fread(Config.ServerName, sizeof(Config.ServerName), 1, File);
-			fread(Config.Description, sizeof(Config.Description), 1, File);
-			fread(Config.Password, sizeof(Config.Password), 1, File);
-			fread(&Config.bAllowNewPlayers, 1, 1, File);
-			fread(&Config.bInternetAccessible, 1, 1, File);
-			fread(&Config.MaxPlayers, 4, 1, File);
-			if (Config.Version == 3)
-			{
-				fread(&Config.bAllowPvp, 1, 1, File);
-			}
-		}
-		fclose(File);
-	}
+	const bool bConfigRead = ReadServerConfigFile(Config, Path);
 
 	::SendMessage(MaxPlayersSpin->m_hWnd, UDM_SETRANGE, 0, MAKELONG(0x80, 1));
 	::SendMessage(MaxPlayersSpin->m_hWnd, UDM_SETPOS, 0, (WORD)Config.MaxPlayers);
@@ -119,8 +87,8 @@ BOOL CServerConfigDlg::OnInitDialog()
 
 	// Command-line /C switch (FServerControl+0x9ae, .text:00406b3b): with a saved configuration,
 	// accept it without showing the dialog. Retail tests the (already closed) FILE pointer for
-	// non-null.
-	if (GApp->ServerControl.bAutoAcceptConfig && File != nullptr)
+	// non-null, which is whether the file opened.
+	if (GApp->ServerControl.bAutoAcceptConfig && bConfigRead)
 	{
 		OnOK();
 	}
@@ -167,19 +135,6 @@ void CServerConfigDlg::OnOK()
 
 	Players.BuildLocalUserDir();
 	char Path[0x400] = "";
-	Players.MakeLocalUserPath(Path, ConfigFileName);
-	FILE* File = fopen(Path, "wb");
-	if (File != nullptr)
-	{
-		fwrite(&Config.Version, 4, 1, File);
-		fwrite(Config.ServerName, sizeof(Config.ServerName), 1, File);
-		fwrite(Config.Description, sizeof(Config.Description), 1, File);
-		fwrite(Config.Password, sizeof(Config.Password), 1, File);
-		fwrite(&Config.bAllowNewPlayers, 1, 1, File);
-		fwrite(&Config.bInternetAccessible, 1, 1, File);
-		fwrite(&Config.MaxPlayers, 4, 1, File);
-		fwrite(&Config.bAllowPvp, 1, 1, File);
-		fclose(File);
-	}
+	WriteServerConfigFile(Config, Path);
 	CDialog::OnOK();
 }

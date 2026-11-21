@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// RP9 Ex: the port-only Direct3D 9 extensions of RP9.dll -- IRenderPipelineEx and IRPDrawEx
+// PORT(rp9): RP9 Ex, the Direct3D 9 extensions of RP9.dll -- IRenderPipelineEx and IRPDrawEx
 // (render/IRenderPipelineEx.h). Retail and RP8 have nothing like this; the code below is new
 // port feature work, not a mirror of an RP8 function. docs/re/rp9.md, "Ex extensions",
 // describes the contract.
