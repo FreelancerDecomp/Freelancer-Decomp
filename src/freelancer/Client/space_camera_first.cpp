@@ -291,7 +291,7 @@ void FirstPersonCameraUpdate(FFirstPersonCamera* Cam, float DeltaSeconds)
             reinterpret_cast<const unsigned char*>(Hud->Watched.target()));
         if (Held != nullptr)
         {
-            unsigned char* const Object = Held - 8;
+            unsigned char* const Object = Held - FL_OBJRW_WATCHABLE_OFFSET;
             if (Object != nullptr)
             {
                 unsigned char* const Plus0c = Object + 0xc;
@@ -512,7 +512,7 @@ void FirstPersonCameraSceneDraw(FFirstPersonCamera* Cam, unsigned LayerFlags, un
         reinterpret_cast<const unsigned char*>(Hud->Watched.target());
     if (Held == nullptr)
         return;
-    if (Held - 8 == nullptr)
+    if (Held - FL_OBJRW_WATCHABLE_OFFSET == nullptr)
         return;
 
     // 0x0051843f..0x0051844a: FUN_0051c200(LayerFlags, Param2).

@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "common_iustategraph.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "common_systemmanager.h"   // SystemManager (Watcher at +0x08, owner FAiTarget at +0x14FC)
 #include "common_misc.h"
@@ -39,7 +40,7 @@ namespace
         {
             return nullptr;
         }
-        unsigned char* const Raw = reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - 8;
+        unsigned char* const Raw = reinterpret_cast<unsigned char*>(const_cast<Watchable*>(Watched)) - FL_OBJRW_WATCHABLE_OFFSET;
         if (Raw == nullptr)
         {
             return nullptr;

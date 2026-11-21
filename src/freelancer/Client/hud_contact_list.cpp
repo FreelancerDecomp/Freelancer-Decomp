@@ -127,7 +127,7 @@ namespace
         {
             return nullptr;
         }
-        return reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + 8);
+        return reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + FL_OBJRW_WATCHABLE_OFFSET);
     }
 
     // The chain retail inlines on the player object: IObjRW + 0xc (the IObjInspectImpl CBase),

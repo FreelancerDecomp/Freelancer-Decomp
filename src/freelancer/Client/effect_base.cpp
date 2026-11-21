@@ -9,6 +9,7 @@
 // Agent: cursor:equip-fx-factory.
 
 #include "effect_base.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "beam_effect.h"
 #include "effect_type_info.h"      // EffectTypeInfoByIndex (FUN_004fd560)
@@ -193,7 +194,7 @@ void FEffectBase::Attach(void* WatchableOwner, int EngineIndex, FTransform const
     Watchable const* WatchablePtr = nullptr;
     if (WatchableOwner != nullptr)
         WatchablePtr =
-            reinterpret_cast<Watchable const*>(static_cast<unsigned char*>(WatchableOwner) + 8);
+            reinterpret_cast<Watchable const*>(static_cast<unsigned char*>(WatchableOwner) + FL_OBJRW_WATCHABLE_OFFSET);
     if (WatchablePtr != This->Watcher.target())
         This->Watcher.set(WatchablePtr);
     This->EngineIndex = EngineIndex;
@@ -216,7 +217,7 @@ void* EffectWatchedObject(FEffectBase const* This)
         reinterpret_cast<unsigned char const*>(This->Watcher.target());
     if (Held == nullptr)
         return nullptr;
-    return const_cast<unsigned char*>(Held - 8);
+    return const_cast<unsigned char*>(Held - FL_OBJRW_WATCHABLE_OFFSET);
 }
 
 namespace

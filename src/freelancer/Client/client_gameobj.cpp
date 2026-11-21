@@ -5,6 +5,7 @@
 // Author: Giperion.
 
 #include "client_gameobj.h"
+#include "common_iface.h" // FL_OBJRW_WATCHABLE_OFFSET
 
 #include "DALib.h"
 #include "cli_projectile_fx.h"   // CliEffectListClear / FCliEquipFirePacket / fire-host ports
@@ -5088,7 +5089,7 @@ int FClientGuidedGameobj::set_target(IObjRW* Target, unsigned short SubTarget, i
     Watchable const* const Watched = Guided->TargetWatch.target();
     IObjRW const* const Current =
         (Watched != nullptr)
-            ? reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Watched) - 8)
+            ? reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Watched) - FL_OBJRW_WATCHABLE_OFFSET)
             : nullptr;
     if (Current == Target && Guided->SubTarget == SubTarget)
         return 0;
@@ -5108,7 +5109,7 @@ int FClientGuidedGameobj::set_target(IObjRW* Target, unsigned short SubTarget, i
     {
         Watchable const* const NewWatched =
             (Target != nullptr) ? reinterpret_cast<Watchable const*>(
-                                      reinterpret_cast<unsigned char const*>(Target) + 8)
+                                      reinterpret_cast<unsigned char const*>(Target) + FL_OBJRW_WATCHABLE_OFFSET)
                                 : nullptr;
         Guided->TargetWatch.set(NewWatched);
     }
@@ -5275,7 +5276,7 @@ namespace
         Watchable const* const Target = Watcher.target();
         if (Target == nullptr)
             return nullptr;
-        return reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Target) - 8);
+        return reinterpret_cast<IObjRW const*>(reinterpret_cast<unsigned char const*>(Target) - FL_OBJRW_WATCHABLE_OFFSET);
     }
 
     // FUN_0045aa10(out, first, last, &Obj): the first node from first up to last whose
@@ -5308,7 +5309,7 @@ void GameobjWatchListAdd(IObjRW* Obj)
     if (Obj != nullptr)
     {
         Watchable const* const Target =
-            reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + 8);
+            reinterpret_cast<Watchable const*>(reinterpret_cast<unsigned char const*>(Obj) + FL_OBJRW_WATCHABLE_OFFSET);
         G_GameobjWatchList.back().set(Target);
     }
 }
