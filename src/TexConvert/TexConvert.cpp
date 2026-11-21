@@ -225,7 +225,9 @@ namespace TexConvert
             }
         }
 
-        void DecodeBlock(unsigned int Format, const unsigned char* Block, FColor* Out)
+        // bKeepStored: DXT2 / DXT4 colour as stored, not multiplied by alpha, for re-encoding into
+        // DXT2 / DXT4 (multiplying on every pass would darken the image each time).
+        void DecodeBlock(unsigned int Format, const unsigned char* Block, FColor* Out, bool bKeepStored)
         {
             if (Format == kDxt1)
             {
@@ -237,7 +239,7 @@ namespace TexConvert
             {
                 for (int Index = 0; Index < 16; ++Index)
                     Out[Index].A = Unpack((Block[Index / 2] >> ((Index & 1) * 4)) & 0xF, 4);
-                if (Format == kDxt2)
+                if (Format == kDxt2 && !bKeepStored)
                     Premultiply(Out);
                 return;
             }
@@ -262,7 +264,7 @@ namespace TexConvert
                 Bits |= static_cast<std::uint64_t>(Block[2 + Byte]) << (Byte * 8);
             for (int Index = 0; Index < 16; ++Index)
                 Out[Index].A = Unpack(Alpha[(Bits >> (Index * 3)) & 7], 8);
-            if (Format == kDxt4)
+            if (Format == kDxt4 && !bKeepStored)
                 Premultiply(Out);
         }
 
@@ -362,8 +364,8 @@ namespace TexConvert
             Write32(Block + 4, Indices);
         }
 
-        // bPremultiplied: the pixels already carry colour x alpha (a DXT2 or DXT4 source, which the
-        // decoder hands back premultiplied), so a DXT2 / DXT4 target must not multiply again.
+        // bPremultiplied: the pixels already hold DXT2 / DXT4 stored colour (decoded with
+        // bKeepStored), so a DXT2 / DXT4 target stores them as they are.
         void EncodeBlock(unsigned int Format, const FColor* In, unsigned char* Block, bool bPremultiplied)
         {
             if (Format == kDxt1)
@@ -434,7 +436,7 @@ namespace TexConvert
 
         // --- whole images ------------------------------------------------------------------------
 
-        std::vector<FColor> DecodeImage(const FSource& Source)
+        std::vector<FColor> DecodeImage(const FSource& Source, bool bKeepStored)
         {
             std::vector<FColor> Pixels(static_cast<std::size_t>(Source.Width) * Source.Height);
             const unsigned char* const Base = static_cast<const unsigned char*>(Source.Bits);
@@ -446,7 +448,8 @@ namespace TexConvert
                     for (unsigned int Bx = 0; Bx < (Source.Width + 3) / 4; ++Bx)
                     {
                         FColor Block[16];
-                        DecodeBlock(Source.Format, Base + static_cast<std::size_t>(By) * Source.Pitch + Bx * Bytes, Block);
+                        DecodeBlock(Source.Format, Base + static_cast<std::size_t>(By) * Source.Pitch + Bx * Bytes, Block,
+                                    bKeepStored);
                         for (unsigned int Index = 0; Index < 16; ++Index)
                         {
                             const unsigned int X = Bx * 4 + Index % 4;
@@ -604,10 +607,16 @@ namespace TexConvert
         if (Destination.Format == kP8)
             return EResult::Failed;
 
-        std::vector<FColor> Pixels = DecodeImage(Source);
+        // DXT2 / DXT4 into DXT2 / DXT4: the stored (premultiplied) colour passes through as it is.
+        // Every other read of DXT2 / DXT4 multiplies by alpha, as D3DX does.
+        const bool bSourcePremultiplied = Source.Format == kDxt2 || Source.Format == kDxt4;
+        const bool bTargetPremultiplied = Destination.Format == kDxt2 || Destination.Format == kDxt4;
+        const bool bKeepStored = bSourcePremultiplied && bTargetPremultiplied;
+        std::vector<FColor> Pixels = DecodeImage(Source, bKeepStored);
         if (!bSameSize)
             Pixels = Resize(Pixels, Source.Width, Source.Height, Destination.Width, Destination.Height);
-        EncodeImage(Destination, Pixels, Source.Format == kDxt2 || Source.Format == kDxt4);
+        // A straight-alpha source into DXT2 / DXT4 is multiplied once; a kept-stored one is not.
+        EncodeImage(Destination, Pixels, bKeepStored);
         return (bSameSize && !IsBlock(Destination.Format)) ? EResult::Exact : EResult::Filtered;
     }
 }

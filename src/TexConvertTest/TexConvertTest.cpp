@@ -407,6 +407,98 @@ void CompareEncode(IDirect3DDevice8* Device, unsigned int Format)
         ++G_Different;
 }
 
+// Checks without D3DX: re-encoding DXT2 / DXT4 into DXT2 / DXT4 must not darken the image,
+// neither through repeated resizes nor from DXT2 into DXT4.
+std::vector<std::uint32_t> DecodeToArgb(unsigned int Format, const std::vector<unsigned char>& Bits,
+                                        unsigned int Width, unsigned int Height)
+{
+    std::vector<std::uint32_t> Pixels(Width * Height);
+    TexConvert::FImage Image;
+    Image.Format = TexConvert::kA8R8G8B8;
+    Image.Width = Width;
+    Image.Height = Height;
+    Image.Pitch = Width * 4;
+    Image.Bits = Pixels.data();
+    TexConvert::FSource Source;
+    Source.Format = Format;
+    Source.Width = Width;
+    Source.Height = Height;
+    Source.Pitch = TexConvert::RowPitch(Format, Width);
+    Source.Bits = Bits.data();
+    TexConvert::Load(Image, Source);
+    return Pixels;
+}
+
+std::vector<unsigned char> Reencode(unsigned int SrcFormat, const std::vector<unsigned char>& Bits,
+                                    unsigned int SrcW, unsigned int SrcH, unsigned int DstFormat,
+                                    unsigned int DstW, unsigned int DstH)
+{
+    std::vector<unsigned char> Out(static_cast<std::size_t>(TexConvert::RowPitch(DstFormat, DstW)) *
+                                   TexConvert::RowCount(DstFormat, DstH));
+    TexConvert::FImage Image;
+    Image.Format = DstFormat;
+    Image.Width = DstW;
+    Image.Height = DstH;
+    Image.Pitch = TexConvert::RowPitch(DstFormat, DstW);
+    Image.Bits = Out.data();
+    TexConvert::FSource Source;
+    Source.Format = SrcFormat;
+    Source.Width = SrcW;
+    Source.Height = SrcH;
+    Source.Pitch = TexConvert::RowPitch(SrcFormat, SrcW);
+    Source.Bits = Bits.data();
+    TexConvert::Load(Image, Source);
+    return Out;
+}
+
+void SelfCheck(const char* What, std::uint32_t Expected, std::uint32_t Got, int Tolerance)
+{
+    int Largest = 0;
+    for (int Shift = 0; Shift < 32; Shift += 8)
+    {
+        const int A = static_cast<int>((Expected >> Shift) & 0xFF);
+        const int B = static_cast<int>((Got >> Shift) & 0xFF);
+        Largest = std::max(Largest, A > B ? A - B : B - A);
+    }
+    ++G_Compared;
+    std::printf("SELF %s: %08x -> %08x, largest channel difference %d (tolerance %d)\n", What, Expected, Got,
+                Largest, Tolerance);
+    if (Largest > Tolerance)
+        ++G_Different;
+}
+
+void RunSelfChecks()
+{
+    // A 16x16 DXT2 image of identical blocks: stored colour mid grey, alpha 8/15.
+    const unsigned int Size = 16;
+    std::vector<unsigned char> Dxt2(static_cast<std::size_t>(TexConvert::RowPitch(TexConvert::kDxt2, Size)) *
+                                    TexConvert::RowCount(TexConvert::kDxt2, Size));
+    for (std::size_t Offset = 0; Offset < Dxt2.size(); Offset += 16)
+    {
+        std::memset(&Dxt2[Offset], 0x88, 8);      // alpha 8 / 15 everywhere
+        Dxt2[Offset + 8] = 0xEF;                  // colour 0 = 0x7BEF (mid grey)
+        Dxt2[Offset + 9] = 0x7B;
+        Dxt2[Offset + 10] = 0xEF;                 // colour 1 = the same
+        Dxt2[Offset + 11] = 0x7B;
+        std::memset(&Dxt2[Offset + 12], 0x00, 4); // every pixel colour 0
+    }
+    const std::uint32_t Start = DecodeToArgb(TexConvert::kDxt2, Dxt2, Size, Size)[0];
+
+    // Two halvings (16 to 8 to 4), each re-encoded into DXT2.
+    std::vector<unsigned char> Current = Dxt2;
+    unsigned int Width = Size;
+    for (int Pass = 0; Pass < 2; ++Pass)
+    {
+        Current = Reencode(TexConvert::kDxt2, Current, Width, Width, TexConvert::kDxt2, Width / 2, Width / 2);
+        Width /= 2;
+    }
+    SelfCheck("DXT2 resized twice into DXT2", Start, DecodeToArgb(TexConvert::kDxt2, Current, Width, Width)[0], 8);
+
+    // DXT2 into DXT4 at the same size.
+    const std::vector<unsigned char> Dxt4 = Reencode(TexConvert::kDxt2, Dxt2, Size, Size, TexConvert::kDxt4, Size, Size);
+    SelfCheck("DXT2 into DXT4", Start, DecodeToArgb(TexConvert::kDxt4, Dxt4, Size, Size)[0], 8);
+}
+
 void RunProbes(IDirect3DDevice8* Device)
 {
     // Endpoint pairs across the range in both orders; indices 0,1,2,3 in every row.
@@ -456,6 +548,7 @@ int main()
         std::printf("TexConvertTest: no Direct3D 8 device; nothing compared\n");
         return 2;
     }
+    RunSelfChecks();
     RunProbes(D3d.Device);
     const unsigned int EncodeTargets[] = {TexConvert::kDxt1, TexConvert::kDxt2, TexConvert::kDxt3,
                                           TexConvert::kDxt4, TexConvert::kDxt5};
