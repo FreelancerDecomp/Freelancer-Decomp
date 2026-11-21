@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstring>
 #include <new>
+#include <stdexcept>
 
 using namespace RpGpuDetail;
 
@@ -267,6 +268,10 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
     catch (const std::bad_alloc&)
     {
         return GR_OUT_OF_MEMORY;
+    }
+    catch (const std::length_error&)
+    {
+        return GR_OUT_OF_MEMORY; // TexConvert refuses such sizes first; this only backs that up
     }
 }
 

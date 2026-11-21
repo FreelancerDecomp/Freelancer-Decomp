@@ -574,6 +574,11 @@ namespace TexConvert
         if (!IsKnown(Destination.Format) || !IsKnown(Source.Format) || Destination.Bits == nullptr || Source.Bits == nullptr || Destination.Width == 0 ||
             Destination.Height == 0 || Source.Width == 0 || Source.Height == 0)
             return EResult::Failed;
+        // The working buffer holds one FColor per source and per destination pixel: sizes whose
+        // pixel count does not fit (Win32's 32-bit size_t) are refused rather than overflowing.
+        const std::size_t MaxPixels = static_cast<std::size_t>(-1) / sizeof(FColor);
+        if (Source.Width > MaxPixels / Source.Height || Destination.Width > MaxPixels / Destination.Height)
+            return EResult::Failed;
         // An uncompressed source must hold a whole row per pitch: a smaller pitch would make rows
         // overlap and read past the row being converted. Padded rows are fine.
         if (!IsBlock(Source.Format) && Source.Pitch < RowPitch(Source.Format, Source.Width))
