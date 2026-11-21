@@ -16,7 +16,9 @@ struct FRpGpuShaderBlob
     std::size_t SpirvSize;
     const unsigned char* Dxil;
     std::size_t DxilSize;
-    const unsigned char* Msl; // source text, zero-terminated; MslSize excludes the terminator
+    // Metal source text, zero-terminated; MslSize excludes the terminator. SPIRV-Cross renames
+    // the entry point: it is main0 in MSL, main in SPIR-V and DXIL.
+    const unsigned char* Msl;
     std::size_t MslSize;
 };
 
