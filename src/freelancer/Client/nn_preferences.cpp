@@ -43,6 +43,7 @@
 #include "wire_controls.h"
 
 #include "common_csys.h"           // RotateMatrix
+#include "render/IRenderPipeline.h" // DALib::Pipeline->QueryDeviceAbility
 #include "common_ini.h"            // INI_Reader
 #include "common_server.h"         // IServer::ReqDifficultyScale (slot 87)
 #include "common_misc.h"           // SinglePlayer

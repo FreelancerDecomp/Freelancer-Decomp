@@ -23,6 +23,7 @@
 #include "common_universe.h"  // Universe::ISystem
 #include "dacom.h"            // FDUMP
 #include "DALib.h"            // DALib::Pipeline
+#include "render/IRenderPipeline.h"  // IRenderPipeline::SetRenderState
 #include "engine_light.h"     // EngineLightClearRegisteredList (FUN_004101e0)
 #include "common_cequip.h"
 #include "common_csys.h"      // Acquire3DMathEngine
