@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-// Port-only (no retail counterpart): the ray-marched volumetric nebula. See nebula_volume.h and
+// PORT(rp9): the ray-marched volumetric nebula. See nebula_volume.h and
 // docs/re/rp9.md, "Volumetric nebula".
 //
 // Frame flow (space_scene_obj_draw.cpp, SpaceObjDrawPass):

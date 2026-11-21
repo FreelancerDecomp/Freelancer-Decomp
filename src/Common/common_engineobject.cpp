@@ -53,7 +53,7 @@ void DACOM_API EngineObject::initialize_instance(long Inst)
 {
     // Listing 0xa9910. this+4 = FEngineInstance*.
     EngineInstanceId = (int)Inst;
-    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
+    CmnCobject::ClassListKeysChanged(this); // PORT(perf-index): the class-list index
 }
 
 void DACOM_API EngineObject::create_instance(long Inst)
@@ -67,7 +67,7 @@ void DACOM_API EngineObject::destroy_instance(long Inst)
     // Listing 0xa9920. Clears this+4 only.
     (void)Inst;
     EngineInstanceId = -1;
-    CmnCobject::ClassListKeysChanged(this); // port-only: the class-list index
+    CmnCobject::ClassListKeysChanged(this); // PORT(perf-index): the class-list index
 }
 
 void DACOM_API EngineObject::set_position(long Inst, Vector const& Pos)

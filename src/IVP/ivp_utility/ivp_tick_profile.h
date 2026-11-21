@@ -8,7 +8,9 @@
 
 #include "common_tick_profile.h"
 
-// Private to Common.dll (including its IVP translation units).
+// Private to Common.dll: the physics tick sections that IVP (ivp_environment.cpp) and Common
+// (common_physicalsystem.cpp) time; common_tick_profile.cpp implements it. Formerly
+// src/Common/physics_tick_profile.h, which IVP reached with "../../Common/".
 #if FREELANCER_ENABLE_TICK_PROFILE
 class FPhysicsTickScope
 {

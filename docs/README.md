@@ -69,8 +69,9 @@ MSBuild.exe src\Freelancer.sln -t:Build -p:Configuration=Debug -v:minimal
 | Release | `bin\` |
 | DebugASan | `binasan\` (AddressSanitizer; copies the `clang_rt.asan_*` runtime next to the exe) |
 
-Run `freelancer.exe` from the directory of the configuration you built. Debug and ASan builds
-copy the dev `*.ini` from `bin\` with paths rewritten (`src/copy_dev_ini.py`) — edit the files in
-`bin\`, not the copies. The retail DLLs in `EXE\` are not ASan-instrumented.
+Run `freelancer.exe` from the directory of the configuration you built. Every build into a
+directory other than `bin\` (Debug, ASan, and the x64 `bin_x64\` / `bin_x64_debug\`) copies the
+dev `*.ini` from `bin\` with paths rewritten (`src/copy_dev_ini.py`) — edit the files in `bin\`,
+not the copies. The retail DLLs in `EXE\` are not ASan-instrumented.
 
 Hunting memory leaks: [memory_diagnostics.md](memory_diagnostics.md).

@@ -674,7 +674,7 @@ namespace AlchemyImpl
         // update walk (FUN_06201810 0x06201839) reads bit 0 (lifetime expired) through it.
         // This slot was declared as a two-argument SetPropBool(Hash, Value) until
         // 2026-09-26; the walk called it with one argument, so every call popped a dword
-        // the caller never pushed. SetPropBool is port-only and lives in the tail now.
+        // the caller never pushed. SetPropBool is PORT(api) and lives in the tail now.
         virtual GENRESULT DACOM_API GetNodeFlags(unsigned long* Out) = 0;            // +0x20
         // +0x24 RET 8 -- `[node+4] = Flags; return 0` (FxNode LAB_062026f0, basic
         // appearance FUN_06218e30, field LAB_0620ea50). The emitters override it with
@@ -967,26 +967,26 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API GetAssociatedFieldCount(unsigned long* Out) = 0;
         virtual GENRESULT DACOM_API GetAssociatedFieldAt(unsigned long Index,
                                                         IDAComponent** Out) = 0;
-        // Port-only: after +0xDC. Kind 2/3/0x103/0x104 setters are IFxNodePropertySet,
+        // PORT(api): after +0xDC. Kind 2/3/0x103/0x104 setters are IFxNodePropertySet,
         // not IFxNode +0x30/+0x38/+0x4C (those are prev / sort key / first-child).
         virtual GENRESULT DACOM_API SetLiveInstanceCount(unsigned long Count) = 0;
-        // Port-only: IFxField +0x9C Begin (LAB_062241a0 / LAB_06214bf0 / LAB_06236ea0).
+        // PORT(api): IFxField +0x9C Begin (LAB_062241a0 / LAB_06214bf0 / LAB_06236ea0).
         // Appearance is the appearance whose particles this field is about to act on
         // (retail Begin's one stack argument, RET 8). The Begin bodies that need a
         // transform take this field's transform relative to it through node slot 7,
         // FUN_0623ffb0 (Gravity LAB_062241a0 0x06224219, Air 0x06214c69, Radial
         // 0x06236f19, Collide 0x0621ab3d) -- FGenericFxObjectBase::ComputeRelativeTransform.
-        // Dt is port-only (no retail Begin reads a second argument).
+        // PORT(api): Dt (no retail Begin reads a second argument).
         virtual void DACOM_API BeginField(IDAComponent* Appearance, float Dt) = 0;
-        // Port-only: FUN_06230370 +0xa4(field, pos+0xC, age+0x24).
+        // PORT(api): FUN_06230370 +0xa4(field, pos+0xC, age+0x24).
         virtual void DACOM_API ApplyFieldToVel(float* PosVel6, float* Age, float Dt) = 0;
         virtual IDAComponent* DACOM_API GetAssociatedField() = 0;
-        // Port-only: the billboard property set the draws read through node+0xf0 (dust
+        // PORT(api): the billboard property set the draws read through node+0xf0 (dust
         // +0xe8) -- the node's shared FAppearanceRampDescriptor. Only the six billboard
         // appearances have one; every other node returns nullptr. No reference is added.
         virtual const FAppearanceRampDescriptor* DACOM_API GetAppearanceRampDescriptor() = 0;
 
-        // Port-only (wave22, sonnet:alchemy-wave22-lane1): accessor for the
+        // PORT(api) (wave22, sonnet:alchemy-wave22-lane1): accessor for the
         // appearance-level context float retail calls with a value read from
         // [this+0x8c] every time it evaluates SizeRamp/PrimarySizeRamp/
         // EffectScaleRamp/AxisOverrideRamp via vtable+0x1c (the
@@ -1034,7 +1034,7 @@ namespace AlchemyImpl
         // poking this value before calling DrawNodes -- alchemy.dll's own
         // FAlchemy::DrawNodes plumbing was checked and does not set it
         // either) can wire it up without another interface change.
-        // Appended at the end of this already-established port-only
+        // PORT(api): appended at the end of this already-established
         // extension zone (same rationale as GetAppearanceRampDescriptor
         // above), so this is safe to add without disturbing any real ABI
         // offset.
@@ -1068,7 +1068,7 @@ namespace AlchemyImpl
         virtual float DACOM_API GetDustPrevCameraDistance() = 0;
         virtual GENRESULT DACOM_API SetDustPrevCameraDistance(float Distance) = 0;
 
-        // Port-only position. Retail has this method -- FUN_06215f40 / FUN_0620e430 /
+        // PORT(api): position. Retail has this method -- FUN_06215f40 / FUN_0620e430 /
         // FUN_0620be90 are its three bodies -- but not at +0x68, where it used to be
         // declared. It is parked at the end of the table until its real slot is read.
         virtual GENRESULT DACOM_API EmitOne(const float* Six, unsigned long Extra,
@@ -1153,7 +1153,7 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                    // +0x50 06209890
     };
 
-    // Port-only name for the slot shape FxRampSingleRamp (0x0624bb18) and
+    // PORT(api): name for the slot shape FxRampSingleRamp (0x0624bb18) and
     // FxAnimatedSingleRamp (0x0624bac8) share: object 0x20, +4 Mode, +8 keys of
     // {float Time; child*}, +0x1C RefCount. The two differ only in the child class and in
     // the child slot Eval calls (IRampSingle::Eval at child +0x1C, IFxAnimatedSingle::Eval

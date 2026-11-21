@@ -326,7 +326,7 @@
 | `IImaInstance` | 4 | 7 | `src/include/render/shading.h:267` | **public** | `public IDAComponent` |
 | `IInputEvent` | 5 | 5 | `src/freelancer/Client/client_environment.h:40` | private (freelancer) | — |
 | `IInstanceTransform` | 14 | 14 | `src/include/engine/engbase.h:25` | **public** | — |
-| `IIVPAnchorEvents` | 1 | 1 | `src/include/common_ivp_real_object.h:707` | **public** | — |
+| `IIVPAnchorEvents` | 1 | 1 | `src/IVP/ivp_physics/ivp_real_object.h:707` | **public** | — |
 | `ILightControl` | 17 | 20 | `src/include/thorn_controls.h:154` | **public** | `IDAComponent` |
 | `ILoadingScreen` | 2 | 2 | `src/include/common_ini.h:331` | **public** | — |
 | `ILua` | 1 | 4 | `src/include/luaprofile.h:24` | **public** | `IDAComponent` |
@@ -414,11 +414,11 @@
 | `IVP_Collision_Delegator_Root` | 3 | 6 | `src/IVP/ivp_collision/ivp_collision.h:108` | private (Common) | `public IVP_Collision_Delegator` |
 | `IVP_Collision_Filter` | 3 | 3 | `src/IVP/ivp_physics/ivp_listener.h:144` | private (Common) | — |
 | `IVP_Collision_Filter_Coll_Group_Ident` | 3 | 6 | `src/IVP/ivp_physics/ivp_listener.h:156` | private (Common) | `public IVP_Collision_Filter` |
-| `IVP_Controller` | 7 | 7 | `src/include/common_ivp_controller.h:128` | **public** | — |
-| `IVP_Controller_Dependent` | 1 | 8 | `src/include/common_ivp_controller.h:256` | **public** | `public IVP_Controller` |
-| `IVP_Controller_Golem` | 4 | 17 | `src/include/common_ivp_controller.h:408` | **public** | `public IVP_Controller_Motion` |
-| `IVP_Controller_Independent` | 2 | 9 | `src/include/common_ivp_controller.h:280` | **public** | `public IVP_Controller` |
-| `IVP_Controller_Motion` | 4 | 13 | `src/include/common_ivp_controller.h:337` | **public** | `public IVP_Controller_Independent` |
+| `IVP_Controller` | 7 | 7 | `src/IVP/ivp_physics/ivp_controller.h:128` | **public** | — |
+| `IVP_Controller_Dependent` | 1 | 8 | `src/IVP/ivp_physics/ivp_controller.h:256` | **public** | `public IVP_Controller` |
+| `IVP_Controller_Golem` | 4 | 17 | `src/IVP/ivp_physics/ivp_controller.h:408` | **public** | `public IVP_Controller_Motion` |
+| `IVP_Controller_Independent` | 2 | 9 | `src/IVP/ivp_physics/ivp_controller.h:280` | **public** | `public IVP_Controller` |
+| `IVP_Controller_Motion` | 4 | 13 | `src/IVP/ivp_physics/ivp_controller.h:337` | **public** | `public IVP_Controller_Independent` |
 | `IVP_Event_Manager` | 2 | 2 | `src/IVP/ivp_physics/ivp_environment.h:119` | private (Common) | — |
 | `IVP_Friction_Sys_Energy` | 2 | 11 | `src/IVP/ivp_physics/ivp_mindist.h:1638` | private (Common) | `public IVP_Controller_Independent` |
 | `IVP_Friction_Sys_Static` | 4 | 13 | `src/IVP/ivp_physics/ivp_mindist.h:1603` | private (Common) | `public IVP_Controller_Independent` |
@@ -435,13 +435,13 @@
 | `IVP_Material_Manager` | 5 | 5 | `src/IVP/ivp_physics/ivp_material.h:95` | private (Common) | — |
 | `IVP_Material_Simple` | 5 | 11 | `src/IVP/ivp_physics/ivp_material.h:66` | private (Common) | `public IVP_Material` |
 | `IVP_Message_Router` | 2 | 2 | `src/IVP/ivp_utility/ivp_message_router.h:19` | private (Common) | — |
-| `IVP_Object` | 1 | 1 | `src/include/common_ivp_real_object.h:590` | **public** | — |
+| `IVP_Object` | 1 | 1 | `src/IVP/ivp_physics/ivp_real_object.h:590` | **public** | — |
 | `IVP_OV_Element` | 1 | 5 | `src/IVP/ivp_physics/ivp_ov_element.h:161` | private (Common) | `public IVP_Listener_Hull` |
 | `IVP_PerformanceCounter` | 6 | 6 | `src/IVP/ivp_physics/ivp_listener.h:175` | private (Common) | — |
 | `IVP_Range_Manager` | 3 | 3 | `src/IVP/ivp_physics/ivp_environment.h:318` | private (Common) | — |
 | `IVP_Ray_Hit_Listener` | 2 | 2 | `src/IVP/ivp_collision/ivp_ray_solver.h:42` | private (Common) | — |
 | `IVP_Ray_Solver_Os` | 1 | 1 | `src/IVP/ivp_collision/ivp_ray_solver.h:140` | private (Common) | — |
-| `IVP_Real_Object` | 2 | 2 | `src/include/common_ivp_real_object.h:736` | **public** | `public IVP_Real_Object_Fast_Static` |
+| `IVP_Real_Object` | 2 | 2 | `src/IVP/ivp_physics/ivp_real_object.h:736` | **public** | `public IVP_Real_Object_Fast_Static` |
 | `IVP_SurfaceManager` | 11 | 11 | `src/IVP/ivp_physics/ivp_surface_manager.h:123` | private (Common) | — |
 | `IVP_Synapse_OO` | 1 | 5 | `src/IVP/ivp_collision/ivp_oo_watcher.h:42` | private (Common) | `public IVP_Listener_Hull` |
 | `IVP_Synapse_Real` | 1 | 5 | `src/IVP/ivp_physics/ivp_mindist.h:51` | private (Common) | `public IVP_Listener_Hull` |

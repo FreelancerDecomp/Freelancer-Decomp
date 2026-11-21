@@ -68,7 +68,7 @@ FL_LAYOUT_ASSERT(sizeof(void*) != 4 || sizeof(Image) == 0x18, "retail Image is 0
 Image* CreateImage();
 
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-// Port-only: where Image::Draw puts its 4:3 picture on a wider surface until told otherwise --
-// -1 against the left edge, +1 against the right, 0 centred (the default).
+// PORT(widescreen): where Image::Draw puts its 4:3 picture on a wider surface until told
+// otherwise -- -1 against the left edge, +1 against the right, 0 centred (the default).
 void ImageSetWidescreenAlign(int Side);
 #endif

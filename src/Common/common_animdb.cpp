@@ -50,7 +50,7 @@
 #include "common_cobject.h"
 #include "common_csys.h"  // Acquire3DMathEngine
 #include "common_physys.h"  // FLControllerGolem entry points, PhySys::GetCurrentTime
-#include "../IVP/ivp_physics/ivp_core.h"  // ::IVP_Time, GetCurrentTime's return type
+#include "ivp_physics/ivp_core.h"  // ::IVP_Time, GetCurrentTime's return type
 #include "common_animdb.h"
 #include "dacom.h"
 #include "x86math.h"  // I3DMathEngine::MatrixToQuaternion, FQuaternion, FMatrix

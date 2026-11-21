@@ -20,8 +20,8 @@
 
 // IVP's 16-byte aligned block allocator (FUN_06343fc0(size, align)) and its release
 // (FUN_06343ff0): ivp_malloc_aligned / ivp_free_aligned.
-#include "../IVP/ivp_utility/ivp_malloc.h"
-#include "../IVP/ivp_collision/ivp_compact_surface.h" // max_deviation_and_size (+0x1c)
+#include "ivp_utility/ivp_malloc.h"
+#include "ivp_collision/ivp_compact_surface.h" // max_deviation_and_size (+0x1c)
 
 int CallDacomStricmp(const char* Left, const char* Right); // common_dacom_stricmp.cpp
 

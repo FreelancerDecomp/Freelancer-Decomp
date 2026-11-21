@@ -10,7 +10,7 @@
                                     // ClientMarketCollectCategory (FUN_00437f70),
                                     // ClientMarketGetPrice (FUN_00438060)
 #include "font_string.h"            // FontStringChildCount (FUN_004145a0)
-#include "widescreen.h"   // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "widescreen.h"   // PORT(widescreen)
 #include "globals.h"                // GetClientFrameTimeCapped (FUN_0042d680),
                                     // G_RenderSurfaceWidth (DAT_00610850)
 #include "hud_command_dispatch.h"   // HudPushCancelHandler (FUN_00576360)
@@ -664,7 +664,7 @@ void NnNews::TickerShow(int Start, float Offset)
     // integer).
     double X = -static_cast<double>(Offset);
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only Hor+: the ticker is interface, as wide as on a 4:3 surface of this height.
+    // PORT(widescreen): the ticker is interface, as wide as on a 4:3 surface of this height.
     double const Limit = WidescreenEquivalentSurfaceWidth() * static_cast<double>(0.73125f);
 #else
     double const Limit = static_cast<double>(static_cast<int>(G_RenderSurfaceWidth)) *

@@ -1,4 +1,4 @@
-// FLDedicated.exe (port-only). The VERSIONINFO is FLServer.exe's (src\FLServer\FLServer.rc):
+// FLDedicated.exe (PORT(dedicated)). The VERSIONINFO is FLServer.exe's (src\FLServer\FLServer.rc):
 // the server reads its own file version through DACOM_GetDllVersion and sends it to clients in
 // the host-discovery response, so the two executables must report the same version.
 #include <windows.h>

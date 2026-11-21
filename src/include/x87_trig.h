@@ -36,7 +36,7 @@
 
 #if !defined(_M_IX86)
 
-// Port-only x64 build (docs/x64.md): no inline assembly and no x87 code. The CRT functions
+// PORT(x64): x64 build (docs/x64.md): no inline assembly and no x87 code. The CRT functions
 // round to within an ulp of the x87 instructions but not always to the same last bit, so x64
 // results can differ from Win32 (and retail) in the last bits.
 #include <cmath>

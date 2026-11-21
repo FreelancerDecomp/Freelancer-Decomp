@@ -3,7 +3,7 @@
 
 #pragma once
 
-// Port-only (docs/dpnet.md): the IDirectPlay8Server and IDirectPlay8Address objects of the
+// PORT(dpnet) (docs/dpnet.md): the IDirectPlay8Server and IDirectPlay8Address objects of the
 // port's own DirectPlay 8 implementation, DPNet, for the builds that do not use Microsoft's
 // dpnet.dll (FREELANCER_DPNET; the x64 build). CDPServer takes its objects from here instead of
 // CoCreateInstance and calls them exactly as it calls Microsoft's.

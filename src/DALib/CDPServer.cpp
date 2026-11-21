@@ -46,7 +46,7 @@ CDPServer::CDPServer()
     m_pServer = this;
 
 #if defined(FREELANCER_DPNET)
-    // Port-only: the port's own DirectPlay (docs/dpnet.md) instead of Microsoft's dpnet.dll.
+    // PORT(dpnet): the port's own DirectPlay (docs/dpnet.md) instead of Microsoft's dpnet.dll.
     const HRESULT Hr = DPNetAdapter::CreateServer(&Server);
 #else
     const HRESULT Hr = CoCreateInstance(CLSID_DirectPlay8Server, nullptr, CLSCTX_INPROC_SERVER,

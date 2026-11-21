@@ -29,7 +29,7 @@ namespace CmnCobject
     // Element-wise copy of the 3x3 rotation.
     void CopyMatrix9(Matrix& Dst, Matrix const& Src);
 
-    // Port-only: re-files Object in the class-list index (CObject::Find) under its current
+    // PORT(perf-index): re-files Object in the class-list index (CObject::Find) under its current
     // EngineInstanceId and CSimple::Id. Every write to either field made while the object can
     // be listed calls it right after the write; objects in no class list are ignored.
     void ClassListKeysChanged(EngineObject const* Object);

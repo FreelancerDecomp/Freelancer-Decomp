@@ -1303,7 +1303,7 @@ void FRmRuntimeMachine::UpdatePlayerObjectives(unsigned int InPlayerId)
     // without a ship and after the type 5 path objectives; it ends at a type 8 or 5 objective.
     std::list<FMissionObjective*>::iterator First = List.begin();
     bool bReplaced = false;
-    // Port-only STL adaptation (CONTENT-OBJECTIVE-END-ITERATOR in deviations.md).
+    // PORT(deviation): STL adaptation (CONTENT-OBJECTIVE-END-ITERATOR in deviations.md).
     // Retail 06f8b376 has no end check: MOV EAX,[EAX] follows the circular node's Next
     // pointer. On an empty VC6 list the sentinel points to itself. Modern std::list
     // forbids ++end(), so retain end() here and continue the objective update.

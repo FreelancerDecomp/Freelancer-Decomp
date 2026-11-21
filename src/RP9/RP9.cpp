@@ -16,6 +16,7 @@
 #include "readfile.h"
 #include "x86math.h"
 #include "msvcrt_compat.h"
+#include "render/rp8_semantics.h"
 
 #include <cmath>
 #include <cstdarg>
@@ -117,174 +118,16 @@ namespace
 
     // One map insertion of FUN_06d01c68 / FUN_06d19530 / FUN_06d176e0 / FUN_06d19c30: the
     // arguments of FUN_06d175f0 / FUN_06d176a0 (id, name, default, value 0, enabled), in the
-    // order the listing inserts them. Names are the rp8.dll .data strings.
-    struct FRp9PropertyInit
-    {
-        int Id;
-        const char* Name;
-        unsigned long Default;
-        unsigned char bEnabled;
-    };
-
-    // FUN_06d01c68 (06d01d07..06d02032), map object+0x278.
-    const FRp9PropertyInit kPipelineProperties[] = {
-        {0x0, "TEXTURE", 0x1, 1},
-        {0x1, "LIGHTING", 0x1, 1},
-        {0x7, "VIEWSPACE_LIGHTS", 0x1, 1},
-        {0xB, "STATE_CACHE", 0x1, 1},
-        {0x8, "CLEAR_COLOR", 0x0, 1},
-        {0x9, "CLEAR_ZDEPTH", 0x3F800000, 1},
-        {0xA, "CLEAR_STENCIL", 0xFFFFFFFF, 1},
-        {0x2, "TEXTURE_LOD", 0x1, 1},
-        {0x3, "TEXTURE_ALLOW_8BIT", 0x0, 1},
-        {0x4, "TEXTURE_ALLOW_32BIT", 0x1, 1},
-        {0x5, "TEXTURE_ALLOW_DXT", 0x1, 1},
-        {0x6, "BROKEN_MULTITEXTURE", 0x1, 1},
-        {0xC, "BROKEN_MOD2X", 0x0, 1},
-        {0xD, "BROKEN_FLIP", 0x0, 1},
-    };
-
-    // FUN_06d19530, map object+0x28C: disabled until startup finds the key in the INI.
-    const FRp9PropertyInit kAbilityProperties[] = {
-        {0x4, "DEVICE_GEOMETRY", 0x0, 0},
-        {0x5, "TEXTURE_SQUARE_ONLY", 0x0, 0},
-        {0x6, "TEXTURE_MAX_WIDTH", 0x0, 0},
-        {0x7, "TEXTURE_MAX_HEIGHT", 0x0, 0},
-        {0x8, "TEXTURE_CUBEMAPS", 0x0, 0},
-        {0x9, "DEPTH_BIAS", 0x0, 0},
-        {0xA, "FOG_VERTEX", 0x0, 0},
-        {0xB, "FOG_PIXEL", 0x0, 0},
-        {0xC, "FOG_RANGE", 0x0, 0},
-        {0xD, "FOG_W", 0x0, 0},
-        {0xE, "RASTER_ANTIALIASEDGES", 0x0, 0},
-        {0xF, "DEVICE_SUPPORT_LEVEL", 0x0, 0},
-        {0x10, "TEXTURE_TRILINEAR", 0x0, 0},
-        {0x11, "DEVICE_BAD_MODE", 0x0, 0},
-        {0x12, "DEVICE_BAD_4444", 0x0, 0},
-    };
-
-    // FUN_06d176e0, map object+0x2A0 (D3DRENDERSTATETYPE ids).
-    const FRp9PropertyInit kRenderStateProperties[] = {
-        {0x7, "ZENABLE", 0x1, 1},
-        {0x8, "FILLMODE", 0x3, 1},
-        {0x9, "SHADEMODE", 0x2, 1},
-        {0xA, "LINEPATTERN", 0x0, 1},
-        {0xE, "ZWRITEENABLE", 0x1, 1},
-        {0xF, "ALPHATESTENABLE", 0x0, 1},
-        {0x10, "LASTPIXEL", 0x1, 1},
-        {0x13, "SRCBLEND", 0x2, 1},
-        {0x14, "DESTBLEND", 0x1, 1},
-        {0x16, "CULLMODE", 0x1, 1},
-        {0x17, "ZFUNC", 0x2, 1},
-        {0x18, "ALPHAREF", 0x0, 1},
-        {0x19, "ALPHAFUNC", 0x8, 1},
-        {0x1A, "DITHERENABLE", 0x0, 1},
-        {0x1B, "ALPHABLENDENABLE", 0x0, 1},
-        {0x1C, "FOGENABLE", 0x0, 1},
-        {0x1D, "SPECULARENABLE", 0x0, 1},
-        {0x1E, "ZVISIBLE", 0x1, 1},
-        {0x22, "FOGCOLOR", 0x0, 1},
-        {0x23, "FOGTABLEMODE", 0x1, 1},
-        {0x24, "FOGSTART", 0x0, 1},
-        {0x25, "FOGEND", 0x0, 1},
-        {0x26, "FOGDENSITY", 0x0, 1},
-        {0x28, "EDGEANTIALIAS", 0x0, 1},
-        {0x2F, "ZBIAS", 0x0, 1},
-        {0x30, "RANGEFOGENABLE", 0x0, 1},
-        {0x34, "STENCILENABLE", 0x0, 1},
-        {0x35, "STENCILFAIL", 0x1, 1},
-        {0x36, "STENCILZFAIL", 0x1, 1},
-        {0x37, "STENCILPASS", 0x1, 1},
-        {0x38, "STENCILFUNC", 0x8, 1},
-        {0x39, "STENCILREF", 0xFFFFFFFF, 1},
-        {0x3A, "STENCILMASK", 0xFFFFFFFF, 1},
-        {0x3B, "STENCILWRITEMASK", 0xFFFFFFFF, 1},
-        {0x3C, "TEXTUREFACTOR", 0x0, 1},
-        {0x80, "WRAP0", 0x0, 1},
-        {0x81, "WRAP1", 0x0, 1},
-        {0x82, "WRAP2", 0x0, 1},
-        {0x83, "WRAP3", 0x0, 1},
-        {0x84, "WRAP4", 0x0, 1},
-        {0x85, "WRAP5", 0x0, 1},
-        {0x86, "WRAP6", 0x0, 1},
-        {0x87, "WRAP7", 0x0, 1},
-        {0x88, "CLIPPING", 0x1, 1},
-        {0x89, "LIGHTING", 0x0, 1},
-        {0x8B, "AMBIENT", 0x0, 1},
-        {0x8C, "FOGVERTEXMODE", 0x0, 1},
-        {0x8D, "COLORVERTEX", 0x0, 1},
-        {0x8E, "LOCALVIEWER", 0x0, 1},
-        {0x8F, "NORMALIZENORMALS", 0x0, 1},
-        {0x91, "DIFFUSEMATERIALSOURCE", 0x1, 1},
-        {0x92, "SPECULARMATERIALSOURCE", 0x2, 1},
-        {0x93, "AMBIENTMATERIALSOURCE", 0x2, 1},
-        {0x94, "EMISSIVEMATERIALSOURCE", 0x0, 1},
-        {0x97, "VERTEXBLEND", 0x0, 1},
-        {0x98, "CLIPPLANEENABLE", 0x0, 1},
-        {0x99, "SOFTWAREVERTEXPROCESSING", 0x0, 1},
-        {0x9A, "POINTSIZE", 0x3F800000, 1},
-        {0x9B, "POINTSIZE_MIN", 0x3F800000, 1},
-        {0x9C, "POINTSPRITEENABLE", 0x0, 1},
-        {0x9D, "POINTSCALEENABLE", 0x0, 1},
-        {0x9E, "POINTSCALE_A", 0x3F800000, 1},
-        {0x9F, "POINTSCALE_B", 0x0, 1},
-        {0xA0, "POINTSCALE_C", 0x0, 1},
-        {0xA1, "MULTISAMPLEANTIALIAS", 0x1, 1},
-        {0xA2, "MULTISAMPLEMASK", 0xFFFFFFFF, 1},
-        {0xA3, "PATCHEDGESTYLE", 0x0, 1},
-        {0xA4, "PATCHSEGMENTS", 0x0, 1},
-        {0xA5, "DEBUGMONITORTOKEN", 0x0, 1},
-        {0xA6, "POINTSIZE_MAX", 0x3F800000, 1},
-        {0xA7, "INDEXEDVERTEXBLENDENABLE", 0x0, 1},
-        {0xA8, "COLORWRITEENABLE", 0xF, 1},
-        {0xAA, "TWEENFACTOR", 0x0, 1},
-        {0xAB, "BLENDOP", 0x1, 1},
-        {0xAC, "POSITIONORDER", 0x1, 1},
-        {0xAD, "NORMALORDER", 0x1, 1},
-    };
-
-    // FUN_06d19c30(map, bFirstStage): 06d19c47 JZ -- a non-zero flag inserts COLOROP 4 /
-    // ALPHAOP 2 (MODULATE / SELECTARG1), zero inserts 1 / 1 (DISABLE); the rest is shared.
-    const FRp9PropertyInit kStageOpsFirstStage[] = {
-        {0x1, "COLOROP", 0x4, 1},
-        {0x4, "ALPHAOP", 0x2, 1},
-    };
-    const FRp9PropertyInit kStageOpsOtherStage[] = {
-        {0x1, "COLOROP", 0x1, 1},
-        {0x4, "ALPHAOP", 0x1, 1},
-    };
-    const FRp9PropertyInit kStageStateProperties[] = {
-        {0x2, "COLORARG1", 0x2, 1},
-        {0x3, "COLORARG2", 0x1, 1},
-        {0x5, "ALPHAARG1", 0x2, 1},
-        {0x6, "ALPHAARG2", 0x1, 1},
-        {0x7, "BUMPENVMAT00", 0x0, 1},
-        {0x8, "BUMPENVMAT01", 0x0, 1},
-        {0x9, "BUMPENVMAT10", 0x0, 1},
-        {0xA, "BUMPENVMAT11", 0x0, 1},
-        {0xB, "TEXCOORDINDEX", 0x0, 1},
-        {0xD, "ADDRESSU", 0x1, 1},
-        {0xE, "ADDRESSV", 0x1, 1},
-        {0xF, "BORDERCOLOR", 0x0, 1},
-        {0x10, "MAGFILTER", 0x2, 1},
-        {0x11, "MINFILTER", 0x2, 1},
-        {0x12, "MIPFILTER", 0x1, 1},
-        {0x13, "MIPMAPLODBIAS", 0x0, 1},
-        {0x14, "MAXMIPLEVEL", 0x0, 1},
-        {0x15, "MAXANISOTROPY", 0x1, 1},
-        {0x16, "BUMPENVLSCALE", 0x0, 1},
-        {0x17, "BUMPENVLOFFSET", 0x0, 1},
-        {0x18, "TEXTURETRANSFORMFLAGS", 0x0, 1},
-        {0x19, "ADDRESSW", 0x1, 1},
-        {0x1A, "COLORARG0", 0x1, 1},
-        {0x1B, "ALPHAARG0", 0x1, 1},
-        {0x1C, "RESULTARG", 0x1, 1},
-    };
+    // order the listing inserts them. The rows (names are the rp8.dll .data strings) are in
+    // render/rp8_semantics.h, shared with the other pipelines: kRp8PipelineProperties
+    // (FUN_06d01c68, map object+0x278), kRp8AbilityProperties (FUN_06d19530, +0x28C, disabled
+    // until startup finds the key in the INI), kRp8RenderStateProperties (FUN_06d176e0, +0x2A0)
+    // and the stage rows of FUN_06d19c30.
 
     // FUN_06d16ff0 (clear) followed by one insertion per row (FUN_06d15f80 operator[] +
     // FUN_06d17630 assignment, or FUN_06d16b90 insert into the just-cleared map -- same result).
-    void FillPropertyMap(FRp9PropertyMap* Map, const FRp9PropertyInit* Rows, unsigned int Count,
-                         bool bClear)
+    void FillPropertyMap(FRp9PropertyMap* Map, const FRp8StateKey* Rows, unsigned int Count,
+                         bool bClear, unsigned char bEnabled)
     {
         if (bClear)
             Map->clear();
@@ -295,7 +138,7 @@ namespace
             Property.Id = Rows[Index].Id;
             Property.Default = Rows[Index].Default;
             Property.Value = 0;
-            Property.bEnabled = Rows[Index].bEnabled;
+            Property.bEnabled = bEnabled;
             (*Map)[Rows[Index].Id] = Property;
         }
     }
@@ -305,13 +148,13 @@ namespace
     {
         Map->clear();
         if (bFirstStage)
-            FillPropertyMap(Map, kStageOpsFirstStage,
-                            std::size(kStageOpsFirstStage), false);
+            FillPropertyMap(Map, kRp8StageOpsFirstStage,
+                            std::size(kRp8StageOpsFirstStage), false, 1);
         else
-            FillPropertyMap(Map, kStageOpsOtherStage,
-                            std::size(kStageOpsOtherStage), false);
-        FillPropertyMap(Map, kStageStateProperties,
-                        std::size(kStageStateProperties), false);
+            FillPropertyMap(Map, kRp8StageOpsOtherStage,
+                            std::size(kRp8StageOpsOtherStage), false, 1);
+        FillPropertyMap(Map, kRp8StageStateProperties,
+                        std::size(kRp8StageStateProperties), false, 1);
     }
 
     // DAT_06d73580 / DAT_06d739a0 / DAT_06d73dc0: the three static 0x400-byte buffers startup and
@@ -360,24 +203,9 @@ namespace
             {
                 if (Parser->GetString(Handle, Key, G_ProfileValueBuf, 0x400) != 0)
                 {
-                    const size_t Span =
-                        strspn(G_ProfileValueBuf, "0123456789truefalsynoxTRUEFALSYNOX+-");
-                    if (Span != 0)
-                        G_ProfileValueBuf[Span] = '\0';
-                    if (_stricmp(G_ProfileValueBuf, "true") == 0)
-                        *Out = 1;
-                    else if (_stricmp(G_ProfileValueBuf, "yes") == 0)
-                        *Out = 1;
-                    else if (_stricmp(G_ProfileValueBuf, "false") == 0)
-                        *Out = 0;
-                    else if (_stricmp(G_ProfileValueBuf, "no") == 0)
-                        *Out = 0;
-                    else if (strchr(G_ProfileValueBuf, 'x') != nullptr ||
-                             strchr(G_ProfileValueBuf, 'X') != nullptr)
-                        *Out = strtoul(G_ProfileValueBuf, nullptr, 16);
-                    else
-                        // 06d16b09 also runs strspn(buf, "0123456789+-") and drops the result.
-                        *Out = (unsigned long)(MsvcrtAtoi(G_ProfileValueBuf));
+                    // 06d16a3b..06d16b1d: strspn cut, true / yes / false / no, hex with an
+                    // x, else msvcrt's atoi (render/rp8_semantics.h).
+                    *Out = Rp8IniNumber(G_ProfileValueBuf);
                 }
                 Parser->CloseSection(Handle);
             }
@@ -442,30 +270,21 @@ namespace
         return 0;
     }
 
-    // DAT_06d6ffa8 — 22 dword (FUN_06d5cc20). Numeric ids only; no PF_* names.
-    // Values at idx 2/7 are 0x14/0x15 (also valid indices 20/21 = DAA4/DAA8).
-    const unsigned int kPfToD3d[22] = {
-        0,    0x29, 0x14, 0x17, 0x18, 0x1A, 0x19, 0x15, 0x16, 0,
-        0x31545844, 0x32545844, 0x33545844, 0x34545844, 0x35545844,
-        0x504F4144, 0x544F4144, 0x41414144, 0x4C414144, 0x31414144,
-        0x34414144, 0x38414144};
-
-    // bpp from descriptor +4 (ximage DAT_06f841a8 idx 1–8 = RP8 DAT_06d70000).
-    const unsigned int kPfBpp[22] = {
-        0, 8, 24, 16, 16, 16, 16, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // DAT_06d6ffa8 (pfenum -> D3DFORMAT) and the bpp table: kRp8PfToD3d / kRp8PfBpp,
+    // render/rp8_semantics.h.
 
     // Retail FUN_06d5cc70(id)+4 -- per-pfenum-id bpp lookup in BITS (not bytes), used by
     // check_texture_format's capability-gate math (rp8.dll.c:5212-5220). Retail's table is
-    // valid for ids 0..14 (0xe); ids above that clamp to id 0 (bpp=0). kPfBpp already has 0
+    // valid for ids 0..14 (0xe); ids above that clamp to id 0 (bpp=0). kRp8PfBpp already has 0
     // for the unpopulated 9..14/15..21 range, so this is a direct index with a range clamp.
     unsigned int RetailPfBppBits(unsigned int PfId)
     {
-        return (PfId <= 14) ? kPfBpp[PfId] : kPfBpp[0];
+        return (PfId <= 14) ? kRp8PfBpp[PfId] : kRp8PfBpp[0];
     }
 
     struct FPixelFormatDescriptor
     {
-        unsigned int PfId; // pfenum id — same domain as kPfToD3d/kPfBpp indices
+        unsigned int PfId; // pfenum id — same domain as kRp8PfToD3d/kRp8PfBpp indices
         unsigned int Bpp;
         unsigned int RBits; // retail's table also uses this same field for the B-bit compare
         unsigned int GBits;
@@ -1286,13 +1105,13 @@ FDirectX9::~FDirectX9()
     FormatCatalogBegin_ = nullptr;
     FormatCatalogEnd_ = nullptr;
     FormatCatalogCap_ = nullptr;
-    // RP9 Ex (port-only): ShutdownPipeline above released the GPU objects; free the handles.
+    // PORT(rp9): RP9 Ex: ShutdownPipeline above released the GPU objects; free the handles.
     ExDestroyAll();
     delete Ex_;
     Ex_ = nullptr;
 }
 
-// RP8: FDirectX8::QueryLocal (the same eight IIDs as RP8, plus the two port-only Direct3D 9
+// RP8: FDirectX8::QueryLocal (the same eight IIDs as RP8, plus the two PORT(rp9) Direct3D 9
 // extensions RP8 does not answer -- render/IRenderPipelineEx.h)
 GENRESULT FDirectX9::QueryLocal(const char* Iid, void** Out)
 {
@@ -1909,7 +1728,7 @@ unsigned int FDirectX9::FormatClassKeyFromPfId(unsigned int PfId)
     if (Signed <= 9)
         return 0;
     if (Signed < 0x16)
-        return kPfToD3d[PfId];
+        return kRp8PfToD3d[PfId];
     return PfId;
 }
 
@@ -2840,7 +2659,7 @@ void FDirectX9::UnbindTextureHandle(void* Handle)
     }
 }
 
-// ---- RP9 Ex helpers on the RP8-mirrored caches (port-only; callers in RP9Ex.cpp) ----
+// ---- RP9 Ex helpers on the RP8-mirrored caches (PORT(rp9); callers in RP9Ex.cpp) ----
 
 // The D3D8 texture-stage numbers whose state D3D9 keeps per sampler (see
 // Rp9SamplerStateFromTss): the entries an Ex sampler binding can change behind the cache.
@@ -2925,7 +2744,7 @@ unsigned int FDirectX9::PfIndex(unsigned int Format)
 {
     for (unsigned int Index = 0; Index < 22; ++Index)
     {
-        if (kPfToD3d[Index] == Format)
+        if (kRp8PfToD3d[Index] == Format)
             return Index;
     }
     return 0;
@@ -2939,7 +2758,7 @@ unsigned int FDirectX9::PfToD3d(unsigned int Format)
     // earlier port tried a value lookup (FUN_06d5cc30) first; retail has no such step, and
     // every caller in the tree passes pfenum ids.
     if (Format < 22)
-        return kPfToD3d[Format];
+        return kRp8PfToD3d[Format];
     {
         // 06d5cbdd: sprintf("pf_to_d3d: unknown pfenum passed (%x)", id) -> RPUL\Pixel.cpp:82.
         char Text[0x2000];
@@ -2947,7 +2766,7 @@ unsigned int FDirectX9::PfToD3d(unsigned int Format)
         Text[sizeof(Text) - 1] = '\0';
         Rp9Fdump(kFdumpWarning, 0x52, "WARNING", Text, kSrcPixel);
     }
-    return kPfToD3d[0];
+    return kRp8PfToD3d[0];
 }
 
 // RP8: FDirectX8::PfBytesPerPixel
@@ -2958,39 +2777,13 @@ unsigned int FDirectX9::PfBytesPerPixel(unsigned int Format)
         Index = Format;
     if (Index >= 22)
         return 0;
-    return (kPfBpp[Index] + 7) / 8;
+    return (kRp8PfBpp[Index] + 7) / 8;
 }
 
 // RP8: FDirectX8::FvfStride
 unsigned int FDirectX9::FvfStride(unsigned int Fvf)
 {
-    unsigned int Base = 0;
-    if ((Fvf & 0xC) == 0xC)
-        Base = 0x1C;
-    else if ((Fvf & 4) == 4)
-        Base = 0x10;
-    else if ((Fvf & 2) == 2)
-        Base = 0xC;
-    if ((Fvf & 0x10) != 0)
-        Base += 0xC;
-    if ((Fvf & 0x40) != 0)
-        Base += 4;
-    if ((Fvf & 0x80) != 0)
-        Base += 4;
-    const unsigned int TexCount = (Fvf & 0xF00) >> 8;
-    for (unsigned int Index = 0; Index < TexCount; ++Index)
-    {
-        const unsigned int Size = (Fvf >> (Index * 2 + 0x10)) & 3;
-        if (Size == 0)
-            Base += 8;
-        else if (Size == 1)
-            Base += 0xC;
-        else if (Size == 2)
-            Base += 0x10;
-        else
-            Base += 4;
-    }
-    return Base;
+    return Rp8FvfStride(Fvf);
 }
 
 // FUN_06d01c68 (IAggregateComponent slot 3). Returns 0 on every path.
@@ -3004,14 +2797,14 @@ GENRESULT DACOM_API FDirectX9::Initialize()
     // 06d01cda: DAT_06d70540 = FUN_06d5cd40() once.
     Rp9MathEngine();
     // 06d01ced..06d02032: the pipeline-state property map.
-    FillPropertyMap(&PropertyMap_, kPipelineProperties,
-                    std::size(kPipelineProperties), true);
+    FillPropertyMap(&PropertyMap_, kRp8PipelineProperties,
+                    std::size(kRp8PipelineProperties), true, 1);
     // 06d02037: FUN_06d19530, the ability map.
-    FillPropertyMap(&AbilityMap_, kAbilityProperties,
-                    std::size(kAbilityProperties), true);
+    FillPropertyMap(&AbilityMap_, kRp8AbilityProperties,
+                    std::size(kRp8AbilityProperties), true, 0);
     // 06d02049: FUN_06d176e0, the render-state map.
-    FillPropertyMap(&RenderStateMap_, kRenderStateProperties,
-                    std::size(kRenderStateProperties), true);
+    FillPropertyMap(&RenderStateMap_, kRp8RenderStateProperties,
+                    std::size(kRp8RenderStateProperties), true, 1);
     // 06d0205b: FUN_06d19c30(stage 0, 1), then 06d0206e..06d020a1 FUN_06d19c30(stage i, 0) for
     // i = 0..7 -- stage 0 is rebuilt with the flag clear, so every stage ends up COLOROP 1 /
     // ALPHAOP 1.
@@ -3176,7 +2969,7 @@ GENRESULT DACOM_API FDirectX9::ShutdownPipeline()
     // adapter vector (06d07b1a..06d08147: the inlined resize(0) -- its grow branch is dead),
     // release the device and IDirect3D8. +0x1A8 is left as it is.
     DestroyGpuResources();
-    // RP9 Ex (port-only): shaders and managed volume textures die with the device; their
+    // PORT(rp9): RP9 Ex: shaders and managed volume textures die with the device; their
     // bytecode / texel data stays for a later device.
     ExReleaseAllGpu();
     std::vector<FRp9Adapter>& Adapters = Adapters_;
@@ -3536,7 +3329,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
     Present.Windowed = Windowed;
     Present.EnableAutoDepthStencil = TRUE;
     Present.AutoDepthStencilFormat = Depth;
-    // RP9 Ex (port-only): a picked 24-bit depth format on an adapter with INTZ becomes an INTZ
+    // PORT(rp9): RP9 Ex: a picked 24-bit depth format on an adapter with INTZ becomes an INTZ
     // depth texture created right after the device (IRenderPipelineEx::GetSceneDepth), so no
     // auto depth-stencil is made. AutoDepthStencilFormat keeps the picked format: the mode
     // blob's depth/stencil bits and the ZBIAS scale below are the same either way.
@@ -3591,7 +3384,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
         }
     }
 
-    // RP9 Ex (port-only): the explicit depth surface (INTZ) and the Ex D3DPOOL_DEFAULT
+    // PORT(rp9): RP9 Ex: the explicit depth surface (INTZ) and the Ex D3DPOOL_DEFAULT
     // resources DestroyGpuResources released. Without INTZ and Ex objects this does nothing.
     Hr = ExCreateDeviceResources(bIntzDepth, Depth);
     if (Hr < 0)
@@ -3649,7 +3442,7 @@ GENRESULT DACOM_API FDirectX9::CreateBuffers(HWND Hwnd, int* Mode, int* OutMode)
 // RP8: FDirectX8::DestroyGpuResources
 GENRESULT DACOM_API FDirectX9::DestroyGpuResources()
 {
-    // RP9 Ex (port-only): an open Ex pass is ended, the INTZ depth and the Ex render targets
+    // PORT(rp9): RP9 Ex: an open Ex pass is ended, the INTZ depth and the Ex render targets
     // (D3DPOOL_DEFAULT) are released before a Reset. Nothing to do when Ex was never used.
     ExReleaseDeviceResources();
     // 06d09988: stream cache +0x138 = {0, 0, 0, -1, 0}.
@@ -5458,23 +5251,7 @@ namespace
     // converters don't need an FDirectX9 instance.
     unsigned int Rp9ComputeFvfStride(unsigned int Fvf)
     {
-        unsigned int Stride = 0;
-        if ((Fvf & 0xC) == 0xC)
-            Stride = 0x1C;
-        else if ((Fvf & 4) == 4)
-            Stride = 0x10;
-        else if ((Fvf & 2) == 2)
-            Stride = 0xC;
-        if ((Fvf & 0x10) != 0)
-            Stride += 0xC;
-        if ((Fvf & 0x40) != 0)
-            Stride += 4;
-        if ((Fvf & 0x80) != 0)
-            Stride += 4;
-        const unsigned int TexCount = (Fvf & 0xF00) >> 8;
-        for (unsigned int Index = 0; Index < TexCount; ++Index)
-            Stride += Rp9TexelByteSize(Fvf >> (Index * 2 + 0x10));
-        return Stride;
+        return Rp8FvfStride(Fvf);
     }
 
     // FUN_06d1f5fd — confirmed trivial empty thunk in retail (listing 47246-47252, 5 bytes);

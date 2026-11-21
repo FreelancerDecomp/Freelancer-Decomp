@@ -87,8 +87,8 @@ struct FPrefVideoMode
 };
 
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-// Port-only: the resolutions come from the device instead of retail's fixed five, so the table
-// grows. The layout past +0x8cc no longer matches retail under the define.
+// PORT(widescreen): the resolutions come from the device instead of retail's fixed five, so the
+// table grows. The layout past +0x8cc no longer matches retail under the define.
 constexpr int kPrefVideoResolutionCount = 24;
 #else
 constexpr int kPrefVideoResolutionCount = 5;

@@ -38,7 +38,7 @@
 // not reach server_pub.h.
 #include "common_cobject.h"
 #include "dacom.h"
-#include "common_ivp_controller.h"  // IVP_Controller_Golem, CRemotePhysicsController's first base
+#include "ivp_physics/ivp_controller.h"  // IVP_Controller_Golem, CRemotePhysicsController's first base
 #include <cmath>     // sqrt (CRemotePhysicsSimulation::CalcPositionError)
 #include <new>
 #include <string>

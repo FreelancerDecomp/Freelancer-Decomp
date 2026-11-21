@@ -19,26 +19,26 @@
 #include "dacom.h"
 #include "DALib.h"
 #include "x86math.h"  // I3DMathEngine::MatrixToQuaternion, FQuaternion, FMatrix
-#include "../IVP/ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
-#include "../IVP/ivp_physics/ivp_core.h"
-#include "../IVP/ivp_physics/ivp_real_object.h"
-#include "../IVP/ivp_physics/ivp_environment.h"
-#include "../IVP/ivp_physics/ivp_controller.h"
-#include "../IVP/ivp_physics/ivp_material.h"
-#include "../IVP/ivp_physics/ivp_listener.h"
-#include "../IVP/ivp_physics/ivp_mindist_settings.h"
-#include "../IVP/ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
+#include "ivp_collision/ivp_collision.h" // IVP_Collision::get_objects (PhyCollisionStateManager)
+#include "ivp_physics/ivp_core.h"
+#include "ivp_physics/ivp_real_object.h"
+#include "ivp_physics/ivp_environment.h"
+#include "ivp_physics/ivp_controller.h"
+#include "ivp_physics/ivp_material.h"
+#include "ivp_physics/ivp_listener.h"
+#include "ivp_physics/ivp_mindist_settings.h"
+#include "ivp_physics/ivp_mindist.h" // IVP_Synapse_Real (PhySys_CalcClosestPointOnSynapse)
 #include "common_csys.h"  // Acquire3DMathEngine
 #include "x87_trig.h"     // X87SinF / X87CosF (PhySys_UpdateJointedChildren, .text:062884bc / 062884d7)
 // PhySys::CalcClosestPointOnSynapse (FUN_0628b7a0, near GetClosestPhantomIntruderPos
 // below) walks retail's compact half-edge mesh directly -- IVP_Compact_Edge /
 // IVP_Compact_Triangle / IVP_Compact_Ledge and IVP_U_Float_Point.
-#include "../IVP/ivp_compact_builder/ivp_compact_ledge.h"
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
-#include "../IVP/ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
-#include "../IVP/ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
-#include "../IVP/ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
-#include "../IVP/ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
+#include "ivp_compact_builder/ivp_compact_ledge.h"
+#include "ivp_compact_builder/ivp_surface_builder_pointsoup.h" // Cleanup, the box phantom's hull
+#include "ivp_compact_builder/ivp_surface_builder_ledge_soup.h" // the box phantom's surface
+#include "ivp_physics/ivp_surman_polygon.h" // PhySys::PhySurfaceManager's base
+#include "ivp_collision/ivp_ray_solver.h"   // PhySys::RaySolver_MaskedSurface's base
+#include "ivp_collision/ivp_sphere_query.h" // PhysicalSystem::FindSphereCollisions (06350740)
 
 #include <assert.h>
 #include <float.h>   // FLT_MAX (PhySys::GetClosestPhantomIntruderPos, DAT_0639c39c)

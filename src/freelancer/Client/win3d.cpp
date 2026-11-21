@@ -13,7 +13,7 @@
 #include "client_mesh_load.h"
 #include "engine_light.h"
 #include "hud_command_dispatch.h"
-#include "hud_widescreen.h"    // port-only (FREELANCER_WIDESCREEN_SUPPORT)
+#include "hud_widescreen.h"    // PORT(widescreen)
 #include "event_handler.h"
 #include "input_manager.h"
 #include "nn_rollover.h"
@@ -225,7 +225,7 @@ namespace
 
     // Body shared by FUN_0059e5c0 and FUN_0059e6e0.
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only (hud_widescreen.h): every draw, update, hit test and mouse call on an object
+    // PORT(widescreen) (hud_widescreen.h): every draw, update, hit test and mouse call on an object
     // runs with the Win3D camera shifted for that object's HUD corner window (no-op for
     // everything else, and on a 4:3 surface).
     void DrawWidescreen(Win3D* Object)
@@ -707,7 +707,7 @@ float* Win3DGetMouseRay(float* Out)
 {
     // FUN_0059da70.
 #ifdef FREELANCER_WIDESCREEN_SUPPORT
-    // Port-only: inside a shifted HUD window the ray comes through the shifted camera.
+    // PORT(widescreen): inside a shifted HUD window the ray comes through the shifted camera.
     if (WidescreenHudCurrentShift() != 0.0f)
     {
         WidescreenHudCursorRay(Out);

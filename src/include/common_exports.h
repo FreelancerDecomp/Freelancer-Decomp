@@ -34,6 +34,7 @@
 #define SHARED_INLINE_API __declspec(dllimport)
 #endif
 
-// Exported classes may contain std::vector / std::map; consumers do not need their dll-interface.
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+// Exported classes may contain std::vector / std::map and derive from non-exported bases;
+// consumers do not need their dll-interface. C4251 / C4275 are turned off for every project in
+// Directory.Build.props rather than by a #pragma here that never popped and so leaked into
+// every file including this header.

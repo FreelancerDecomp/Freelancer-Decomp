@@ -46,10 +46,16 @@ The first version opens the device and presents a cleared frame; it draws nothin
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
   projection (stored as D3D's row-major matrix, handed over transposed, as RP8 does) and the
   viewport.
-- **Settings and defaults are RP8's** (`RpGpuDefaults.h`). `Startup` reads the pipeline-state,
-  render-state and texture-stage keys from the `[RenderPipeline]` section, or from the section
-  the aggregation descriptor names. `CreateBuffers` and `ResetRenderStatesToDefaults` restore
-  them; stage 0 modulates its texture, and the other stages start disabled.
+- **Settings and defaults are RP8's,** from `render/rp8_semantics.h`, the tables and the value
+  parser RP8 itself uses (so `0x1C` reads 1 in both). `Startup` reads, from the `[RenderPipeline]`
+  section or the section the aggregation descriptor names, the keys RP8 reads: the pipeline
+  states (`BROKEN_MULTITEXTURE` is then overwritten with the blend-stage count, 7, as in RP8),
+  the ability keys (each one present replaces `QueryDeviceAbility`'s answer) and the render
+  states. RP8's device-creation keys (`DeviceId`, `PUREDEVICE`, the vertex-processing keys and
+  the like) mean nothing to SDL_GPU and are not read; neither are the texture-stage keys, which
+  RP8 does not read either. `CreateBuffers` and `ResetRenderStatesToDefaults` restore the
+  defaults; every stage starts with COLOROP and ALPHAOP 1 (disabled), as RP8's Initialize leaves
+  them.
 - **Buffer sessions follow RP8's.** `BeginScene` and `SwapBuffers` fail between
   `DestroyGpuResources` and the next successful `CreateBuffers`. A failed present returns a
   failure, so the client re-creates its buffers, and the device is rebuilt on that call.

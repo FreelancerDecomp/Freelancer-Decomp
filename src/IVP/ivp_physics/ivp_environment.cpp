@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 #include "ivp_environment.h"
-#include "../../Common/physics_tick_profile.h" // Owner-requested port-only profiling
+#include "../ivp_utility/ivp_tick_profile.h" // PORT(diag): owner-requested profiling
 #include "ivp_core.h"
 #include "ivp_anomaly_manager.h"
 #include "ivp_material.h"
@@ -664,7 +664,7 @@ static void IVP_Environment_Fire_Event_PSI(IVP_Environment* env)
 // FUN_0634d090 (.text:0634d090-0634d20b, RET 8) -- the library's
 // IVP_Environment::simulate_psi. The IVP_Time argument is never read.
 // The simulation-unit and calc-next-PSI stages are separate calls, identified
-// below by their retail addresses. Port-only diagnostics measure these stage
+// below by their retail addresses. PORT(diag) diagnostics measure these stage
 // boundaries without changing their calculations or call order.
 void IVP_Environment_Simulate_Psi(IVP_Environment* env, IVP_Time /*current_sim_time*/)
 {

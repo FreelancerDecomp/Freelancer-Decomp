@@ -1,4 +1,4 @@
-// Freelancer Decomp: FLRegress, the headless regression harness (port-only, not part of retail).
+// Freelancer Decomp: FLRegress, the headless regression harness -- PORT(flregress), not part of retail.
 //
 // Crash capture. On an unhandled exception (or a CRT abort, pure call or invalid parameter)
 // FLRegress writes two files to the crash directory and exits with code 4:

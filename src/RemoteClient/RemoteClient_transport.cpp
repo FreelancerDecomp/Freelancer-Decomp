@@ -56,7 +56,7 @@ namespace
         void OnDisconnect() override;
 
         unsigned int ClientId = 0;
-        // Port-only: set once DisconnectClient has released this proxy's slot; the id is kept
+        // PORT(deviation): set once DisconnectClient has released this proxy's slot; the id is kept
         // for packets still in flight, as in retail (see DisconnectClient).
         bool bReleased = false;
     };
