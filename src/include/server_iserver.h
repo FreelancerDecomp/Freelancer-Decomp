@@ -5,7 +5,7 @@
 // Author: Giperion.
 
 // server_iserver.h -- IServer (the 92-slot server interface), IChatServer, Server.dll's
-// two C factories and its three chat-hook data exports. Split out of common_server.h (which includes this header at the spot the
+// two C factories and its three chat-hook data exports. Split out of server_pub.h (which includes this header at the spot the
 // declarations used to occupy) so that a translation unit which must not see common_cobject.h
 // -- FLServer.exe's MFC code, whose CObject clashes with Freelancer's -- can still name IServer.
 // Closure: common_server_types.h (parameter structs, CHAT_ID, CHARACTER_ID, the EFLConnection /

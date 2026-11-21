@@ -7,7 +7,7 @@
 #include "menu_ui_widgets.h"
 
 #include "character_select_equip.h" // SetPlayerRankLevelRetail (FUN_004c55e0's global)
-#include "common_server.h"          // IServer::RequestRankLevel (slot 78)
+#include "server_pub.h"          // IServer::RequestRankLevel (slot 78)
 #include "login_mgr.h"              // G_Server (DAT_0067ecd0)
 #include "player_spawn.h"           // GetPlayerConnectionId (DAT_00673344)
 #include "win_factory.h"            // WinFactoryCreate (FUN_0059db20)

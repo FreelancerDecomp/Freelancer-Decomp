@@ -7,7 +7,7 @@
 #pragma once
 
 #include "common_ini.h"
-#include "common_server_controller.h" // pub::Controller::EMessage (Matches)
+#include "server_controller.h" // pub::Controller::EMessage (Matches)
 #include "common_tstring.h"
 
 #include <cstdio>

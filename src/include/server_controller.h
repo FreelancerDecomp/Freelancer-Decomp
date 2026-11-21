@@ -6,6 +6,8 @@
 
 #pragma once
 
+// Server.dll's controller (IDLL) API, used by Content.dll. Formerly common_server_controller.h.
+
 #include <cstdint>
 #include "server_exports.h"
 

@@ -11,7 +11,7 @@
 #include "ContentPlayerState.h"
 #include "SystemInfo.h"
 #include "ContentStaticIds.h"   // TU20's 16 static-init thunks 06eb6c00-06eb6de0
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"     // pub::SpaceObj::Destroy, DestroyType
 
 // FUN_06eb7260 (06eb7260-06eb7279): +0/+4/+8 = 0, byte +0xc = 0, +0x3c = 0, +0x40 = -1.

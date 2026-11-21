@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_net.h"
 #include "common_physys.h"
 #include "common_ivp_real_object.h" // IVP_Real_Object +0x1c/+0xa4 (StarSystem_MpCollisionFilter)
@@ -63,7 +63,7 @@ class IClient;
 // i.e. a BROADCAST to every loaded controller's slot 0 (retail 0x06d44080). The port used
 // to route it through Common.dll's Server_SendMessage, whose handler table is never
 // populated, so all of it was dead. Server_ControllerDispatch (IServerImpl.cpp, declared in
-// common_server_controller.h) is the real walk.
+// server_controller.h) is the real walk.
 
 // Retail reaches IServerImpl members through the exported `Server` object
 // (e.g. .text:06d50b03 `MOV ECX,.data:Server` / .text:06d50b08 `CALL
@@ -147,7 +147,7 @@ void Server_BroadcastGroupControl(unsigned int MsgType, unsigned int Param) {
 // handler writing the other. This is now the single store.
 //
 // The object itself is defined near the bottom of this file, in the
-// "Missing global exports" block; it is declared in common_server.h.
+// "Missing global exports" block; it is declared in server_pub.h.
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
@@ -374,8 +374,8 @@ PlayerDB& PlayerDB::operator=(const PlayerDB& Other) {
 
 // The translation-unit singleton `GServerAccount` that used to stand in for
 // retail's PlayerDB+0x10 is gone: PlayerDB::m_ServerAccount is a real
-// CPlayerAccount member now (see common_server.h). It only ever existed to keep
-// common_net.h out of common_server.h's include graph, and that include has
+// CPlayerAccount member now (see server_pub.h). It only ever existed to keep
+// common_net.h out of server_pub.h's include graph, and that include has
 // been verified acyclic.
 
 // Retail keeps the accounts root in the global char buffer at DAT_06d90158.
@@ -1988,7 +1988,7 @@ void PlayerDB::init(unsigned int MaxPlayers, bool bAllowNewPlayers) {
 //
 // Retail's map values are bare CAccount* pointers, and so are the port's
 // (the invented FAccountInfo wrapper was removed 2026-09-24); the flags are
-// the bytes at CAccount+0x30..+0x32 -- see CAccount in common_server.h.
+// the bytes at CAccount+0x30..+0x32 -- see CAccount in server_pub.h.
 // FUN_06d46150, called once at the end of phase (E), is LoadCheatMessage; it is
 // ported above and called from init() rather than from here.
 // ---------------------------------------------------------------------------
@@ -2308,7 +2308,7 @@ bool PlayerDB::is_valid(const unsigned int& Id) {
 // Raw listing 0x06ce1a40: the FIRST reference argument is the player id
 // (TEST EDX,EDX -> CMP (id-1) against [this+0x4] -> [base+(id-1)*0x418+0x348]),
 // the SECOND is the ship flid, compared against [base + id*0x418 - 0x34]
-// (= slot+0x3E4). The declaration in common_server.h still names the
+// (= slot+0x3E4). The declaration in server_pub.h still names the
 // parameters the other way round; the names there are cosmetic only, both
 // are `const unsigned int&`, but they should be swapped as well.
 // ---------------------------------------------------------------------------
@@ -4424,12 +4424,12 @@ bool PlayerDB::CreateAccount(CiWString& AccountName) {
 // CPlayerGroup class implementation
 // ===========================================================================
 
-// (`Players` is declared in common_server.h and defined at the bottom of this
+// (`Players` is declared in server_pub.h and defined at the bottom of this
 // file; CPlayerGroup's member add/remove paths route the group-id notification
 // through it, as retail does on .data:Players.)
 
 // Retail .data:06d90400, the protected static CPlayerGroup::s_GroupIDToGroupPtrMap
-// (export ordinal 508; see common_server.h for the declared type).
+// (export ordinal 508; see server_pub.h for the declared type).
 CPlayerGroup::GroupMapType CPlayerGroup::s_GroupIDToGroupPtrMap;
 
 // Retail .data:06d90450, zero-initialised: the ctor pre-increments and the dtor
@@ -4841,7 +4841,7 @@ void CPlayerGroup::DeliverChat(unsigned long MsgType, const void* MsgData) {
 // loaded and called per member (.text:06d5bfe2..06d5bfef) -- and the address pushed is
 // the set node's own value (LEA EDX,[ESI+0xc]), not a copy: both now as retail.
 // The record retail calls CMissionObjectives IS the 0x40-byte SETMISSIONOBJECTIVES
-// argument (rpc_iclient_args.h's FServerSetMissionObjectivesInfo); common_server.h still
+// argument (rpc_iclient_args.h's FServerSetMissionObjectivesInfo); server_pub.h still
 // declares CMissionObjectives as a one-pointer placeholder, so the reference is
 // reinterpreted here, as the old dword cast did.
 void CPlayerGroup::SetMissionObjectives(CMissionObjectives& Objs) {
@@ -5178,7 +5178,7 @@ void CAccount::DeleteCharacterFromID(CiString& CharId) {
 // ===========================================================================
 
 // ===========================================================================
-// CRemotePhysicsSimulation -- declared once in common_server.h; the class is
+// CRemotePhysicsSimulation -- declared once in server_pub.h; the class is
 // Common.dll's. The eight members retail emits into Common.dll, Server.dll and
 // freelancer.exe alike (copy ctor ord 8, operator= ord 27, CalcPositionError 70,
 // GetLatestUpdate 200, GetSample 258, GetSampleCount 259, GetSimulationTime 273,
@@ -5996,13 +5996,13 @@ void SrvAsteroid_MapSystem(unsigned int SystemId) {
 
 // ===========================================================================
 // OwnerList<pub::SpaceObj::CargoDesc> -- the template's members are defined in
-// src/include/common_server.h. This explicit instantiation definition is what makes
+// src/include/server_pub.h. This explicit instantiation definition is what makes
 // Server.dll emit and export the six members retail's Server.dll exports: ??0 (ord
 // 2, .text:06ce3040), copy ??0 (ord 1, .text:06ce3060), ??1 (ord 18, .text:06ce5810),
 // ??4 (ord 23, .text:06ce10d0), ??_7 (ord 34, .rdata:06d64f24) and free (ord 483,
 // .text:06ce57a0). Common.dll and freelancer.exe carry the same instantiation.
 // ===========================================================================
-// Member-level export (common_server.h): ??_7 is the one retail export this cannot emit.
+// Member-level export (server_pub.h): ??_7 is the one retail export this cannot emit.
 OWNERLIST_CARGODESC_EXPORTS
 
 // ===========================================================================

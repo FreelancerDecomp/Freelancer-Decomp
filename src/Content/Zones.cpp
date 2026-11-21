@@ -14,7 +14,7 @@
 #include "ContentInternal.h"
 #include "ContentStaticIds.h"   // TU64 static-init thunks 06fa75c0-06fa77a0
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <cstring>
 

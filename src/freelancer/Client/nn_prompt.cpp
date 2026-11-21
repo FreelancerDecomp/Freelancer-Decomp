@@ -8,7 +8,7 @@
 
 #include "client_state.h"       // CallClientStateUpdateSlot (DAT_0067ecac vftable[14])
 #include "common_misc.h"        // WaitForClientRunPermission / GiveServerRunPermission
-#include "common_server.h"      // IServer
+#include "server_pub.h"      // IServer
 #include "common_text.h"        // RenderDisplayList, StyleNode, JustifyNode
 #include "globals.h"            // PumpMessages, UpdateClientTiming, GetClientFrameTimeCapped
 #include "ids_rdl.h"            // LoadIdsIntoRdl (FUN_0057da40), RdlAppendNode

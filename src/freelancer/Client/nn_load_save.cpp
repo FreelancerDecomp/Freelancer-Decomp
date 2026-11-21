@@ -30,7 +30,7 @@
 
 #include "common_archetype.h"      // Archetype::GetShip
 #include "common_misc.h"           // filetime_to_wstring
-#include "common_server.h"         // IServer::SaveGame
+#include "server_pub.h"         // IServer::SaveGame
 #include "common_universe.h"       // Universe::get_system
 #include "dacom.h"                 // FDUMP
 

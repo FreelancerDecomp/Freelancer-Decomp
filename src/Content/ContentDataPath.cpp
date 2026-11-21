@@ -10,7 +10,7 @@
 #include "ContentInternal.h"
 #include "ContentStaticIds.h" // TU39 static IDs 06f24080..06f24260
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "readfile.h"
 
 #include <cmath>

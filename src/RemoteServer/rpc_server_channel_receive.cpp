@@ -7,7 +7,7 @@
 #define RPCLOCAL_EXPORTS
 #include <windows.h>
 #include "rpc_iserver.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "rpc_iclient.h"
 #include "common_goods.h"        // CostumeHint (0x4d LOADHINT), EquipDescVector
 #include "server_createinfo.h"   // CShipCreateInfo / CSolarCreateInfo / loot / guided

@@ -144,14 +144,14 @@ MFC-приложение (в порте — динамический MFC 14, mul
   и `CServerInfoDlg` существуют как классы без конструкторов в графе вызовов.
 - Разделение заголовков: `server_iserver.h` (`IServer`, `IChatServer`, хуки чата) и
   `server_iserverimpl.h` (`IServerImpl` Server.dll) выделены так, чтобы MFC-код не тянул `CObject` Freelancer
-  и DX8-заголовки; `common_server.h` не должен включать `server_iserverimpl.h` (rpclocal объявляет свой
+  и DX8-заголовки; `server_pub.h` не должен включать `server_iserverimpl.h` (rpclocal объявляет свой
   `IServerImpl`).
 
 ## Известные ограничения
 
 - `IServer` — ровно 92 слота (`+0x000..+0x16c`); 93-й слот `PushToServer` (`+0x170`) принадлежит каждому
   `IServerImpl`, а не интерфейсу. Раскладки аргументов (`XFireWeaponInfo`, `SSPObjUpdateInfo`, …) и сигнатуры —
-  `common_server.h`, `common_server_types.h`, карточка `IServer` в трекере.
+  `server_pub.h`, `common_server_types.h`, карточка `IServer` в трекере.
 - Многие `pub::SpaceObj`/`pub::Player` функции упрощены (создание объектов без полного пайплайна лодаута,
   AI-формации, физические импульсы через сообщения вместо прямых вызовов IVP и т. п.) — по-функционально это
   `simplified` в трекере, архитектурно — раздел Server.dll в deviations.

@@ -15,7 +15,7 @@
 #include "NpcShip.h"              // FContentNpcShip
 #include "SpacePaths.h"           // BuildNnPath, BuildPathDirectives, FindEntryRing, FastLength
 #include "SystemInfo.h"
-#include "common_server.h"        // pub::SpaceObj, pub::AI::lock_maneuvers, pub::GetNicknameId
+#include "server_pub.h"        // pub::SpaceObj, pub::AI::lock_maneuvers, pub::GetNicknameId
 #include "ContentInternal.h"      // SubtractVectors (FUN_06eeaee0)
 
 #include <cstdint>

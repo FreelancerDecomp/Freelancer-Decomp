@@ -26,7 +26,7 @@
 //
 // Retail name and class-key: `class weighted_vector` (mangled V?$weighted_vector@I@@,
 // e.g. Server's ?GetPopulation@Zone@pub@@YAHIAAPBV?$weighted_vector@I@@@Z). This is
-// the ONE declaration; common_server.h only forward-declares it. The explicit
+// the ONE declaration; server_pub.h only forward-declares it. The explicit
 // instantiation below exports exactly retail's members: the three ctors, the dtor, both
 // operator= (returning `const&`, as retail's mangling says), GetSumOfWeights and both
 // Pick overloads (one ICF body in retail).

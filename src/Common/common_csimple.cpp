@@ -12,7 +12,7 @@
 #include "common_cobjdb.h"
 #include "common_physys.h"
 #include "common_net.h"     // IsMPServer (CSimple::update_zones)
-#include "common_server.h"  // CRemotePhysicsController (CSimple::update_zones)
+#include "server_pub.h"  // CRemotePhysicsController (CSimple::update_zones)
 #include "common_universe.h"
 
 #include "DALib.h"

@@ -11,7 +11,7 @@
 #include "common_goods.h" // ThornScriptLoad / ThornScriptDestroy
 #include "common_ini.h"   // RefreshLoadingProgress
 #include "common_misc.h"  // malloc_strcpy / malloc_strfree, SpaceflightLocationID
-#include "common_server.h" // IServer::RTCDone / MissionResponse
+#include "server_pub.h" // IServer::RTCDone / MissionResponse
 #include "dacom.h"
 #include "fade_to_black.h"
 #include "gameflow.h"

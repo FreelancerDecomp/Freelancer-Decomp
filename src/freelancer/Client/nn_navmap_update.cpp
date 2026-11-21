@@ -31,7 +31,7 @@
 #include "common_csys.h"            // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_misc.h"            // Geometry::Sphere
 #include "common_reputation.h"      // Reputation::Vibe::GetAffiliation / GetName
-#include "common_server.h"          // IServer
+#include "server_pub.h"          // IServer
 #include "common_text.h"            // FmtStr
 #include "common_universe.h"
 #include "DALib.h"                  // DALib::Engine / Data

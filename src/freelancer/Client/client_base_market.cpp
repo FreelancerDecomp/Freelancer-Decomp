@@ -10,7 +10,7 @@
 #include "player_spawn.h" // GetPlayerConnectionId (DAT_00673344)
 
 #include "common_goods.h"
-#include "common_server.h" // IServer::GFGoodBuy / GFGoodSell, SGFGoodBuyInfo / SGFGoodSellInfo
+#include "server_pub.h" // IServer::GFGoodBuy / GFGoodSell, SGFGoodBuyInfo / SGFGoodSellInfo
 
 #include <stdlib.h>
 

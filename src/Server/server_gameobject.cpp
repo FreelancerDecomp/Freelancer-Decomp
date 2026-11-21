@@ -31,7 +31,7 @@
 #include "rpc_iclient.h"   // IClient (Ship::request_returned / set_formation_*)
 #include "DALib.h"         // DALib::Engine (Ship::create / Solar::create, IEngine +0x6c)
 #include "common_ini.h"              // StringAlloc (EqObj::*_by_name / dump_cargo)
-#include "common_server.h"           // Players, Server_BroadcastGroupControl (EqObj::destroy)
+#include "server_pub.h"           // Players, Server_BroadcastGroupControl (EqObj::destroy)
 #include "common_server_playerdb.h"  // PlayerData_ShouldQueueVisit / PlayerData_QueueVisit
 #include "common_server_types.h"     // ServerStats (EqObj::destroy)
 #include "rpc_iclient_args.h"        // FServerBurnFuseInfo (EqObj::light_fuse)
@@ -39,7 +39,7 @@
 #include <cstring>                              // memcpy (EqObj::build_equip_loot)
 
 // DAT_06d8fb14 (IServerImpl.cpp) and FUN_06d43650 (pub::Controller::_SendMessage
-// with a zero id; Server_ControllerDispatch, common_server_controller.h) -- the Ship
+// with a zero id; Server_ControllerDispatch, server_controller.h) -- the Ship
 // IObjAffect bodies use both.
 extern IClient* g_pClientInterface;
 // .data:06d8f998 (IServerImpl.cpp) -- EqObj::destroy bumps +0x10 (.text:06ce825f).

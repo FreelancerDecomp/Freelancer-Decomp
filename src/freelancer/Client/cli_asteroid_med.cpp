@@ -9,7 +9,7 @@
 #include "cli_asteroid.h"
 #include "client_explosion.h"   // Action_Explode (FUN_005361e0)
 #include "client_objdb.h"       // ClientObjDb_RegisterGameobj (FUN_00540c30)
-#include "common_server.h"      // IServer::SPBadLandsObjCollision (slot 54)
+#include "server_pub.h"      // IServer::SPBadLandsObjCollision (slot 54)
 #include "common_misc.h"        // SinglePlayer
 #include "dacom.h"              // FDUMP
 #include "player_spawn.h"       // GetPlayerConnectionId (DAT_00673344)

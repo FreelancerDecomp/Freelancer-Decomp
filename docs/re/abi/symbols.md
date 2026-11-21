@@ -30,7 +30,7 @@
 | `CAccount` | 1 | 1 | `src/include/server_playerdb.h:69` | **public** | — |
 | `CAccountsDlg` | 2 | 2 | `src/FLServer/AccountsDlg.h:11` | private (FLServer) | `public CDialog` |
 | `CAreYouSureDlg` | 1 | 1 | `src/FLServer/AreYouSureDlg.h:6` | private (FLServer) | `public CDialog` |
-| `CargoEnumerator` | 1 | 1 | `src/include/common_server.h:139` | **public** | — |
+| `CargoEnumerator` | 1 | 1 | `src/include/server_pub.h:139` | **public** | — |
 | `CargoPod` | 2 | 19 | `src/include/common_archetype.h:1237` | **public** | `public AttachedEquipment` |
 | `CAsteroid` | 4 | 65 | `src/include/common_cobject.h:971` | **public** | `public CSimple` |
 | `CAttachedEquip` | 15 | 51 | `src/include/common_cequip.h:441` | **public** | `public CExternalEquip` |
@@ -114,11 +114,11 @@
 | `CPhysAttachment` | 6 | 12 | `src/include/common_cequip.h:420` | **public** | `public CAttachmentObj` |
 | `CPhysControllerEquip` | 5 | 14 | `src/include/common_cequip.h:692` | **public** | `public PhySys::Controller` |
 | `CPlayerAccount` | 1 | 1 | `src/include/common_net.h:568` | **public** | — |
-| `CPlayerGroup` | 1 | 1 | `src/include/common_server.h:602` | **public** | — |
+| `CPlayerGroup` | 1 | 1 | `src/include/server_pub.h:602` | **public** | — |
 | `CPlayerTradeOffer` | 1 | 1 | `src/include/common_tradeoffer.h:32` | **public** | — |
 | `CProjectile` | 5 | 66 | `src/include/common_cobject.h:611` | **public** | `public CSimple` |
-| `CRemotePhysicsController` | 4 | 21 | `src/include/common_server.h:1251` | **public** | `public IVP_Controller_Golem, public CRemotePhysicsSimulation` |
-| `CRemotePhysicsSimulation` | 2 | 2 | `src/include/common_server.h:961` | **public** | — |
+| `CRemotePhysicsController` | 4 | 21 | `src/include/server_pub.h:1251` | **public** | `public IVP_Controller_Golem, public CRemotePhysicsSimulation` |
+| `CRemotePhysicsSimulation` | 2 | 2 | `src/include/server_pub.h:961` | **public** | — |
 | `CSelectStarSystemDlg` | 4 | 4 | `src/FLServer/SelectStarSystemDlg.h:13` | private (FLServer) | `public CDialog` |
 | `CServerConfigDlg` | 3 | 3 | `src/FLServer/ServerConfigDlg.h:13` | private (FLServer) | `public CDialog` |
 | `CServerInfoDlg` | 1 | 1 | `src/FLServer/ServerInfoDlg.h:14` | private (FLServer) | `public CDialog` |
@@ -145,7 +145,7 @@
 | `DynamicAsteroid` | 2 | 8 | `src/include/common_archetype.h:1578` | **public** | `public Root` |
 | `Engine` | 4 | 17 | `src/include/common_archetype.h:945` | **public** | `public Equipment` |
 | `EngineObject` | 19 | 33 | `src/include/common_cobject.h:81` | **public** | `public IEngineInstance` |
-| `Enumerator` | 1 | 1 | `src/include/common_server.h:161` | **public** | — |
+| `Enumerator` | 1 | 1 | `src/include/server_pub.h:161` | **public** | — |
 | `EqObj` | 4 | 10 | `src/include/common_archetype.h:598` | **public** | `public Root` |
 | `EqObj` | 39 | 67 | `src/include/server_gameobject.h:638` | **public** | `public GameObject` |
 | `Equipment` | 7 | 13 | `src/include/common_archetype.h:814` | **public** | `public Root` |
@@ -523,7 +523,7 @@
 | `StartExplosionAction` | 1 | 1 | `src/freelancer/Client/client_fuse.h:81` | private (freelancer) | `public ClientFuseAction` |
 | `StateMachine` | 1 | 1 | `src/include/common_net.h:452` | **public** | — |
 | `StyleNode` | 9 | 41 | `src/include/common_text.h:1015` | **public** | `public RDLNode` |
-| `SysObjEnumerator` | 1 | 1 | `src/include/common_server.h:381` | **public** | — |
+| `SysObjEnumerator` | 1 | 1 | `src/include/server_pub.h:381` | **public** | — |
 | `TextNode` | 9 | 41 | `src/include/common_text.h:725` | **public** | `public RDLNode` |
 | `TextPtrNode` | 9 | 41 | `src/include/common_text.h:764` | **public** | `public RDLNode` |
 | `TextRenderContext` | 13 | 13 | `src/include/common_text.h:315` | **public** | — |
@@ -541,5 +541,5 @@
 | `WireButtonControl` | 1 | 1 | `src/freelancer/Client/wire_controls.h:121` | private (freelancer) | `public WireStaticControl` |
 | `XMLReader` | 3 | 3 | `src/include/common_text.h:1212` | **public** | — |
 | `XMLWriter` | 2 | 2 | `src/include/common_text.h:1242` | **public** | — |
-| `ZoneEnumerator` | 1 | 1 | `src/include/common_server.h:388` | **public** | — |
+| `ZoneEnumerator` | 1 | 1 | `src/include/server_pub.h:388` | **public** | — |
 

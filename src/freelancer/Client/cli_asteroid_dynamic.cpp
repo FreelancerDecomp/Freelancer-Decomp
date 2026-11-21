@@ -15,7 +15,7 @@
 #include "common_archetype.h"
 #include "common_misc.h"            // random_on_unit_sphere, ICamera, SUBOBJ_ID_NONE
 #include "common_physys.h"
-#include "common_server.h"          // IServer::MineAsteroid (slot 62)
+#include "server_pub.h"          // IServer::MineAsteroid (slot 62)
 #include "common_universe.h"        // Archetype::GetDynamicAsteroidID
 #include "dacom.h"                  // FDUMP
 #include "dacom_iids.h"

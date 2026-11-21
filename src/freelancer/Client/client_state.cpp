@@ -38,7 +38,7 @@
 
 #include "common_universe.h"        // Universe::get_base_id
 
-#include "common_server.h"          // IServer (CharacterSkipAutosave)
+#include "server_pub.h"          // IServer (CharacterSkipAutosave)
 #include "common_server_types.h"    // CHARACTER_ID
 #include "dacom.h"                  // FDUMP
 

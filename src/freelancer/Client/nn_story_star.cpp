@@ -40,7 +40,7 @@
 
 #include "common_goods.h"         // GoodList::find_by_id
 #include "common_reputation.h"    // Reputation::get_name, Reputation::Vibe::GetName
-#include "common_server.h"        // IServer::SetMissionLog (slot 76)
+#include "server_pub.h"        // IServer::SetMissionLog (slot 76)
 #include "common_misc.h"          // SinglePlayer
 #include "common_universe.h"      // Universe::get_system / get_base / get_zone
 #include "dacom.h"                // FDUMP

@@ -20,7 +20,7 @@
 #include "ContentRefObject.h" // FContentRefObject (the ref-counted base 06fb43f8)
 #include "RefHandle.h"        // TRefHandle
 #include "common_pub.h"       // pub::AI::ContentCallback flee enums, Vector
-#include "common_server_controller.h" // pub::Controller::EMessage (HandleEvent)
+#include "server_controller.h" // pub::Controller::EMessage (HandleEvent)
 #include "common_tstring.h"   // TString
 
 #include <list>

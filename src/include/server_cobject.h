@@ -295,7 +295,7 @@ namespace SpaceObj {
 // retail size is at least 0xc0. Members Create never reads are placeholders.
 
 // CargoDesc -- one element of ShipInfo's cargo list (forward-declared in
-// common_server.h for the OwnerList<CargoDesc> exports). Only the two dwords
+// server_pub.h for the OwnerList<CargoDesc> exports). Only the two dwords
 // FUN_06d5f990 reads are known; retail's full size is not recovered, and
 // nothing in the port allocates one.
 struct CargoDesc {

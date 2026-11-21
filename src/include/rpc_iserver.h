@@ -30,7 +30,7 @@
 // the two IServerImpl declarations must never meet in one translation unit.
 #pragma once
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "rpc_iclient.h"        // RPCLOCAL_API, IClient
 
 // Packet classes named only by the two HandleX exports; the port's packets are FPacketBase
@@ -41,7 +41,7 @@ class CDAPDamageSpaceObj;
 // IServerImpl's layout, so a forward declaration is enough here.
 class FPacketSerializer;
 
-// C4275: IServer / IChatServer are interfaces from common_server.h and are not exported
+// C4275: IServer / IChatServer are interfaces from server_pub.h and are not exported
 // themselves -- exactly as in retail, which exports no IServer / IChatServer symbol.
 #pragma warning(push)
 #pragma warning(disable : 4275)
@@ -60,7 +60,7 @@ struct RPCLOCAL_API IServerImpl : public IServer, public IChatServer {
     IServerImpl(const IServerImpl& Other);
     IServerImpl& operator=(const IServerImpl& Other);
 
-    // --- IServer, slot order (common_server.h) ---
+    // --- IServer, slot order (server_pub.h) ---
     void FireWeapon(unsigned int PlayerId, const XFireWeaponInfo& Info) override;
     void ActivateEquip(unsigned int PlayerId, const XActivateEquip& Info) override;
     void ActivateCruise(unsigned int PlayerId, const XActivateCruise& Info) override;
@@ -200,7 +200,7 @@ extern "C" RPCLOCAL_API IServerImpl Server;
 #endif
 
 // ===========================================================================
-// Factories, __cdecl, undecorated. common_server.h already declares GetServerInterface /
+// Factories, __cdecl, undecorated. server_pub.h already declares GetServerInterface /
 // GetChatServerInterface as SERVER_API (Server.dll exports the same two names), which is
 // dllimport inside rpclocal; redeclaring them dllexport here raises C4273 and the
 // dllexport wins -- that is the intent, rpclocal defines its own.

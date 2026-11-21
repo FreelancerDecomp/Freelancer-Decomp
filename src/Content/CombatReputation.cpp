@@ -19,8 +19,8 @@
 #include "SpacePaths.h"           // FastLength (the 0x5f3759df length)
 #include "SystemInfo.h"           // FSystemInfo (TU58), GetSystemInfos, FindSystemInfo
 #include "common_ini.h"           // Vector
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 #include "server_gameobject.h"    // FSubObjDamageEvent
 
 #include <algorithm>

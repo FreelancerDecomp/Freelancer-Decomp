@@ -28,7 +28,7 @@
 #include "SystemInfo.h"
 #include "common_goods.h"
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_text.h"
 #include "common_weighted_vector.h"
 #include "x86math.h"

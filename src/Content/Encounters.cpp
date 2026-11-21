@@ -28,7 +28,7 @@
 #include "SystemInfo.h"
 #include "common_id.h"
 #include "common_ini.h"
-#include "common_server.h"      // pub::SinglePlayer
+#include "server_pub.h"      // pub::SinglePlayer
 
 #include <cstdlib>
 #include <utility>

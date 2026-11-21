@@ -10,7 +10,7 @@
 
 #include "vc6_sort.h"      // Vc6Sort::Sort (the VC6 std::sort of LoadVoiceLines)
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <algorithm>
 

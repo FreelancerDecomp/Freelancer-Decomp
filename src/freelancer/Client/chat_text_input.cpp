@@ -20,7 +20,7 @@
 #include "win_factory.h"
 
 #include "DALib.h"                 // DALib::TextureLib
-#include "common_server.h"         // IChatServer
+#include "server_pub.h"         // IChatServer
 #include "dacom.h"                 // FDUMP, DACOM_CRC::GetCRC32
 #include "render/shading.h"        // ITextureLibrary2
 

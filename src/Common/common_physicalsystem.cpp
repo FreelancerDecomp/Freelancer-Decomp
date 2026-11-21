@@ -15,7 +15,7 @@
 #include "common_net.h"  // IsMPServer -- CRemotePhysicsSimulation::tracef (.text:06291be6)
 #include "common_phyarch.h"
 #include "common_misc.h"     // SinglePlayer
-#include "common_server.h"
+#include "server_pub.h"
 
 #include "dacom.h"
 #include "DALib.h"

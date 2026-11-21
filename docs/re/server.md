@@ -144,14 +144,14 @@ menus and dialogs are taken from there.
   and `CServerInfoDlg` exist as classes with no constructors in the call graph.
 - Header split: `server_iserver.h` (`IServer`, `IChatServer`, chat hooks) and
   `server_iserverimpl.h` (the `IServerImpl` of Server.dll) are separated so that MFC code does not pull in Freelancer's `CObject`
-  and the DX8 headers; `common_server.h` must not include `server_iserverimpl.h` (rpclocal declares its own
+  and the DX8 headers; `server_pub.h` must not include `server_iserverimpl.h` (rpclocal declares its own
   `IServerImpl`).
 
 ## Known limitations
 
 - `IServer` is exactly 92 slots (`+0x000..+0x16c`); the 93rd slot `PushToServer` (`+0x170`) belongs to each
   `IServerImpl`, not to the interface. Argument layouts (`XFireWeaponInfo`, `SSPObjUpdateInfo`, …) and signatures are in
-  `common_server.h`, `common_server_types.h` and the `IServer` card in the tracker.
+  `server_pub.h`, `common_server_types.h` and the `IServer` card in the tracker.
 - Many `pub::SpaceObj`/`pub::Player` functions are simplified (object creation without the full loadout pipeline,
   AI formations, physics impulses via messages instead of direct IVP calls, and so on) — per function this is
   `simplified` in the tracker, architecturally it is the Server.dll section in deviations.

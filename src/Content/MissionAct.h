@@ -16,7 +16,7 @@
 #include "common_goods.h"     // EquipDescVector (Act_SetShipAndLoadout)
 #include "common_ini.h"
 #include "common_reputation.h" // Costume
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_tstring.h"
 #include "x86math.h"
 

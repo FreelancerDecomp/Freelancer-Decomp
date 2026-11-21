@@ -15,7 +15,7 @@
 #include "ContentPlayerState.h"
 #include "ContentStageNames.h"
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <cstdint>
 #include <cstring>

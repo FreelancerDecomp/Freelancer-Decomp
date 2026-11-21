@@ -22,8 +22,8 @@
 #include "NpcShips.h"           // ParseSpaceCostume
 #include "RandomMissionGen.h"   // FindVoiceProperties, FVoiceProperties
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"   // pub::SetTimer, pub::Controller::TimerExpired
+#include "server_pub.h"
+#include "server_controller.h"   // pub::SetTimer, pub::Controller::TimerExpired
 
 #include <algorithm>
 #include <cstdlib>

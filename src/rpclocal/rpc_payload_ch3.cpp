@@ -26,7 +26,7 @@
 //
 // Channel 3 also affords a FOURTH reading that channels 1 and 2 did not: the retail
 // IServer vtable was recovered independently (decomp-tracker IServer card ->
-// src/include/common_server.h), so every slot OFFSET this dispatcher calls comes with a
+// src/include/server_pub.h), so every slot OFFSET this dispatcher calls comes with a
 // parameter list recovered from a different source. All 27 channel-1 call sites and all
 // 53 channel-3 call sites land on a slot whose declared arity and argument types match
 // what the case actually pushes -- 80 of 80, no exceptions. Together those 80 cases reach
@@ -49,7 +49,7 @@
 
 #include "rpc_payloads.h"
 #include "rpc_containers.h"
-#include "common_server.h"
+#include "server_pub.h"
 // EquipDesc and its setters, imported by retail rpclocal at .rdata:06db3004 and
 // 06db3070..06db308c and used verbatim by the two PLAYER_TRADE equipment sub-types.
 #include "common_goods.h"
@@ -57,7 +57,7 @@
 // receiver needs no such include -- its std::list layout IS the payload layout, so
 // FUN_06d8f7d0 hands the payload's own address to IServer+0x6c. The port has to build a
 // real std::list<CollisionGroupDesc>, and common_archetype.h (reached through
-// common_goods.h) only forward-declares the element. common_server.h and
+// common_goods.h) only forward-declares the element. server_pub.h and
 // common_cobject.h already coexist in src/Server/server_pub.cpp.
 #include "common_cobject.h"
 
@@ -88,7 +88,7 @@ IChatServer* GRealChatServer = nullptr;
 
 // ===========================================================================
 // Generic marshallers. The argument index is the position in the retail IServer
-// signature (src/include/common_server.h), NOT counting `this`.
+// signature (src/include/server_pub.h), NOT counting `this`.
 // ===========================================================================
 
 // payload+0x00 = Args[Index], by value.
@@ -952,7 +952,7 @@ static bool DeliverDbgRelocateShip(const FPacketBase*, IServer*, unsigned int) {
 // the std::list header itself).
 //
 // Fourth reading, the one only channel 3 affords: the three slot offsets the dispatcher
-// calls -- +0x6c, +0x70, +0x74 -- are slots 27, 28 and 29 of src/include/common_server.h,
+// calls -- +0x6c, +0x70, +0x74 -- are slots 27, 28 and 29 of src/include/server_pub.h,
 // declared there as ReqCollisionGroups(std::list<CollisionGroupDesc> const&, uint),
 // ReqEquipment(EquipDescList const&, uint) and ReqCargo(EquipDescList const&, uint).
 // Arity and argument kind match what each case pushes: one container reference plus the
@@ -1229,7 +1229,7 @@ const FRpcServerCodec* RpcFindServerCodec(unsigned int Channel, unsigned int Opc
 //
 // Every wire struct here is the one rpc_payload_ch1.cpp already proved; only the
 // receiving side is new. The slot each case calls was cross-checked against
-// src/include/common_server.h -- all 27 call sites (19 plain cases plus the eight
+// src/include/server_pub.h -- all 27 call sites (19 plain cases plus the eight
 // PLAYER_TRADE sub-types) hit a slot whose declared arity matches what is pushed.
 //
 // UPDATED 2026-09-17: these packets DO occur now. IServerImpl serializes every one of its

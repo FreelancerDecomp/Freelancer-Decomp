@@ -28,7 +28,7 @@
 #include "SpacePaths.h"             // IsSegmentClear (FUN_06f60e10)
 #include "SystemInfo.h"             // FSystemInfo, FSystemZone, FTradeLaneRing, DistanceSquaredToSegment
 #include "common_misc.h"            // random_inside_cylinder
-#include "common_server.h"
+#include "server_pub.h"
 #include "x86math.h"                // FVector, FMatrix
 
 #include <algorithm>

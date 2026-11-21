@@ -19,7 +19,7 @@
 // the filler is the open gap.
 
 #include "common_ini.h"     // Vector, INI_Reader
-#include "common_server.h"  // ConnectionType
+#include "server_pub.h"  // ConnectionType
 
 #include <list>
 #include <map>

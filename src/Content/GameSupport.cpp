@@ -22,8 +22,8 @@
 #include "SystemInfo.h"
 #include "SystemConnections.h"  // InitSystemPathTables (TU41)
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 
 #include "RandomMissionDB.h"   // GetShipMissionProperties (TU51)
 
