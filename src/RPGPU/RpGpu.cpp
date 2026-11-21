@@ -495,6 +495,10 @@ GENRESULT DACOM_API FRpGpu::SwapBuffers()
         return GR_GENERIC;
     const bool bPresented = Backend().Present(Frame_);
     Frame_.Clear();
+    // The frame is submitted: the image versions it was the last to use can go.
+    for (std::uint64_t Version : RetiredVersions_)
+        Backend().ForgetTexture(Version);
+    RetiredVersions_.clear();
     if (!bPresented)
     {
         Log("RPGPU: present failed: %s\n", Backend().LastError());

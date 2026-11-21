@@ -166,8 +166,9 @@ GENRESULT DACOM_API FRpGpu::DestroyTexture(void* Handle)
     if (Texture != nullptr)
     {
         Textures_.erase(Texture);
-        if (Backend_ != nullptr)
-            Backend_->ForgetTexture(Texture);
+        // Draws recorded this frame may still use its image: released after SwapBuffers.
+        if (Texture->GpuVersion != 0)
+            RetiredVersions_.push_back(Texture->GpuVersion);
         for (void*& Bound : StageTextures_)
         {
             if (Bound == Texture)

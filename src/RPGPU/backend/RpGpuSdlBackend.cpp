@@ -126,10 +126,11 @@ bool FRpGpuSdlBackend::Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uin
         if (Window_ == nullptr)
             return false;
 
-        // Every shader format SDL_GPU knows: the device picks its backend (Direct3D 12, Vulkan
-        // or Metal) from what the system offers. The skeleton has no shaders yet.
+        // The shader formats RPGPU ships (tools/rpgpu_shaders.ps1): the device picks its backend
+        // (Direct3D 12, Vulkan or Metal) among those. No DXBC, so a Direct3D 12 device without
+        // DXIL is not chosen only to fail on the first frame.
         const SDL_GPUShaderFormat Formats = SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL |
-                                            SDL_GPU_SHADERFORMAT_DXBC | SDL_GPU_SHADERFORMAT_MSL;
+                                            SDL_GPU_SHADERFORMAT_MSL;
 #if defined(_DEBUG)
         const bool bDebug = true;
 #else
@@ -219,6 +220,7 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     Transfer_ = nullptr;
     TransferCapacity_ = 0;
     SwapchainFormat_ = 0;
+    DepthFormat_ = 0; // probed again on the next device
     // Textures the game still holds come back through UploadTexture: RPGPU uploads a texture
     // again whenever its GPU copy is missing (docs/re/rpgpu.md, "Drawing").
 }
@@ -444,10 +446,10 @@ bool FRpGpuSdlBackend::EnsureBuffer(SDL_GPUBuffer** Buffer, std::uint32_t* Capac
     return *Buffer != nullptr;
 }
 
-void FRpGpuSdlBackend::UploadTexture(const void* Key, std::uint32_t Width, std::uint32_t Height,
+void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
                                      const std::uint8_t* Bgra)
 {
-    if (Key == nullptr || Width == 0 || Height == 0 || Bgra == nullptr)
+    if (Key == 0 || Width == 0 || Height == 0 || Bgra == nullptr)
         return;
     FPendingUpload Upload;
     Upload.Key = Key;
@@ -466,7 +468,7 @@ void FRpGpuSdlBackend::UploadTexture(const void* Key, std::uint32_t Width, std::
     PendingUploads_.push_back(std::move(Upload));
 }
 
-void FRpGpuSdlBackend::ForgetTexture(const void* Key)
+void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
 {
     PendingUploads_.erase(std::remove_if(PendingUploads_.begin(), PendingUploads_.end(),
                                          [Key](const FPendingUpload& Pending) { return Pending.Key == Key; }),
@@ -527,14 +529,21 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         }
     }
 
-    const std::uint32_t VertexBytes = static_cast<std::uint32_t>(Frame.Vertices.size() * sizeof(FRpGpuVertex2D));
-    const std::uint32_t IndexBytes = static_cast<std::uint32_t>(Frame.Indices.size() * sizeof(std::uint16_t));
-    std::uint32_t TextureBytes = bWhiteUploaded_ ? 0u : 4u;
+    // Sizes in 64 bits first: SDL_GPU's buffers and offsets are 32-bit, so a frame whose uploads
+    // add up to more than that is refused instead of wrapping.
+    const std::uint64_t VertexBytes64 = static_cast<std::uint64_t>(Frame.Vertices.size()) * sizeof(FRpGpuVertex2D);
+    const std::uint64_t IndexBytes64 = static_cast<std::uint64_t>(Frame.Indices.size()) * sizeof(std::uint16_t);
+    std::uint64_t TextureBytes64 = bWhiteUploaded_ ? 0u : 4u;
     for (const FPendingUpload& Upload : PendingUploads_)
-        TextureBytes += static_cast<std::uint32_t>(Upload.Bgra.size());
-    const std::uint32_t Total = TextureBytes + VertexBytes + IndexBytes;
-    if (Total == 0)
+        TextureBytes64 += Upload.Bgra.size();
+    const std::uint64_t Total64 = TextureBytes64 + VertexBytes64 + IndexBytes64;
+    if (Total64 == 0)
         return true;
+    if (Total64 > 0xFFFFFFFFull)
+        return SDL_SetError("RPGPU: a frame's uploads exceed 4 GB");
+    const std::uint32_t VertexBytes = static_cast<std::uint32_t>(VertexBytes64);
+    const std::uint32_t IndexBytes = static_cast<std::uint32_t>(IndexBytes64);
+    const std::uint32_t Total = static_cast<std::uint32_t>(Total64);
     if (VertexBytes != 0 && !EnsureBuffer(&VertexBuffer_, &VertexCapacity_, VertexBytes, false))
         return false;
     if (IndexBytes != 0 && !EnsureBuffer(&IndexBuffer_, &IndexCapacity_, IndexBytes, true))
@@ -682,10 +691,20 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Pipelines_.clear();
             SwapchainFormat_ = Format;
         }
-        const bool bReady = CreateShaders() && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
+        bool bReady = CreateShaders() && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
+        // Every pipeline and sampler the frame needs, before any render pass starts: a draw that
+        // cannot get one fails the frame rather than vanishing.
+        for (std::size_t Index = 0; bReady && Index < Frame.Commands.size(); ++Index)
+        {
+            const FRpGpuCommand& Command = Frame.Commands[Index];
+            if (Command.Kind == FRpGpuCommand::EKind::Draw && Command.VertexCount != 0)
+                bReady = Pipeline(Command.Pipeline) != nullptr && Sampler(Command.Sampler) != nullptr;
+        }
         if (!bReady)
         {
-            SDL_CancelGPUCommandBuffer(Commands);
+            // The swap-chain image is acquired, so the command buffer cannot be cancelled any
+            // more: it is submitted with nothing drawn, and the device is rebuilt.
+            SDL_SubmitGPUCommandBuffer(Commands);
             bNeedsRebuild_ = true;
             return false;
         }

@@ -249,6 +249,10 @@ private:
     float DepthRange_[2] = {0.0f, 1.0f};
     void* StageTextures_[8] = {}; // SetTextureStageTexture's handles
     FRpGpuFrameRecording Frame_;  // the draws since the last SwapBuffers
+    std::uint64_t NextTextureVersion_ = 1;
+    // Image versions replaced or destroyed during this frame: the frame's draws may still use
+    // them, so the backend lets go of them only after SwapBuffers has presented it.
+    std::vector<std::uint64_t> RetiredVersions_;
 
     std::set<FRpGpuTexture*> Textures_;
     std::set<FRpGpuBuffer*> VertexBuffers_;

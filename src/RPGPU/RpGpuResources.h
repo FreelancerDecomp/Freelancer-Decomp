@@ -8,6 +8,7 @@
 #include "x64_low_arena.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 // CPU memory for one texture image, on the ordinary heap: LockTexture hands its address out in
@@ -39,6 +40,9 @@ struct FRpGpuTexture
     std::vector<FRpGpuImage> Images; // level, or face for a cube
     // Level 0 changed since its last upload to the backend (or never went up).
     bool bGpuStale = true;
+    // The backend image version of the last upload (0: none). Each upload gets a new one, so draws
+    // recorded before a change keep the image they saw.
+    std::uint64_t GpuVersion = 0;
 };
 
 // A vertex or index buffer in CPU memory. Pool buffers (one per FVF) and the scratch index

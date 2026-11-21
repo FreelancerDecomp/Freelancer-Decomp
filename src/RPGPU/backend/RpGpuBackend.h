@@ -117,10 +117,10 @@ struct FRpGpuCommand
     std::uint32_t ClearArgb = 0;
     float ClearDepth = 1.0f;
 
-    // Draw: the pipeline and sampler, the texture (null: none), the geometry, and the uniforms.
+    // Draw: the pipeline and sampler, the texture image (0: none), the geometry, and the uniforms.
     FRpGpuPipelineKey Pipeline;
     FRpGpuSamplerKey Sampler;
-    const void* Texture = nullptr;
+    std::uint64_t Texture = 0;
     std::uint32_t FirstVertex = 0;
     std::uint32_t VertexCount = 0;
     std::uint32_t FirstIndex = 0;
@@ -166,12 +166,15 @@ public:
     // could not be submitted; the next Create then rebuilds the device.
     virtual bool Present(const FRpGpuFrameRecording& Frame) = 0;
 
-    // A texture's level 0 as B, G, R, A bytes (Width x Height, no padding), uploaded before the
-    // next frame's draws. Key is RPGPU's texture handle; a second upload replaces the first.
-    virtual void UploadTexture(const void* Key, std::uint32_t Width, std::uint32_t Height,
+    // A texture image: level 0 as B, G, R, A bytes (Width x Height, no padding), uploaded before
+    // the next frame's draws. Key names this image version (never 0) and is never reused: when a
+    // texture changes, RPGPU uploads a new version under a new key, so draws recorded earlier in
+    // the frame keep the image they saw.
+    virtual void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
                                const std::uint8_t* Bgra) = 0;
-    // The texture of Key is gone: its GPU copy is released.
-    virtual void ForgetTexture(const void* Key) = 0;
+    // The image version of Key is no longer needed. RPGPU calls this only after the frame that
+    // last used it has been presented.
+    virtual void ForgetTexture(std::uint64_t Key) = 0;
 
     virtual RpWindowHandle Hwnd() const = 0;
     virtual std::uint32_t Width() const = 0;

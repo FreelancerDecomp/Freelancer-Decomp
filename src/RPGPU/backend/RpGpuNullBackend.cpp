@@ -62,7 +62,7 @@ namespace
             return true;
         }
 
-        void UploadTexture(const void* Key, std::uint32_t Width, std::uint32_t Height,
+        void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
                            const std::uint8_t* Bgra) override
         {
             (void)Key;
@@ -71,7 +71,7 @@ namespace
             (void)Bgra;
         }
 
-        void ForgetTexture(const void* Key) override { (void)Key; }
+        void ForgetTexture(std::uint64_t Key) override { (void)Key; }
 
         RpWindowHandle Hwnd() const override { return Hwnd_; }
         std::uint32_t Width() const override { return Width_; }

@@ -49,9 +49,9 @@ public:
     // rebuild on the next Create.
     bool Present(const FRpGpuFrameRecording& Frame) override;
 
-    void UploadTexture(const void* Key, std::uint32_t Width, std::uint32_t Height,
+    void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
                        const std::uint8_t* Bgra) override;
-    void ForgetTexture(const void* Key) override;
+    void ForgetTexture(std::uint64_t Key) override;
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }
     std::uint32_t Width() const override { return Width_; }
@@ -77,7 +77,7 @@ private:
     };
     struct FPendingUpload
     {
-        const void* Key;
+        std::uint64_t Key;
         std::uint32_t Width;
         std::uint32_t Height;
         std::vector<std::uint8_t> Bgra;
@@ -112,7 +112,7 @@ private:
     std::uint32_t DepthFormat_ = 0;
     std::unordered_map<std::uint64_t, SDL_GPUGraphicsPipeline*> Pipelines_;
     std::unordered_map<std::uint64_t, SDL_GPUSampler*> Samplers_;
-    std::unordered_map<const void*, FTexture> Textures_;
+    std::unordered_map<std::uint64_t, FTexture> Textures_;
     std::vector<FPendingUpload> PendingUploads_;
     SDL_GPUTexture* White_ = nullptr; // bound when a draw has no texture
     bool bWhiteUploaded_ = false;

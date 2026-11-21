@@ -138,7 +138,11 @@ void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
     {
         return;
     }
-    Backend().UploadTexture(Texture, Image.Width, Image.Height, Bgra.data());
+    // A new version: the old one may still be in this frame's earlier draws.
+    if (Texture->GpuVersion != 0)
+        RetiredVersions_.push_back(Texture->GpuVersion);
+    Texture->GpuVersion = NextTextureVersion_++;
+    Backend().UploadTexture(Texture->GpuVersion, Image.Width, Image.Height, Bgra.data());
     Texture->bGpuStale = false;
 }
 
@@ -236,7 +240,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     Command.Sampler.MipFilter = static_cast<std::uint8_t>(Stage0[kTssMipFilter]);
     FRpGpuTexture* const Texture = LiveTexture(StageTextures_[0]);
     RefreshTexture(Texture);
-    Command.Texture = Texture;
+    Command.Texture = Texture != nullptr ? Texture->GpuVersion : 0;
     Command.FirstVertex = FirstVertex;
     Command.VertexCount = VertCount;
     Command.FirstIndex = FirstIndex;
