@@ -131,6 +131,9 @@ RpcCodecTest.
   by a named member;
 - the crash-report block for `dw15.exe` (`main.cpp:150`), which has 32-bit offsets; leave it out
   on x64.
+- the agreement dialog: `EBUEula.dll` is a 32-bit DLL whose `EBUEula` export the client calls,
+  so x64 cannot load it. The x64 client skips the agreement, as FLDedicated does (#44,
+  `RunEulaGate` in `main.cpp`); Win32 still shows it.
 
 **2.5 RP9 for x64, as a stopgap renderer.** Link the x64 `d3dx9.lib`. Today `FreelancerRp9=1`
 also turns on the client's Ex hooks (volumetric nebulae). Split those into their own switch,
