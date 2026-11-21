@@ -29,7 +29,8 @@ namespace CmnSysMgr
     inline bool IsWatcherLive(BaseWatcher const& Watcher)
     {
         Watchable const* const Target = Watcher.target();
-        return Target != nullptr && reinterpret_cast<std::uintptr_t>(Target) != 8;
+        return Target != nullptr &&
+               reinterpret_cast<std::uintptr_t>(Target) != static_cast<std::uintptr_t>(FL_OBJRW_WATCHABLE_OFFSET);
     }
 
     // `EAX = [W]; ECX = EAX ? EAX - 8 : 0` -- the object behind a watcher, or null. Callers
