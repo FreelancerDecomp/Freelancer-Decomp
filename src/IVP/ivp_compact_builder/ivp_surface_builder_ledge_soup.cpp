@@ -22,17 +22,10 @@
 // decomp-tracker items 2750/2751).
 #include "../ivp_utility/ivp_malloc.h"
 #include "float_bits.h"
+#include "msvcrt_compat.h" // MsvcrtFtol (only the low byte is kept)
 
 namespace
 {
-
-    // MSVCRT ftol: truncation of the x87 value. Every use in this file only
-    // keeps the low byte (AL), so a 32-bit truncation gives the same byte.
-    int32_t RetailFtol(double Value)
-    {
-        return static_cast<int32_t>(Value);
-    }
-
     // Retail's IVP_U_BigVector on the stack of FUN_0636d650 / FUN_0635ada0:
     // {memsize, n_elems, elems} with a heap buffer of the given capacity
     // (FUN_06343f70 = malloc). get_all_ledges (FUN_0635abf0) grows it through
@@ -379,9 +372,9 @@ void IVP_SurfaceBuilder_Ledge_Soup::BuildLeafNodes()
 
         // :0636a4d6-0636a51a: octant bytes, ratio and division on the x87 stack.
         const double Scaled = (double)(node->Radius) * kExtentScale;
-        node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[0]) - node->CenterX) / Scaled)) + 1);
-        node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[1]) - node->CenterY) / Scaled)) + 1);
-        node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(LedgeMax.k[2]) - node->CenterZ) / Scaled)) + 1);
+        node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[0]) - node->CenterX) / Scaled)) + 1);
+        node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[1]) - node->CenterY) / Scaled)) + 1);
+        node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(LedgeMax.k[2]) - node->CenterZ) / Scaled)) + 1);
 
         m_LeafByteTotal += 0x28;              // :0636a51d
         node->Ledge = ledge;                  // :0636a521
@@ -650,9 +643,9 @@ IVP_SurfaceBuilder_Ledge_Soup::BuildNode* IVP_SurfaceBuilder_Ledge_Soup::SplitBu
     node->Ledge = nullptr;                                            // :0636a990
 
     // :0636a997-0636a9df: FLD max[k]; FSUB center[k]; FDIV scaled; ftol; INC AL.
-    node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[0]) - Center.k[0]) / Scaled)) + 1);
-    node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[1]) - Center.k[1]) / Scaled)) + 1);
-    node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(RetailFtol(((double)(ScratchMax->k[2]) - Center.k[2]) / Scaled)) + 1);
+    node->Octant[0] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[0]) - Center.k[0]) / Scaled)) + 1);
+    node->Octant[1] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[1]) - Center.k[1]) / Scaled)) + 1);
+    node->Octant[2] = static_cast<uint8_t>(static_cast<uint8_t>(MsvcrtFtol(((double)(ScratchMax->k[2]) - Center.k[2]) / Scaled)) + 1);
 
     if (list.n_elems == 2)
     {

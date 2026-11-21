@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "x87_portable.h" // X87TruncateToInt64
+
 // Retail modules import atoi/atol/_wtoi from the system MSVCRT.DLL (e.g. Common.dll
 // .text:06310851, Server.dll .text:06d47626, freelancer.exe .text:005ab80c). Those are the
 // classic atox.c/wtox.c loops: skip whitespace, one optional sign, then
@@ -109,3 +111,13 @@ static_assert(MsvcrtAtoi(" \t+42x") == 42);
 static_assert(MsvcrtWtoi(L"2806013121") == -1488954175);
 static_assert(MsvcrtWtoi(L"\x3000-\xff11\xff12") == -12);
 static_assert(MsvcrtWideCharToDigit(L'\x0669') == 9 && MsvcrtWideCharToDigit(L'\x0670') == -1);
+
+// MSVCRT _ftol, which retail's float -> integer conversions call: round toward zero, FISTP qword,
+// result in EDX:EAX. Retail callers keep EAX, the low dword, so a value outside the int32 range
+// wraps, and a NaN, an infinity or a value outside the int64 range (the integer indefinite
+// 0x8000000000000000) gives 0. A plain static_cast<int> is undefined for those inputs.
+inline long MsvcrtFtol(double Value)
+{
+    const unsigned long long Bits = static_cast<unsigned long long>(X87TruncateToInt64(Value));
+    return static_cast<long>(static_cast<unsigned long>(Bits & 0xFFFFFFFFull));
+}

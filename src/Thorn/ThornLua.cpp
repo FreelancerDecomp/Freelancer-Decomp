@@ -86,16 +86,6 @@ namespace
         return lua_gettable();
     }
 
-    // MSVCRT _ftol saves CW, forces RC=11 (chop), FISTP qword, restores CW,
-    // and returns EAX (low 32 bits). Qword indefinite on invalid input is
-    // 0x8000000000000000, whose low word is zero.
-    int RetailFtol(double Value)
-    {
-        if (!(Value >= -9223372036854775808.0 && Value < 9223372036854775808.0))
-            return 0;
-        return static_cast<int>(static_cast<unsigned int>(static_cast<long long>(Value)));
-    }
-
     // Keep the FMUL result on x87 through the retail chop-to-qword conversion.
     int LuaMillisecondsToRetailInt(lua_Object Object)
     {
