@@ -112,9 +112,13 @@ Deformable2, luaprofile. Includes:
 - `SetWindowLongPtrA` / `GWLP_*` for the subclassed window procedure and user data;
 - the exe resolves movie's exports by their decorated 32-bit names (`engine_init.cpp:292`).
   `PlayMovie`'s name is different on x64; take its x64 name there, so Win32 is unchanged;
-- the big-number code (`MovieField*.cpp`, `MovieGraph.cpp`, `MovieExp.cpp`, `MovieWide.cpp`)
-  passes pointers as `int` about 300 times. First find out what it is for. If it is not on the
-  movie playback path, leave it out of the x64 build; otherwise retype it.
+- the big-number code (`MovieField*.cpp`, `MovieGraph.cpp`, `MovieExp.cpp`, `MovieWide.cpp`,
+  about 320 pointer-to-integer casts) answers the WM ASF Reader's `IWMAuthorizer` challenge: the
+  old Windows Media Format SDK "unlock", with four built-in certificates (`MoviePlay.cpp`). On x64
+  the movie module attaches no service provider and leaves that code out, on the assumption
+  that today's reader plays unprotected WMV without it. If the reader refuses, x64 skips the
+  intro movies, as it skips the EULA, and a GitHub issue tracks a way to bring them back.
+  Not on the critical path: done after the exe runs.
 
 **2.3 RemoteServer:** seven asm blocks, all float copies or double-to-float narrowing (covered by
 `X87CopyFloat`). The packet codecs it shares with RemoteClient are already ported and checked by
@@ -247,10 +251,11 @@ Not started until the hold on the non-Windows port is lifted. It needs CMake (#1
 
 ## Decisions needed
 
-1. Step 2.2: the movie big-number code, once we know what it is for.
-2. Step 3.1: adding RPNull, a port-only module.
-3. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
-4. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
+1. Step 3.1: adding RPNull, a port-only module.
+2. Step 5.1: adding SDL3 to the repository (vendored or fetched at build time).
+3. Phase 6: lifting the hold on the non-Windows port, and what to do with the movies there.
 
 Decided: step 2.5 splits RP9's Ex hooks into their own switch, off on x64. Whether they come
 to x64 is decided in the optional stage after phase 4, from the screenshot comparison.
+Step 2.2: the movie module's authorizer and big-number code stay out of x64; if the reader then
+refuses the intros, x64 skips them.
