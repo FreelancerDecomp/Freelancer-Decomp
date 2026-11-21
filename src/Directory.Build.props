@@ -39,6 +39,12 @@
     <IntDir Condition="'$(Platform)'=='x64'">$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)\$(Configuration)_x64\</IntDir>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <PreferredToolArchitecture Condition="'$(Platform)'=='x64'">x64</PreferredToolArchitecture>
+    <!-- MultiToolTask runs each source file as its own compiler process (it supersedes /MP), and
+         EnforceProcessCountAcrossBuilds caps those processes across all projects at the core
+         count, so idle cores pick up files from any project, in Visual Studio as on the command
+         line. Neither changes the compiler or linker options. /p:UseMultiToolTask=false turns it off. -->
+    <UseMultiToolTask Condition="'$(UseMultiToolTask)'==''">true</UseMultiToolTask>
+    <EnforceProcessCountAcrossBuilds Condition="'$(EnforceProcessCountAcrossBuilds)'==''">true</EnforceProcessCountAcrossBuilds>
     <!-- DirectX 8.1 SDK (repo-root dx8/, gitignored). Headers via IncludePath append
          (old basetsd.h must not precede the Windows 10 SDK). Override: /p:Dx8SdkDir=... -->
     <Dx8SdkDir Condition="'$(Dx8SdkDir)'==''">$(MSBuildThisFileDirectory)..\dx8</Dx8SdkDir>
