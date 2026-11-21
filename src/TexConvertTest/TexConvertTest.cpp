@@ -23,6 +23,7 @@
 #include <d3d8.h>
 #include <d3dx8.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -137,7 +138,14 @@ namespace
     void Compare(IDirect3DDevice8* Device, unsigned int SrcFormat, unsigned int DstFormat, unsigned int Width,
                  unsigned int Height, int Pattern, unsigned int SrcPitchOverride = 0)
     {
-        const std::vector<unsigned char> Source = MakeSource(SrcFormat, Width, Height, Pattern);
+        std::vector<unsigned char> Source = MakeSource(SrcFormat, Width, Height, Pattern);
+        // An overridden pitch can span more bytes than the image (Shading's pitch for a tall DXT
+        // mip): D3DX reads Rows x pitch, so the buffer covers that, padded with zeros.
+        if (SrcPitchOverride != 0)
+            Source.resize(std::max<std::size_t>(Source.size(),
+                                                static_cast<std::size_t>(SrcPitchOverride) *
+                                                    TexConvert::RowCount(SrcFormat, Height)),
+                          0);
         unsigned char Palette[256 * 3];
         PALETTEENTRY Entries[256];
         for (int Index = 0; Index < 256; ++Index)
@@ -245,6 +253,102 @@ namespace
     }
 }
 
+namespace
+{
+// One DXT block through D3DX and TexConvert into A8R8G8B8; on a difference, the block and both
+// results are printed, so the decoder's rounding can be read off the log.
+int G_ProbeLines = 0;
+void Probe(IDirect3DDevice8* Device, unsigned int Format, const unsigned char* Block)
+{
+    const unsigned int Bytes = Format == TexConvert::kDxt1 ? 8u : 16u;
+    IDirect3DSurface8* Surface = nullptr;
+    if (Device->CreateImageSurface(4, 4, D3DFMT_A8R8G8B8, &Surface) < 0)
+        return;
+    RECT Rect = {0, 0, 4, 4};
+    if (D3DXLoadSurfaceFromMemory(Surface, nullptr, nullptr, Block, ToD3d(Format), Bytes, nullptr, &Rect,
+                                  D3DX_FILTER_NONE, 0) >= 0)
+    {
+        std::uint32_t Ours[16] = {};
+        TexConvert::FImage Image;
+        Image.Format = TexConvert::kA8R8G8B8;
+        Image.Width = 4;
+        Image.Height = 4;
+        Image.Pitch = 16;
+        Image.Bits = Ours;
+        TexConvert::FSource Src;
+        Src.Format = Format;
+        Src.Width = 4;
+        Src.Height = 4;
+        Src.Pitch = Bytes;
+        Src.Bits = Block;
+        TexConvert::Load(Image, Src);
+        D3DLOCKED_RECT Locked;
+        if (Surface->LockRect(&Locked, nullptr, D3DLOCK_READONLY) >= 0)
+        {
+            std::uint32_t Theirs[16];
+            for (int Row = 0; Row < 4; ++Row)
+                std::memcpy(Theirs + Row * 4, static_cast<const unsigned char*>(Locked.pBits) + Row * Locked.Pitch, 16);
+            Surface->UnlockRect();
+            if (std::memcmp(Theirs, Ours, sizeof(Ours)) != 0 && G_ProbeLines < 60)
+            {
+                ++G_ProbeLines;
+                std::printf("PROBE %s block", Name(Format));
+                for (unsigned int Index = 0; Index < Bytes; ++Index)
+                    std::printf(" %02x", Block[Index]);
+                std::printf(" | D3DX");
+                for (int Index = 0; Index < 16; ++Index)
+                    std::printf(" %08x", Theirs[Index]);
+                std::printf(" | ours");
+                for (int Index = 0; Index < 16; ++Index)
+                    std::printf(" %08x", Ours[Index]);
+                std::printf("\n");
+            }
+        }
+    }
+    Surface->Release();
+}
+
+void RunProbes(IDirect3DDevice8* Device)
+{
+    // Endpoint pairs across the range in both orders; indices 0,1,2,3 in every row.
+    const std::uint16_t Colors[] = {0x0000, 0x0001, 0x0020, 0x0800, 0x1234, 0x7bef, 0x8410, 0xa5d3, 0xf800,
+                                    0x07e0, 0x001f, 0xffff, 0x39c7, 0xc618};
+    const unsigned int Formats[] = {TexConvert::kDxt1, TexConvert::kDxt2, TexConvert::kDxt3,
+                                    TexConvert::kDxt4, TexConvert::kDxt5};
+    for (unsigned int Format : Formats)
+    {
+        for (std::uint16_t C0 : Colors)
+        {
+            for (std::uint16_t C1 : Colors)
+            {
+                unsigned char Block[16] = {};
+                unsigned char* const Color = Format == TexConvert::kDxt1 ? Block : Block + 8;
+                Color[0] = static_cast<unsigned char>(C0);
+                Color[1] = static_cast<unsigned char>(C0 >> 8);
+                Color[2] = static_cast<unsigned char>(C1);
+                Color[3] = static_cast<unsigned char>(C1 >> 8);
+                std::memset(Color + 4, 0xE4, 4);
+                if (Format == TexConvert::kDxt2 || Format == TexConvert::kDxt3)
+                {
+                    for (int Index = 0; Index < 8; ++Index)
+                        Block[Index] = static_cast<unsigned char>(0x10 * Index + 0x0F - Index);
+                }
+                else if (Format != TexConvert::kDxt1)
+                {
+                    // Alpha endpoints from the colour pair, both orders; indices 0..7 then 0..7.
+                    Block[0] = static_cast<unsigned char>(C0 >> 3);
+                    Block[1] = static_cast<unsigned char>(C1 >> 5);
+                    const std::uint64_t Indices = 0xFAC688FAC688ull; // 0,1,2,3,4,5,6,7 twice
+                    for (int Byte = 0; Byte < 6; ++Byte)
+                        Block[2 + Byte] = static_cast<unsigned char>(Indices >> (Byte * 8));
+                }
+                Probe(Device, Format, Block);
+            }
+        }
+    }
+}
+}
+
 int main()
 {
     FDevice D3d;
@@ -253,6 +357,7 @@ int main()
         std::printf("TexConvertTest: no Direct3D 8 device; nothing compared\n");
         return 2;
     }
+    RunProbes(D3d.Device);
     const unsigned int Sources[] = {TexConvert::kP8,       TexConvert::kR8G8B8,   TexConvert::kR5G6B5,
                                     TexConvert::kX1R5G5B5, TexConvert::kA4R4G4B4, TexConvert::kA1R5G5B5,
                                     TexConvert::kA8R8G8B8, TexConvert::kX8R8G8B8, TexConvert::kDxt1,
