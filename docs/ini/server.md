@@ -92,26 +92,26 @@ DLL = Content.dll, SpacePop, LOWEST   ; priority tokens, comments after ';'
 ## System and base files on the server
 
 * `pub::BuildSystemReader` / `pub::BuildBaseReader` / `pub::System::EnumerateZones` only **open** the system file or base file for the calling controller DLL and hand the reader (or one reader per zone) to it; they read no key themselves ([server_pub.cpp:349](../../src/Server/server_pub.cpp#L349), [:367](../../src/Server/server_pub.cpp#L367), [:6827](../../src/Server/server_pub.cpp#L6827)). The system file path is `universe.ini` `[system] file` made absolute against the universe directory (an unopenable file logs "missing System file"); the base file path is the data directory plus `[Base] file` (no message when it cannot be opened). See [systems-and-bases.md](systems-and-bases.md).
-* **Multiplayer system load** (`StarSystem::load`, [server_classes.cpp:6779](../../src/Server/server_classes.cpp#L6779)): the system file is opened and every `[Object]` section is created as a solar via `CSolar::ReadObj` (keys in [archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#system-file-object-sections-through-the-solar-archetypes-csolarreadobj)). In single player the server reuses the solars and asteroid fields the client already built and reads nothing from the system file.
+* **Multiplayer system load** (`StarSystem::load`, [server_starsystem.cpp:686](../../src/Server/server_starsystem.cpp#L686)): the system file is opened and every `[Object]` section is created as a solar via `CSolar::ReadObj` (keys in [archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#system-file-object-sections-through-the-solar-archetypes-csolarreadobj)). In single player the server reuses the solars and asteroid fields the client already built and reads nothing from the system file.
 
 ### Asteroid fields on the server
 
-`SrvAsteroidSystem::load` ([server_classes.cpp:5798](../../src/Server/server_classes.cpp#L5798), multiplayer system load only) reads every `[Asteroids]` section of the system file:
+`SrvAsteroidSystem::load` ([server_asteroid.cpp:666](../../src/Server/server_asteroid.cpp#L666), multiplayer system load only) reads every `[Asteroids]` section of the system file:
 
 | Key | Type | Default | Meaning | Source |
 |---|---|---|---|---|
-| `file` | str (whole value, up to 255 chars) | empty | Asteroid-field file, relative to the data directory. | [L5817](../../src/Server/server_classes.cpp#L5817) |
-| `zone` | str (whole value, up to 63 chars) | empty | Nickname of the zone the field fills. | [L5825](../../src/Server/server_classes.cpp#L5825) |
+| `file` | str (whole value, up to 255 chars) | empty | Asteroid-field file, relative to the data directory. | [L685](../../src/Server/server_asteroid.cpp#L685) |
+| `zone` | str (whole value, up to 63 chars) | empty | Nickname of the zone the field fills. | [L693](../../src/Server/server_asteroid.cpp#L693) |
 
 If either value is empty the section is silently skipped. An unknown zone logs "AsteroidField linked to missing Zone (%s)" and the server then dereferences it (retail behaviour).
 
-`FSrvAsteroidField::load` ([server_classes.cpp:5668](../../src/Server/server_classes.cpp#L5668)) then opens the field file and makes a first pass over its `[Field]` section(s), reading these keys as **integers** (the number is parsed as a float and truncated, so `0.5` becomes 0):
+`FSrvAsteroidField::load` ([server_asteroid.cpp:536](../../src/Server/server_asteroid.cpp#L536)) then opens the field file and makes a first pass over its `[Field]` section(s), reading these keys as **integers** (the number is parsed as a float and truncated, so `0.5` becomes 0):
 
 | Key | Type | Default | Meaning | Source |
 |---|---|---|---|---|
-| `cube_size` | int | 250 (or the field's current size) | Edge length of a grid cube. | [L5685](../../src/Server/server_classes.cpp#L5685) |
-| `fill_dist` | int | 0 | Distance around the player within which cubes are populated. (The value of the file is always applied, so an absent key gives 0.) | [L5687](../../src/Server/server_classes.cpp#L5687) |
-| `empty_cube_frequency` | int | 0 | Share of empty cubes; truncated to an integer on the server. | [L5689](../../src/Server/server_classes.cpp#L5689) |
+| `cube_size` | int | 250 (or the field's current size) | Edge length of a grid cube. | [L553](../../src/Server/server_asteroid.cpp#L553) |
+| `fill_dist` | int | 0 | Distance around the player within which cubes are populated. (The value of the file is always applied, so an absent key gives 0.) | [L555](../../src/Server/server_asteroid.cpp#L555) |
+| `empty_cube_frequency` | int | 0 | Share of empty cubes; truncated to an integer on the server. | [L557](../../src/Server/server_asteroid.cpp#L557) |
 
 and then re-reads the file from the start with `CAsteroidField::load` for the `[Cube]`, `[Exclusion Zones]` and `[LootableZone]` sections ([archetypes-ships-solars-asteroids.md](archetypes-ships-solars-asteroids.md#asteroid-field-files-casteroidfieldload)).
 
@@ -219,7 +219,7 @@ Only `[Player]` sections are read (other sections belong to the controller DLLs)
 | `log` | `[0]` mad-lib id, `[1]` count, then count x (data, tag, flags) | - | One mission-log entry (repeat). A tag of 0x21 starts a nested entry whose parameters follow in the same line. | [L606](../../src/Server/server_savegame.cpp#L606) |
 | `logid` | - | - | Tested and ignored. | [L611](../../src/Server/server_savegame.cpp#L611) |
 
-`PlayerDB::ReadCharacterName` ([server_classes.cpp:3669](../../src/Server/server_classes.cpp#L3669)) reads only `name` (same hex rule, same `/*` ... `*/` comment skipping) of the first `[Player]` section to build the character list; a file that cannot be loaded gives an empty name. After a load the selected character's reader is also given to the controllers as the `PlayerLoad` message.
+`PlayerDB::ReadCharacterName` ([server_playerdb.cpp:3611](../../src/Server/server_playerdb.cpp#L3611)) reads only `name` (same hex rule, same `/*` ... `*/` comment skipping, with the comment depth reset for each section) to build the character list: it takes the first uncommented `name` in any `[Player]` section, walking later `[Player]` sections when an earlier one has none; a file that cannot be loaded gives an empty name. After a load the selected character's reader is also given to the controllers as the `PlayerLoad` message.
 
 ### New-character templates  ([PlayerData_CreateNewCharacter, server_savegame.cpp:1082](../../src/Server/server_savegame.cpp#L1082))
 
@@ -236,4 +236,4 @@ Only `[Player]` sections are read (other sections belong to the controller DLLs)
 
 The faction/package/pilot/base data comes from the character database listed as `[Data] NewCharDB` ([data-driven-files.md](data-driven-files.md)). If any of the four choices is missing, no file is created; if the template cannot be opened or is a `FLSG` file an empty file is written. A key with no values reprints the previous key's joined value (retail behaviour).
 
-`NewPlayer.fl` is the template of `Restart.fl`: `PlayerDB::create_restart_file` copies it to `Restart.fl` and appends the whole text of the initial-world file ([server_classes.cpp:3506](../../src/Server/server_classes.cpp#L3506)).
+`NewPlayer.fl` is the template of `Restart.fl`: `PlayerDB::create_restart_file` copies it to `Restart.fl` and appends the whole text of the initial-world file ([server_playerdb.cpp:3429](../../src/Server/server_playerdb.cpp#L3429)).

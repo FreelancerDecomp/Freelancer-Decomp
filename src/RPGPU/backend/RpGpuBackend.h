@@ -6,9 +6,9 @@
 // The seam between RPGPU's pipeline (RpGpu.*, which talks to the game through RP8's interfaces)
 // and what puts pixels on a screen (docs/re/rpgpu.md). Two backends:
 //
-// - SDL (RpGpuDevice.*): an SDL_GPU device and swap chain on the client's window. The only code
+// - SDL (RpGpuSdlBackend.*): an SDL_GPU device and swap chain on the client's window. The only code
 //   that includes SDL.
-// - Null (RpGpuNullBackend.*): no device. It accepts every call, reports a fixed list of display
+// - Null (RpGpuNullBackend.cpp): no device. It accepts every call, reports a fixed list of display
 //   modes and presents nothing, so RPGPU runs where there is no GPU: the CI smoke test and
 //   screenshot comparison (x64-client-plan.md, steps 3.2 and 4.2). Selected with
 //   [RenderPipeline] NULL_DEVICE = 1.

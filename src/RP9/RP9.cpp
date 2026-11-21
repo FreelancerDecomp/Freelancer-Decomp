@@ -4459,10 +4459,9 @@ GENRESULT DACOM_API FDirectX9::IsTexture(void* A)
     return GR_OK;
 }
 // RP8: FDirectX8::LockTexture
-GENRESULT DACOM_API FDirectX9::LockTexture(void* A, int Level, void* C)
+GENRESULT DACOM_API FDirectX9::LockTexture(void* A, int Level, FRpTextureLock* Out)
 {
     void* Handle = A;
-    unsigned long* Out = (unsigned long*)(C);
     if (Device_ == nullptr)
     {
         Rp9Fdump(kFdumpWarning, 3244, "WARNING", "lock_texture() called outside of device lifetime");
@@ -4498,11 +4497,11 @@ GENRESULT DACOM_API FDirectX9::LockTexture(void* A, int Level, void* C)
         FdumpHr("lock_texture: %s", Hr, 3272);
     // 06d0e134: written whatever the lock returned: +0x10 FUN_06d5cc30(desc.Format),
     // +0 desc.Width, +4 desc.Height, +8 pitch, +0xc bits. Then release the surface, return hr.
-    Out[4] = PfIndex((unsigned int)(Desc.Format));
-    Out[0] = Desc.Width;
-    Out[1] = Desc.Height;
-    Out[2] = (unsigned long)(Locked.Pitch);
-    Out[3] = (unsigned long)(Locked.pBits);
+    Out->Format = PfIndex((unsigned int)(Desc.Format));
+    Out->Width = Desc.Width;
+    Out->Height = Desc.Height;
+    Out->Pitch = (unsigned long)(Locked.Pitch);
+    Out->Bits = Locked.pBits;
     Surface->Release();
     Surface = nullptr;
     return (GENRESULT)(Hr);

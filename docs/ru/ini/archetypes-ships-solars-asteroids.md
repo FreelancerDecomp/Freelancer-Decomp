@@ -121,7 +121,7 @@ docking_sphere = berth, HpDockMountA, 2, Sc_open dock A
 
 ## Секции `[Object]` системных файлов через архетипы solar (`CSolar::ReadObj`)
 
-Каждая секция `[Object]` системного файла (например, `universe\systems\<sys>\<sys>.ini`) читается `CSolar::ReadObj` ([common_csolar.cpp:692](../../../src/Common/common_csolar.cpp#L692)) при создании solar — на сервере в мультиплеере ([server_classes.cpp:6932](../../../src/Server/server_classes.cpp#L6947)) и на клиенте. Системный файл содержит много других секций и ключей, принадлежащих другим reader ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); здесь потребляются только перечисленные ниже ключи, остальные ключи секции пропускаются.
+Каждая секция `[Object]` системного файла (например, `universe\systems\<sys>\<sys>.ini`) читается `CSolar::ReadObj` ([common_csolar.cpp:692](../../../src/Common/common_csolar.cpp#L692)) при создании solar — на сервере в мультиплеере ([server_starsystem.cpp:885](../../../src/Server/server_starsystem.cpp#L885)) и на клиенте. Системный файл содержит много других секций и ключей, принадлежащих другим reader ([systems-and-bases.md](systems-and-bases.md), [world-data.md](world-data.md)); здесь потребляются только перечисленные ниже ключи, остальные ключи секции пропускаются.
 
 | Ключ | Тип | По умолчанию | Значение / допустимые значения | Источник |
 |---|---|---|---|---|
@@ -145,7 +145,7 @@ docking_sphere = berth, HpDockMountA, 2, Sc_open dock A
 | `voice` | id (всё значение) | 0 | Id голоса. | [L893](../../../src/Common/common_csolar.cpp#L893) |
 | `comm_appr` | nickname костюма (всё значение) | нет | Целый костюм, ищется по имени. | [L898](../../../src/Common/common_csolar.cpp#L898) |
 
-После цикла объект отклоняется (пишется ошибка), если архетип отсутствует, nickname пуст или записи репутации для nickname не существует (см. следующий раздел).
+После цикла `ReadObj` пишет ошибку и возвращает false, если архетип отсутствует, nickname пуст или записи репутации для nickname не существует (см. следующий раздел). Это ошибки разбора, а не всегда отказ: сервер мультиплеера в `StarSystem::load_object` ([server_starsystem.cpp:885](../../../src/Server/server_starsystem.cpp#L885)) не читает результат и создаёт объект, если `ReadObj` оставил архетип, как и в retail. Создание останавливает только неизвестный или отсутствующий архетип, при котором он остаётся null.
 
 ### Проход репутации объектов (`LoadObjectVibesFromSystemIni`)
 

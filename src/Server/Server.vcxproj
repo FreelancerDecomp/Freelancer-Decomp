@@ -63,11 +63,20 @@
     <ClInclude Include="server_savegame.h" />
     <ClInclude Include="..\include\server_savefile.h" />
     <ClInclude Include="..\include\server_fuse.h" />
+    <ClInclude Include="server_classes_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IServerImpl.cpp" />
     <ClCompile Include="server_pub.cpp" />
     <ClCompile Include="server_classes.cpp" />
+    <ClCompile Include="server_playerdb.cpp" />
+    <ClCompile Include="server_playergroup.cpp" />
+    <ClCompile Include="server_account.cpp" />
+    <ClCompile Include="server_asteroid.cpp" />
+    <ClCompile Include="server_starsystem.cpp" />
+    <ClCompile Include="server_objectlist.cpp" />
+    <ClCompile Include="server_playerview.cpp" />
+    <ClCompile Include="server_space.cpp" />
     <ClCompile Include="server_chat.cpp" />
     <ClCompile Include="server_gameobject.cpp" />
     <ClCompile Include="server_observer.cpp" />

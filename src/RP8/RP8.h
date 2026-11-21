@@ -391,7 +391,7 @@ public:
                                       void** OutHandle) override;
     GENRESULT DACOM_API DestroyTexture(void* Handle) override;
     GENRESULT DACOM_API IsTexture(void* Handle) override;
-    GENRESULT DACOM_API LockTexture(void* Handle, int Level, void* Out) override;
+    GENRESULT DACOM_API LockTexture(void* Handle, int Level, FRpTextureLock* Out) override;
     GENRESULT DACOM_API UnlockTexture(void* Handle, int Level) override;
     GENRESULT DACOM_API GetTextureFormat(void* Handle, int* OutFormat) override;
     GENRESULT DACOM_API GetTextureDim(void* Handle, unsigned int* OutW, unsigned int* OutH,
