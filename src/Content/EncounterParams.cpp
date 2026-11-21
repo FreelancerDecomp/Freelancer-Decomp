@@ -25,7 +25,7 @@
 #include "SpaceSupport.h"       // PlaceSpawnFormation (TU53 FUN_06f65f10)
 #include "SystemInfo.h"
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_tstring.h"
 #include "x86math.h"            // FTransform
 

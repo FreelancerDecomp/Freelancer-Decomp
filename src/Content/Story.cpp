@@ -14,7 +14,7 @@
 #include "ContentStaticIds.h" // TU15 static IDs 06ea5c10..06ea5df0
 #include "ContentPlayerState.h"
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <cstdio>
 #include <cstring>

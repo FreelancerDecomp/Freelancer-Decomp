@@ -115,14 +115,14 @@
 // closing?". This is retail's "IClientSide" interface implementation: the per-space-object
 // network activation/deactivation entry point (jump-gate transitions, zone-in/zone-out). Not
 // ported; no IClientSide/IClientSpaceObj-equivalent exists in src/ (the unrelated IClientS*
-// substrings that do exist -- common_server.h's EOT_CliAsteroid enum member, common_net.h's
+// substrings that do exist -- server_pub.h's EOT_CliAsteroid enum member, common_net.h's
 // CliAsteroid-exclusion-distance helpers -- are server-side networking concepts, not this
 // client interface).
 //
 // This IClientS.cpp range transitions directly into the already-triaged CDeadReckonedVector /
 // CRemotePhysicsSimulation cluster at 0x0053f890 (see decomp-tracker notes on those items --
 // those two classes DO have a partial port in src/Common/common_cobject.h/.cpp and
-// src/include/common_server.h + src/Common/common_physys.cpp; CDeadReckonedVector's layout
+// src/include/server_pub.h + src/Common/common_physys.cpp; CDeadReckonedVector's layout
 // and quadratic dead-reckoning algorithm were re-derived and fixed, but CRemotePhysicsSimulation's
 // own Doit/RemoteUpdate/CheckForSync are still unported), then into ship.cpp beyond 0x00540000.
 //

@@ -22,7 +22,7 @@
 #include "SystemInfo.h"         // FSystemInfo::SystemId (GetRmZoneAtPosition)
 #include "common_ini.h"
 #include "common_misc.h"        // random_inside_ring (FUN_06f9c100)
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_weighted_vector.h"
 #include "msvcrt_compat.h"
 

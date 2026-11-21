@@ -10,7 +10,7 @@
 #include "rpc_packet_codec.h"
 #include "dacom.h"
 #include "common_server_types.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_goods.h"
 #include "x87_portable.h"
 #include <cstring>

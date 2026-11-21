@@ -39,7 +39,7 @@
 #include "common_archetype.h"       // Archetype::GetShip
 #include "common_reputation.h"      // Reputation::get_id / get_name / get_info_card /
                                     // IsStoryFaction, Reputation::Vibe::GetAffiliation
-#include "common_server.h"          // IServer::RequestPlayerStats
+#include "server_pub.h"          // IServer::RequestPlayerStats
 #include "common_misc.h"            // SinglePlayer
 #include "common_text.h"            // RenderDisplayList, StyleNode
 #include "common_tstring.h"         // TString

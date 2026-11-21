@@ -7,7 +7,7 @@
 #include "connect_handshake.h"
 
 #include "client_frame_tick.h"    // BeginClientRenderFrame / EndClientRenderFrame
-#include "common_server.h"        // IServer
+#include "server_pub.h"        // IServer
 #include "common_misc.h"          // SinglePlayer
 #include "common_timing.h"        // Timing::read
 #include "globals.h"              // PumpMessages, GetClientFrameTimeCapped

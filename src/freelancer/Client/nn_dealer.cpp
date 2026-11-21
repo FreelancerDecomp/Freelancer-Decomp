@@ -39,7 +39,7 @@
 #include "common_goods.h"           // Good2Arch / Arch2Good / GoodList
 #include "common_ini.h"             // StringAlloc
 #include "common_reputation.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_misc.h"            // SinglePlayer
 #include "common_tstring.h"
 #include "common_universe.h"

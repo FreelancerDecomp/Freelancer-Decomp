@@ -13,7 +13,7 @@
 #include "DockQueues.h"           // FGcsDockGrantedEvent (vtable 06fbbd70)
 #include "Gcs.h"                  // GGcsConversations (DAT_06fd1c08)
 #include "SystemInfo.h"           // FindSystemInfo (FUN_06f75f30)
-#include "common_server.h"        // pub::SpaceObj::GetType / Activate / LaneResponse
+#include "server_pub.h"        // pub::SpaceObj::GetType / Activate / LaneResponse
 
 #include <cstdint>
 

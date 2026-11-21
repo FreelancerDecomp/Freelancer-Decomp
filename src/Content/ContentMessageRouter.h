@@ -12,7 +12,7 @@
 // in its dtor (FUN_06efebb0: DAT_06fcf254->vtbl[+0x10](1)).
 
 #include "common_net.h"
-#include "common_server_controller.h"
+#include "server_controller.h"
 
 #include <list>
 

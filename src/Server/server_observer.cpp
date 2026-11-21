@@ -21,7 +21,7 @@
 // UPDATEOBJECT phase below.
 // ---------------------------------------------------------------------------
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_server_playerdb.h"
 #include "common_misc.h"       // DamageList / DamageEntry, SUBOBJ_ID_NONE
 #include "common_physys.h"     // Quaternion

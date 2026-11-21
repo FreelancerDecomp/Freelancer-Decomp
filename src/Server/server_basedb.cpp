@@ -9,7 +9,7 @@
 // Every function below names the retail address it was traced from.
 
 #include "server_basedb.h"
-#include "common_server.h"          // Players, PlayerDB
+#include "server_pub.h"          // Players, PlayerDB
 #include "common_server_playerdb.h" // PlayerData
 #include "common_reputation.h"      // Reputation::Vibe::GetName
 #include "common_misc.h"            // malloc_strcpy, malloc_wstrcpy

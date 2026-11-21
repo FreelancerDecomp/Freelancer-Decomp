@@ -1597,7 +1597,7 @@ extern const unsigned int GChannel2CodecCount;
 // strict inverse -- the hardest of the three checks, and it holds for all five.
 //
 // A fourth reading is available on this channel and was used: the retail IServer
-// vtable in src/include/common_server.h (IServer card in decomp-tracker) gives the slot
+// vtable in src/include/server_pub.h (IServer card in decomp-tracker) gives the slot
 // offset AND the parameter list of every call the receiver makes, so the recovered
 // field order has to agree with a signature recovered independently. All 50 closed
 // types agree.
@@ -1611,7 +1611,7 @@ extern const unsigned int GChannel2CodecCount;
 // retail serializes the SECOND argument. Every codec below says which.
 //
 // Marshal() argument convention for channel 3: Args[i] is the i-th dword argument
-// after this, in the order src/include/common_server.h declares it.
+// after this, in the order src/include/server_pub.h declares it.
 // ===========================================================================
 
 // --- generic shapes, reused by many opcodes -------------------------------

@@ -19,7 +19,7 @@
 #include "SystemInfo.h"         // FSystemInfo::SystemId
 #include "common_goods.h"       // MissionVendorOfferDescription
 #include "common_ini.h"
-#include "common_server.h"      // pub::GF::MissionVendorOffer*, ReportWhyMissionVendorEmpty
+#include "server_pub.h"      // pub::GF::MissionVendorOffer*, ReportWhyMissionVendorEmpty
 #include "common_text.h"        // FmtStr
 #include "common_weighted_vector.h" // weighted_vector<unsigned int> (vendor candidates)
 

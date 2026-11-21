@@ -25,7 +25,7 @@
 //
 // Terminal types (pub::SpaceObj::TerminalInfo::Value, the docking sphere type): 1, 2, 6 berth,
 // 3 small moor, 4 medium moor, 5 large moor, 7 and 8 open to every ship (FUN_06f6c580's
-// switch). The response codes are DOCK_HOST_RESPONSE values (common_server.h): 1 access
+// switch). The response codes are DOCK_HOST_RESPONSE values (server_pub.h): 1 access
 // denied, 2 no terminal fits the ship, 3 every fitting terminal is busy / the target moves,
 // 4 proceed, 5 the target has no terminal (or, from FUN_06f6d820, the ship is unknown).
 

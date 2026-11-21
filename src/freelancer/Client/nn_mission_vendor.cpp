@@ -29,7 +29,7 @@
 
 #include "DALib.h"
 #include "common_goods.h"           // MissionVendorProperties, MissionVendorAcceptance
-#include "common_server.h"          // IServer::MissionResponse
+#include "server_pub.h"          // IServer::MissionResponse
 #include "common_text.h"            // FmtStr, RenderDisplayList, StyleNode
 #include "dacom.h"                  // FDUMP
 #include "render/shading.h"         // IMaterialLibrary::DeleteGroup

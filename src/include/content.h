@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "common_server_controller.h"
+#include "server_controller.h"
 
 // Content.dll — shared Server controller interface (docs/re/content.md).
 // Not a DACOM component: no RegisterComponent, no 1.11_* IID.

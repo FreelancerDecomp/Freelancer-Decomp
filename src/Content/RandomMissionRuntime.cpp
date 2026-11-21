@@ -16,7 +16,7 @@
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_net.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 #include <string.h>
 

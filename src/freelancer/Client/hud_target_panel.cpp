@@ -53,7 +53,7 @@
 #include "common_id.h"              // CreateID
 #include "common_iface.h"
 #include "common_misc.h"            // SUBOBJ_ID_NONE, ICamera
-#include "common_server.h"          // IServer
+#include "server_pub.h"          // IServer
 #include "common_text.h"            // StyleNode
 
 #include "DALib.h"

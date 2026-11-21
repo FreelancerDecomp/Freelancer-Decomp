@@ -17,10 +17,10 @@
 // (src/include/rpc_iserver.h). The two never meet in one translation unit: this header is for
 // Server.dll and its direct importers (FLServer.exe / RemoteClient.dll), rpc_iserver.h
 // for the rpclocal / RemoteServer proxies.
-// That is also why common_server.h does not include this header.
+// That is also why server_pub.h does not include this header.
 //
 // Closure: server_iserver.h (IServer, IChatServer, SERVER_API) and common_server_types.h
-// (ServerStats, the parameter structs). It must never reach common_server.h /
+// (ServerStats, the parameter structs). It must never reach server_pub.h /
 // common_cobject.h, so MFC translation units can include it.
 #pragma once
 

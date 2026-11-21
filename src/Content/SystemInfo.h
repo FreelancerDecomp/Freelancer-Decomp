@@ -14,7 +14,7 @@
 #include "common_net.h"     // CommReferrable
 #include "common_id.h"      // ID_String
 #include "common_ini.h"     // Vector
-#include "common_server.h"  // pub::System::ZoneEnumerator
+#include "server_pub.h"  // pub::System::ZoneEnumerator
 #include "x86math.h"        // FMatrix
 #include "PatrolPaths.h"    // FPatrolPath (FSystemInfo +0x50)
 #include "NpcCreate.h"      // FSolarNpc (FSystemInfo +0x88)

@@ -56,7 +56,7 @@
 #include "common_goods.h"
 #include "common_id.h"              // CreateID
 #include "common_iface.h"           // IObjRW / IObjAffect
-#include "common_server.h"          // IServer
+#include "server_pub.h"          // IServer
 #include "common_text.h"            // RenderDisplayList, StyleNode
 #include "common_ini.h"             // StringAlloc
 #include "common_misc.h"            // SUBOBJ_ID_NONE

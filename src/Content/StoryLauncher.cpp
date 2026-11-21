@@ -12,7 +12,7 @@
 #include "NpcShips.h"         // FNpcCharacterDesc, LoadNpcCharacterDesc, GSpecificNpcs (DAT_06fd081c)
 #include "common_id.h"
 #include "common_ini.h"
-#include "common_server_controller.h"
+#include "server_controller.h"
 #include "platform.h"
 
 #include <new>

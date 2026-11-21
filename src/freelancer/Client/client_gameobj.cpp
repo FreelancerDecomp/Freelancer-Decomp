@@ -19,7 +19,7 @@
 #include "common_id.h"           // CreateID
 #include "common_ini.h"          // INI_Reader (Solar ReadIni, FUN_005485c0)
 #include "common_newchar.h"      // pub::StateGraph::get_state_graph
-#include "common_server.h"       // IServer (DAT_0067ecd0)
+#include "server_pub.h"       // IServer (DAT_0067ecd0)
 #include "common_misc.h"         // SinglePlayer, GetFileSysPath (Common exports)
 #include "dacom.h"               // FDUMP
 #include "common_goods.h"        // FindHardpoint_PS / HardpointInfo

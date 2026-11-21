@@ -10,7 +10,7 @@
 #define REMOTESERVER_INSTANCE_DEFINITION
 #include "rpc_iserver.h"
 #undef REMOTESERVER_INSTANCE_DEFINITION
-#include "common_server.h"
+#include "server_pub.h"
 #include "rpc_iclient.h"
 #include "freelancer_client.h"
 #include "common_misc.h" // SinglePlayer

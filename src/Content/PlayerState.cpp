@@ -16,8 +16,8 @@
 #include "SystemInfo.h"
 #include "common_id.h"
 #include "common_newchar.h"       // pub::StateGraph::get_state_graph
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 
 #include <algorithm>
 #include <memory>

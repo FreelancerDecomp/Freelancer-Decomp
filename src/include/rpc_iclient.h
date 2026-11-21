@@ -338,7 +338,7 @@ public:
     // Data/Size: a MarshalBuffer image (MissionVendorAcceptance); FUN_06d97b00 copies it.
     virtual void SendServerGFMissionVendorAcceptance(unsigned int ClientId, const unsigned char* Data, unsigned int Size) = 0;
     // +0x0a8  0x06d88af0  ch2 op 0x5a  FLPACKET_SERVER_GFMISSIONVENDORWHYEMPTY (size 0x24)  (was Slot42)
-    // Reason is pub::GF::ReportWhyMissionVendorEmpty's MVEmptyReason (common_server.h), which
+    // Reason is pub::GF::ReportWhyMissionVendorEmpty's MVEmptyReason (server_pub.h), which
     // has no fixed underlying type and so cannot be forward-declared here; the sender keeps
     // its low byte (06d88b0d MOV DL,byte ptr [ESP+0x10]).
     virtual void SendServerGFMissionVendorWhyEmpty(unsigned int ClientId, unsigned int Reason) = 0;

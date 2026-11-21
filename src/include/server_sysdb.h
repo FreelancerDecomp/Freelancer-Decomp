@@ -16,7 +16,7 @@
 // CRemotePhysicsSimulation. The tracked record embeds one BY VALUE, so the
 // definition has to be visible here and not only in the .cpp -- see the
 // tracker comment below for the `LEA ECX,[ESI + 0x8]` that settles it.
-#include "common_server.h"
+#include "server_pub.h"
 
 // server_gameobject.h -- what retail stores in the lists below. NOT SERVER_API:
 // retail Server.dll exports no GameObject symbol at all (EXE/Server.dll's export

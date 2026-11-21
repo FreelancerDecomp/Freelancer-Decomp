@@ -7,7 +7,7 @@
 #include "ClientImpl.h"
 #include "remoteclient.h"
 #include "dalib_net.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_iserverimpl.h"
 #include "rpc_packet.h"
 #include "rpc_packet_codec.h"

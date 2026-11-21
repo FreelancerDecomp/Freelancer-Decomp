@@ -13,7 +13,7 @@
 #include "common_csys.h"      // Acquire3DMathEngine (FUN_005b73e0)
 #include "common_misc.h"      // ICamera, Geometry::Sphere
 #include "common_physys.h"    // GenerateCollisions / GetCollisions (FUN_0052fc20)
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_universe.h"
 #include "menu_sound_arch.h"  // GetClientSoundListenerObject (FUN_0040f130)
 #include "player_spawn.h"     // GetPlayerConnectionId (DAT_00673344)
@@ -1303,14 +1303,14 @@ bool ClientObjDb_TryGetSolarWorldPosByIndex(unsigned Index, float OutPos[3])
 
 // ===========================================================================
 // OwnerList<pub::SpaceObj::CargoDesc> -- template defined in src/include/
-// common_server.h. Retail FreeLancer.exe exports its own copy of all six members
+// server_pub.h. Retail FreeLancer.exe exports its own copy of all six members
 // (instruction-identical to Common.dll's and Server.dll's): ??0 (ord 2,
 // .text:004c9770), copy ??0 (ord 1, .text:004c9790), ??1 (ord 14, .text:004ced60),
 // ??4 (ord 15, .text:0041c1a0), ??_7 (ord 25, .rdata:005d711c) and free (ord 58,
 // .text:004cecf0). This explicit instantiation definition, with SHARED_INLINE_API
 // = dllexport under FREELANCER_EXPORTS, is what emits and exports them here.
 // ===========================================================================
-// Member-level export (common_server.h) cannot emit ??_7, so the vftable (retail ord 25,
+// Member-level export (server_pub.h) cannot emit ??_7, so the vftable (retail ord 25,
 // .rdata:005d711c; export directory 0x0060d510 lists 69 names) is exported by name. The
 // explicit instantiation of the constructors above references the vftable, so this TU always
 // defines the symbol.

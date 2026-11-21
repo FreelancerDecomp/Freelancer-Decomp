@@ -13,7 +13,7 @@
 
 #include "ContentInternal.h"    // SubtractVectors (FUN_06eeaee0)
 #include "SystemInfo.h"
-#include "common_server.h"
+#include "server_pub.h"
 
 namespace
 {

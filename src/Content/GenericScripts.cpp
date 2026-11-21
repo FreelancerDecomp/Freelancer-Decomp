@@ -21,7 +21,7 @@
 #include "RandomMissionDB.h"     // GRmRankDifficulties
 #include "common_iface.h"      // CharacterBehaviorDescription
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_text.h"         // FmtStr
 
 #include <cstdlib>

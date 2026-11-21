@@ -30,7 +30,7 @@
 #include "RandomEncounters.h"
 #include "SystemInfo.h"         // FSystemInfo::SystemId (+0x48)
 #include "common_ini.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "server_cobject.h"
 
 #include <algorithm>

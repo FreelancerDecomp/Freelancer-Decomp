@@ -22,7 +22,7 @@
 //   4. prefixes "<sender name>: " as rich text, appends the original payload (or
 //      a red "<message too big>"), re-encodes;
 //   5. routes on the target CHAT_ID: private, universe, system, local, group.
-#include "common_server.h"
+#include "server_pub.h"
 #include "common_server_playerdb.h"
 #include "common_text.h"
 #include "common_reputation.h"   // Reputation::Vibe::GetName
@@ -46,7 +46,7 @@ extern IChatClient* g_pChatClientInterface;
 void Server_RdlAppend(RenderDisplayList& Rdl, const RDLNode& Node);
 
 // The exported hook slots g_pPrivateChatHook / g_pSystemChatHook /
-// g_pUniverseChatHook are declared in common_server.h and defined with the other
+// g_pUniverseChatHook are declared in server_pub.h and defined with the other
 // Server.dll data exports in server_classes.cpp.
 
 // ---------------------------------------------------------------------------

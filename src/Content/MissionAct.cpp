@@ -27,8 +27,8 @@
 #include "common_iface.h"
 #include "common_ini.h"
 #include "common_misc.h"    // SUBOBJ_ID_NONE
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 #include "common_text.h"
 
 #include <cmath>

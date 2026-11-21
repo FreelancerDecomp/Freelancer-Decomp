@@ -12,7 +12,7 @@
 #include "ContentPlayerState.h" // FindContentPlayerState (FUN_06f49b00), ...ByShip (FUN_06f49bc0)
 #include "SystemInfo.h"         // FSystemInfo (TU58), FindSystemInfo (FUN_06f75f30)
 #include "common_ini.h"
-#include "common_server.h"      // pub::GetSystemID, pub::GetNicknameId
+#include "server_pub.h"      // pub::GetSystemID, pub::GetNicknameId
 
 #include <memory>
 #include <utility>

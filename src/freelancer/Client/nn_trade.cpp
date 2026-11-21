@@ -47,7 +47,7 @@
 #include "common_cobject.h"         // CShip
 #include "common_goods.h"
 #include "common_id.h"              // CreateID
-#include "common_server.h"          // IServer
+#include "server_pub.h"          // IServer
 #include "common_text.h"            // RenderDisplayList, StyleNode
 
 #include <stdio.h>

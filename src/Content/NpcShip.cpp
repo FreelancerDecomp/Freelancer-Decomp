@@ -24,8 +24,8 @@
 #include "SystemInfo.h"
 #include "ContentStaticIds.h"     // TU43's 16 static-init thunks 06f33300-06f334e0
 #include "common_newchar.h"       // pub::StateGraph::get_state_graph
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 
 #include <cstring>
 

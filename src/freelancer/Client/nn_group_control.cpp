@@ -32,7 +32,7 @@
 
 #include "common_cobject.h"
 #include "common_iface.h"
-#include "common_server.h"
+#include "server_pub.h"
 #include "dacom.h"
 
 #include <ctime>

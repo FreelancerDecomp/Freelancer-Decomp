@@ -14,7 +14,7 @@
 #include "common_net.h"  // IsMPServer -- CRemotePhysicsSimulation::tracef (.text:06291be6)
 #include "common_phyarch.h"
 #include "common_misc.h"     // SinglePlayer
-#include "common_server.h"
+#include "server_pub.h"
 
 #include "dacom.h"
 #include "DALib.h"
@@ -71,7 +71,7 @@ using namespace CmnPhySys;
 //
 // PORTED 2026-09-24 (claude-code:w6-rpc). Until then RCBegin allocated a memset-zeroed
 // 0x3c0 block with two hand-made "mock" vtables and RCSet/RCEnd called into it by raw slot
-// index. The class is declared in src/include/common_server.h (it has to be public: Server.dll
+// index. The class is declared in src/include/server_pub.h (it has to be public: Server.dll
 // names it in the __RTDynamicCast at .text:06d4d672); its RTTI, both vftables and its layout
 // are documented there. Everything below is read off Common.dll.txt.
 
@@ -293,7 +293,7 @@ void __cdecl PhySys::RCEnd(CSimple* Object)
 // CRemotePhysicsSimulation's eight members that retail compiled into Common.dll,
 // Server.dll AND freelancer.exe -- GetSimulationTime, CalcPositionError,
 // GetSampleCount, GetLatestUpdate, GetSample, SetLogging, the copy constructor and
-// operator= -- are defined inline in src/include/common_server.h, the one place
+// operator= -- are defined inline in src/include/server_pub.h, the one place
 // all three modules compile them from (each exports its own copy, as retail's do).
 // Only the seven Common-only members live in this file, below.
 
@@ -366,7 +366,7 @@ static FILE* G_RemotePhysTraceFile = nullptr;
 // (.text:06291bb0 `MOV EAX,dword ptr [ESP + 0x4]`, then
 //  .text:06291bb4 `MOV CL,byte ptr [EAX + 0x2e0]` == m_bLogging). MSVC gives a
 // varargs member function __cdecl automatically, which is what the QAAX..ZZ
-// mangling encodes, so the declaration in common_server.h already matches.
+// mangling encodes, so the declaration in server_pub.h already matches.
 //
 // The buffer is 0x400 bytes (.text:06291bba `SUB ESP,0x400`). The header comment
 // on this member is right about the two destinations but wrong about both fopen
@@ -439,7 +439,7 @@ CRemotePhysicsSimulation::CRemotePhysicsSimulation()
 }
 
 // Copy constructor (Common 0x235b0 ord 179) and operator= (0x23b30 ord 742): inline
-// in src/include/common_server.h, shared with Server.dll and freelancer.exe.
+// in src/include/server_pub.h, shared with Server.dll and freelancer.exe.
 
 
 // .text:06291d50 -- ??1CRemotePhysicsSimulation@@UAE@XZ, ordinal 571. Six

@@ -15,8 +15,8 @@
 #include "SystemInfo.h"
 #include "common_id.h"
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 #include "common_misc.h" // SinglePlayer
 #include "common_text.h"
 

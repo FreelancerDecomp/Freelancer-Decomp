@@ -64,7 +64,7 @@
 #include "win3d_render.h"
 #include "common_cobject.h"
 #include "common_ini.h"     // RefreshLoadingProgress
-#include "common_server.h"  // IServer (DAT_0067ecd0)
+#include "server_pub.h"  // IServer (DAT_0067ecd0)
 #include "server_connect.h" // GetLocalServerInterface
 
 #include <stdarg.h>

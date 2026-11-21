@@ -20,7 +20,7 @@
 #include "common_id.h"
 #include "common_ini.h"
 #include "common_reputation.h"
-#include "common_server.h"   // IServer (DAT_0067ecd0)
+#include "server_pub.h"   // IServer (DAT_0067ecd0)
 #include "common_misc.h"     // SinglePlayer
 #include "common_universe.h"
 #include "gate_tunnel.h"     // GateTunnelIniLoad (FUN_004fe1c0)

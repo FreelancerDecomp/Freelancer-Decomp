@@ -30,8 +30,8 @@
 #include "TradelaneRequests.h"  // HandleTradelaneRequest / Release (TU55, msgs 0x14 / 0x15)
 #include "common_goods.h"       // EquipDesc
 #include "common_ini.h"
-#include "common_server.h"
-#include "common_server_controller.h"
+#include "server_pub.h"
+#include "server_controller.h"
 #include "server_cobject.h"     // pub::SpaceObj::Destroy, DestroyType
 #include "server_gameobject.h"  // FObjectDestroyedEvent, FSubObjDamageEvent, FEquipLootEvent
 #include "float_bits.h"

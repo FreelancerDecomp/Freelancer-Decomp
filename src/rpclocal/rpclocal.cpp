@@ -21,9 +21,9 @@
 // five that do not allocate a packet in retail either; IServerImpl::ElapseTime
 // (0x06d8f370) is three instructions and a `JMP dword ptr [EAX + 0x30]` straight into the
 // real IServer.
-// Uses the unified IServer interface from common_server.h.
+// Uses the unified IServer interface from server_pub.h.
 
-#include "common_server.h"
+#include "server_pub.h"
 #include "rpc_transport.h"      // FPacketBase, the registry and the queues
 #include "rpc_payloads.h"       // GRealServer / GRealChatServer, read by RpcDispatchToServer
 #include "rpc_iclient.h"        // the real 126-slot IClient / IChatClient
@@ -1079,7 +1079,7 @@ void IServerImpl::PushToServer(CDAPacket* packet) {
 void IServerImpl::SubmitChat(CHAT_ID sender_id, unsigned long msg_type, const void* msg_data, CHAT_ID target_id, int system_id) {
     // NOTE on the second parameter's NAME: retail uses it as the operator_new() size
     // and the REP MOVS length for msg_data (06d8ecfb..06d8ed25), so it is a byte
-    // count, not a message type. Renaming it is a common_server.h change and belongs
+    // count, not a message type. Renaming it is a server_pub.h change and belongs
     // to the lane that owns that header; the marshaller treats it as the length.
     const unsigned int Args[5] = {
         sender_id.Id, (unsigned int)msg_type, reinterpret_cast<unsigned int>(msg_data),

@@ -9,7 +9,7 @@
 #include "BaseDB.h"
 #include "ContentRefObject.h"   // FContentRefObject: the ref-counted base, vtable 06fb43f8
 #include "common_id.h"
-#include "common_server_controller.h" // pub::Controller::EMessage (Accept)
+#include "server_controller.h" // pub::Controller::EMessage (Accept)
 #include "common_tstring.h"
 #include "x86math.h"            // FTransform
 

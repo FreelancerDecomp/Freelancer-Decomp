@@ -32,8 +32,8 @@
 #include "RandomMissionOffer.h" // FRmConversationBase (FUN_06ee9140's argument)
 #include "SystemInfo.h"         // FindSystemInfo (FUN_06f75f30), FSystemInfo, SendSpaceComm
 #include "Voices.h"             // FindVoiceLineDuration (FUN_06f67780)
-#include "common_server.h"
-#include "common_server_controller.h"   // pub::SetTimer, pub::Controller
+#include "server_pub.h"
+#include "server_controller.h"   // pub::SetTimer, pub::Controller
 
 #include <algorithm>
 #include <cmath>

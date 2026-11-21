@@ -14,7 +14,7 @@
 #include "ContentPlayerState.h"
 #include "RandomMissionDB.h"   // FindShipClass (TU51 FUN_06f58080)
 #include "ContentStaticIds.h"  // TU50's 16 static-init thunks 06f56f50-06f57130
-#include "common_server.h"
+#include "server_pub.h"
 
 // FContentShipParams' copy ctor (FUN_06f73680) and dtor (FUN_06ef4ab0) are implicit: their
 // +0x60 work is FMissionDirectiveList's (ObjListDirective.h), see BehaviorCmds.h.

@@ -14,7 +14,7 @@
 #include "common_net.h"  // IsMPServer -- CRemotePhysicsSimulation::tracef (.text:06291be6)
 #include "common_phyarch.h"
 #include "common_misc.h"     // SinglePlayer
-#include "common_server.h"
+#include "server_pub.h"
 
 #include "dacom.h"
 #include "DALib.h"
@@ -156,7 +156,7 @@ FL_LAYOUT_ASSERT(offsetof(IVP_Event_Sim, environment) == 0x08, "IVP_Event_Sim+0x
 // one class; retail has two -- the abstract IVP_Controller_Golem (vftable .rdata:063a53dc,
 // slot 7 _purecall) and the leaf FLControllerGolem (.rdata:0639c1c8, slot 7 LAB_06288950) --
 // and a second leaf, CRemotePhysicsController (.rdata:0639ba38), built on the same base. The
-// split is what lets CRemotePhysicsController (src/include/common_server.h) exist at all.
+// split is what lets CRemotePhysicsController (src/include/server_pub.h) exist at all.
 // Since 2026-09-25 (claude-code:h-ivp) the chain above the golem is retail's too:
 // IVP_Controller_Golem : IVP_Controller_Motion : IVP_Controller_Independent : IVP_Controller
 // (CHDs 063a70d0 / 063a6af8). Motion owns +0x04..+0x5c and its constructor/destructor are
