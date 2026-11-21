@@ -14,7 +14,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <windows.h> // FILETIME, WIN32_FIND_DATAA
 
 // FFileSystemDesc, the FileSystem AGGDESC, is in dacom.h with the other descriptors.
 

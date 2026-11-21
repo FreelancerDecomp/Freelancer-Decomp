@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <windows.h>
 
 // Aggregate that loads System profile entries and fans interface queries out to its children.
 
