@@ -76,13 +76,20 @@
   </ItemDefinitionGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClCompile Include="RpGpu.cpp" />
-    <ClCompile Include="RpGpuDevice.cpp" />
-    <ClCompile Include="RpGpuNullBackend.cpp" />
+    <ClCompile Include="RpGpuDds.cpp" />
+    <ClCompile Include="RpGpuResources.cpp" />
+    <ClCompile Include="RpGpuState.cpp" />
+    <ClCompile Include="backend\RpGpuNullBackend.cpp" />
+    <ClCompile Include="backend\RpGpuSdlBackend.cpp" />
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ClInclude Include="RpGpu.h" />
-    <ClInclude Include="RpGpuBackend.h" />
-    <ClInclude Include="RpGpuDevice.h" />
+    <ClInclude Include="RpGpuCommon.h" />
+    <ClInclude Include="RpGpuDds.h" />
+    <ClInclude Include="RpGpuResources.h" />
+    <ClInclude Include="RpGpuState.h" />
+    <ClInclude Include="backend\RpGpuBackend.h" />
+    <ClInclude Include="backend\RpGpuSdlBackend.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\vcpkg.json" />

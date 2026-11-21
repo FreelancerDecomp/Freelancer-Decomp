@@ -8,14 +8,16 @@
 // game selects it in DACOM.INI and talks to it through RP8's IIDs.
 //
 // This is the skeleton: it keeps every state the game reads back, holds textures and buffers
-// in CPU memory, and on the GPU only clears and presents (RpGpuDevice). The return values and
+// in CPU memory, and on the GPU only clears and presents (backend/). The return values and
 // output layouts follow RP8's, since the game checks them.
 
 #include "dacom.h"
 #include "render/IRenderPipeline.h"
-#include "x64_low_arena.h"
 
-#include "RpGpuBackend.h"
+#include "RpGpuCommon.h"
+#include "RpGpuResources.h"
+#include "RpGpuState.h"
+#include "backend/RpGpuBackend.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -25,50 +27,6 @@
 #include <vector>
 
 static constexpr char kRpGpuComponentName[] = "SDLGPU";
-
-// CPU memory for one texture image. LockTexture hands its address out in a 32-bit slot (the
-// font atlas reads it from an unsigned long[5]), so on x64 it comes from LowArena, below 2 GB.
-struct FRpGpuImage
-{
-    unsigned char* Bits = nullptr;
-    std::size_t Size = 0;
-    unsigned int Width = 0;
-    unsigned int Height = 0;
-    unsigned int Pitch = 0;
-};
-
-// A texture: its size, RP8 pixel-format number (pfenum) and one image per mip level (per face
-// for a cube). Callers keep the handle in 32-bit fields, so on x64 it is allocated below 2 GB
-// (x64_low_arena.h).
-struct FRpGpuTexture
-{
-    FL_LOW_ARENA_NEW
-    FRpGpuTexture() = default;
-    ~FRpGpuTexture();
-    FRpGpuTexture(const FRpGpuTexture&) = delete;
-    FRpGpuTexture& operator=(const FRpGpuTexture&) = delete;
-
-    unsigned int Width = 0;
-    unsigned int Height = 0;
-    unsigned int Format = 0;
-    unsigned int Levels = 0;
-    bool bCube = false;
-    std::vector<FRpGpuImage> Images; // level, or face for a cube
-};
-
-// A vertex or index buffer in CPU memory. Pool buffers (one per FVF) and the scratch index
-// buffer are rings: a lock starts at the cursor and wraps to 0 when it does not fit.
-struct FRpGpuBuffer
-{
-    FL_LOW_ARENA_NEW
-    unsigned int Fvf = 0;     // vertex buffers
-    unsigned int Stride = 0;  // bytes per vertex or index
-    unsigned int Count = 0;   // capacity in vertices or indices
-    bool bRing = false;
-    bool bLocked = false;
-    unsigned int Cursor = 0;  // ring position, in elements
-    std::vector<unsigned char> Data;
-};
 
 class FRpGpu;
 
@@ -160,7 +118,7 @@ public:
     GENRESULT DACOM_API CreateTexture(int Width, int Height, unsigned int* Format, unsigned int Levels, unsigned int Flags, void** OutHandle) override;
     GENRESULT DACOM_API DestroyTexture(void* Handle) override;
     GENRESULT DACOM_API IsTexture(void* Handle) override;
-    GENRESULT DACOM_API LockTexture(void* Handle, int Level, void* Out) override;
+    GENRESULT DACOM_API LockTexture(void* Handle, int Level, FRpTextureLock* Out) override;
     GENRESULT DACOM_API UnlockTexture(void* Handle, int Level) override;
     GENRESULT DACOM_API GetTextureFormat(void* Handle, int* OutFormat) override;
     GENRESULT DACOM_API GetTextureDim(void* Handle, unsigned int* OutW, unsigned int* OutH, int* OutLevels) override;

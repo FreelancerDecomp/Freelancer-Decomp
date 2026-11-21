@@ -460,11 +460,11 @@ unsigned char FontAtlasRasterize(FontStringChild* This, unsigned char bSkipSizeC
 
                 // 00412b4f..00412b72: DALib::Pipeline vt+0xc0 LockTexture(page +0, 0, &out);
                 // only out+0x10 is seeded, with FUN_005b7010(0). out+8 = pitch, out+0xc = bits.
-                unsigned long LockOut[5];
-                LockOut[4] = static_cast<unsigned long>(PixelFormatFromD3D(0));
+                FRpTextureLock LockOut;
+                LockOut.Format = static_cast<unsigned long>(PixelFormatFromD3D(0));
                 IRenderPipeline* const Pipeline =
                     DALib::Pipeline;
-                if (Pipeline->LockTexture(Page->Texture, 0, LockOut) != GR_OK)
+                if (Pipeline->LockTexture(Page->Texture, 0, &LockOut) != GR_OK)
                 {
                     // 00412c05..00412c2a
                     FDUMP(0x100002, "%s(%d) : *** WARNING: %s",
@@ -476,8 +476,8 @@ unsigned char FontAtlasRasterize(FontStringChild* This, unsigned char bSkipSizeC
                 {
                     // 00412b80..00412beb: every pixel of the tile with bit 15 set when non-zero;
                     // the source row advances by DAT_00616668 pixels, the destination by pitch.
-                    unsigned long const Pitch = LockOut[2];
-                    unsigned char* DestRow = reinterpret_cast<unsigned char*>(LockOut[3]);
+                    unsigned long const Pitch = LockOut.Pitch;
+                    unsigned char* DestRow = static_cast<unsigned char*>(LockOut.Bits);
                     for (unsigned RowsLeft = TileH; RowsLeft != 0u; --RowsLeft)
                     {
                         unsigned short* const Dest = reinterpret_cast<unsigned short*>(DestRow);
