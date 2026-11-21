@@ -44,15 +44,34 @@ namespace
         bool IsReady() const override { return bReady_; }
         void SetClearColor(std::uint32_t Argb) override { ClearArgb_ = Argb; }
 
-        bool Present() override
+        // Draws nothing: the frame is the colour of its last colour clear, or the SetClearColor
+        // colour when it has none, so screenshots stay meaningful without a GPU.
+        bool Present(const FRpGpuFrameRecording& Frame) override
         {
             if (!bReady_)
                 return false;
-            FrameArgb_ = ClearArgb_;
+            std::uint32_t Argb = ClearArgb_;
+            for (const FRpGpuCommand& Command : Frame.Commands)
+            {
+                if (Command.Kind == FRpGpuCommand::EKind::Clear && Command.bClearColor)
+                    Argb = Command.ClearArgb;
+            }
+            FrameArgb_ = Argb;
             FrameWidth_ = Width_;
             FrameHeight_ = Height_;
             return true;
         }
+
+        void UploadTexture(const void* Key, std::uint32_t Width, std::uint32_t Height,
+                           const std::uint8_t* Bgra) override
+        {
+            (void)Key;
+            (void)Width;
+            (void)Height;
+            (void)Bgra;
+        }
+
+        void ForgetTexture(const void* Key) override { (void)Key; }
 
         RpWindowHandle Hwnd() const override { return Hwnd_; }
         std::uint32_t Width() const override { return Width_; }

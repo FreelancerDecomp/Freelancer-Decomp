@@ -216,6 +216,12 @@ private:
     // The backend for the current setting (NULL_DEVICE), made on first use.
     IRpGpuBackend& Backend();
 
+    // RpGpuDraw.cpp: records one draw into Frame_ (Stride: bytes per vertex; Indices null for a
+    // draw without indices), and uploads a texture whose level 0 changed.
+    void RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
+                    unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount);
+    void RefreshTexture(FRpGpuTexture* Texture);
+
     std::unique_ptr<IRpGpuBackend> Backend_;
     bool bNullDevice_ = false;    // [RenderPipeline] NULL_DEVICE
     bool bBackendIsNull_ = false; // which kind Backend_ is
@@ -241,6 +247,8 @@ private:
     float Projection_[16] = {}; // D3D row-major
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};
+    void* StageTextures_[8] = {}; // SetTextureStageTexture's handles
+    FRpGpuFrameRecording Frame_;  // the draws since the last SwapBuffers
 
     std::set<FRpGpuTexture*> Textures_;
     std::set<FRpGpuBuffer*> VertexBuffers_;

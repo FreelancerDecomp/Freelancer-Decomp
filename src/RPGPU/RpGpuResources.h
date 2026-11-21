@@ -37,6 +37,8 @@ struct FRpGpuTexture
     unsigned int Levels = 0;
     bool bCube = false;
     std::vector<FRpGpuImage> Images; // level, or face for a cube
+    // Level 0 changed since its last upload to the backend (or never went up).
+    bool bGpuStale = true;
 };
 
 // A vertex or index buffer in CPU memory. Pool buffers (one per FVF) and the scratch index

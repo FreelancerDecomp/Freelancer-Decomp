@@ -150,3 +150,41 @@ The first shaders cover the 2D draws (menus, HUD), which use pre-transformed ver
 - `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
   modulate) and the alpha test.
 
+## Drawing
+
+RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3. The 2D draws
+come first.
+
+**Recording** (`RpGpuDraw.cpp`):
+- **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb` and
+  `DrawIndexedPrimitiveVb` convert the game's vertices into `FRpGpuVertex2D` (position, RHW,
+  diffuse, texture set 0). Each records one command with the render state of the moment:
+  - blending, the depth test, the colour write mask;
+  - texture stage 0's operations, sampler and texture;
+  - the alpha test, the viewport and the depth range.
+- **Clears:** `ClearBuffers` records a clear in order with the draws.
+- **Triangle fans** become indexed triangle lists, since SDL_GPU has none.
+- **Not drawn yet:** points, and every draw without pre-transformed vertices (the 3D draws,
+  which wait for the transform stage). An index past the vertices it came with drops the
+  draw.
+- **Textures:** a texture whose level 0 changed (`SetTextureLevelData`, `UnlockTexture`) goes
+  to the backend as B, G, R, A bytes through TexConvert when it is next drawn. After a new
+  device every texture goes up again.
+
+**The SDL backend's `Present`:**
+1. One copy pass uploads the pending textures and the frame's vertices and indices, through
+   one transfer buffer.
+2. The commands replay on the swap-chain image and a depth buffer, in one render pass per
+   clear. The first pass clears colour and depth.
+3. Pipelines are cached per `FRpGpuPipelineKey`, and samplers per `FRpGpuSamplerKey`.
+4. A draw whose texture has no GPU copy samples a 1x1 white texture with the texture flag
+   off.
+
+**Known gaps** for the later parts of step 5.3:
+- clear rectangles (the whole target is cleared);
+- `CULLMODE` (2D draws do not cull);
+- mip levels above 0;
+- texture stages above 0;
+- the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);
+- a border colour, so `BORDER` addressing clamps instead.
+

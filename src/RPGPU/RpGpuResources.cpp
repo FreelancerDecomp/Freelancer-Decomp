@@ -166,6 +166,13 @@ GENRESULT DACOM_API FRpGpu::DestroyTexture(void* Handle)
     if (Texture != nullptr)
     {
         Textures_.erase(Texture);
+        if (Backend_ != nullptr)
+            Backend_->ForgetTexture(Texture);
+        for (void*& Bound : StageTextures_)
+        {
+            if (Bound == Texture)
+                Bound = nullptr;
+        }
         delete Texture;
     }
     return GR_OK;
@@ -195,8 +202,12 @@ GENRESULT DACOM_API FRpGpu::LockTexture(void* Handle, int Level, FRpTextureLock*
 
 GENRESULT DACOM_API FRpGpu::UnlockTexture(void* Handle, int Level)
 {
-    (void)Level;
-    return LiveTexture(Handle) != nullptr ? GR_OK : GR_INVALID_PARMS;
+    FRpGpuTexture* const Texture = LiveTexture(Handle);
+    if (Texture == nullptr)
+        return GR_INVALID_PARMS;
+    if (Level == 0)
+        Texture->bGpuStale = true; // the caller may have written level 0
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetTextureFormat(void* Handle, int* OutFormat)
@@ -263,7 +274,11 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
     // The conversion allocates a working buffer; a failed allocation leaves the level as it was.
     try
     {
-        return TexConvert::Load(Destination, Source) != TexConvert::EResult::Failed ? GR_OK : GR_GENERIC;
+        if (TexConvert::Load(Destination, Source) == TexConvert::EResult::Failed)
+            return GR_GENERIC;
+        if (Level == 0)
+            Texture->bGpuStale = true;
+        return GR_OK;
     }
     catch (const std::bad_alloc&)
     {

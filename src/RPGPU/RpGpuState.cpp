@@ -372,16 +372,15 @@ GENRESULT DACOM_API FRpGpu::GetTextureStageTransform(int Stage, float* OutMatrix
 
 GENRESULT DACOM_API FRpGpu::SetTextureStageTexture(int Stage, void* Handle)
 {
-    (void)Stage;
-    (void)Handle;
+    if (Stage >= 0 && Stage < 8)
+        StageTextures_[Stage] = Handle;
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetTextureStageTexture(int Stage, void** OutHandle)
 {
-    (void)Stage;
     if (OutHandle != nullptr)
-        *OutHandle = nullptr;
+        *OutHandle = (Stage >= 0 && Stage < 8) ? StageTextures_[Stage] : nullptr;
     return GR_OK;
 }
 
