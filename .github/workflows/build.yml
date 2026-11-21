@@ -542,11 +542,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The runner image in the key, as in the build job: a new image may bring a new compiler,
+      # and an exact-key hit would otherwise keep restoring packages vcpkg then rebuilds.
+      # ImageOS and ImageVersion are the runner's own environment, so the key is built here.
+      - name: vcpkg cache key
+        id: vcpkg-key
+        shell: pwsh
+        env:
+          MANIFEST: ${{ hashFiles('src/vcpkg.json') }}
+        run: |
+          $prefix = "vcpkg-shader-tools-$env:ImageOS-"
+          "prefix=$prefix" >> $env:GITHUB_OUTPUT
+          "key=$prefix$env:ImageVersion-$env:MANIFEST" >> $env:GITHUB_OUTPUT
+
       - name: Cache vcpkg packages
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/vcpkg-binary-cache
-          key: vcpkg-shader-tools-${{ hashFiles('src/vcpkg.json') }}
+          key: ${{ steps.vcpkg-key.outputs.key }}
+          restore-keys: |
+            ${{ steps.vcpkg-key.outputs.prefix }}
 
       - name: Install shadercross
         shell: pwsh

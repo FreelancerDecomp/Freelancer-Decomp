@@ -49,10 +49,19 @@ bool Passes(uint Func, float Value, float Ref)
 
 float4 main(FInput In) : SV_Target0
 {
-    const float4 Texel = Ops.z != 0u ? Texture0.Sample(Sampler0, In.Tex0) : float4(1.0, 1.0, 1.0, 1.0);
+    // With no texture bound, the texture argument reads the diffuse colour, as in Direct3D.
+    const float4 Texel = Ops.z != 0u ? Texture0.Sample(Sampler0, In.Tex0) : In.Diffuse;
     float4 Colour;
-    Colour.rgb = Combine(Ops.x, Texel, In.Diffuse).rgb;
-    Colour.a = Combine(Ops.y, Texel, In.Diffuse).a;
+    if (Ops.x == 1u)
+    {
+        // COLOROP disabled turns the whole stage off, alpha included: the diffuse passes through.
+        Colour = In.Diffuse;
+    }
+    else
+    {
+        Colour.rgb = Combine(Ops.x, Texel, In.Diffuse).rgb;
+        Colour.a = Combine(Ops.y, Texel, In.Diffuse).a;
+    }
     // Direct3D compares alpha as an 8-bit value against ALPHAREF.
     if (AlphaTest.x != 0u && !Passes(AlphaTest.y, round(Colour.a * 255.0), float(AlphaTest.z)))
         discard;
