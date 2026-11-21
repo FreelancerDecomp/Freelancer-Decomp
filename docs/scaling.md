@@ -49,7 +49,7 @@ Algorithmic, but **not** safe today:
 
 | Item | Where | Today | Change |
 |------|-------|-------|--------|
-| Proxy table | `ClientProxies[128]` (`RemoteClient/ClientImpl.h`), loops in `RemoteClient_transport.cpp` | Fixed 128, loops hard-code 128. A 129th connection gets client id 0 but is still accepted. | Size from `MaxPlayers`; refuse a full server cleanly (`DPNERR_SESSIONFULL`). |
+| Proxy table | `ClientProxies[128]` (`RemoteClient/ClientImpl.h`), loops in `RemoteClient_transport.cpp` | Fixed 128, loops hard-code 128. `CRemoteClientProxy::OnConnect` disconnects a 129th connection. | Size from `MaxPlayers`. |
 | Server settings | `FLServer/ServerConfigDlg.cpp` | Spinner 1..0x80, larger values rejected, text box 3 characters, message string `0xf006`. `FLServer.cfg` stores an int32, so the file format is fine. | Widen range, text limit and message. |
 | DirectPlay | `SetMaxPlayers` in `RemoteClient_transport.cpp` and `DALib/CDPServer.cpp` | Not clamped; DALib default 0x10. | Check whether Microsoft DirectPlay 8 copes with 1000 connections; make it configurable in DPNet (port-only). |
 | PlayerDB | `PlayerDB` (`Server/server_classes.cpp`) | `new PlayerData[MaxPlayers]` (0x418 bytes each); broadcasts loop 1..MaxPlayers. | Works; O(P) per event (see costs). |
@@ -61,7 +61,8 @@ The client has no array sized for 128 players, so a server with a higher cap may
 clients on the wire. The costs below are what stop it:
 
 - Login: the newcomer gets 4 packets per existing player and everyone gets 4 about the newcomer
-  (`PlayerDB`, `Server/server_classes.cpp`). About a million packets to fill a 1000-player server.
+  (`PlayerDB`, `Server/server_classes.cpp`), so 8 per existing player. About four million packets to fill a
+  1000-player server.
 - Every join, leave, group or system change makes the client rebuild and sort its whole chat table on
   the next frame (`ChatControlRefreshAll` / `FillPrivate`, `freelancer/Client/chat_control.cpp`). Retail
   builds that array with `alloca`.
@@ -76,7 +77,7 @@ Hard caps; things silently disappear when they fill up:
 | Scanner list 256 | `ScanList` (`include/common_cequip.h`), `ScanList::add_in_range` | Radar and targeting miss ships; the 256 kept are first in list order, not nearest. Applies to NPC scanners too. | Layout shared across DLLs: grow it or use a vector, and prefer the nearest. |
 | Particle pools, 8 × 1000 | `alchemy/alchemy_common.cpp` | New particles not emitted (engine trails, weapon fire). | Pool size is INI-configurable; raise it in data, or let pools grow. |
 | Sound channels | `FSoundManager::MixerTick` (`SoundManager/SoundManager.cpp`) | Sources beyond the cap muted in attach order. | Choose voices by distance and priority. |
-| IVP spawned mindists 1000 | `ivp_mindist_settings.cpp` | Coarser collision. | Already INI-configurable (`MAX_SPAWNED_MINDIST_COUNT`). |
+| IVP spawned mindists 100 | `PhySys::MAX_SPAWNED_MINDIST_COUNT` (`Common/common_constants.cpp`), written over IVP's own default of 1000 by `PhysicalSystem::AddRef` | Coarser collision. | Already INI-configurable (`MAX_SPAWNED_MINDIST_COUNT` in `[PhySysConsts]`). |
 | Spatial query result 2048 | `FSpatialQueryResult` (`include/common_spatial.h`) | Solars only on the client. | Grow if more objects go into the index. |
 
 Per-frame costs with no level of detail:
@@ -100,8 +101,9 @@ Interest management (which updates each client gets):
 - NPC resyncs are kept in a list sorted by insertion sort (`Server/server_observer.cpp`): O(k²) in the
   number of objects due for a resync.
 - No byte budget: a governor stops all sends at `GetLinkSaturation() >= 0.9`, oldest updates first.
-- Player ship updates fan out to every other player in the system (`StarSystem::sp_obj_update`), even
-  players 100 km away.
+- Each player ship update visits every other player's view in the system (`StarSystem::sp_obj_update`),
+  even players 100 km away. A packet goes only to views where the ship is created on the client, so far
+  players cost a lookup (A9) and a remote-physics update, not bandwidth.
 
 Change: a spatial grid per system with per-cell subscriptions, so a view only looks at nearby cells, and
 a per-client byte budget with priority by distance instead of the 0.9 gate.
