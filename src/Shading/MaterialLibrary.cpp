@@ -561,7 +561,7 @@ GENRESULT DACOM_API FMaterialLibrary::FindOrCreate(const char* Name, const char*
 GENRESULT DACOM_API FMaterialLibrary::FindMaterialByCrc(void* Query, IMaterial** Out)
 {
     // LAB_06ecd5c0: a miss leaves the caller's output untouched.
-    const FlULong Crc = ((FlULong*)Query)[1];
+    const FlULong Crc = static_cast<const FMaterialCrcQuery*>(Query)->Crc;
     FCrcSlot* Slot = FindByCrc(Crc);
     if (Slot == nullptr)
         return (GENRESULT)-1;
