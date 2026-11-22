@@ -196,8 +196,10 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
   is Direct3D's light table; `GetLight` reads it with the handle as the index, as RP8 passes it
   to Direct3D. `CreateBuffers` empties the table and queues every light again (RP8's
   `Reset`).
-- A draw is lit by the enabled entries in index order, at most 8. An index enabled without
-  `SetLight` is Direct3D's default light (white, directional, along +z).
+- A draw is lit by the enabled entries in index order, at most 8. Enabling an index that has
+  no light installs Direct3D's default one (white, directional, along +z).
+- Every light call needs RP8's device lifetime (from `CreateBuffers` to shutdown) and fails
+  outside it, as RP8's do.
 - `SetMaterial` and `GetMaterial` work within a buffer session, as in RP8; a new device's
   material is zero.
 

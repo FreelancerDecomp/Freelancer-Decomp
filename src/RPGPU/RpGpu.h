@@ -256,6 +256,7 @@ private:
     void FlushLights();
     void ResetLights();             // a new device: every light is sent again
     FDeviceLight& DeviceLight(int Index);
+    bool DeviceLive(); // RP8's NeedDeviceLifetime
     void FillLightingAndFog(FRpGpuCommand* Command, bool bPretransformed, unsigned int FvfColours);
 
     std::unique_ptr<IRpGpuBackend> Backend_;

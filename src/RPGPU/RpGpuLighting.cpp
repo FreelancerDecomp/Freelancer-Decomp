@@ -197,7 +197,18 @@ void FRpGpu::FlushLights()
         }
         if (Record->bWantEnabled != Record->bEnabled && bOk)
         {
-            DeviceLight(Record->Index).bEnabled = Record->bWantEnabled;
+            FDeviceLight& Light = DeviceLight(Record->Index);
+            // Direct3D's LightEnable on an index with no light installs its default one: white,
+            // directional, along +z.
+            if (Record->bWantEnabled && !Light.bSet)
+            {
+                Light.Data = RpLight{};
+                Light.Data.Type = 3;
+                Light.Data.Diffuse = {1.0f, 1.0f, 1.0f, 0.0f};
+                Light.Data.Direction = {0.0f, 0.0f, 1.0f};
+                Light.bSet = true;
+            }
+            Light.bEnabled = Record->bWantEnabled;
             Record->bEnabled = Record->bWantEnabled;
         }
         if (!bOk)
@@ -227,9 +238,18 @@ void FRpGpu::ResetLights()
     }
 }
 
+// Every light call needs RP8's device lifetime (NeedDeviceLifetime: from the device's creation
+// in CreateBuffers to shutdown); outside it RP8 answers -1 and leaves its records alone.
+bool FRpGpu::DeviceLive()
+{
+    return Backend_ != nullptr && Backend_->IsReady();
+}
+
 // SetLight sends the light to the table at once; the record it makes keeps no data.
 GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const RpLight* Light)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     const int Index = FindOrCreateLight(Handle, nullptr);
     if (Light == nullptr)
         return kInvalidCall;
@@ -241,6 +261,8 @@ GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const RpLight* Light)
 
 GENRESULT DACOM_API FRpGpu::DestroyLight(void* Handle)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     SetLightWanted(Handle, 0);
     FlushLights();
     if (FLightRecord* const Record = FindLight(Handle))
@@ -251,6 +273,8 @@ GENRESULT DACOM_API FRpGpu::DestroyLight(void* Handle)
 // RP8 passes the handle to Direct3D's GetLight as the light index, unchanged.
 GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, RpLight* OutLight)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     const std::uintptr_t Index = reinterpret_cast<std::uintptr_t>(Handle);
     if (OutLight == nullptr || Index >= DeviceLights_.size() || !DeviceLights_[Index].bSet)
         return kInvalidCall;
@@ -260,6 +284,8 @@ GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, RpLight* OutLight)
 
 GENRESULT DACOM_API FRpGpu::SetLightEnable(void* Handle, int Enable)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     SetLightWanted(Handle, Enable);
     return GR_OK;
 }
@@ -267,6 +293,8 @@ GENRESULT DACOM_API FRpGpu::SetLightEnable(void* Handle, int Enable)
 // The state asked for, not the one committed; 0 for an unknown light.
 GENRESULT DACOM_API FRpGpu::GetLightEnable(void* Handle, int* OutEnable)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     if (OutEnable == nullptr)
         return GR_INVALID_PARMS;
     const FLightRecord* const Record = FindLight(Handle);
@@ -277,12 +305,16 @@ GENRESULT DACOM_API FRpGpu::GetLightEnable(void* Handle, int* OutEnable)
 // The handle is the caller's own light, read again at every flush that finds it dirty.
 GENRESULT DACOM_API FRpGpu::AddLight(void* Handle)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     FindOrCreateLight(Handle, static_cast<const RpLight*>(Handle));
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::RemoveLight(void* Handle)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     SetLightEnable(Handle, 0);
     FlushLights();
     if (FLightRecord* const Record = FindLight(Handle))
@@ -292,6 +324,8 @@ GENRESULT DACOM_API FRpGpu::RemoveLight(void* Handle)
 
 GENRESULT DACOM_API FRpGpu::UpdateLight(void* Handle)
 {
+    if (!DeviceLive())
+        return GR_GENERIC;
     FLightRecord* const Record = FindLight(Handle);
     if (Record != nullptr)
     {
@@ -416,21 +450,13 @@ void FRpGpu::FillLightingAndFog(FRpGpuCommand* Command, bool bPretransformed, un
         Block.Sources[2] = static_cast<std::uint32_t>(RenderStates_[kRsSpecularMaterialSource]);
         Block.Sources[3] = static_cast<std::uint32_t>(RenderStates_[kRsEmissiveMaterialSource]);
     }
-    // The enabled lights in index order, as many as the shader takes. A light enabled without
-    // SetLight is Direct3D's default: white, directional, along +z.
+    // The enabled lights in index order, as many as the shader takes.
     std::uint32_t Count = 0;
     for (const FDeviceLight& Entry : DeviceLights_)
     {
         if (!Entry.bEnabled || Count >= static_cast<std::uint32_t>(kRpGpuMaxLights))
             continue;
-        RpLight Light = Entry.Data;
-        if (!Entry.bSet)
-        {
-            Light = RpLight{};
-            Light.Type = 3;
-            Light.Diffuse = {1.0f, 1.0f, 1.0f, 0.0f};
-            Light.Direction = {0.0f, 0.0f, 1.0f};
-        }
+        const RpLight& Light = Entry.Data; // enabling installed Direct3D's default when unset
         FRpGpuLight& Out = Block.Lights[Count++];
         Copy4(Light.Diffuse, Out.Diffuse);
         Copy4(Light.Specular, Out.Specular);
