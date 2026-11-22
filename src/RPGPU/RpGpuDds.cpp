@@ -12,19 +12,33 @@ using namespace RpGpuDetail;
 
 namespace
 {
-    // The byte size of a DDS mip chain (all faces of a cube), for the payload check.
-    std::uint64_t DdsPayloadBytes(std::uint32_t Width, std::uint32_t Height, std::uint32_t Levels,
-                                  std::uint32_t BlockBytes, std::uint32_t BitsPerPixel, std::uint32_t Faces)
+    // ReadDdsImageInfo's sizes stop at this: a file is at most 4 GB (SrcSize is 32-bit), so
+    // anything larger fails the check, and a header whose sizes would overflow 64 bits cannot
+    // wrap round to a small payload.
+    constexpr std::uint64_t kTooBig = std::uint64_t(1) << 33;
+
+    // The byte size of a DDS mip chain (every face of a cube, every slice of a volume), for the
+    // payload check, or kTooBig.
+    std::uint64_t DdsPayloadBytes(std::uint32_t Width, std::uint32_t Height, std::uint32_t Depth,
+                                  std::uint32_t Levels, std::uint32_t BlockBytes,
+                                  std::uint32_t BitsPerPixel, std::uint32_t Faces)
     {
         std::uint64_t Total = 0;
         for (std::uint32_t Level = 0; Level < Levels; ++Level)
         {
             const std::uint64_t W = std::max<std::uint32_t>(1u, Width >> Level);
             const std::uint64_t H = std::max<std::uint32_t>(1u, Height >> Level);
-            if (BlockBytes != 0)
-                Total += ((W + 3) / 4) * ((H + 3) / 4) * BlockBytes;
-            else
-                Total += W * H * BitsPerPixel / 8;
+            const std::uint64_t D = std::max<std::uint32_t>(1u, Depth >> Level);
+            // Blocks or pixels of one slice: below 2^64, as W and H are below 2^32.
+            std::uint64_t Bytes = BlockBytes != 0 ? ((W + 3) / 4) * ((H + 3) / 4) : W * H;
+            if (Bytes >= kTooBig)
+                return kTooBig;
+            Bytes = BlockBytes != 0 ? Bytes * BlockBytes : Bytes * BitsPerPixel / 8;
+            if (Bytes >= kTooBig || Bytes > kTooBig / D)
+                return kTooBig;
+            Total += Bytes * D;
+            if (Total >= kTooBig)
+                return kTooBig;
         }
         return Total * Faces;
     }
@@ -93,12 +107,13 @@ bool ReadDdsImageInfo(FRpImageInfo* Info, unsigned int SrcSize, const void* SrcD
             return false; // other FourCC formats: not loaded through this path
     }
     const std::uint32_t PixelBits = (PfFlags & 0x20) != 0 ? 8u : Bits;
-    // A volume's depth halves per level; its slices are not counted, so the check is a minimum.
+    // A volume's depth halves per level, as its width and height do.
     const std::uint32_t Faces = bCube ? 6u : 1u;
+    const std::uint32_t Slices = bVolume ? Depth : 1u;
     const std::uint32_t Levels = Mips != 0 ? Mips : 1u;
-    if (Levels > MaxMipLevels(Width, Height) || Width == 0 || Height == 0)
+    if (Levels > MaxMipLevels(std::max(Width, Height), Slices) || Width == 0 || Height == 0)
         return false;
-    std::uint64_t Needed = 128 + DdsPayloadBytes(Width, Height, Levels, BlockBytes, PixelBits, Faces);
+    std::uint64_t Needed = 128 + DdsPayloadBytes(Width, Height, Slices, Levels, BlockBytes, PixelBits, Faces);
     if ((PfFlags & 0x20) != 0)
         Needed += 256 * 4; // the palette
     if (Needed > SrcSize)
