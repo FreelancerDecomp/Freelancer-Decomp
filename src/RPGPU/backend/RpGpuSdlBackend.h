@@ -54,6 +54,8 @@ public:
     void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) override;
     bool SupportsBlockCompression() const override { return bBlockCompression_; }
     void ForgetTexture(std::uint64_t Key) override;
+    void UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override;
+    void ForgetVertexBlock(std::uint64_t Key) override;
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }
     std::uint32_t Width() const override { return Width_; }
@@ -84,6 +86,11 @@ private:
     {
         std::uint64_t Key;
         FRpGpuTextureImage Image;
+    };
+    struct FPendingBlock
+    {
+        std::uint64_t Key;
+        std::vector<FRpGpuVertex> Vertices;
     };
 
     bool CreateShaders();
@@ -119,6 +126,9 @@ private:
     std::map<std::pair<std::uint64_t, std::uint32_t>, SDL_GPUSampler*> Samplers_;
     std::unordered_map<std::uint64_t, FTexture> Textures_;
     std::vector<FPendingUpload> PendingUploads_;
+    // Static vertex buffers kept on the GPU (UploadVertexBlock), one GPU buffer each.
+    std::unordered_map<std::uint64_t, SDL_GPUBuffer*> VertexBlocks_;
+    std::vector<FPendingBlock> PendingBlocks_;
     SDL_GPUTexture* White_ = nullptr;     // bound when a draw has no texture
     SDL_GPUTexture* WhiteCube_ = nullptr; // bound to the cube slots when a stage has no cube map
     bool bWhiteUploaded_ = false;

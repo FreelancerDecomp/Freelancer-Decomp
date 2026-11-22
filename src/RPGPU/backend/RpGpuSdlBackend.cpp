@@ -226,6 +226,10 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     for (auto& Entry : Textures_)
         SDL_ReleaseGPUTexture(Device_, Entry.second.Texture);
     Textures_.clear();
+    for (auto& Entry : VertexBlocks_)
+        SDL_ReleaseGPUBuffer(Device_, Entry.second);
+    VertexBlocks_.clear();
+    PendingBlocks_.clear(); // the next device gets them again: RPGPU re-uploads after CreateBuffers
     if (VertexShader_ != nullptr)
         SDL_ReleaseGPUShader(Device_, VertexShader_);
     if (FragmentShader_ != nullptr)
@@ -576,8 +580,28 @@ void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
     Textures_.erase(Found);
 }
 
-// One copy pass: pending textures (and the white stand-in), then the frame's vertices and
-// indices, all through one transfer buffer.
+void FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices)
+{
+    if (Key == 0 || Vertices.empty())
+        return;
+    PendingBlocks_.push_back({Key, std::move(Vertices)});
+}
+
+void FRpGpuSdlBackend::ForgetVertexBlock(std::uint64_t Key)
+{
+    PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
+                                        [Key](const FPendingBlock& Pending) { return Pending.Key == Key; }),
+                         PendingBlocks_.end());
+    auto Found = VertexBlocks_.find(Key);
+    if (Found == VertexBlocks_.end())
+        return;
+    if (Device_ != nullptr)
+        SDL_ReleaseGPUBuffer(Device_, Found->second);
+    VertexBlocks_.erase(Found);
+}
+
+// One copy pass: pending textures (and the white stand-ins), pending vertex blocks, then the
+// frame's vertices and indices, all through one transfer buffer.
 bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuFrameRecording& Frame)
 {
     if (White_ == nullptr)
@@ -649,6 +673,31 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             }
         }
     }
+    // The GPU buffers of the pending vertex blocks; one that cannot be made is dropped, and its
+    // draws are skipped.
+    for (std::size_t Index = 0; Index < PendingBlocks_.size();)
+    {
+        const FPendingBlock& Pending = PendingBlocks_[Index];
+        const std::uint64_t Bytes64 = static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex);
+        SDL_GPUBuffer* Made = nullptr;
+        if (Bytes64 <= 0xFFFFFFFFull)
+        {
+            SDL_GPUBufferCreateInfo Info = {};
+            Info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+            Info.size = static_cast<Uint32>(Bytes64);
+            Made = SDL_CreateGPUBuffer(Device_, &Info);
+        }
+        if (Made == nullptr)
+        {
+            PendingBlocks_.erase(PendingBlocks_.begin() + static_cast<std::ptrdiff_t>(Index));
+            continue;
+        }
+        auto Existing = VertexBlocks_.find(Pending.Key);
+        if (Existing != VertexBlocks_.end())
+            SDL_ReleaseGPUBuffer(Device_, Existing->second);
+        VertexBlocks_[Pending.Key] = Made;
+        ++Index;
+    }
     if (!Dropped.empty())
     {
         PendingUploads_.erase(std::remove_if(PendingUploads_.begin(), PendingUploads_.end(),
@@ -672,6 +721,8 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         for (const std::vector<std::uint8_t>& Level : Upload.Image.Levels)
             TextureBytes64 += Align16(Level.size());
     }
+    for (const FPendingBlock& Pending : PendingBlocks_)
+        TextureBytes64 += Align16(static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex));
     const std::uint64_t Total64 = TextureBytes64 + VertexBytes64 + IndexBytes64;
     if (Total64 == 0)
         return true;
@@ -718,6 +769,14 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             std::memcpy(Mapped + Offset, Level.data(), Level.size());
             Offset += static_cast<std::uint32_t>(Align16(Level.size()));
         }
+    }
+    std::vector<std::uint32_t> BlockOffsets; // every pending vertex block, in order
+    for (const FPendingBlock& Pending : PendingBlocks_)
+    {
+        const std::size_t Bytes = Pending.Vertices.size() * sizeof(FRpGpuVertex);
+        BlockOffsets.push_back(Offset);
+        std::memcpy(Mapped + Offset, Pending.Vertices.data(), Bytes);
+        Offset += static_cast<std::uint32_t>(Align16(Bytes));
     }
     const std::uint32_t VertexOffset = Offset;
     if (VertexBytes != 0)
@@ -779,6 +838,13 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         Target.size = Size;
         SDL_UploadToGPUBuffer(Copy, &Source, &Target, true);
     };
+    for (std::size_t Index = 0; Index < PendingBlocks_.size(); ++Index)
+    {
+        const FPendingBlock& Pending = PendingBlocks_[Index];
+        UploadBuffer(VertexBlocks_[Pending.Key], BlockOffsets[Index],
+                     static_cast<std::uint32_t>(Pending.Vertices.size() * sizeof(FRpGpuVertex)));
+    }
+    PendingBlocks_.clear();
     if (VertexBytes != 0)
         UploadBuffer(VertexBuffer_, VertexOffset, VertexBytes);
     if (IndexBytes != 0)
@@ -892,9 +958,17 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Viewport.max_depth = Command.MaxZ;
             SDL_SetGPUViewport(Pass, &Viewport);
 
+            // The draw's static vertex block, or the frame's vertices.
             SDL_GPUBufferBinding Vertices = {};
             Vertices.buffer = VertexBuffer_;
             Vertices.offset = 0;
+            if (Command.VertexBlock != 0)
+            {
+                auto Block = VertexBlocks_.find(Command.VertexBlock);
+                if (Block == VertexBlocks_.end())
+                    continue; // its buffer could not be made: not drawn
+                Vertices.buffer = Block->second;
+            }
             SDL_BindGPUVertexBuffers(Pass, 0, &Vertices, 1);
 
             // Every stage's texture and sampler; a stage without a GPU copy samples white with

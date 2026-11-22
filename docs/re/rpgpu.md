@@ -244,6 +244,23 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - Exponential, squared exponential and linear, blending the colour (not alpha) towards
   `FOGCOLOR`. `SPECULARENABLE` adds the specular colour before fog.
 
+## Static vertex buffers
+
+A vertex buffer that is not a ring (`CreateVb`'s buffers; the pools of `LockVertexMemory` are
+rings) is converted to `FRpGpuVertex` once and kept on the GPU as a vertex block
+(`IRpGpuBackend::UploadVertexBlock`). Draws from it (`DrawPrimitiveVb`,
+`DrawIndexedPrimitiveVb`, `IRPDraw::DrawIndexedPrimitive`) name the block and start at their
+base vertex in it, so their indices go up as they are and no vertices are copied.
+- A block is made per texture-coordinate signature: which set each stage's `TEXCOORDINDEX`
+  names, since the conversion picks each stage's set.
+- Any write retires the buffer's blocks: `LockVb` (and `CopyVertices`, which locks),
+  `ResizeVb`, `DestroyVb`. Retired blocks are released after the frame that last used them, as
+  the texture versions are.
+- `CreateBuffers` retires every block and texture version, so a kept device does not hold on to
+  copies RPGPU makes again.
+- A block the device cannot make is dropped, and its draws are skipped; a block RPGPU cannot
+  convert (out of memory) falls back to copying the draw's vertices.
+
 ## Texture stages
 
 RPGPU draws four texture stages and reports four as the device's blend-stage count (pipeline
@@ -337,8 +354,9 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 - stages past the fourth, the bump-mapping ops, three- and four-component texture sets (so a
   cube map read with a vertex's own three-component coordinates gets only two of them);
 - tweening (`VERTEXBLEND` 255);
-- every draw's vertices are copied into the frame; vertex and index buffers that stay on the
-  GPU are plan step 5.4;
+- index buffers stay in CPU memory and their indices are copied into each frame; the ring
+  vertex buffers (the pools) and user-pointer draws copy their vertices too (the static vertex
+  buffers stay on the GPU, "Static vertex buffers");
 - the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);
 - a border colour, so `BORDER` addressing clamps instead.
 

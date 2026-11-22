@@ -172,6 +172,32 @@ namespace
         }
     }
 
+    // One of the game's vertices in FRpGpuVertex form. TexOffset / TexFloats: where each stage's
+    // texture-coordinate set is in the vertex and how many floats it has (-1 / 0: none).
+    FRpGpuVertex ConvertVertex(const unsigned char* P, const FLayout& Layout, const int* TexOffset,
+                               const int* TexFloats)
+    {
+        FRpGpuVertex Vertex;
+        Vertex.X = ReadFloat(P);
+        Vertex.Y = ReadFloat(P + 4);
+        Vertex.Z = ReadFloat(P + 8);
+        Vertex.W = Layout.bPretransformed ? ReadFloat(P + 12) : 1.0f;
+        Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
+        for (int Weight = 0; Weight < 3; ++Weight)
+            Vertex.Weights[Weight] = Weight < Layout.Weights ? ReadFloat(P + 12 + Weight * 4) : 0.0f;
+        Vertex.Indices = Layout.Indices >= 0 ? ReadU32(P + Layout.Indices) : 0x03020100u;
+        for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+        {
+            Vertex.Tex[Stage][0] = TexFloats[Stage] >= 1 ? ReadFloat(P + TexOffset[Stage]) : 0.0f;
+            Vertex.Tex[Stage][1] = TexFloats[Stage] >= 2 ? ReadFloat(P + TexOffset[Stage] + 4) : 0.0f;
+        }
+        Vertex.Nx = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal) : 0.0f;
+        Vertex.Ny = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 4) : 0.0f;
+        Vertex.Nz = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 8) : 0.0f;
+        Vertex.Specular = Layout.Specular >= 0 ? ReadU32(P + Layout.Specular) : 0u;
+        return Vertex;
+    }
+
     void ColourOf(std::uint32_t Argb, float* Out)
     {
         Out[0] = static_cast<float>((Argb >> 16) & 0xFF) / 255.0f;
@@ -255,8 +281,50 @@ void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
     Texture->bGpuStale = false;
 }
 
+void FRpGpu::RetireVertexBlocks(FRpGpuBuffer* Buffer)
+{
+    if (Buffer == nullptr)
+        return;
+    for (const FRpGpuBuffer::FGpuBlock& Block : Buffer->GpuBlocks)
+        RetiredBlocks_.push_back(Block.Key);
+    Buffer->GpuBlocks.clear();
+}
+
+// The whole buffer, converted once for this texture-coordinate signature and handed to the
+// backend to keep. Later draws that read the buffer the same way reuse it until a write.
+std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signature, const int* TexOffset,
+                                     const int* TexFloats)
+{
+    for (const FRpGpuBuffer::FGpuBlock& Block : Buffer->GpuBlocks)
+    {
+        if (Block.Signature == Signature)
+            return Block.Key;
+    }
+    const FLayout Layout = LayoutOf(Buffer->Fvf);
+    if (Buffer->Count == 0 || Buffer->Stride == 0 || static_cast<unsigned int>(Layout.Size) > Buffer->Stride)
+        return 0;
+    std::vector<FRpGpuVertex> Vertices;
+    try
+    {
+        Vertices.reserve(Buffer->Count);
+        for (unsigned int Index = 0; Index < Buffer->Count; ++Index)
+            Vertices.push_back(ConvertVertex(Buffer->Data.data() + static_cast<std::size_t>(Index) * Buffer->Stride,
+                                             Layout, TexOffset, TexFloats));
+        Buffer->GpuBlocks.reserve(Buffer->GpuBlocks.size() + 1);
+    }
+    catch (const std::bad_alloc&)
+    {
+        return 0; // drawn from the frame's vertices instead
+    }
+    const std::uint64_t Key = NextTextureVersion_++;
+    Backend().UploadVertexBlock(Key, std::move(Vertices));
+    Buffer->GpuBlocks.push_back({Signature, Key});
+    return Key;
+}
+
 void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
-                        unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount)
+                        unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
+                        FRpGpuBuffer* StaticSource, unsigned int SourceBase)
 {
     if (!bBuffersActive_ || Verts == nullptr || Stride == 0 || VertCount == 0)
         return;
@@ -287,14 +355,12 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     if (Used > Count)
         return;
 
-    // The vertices the draw uses: [First, First + Span). With indices, only the range they
-    // reach is copied, and the indices are rebased onto it.
-    unsigned int First = 0;
-    unsigned int Span = Used;
+    // Bounds: with indices, the highest one must lie within the vertices given.
+    unsigned int Lowest = 0;
+    unsigned int Highest = 0;
     if (Indices != nullptr)
     {
-        unsigned int Lowest = 0xFFFFu;
-        unsigned int Highest = 0;
+        Lowest = 0xFFFFu;
         for (unsigned int Index = 0; Index < Used; ++Index)
         {
             Lowest = std::min<unsigned int>(Lowest, Indices[Index]);
@@ -302,8 +368,6 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         }
         if (Highest >= VertCount)
             return; // an index past the vertices it was given: nothing safe to draw
-        First = Lowest;
-        Span = Highest - Lowest + 1;
     }
     else if (Used > VertCount || (bFan && Used > 0x10000u))
     {
@@ -311,40 +375,44 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     }
 
     // The texture-coordinate set each stage reads (TEXCOORDINDEX's low bits; its high bits, the
-    // coordinate generation, are the vertex shader's). A set the format lacks reads (0, 0).
+    // coordinate generation, are the vertex shader's). A set the format lacks reads (0, 0). The
+    // sets, four bits a stage, are the signature of a static buffer's GPU block.
     int TexOffset[kRpGpuStages] = {};
     int TexFloats[kRpGpuStages] = {};
+    std::uint32_t Signature = 0;
     for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
     {
         const int Set = StageStates_[Stage][kTssTexCoordIndex] & 0xFFFF;
         TexOffset[Stage] = Set < Layout.TexCount ? Layout.Tex[Set] : -1;
         TexFloats[Stage] = Set < Layout.TexCount ? Layout.TexFloats[Set] : 0;
+        Signature |= static_cast<std::uint32_t>(Set < Layout.TexCount ? Set : 0xF) << (Stage * 4);
     }
 
-    const std::uint32_t FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
-    Frame_.Vertices.reserve(Frame_.Vertices.size() + Span);
-    for (unsigned int Index = 0; Index < Span; ++Index)
+    // A static vertex buffer is drawn from its GPU block: the vertices stay where they are and
+    // the draw starts at SourceBase in it. Everything else is copied into the frame: with
+    // indices, only the range they reach, the indices rebased onto it.
+    const std::uint64_t Block = StaticSource != nullptr && !StaticSource->bRing
+                                    ? VertexBlockFor(StaticSource, Signature, TexOffset, TexFloats)
+                                    : 0;
+    unsigned int First = 0;
+    unsigned int Span = Used;
+    std::uint32_t FirstVertex = 0;
+    if (Block != 0)
     {
-        const unsigned char* const P = Verts + static_cast<std::size_t>(First + Index) * Stride;
-        FRpGpuVertex Vertex;
-        Vertex.X = ReadFloat(P);
-        Vertex.Y = ReadFloat(P + 4);
-        Vertex.Z = ReadFloat(P + 8);
-        Vertex.W = Layout.bPretransformed ? ReadFloat(P + 12) : 1.0f;
-        Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
-        for (int Weight = 0; Weight < 3; ++Weight)
-            Vertex.Weights[Weight] = Weight < Layout.Weights ? ReadFloat(P + 12 + Weight * 4) : 0.0f;
-        Vertex.Indices = Layout.Indices >= 0 ? ReadU32(P + Layout.Indices) : 0x03020100u;
-        for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+        FirstVertex = SourceBase;
+    }
+    else
+    {
+        if (Indices != nullptr)
         {
-            Vertex.Tex[Stage][0] = TexFloats[Stage] >= 1 ? ReadFloat(P + TexOffset[Stage]) : 0.0f;
-            Vertex.Tex[Stage][1] = TexFloats[Stage] >= 2 ? ReadFloat(P + TexOffset[Stage] + 4) : 0.0f;
+            First = Lowest;
+            Span = Highest - Lowest + 1;
         }
-        Vertex.Nx = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal) : 0.0f;
-        Vertex.Ny = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 4) : 0.0f;
-        Vertex.Nz = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 8) : 0.0f;
-        Vertex.Specular = Layout.Specular >= 0 ? ReadU32(P + Layout.Specular) : 0u;
-        Frame_.Vertices.push_back(Vertex);
+        FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
+        Frame_.Vertices.reserve(Frame_.Vertices.size() + Span);
+        for (unsigned int Index = 0; Index < Span; ++Index)
+            Frame_.Vertices.push_back(
+                ConvertVertex(Verts + static_cast<std::size_t>(First + Index) * Stride, Layout, TexOffset, TexFloats));
     }
 
     // Indices when the draw has them, or when a fan becomes a list (SDL_GPU has no fans).
@@ -434,6 +502,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         Command.Transform.TexGen[Stage] = (Layout.bPretransformed ? 0u : std::min(Generation, 3u)) | (Components << 4);
     }
     ColourOf(static_cast<std::uint32_t>(RenderStates_[kRsTextureFactor]), Command.Stage.TextureFactor);
+    Command.VertexBlock = Block;
     Command.FirstVertex = FirstVertex;
     Command.VertexCount = Span;
     Command.FirstIndex = FirstIndex;

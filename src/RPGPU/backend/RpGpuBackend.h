@@ -286,6 +286,9 @@ struct FRpGpuCommand
     FRpGpuStageUniforms Stage = {};
     std::int32_t Lighting = -1;
     std::int32_t Blend = -1; // the frame's blend block, -1 when the draw does not blend
+    // A vertex block kept on the GPU (UploadVertexBlock) the draw reads instead of the frame's
+    // vertices; FirstVertex then counts from its start. 0: the frame's vertices.
+    std::uint64_t VertexBlock = 0;
 };
 
 struct FRpGpuFrameRecording
@@ -336,6 +339,13 @@ public:
     // The image version of Key is no longer needed. RPGPU calls this only after the frame that
     // last used it has been presented.
     virtual void ForgetTexture(std::uint64_t Key) = 0;
+
+    // A static vertex buffer's converted vertices, kept on the GPU under Key (never 0, never
+    // reused) until ForgetVertexBlock, uploaded before the next frame's draws. Draws name it in
+    // FRpGpuCommand::VertexBlock. ForgetVertexBlock comes only after the frame that last used
+    // the block has been presented.
+    virtual void UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) = 0;
+    virtual void ForgetVertexBlock(std::uint64_t Key) = 0;
 
     virtual RpWindowHandle Hwnd() const = 0;
     virtual std::uint32_t Width() const = 0;

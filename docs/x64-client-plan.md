@@ -260,9 +260,12 @@ MSL, and keep the bytecode in the repository. In parts, each its own PR:
    colour through), texture transforms and texture-coordinate generation.
 
 **5.4 Buffers and textures.** Vertex and index buffers that stay on the GPU (static, dynamic,
-and the lock/discard pattern), render targets, and screenshots. Already in place: buffers in CPU
-memory with RP8's lock semantics (#58), textures through TexConvert (#59), and mip chains and DXT
-uploads (5.3, part 4). Until then every draw's vertices are copied into the frame.
+and the lock/discard pattern), render targets, and screenshots. Done or under way: buffers in CPU
+memory with RP8's lock semantics (#58), textures through TexConvert (#59), mip chains and DXT
+uploads (5.3, part 4), screenshots (#101), cube maps (#104) and static vertex buffers kept on
+the GPU. Still copied each frame: index buffers, the ring pools and user-pointer draws. Render
+targets need nothing: RP8 answers `SetRenderTarget` with "unsupported", and the game does not
+call it.
 
 **5.5 Parity.** RPGPU on Win32 passes the phase 4.2 scene set within tolerance against RP8, the
 smoke test passes on it, and then it becomes the default on x64. Win32's default stays RP8.

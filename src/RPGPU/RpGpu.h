@@ -221,9 +221,17 @@ private:
     // RpGpuDraw.cpp: records one draw into Frame_, and uploads a texture that changed. Verts is
     // the first vertex the draw (or its indices) may use and VertCount how many follow it;
     // Stride is bytes per vertex; Indices is null for a draw without indices.
+    // StaticSource: the vertex buffer Verts lies in, when that buffer is not a ring, and SourceBase
+    // the vertex Verts starts at in it; the draw then reads the buffer's GPU block.
     void RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
-                    unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount);
+                    unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
+                    FRpGpuBuffer* StaticSource = nullptr, unsigned int SourceBase = 0);
     void RefreshTexture(FRpGpuTexture* Texture);
+    // The GPU block of a static vertex buffer as draws with this texture-coordinate signature
+    // read it, made on first use (RpGpuDraw.cpp); 0 when it cannot be made.
+    std::uint64_t VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signature, const int* TexOffset,
+                                 const int* TexFloats);
+    void RetireVertexBlocks(FRpGpuBuffer* Buffer);
 
     // RpGpuState.cpp: RP8's transform stores (FRp8TransformCache). The world and view matrices
     // are kept as Direct3D's 4x4 (row-major, row vectors), as RP8 sends them to the device.
@@ -327,6 +335,10 @@ private:
     // Image versions replaced or destroyed during this frame: the frame's draws may still use
     // them, so the backend lets go of them only after SwapBuffers has presented it.
     std::vector<std::uint64_t> RetiredVersions_;
+    // Vertex blocks retired during this frame (a static buffer written or destroyed), released
+    // after SwapBuffers as the texture versions are. Block keys come from NextTextureVersion_
+    // too, so no key is used twice.
+    std::vector<std::uint64_t> RetiredBlocks_;
 
     std::set<FRpGpuTexture*> Textures_;
     std::set<FRpGpuBuffer*> VertexBuffers_;

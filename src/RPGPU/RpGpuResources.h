@@ -57,4 +57,13 @@ struct FRpGpuBuffer
     bool bLocked = false;
     unsigned int Cursor = 0;  // ring position, in elements
     std::vector<unsigned char> Data;
+    // A vertex buffer that is not a ring, converted to FRpGpuVertex and kept on the GPU: one
+    // block per way the draws read its texture-coordinate sets (Signature), each under a
+    // backend key. A write (LockVb, ResizeVb) retires them all.
+    struct FGpuBlock
+    {
+        std::uint32_t Signature;
+        std::uint64_t Key;
+    };
+    std::vector<FGpuBlock> GpuBlocks;
 };

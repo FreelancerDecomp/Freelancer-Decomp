@@ -630,6 +630,7 @@ GENRESULT DACOM_API FRpGpu::DestroyVb(void** Handle)
     if (VertexBuffers_.count(Buffer) != 0)
     {
         VertexBuffers_.erase(Buffer);
+        RetireVertexBlocks(Buffer);
         if (SelectedVb_ == Buffer)
             SelectedVb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
@@ -646,6 +647,7 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
         if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, Rp8FvfStride(Fvf))))
             return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
+        RetireVertexBlocks(Buffer);
     }
     return GR_OK;
 }
@@ -703,6 +705,7 @@ GENRESULT DACOM_API FRpGpu::LockVb(void* Handle, unsigned int* Offset, void** Ou
     if (Offset != nullptr)
         *Offset = Start;
     Buffer->bLocked = true;
+    RetireVertexBlocks(Buffer); // the caller may write any vertex it locked
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * Buffer->Stride;
     return GR_OK;
 }

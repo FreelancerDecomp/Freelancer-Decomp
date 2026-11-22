@@ -452,10 +452,25 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
         Viewport_[3] = Mode[3];
     }
     bBuffersActive_ = true;
-    // A new device has no GPU copies: every texture goes up again when it is next drawn.
-    for (FRpGpuTexture* Texture : Textures_)
-        Texture->bGpuStale = true;
+    // The device may be new and have no GPU copies: every texture and static vertex buffer goes
+    // up again when it is next drawn, and the old copies are let go (a kept device keeps them
+    // otherwise). Nothing recorded refers to them any more.
     Frame_.Clear();
+    for (FRpGpuTexture* Texture : Textures_)
+    {
+        Texture->bGpuStale = true;
+        if (Texture->GpuVersion != 0)
+            RetiredVersions_.push_back(Texture->GpuVersion);
+        Texture->GpuVersion = 0;
+    }
+    for (FRpGpuBuffer* Buffer : VertexBuffers_)
+        RetireVertexBlocks(Buffer);
+    for (std::uint64_t Version : RetiredVersions_)
+        Backend().ForgetTexture(Version);
+    RetiredVersions_.clear();
+    for (std::uint64_t Block : RetiredBlocks_)
+        Backend().ForgetVertexBlock(Block);
+    RetiredBlocks_.clear();
     return GR_OK;
 }
 
@@ -571,10 +586,13 @@ GENRESULT DACOM_API FRpGpu::SwapBuffers()
         return GR_GENERIC;
     const bool bPresented = Backend().Present(Frame_);
     Frame_.Clear();
-    // The frame is submitted: the image versions it was the last to use can go.
+    // The frame is submitted: the image versions and vertex blocks it was the last to use can go.
     for (std::uint64_t Version : RetiredVersions_)
         Backend().ForgetTexture(Version);
     RetiredVersions_.clear();
+    for (std::uint64_t Block : RetiredBlocks_)
+        Backend().ForgetVertexBlock(Block);
+    RetiredBlocks_.clear();
     if (!bPresented)
     {
         Log("RPGPU: present failed: %s\n", Backend().LastError());
@@ -684,10 +702,10 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
         return GR_OK;
     SelectedVb_ = Vb;
     FlushDrawState();
-    const FRpGpuBuffer* const Buffer = LiveVb(Vb);
+    FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && StartVertex <= Buffer->Count && Count <= Buffer->Count - StartVertex)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(StartVertex) * Buffer->Stride,
-                   Buffer->Stride, Count, nullptr, 0);
+                   Buffer->Stride, Count, nullptr, 0, Buffer, StartVertex);
     return GR_OK;
 }
 
@@ -712,11 +730,12 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb,
     SelectedIb_ = kMinusOne;
     IbBaseVertex_ = BaseVertex;
     FlushDrawState();
-    const FRpGpuBuffer* const Buffer = LiveVb(Vb);
+    FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && BaseVertex < Buffer->Count)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(BaseVertex) * Buffer->Stride,
                    Buffer->Stride, Buffer->Count - BaseVertex,
-                   reinterpret_cast<const std::uint16_t*>(ScratchIb_.Data.data()) + Start, IndexCount);
+                   reinterpret_cast<const std::uint16_t*>(ScratchIb_.Data.data()) + Start, IndexCount, Buffer,
+                   BaseVertex);
     return GR_OK;
 }
 
@@ -732,7 +751,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned in
     if (PrimCountFromVerts(Prim, Count) <= 0)
         return kFail;
     FlushDrawState();
-    const FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
+    FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
     const FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
     if (Vertices == nullptr || IndexBuffer == nullptr || IbBaseVertex_ >= Vertices->Count ||
         StartIndex > IndexBuffer->Count || Count > IndexBuffer->Count - StartIndex)
@@ -740,7 +759,8 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned in
     RecordDraw(Prim, Vertices->Fvf,
                Vertices->Data.data() + static_cast<std::size_t>(IbBaseVertex_) * Vertices->Stride, Vertices->Stride,
                Vertices->Count - IbBaseVertex_,
-               reinterpret_cast<const std::uint16_t*>(IndexBuffer->Data.data()) + StartIndex, Count);
+               reinterpret_cast<const std::uint16_t*>(IndexBuffer->Data.data()) + StartIndex, Count, Vertices,
+               IbBaseVertex_);
     return GR_OK;
 }
 
