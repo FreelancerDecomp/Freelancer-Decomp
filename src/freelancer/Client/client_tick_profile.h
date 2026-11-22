@@ -10,7 +10,7 @@
 #include "common_tick_profile.h"
 
 // On-screen "Beta 2" version label (CLIENT-BETA-LABEL). Off by default; set through the
-// FreelancerBetaLabel property (src/Freelancer.Diagnostics.props).
+// FreelancerBetaLabel switch (docs/building.md).
 #ifndef FREELANCER_BETA_LABEL
 #define FREELANCER_BETA_LABEL 0
 #endif

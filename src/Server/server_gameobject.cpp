@@ -873,7 +873,7 @@ bool GameObject::CreateOfClass(CObject::Class ObjectClass, Archetype::Root* Arch
     Arch->create_instance(static_cast<IEngineInstance*>(Object));
 
     // .text:06d01062 .. 06d01077: DALib::Engine vtable +0x6c (slot 27),
-    // IEngine::UpdateInstance(Object->EngineInstanceId, 0, 0). Server.vcxproj
+    // IEngine::UpdateInstance(Object->EngineInstanceId, 0, 0). Server
     // references DALib (the same call Loot::create / Mine::create make).
     DALib::Engine->UpdateInstance(reinterpret_cast<void*>(Object->EngineInstanceId), 0, nullptr);
 

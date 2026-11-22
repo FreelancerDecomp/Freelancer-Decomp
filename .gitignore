@@ -1,4 +1,5 @@
-# Visual Studio / MSBuild
+# Visual Studio (Open Folder; obj/ from the former MSBuild build)
+.vs/
 src/.vs/
 src/**/obj/
 obj/
@@ -79,8 +80,9 @@ Desktop.ini
 # Throwaway RE scratch: per-investigation emulators, listing dumps, audit dumps.
 tools/_*
 
-# CMake build trees (src/DPNet: cmake -S src/DPNet -B build/dpnet)
+# CMake build trees (one per preset, build/<preset>; src/DPNet on its own: build/dpnet)
 /build/
+CMakeUserPresets.json
 
 # vcpkg manifest-mode packages of the port-only modules (src/vcpkg.json)
 vcpkg_installed/

@@ -1,7 +1,7 @@
 # Freelancer Decomp
 
 A reverse-engineered reimplementation of the **Freelancer** (2003) game client and its engine
-DLLs, built from source with a modern Visual Studio. Every module the game loads is built from
+DLLs, built from source with a modern Visual Studio and CMake. Every module the game loads is built from
 `src/`; no retail binary of the game is loaded except the two third-party DLLs listed below.
 
 You need your own copy of Freelancer: the game data (`DATA`) is not part of this repository.
@@ -17,12 +17,14 @@ Russian: [README.ru.md](README.ru.md). Documentation: [docs/README.md](docs/READ
    [DirectX 8.1 SDK (Final)](https://archive.org/details/dx81sdk_full), install or extract it, and
    copy its `include` and `lib` folders into a `dx8` folder at the repository root (so that
    `dx8\include\d3d8.h` and `dx8\lib\d3d8.lib` exist). Only the headers and libraries are used;
-   another location can be given with `/p:Dx8SdkDir=<path>`.
-4. **Build the Release configuration** of `src\Freelancer.sln` (`Release|Win32`) in Visual Studio,
-   or from a Developer Command Prompt:
+   another location can be given with `-DDx8SdkDir=<path>`.
+4. **Build the Release configuration** (`Release|Win32`): open the repository folder in Visual
+   Studio (*File > Open > Folder*) and pick the `release` preset, or from an x86 Developer Command
+   Prompt (`vcvarsall.bat x86`) at the repository root:
 
    ```
-   msbuild src\Freelancer.sln -t:Build -p:Configuration=Release -p:Platform=Win32
+   cmake --preset release
+   cmake --build --preset release
    ```
 
 The output goes to `bin\`, which already holds the runtime configuration (`DACOM.INI`,
@@ -32,17 +34,22 @@ The output goes to `bin\`, which already holds the runtime configuration (`DACOM
 ### Requirements
 
 - Visual Studio 2022 (platform toolset v143) with the *Desktop development with C++* workload,
-  the *C++ MFC for latest v143 build tools (x86 & x64)* component (used by `FLServer`) and a
-  Windows 10/11 SDK. Everything builds as 32-bit (`Win32`).
+  the *C++ MFC for latest v143 build tools (x86 & x64)* component (used by `FLServer`), *C++
+  CMake tools for Windows* (CMake 3.27 or later and Ninja) and a Windows 10/11 SDK. The game
+  builds as 32-bit (`Win32`); an x64 build runs alongside it ([docs/x64.md](docs/x64.md)).
 - Debug builds (`bin_debug\`) also need Python 3 on `PATH`: a post-build step copies the runtime
   configuration from `bin\`.
 
+All presets, the x64 build and the details: [docs/building.md](docs/building.md). On Linux and
+macOS the same CMake build builds the modules that use no Windows API (`cmake --preset
+portable`); the game itself is Windows-only for now.
+
 ### Optional features
 
-Port-only features are build switches in `src/Freelancer.Diagnostics.props` (also on the VS
-property page *Freelancer diagnostics*), or `/p:<Name>=0|1` on the MSBuild command line:
+Port-only features are build switches, `-D<Name>=0|1` at configure time (for example
+`cmake --preset release -DFreelancerRp9=1`):
 
-| Property | Default | What it does |
+| Switch | Default | What it does |
 |---|---|---|
 | `FreelancerWidescreenSupport` | 1 | Widescreen (Hor+) display modes and HUD layout |
 | `FreelancerWalkMode` | 1 | Walking through base rooms as Trent ([docs/walk_mode.md](docs/walk_mode.md)) |
@@ -53,7 +60,7 @@ property page *Freelancer diagnostics*), or `/p:<Name>=0|1` on the MSBuild comma
 ## Repository layout
 
 ```
-src\          Visual Studio solution (Freelancer.sln) — all source code
+src\          all source code, a CMakeLists.txt per module (CMakeLists.txt and cmake\ at the root)
 bin\          Release output + the runtime configuration files
 DATA_EXTRA\   the port's own data (RP9 shaders, volumetric.ini), next to the game's DATA
 EBUEula.dll   retail EULA dialog, loaded as ..\EBUEula.dll with ..\EULA.rtf (as the retail game)

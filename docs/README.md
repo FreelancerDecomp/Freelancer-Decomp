@@ -35,13 +35,13 @@ installation of Freelancer (see [Local layout](#local-layout)).
 | Client executable | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (widescreen) · [walk_mode](walk_mode.md) (port-only walking in bases; `FreelancerWalkMode`) |
 | Server / network | [server](re/server.md) (Server.dll, FLServer, SP connection, remote DLLs) · [rpclocal](re/rpclocal.md) (local RPC packet protocol) · [dedicated_server](dedicated_server.md) (port-only console server, `FLDedicated.exe`) · [dpnet](dpnet.md) (port-only DirectPlay 8 protocol implementation) |
 | Scaling | [scaling](scaling.md) — what limits player and NPC counts, which fixes are safe now, what to change if retail compatibility is dropped |
-| Build and CRT | [crt_compat](re/crt_compat.md) (modern CRT/STL vs. the retail VC6 runtime) · [refactoring](re/refactoring.md) (code rules) · [testing](testing.md) (FLRegress, RpcCodecTest) · [x64](x64.md) (port-only 64-bit server build) |
+| Build and CRT | [building](building.md) (CMake, presets, switches, Linux and macOS) · [crt_compat](re/crt_compat.md) (modern CRT/STL vs. the retail VC6 runtime) · [refactoring](re/refactoring.md) (code rules) · [testing](testing.md) (FLRegress, RpcCodecTest) · [x64](x64.md) (port-only 64-bit server build) |
 
 ## Local layout
 
 ```
 Freelancer\
-  src\        Visual Studio solution (Freelancer.sln) — all project source code
+  src\        all source code, a CMakeLists.txt per module
   bin\        Release output + the dev *.ini files (source of truth for the INI files)
   bin_debug\  Debug output       binasan\  DebugASan output
   EXE\        gundll.dll (in git, loaded); your retail binaries and Ghidra listings (not in git;
@@ -57,34 +57,24 @@ loaded; the only retail DLLs loaded at runtime are `EBUEula.dll` and `EXE\gundll
 
 ## Building
 
-Requires Visual Studio 2022 (MSVC v143, Win32 target) and the DirectX 8 SDK headers (`dx8\`).
+[building.md](building.md): CMake presets for Win32 (`release`, `debug`, `debugasan`) and x64
+(`release-x64`, `debug-x64`), the build switches, vcpkg, and the portable modules that also build
+on Linux and macOS. From an x86 Developer Command Prompt:
 
 ```
-MSBuild.exe src\Freelancer.sln -t:Build -p:Configuration=Debug -v:minimal
+cmake --preset debug && cmake --build --preset debug
 ```
 
-| Configuration | Output directory |
-|---------------|------------------|
-| Debug | `bin_debug\` |
-| Release | `bin\` |
-| DebugASan | `binasan\` (AddressSanitizer; copies the `clang_rt.asan_*` runtime next to the exe) |
+| Preset | Output directory |
+|--------|------------------|
+| `debug` | `bin_debug\` |
+| `release` | `bin\` |
+| `debugasan` | `binasan\` (AddressSanitizer; copies the `clang_rt.asan_*` runtime next to the exe) |
+| `release-x64` / `debug-x64` | `bin_x64\` / `bin_x64_debug\` |
 
 Run `freelancer.exe` from the directory of the configuration you built. Every build into a
-directory other than `bin\` (Debug, ASan, and the x64 `bin_x64\` / `bin_x64_debug\`) copies the
-dev `*.ini` from `bin\` with paths rewritten (`src/copy_dev_ini.py`) — edit the files in `bin\`,
-not the copies. The retail DLLs in `EXE\` are not ASan-instrumented.
-
-Port-only modules that need third-party packages (today RPGPU, with SDL3) get them from vcpkg:
-one manifest, `src/vcpkg.json`, with a feature per module, wired up by `src/Vcpkg.props` and
-imported only by those modules. Each has an opt-in property in `src/Directory.Build.props`
-(`FreelancerRpGpu`, on by default only on x64). Visual Studio 2022 ships vcpkg; elsewhere set
-`VCPKG_ROOT`. Without vcpkg such a module is skipped with a warning, or fails the build with
-`-p:FreelancerRequireVcpkg=true`, as in CI. Retail modules never depend on vcpkg.
-
-Every project says what it is with `FlModuleKind` in its `Globals`: `retail` (a rebuild of a
-retail module or resource DLL), `port` (port-only: RP9, RPGPU, FLDedicated) or `tool` (FLRegress,
-RpcCodecTest, DPNetCheck, MemoryDiagnostics). The solution folders follow it (Retail,
-ResourceDLLs, Port, Tests, Tools), and the build fails when a project has no kind or a retail
-project imports `src/Vcpkg.props`.
+directory other than `bin\` copies the dev `*.ini` from `bin\` with paths rewritten
+(`src/copy_dev_ini.py`) — edit the files in `bin\`, not the copies. The retail DLLs in `EXE\` are
+not ASan-instrumented.
 
 Hunting memory leaks: [memory_diagnostics.md](memory_diagnostics.md).

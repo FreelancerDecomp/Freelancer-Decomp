@@ -512,7 +512,7 @@ void IServerImpl::Shutdown() {
 // The 2026-09-17 note claiming "the two run-permission calls were never located
 // (inline, or in Common.dll)" was simply wrong: both are ordinary IAT imports and
 // both are already ported in src/Common/common_misc.cpp behind COMMON_API. rpclocal
-// already links Common.lib (rpclocal.vcxproj AdditionalDependencies), so there is
+// already links Common.lib (rpclocal/CMakeLists.txt, fl_link), so there is
 // nothing to bridge.
 //
 // The packet is released by HandlePacket itself, as in retail (06d83b21, the single
