@@ -10,7 +10,9 @@
 #include "RpGpuBackend.h"
 
 #include <cstdint>
+#include <map>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 struct SDL_Window;
@@ -112,7 +114,8 @@ private:
     std::uint32_t SwapchainFormat_ = 0; // SDL_GPUTextureFormat the pipelines were made for
     std::uint32_t DepthFormat_ = 0;
     std::unordered_map<std::uint64_t, SDL_GPUGraphicsPipeline*> Pipelines_;
-    std::unordered_map<std::uint64_t, SDL_GPUSampler*> Samplers_;
+    // By FRpGpuSamplerKey: Packed() and the LOD bias's bits.
+    std::map<std::pair<std::uint64_t, std::uint32_t>, SDL_GPUSampler*> Samplers_;
     std::unordered_map<std::uint64_t, FTexture> Textures_;
     std::vector<FPendingUpload> PendingUploads_;
     SDL_GPUTexture* White_ = nullptr; // bound when a draw has no texture

@@ -100,7 +100,7 @@
     <None Include="..\vcpkg.json" />
     <None Include="shaders\RpGpuShaderBytecode.generated.inc" />
     <None Include="shaders\rpgpu_fixed.vert.hlsl" />
-    <None Include="shaders\rpgpu_stage0.frag.hlsl" />
+    <None Include="shaders\rpgpu_stages.frag.hlsl" />
   </ItemGroup>
   <ItemGroup Condition="'$(FlVcpkgEnabled)'=='true'">
     <ProjectReference Include="..\TexConvert\TexConvert.vcxproj">

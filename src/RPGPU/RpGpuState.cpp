@@ -87,8 +87,8 @@ void FRpGpu::ReadSettings()
     }
 
     // BROKEN_MULTITEXTURE is read, then overwritten with the device's blend-stage count, capped
-    // at 7 (RP8's FUN_06d020ab).
-    PipelineState_[kPsMaxBlendStages] = 7;
+    // at 7 (RP8's FUN_06d020ab). RPGPU's "device" has the stages its shader draws.
+    PipelineState_[kPsMaxBlendStages] = kRpGpuStages;
 }
 
 void FRpGpu::ResetStateToDefaults()
@@ -109,6 +109,12 @@ void FRpGpu::ResetDeviceState()
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
     Material_ = RpMaterial{}; // a new device's material is all zeros
+    // RP8's ApplyDefaultTextureStages: no textures bound, identity texture transforms.
+    for (int Stage = 0; Stage < 8; ++Stage)
+    {
+        StageTextures_[Stage] = nullptr;
+        Identity(StageTransforms_[Stage]);
+    }
 }
 
 GENRESULT DACOM_API FRpGpu::SetPipelineState(int Id, int Value)
@@ -526,23 +532,33 @@ GENRESULT DACOM_API FRpGpu::GetTextureStageState(int Stage, int Type, int* Out)
     return GR_OK;
 }
 
+// RP8 stores the caller's matrix transposed (StoreTransposed) and hands it to Direct3D as the
+// stage's texture transform; reading it back transposes again.
 GENRESULT DACOM_API FRpGpu::SetTextureStageTransform(int Stage, const float* Matrix16)
 {
-    (void)Stage;
-    (void)Matrix16;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Stage < 0 || Stage >= 8 || Matrix16 == nullptr)
+        return GR_INVALID_PARMS;
+    Transpose(Matrix16, StageTransforms_[Stage]);
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetTextureStageTransform(int Stage, float* OutMatrix16)
 {
-    (void)Stage;
-    if (OutMatrix16 != nullptr)
-        Identity(OutMatrix16);
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Stage < 0 || Stage >= 8 || OutMatrix16 == nullptr)
+        return GR_INVALID_PARMS;
+    Transpose(StageTransforms_[Stage], OutMatrix16);
     return GR_OK;
 }
 
+// With pipeline state TEXTURE off, RP8 ignores the call and GetTextureStageTexture answers null.
 GENRESULT DACOM_API FRpGpu::SetTextureStageTexture(int Stage, void* Handle)
 {
+    if (PipelineState_[kPsTexture] == 0)
+        return GR_OK;
     if (Stage >= 0 && Stage < 8)
         StageTextures_[Stage] = Handle;
     return GR_OK;
@@ -551,7 +567,7 @@ GENRESULT DACOM_API FRpGpu::SetTextureStageTexture(int Stage, void* Handle)
 GENRESULT DACOM_API FRpGpu::GetTextureStageTexture(int Stage, void** OutHandle)
 {
     if (OutHandle != nullptr)
-        *OutHandle = (Stage >= 0 && Stage < 8) ? StageTextures_[Stage] : nullptr;
+        *OutHandle = (PipelineState_[kPsTexture] != 0 && Stage >= 0 && Stage < 8) ? StageTextures_[Stage] : nullptr;
     return GR_OK;
 }
 

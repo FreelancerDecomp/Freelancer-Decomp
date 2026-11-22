@@ -77,9 +77,8 @@ client's next `CreateBuffers` brings the new one up.
 
 RPGPU opens the device and presents the frames it records. It draws the 2D draws (pre-transformed
 vertices: the menus, the HUD) and the 3D draws (transformed vertices, through world, view and
-projection), with Direct3D 8's per-vertex lighting, fog, texture stage 0, mip maps, culling and
-the alpha test; see "Drawing" and "Lighting and fog". The texture stages above 0 are not drawn
-yet.
+projection), with Direct3D 8's per-vertex lighting, fog, four texture stages, mip maps, culling
+and the alpha test; see "Drawing", "Lighting and fog" and "Texture stages".
 
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
   transforms and the viewport. The transforms follow RP8's stores ("Transforms").
@@ -156,8 +155,8 @@ The shaders so far:
   pixels to clip space, and other positions through world * view * projection; both land on
   Direct3D 8's pixel centres (integer coordinates, half a pixel from today's). It lights
   transformed vertices and computes vertex fog ("Lighting and fog").
-- `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
-  modulate), the specular add, fog and the alpha test, in Direct3D's order.
+- `rpgpu_stages.frag` does the texture stages ("Texture stages"), the specular add, fog and
+  the alpha test, in Direct3D's order.
 - Their uniform blocks are `FRpGpuTransformUniforms`, `FRpGpuLightingUniforms` and
   `FRpGpuStageUniforms` (`backend/RpGpuBackend.h`): float4s and 4x4 matrices only, so the C++
   and HLSL layouts agree.
@@ -227,6 +226,32 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - Exponential, squared exponential and linear, blending the colour (not alpha) towards
   `FOGCOLOR`. `SPECULARENABLE` adds the specular colour before fog.
 
+## Texture stages
+
+RPGPU draws four texture stages and reports four as the device's blend-stage count (pipeline
+state 6, which RP8 fills from the device's caps): a Direct3D 8 device with four stages, which
+the game adapts to.
+- **The cascade** (`rpgpu_stages.frag`) runs from stage 0 to the first stage whose `COLOROP`
+  is `DISABLE`. Every `D3DTEXTUREOP` is done except the bump-mapping ones (`BUMPENVMAP`,
+  `BUMPENVMAPLUMINANCE`) and `PREMODULATE`, which pass the current colour on. `DOTPRODUCT3`
+  writes alpha too. Each stage's result is clamped to 0..1.
+- **Arguments:** diffuse, current (the diffuse colour at stage 0), texture, `TEXTUREFACTOR`,
+  specular and temp, with the complement and alpha-replicate modifiers. `COLORARG0` /
+  `ALPHAARG0` feed `MULTIPLYADD` and `LERP`; `RESULTARG` writes temp instead of current.
+- `ALPHAOP` `DISABLE` under an enabled `COLOROP` passes the current alpha on.
+- With no texture bound (or none on the GPU yet), the texture argument reads the diffuse colour,
+  RPGPU's rule since the 2D draws.
+- **Coordinates** (`rpgpu_fixed.vert`): each stage reads the set its `TEXCOORDINDEX` names, or
+  generates camera-space normals, positions or reflection vectors (`TEXCOORDINDEX`'s high bits).
+  Sets are kept to their first two components.
+- **Texture transforms:** `SetTextureStageTransform` stores the matrix transposed, as RP8 does,
+  and `TEXTURETRANSFORMFLAGS`' count turns it on. A set is padded as Direct3D pads it ((u, v)
+  becomes (u, v, 1, 0)); `PROJECTED` divides by the last transformed component.
+  Pre-transformed vertices take neither generation nor transforms.
+- `SetTextureStageTexture` is ignored, and `GetTextureStageTexture` answers null, while
+  pipeline state `TEXTURE` is 0, as in RP8. `CreateBuffers` unbinds every stage and resets the
+  transforms to the identity (RP8's `ApplyDefaultTextureStages`).
+
 ## Drawing
 
 RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
@@ -234,13 +259,15 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 **Recording** (`RpGpuDraw.cpp`):
 - **Draw calls:** `DrawPrimitive`, `DrawIndexedPrimitiveUp`, `DrawPrimitiveVb`,
   `DrawIndexedPrimitiveVb` and `IRPDraw::DrawIndexedPrimitive` convert the game's vertices
-  into `FRpGpuVertex` (position, diffuse, the texture set stage 0's `TEXCOORDINDEX` names).
+  into `FRpGpuVertex` (position, diffuse, specular, normal, and for each stage the texture set
+  its `TEXCOORDINDEX` names, as two components).
   The position formats are read as Direct3D 8 lays them out: XYZ, XYZRHW, and XYZB1 to
   XYZB5, whose blend weights are skipped. A format whose layout is longer than RP8's stride
   (`Rp8FvfStride`, which RP8 hands to Direct3D) is not drawn: XYZB2, XYZB3, XYZB5 and any with
   a point size. Each draw records one command with the state of the moment:
   - blending, the depth test, the colour write mask, `CULLMODE`, `FILLMODE` and `ZBIAS`;
-  - texture stage 0's operations, sampler (with `MIPFILTER` and `MAXMIPLEVEL`) and texture;
+  - each texture stage's operations, sampler (with `MIPFILTER`, `MAXMIPLEVEL`,
+    `MAXANISOTROPY` and `MIPMAPLODBIAS`), texture and coordinate handling;
   - the alpha test and the viewport;
   - for transformed vertices, world * view * projection and the depth range (`SetDepthRange`).
     Pre-transformed vertices keep their z, as in Direct3D.
@@ -278,12 +305,11 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 4. A draw whose texture has no GPU copy samples a 1x1 white texture with the texture flag
    off.
 
-**Known gaps** for the later parts of step 5.3:
+**Known gaps:**
 - clear rectangles (the whole target is cleared);
-- texture stages above 0, texture transforms and texture-coordinate generation
-  (`TEXCOORDINDEX`'s high bits);
+- stages past the fourth, the bump-mapping ops, three- and four-component texture sets and
+  cube maps;
 - vertex blending (`SetWorldN`, `VERTEXBLEND`: Deformable2's skinned meshes draw unblended);
-- `MIPMAPLODBIAS` (the game does not set it) and cube maps;
 - every draw's vertices are copied into the frame; vertex and index buffers that stay on the
   GPU are plan step 5.4;
 - the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);

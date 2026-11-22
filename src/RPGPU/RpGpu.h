@@ -309,6 +309,9 @@ private:
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};
     void* StageTextures_[8] = {}; // SetTextureStageTexture's handles
+    // SetTextureStageTransform's matrices, as Direct3D holds them (RP8 stores the caller's
+    // transposed).
+    float StageTransforms_[8][16] = {};
     FRpGpuFrameRecording Frame_;  // the draws since the last SwapBuffers
     std::uint64_t NextTextureVersion_ = 1;
     // Image versions replaced or destroyed during this frame: the frame's draws may still use

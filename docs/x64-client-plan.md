@@ -255,7 +255,9 @@ MSL, and keep the bytecode in the repository. In parts, each its own PR:
    culling, fill mode, z-bias, mip maps, DXT textures uploaded as blocks. Ships and stations
    draw unlit. In #98.
 5. Lighting (RP8's light manager, Direct3D 8's per-vertex model) and fog (vertex, table, W).
-6. Texture stages above 0, texture transforms and texture-coordinate generation.
+   In #99.
+6. Four texture stages (every op but bump mapping), texture transforms and texture-coordinate
+   generation.
 
 **5.4 Buffers and textures.** Vertex and index buffers that stay on the GPU (static, dynamic,
 and the lock/discard pattern), render targets, and screenshots. Already in place: buffers in CPU

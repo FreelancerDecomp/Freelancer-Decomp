@@ -289,7 +289,7 @@ bool FRpGpuSdlBackend::CreateShaders()
     if (VertexShader_ != nullptr && FragmentShader_ != nullptr)
         return true;
     const FRpGpuShaderBlob* const Vert = FindRpGpuShader("rpgpu_fixed.vert");
-    const FRpGpuShaderBlob* const Frag = FindRpGpuShader("rpgpu_stage0.frag");
+    const FRpGpuShaderBlob* const Frag = FindRpGpuShader("rpgpu_stages.frag");
     if (Vert == nullptr || Frag == nullptr)
         return SDL_SetError("RPGPU: shader bytecode missing");
 
@@ -333,9 +333,10 @@ bool FRpGpuSdlBackend::CreateShaders()
         Info.num_uniform_buffers = UniformBuffers;
         return SDL_CreateGPUShader(Device_, &Info);
     };
-    // The vertex shader takes FTransform and FLighting; the fragment shader FStage.
+    // The vertex shader takes FTransform and FLighting; the fragment shader FStages and a
+    // texture and sampler per stage.
     VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 2);
-    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
+    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, kRpGpuStages, 1);
     return VertexShader_ != nullptr && FragmentShader_ != nullptr;
 }
 
@@ -350,8 +351,9 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Buffer.slot = 0;
     Buffer.pitch = sizeof(FRpGpuVertex);
     Buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-    // FRpGpuVertex: position, diffuse, texture coordinates, normal, specular.
-    SDL_GPUVertexAttribute Attributes[5] = {};
+    // FRpGpuVertex: position, diffuse, normal, specular, then each stage's coordinates
+    // (rpgpu_fixed.vert's TEXCOORD0..7).
+    SDL_GPUVertexAttribute Attributes[4 + kRpGpuStages] = {};
     Attributes[0].location = 0;
     Attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
     Attributes[0].offset = offsetof(FRpGpuVertex, X);
@@ -359,14 +361,17 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
     Attributes[1].offset = offsetof(FRpGpuVertex, Diffuse);
     Attributes[2].location = 2;
-    Attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
-    Attributes[2].offset = offsetof(FRpGpuVertex, U);
+    Attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    Attributes[2].offset = offsetof(FRpGpuVertex, Nx);
     Attributes[3].location = 3;
-    Attributes[3].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
-    Attributes[3].offset = offsetof(FRpGpuVertex, Nx);
-    Attributes[4].location = 4;
-    Attributes[4].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
-    Attributes[4].offset = offsetof(FRpGpuVertex, Specular);
+    Attributes[3].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
+    Attributes[3].offset = offsetof(FRpGpuVertex, Specular);
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+    {
+        Attributes[4 + Stage].location = static_cast<Uint32>(4 + Stage);
+        Attributes[4 + Stage].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+        Attributes[4 + Stage].offset = static_cast<Uint32>(offsetof(FRpGpuVertex, Tex) + Stage * 2 * sizeof(float));
+    }
 
     SDL_GPUColorTargetDescription Color = {};
     Color.format = static_cast<SDL_GPUTextureFormat>(SwapchainFormat_);
@@ -390,7 +395,7 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Info.vertex_input_state.vertex_buffer_descriptions = &Buffer;
     Info.vertex_input_state.num_vertex_buffers = 1;
     Info.vertex_input_state.vertex_attributes = Attributes;
-    Info.vertex_input_state.num_vertex_attributes = 5;
+    Info.vertex_input_state.num_vertex_attributes = 4 + kRpGpuStages;
     Info.primitive_type = PrimitiveType(Key.Topology);
     // Points (FILLMODE 1) are drawn solid: SDL_GPU has no point fill.
     Info.rasterizer_state.fill_mode = Key.FillMode == 2 ? SDL_GPU_FILLMODE_LINE : SDL_GPU_FILLMODE_FILL;
@@ -425,13 +430,20 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
 
 SDL_GPUSampler* FRpGpuSdlBackend::Sampler(const FRpGpuSamplerKey& Key)
 {
-    const std::uint64_t Packed = Key.Packed();
+    const std::pair<std::uint64_t, std::uint32_t> Packed(Key.Packed(), Key.LodBias);
     auto Found = Samplers_.find(Packed);
     if (Found != Samplers_.end())
         return Found->second;
     SDL_GPUSamplerCreateInfo Info = {};
     Info.mag_filter = Key.MagFilter == 1 ? SDL_GPU_FILTER_NEAREST : SDL_GPU_FILTER_LINEAR;
     Info.min_filter = Key.MinFilter == 1 ? SDL_GPU_FILTER_NEAREST : SDL_GPU_FILTER_LINEAR;
+    // ANISOTROPIC (3) on either filter: linear with MAXANISOTROPY.
+    if ((Key.MinFilter == 3 || Key.MagFilter == 3) && Key.MaxAnisotropy > 1)
+    {
+        Info.enable_anisotropy = true;
+        Info.max_anisotropy = static_cast<float>(Key.MaxAnisotropy);
+    }
+    std::memcpy(&Info.mip_lod_bias, &Key.LodBias, sizeof(Info.mip_lod_bias)); // MIPMAPLODBIAS
     Info.mipmap_mode = Key.MipFilter == 2 ? SDL_GPU_SAMPLERMIPMAPMODE_LINEAR : SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
     Info.address_mode_u = AddressMode(Key.AddressU);
     Info.address_mode_v = AddressMode(Key.AddressV);
@@ -779,8 +791,11 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
         for (std::size_t Index = 0; bReady && Index < Frame.Commands.size(); ++Index)
         {
             const FRpGpuCommand& Command = Frame.Commands[Index];
-            if (Command.Kind == FRpGpuCommand::EKind::Draw && Command.VertexCount != 0)
-                bReady = Pipeline(Command.Pipeline) != nullptr && Sampler(Command.Sampler) != nullptr;
+            if (Command.Kind != FRpGpuCommand::EKind::Draw || Command.VertexCount == 0)
+                continue;
+            bReady = Pipeline(Command.Pipeline) != nullptr;
+            for (int Stage = 0; bReady && Stage < kRpGpuStages; ++Stage)
+                bReady = Sampler(Command.Sampler[Stage]) != nullptr;
         }
         if (!bReady)
         {
@@ -812,8 +827,7 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
                 continue;
             }
             SDL_GPUGraphicsPipeline* const Bound = Pipeline(Command.Pipeline);
-            SDL_GPUSampler* const Sampling = Sampler(Command.Sampler);
-            if (Bound == nullptr || Sampling == nullptr || Command.VertexCount == 0)
+            if (Bound == nullptr || Command.VertexCount == 0)
                 continue;
             SDL_BindGPUGraphicsPipeline(Pass, Bound);
 
@@ -831,11 +845,19 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Vertices.offset = 0;
             SDL_BindGPUVertexBuffers(Pass, 0, &Vertices, 1);
 
-            auto Found = Textures_.find(Command.Texture);
-            SDL_GPUTextureSamplerBinding Binding = {};
-            Binding.texture = Found != Textures_.end() ? Found->second.Texture : White_;
-            Binding.sampler = Sampling;
-            SDL_BindGPUFragmentSamplers(Pass, 0, &Binding, 1);
+            // Every stage's texture and sampler; a stage without a GPU copy samples white with
+            // its texture flag off.
+            FRpGpuStageUniforms Stage = Command.Stage;
+            SDL_GPUTextureSamplerBinding Bindings[kRpGpuStages] = {};
+            for (int Index = 0; Index < kRpGpuStages; ++Index)
+            {
+                auto Found = Textures_.find(Command.Texture[Index]);
+                Bindings[Index].texture = Found != Textures_.end() ? Found->second.Texture : White_;
+                Bindings[Index].sampler = Sampler(Command.Sampler[Index]);
+                if (Found == Textures_.end())
+                    Stage.Misc[Index][1] = 0;
+            }
+            SDL_BindGPUFragmentSamplers(Pass, 0, Bindings, kRpGpuStages);
 
             FRpGpuTransformUniforms Transform = Command.Transform;
             Transform.Scale[0] = 2.0f / Viewport.w;
@@ -860,9 +882,6 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
                 PushedLighting = Lighting;
                 bLightingPushed = true;
             }
-            FRpGpuStageUniforms Stage = Command.Stage;
-            if (Found == Textures_.end())
-                Stage.Ops[2] = 0; // no GPU copy: as if no texture were bound
             SDL_PushGPUFragmentUniformData(Commands, 0, &Stage, sizeof(Stage));
 
             if (Command.IndexCount != 0)

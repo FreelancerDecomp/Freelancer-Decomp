@@ -2,8 +2,8 @@
 // vertices into FRpGpuVertex and records one command with the render state and transforms of
 // the moment; SwapBuffers hands the frame to the backend. Pre-transformed vertices
 // (D3DFVF_XYZRHW: the menus, the HUD) are drawn in pixels, the others through world * view *
-// projection, lit and fogged as Direct3D 8's fixed-function stages do (RpGpuLighting.cpp). The
-// texture stages above 0 are not drawn yet.
+// projection, lit and fogged as Direct3D 8's fixed-function stages do (RpGpuLighting.cpp), with
+// up to kRpGpuStages texture stages.
 
 #include "RpGpu.h"
 
@@ -36,15 +36,27 @@ namespace
         kRsZBias = 47,
         kRsColorWriteEnable = 0xA8,
 
+        kRsTextureFactor = 60,
+
         kTssColorOp = 1,
+        kTssColorArg1 = 2,
+        kTssColorArg2 = 3,
         kTssAlphaOp = 4,
+        kTssAlphaArg1 = 5,
+        kTssAlphaArg2 = 6,
         kTssTexCoordIndex = 11,
         kTssAddressU = 13,
         kTssAddressV = 14,
         kTssMagFilter = 16,
         kTssMinFilter = 17,
         kTssMipFilter = 18,
+        kTssMipMapLodBias = 19,
         kTssMaxMipLevel = 20,
+        kTssMaxAnisotropy = 21,
+        kTssTextureTransformFlags = 24,
+        kTssColorArg0 = 26,
+        kTssAlphaArg0 = 27,
+        kTssResultArg = 28,
     };
 
     constexpr unsigned int kFvfPositionMask = 0xE;
@@ -141,6 +153,14 @@ namespace
         case TexConvert::kDxt5: *Out = ERpGpuTextureFormat::Bc3; return true;
         default: return false;
         }
+    }
+
+    void ColourOf(std::uint32_t Argb, float* Out)
+    {
+        Out[0] = static_cast<float>((Argb >> 16) & 0xFF) / 255.0f;
+        Out[1] = static_cast<float>((Argb >> 8) & 0xFF) / 255.0f;
+        Out[2] = static_cast<float>(Argb & 0xFF) / 255.0f;
+        Out[3] = static_cast<float>((Argb >> 24) & 0xFF) / 255.0f;
     }
 
     void Multiply(float* Out, const float* A, const float* B)
@@ -273,12 +293,16 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         return; // more vertices than given; or a fan too long for the 16-bit list it becomes
     }
 
-    // The texture-coordinate set stage 0 reads (TEXCOORDINDEX's low bits; the texture-coordinate
-    // generation in its high bits is not done yet).
-    const int* const Stage0 = StageStates_[0];
-    const int TexSet = Stage0[kTssTexCoordIndex] & 0xFFFF;
-    const int TexOffset = TexSet < Layout.TexCount ? Layout.Tex[TexSet] : -1;
-    const int TexFloats = TexSet < Layout.TexCount ? Layout.TexFloats[TexSet] : 0;
+    // The texture-coordinate set each stage reads (TEXCOORDINDEX's low bits; its high bits, the
+    // coordinate generation, are the vertex shader's). A set the format lacks reads (0, 0).
+    int TexOffset[kRpGpuStages] = {};
+    int TexFloats[kRpGpuStages] = {};
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+    {
+        const int Set = StageStates_[Stage][kTssTexCoordIndex] & 0xFFFF;
+        TexOffset[Stage] = Set < Layout.TexCount ? Layout.Tex[Set] : -1;
+        TexFloats[Stage] = Set < Layout.TexCount ? Layout.TexFloats[Set] : 0;
+    }
 
     const std::uint32_t FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
     Frame_.Vertices.reserve(Frame_.Vertices.size() + Span);
@@ -291,8 +315,11 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         Vertex.Z = ReadFloat(P + 8);
         Vertex.W = Layout.bPretransformed ? ReadFloat(P + 12) : 1.0f;
         Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
-        Vertex.U = TexFloats >= 1 ? ReadFloat(P + TexOffset) : 0.0f;
-        Vertex.V = TexFloats >= 2 ? ReadFloat(P + TexOffset + 4) : 0.0f;
+        for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+        {
+            Vertex.Tex[Stage][0] = TexFloats[Stage] >= 1 ? ReadFloat(P + TexOffset[Stage]) : 0.0f;
+            Vertex.Tex[Stage][1] = TexFloats[Stage] >= 2 ? ReadFloat(P + TexOffset[Stage] + 4) : 0.0f;
+        }
         Vertex.Nx = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal) : 0.0f;
         Vertex.Ny = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 4) : 0.0f;
         Vertex.Nz = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 8) : 0.0f;
@@ -336,18 +363,58 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     Command.Pipeline.CullMode = static_cast<std::uint8_t>(RenderStates_[kRsCullMode]);
     Command.Pipeline.FillMode = static_cast<std::uint8_t>(RenderStates_[kRsFillMode]);
     Command.Pipeline.ZBias = static_cast<std::uint8_t>(std::clamp(RenderStates_[kRsZBias], 0, 16));
-    Command.Sampler.AddressU = static_cast<std::uint8_t>(Stage0[kTssAddressU]);
-    Command.Sampler.AddressV = static_cast<std::uint8_t>(Stage0[kTssAddressV]);
-    Command.Sampler.MagFilter = static_cast<std::uint8_t>(Stage0[kTssMagFilter]);
-    Command.Sampler.MinFilter = static_cast<std::uint8_t>(Stage0[kTssMinFilter]);
-    Command.Sampler.MipFilter = static_cast<std::uint8_t>(Stage0[kTssMipFilter]);
-    FRpGpuTexture* const Texture = LiveTexture(StageTextures_[0]);
-    RefreshTexture(Texture);
-    Command.Texture = Texture != nullptr ? Texture->GpuVersion : 0;
-    // MAXMIPLEVEL past the texture's last level samples that last level, as in Direct3D. A cube
-    // map has one level on the GPU so far (RefreshTexture).
-    const int LastLevel = Texture != nullptr && !Texture->bCube ? static_cast<int>(Texture->Levels) - 1 : 0;
-    Command.Sampler.MaxMipLevel = static_cast<std::uint8_t>(std::clamp(Stage0[kTssMaxMipLevel], 0, std::max(0, LastLevel)));
+    // The stages, up to the first whose COLOROP is DISABLE: each one's operations, sampler,
+    // texture and texture-coordinate handling.
+    bool bStagesEnded = false;
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+    {
+        const int* const States = StageStates_[Stage];
+        bStagesEnded = bStagesEnded || States[kTssColorOp] == 1;
+        Command.Stage.Color[Stage][0] = bStagesEnded ? 1u : static_cast<std::uint32_t>(States[kTssColorOp]);
+        if (bStagesEnded)
+            continue;
+        Command.Stage.Color[Stage][1] = static_cast<std::uint32_t>(States[kTssColorArg1]);
+        Command.Stage.Color[Stage][2] = static_cast<std::uint32_t>(States[kTssColorArg2]);
+        Command.Stage.Color[Stage][3] = static_cast<std::uint32_t>(States[kTssColorArg0]);
+        Command.Stage.Alpha[Stage][0] = static_cast<std::uint32_t>(States[kTssAlphaOp]);
+        Command.Stage.Alpha[Stage][1] = static_cast<std::uint32_t>(States[kTssAlphaArg1]);
+        Command.Stage.Alpha[Stage][2] = static_cast<std::uint32_t>(States[kTssAlphaArg2]);
+        Command.Stage.Alpha[Stage][3] = static_cast<std::uint32_t>(States[kTssAlphaArg0]);
+        Command.Stage.Misc[Stage][0] = static_cast<std::uint32_t>(States[kTssResultArg]);
+
+        FRpGpuSamplerKey& Sampler = Command.Sampler[Stage];
+        Sampler.AddressU = static_cast<std::uint8_t>(States[kTssAddressU]);
+        Sampler.AddressV = static_cast<std::uint8_t>(States[kTssAddressV]);
+        Sampler.MagFilter = static_cast<std::uint8_t>(States[kTssMagFilter]);
+        Sampler.MinFilter = static_cast<std::uint8_t>(States[kTssMinFilter]);
+        Sampler.MipFilter = static_cast<std::uint8_t>(States[kTssMipFilter]);
+        Sampler.MaxAnisotropy = static_cast<std::uint8_t>(std::clamp(States[kTssMaxAnisotropy], 1, 16));
+        Sampler.LodBias = static_cast<std::uint32_t>(States[kTssMipMapLodBias]);
+        FRpGpuTexture* const Texture = LiveTexture(StageTextures_[Stage]);
+        RefreshTexture(Texture);
+        Command.Texture[Stage] = Texture != nullptr ? Texture->GpuVersion : 0;
+        Command.Stage.Misc[Stage][1] = Texture != nullptr ? 1u : 0u;
+        // MAXMIPLEVEL past the texture's last level samples that last level, as in Direct3D. A
+        // cube map has one level on the GPU so far (RefreshTexture).
+        const int LastLevel = Texture != nullptr && !Texture->bCube ? static_cast<int>(Texture->Levels) - 1 : 0;
+        Sampler.MaxMipLevel = static_cast<std::uint8_t>(std::clamp(States[kTssMaxMipLevel], 0, std::max(0, LastLevel)));
+
+        // TEXTURETRANSFORMFLAGS: the count (1..4) of transformed components, 0x100 PROJECTED.
+        // Pre-transformed vertices take no transform and no generation, as in Direct3D.
+        const unsigned int TransformFlags = static_cast<unsigned int>(States[kTssTextureTransformFlags]);
+        const unsigned int TransformCount = TransformFlags & 0xFF;
+        if (!Layout.bPretransformed && TransformCount != 0)
+        {
+            Command.Transform.TexTransform[Stage] = std::min(TransformCount, 4u);
+            std::memcpy(Command.Transform.TexMatrix[Stage], StageTransforms_[Stage], sizeof(StageTransforms_[Stage]));
+            if ((TransformFlags & 0x100) != 0)
+                Command.Stage.Misc[Stage][2] = std::min(TransformCount, 4u);
+        }
+        const unsigned int Generation = (static_cast<unsigned int>(States[kTssTexCoordIndex]) >> 16) & 0xF;
+        const unsigned int Components = TexFloats[Stage] == 1 ? 1u : 2u;
+        Command.Transform.TexGen[Stage] = (Layout.bPretransformed ? 0u : std::min(Generation, 3u)) | (Components << 4);
+    }
+    ColourOf(static_cast<std::uint32_t>(RenderStates_[kRsTextureFactor]), Command.Stage.TextureFactor);
     Command.FirstVertex = FirstVertex;
     Command.VertexCount = Span;
     Command.FirstIndex = FirstIndex;
@@ -371,9 +438,6 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     FillLightingAndFog(&Command, Layout.bPretransformed,
                        (Layout.Normal >= 0 ? 1u : 0u) | (Layout.Diffuse >= 0 ? 2u : 0u) |
                            (Layout.Specular >= 0 ? 4u : 0u));
-    Command.Stage.Ops[0] = static_cast<std::uint32_t>(Stage0[kTssColorOp]);
-    Command.Stage.Ops[1] = static_cast<std::uint32_t>(Stage0[kTssAlphaOp]);
-    Command.Stage.Ops[2] = Texture != nullptr ? 1u : 0u;
     Command.Stage.AlphaTest[0] = RenderStates_[kRsAlphaTestEnable] != 0 ? 1u : 0u;
     Command.Stage.AlphaTest[1] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaFunc]);
     Command.Stage.AlphaTest[2] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaRef]) & 0xFFu;
