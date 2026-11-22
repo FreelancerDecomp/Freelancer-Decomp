@@ -317,8 +317,9 @@ std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signatu
         return 0; // drawn from the frame's vertices instead
     }
     const std::uint64_t Key = NextTextureVersion_++;
-    Backend().UploadVertexBlock(Key, std::move(Vertices));
-    Buffer->GpuBlocks.push_back({Signature, Key});
+    if (!Backend().UploadVertexBlock(Key, std::move(Vertices)))
+        return 0; // not queued: drawn from the frame's vertices instead
+    Buffer->GpuBlocks.push_back({Signature, Key}); // reserved above, so this cannot throw
     return Key;
 }
 

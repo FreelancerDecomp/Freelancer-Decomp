@@ -54,7 +54,7 @@ public:
     void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) override;
     bool SupportsBlockCompression() const override { return bBlockCompression_; }
     void ForgetTexture(std::uint64_t Key) override;
-    void UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override;
+    bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override;
     void ForgetVertexBlock(std::uint64_t Key) override;
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }

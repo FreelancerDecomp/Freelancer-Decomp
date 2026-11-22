@@ -343,8 +343,9 @@ public:
     // A static vertex buffer's converted vertices, kept on the GPU under Key (never 0, never
     // reused) until ForgetVertexBlock, uploaded before the next frame's draws. Draws name it in
     // FRpGpuCommand::VertexBlock. ForgetVertexBlock comes only after the frame that last used
-    // the block has been presented.
-    virtual void UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) = 0;
+    // the block has been presented. False when the block could not be queued (memory): RPGPU
+    // then draws from the frame's vertices instead. No exception leaves either call.
+    virtual bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) = 0;
     virtual void ForgetVertexBlock(std::uint64_t Key) = 0;
 
     virtual RpWindowHandle Hwnd() const = 0;

@@ -564,7 +564,15 @@ void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Ima
             return;
         }
     }
-    PendingUploads_.push_back(std::move(Upload));
+    // A queue that cannot grow drops the upload: the texture's draws sample white until it
+    // changes again, and no exception crosses the component boundary.
+    try
+    {
+        PendingUploads_.push_back(std::move(Upload));
+    }
+    catch (const std::bad_alloc&)
+    {
+    }
 }
 
 void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
@@ -580,11 +588,19 @@ void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
     Textures_.erase(Found);
 }
 
-void FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices)
+bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices)
 {
     if (Key == 0 || Vertices.empty())
-        return;
-    PendingBlocks_.push_back({Key, std::move(Vertices)});
+        return false;
+    try
+    {
+        PendingBlocks_.push_back({Key, std::move(Vertices)});
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
+    return true;
 }
 
 void FRpGpuSdlBackend::ForgetVertexBlock(std::uint64_t Key)

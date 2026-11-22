@@ -72,10 +72,11 @@ namespace
         bool SupportsBlockCompression() const override { return true; }
 
         void ForgetTexture(std::uint64_t Key) override { (void)Key; }
-        void UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override
+        bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override
         {
             (void)Key;
             (void)Vertices;
+            return true;
         }
         void ForgetVertexBlock(std::uint64_t Key) override { (void)Key; }
 
