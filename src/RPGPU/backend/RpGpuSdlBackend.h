@@ -63,8 +63,8 @@ public:
     // video subsystem or the display could not be queried.
     bool QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out) override;
 
-    // Not yet: the swap-chain image cannot be read back. Frames become readable once RPGPU
-    // renders into its own target (plan step 5.3).
+    // The last presented frame, downloaded from RPGPU's own colour target (the swap chain gets a
+    // copy of it). Waits for the GPU: for screenshots, not every frame.
     bool ReadBack(FRpGpuFrame* Out) override;
 
     // The SDL error text of the last failure.
@@ -90,6 +90,7 @@ private:
     SDL_GPUGraphicsPipeline* Pipeline(const FRpGpuPipelineKey& Key);
     SDL_GPUSampler* Sampler(const FRpGpuSamplerKey& Key);
     bool EnsureDepth(std::uint32_t Width, std::uint32_t Height);
+    bool EnsureTarget(std::uint32_t Width, std::uint32_t Height);
     bool EnsureBuffer(SDL_GPUBuffer** Buffer, std::uint32_t* Capacity, std::uint32_t Size, bool bIndex);
     bool UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuFrameRecording& Frame);
     SDL_GPURenderPass* BeginPass(SDL_GPUCommandBuffer* Commands, SDL_GPUTexture* Image, const FRpGpuCommand* Clear,
@@ -111,7 +112,6 @@ private:
     // Device objects, made once per device (ReleaseDeviceObjects drops them with it).
     SDL_GPUShader* VertexShader_ = nullptr;
     SDL_GPUShader* FragmentShader_ = nullptr;
-    std::uint32_t SwapchainFormat_ = 0; // SDL_GPUTextureFormat the pipelines were made for
     std::uint32_t DepthFormat_ = 0;
     std::unordered_map<std::uint64_t, SDL_GPUGraphicsPipeline*> Pipelines_;
     // By FRpGpuSamplerKey: Packed() and the LOD bias's bits.
@@ -120,6 +120,11 @@ private:
     std::vector<FPendingUpload> PendingUploads_;
     SDL_GPUTexture* White_ = nullptr; // bound when a draw has no texture
     bool bWhiteUploaded_ = false;
+    // The frame is drawn here, then copied to the swap-chain image, so it can be read back.
+    SDL_GPUTexture* Target_ = nullptr;
+    std::uint32_t TargetWidth_ = 0;
+    std::uint32_t TargetHeight_ = 0;
+    bool bHasFrame_ = false; // Target_ holds a presented frame
     SDL_GPUTexture* Depth_ = nullptr;
     std::uint32_t DepthWidth_ = 0;
     std::uint32_t DepthHeight_ = 0;

@@ -116,7 +116,8 @@ and the alpha test; see "Drawing", "Lighting and fog" and "Texture stages".
   maps until `LoadCubemap` loads them.
 - **`PrintScreen`** answers RP8's argument checks and writes a 24-bit BMP (`.BMP`, `.DIB`) of
   the backend's last frame. RP8 saves through D3DX in seven formats; RPGPU fails the other
-  five, and fails on a backend that cannot read frames back.
+  five. The SDL backend downloads the frame from its colour target (and waits for the GPU to
+  do so); the Null backend hands out its clear colour.
 - **`GetImageInfo`** reads the DDS header itself, which is what Shading needs from D3DX.
 
 ## x64
@@ -297,8 +298,10 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 **The SDL backend's `Present`:**
 1. One copy pass uploads the pending textures and the frame's vertices and indices, through
    one transfer buffer.
-2. The commands replay on the swap-chain image and a depth buffer, in one render pass per
-   clear. The first pass clears colour and depth.
+2. The commands replay on RPGPU's own colour target (B8G8R8A8, the swap chain's size) and a
+   depth buffer, in one render pass per clear. The first pass clears colour and depth. The
+   target is then blitted to the swap-chain image, pixel for pixel, so the last frame stays
+   readable for `PrintScreen`.
 3. Pipelines are cached per `FRpGpuPipelineKey`, and samplers per `FRpGpuSamplerKey`.
    - `CULLMODE` culls by the winding on screen, pre-transformed triangles included, as Direct3D
      8 does. RP8's default is 1 (none).

@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <new>
 
 namespace
 {
@@ -71,6 +72,9 @@ namespace
         default: return SDL_GPU_PRIMITIVETYPE_TRIANGLELIST;
         }
     }
+
+    // RPGPU's colour target: B, G, R, A bytes, as ReadBack hands frames out.
+    constexpr SDL_GPUTextureFormat kTargetFormat = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
 
     SDL_FColor ToFColor(std::uint32_t Argb)
     {
@@ -241,6 +245,12 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     White_ = nullptr;
     bWhiteUploaded_ = false;
     Depth_ = nullptr;
+    if (Target_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, Target_);
+    Target_ = nullptr;
+    TargetWidth_ = 0;
+    TargetHeight_ = 0;
+    bHasFrame_ = false;
     DepthWidth_ = 0;
     DepthHeight_ = 0;
     VertexBuffer_ = nullptr;
@@ -249,7 +259,6 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     IndexCapacity_ = 0;
     Transfer_ = nullptr;
     TransferCapacity_ = 0;
-    SwapchainFormat_ = 0;
     DepthFormat_ = 0; // probed again on the next device
     // Textures the game still holds come back through UploadTexture: RPGPU uploads a texture
     // again whenever its GPU copy is missing (docs/re/rpgpu.md, "Drawing").
@@ -374,7 +383,7 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     }
 
     SDL_GPUColorTargetDescription Color = {};
-    Color.format = static_cast<SDL_GPUTextureFormat>(SwapchainFormat_);
+    Color.format = kTargetFormat;
     Color.blend_state.enable_blend = Key.bBlend != 0;
     Color.blend_state.src_color_blendfactor = BlendFactor(Key.SrcBlend);
     Color.blend_state.dst_color_blendfactor = BlendFactor(Key.DstBlend);
@@ -776,16 +785,7 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
     {
         Width_ = W;
         Height_ = H;
-        const std::uint32_t Format = static_cast<std::uint32_t>(SDL_GetGPUSwapchainTextureFormat(Device_, Window_));
-        if (Format != SwapchainFormat_)
-        {
-            // The pipelines are made for the swap chain's format.
-            for (auto& Entry : Pipelines_)
-                SDL_ReleaseGPUGraphicsPipeline(Device_, Entry.second);
-            Pipelines_.clear();
-            SwapchainFormat_ = Format;
-        }
-        bool bReady = CreateShaders() && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
+        bool bReady = CreateShaders() && EnsureTarget(W, H) && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
         // Every pipeline and sampler the frame needs, before any render pass starts: a draw that
         // cannot get one fails the frame rather than vanishing.
         for (std::size_t Index = 0; bReady && Index < Frame.Commands.size(); ++Index)
@@ -814,7 +814,7 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Lead = &Frame.Commands[0];
             First = 1;
         }
-        SDL_GPURenderPass* Pass = BeginPass(Commands, Image, Lead, true);
+        SDL_GPURenderPass* Pass = BeginPass(Commands, Target_, Lead, true);
         bool bLightingPushed = false;
         std::int32_t PushedLighting = -1;
         for (std::size_t Index = First; Pass != nullptr && Index < Frame.Commands.size(); ++Index)
@@ -823,7 +823,7 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             if (Command.Kind == FRpGpuCommand::EKind::Clear)
             {
                 SDL_EndGPURenderPass(Pass);
-                Pass = BeginPass(Commands, Image, &Command, false);
+                Pass = BeginPass(Commands, Target_, &Command, false);
                 continue;
             }
             SDL_GPUGraphicsPipeline* const Bound = Pipeline(Command.Pipeline);
@@ -900,13 +900,50 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
         }
         if (Pass != nullptr)
             SDL_EndGPURenderPass(Pass);
+
+        // The finished frame to the swap-chain image, one pixel to one pixel (the blit converts
+        // to the swap chain's format).
+        SDL_GPUBlitInfo Blit = {};
+        Blit.source.texture = Target_;
+        Blit.source.w = W;
+        Blit.source.h = H;
+        Blit.destination.texture = Image;
+        Blit.destination.w = W;
+        Blit.destination.h = H;
+        Blit.load_op = SDL_GPU_LOADOP_DONT_CARE;
+        Blit.filter = SDL_GPU_FILTER_NEAREST;
+        SDL_BlitGPUTexture(Commands, &Blit);
     }
     if (!SDL_SubmitGPUCommandBuffer(Commands))
     {
         bNeedsRebuild_ = true;
         return false;
     }
+    if (Image != nullptr)
+        bHasFrame_ = true;
     return true;
+}
+
+bool FRpGpuSdlBackend::EnsureTarget(std::uint32_t Width, std::uint32_t Height)
+{
+    if (Target_ != nullptr && TargetWidth_ == Width && TargetHeight_ == Height)
+        return true;
+    if (Target_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, Target_);
+    bHasFrame_ = false;
+    SDL_GPUTextureCreateInfo Info = {};
+    Info.type = SDL_GPU_TEXTURETYPE_2D;
+    Info.format = kTargetFormat;
+    // A colour target, and a blit source (SAMPLER) for the copy to the swap chain.
+    Info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    Info.width = Width;
+    Info.height = Height;
+    Info.layer_count_or_depth = 1;
+    Info.num_levels = 1;
+    Target_ = SDL_CreateGPUTexture(Device_, &Info);
+    TargetWidth_ = Target_ != nullptr ? Width : 0;
+    TargetHeight_ = Target_ != nullptr ? Height : 0;
+    return Target_ != nullptr;
 }
 
 bool FRpGpuSdlBackend::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
@@ -937,8 +974,72 @@ bool FRpGpuSdlBackend::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
 
 bool FRpGpuSdlBackend::ReadBack(FRpGpuFrame* Out)
 {
-    (void)Out;
-    return false;
+    if (Out == nullptr || Device_ == nullptr || Target_ == nullptr || !bHasFrame_)
+        return false;
+    const std::uint32_t W = TargetWidth_;
+    const std::uint32_t H = TargetHeight_;
+    const std::uint64_t Bytes64 = static_cast<std::uint64_t>(W) * H * 4;
+    if (Bytes64 > 0xFFFFFFFFull || Bytes64 > Out->Bgra.max_size())
+        return false;
+    const std::uint32_t Bytes = static_cast<std::uint32_t>(Bytes64);
+
+    SDL_GPUTransferBufferCreateInfo BufferInfo = {};
+    BufferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    BufferInfo.size = Bytes;
+    SDL_GPUTransferBuffer* const Download = SDL_CreateGPUTransferBuffer(Device_, &BufferInfo);
+    if (Download == nullptr)
+        return false;
+    bool bOk = false;
+    SDL_GPUCommandBuffer* const Commands = SDL_AcquireGPUCommandBuffer(Device_);
+    if (Commands != nullptr)
+    {
+        SDL_GPUCopyPass* const Copy = SDL_BeginGPUCopyPass(Commands);
+        if (Copy != nullptr)
+        {
+            SDL_GPUTextureRegion Source = {};
+            Source.texture = Target_;
+            Source.w = W;
+            Source.h = H;
+            Source.d = 1;
+            SDL_GPUTextureTransferInfo Destination = {};
+            Destination.transfer_buffer = Download;
+            Destination.offset = 0;
+            SDL_DownloadFromGPUTexture(Copy, &Source, &Destination);
+            SDL_EndGPUCopyPass(Copy);
+            SDL_GPUFence* const Fence = SDL_SubmitGPUCommandBufferAndAcquireFence(Commands);
+            if (Fence != nullptr)
+            {
+                bOk = SDL_WaitForGPUFences(Device_, true, &Fence, 1);
+                SDL_ReleaseGPUFence(Device_, Fence);
+            }
+        }
+        else
+        {
+            SDL_CancelGPUCommandBuffer(Commands);
+        }
+    }
+    if (bOk)
+    {
+        const std::uint8_t* const Mapped = static_cast<const std::uint8_t*>(SDL_MapGPUTransferBuffer(Device_, Download, false));
+        bOk = Mapped != nullptr;
+        if (bOk)
+        {
+            // Tightly packed rows, top to bottom: FRpGpuFrame's layout already.
+            try
+            {
+                Out->Bgra.assign(Mapped, Mapped + Bytes);
+                Out->Width = W;
+                Out->Height = H;
+            }
+            catch (const std::bad_alloc&)
+            {
+                bOk = false;
+            }
+            SDL_UnmapGPUTransferBuffer(Device_, Download);
+        }
+    }
+    SDL_ReleaseGPUTransferBuffer(Device_, Download);
+    return bOk;
 }
 
 const char* FRpGpuSdlBackend::LastError() const
