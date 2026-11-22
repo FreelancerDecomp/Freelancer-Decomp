@@ -227,8 +227,36 @@ private:
     // are kept as Direct3D's 4x4 (row-major, row vectors), as RP8 sends them to the device.
     void StoreViewIdentity(bool bFlip);
     void ApplyIdentityTransforms(); // CreateBuffers: RP8's FUN_06d03c94
-    void CommitTransforms();        // every draw: what RP8's FlushDrawState does to the view
+    void FlushDrawState();        // every draw: RP8's FlushDrawState (the view, the lights)
     void ResetStreams();            // RP8's FRp8StreamCache::Reset
+
+    // RpGpuLighting.cpp: RP8's light manager (FRp8LightManager) and the uniform blocks a draw's
+    // lighting and fog need.
+    struct FLightRecord
+    {
+        bool bEnabled = false;       // the enable state last committed to the "device"
+        bool bWantEnabled = false;   // what SetLightEnable asked for
+        bool bDataDirty = false;     // Data is resent at the next flush
+        long Generation = -1;        // the flush generation it was queued in
+        int Index = -1;              // the light index from the pool
+        const RpLight* Data = nullptr; // AddLight: the caller's own light, read at each flush
+    };
+    // Direct3D's light table: what SetLight and LightEnable left at each index.
+    struct FDeviceLight
+    {
+        RpLight Data = {};
+        bool bSet = false;
+        bool bEnabled = false;
+    };
+    FLightRecord* FindLight(void* Handle);
+    int FindOrCreateLight(void* Handle, const RpLight* Data);
+    void EraseLight(FLightRecord* Record, void* Handle);
+    void QueueLight(FLightRecord* Record);
+    void SetLightWanted(void* Handle, int Enable);
+    void FlushLights();
+    void ResetLights();             // a new device: every light is sent again
+    FDeviceLight& DeviceLight(int Index);
+    void FillLightingAndFog(FRpGpuCommand* Command, bool bPretransformed, unsigned int FvfColours);
 
     std::unique_ptr<IRpGpuBackend> Backend_;
     bool bNullDevice_ = false;    // [RenderPipeline] NULL_DEVICE
@@ -266,6 +294,15 @@ private:
     void* SelectedVb_ = nullptr;
     void* SelectedIb_ = nullptr;
     unsigned int IbBaseVertex_ = 0xFFFFFFFFu;
+    // RP8's light manager: records by handle, the queue for the next flush, the index pool.
+    std::map<void*, FLightRecord> LightRecords_;
+    std::vector<FLightRecord*> DirtyLights_; // null where a queued record was removed
+    long LightGeneration_ = 0;
+    std::vector<int> LightIndexPool_ = std::vector<int>(0x40, 0);
+    unsigned int LightIndicesUsed_ = 0;
+    unsigned int LightIndexNext_ = 0;
+    std::vector<FDeviceLight> DeviceLights_;
+    RpMaterial Material_ = {}; // SetMaterial's, as Direct3D keeps it
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};
     void* StageTextures_[8] = {}; // SetTextureStageTexture's handles

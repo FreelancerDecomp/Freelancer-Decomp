@@ -40,8 +40,9 @@ struct FRpGpuFrame
 // them. The backend uploads the geometry once and replays the commands in one pass per clear.
 
 // One vertex, whatever the game's own layout (FVF) was. Pre-transformed (D3DFVF_XYZRHW): X, Y
-// in pixels, Z 0..1, W = 1 / w. Transformed: the model-space position, W = 1. The diffuse colour
-// as D3DCOLOR (B, G, R, A bytes); U, V: the texture coordinates stage 0 reads.
+// in pixels, Z 0..1, W = 1 / w. Transformed: the model-space position, W = 1. The diffuse and
+// specular colours as D3DCOLOR (B, G, R, A bytes); U, V: the texture coordinates stage 0 reads;
+// the normal (0 when the format has none).
 struct FRpGpuVertex
 {
     float X;
@@ -51,8 +52,84 @@ struct FRpGpuVertex
     std::uint32_t Diffuse;
     float U;
     float V;
+    float Nx;
+    float Ny;
+    float Nz;
+    std::uint32_t Specular;
 };
-static_assert(sizeof(FRpGpuVertex) == 28, "the vertex layout the shaders read");
+static_assert(sizeof(FRpGpuVertex) == 44, "the vertex layout the shaders read");
+
+// The shaders' uniform blocks (rpgpu_fixed.vert, rpgpu_stage0.frag), laid out as HLSL packs
+// them: only 16-byte vectors and 4x4 matrices, so the C++ and HLSL layouts are the same.
+// Matrices are Direct3D's: row vectors, row-major.
+
+// rpgpu_fixed.vert's FTransform: one per draw.
+struct FRpGpuTransformUniforms
+{
+    float WorldViewProjection[16];
+    float World[16];
+    float View[16];
+    float NormalMatrix[16]; // the inverse transpose of the world's 3x3, in the upper 3x3
+    float Scale[4];         // xy: 2 / viewport width, -2 / viewport height; zw: viewport origin
+    float Mode[4];          // x: half-pixel shift; y: 1 pre-transformed
+    float Eye[4];           // xyz: the camera's position in world space
+    float Viewer[4];        // xyz: the direction to a non-local viewer, in world space
+    // x: lighting on; y: the format's normal (1), diffuse (2), specular (4); z: NORMALIZENORMALS;
+    // w: LOCALVIEWER.
+    std::uint32_t Flags[4];
+    float Fog[4];            // FOGVERTEXMODE (D3DFOGMODE), FOGSTART, FOGEND, FOGDENSITY
+    std::uint32_t FogFlags[4]; // x: vertex fog computed; y: RANGEFOGENABLE
+};
+static_assert(sizeof(FRpGpuTransformUniforms) == 368, "rpgpu_fixed.vert's FTransform");
+
+// One Direct3D 8 light, in world space. Position.w: D3DLIGHTTYPE (1 point, 2 spot, 3
+// directional); Direction.w: range; Attenuation: 0, 1, 2 and falloff; Spot: cos(theta / 2),
+// cos(phi / 2).
+struct FRpGpuLight
+{
+    float Diffuse[4];
+    float Specular[4];
+    float Ambient[4];
+    float Position[4];
+    float Direction[4];
+    float Attenuation[4];
+    float Spot[4];
+};
+
+inline constexpr int kRpGpuMaxLights = 8;
+
+// rpgpu_fixed.vert's FLighting: the material, the global ambient and the enabled lights. Shared
+// by the draws that use the same values (FRpGpuFrameRecording::Lighting).
+struct FRpGpuLightingUniforms
+{
+    float GlobalAmbient[4];
+    float MaterialDiffuse[4];
+    float MaterialAmbient[4];
+    float MaterialSpecular[4];
+    float MaterialEmissive[4];
+    float Power[4];             // x: the material's power
+    // DIFFUSE / AMBIENT / SPECULAR / EMISSIVEMATERIALSOURCE (D3DMATERIALCOLORSOURCE: 0
+    // material, 1 diffuse, 2 specular), already 0 when COLORVERTEX is off.
+    std::uint32_t Sources[4];
+    std::uint32_t Count[4];     // x: lights in Lights
+    FRpGpuLight Lights[kRpGpuMaxLights];
+};
+static_assert(sizeof(FRpGpuLightingUniforms) == 128 + 112 * kRpGpuMaxLights, "rpgpu_fixed.vert's FLighting");
+
+// rpgpu_stage0.frag's FStage: one per draw.
+struct FRpGpuStageUniforms
+{
+    // x: COLOROP, y: ALPHAOP (D3DTEXTUREOP); z: 1 when a texture is bound.
+    std::uint32_t Ops[4];
+    // x: alpha test on; y: ALPHAFUNC (D3DCMPFUNC); z: ALPHAREF 0..255.
+    std::uint32_t AlphaTest[4];
+    float FogColor[4];        // rgb 0..1
+    float FogTable[4];        // FOGTABLEMODE, FOGSTART, FOGEND, FOGDENSITY
+    // x: fog (0 off, 1 the vertex's fog value, 2 table fog per pixel); y: table fog on w, not
+    // z; z: SPECULARENABLE.
+    std::uint32_t FogFlags[4];
+};
+static_assert(sizeof(FRpGpuStageUniforms) == 80, "rpgpu_stage0.frag's FStage");
 
 enum class ERpGpuTopology : std::uint8_t
 {
@@ -147,8 +224,8 @@ struct FRpGpuCommand
     float ClearDepth = 1.0f;
 
     // Draw: the pipeline and sampler, the texture image (0: none), the geometry, and the uniforms.
-    // Pre-transformed vertices are drawn in pixels; the others through WorldViewProjection,
-    // Direct3D's world * view * projection (row vectors, row-major).
+    // The backend fills Transform's Scale and Mode.x from the viewport; Lighting indexes the
+    // frame's lighting blocks (-1: none, the draw is unlit).
     FRpGpuPipelineKey Pipeline;
     FRpGpuSamplerKey Sampler;
     std::uint64_t Texture = 0;
@@ -159,10 +236,9 @@ struct FRpGpuCommand
     int Viewport[4] = {};         // x, y, width, height in pixels
     float MinZ = 0.0f;
     float MaxZ = 1.0f;
-    bool bPretransformed = true;
-    float WorldViewProjection[16] = {};
-    std::uint32_t Ops[4] = {};       // rpgpu_stage0.frag's FStage.Ops
-    std::uint32_t AlphaTest[4] = {}; // rpgpu_stage0.frag's FStage.AlphaTest
+    FRpGpuTransformUniforms Transform = {};
+    FRpGpuStageUniforms Stage = {};
+    std::int32_t Lighting = -1;
 };
 
 struct FRpGpuFrameRecording
@@ -170,12 +246,14 @@ struct FRpGpuFrameRecording
     std::vector<FRpGpuVertex> Vertices;
     std::vector<std::uint16_t> Indices;
     std::vector<FRpGpuCommand> Commands;
+    std::vector<FRpGpuLightingUniforms> Lighting;
 
     void Clear()
     {
         Vertices.clear();
         Indices.clear();
         Commands.clear();
+        Lighting.clear();
     }
 };
 

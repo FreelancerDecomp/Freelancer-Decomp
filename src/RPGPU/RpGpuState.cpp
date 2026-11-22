@@ -108,6 +108,7 @@ void FRpGpu::ResetDeviceState()
     Viewport_[3] = static_cast<int>(Backend().Height());
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
+    Material_ = RpMaterial{}; // a new device's material is all zeros
 }
 
 GENRESULT DACOM_API FRpGpu::SetPipelineState(int Id, int Value)
@@ -289,14 +290,17 @@ void FRpGpu::ApplyIdentityTransforms()
     bViewMarker_ = true;
 }
 
-// FRp8TransformCache::Commit on the view, as every draw's FlushDrawState runs it: a changed view
-// is sent, and that clears the marker.
-void FRpGpu::CommitTransforms()
+// What RP8's FlushDrawState does at every draw that RPGPU has to copy: FRp8TransformCache::Commit
+// on the view (a changed view is sent, and that clears the marker), then the light manager's
+// flush.
+void FRpGpu::FlushDrawState()
 {
-    if (bViewCommitted_)
-        return;
-    bViewMarker_ = false;
-    bViewCommitted_ = true;
+    if (!bViewCommitted_)
+    {
+        bViewMarker_ = false;
+        bViewCommitted_ = true;
+    }
+    FlushLights();
 }
 
 void FRpGpu::ResetStreams()
@@ -486,56 +490,6 @@ GENRESULT DACOM_API FRpGpu::SetPerspective(float FovDeg, float Aspect, float Nea
     return GR_OK;
 }
 
-// Lights: the handle is the caller's own light record. Nothing is lit until the skeleton draws.
-GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const RpLight* Light)
-{
-    (void)Handle;
-    (void)Light;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::DestroyLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, RpLight* OutLight)
-{
-    (void)Handle;
-    if (OutLight != nullptr)
-        std::memset(OutLight, 0, sizeof(*OutLight));
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::SetLightEnable(void* Handle, int Enable)
-{
-    (void)Handle;
-    (void)Enable;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetLightEnable(void* Handle, int* OutEnable)
-{
-    (void)Handle;
-    if (OutEnable != nullptr)
-        *OutEnable = 0;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::SetMaterial(const RpMaterial* Material)
-{
-    (void)Material;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetMaterial(RpMaterial* Material)
-{
-    if (Material != nullptr)
-        std::memset(Material, 0, sizeof(*Material));
-    return GR_OK;
-}
-
 GENRESULT DACOM_API FRpGpu::ResetRenderStatesToDefaults()
 {
     ResetStateToDefaults();
@@ -609,29 +563,11 @@ GENRESULT DACOM_API FRpGpu::VerifyState()
 {
     if (!bBuffersActive_)
         return GR_GENERIC;
-    CommitTransforms();
+    FlushDrawState();
     const int Stage = std::clamp(PipelineState_[kPsMaxBlendStages], 0, 7);
     if (StageStates_[Stage][1] != 1 || StageStates_[Stage][4] != 1) // COLOROP, ALPHAOP
         return GR_GENERIC;
     ResetStreams();
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::AddLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::RemoveLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::UpdateLight(void* Handle)
-{
-    (void)Handle;
     return GR_OK;
 }
 

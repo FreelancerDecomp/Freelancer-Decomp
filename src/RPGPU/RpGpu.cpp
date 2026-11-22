@@ -439,6 +439,7 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
     }
     ResetDeviceState();
     ApplyIdentityTransforms();
+    ResetLights();
     ResetStreams();
     if (Viewport_[2] == 0)
     {
@@ -576,15 +577,15 @@ GENRESULT DACOM_API FRpGpu::EndScene()
 // game only propagates them. The stream selection (SelectedVb_, SelectedIb_) changes as RP8's
 // stream cache does: the user-pointer draws reset it, the vertex-buffer draws select their
 // buffers, and IRPDraw::DrawIndexedPrimitive draws from it. Every draw that passes RP8's
-// primitive-count check runs RP8's FlushDrawState, which commits a changed view
-// (CommitTransforms), whether or not RPGPU can record it.
+// primitive-count check runs RP8's FlushDrawState (a changed view is committed, queued lights
+// are sent), whether or not RPGPU can record it.
 GENRESULT DACOM_API FRpGpu::DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts,
                                           unsigned int Count, void* Unused)
 {
     (void)Unused;
     if (!bBuffersActive_ || static_cast<int>(Count) <= 0)
         return GR_OK;
-    CommitTransforms();
+    FlushDrawState();
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), Count, nullptr, 0);
     ResetStreams();
     return GR_OK;
@@ -597,7 +598,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(unsigned long Prim, unsigned 
     (void)Unused;
     if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0)
         return GR_OK;
-    CommitTransforms();
+    FlushDrawState();
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), VertCount,
                static_cast<const std::uint16_t*>(Indices), IndexCount);
     ResetStreams();
@@ -611,7 +612,7 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
     if (!bBuffersActive_ || PrimCountFromVerts(Prim, Count) <= 0)
         return GR_OK;
     SelectedVb_ = Vb;
-    CommitTransforms();
+    FlushDrawState();
     const FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && StartVertex <= Buffer->Count && Count <= Buffer->Count - StartVertex)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(StartVertex) * Buffer->Stride,
@@ -639,7 +640,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb,
     SelectedVb_ = Vb;
     SelectedIb_ = kMinusOne;
     IbBaseVertex_ = BaseVertex;
-    CommitTransforms();
+    FlushDrawState();
     const FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && BaseVertex < Buffer->Count)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(BaseVertex) * Buffer->Stride,
@@ -659,7 +660,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned in
         return GR_GENERIC;
     if (PrimCountFromVerts(Prim, Count) <= 0)
         return kFail;
-    CommitTransforms();
+    FlushDrawState();
     const FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
     const FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
     if (Vertices == nullptr || IndexBuffer == nullptr || IbBaseVertex_ >= Vertices->Count ||

@@ -8,6 +8,7 @@
 #include <SDL3/SDL.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 
 namespace
@@ -114,18 +115,6 @@ namespace
         return -static_cast<float>(ZBias) * StepsPerUnit;
     }
 
-    // rpgpu_fixed.vert's FTransform and rpgpu_stage0.frag's FStage.
-    struct FTransformUniforms
-    {
-        float WorldViewProjection[16];
-        float Scale[4];
-        float Mode[4];
-    };
-    struct FStageUniforms
-    {
-        std::uint32_t Ops[4];
-        std::uint32_t AlphaTest[4];
-    };
 }
 
 FRpGpuSdlBackend::~FRpGpuSdlBackend()
@@ -317,7 +306,8 @@ bool FRpGpuSdlBackend::CreateShaders()
     else
         return SDL_SetError("RPGPU: no shader format the device takes");
 
-    auto Make = [&](const FRpGpuShaderBlob* Blob, SDL_GPUShaderStage Stage, Uint32 Samplers) -> SDL_GPUShader* {
+    auto Make = [&](const FRpGpuShaderBlob* Blob, SDL_GPUShaderStage Stage, Uint32 Samplers,
+                    Uint32 UniformBuffers) -> SDL_GPUShader* {
         SDL_GPUShaderCreateInfo Info = {};
         if (Format == SDL_GPU_SHADERFORMAT_DXIL)
         {
@@ -340,11 +330,12 @@ bool FRpGpuSdlBackend::CreateShaders()
         Info.format = Format;
         Info.stage = Stage;
         Info.num_samplers = Samplers;
-        Info.num_uniform_buffers = 1;
+        Info.num_uniform_buffers = UniformBuffers;
         return SDL_CreateGPUShader(Device_, &Info);
     };
-    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0);
-    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    // The vertex shader takes FTransform and FLighting; the fragment shader FStage.
+    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 2);
+    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 1, 1);
     return VertexShader_ != nullptr && FragmentShader_ != nullptr;
 }
 
@@ -359,16 +350,23 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Buffer.slot = 0;
     Buffer.pitch = sizeof(FRpGpuVertex);
     Buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-    SDL_GPUVertexAttribute Attributes[3] = {};
+    // FRpGpuVertex: position, diffuse, texture coordinates, normal, specular.
+    SDL_GPUVertexAttribute Attributes[5] = {};
     Attributes[0].location = 0;
     Attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
-    Attributes[0].offset = 0;
+    Attributes[0].offset = offsetof(FRpGpuVertex, X);
     Attributes[1].location = 1;
     Attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
-    Attributes[1].offset = 16;
+    Attributes[1].offset = offsetof(FRpGpuVertex, Diffuse);
     Attributes[2].location = 2;
     Attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
-    Attributes[2].offset = 20;
+    Attributes[2].offset = offsetof(FRpGpuVertex, U);
+    Attributes[3].location = 3;
+    Attributes[3].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    Attributes[3].offset = offsetof(FRpGpuVertex, Nx);
+    Attributes[4].location = 4;
+    Attributes[4].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
+    Attributes[4].offset = offsetof(FRpGpuVertex, Specular);
 
     SDL_GPUColorTargetDescription Color = {};
     Color.format = static_cast<SDL_GPUTextureFormat>(SwapchainFormat_);
@@ -392,7 +390,7 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Info.vertex_input_state.vertex_buffer_descriptions = &Buffer;
     Info.vertex_input_state.num_vertex_buffers = 1;
     Info.vertex_input_state.vertex_attributes = Attributes;
-    Info.vertex_input_state.num_vertex_attributes = 3;
+    Info.vertex_input_state.num_vertex_attributes = 5;
     Info.primitive_type = PrimitiveType(Key.Topology);
     // Points (FILLMODE 1) are drawn solid: SDL_GPU has no point fill.
     Info.rasterizer_state.fill_mode = Key.FillMode == 2 ? SDL_GPU_FILLMODE_LINE : SDL_GPU_FILLMODE_FILL;
@@ -802,6 +800,8 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             First = 1;
         }
         SDL_GPURenderPass* Pass = BeginPass(Commands, Image, Lead, true);
+        bool bLightingPushed = false;
+        std::int32_t PushedLighting = -1;
         for (std::size_t Index = First; Pass != nullptr && Index < Frame.Commands.size(); ++Index)
         {
             const FRpGpuCommand& Command = Frame.Commands[Index];
@@ -837,20 +837,30 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Binding.sampler = Sampling;
             SDL_BindGPUFragmentSamplers(Pass, 0, &Binding, 1);
 
-            FTransformUniforms Transform = {};
-            std::memcpy(Transform.WorldViewProjection, Command.WorldViewProjection,
-                        sizeof(Transform.WorldViewProjection));
+            FRpGpuTransformUniforms Transform = Command.Transform;
             Transform.Scale[0] = 2.0f / Viewport.w;
             Transform.Scale[1] = -2.0f / Viewport.h;
             Transform.Scale[2] = Viewport.x;
             Transform.Scale[3] = Viewport.y;
             // Direct3D 8 puts pixel centres on integer coordinates, SDL_GPU's backends at +0.5.
             Transform.Mode[0] = 0.5f;
-            Transform.Mode[1] = Command.bPretransformed ? 1.0f : 0.0f;
             SDL_PushGPUVertexUniformData(Commands, 0, &Transform, sizeof(Transform));
-            FStageUniforms Stage = {};
-            std::memcpy(Stage.Ops, Command.Ops, sizeof(Stage.Ops));
-            std::memcpy(Stage.AlphaTest, Command.AlphaTest, sizeof(Stage.AlphaTest));
+            // The lighting block, when it differs from the one last pushed in this command buffer
+            // (an unlit draw's shader does not read it, but every slot it declares is filled).
+            const std::int32_t Lighting =
+                Command.Lighting >= 0 && static_cast<std::size_t>(Command.Lighting) < Frame.Lighting.size()
+                    ? Command.Lighting
+                    : -1;
+            if (!bLightingPushed || Lighting != PushedLighting)
+            {
+                static const FRpGpuLightingUniforms kUnlit = {};
+                const FRpGpuLightingUniforms& Block =
+                    Lighting >= 0 ? Frame.Lighting[static_cast<std::size_t>(Lighting)] : kUnlit;
+                SDL_PushGPUVertexUniformData(Commands, 1, &Block, sizeof(Block));
+                PushedLighting = Lighting;
+                bLightingPushed = true;
+            }
+            FRpGpuStageUniforms Stage = Command.Stage;
             if (Found == Textures_.end())
                 Stage.Ops[2] = 0; // no GPU copy: as if no texture were bound
             SDL_PushGPUFragmentUniformData(Commands, 0, &Stage, sizeof(Stage));

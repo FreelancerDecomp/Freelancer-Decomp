@@ -73,13 +73,13 @@ client's next `CreateBuffers` brings the new one up.
   - `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour
     at the size `CreateBuffers` asked for, and it reads that back.
 
-## Status: 2D and unlit 3D draws
+## Status: 2D and lit 3D draws
 
 RPGPU opens the device and presents the frames it records. It draws the 2D draws (pre-transformed
 vertices: the menus, the HUD) and the 3D draws (transformed vertices, through world, view and
-projection), with texture stage 0, mip maps, culling and the alpha test; see "Drawing". Lighting,
-fog and the texture stages above 0 are not drawn yet, so 3D draws show their vertex colour (white
-without one) times their texture.
+projection), with Direct3D 8's per-vertex lighting, fog, texture stage 0, mip maps, culling and
+the alpha test; see "Drawing" and "Lighting and fog". The texture stages above 0 are not drawn
+yet.
 
 - **State the game reads back is kept:** pipeline state, render and texture-stage state, the
   transforms and the viewport. The transforms follow RP8's stores ("Transforms").
@@ -152,11 +152,15 @@ They are compiled offline, not at run time, and the bytecode is committed:
   the fresh file as the `rpgpu-shader-bytecode` artifact, ready to commit.
 
 The shaders so far:
-- `rpgpu_fixed.vert` is Direct3D 8's transform. It maps `D3DFVF_XYZRHW` positions from pixels
-  to clip space, and other positions through world * view * projection; both land on Direct3D
-  8's pixel centres (integer coordinates, half a pixel from today's).
+- `rpgpu_fixed.vert` is Direct3D 8's vertex stage. It maps `D3DFVF_XYZRHW` positions from
+  pixels to clip space, and other positions through world * view * projection; both land on
+  Direct3D 8's pixel centres (integer coordinates, half a pixel from today's). It lights
+  transformed vertices and computes vertex fog ("Lighting and fog").
 - `rpgpu_stage0.frag` does texture stage 0 (disable, select texture, select diffuse,
-  modulate) and the alpha test.
+  modulate), the specular add, fog and the alpha test, in Direct3D's order.
+- Their uniform blocks are `FRpGpuTransformUniforms`, `FRpGpuLightingUniforms` and
+  `FRpGpuStageUniforms` (`backend/RpGpuBackend.h`): float4s and 4x4 matrices only, so the C++
+  and HLSL layouts agree.
 
 ## Transforms
 
@@ -178,6 +182,45 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - RP8 multiplies through the 3DMathEngine; RPGPU does the same products itself, with the same
   double sums, so `GetModelview` can differ from RP8's in the last bit.
 - `SetWorldN` (the vertex-blend matrices) and the texture transforms are not kept yet.
+
+## Lighting and fog
+
+**Lights** keep RP8's light manager (`RpGpuLighting.cpp`, after `FRp8LightManager`):
+- `AddLight` makes a record whose data is the caller's own light (the handle), read again at
+  every flush that finds it dirty (`UpdateLight`). `SetLight` writes the light at once and keeps
+  no data.
+- `SetLightEnable` only records the request; `GetLightEnable` answers the request, not the
+  committed state. The queue goes out at the next draw (or `VerifyState`), as RP8's
+  `FlushDrawState` sends it; `RemoveLight` and `DestroyLight` disable, flush and drop.
+- Light indices come from RP8's pool (freed indices first). What the flushes leave at each index
+  is Direct3D's light table; `GetLight` reads it with the handle as the index, as RP8 passes it
+  to Direct3D. `CreateBuffers` empties the table and queues every light again (RP8's
+  `Reset`).
+- A draw is lit by the enabled entries in index order, at most 8. An index enabled without
+  `SetLight` is Direct3D's default light (white, directional, along +z).
+- `SetMaterial` and `GetMaterial` work within a buffer session, as in RP8; a new device's
+  material is zero.
+
+**Lighting** (`LIGHTING` on, transformed vertices) is Direct3D 8's per-vertex model:
+- emissive + ambient * `AMBIENT` + for each light, attenuation * spot * (ambient * light
+  ambient + diffuse * light diffuse * N.L); specular with the half vector, only where N.L > 0;
+  colours clamped to 0..1, alpha from the diffuse material;
+- the material colours come from `DIFFUSE`/`AMBIENT`/`SPECULAR`/`EMISSIVEMATERIALSOURCE` when
+  `COLORVERTEX` is on and the vertex has that colour;
+- point and spot lights reach `Range` and no further; spots fall off between theta and phi with
+  `Falloff`;
+- `NORMALIZENORMALS` and `LOCALVIEWER` as Direct3D (a non-local viewer looks along camera z).
+- It runs in world space: the view is rigid (RP8's z flip included), so distances and angles are
+  Direct3D's camera-space ones. Normals go through the inverse transpose of the world.
+
+**Fog** (`FOGENABLE`):
+- `FOGTABLEMODE` set: per pixel, on w when the projection is not affine and on the depth-buffer
+  z when it is (Direct3D's rule). `FOGSTART` and `FOGEND` are in those units.
+- Otherwise `FOGVERTEXMODE`, per vertex, on camera-space z (or the distance with
+  `RANGEFOGENABLE`). With neither, and for pre-transformed vertices, the specular alpha is the
+  fog value.
+- Exponential, squared exponential and linear, blending the colour (not alpha) towards
+  `FOGCOLOR`. `SPECULARENABLE` adds the specular colour before fog.
 
 ## Drawing
 
@@ -232,7 +275,6 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 
 **Known gaps** for the later parts of step 5.3:
 - clear rectangles (the whole target is cleared);
-- lighting and fog (the next part), and specular colour;
 - texture stages above 0, texture transforms and texture-coordinate generation
   (`TEXCOORDINDEX`'s high bits);
 - vertex blending (`SetWorldN`, `VERTEXBLEND`: Deformable2's skinned meshes draw unblended);

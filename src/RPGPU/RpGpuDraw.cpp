@@ -2,7 +2,8 @@
 // vertices into FRpGpuVertex and records one command with the render state and transforms of
 // the moment; SwapBuffers hands the frame to the backend. Pre-transformed vertices
 // (D3DFVF_XYZRHW: the menus, the HUD) are drawn in pixels, the others through world * view *
-// projection. Lighting, fog and the texture stages above 0 are not drawn yet.
+// projection, lit and fogged as Direct3D 8's fixed-function stages do (RpGpuLighting.cpp). The
+// texture stages above 0 are not drawn yet.
 
 #include "RpGpu.h"
 
@@ -71,7 +72,9 @@ namespace
     struct FLayout
     {
         bool bPretransformed = false;
+        int Normal = -1;
         int Diffuse = -1;
+        int Specular = -1;
         int TexCount = 0;
         int Tex[8] = {};
         int TexFloats[8] = {};
@@ -96,7 +99,10 @@ namespace
         default: break;
         }
         if ((Fvf & kFvfNormal) != 0)
+        {
+            Layout.Normal = Offset;
             Offset += 12;
+        }
         if ((Fvf & kFvfPSize) != 0)
             Offset += 4;
         if ((Fvf & kFvfDiffuse) != 0)
@@ -105,7 +111,10 @@ namespace
             Offset += 4;
         }
         if ((Fvf & kFvfSpecular) != 0)
+        {
+            Layout.Specular = Offset;
             Offset += 4;
+        }
         Layout.TexCount = static_cast<int>((Fvf >> 8) & 0xF);
         if (Layout.TexCount > 8)
             Layout.TexCount = 8;
@@ -284,6 +293,10 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
         Vertex.U = TexFloats >= 1 ? ReadFloat(P + TexOffset) : 0.0f;
         Vertex.V = TexFloats >= 2 ? ReadFloat(P + TexOffset + 4) : 0.0f;
+        Vertex.Nx = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal) : 0.0f;
+        Vertex.Ny = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 4) : 0.0f;
+        Vertex.Nz = Layout.Normal >= 0 ? ReadFloat(P + Layout.Normal + 8) : 0.0f;
+        Vertex.Specular = Layout.Specular >= 0 ? ReadU32(P + Layout.Specular) : 0u;
         Frame_.Vertices.push_back(Vertex);
     }
 
@@ -340,7 +353,6 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     Command.FirstIndex = FirstIndex;
     Command.IndexCount = IndexTotal;
     std::memcpy(Command.Viewport, Viewport_, sizeof(Command.Viewport));
-    Command.bPretransformed = Layout.bPretransformed;
     if (Layout.bPretransformed)
     {
         // Pre-transformed vertices skip Direct3D's viewport transform, depth included: their z
@@ -352,14 +364,18 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     {
         Command.MinZ = DepthRange_[0];
         Command.MaxZ = DepthRange_[1];
-        Multiply(Command.WorldViewProjection, World_, View_);
-        Multiply(Command.WorldViewProjection, Command.WorldViewProjection, Projection_);
+        float* const Wvp = Command.Transform.WorldViewProjection;
+        Multiply(Wvp, World_, View_);
+        Multiply(Wvp, Wvp, Projection_);
     }
-    Command.Ops[0] = static_cast<std::uint32_t>(Stage0[kTssColorOp]);
-    Command.Ops[1] = static_cast<std::uint32_t>(Stage0[kTssAlphaOp]);
-    Command.Ops[2] = Texture != nullptr ? 1u : 0u;
-    Command.AlphaTest[0] = RenderStates_[kRsAlphaTestEnable] != 0 ? 1u : 0u;
-    Command.AlphaTest[1] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaFunc]);
-    Command.AlphaTest[2] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaRef]) & 0xFFu;
+    FillLightingAndFog(&Command, Layout.bPretransformed,
+                       (Layout.Normal >= 0 ? 1u : 0u) | (Layout.Diffuse >= 0 ? 2u : 0u) |
+                           (Layout.Specular >= 0 ? 4u : 0u));
+    Command.Stage.Ops[0] = static_cast<std::uint32_t>(Stage0[kTssColorOp]);
+    Command.Stage.Ops[1] = static_cast<std::uint32_t>(Stage0[kTssAlphaOp]);
+    Command.Stage.Ops[2] = Texture != nullptr ? 1u : 0u;
+    Command.Stage.AlphaTest[0] = RenderStates_[kRsAlphaTestEnable] != 0 ? 1u : 0u;
+    Command.Stage.AlphaTest[1] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaFunc]);
+    Command.Stage.AlphaTest[2] = static_cast<std::uint32_t>(RenderStates_[kRsAlphaRef]) & 0xFFu;
     Frame_.Commands.push_back(Command);
 }
