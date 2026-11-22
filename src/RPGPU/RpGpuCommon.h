@@ -4,7 +4,7 @@
 #pragma once
 
 // Helpers every RPGPU source file shares: the GENRESULT values RP8's callers test for, the -1
-// handle, the debug log and the mip-chain length.
+// handle, the debug log, RP8's primitive count and the mip-chain length.
 
 #include "dacom.h"
 
@@ -32,6 +32,23 @@ namespace RpGpuDetail
         std::vsnprintf(Text, sizeof(Text), Format, Args);
         va_end(Args);
         OutputDebugStringA(Text);
+    }
+
+    // RP8's PrimCountFromVerts: primitives from a vertex or index count, with RP8's signed
+    // divisions, so a count too small stays <= 0.
+    inline int PrimCountFromVerts(unsigned long Prim, unsigned int Count)
+    {
+        const int Signed = static_cast<int>(Count);
+        switch (Prim)
+        {
+        case 1: return Signed;
+        case 2: return Signed / 2;
+        case 3: return Signed - 1;
+        case 4: return Signed / 3;
+        case 5:
+        case 6: return Signed - 2;
+        default: return 0;
+        }
     }
 
     inline unsigned int MaxMipLevels(unsigned int Width, unsigned int Height)

@@ -9,6 +9,7 @@
 #include "luaprofile.h" // IProfileParser
 #include "render/rp8_semantics.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -86,8 +87,8 @@ void FRpGpu::ReadSettings()
     }
 
     // BROKEN_MULTITEXTURE is read, then overwritten with the device's blend-stage count, capped
-    // at 7 (RP8's FUN_06d020ab).
-    PipelineState_[kPsMaxBlendStages] = 7;
+    // at 7 (RP8's FUN_06d020ab). RPGPU's "device" has the stages its shader draws.
+    PipelineState_[kPsMaxBlendStages] = kRpGpuStages;
 }
 
 void FRpGpu::ResetStateToDefaults()
@@ -107,6 +108,22 @@ void FRpGpu::ResetDeviceState()
     Viewport_[3] = static_cast<int>(Backend().Height());
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
+    Material_ = RpMaterial{}; // a new device's material is all zeros
+    // A new device's world matrices are the identity (matrix 0 is ApplyIdentityTransforms').
+    for (int Matrix = 1; Matrix < kRpGpuWorldMatrices; ++Matrix)
+        Identity(WorldN_[Matrix]);
+    ResetTextureStages();
+}
+
+// RP8's ApplyDefaultTextureStages (CreateBuffers and ResetRenderStatesToDefaults): no textures
+// bound, identity texture transforms. The stage states themselves are ResetStateToDefaults'.
+void FRpGpu::ResetTextureStages()
+{
+    for (int Stage = 0; Stage < 8; ++Stage)
+    {
+        StageTextures_[Stage] = nullptr;
+        Identity(StageTransforms_[Stage]);
+    }
 }
 
 GENRESULT DACOM_API FRpGpu::SetPipelineState(int Id, int Value)
@@ -168,43 +185,223 @@ GENRESULT DACOM_API FRpGpu::GetDepthRange(float* OutMinZ, float* OutMaxZ)
     return GR_OK;
 }
 
-// The world, view and model-view transforms have no reader yet; the skeleton draws nothing.
+// --- transforms -------------------------------------------------------------------------------
+//
+// RP8's stores, call for call (RP8.cpp, SetWorld to SetLookat): the 12-float DA transforms
+// (rotation rows, then translation) are kept as Direct3D's 4x4, and the view (or, with
+// VIEWSPACE_LIGHTS, the world) carries RP8's z flip, which turns the game's right-handed space
+// into Direct3D's left-handed one. RP8 multiplies through the 3DMathEngine; these products keep
+// its double sums.
+
+namespace
+{
+    // FRp8TransformCache::StoreAffine / LoadAffine.
+    void StoreAffine(float* Values, const float* M12)
+    {
+        Values[0] = M12[0];
+        Values[4] = M12[1];
+        Values[8] = M12[2];
+        Values[1] = M12[3];
+        Values[5] = M12[4];
+        Values[9] = M12[5];
+        Values[2] = M12[6];
+        Values[6] = M12[7];
+        Values[10] = M12[8];
+        Values[12] = M12[9];
+        Values[13] = M12[10];
+        Values[14] = M12[11];
+        Values[3] = 0.0f;
+        Values[7] = 0.0f;
+        Values[11] = 0.0f;
+        Values[15] = 1.0f;
+    }
+
+    void LoadAffine(const float* Values, float* Out12)
+    {
+        Out12[0] = Values[0];
+        Out12[1] = Values[4];
+        Out12[2] = Values[8];
+        Out12[3] = Values[1];
+        Out12[4] = Values[5];
+        Out12[5] = Values[9];
+        Out12[6] = Values[2];
+        Out12[7] = Values[6];
+        Out12[8] = Values[10];
+        Out12[9] = Values[12];
+        Out12[10] = Values[13];
+        Out12[11] = Values[14];
+    }
+
+    // The 3DMathEngine's MulTransform: rotation A * B, translation A * Tb + Ta. Out may alias.
+    void MulTransform12(float* Out12, const float* A, const float* B)
+    {
+        float R[12];
+        for (int Row = 0; Row < 3; ++Row)
+        {
+            for (int Col = 0; Col < 3; ++Col)
+            {
+                R[Row * 3 + Col] = static_cast<float>(static_cast<double>(A[Row * 3]) * B[Col] +
+                                                      static_cast<double>(A[Row * 3 + 1]) * B[3 + Col] +
+                                                      static_cast<double>(A[Row * 3 + 2]) * B[6 + Col]);
+            }
+            R[9 + Row] = static_cast<float>(static_cast<double>(A[Row * 3]) * B[9] +
+                                            static_cast<double>(A[Row * 3 + 1]) * B[10] +
+                                            static_cast<double>(A[Row * 3 + 2]) * B[11] + A[9 + Row]);
+        }
+        std::memcpy(Out12, R, sizeof(R));
+    }
+
+    // RP8's MulZFlip12: diag(1, 1, -1) * M, which negates the rotation's third row and Tz.
+    void ZFlip12(float* Out12, const float* In12)
+    {
+        float R[12];
+        std::memcpy(R, In12, sizeof(R));
+        R[6] = -R[6];
+        R[7] = -R[7];
+        R[8] = -R[8];
+        R[11] = -R[11];
+        std::memcpy(Out12, R, sizeof(R));
+    }
+
+    constexpr float kIdentity12[12] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+
+    // RP8's Rp8NormalizeInPlace: double length, float reciprocal, no zero check.
+    void Normalize(float* V)
+    {
+        const double Length = std::sqrt(static_cast<double>(V[0]) * V[0] + static_cast<double>(V[1]) * V[1] +
+                                        static_cast<double>(V[2]) * V[2]);
+        const float Inverse = static_cast<float>(1.0 / Length);
+        V[0] = static_cast<float>(static_cast<double>(V[0]) * Inverse);
+        V[1] = static_cast<float>(static_cast<double>(V[1]) * Inverse);
+        V[2] = static_cast<float>(static_cast<double>(V[2]) * Inverse);
+    }
+}
+
+void FRpGpu::StoreViewIdentity(bool bFlip)
+{
+    float M12[12];
+    if (bFlip)
+        ZFlip12(M12, kIdentity12);
+    else
+        std::memcpy(M12, kIdentity12, sizeof(M12));
+    StoreAffine(View_, M12);
+    bViewCommitted_ = false;
+}
+
+// RP8's ApplyIdentityTransforms (CreateBuffers): identity view, world and projection, the z flip
+// on the view without VIEWSPACE_LIGHTS and on the world with it; all three committed and marked.
+void FRpGpu::ApplyIdentityTransforms()
+{
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    StoreViewIdentity(bViewspaceLightsOff);
+    float World12[12];
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, kIdentity12);
+    else
+        std::memcpy(World12, kIdentity12, sizeof(World12));
+    StoreAffine(World_, World12);
+    bWorldOverridden_ = false;
+    Identity(Projection_);
+    bViewCommitted_ = true;
+    bViewMarker_ = true;
+}
+
+// What RP8's FlushDrawState does at every draw that RPGPU has to copy: FRp8TransformCache::Commit
+// on the view (a changed view is sent, and that clears the marker), then the light manager's
+// flush.
+void FRpGpu::FlushDrawState()
+{
+    if (!bViewCommitted_)
+    {
+        bViewMarker_ = false;
+        bViewCommitted_ = true;
+    }
+    FlushLights();
+}
+
+void FRpGpu::ResetStreams()
+{
+    SelectedVb_ = nullptr;
+    SelectedIb_ = nullptr;
+    IbBaseVertex_ = 0xFFFFFFFFu;
+}
+
 GENRESULT DACOM_API FRpGpu::SetWorld(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    StoreAffine(World_, M12);
+    bWorldOverridden_ = false;
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetWorld(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    LoadAffine(bWorldOverridden_ ? WorldCache_ : World_, Out12);
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::SetView(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    float Flipped[12];
+    ZFlip12(Flipped, M12);
+    StoreAffine(View_, Flipped);
+    bViewCommitted_ = false;
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetView(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    float Stored[12];
+    LoadAffine(View_, Stored);
+    ZFlip12(Out12, Stored);
     return GR_OK;
 }
 
+// The model-view goes into the world; the view becomes the identity (flipped without
+// VIEWSPACE_LIGHTS) unless SetModelview or SetLookat already put it there since the last draw
+// that committed a view.
 GENRESULT DACOM_API FRpGpu::SetModelview(const float* M12)
 {
-    (void)M12;
+    if (M12 == nullptr)
+        return GR_INVALID_PARMS;
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    float World12[12];
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, M12);
+    else
+        std::memcpy(World12, M12, sizeof(World12));
+    StoreAffine(World_, World12);
+    bWorldOverridden_ = false;
+    if (!bViewMarker_)
+    {
+        StoreViewIdentity(bViewspaceLightsOff);
+        bViewMarker_ = true;
+    }
     return GR_OK;
 }
 
+// View * world, each with its stored flip undone.
 GENRESULT DACOM_API FRpGpu::GetModelview(float* Out12)
 {
-    if (Out12 != nullptr)
-        std::memset(Out12, 0, 12 * sizeof(float));
+    if (Out12 == nullptr)
+        return GR_INVALID_PARMS;
+    const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
+    float World12[12];
+    LoadAffine(bWorldOverridden_ ? WorldCache_ : World_, World12);
+    if (!bViewspaceLightsOff)
+        ZFlip12(World12, World12);
+    float View12[12];
+    LoadAffine(View_, View12);
+    if (bViewspaceLightsOff)
+        ZFlip12(View12, View12);
+    MulTransform12(Out12, View12, World12);
     return GR_OK;
 }
 
@@ -226,31 +423,73 @@ GENRESULT DACOM_API FRpGpu::GetProjection(float* Out16)
     return GR_OK;
 }
 
+// RP8's set_lookat: a camera transform from eye, target and up (rotation rows X, Y, Z with Z
+// pointing away from the target), into the world with VIEWSPACE_LIGHTS (and the identity view,
+// as SetModelview puts it) or into the view without. Nothing is checked, as in RP8.
 GENRESULT DACOM_API FRpGpu::SetLookat(float EyeX, float EyeY, float EyeZ, float AtX, float AtY,
                                       float AtZ, float UpX, float UpY, float UpZ)
 {
-    (void)EyeX;
-    (void)EyeY;
-    (void)EyeZ;
-    (void)AtX;
-    (void)AtY;
-    (void)AtZ;
-    (void)UpX;
-    (void)UpY;
-    (void)UpZ;
+    float Forward[3] = {AtX - EyeX, AtY - EyeY, AtZ - EyeZ};
+    Normalize(Forward);
+    const float AxisZ[3] = {-Forward[0], -Forward[1], -Forward[2]};
+    float AxisX[3] = {
+        static_cast<float>(static_cast<double>(UpY) * AxisZ[2] - static_cast<double>(UpZ) * AxisZ[1]),
+        static_cast<float>(static_cast<double>(UpZ) * AxisZ[0] - static_cast<double>(UpX) * AxisZ[2]),
+        static_cast<float>(static_cast<double>(UpX) * AxisZ[1] - static_cast<double>(UpY) * AxisZ[0]),
+    };
+    Normalize(AxisX);
+    float AxisY[3] = {
+        static_cast<float>(static_cast<double>(AxisZ[1]) * AxisX[2] - static_cast<double>(AxisZ[2]) * AxisX[1]),
+        static_cast<float>(static_cast<double>(AxisZ[2]) * AxisX[0] - static_cast<double>(AxisZ[0]) * AxisX[2]),
+        static_cast<float>(static_cast<double>(AxisZ[0]) * AxisX[1] - static_cast<double>(AxisZ[1]) * AxisX[0]),
+    };
+    Normalize(AxisY);
+
+    float Xform[12] = {AxisX[0], AxisX[1], AxisX[2], AxisY[0], AxisY[1], AxisY[2], AxisZ[0], AxisZ[1], AxisZ[2]};
+    const float Eye[3] = {EyeX, EyeY, EyeZ};
+    for (int Row = 0; Row < 3; ++Row)
+    {
+        // The 3DMathEngine's TransformMatrix (rotation * eye), negated into the translation.
+        const float Rotated = static_cast<float>(static_cast<double>(Xform[Row * 3 + 2]) * Eye[2] +
+                                                 static_cast<double>(Xform[Row * 3 + 1]) * Eye[1] +
+                                                 static_cast<double>(Xform[Row * 3]) * Eye[0]);
+        Xform[9 + Row] = -Rotated;
+    }
+
+    float Flipped[12];
+    ZFlip12(Flipped, Xform);
+    if (PipelineState_[kPsViewspaceLights] != 0)
+    {
+        StoreAffine(World_, Flipped);
+        bWorldOverridden_ = false;
+        if (!bViewMarker_)
+        {
+            StoreViewIdentity(false);
+            bViewMarker_ = true;
+        }
+    }
+    else
+    {
+        StoreAffine(View_, Flipped);
+        bViewCommitted_ = false;
+    }
     return GR_OK;
 }
 
+// RP8's set_ortho and set_perspective: the differences in double, each element stored as float.
 GENRESULT DACOM_API FRpGpu::SetOrtho(float Left, float Right, float Bottom, float Top, float NearPlane,
                                      float FarPlane)
 {
+    const double Width = static_cast<double>(Right) - Left;
+    const double Height = static_cast<double>(Top) - Bottom;
+    const double Depth = static_cast<double>(FarPlane) - NearPlane;
     std::memset(Projection_, 0, sizeof(Projection_));
-    Projection_[0] = 2.0f / (Right - Left);
-    Projection_[5] = 2.0f / (Top - Bottom);
-    Projection_[10] = 2.0f / (FarPlane - NearPlane);
-    Projection_[12] = -(Right + Left) / (Right - Left);
-    Projection_[13] = -(Bottom + Top) / (Top - Bottom);
-    Projection_[14] = -NearPlane / (FarPlane - NearPlane);
+    Projection_[0] = static_cast<float>(2.0 / Width);
+    Projection_[5] = static_cast<float>(2.0 / Height);
+    Projection_[10] = static_cast<float>(2.0 / Depth);
+    Projection_[12] = static_cast<float>(-(static_cast<double>(Right) + Left) / Width);
+    Projection_[13] = static_cast<float>(-(static_cast<double>(Bottom) + Top) / Height);
+    Projection_[14] = static_cast<float>(-static_cast<double>(NearPlane) / Depth);
     Projection_[15] = 1.0f;
     return GR_OK;
 }
@@ -259,69 +498,23 @@ GENRESULT DACOM_API FRpGpu::SetPerspective(float FovDeg, float Aspect, float Nea
 {
     if (NearPlane <= 0.0f || FarPlane <= 0.0f || FarPlane == NearPlane)
         return GR_GENERIC;
-    const float C = 1.0f / std::tan(FovDeg * 3.14159265358979f / 180.0f);
+    const float Cot = static_cast<float>(1.0 / std::tan(3.141592653589793 / 180.0 * FovDeg));
+    const float InvDepth = static_cast<float>(1.0 / (static_cast<double>(FarPlane) - NearPlane));
     std::memset(Projection_, 0, sizeof(Projection_));
-    Projection_[0] = C / Aspect;
-    Projection_[5] = C;
-    Projection_[10] = FarPlane / (FarPlane - NearPlane);
+    Projection_[0] = static_cast<float>(static_cast<double>(Cot) / Aspect);
+    Projection_[5] = Cot;
+    Projection_[10] = static_cast<float>(static_cast<double>(FarPlane) * InvDepth);
     Projection_[11] = 1.0f;
-    Projection_[14] = -FarPlane * NearPlane / (FarPlane - NearPlane);
+    Projection_[14] = static_cast<float>(-static_cast<double>(FarPlane) * NearPlane * InvDepth);
     return GR_OK;
 }
 
-// Lights: the handle is the caller's own light record. Nothing is lit until the skeleton draws.
-GENRESULT DACOM_API FRpGpu::SetLight(void* Handle, const RpLight* Light)
-{
-    (void)Handle;
-    (void)Light;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::DestroyLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetLight(void* Handle, RpLight* OutLight)
-{
-    (void)Handle;
-    if (OutLight != nullptr)
-        std::memset(OutLight, 0, sizeof(*OutLight));
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::SetLightEnable(void* Handle, int Enable)
-{
-    (void)Handle;
-    (void)Enable;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetLightEnable(void* Handle, int* OutEnable)
-{
-    (void)Handle;
-    if (OutEnable != nullptr)
-        *OutEnable = 0;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::SetMaterial(const RpMaterial* Material)
-{
-    (void)Material;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::GetMaterial(RpMaterial* Material)
-{
-    if (Material != nullptr)
-        std::memset(Material, 0, sizeof(*Material));
-    return GR_OK;
-}
-
+// RP8's reset_render_states_to_defaults: the default render and stage states, then
+// ApplyDefaultTextureStages, which also unbinds the textures and resets the texture transforms.
 GENRESULT DACOM_API FRpGpu::ResetRenderStatesToDefaults()
 {
     ResetStateToDefaults();
+    ResetTextureStages();
     return GR_OK;
 }
 
@@ -355,23 +548,33 @@ GENRESULT DACOM_API FRpGpu::GetTextureStageState(int Stage, int Type, int* Out)
     return GR_OK;
 }
 
+// RP8 stores the caller's matrix transposed (StoreTransposed) and hands it to Direct3D as the
+// stage's texture transform; reading it back transposes again.
 GENRESULT DACOM_API FRpGpu::SetTextureStageTransform(int Stage, const float* Matrix16)
 {
-    (void)Stage;
-    (void)Matrix16;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Stage < 0 || Stage >= 8 || Matrix16 == nullptr)
+        return GR_INVALID_PARMS;
+    Transpose(Matrix16, StageTransforms_[Stage]);
     return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetTextureStageTransform(int Stage, float* OutMatrix16)
 {
-    (void)Stage;
-    if (OutMatrix16 != nullptr)
-        Identity(OutMatrix16);
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Stage < 0 || Stage >= 8 || OutMatrix16 == nullptr)
+        return GR_INVALID_PARMS;
+    Transpose(StageTransforms_[Stage], OutMatrix16);
     return GR_OK;
 }
 
+// With pipeline state TEXTURE off, RP8 ignores the call and GetTextureStageTexture answers null.
 GENRESULT DACOM_API FRpGpu::SetTextureStageTexture(int Stage, void* Handle)
 {
+    if (PipelineState_[kPsTexture] == 0)
+        return GR_OK;
     if (Stage >= 0 && Stage < 8)
         StageTextures_[Stage] = Handle;
     return GR_OK;
@@ -380,36 +583,40 @@ GENRESULT DACOM_API FRpGpu::SetTextureStageTexture(int Stage, void* Handle)
 GENRESULT DACOM_API FRpGpu::GetTextureStageTexture(int Stage, void** OutHandle)
 {
     if (OutHandle != nullptr)
-        *OutHandle = (Stage >= 0 && Stage < 8) ? StageTextures_[Stage] : nullptr;
+        *OutHandle = (PipelineState_[kPsTexture] != 0 && Stage >= 0 && Stage < 8) ? StageTextures_[Stage] : nullptr;
     return GR_OK;
 }
 
+// RP8's verify_state: outside a buffer session it fails; otherwise it flushes the draw state
+// (committing the view), fails when the stage past the last blend stage is not disabled, and
+// resets the stream selection. RP8 also asks the device to validate, which SDL_GPU has no
+// counterpart for, and refuses MODULATE2X under a flag not yet identified.
 GENRESULT DACOM_API FRpGpu::VerifyState()
 {
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    FlushDrawState();
+    const int Stage = std::clamp(PipelineState_[kPsMaxBlendStages], 0, 7);
+    if (StageStates_[Stage][1] != 1 || StageStates_[Stage][4] != 1) // COLOROP, ALPHAOP
+        return GR_GENERIC;
+    ResetStreams();
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::AddLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::RemoveLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
-GENRESULT DACOM_API FRpGpu::UpdateLight(void* Handle)
-{
-    (void)Handle;
-    return GR_OK;
-}
-
+// RP8's set_world_n sends the matrix straight to Direct3D as D3DTS_WORLDMATRIX(index), past its
+// transform cache. Index 0 is D3DTS_WORLD itself, so it replaces SetWorld's matrix until the
+// next SetWorld. Direct3D refuses an index past 255.
 GENRESULT DACOM_API FRpGpu::SetWorldN(int WorldIndex, const float* M12)
 {
-    (void)WorldIndex;
-    (void)M12;
+    if (M12 == nullptr || WorldIndex < 0 || WorldIndex >= kRpGpuWorldMatrices)
+        return (GENRESULT)0x8876086C; // D3DERR_INVALIDCALL
+    if (WorldIndex == 0)
+    {
+        // RP8's cache keeps SetWorld's matrix, which GetWorld and GetModelview go on reading.
+        if (!bWorldOverridden_)
+            std::memcpy(WorldCache_, World_, sizeof(WorldCache_));
+        bWorldOverridden_ = true;
+    }
+    StoreAffine(WorldIndex == 0 ? World_ : WorldN_[WorldIndex], M12);
     return GR_OK;
 }

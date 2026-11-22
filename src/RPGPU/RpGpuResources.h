@@ -38,7 +38,7 @@ struct FRpGpuTexture
     unsigned int Levels = 0;
     bool bCube = false;
     std::vector<FRpGpuImage> Images; // level, or face for a cube
-    // Level 0 changed since its last upload to the backend (or never went up).
+    // A level changed since the last upload to the backend (or it never went up).
     bool bGpuStale = true;
     // The backend image version of the last upload (0: none). Each upload gets a new one, so draws
     // recorded before a change keep the image they saw.
@@ -57,4 +57,17 @@ struct FRpGpuBuffer
     bool bLocked = false;
     unsigned int Cursor = 0;  // ring position, in elements
     std::vector<unsigned char> Data;
+    // A vertex buffer that is not a ring, converted to FRpGpuVertex and kept on the GPU: one
+    // block per way the draws read its texture-coordinate sets (Signature), each under a
+    // backend key. A write (LockVb, ResizeVb) retires them all.
+    struct FGpuBlock
+    {
+        std::uint32_t Signature;
+        std::uint64_t Key;
+    };
+    std::vector<FGpuBlock> GpuBlocks;
+    // The frame (FRpGpu::FrameNumber_) of the last write: a buffer written in the current frame,
+    // or locked, is drawn from the frame's vertices, so only buffers that have stayed as they
+    // are get blocks, and one rewritten every frame is not converted whole on every draw.
+    std::uint64_t LastWriteFrame = ~0ull;
 };

@@ -8,6 +8,7 @@
 #include "RpGpu.h"
 
 #include "RpGpuDds.h"
+#include "readfile.h" // IFileSystem
 #include "render/rp8_semantics.h"
 #include "TexConvert.h"
 
@@ -190,9 +191,10 @@ GENRESULT DACOM_API FRpGpu::LockTexture(void* Handle, int Level, FRpTextureLock*
     FRpGpuTexture* const Texture = LiveTexture(Handle);
     if (Texture == nullptr || Out == nullptr)
         return GR_INVALID_PARMS;
-    if (Level < 0 || static_cast<std::size_t>(Level) >= Texture->Images.size())
+    FRpGpuImage* const Found = LockableImage(Texture, Level);
+    if (Found == nullptr)
         return GR_GENERIC;
-    FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Level)];
+    FRpGpuImage& Image = *Found;
     Out->Width = Image.Width;
     Out->Height = Image.Height;
     Out->Pitch = Image.Pitch;
@@ -206,8 +208,8 @@ GENRESULT DACOM_API FRpGpu::UnlockTexture(void* Handle, int Level)
     FRpGpuTexture* const Texture = LiveTexture(Handle);
     if (Texture == nullptr)
         return GR_INVALID_PARMS;
-    if (Level == 0)
-        Texture->bGpuStale = true; // the caller may have written level 0
+    if (Level >= 0)
+        Texture->bGpuStale = true; // the caller may have written the level
     return GR_OK;
 }
 
@@ -255,10 +257,10 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
         return GR_INVALID_PARMS;
     if (Level > 0 && PipelineState_[kPsTextureLod] == 0)
         return GR_OK;
-    if (Level < 0 || static_cast<std::size_t>(Level) >= Texture->Images.size() || SrcW <= 0 || SrcH <= 0 ||
-        Pixels == nullptr)
+    FRpGpuImage* const Found = LockableImage(Texture, Level);
+    if (Found == nullptr || SrcW <= 0 || SrcH <= 0 || Pixels == nullptr)
         return GR_GENERIC;
-    FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Level)];
+    FRpGpuImage& Image = *Found;
     TexConvert::FImage Destination;
     Destination.Format = Texture->Format;
     Destination.Width = Image.Width;
@@ -277,8 +279,7 @@ GENRESULT DACOM_API FRpGpu::SetTextureLevelData(void* Handle, int Level, int Src
     {
         if (TexConvert::Load(Destination, Source) == TexConvert::EResult::Failed)
             return GR_GENERIC;
-        if (Level == 0)
-            Texture->bGpuStale = true;
+        Texture->bGpuStale = true;
         return GR_OK;
     }
     catch (const std::bad_alloc&)
@@ -404,8 +405,11 @@ GENRESULT DACOM_API FRpGpu::VbMgrInit(void* A, void* B, void* C, void* D)
     return GR_OK;
 }
 
+// RP8 resets its stream selection here and releases the pool buffers' GPU copies; RPGPU's pools
+// are CPU memory and stay.
 GENRESULT DACOM_API FRpGpu::VbMgrReleaseAll()
 {
+    ResetStreams();
     return GR_OK;
 }
 
@@ -414,6 +418,8 @@ GENRESULT DACOM_API FRpGpu::LockVertexMemory(unsigned int Fvf, unsigned int Coun
     if (Out == nullptr)
         return GR_INVALID_PARMS;
     FRpGpuBuffer* const Pool = PoolBuffer(Fvf);
+    if (Pool != nullptr)
+        SelectedVb_ = Pool; // RP8 selects the pool buffer before it locks it
     unsigned int Start = 0;
     if (Pool == nullptr || !LockRing(Pool, Count, &Start))
         return GR_OUT_OF_MEMORY;
@@ -479,6 +485,9 @@ GENRESULT DACOM_API FRpGpu::DestroyIb(void** Handle)
     if (Buffer != nullptr)
     {
         IndexBuffers_.erase(Buffer);
+        RetireBlocks(Buffer);
+        if (SelectedIb_ == Buffer)
+            SelectedIb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
     }
     *Handle = nullptr;
@@ -490,7 +499,11 @@ GENRESULT DACOM_API FRpGpu::ResizeIb(void* Handle, unsigned int Count)
     FRpGpuBuffer* const Buffer = LiveIb(Handle);
     if (Buffer == nullptr)
         return kFail;
-    return ResizeStorage(Buffer, std::max(1u, Count), 2) ? GR_OK : GR_OUT_OF_MEMORY;
+    if (!ResizeStorage(Buffer, std::max(1u, Count), 2))
+        return GR_OUT_OF_MEMORY;
+    RetireBlocks(Buffer);
+    Buffer->LastWriteFrame = FrameNumber_;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::CopyIndices(void* Handle, unsigned int* OutOffset, const unsigned short* SrcData,
@@ -525,6 +538,8 @@ GENRESULT DACOM_API FRpGpu::LockIb(void* Handle, unsigned int* Offset, void** Ou
     if (Offset != nullptr)
         *Offset = Start;
     Buffer->bLocked = true;
+    RetireBlocks(Buffer); // the caller may write any index it locked
+    Buffer->LastWriteFrame = FrameNumber_;
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * 2;
     return GR_OK;
 }
@@ -535,16 +550,30 @@ GENRESULT DACOM_API FRpGpu::UnlockIb(void* Handle)
     if (Buffer == nullptr)
         return kFail;
     Buffer->bLocked = false;
+    Buffer->LastWriteFrame = FrameNumber_;
     return GR_OK;
 }
 
+// RP8's select_ib: the index buffer (or the scratch ring, -1) and the base vertex its indices
+// count from, used by IRPDraw::DrawIndexedPrimitive. A null handle clears both and fails.
 GENRESULT DACOM_API FRpGpu::SelectIb(void* Handle, unsigned int BaseVertexIndex, unsigned int Unused3,
                                      unsigned int Unused4)
 {
-    (void)BaseVertexIndex;
     (void)Unused3;
     (void)Unused4;
-    return (Handle == kMinusOne || LiveIb(Handle) != nullptr) ? GR_OK : kFail;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Handle == nullptr)
+    {
+        SelectedIb_ = nullptr;
+        IbBaseVertex_ = 0;
+        return kFail;
+    }
+    if (Handle != kMinusOne && LiveIb(Handle) == nullptr)
+        return kFail;
+    SelectedIb_ = Handle;
+    IbBaseVertex_ = BaseVertexIndex;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetIbCapacity(void* Handle, unsigned int* OutCapacity)
@@ -609,6 +638,9 @@ GENRESULT DACOM_API FRpGpu::DestroyVb(void** Handle)
     if (VertexBuffers_.count(Buffer) != 0)
     {
         VertexBuffers_.erase(Buffer);
+        RetireBlocks(Buffer);
+        if (SelectedVb_ == Buffer)
+            SelectedVb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
     }
     *Handle = nullptr; // a pool buffer stays alive
@@ -623,6 +655,8 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
         if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, Rp8FvfStride(Fvf))))
             return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
+        RetireBlocks(Buffer);
+        Buffer->LastWriteFrame = FrameNumber_;
     }
     return GR_OK;
 }
@@ -680,6 +714,8 @@ GENRESULT DACOM_API FRpGpu::LockVb(void* Handle, unsigned int* Offset, void** Ou
     if (Offset != nullptr)
         *Offset = Start;
     Buffer->bLocked = true;
+    RetireBlocks(Buffer); // the caller may write any vertex it locked
+    Buffer->LastWriteFrame = FrameNumber_;
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * Buffer->Stride;
     return GR_OK;
 }
@@ -692,6 +728,7 @@ GENRESULT DACOM_API FRpGpu::UnlockVb(void* Handle)
     if (Buffer == nullptr)
         return kFail;
     Buffer->bLocked = false;
+    Buffer->LastWriteFrame = FrameNumber_; // written up to now: settled from the next frame
     return GR_OK;
 }
 
@@ -701,9 +738,22 @@ GENRESULT DACOM_API FRpGpu::UnsupportedVertexBufferOperation(void* Handle)
     return kUnsupported;
 }
 
+// RP8's select_vb: the vertex buffer IRPDraw::DrawIndexedPrimitive draws from; -1 keeps the
+// current one. A null handle resets the whole selection (RP8's stream cache) and fails.
 GENRESULT DACOM_API FRpGpu::SelectVb(void* Handle)
 {
-    return LiveVb(Handle) != nullptr ? GR_OK : kFail;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (Handle == nullptr)
+    {
+        ResetStreams();
+        return kFail;
+    }
+    void* const Wanted = Handle == kMinusOne ? SelectedVb_ : Handle;
+    if (LiveVb(Wanted) == nullptr)
+        return kFail;
+    SelectedVb_ = Wanted;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::GetVbInfo(void* Handle, unsigned int* OutFvf, unsigned int* OutCount)
@@ -749,12 +799,137 @@ GENRESULT DACOM_API FRpGpu::GetImageInfo(RpImageInfo* Info, unsigned int SrcSize
     return ReadDdsImageInfo(Info, SrcSize, SrcData) ? GR_OK : GR_GENERIC;
 }
 
+// The image a lock or a level upload names: the level of a texture, or, as RP8's
+// get_subsurface reads a cube, the face of a cube map (its full-size level).
+FRpGpuImage* FRpGpu::LockableImage(FRpGpuTexture* Texture, int Level) const
+{
+    if (Texture == nullptr || Level < 0)
+        return nullptr;
+    const std::size_t Index =
+        Texture->bCube ? static_cast<std::size_t>(Level) * Texture->Levels : static_cast<std::size_t>(Level);
+    if ((Texture->bCube && Level >= 6) || Index >= Texture->Images.size())
+        return nullptr;
+    return &Texture->Images[Index];
+}
+
+// RP8's load_cubemap: outside the device's lifetime -1; with the cube-map ability (8) off, -7
+// before the file system is touched. Otherwise the file is mapped as RP8 maps it (-8 when it
+// cannot be opened, -6 when it cannot be mapped) and loaded as D3DX's
+// D3DXCreateCubeTextureFromFileInMemory loads a DDS cube map: the file's format, and the full
+// mip chain, the levels the file lacks made from the ones above (TexConvert's box filter).
 GENRESULT DACOM_API FRpGpu::LoadCubemap(IFileSystem* FileSystem, const char* FileName, void** OutHandle)
 {
-    // Ability 8 (cube maps) is 0: RP8 answers this before touching the file system.
-    (void)FileSystem;
-    (void)FileName;
-    if (OutHandle != nullptr)
-        *OutHandle = nullptr;
-    return kUnsupported;
+    if (!DeviceLive())
+        return GR_GENERIC;
+    unsigned long Ability = 0;
+    if (QueryDeviceAbility(8, &Ability) != GR_OK || Ability == 0)
+        return kUnsupported;
+    if (FileSystem == nullptr || OutHandle == nullptr)
+        return GR_GENERIC;
+
+    FFileSystemDesc Desc = {};
+    Desc.Size = 0x34;
+    Desc.ComponentName = "FileSystem";
+    Desc.Path = FileName;
+    Desc.Access = 0x80000000;
+    Desc.ShareMode = 1;
+    Desc.Creation = 3;
+    Desc.Flags = 0x8000080;
+    Desc.Field30 = 0xFFFFFFFF;
+    const int File = FileSystem->OpenByDesc(&Desc);
+    if (File == -1)
+        return (GENRESULT)-8;
+    const unsigned long Size = FileSystem->GetSize(static_cast<unsigned long>(File), nullptr);
+    const int Mapping = FileSystem->CreateMapping(static_cast<unsigned long>(File), 0, 2, 0, 0, 0);
+    GENRESULT Result = (GENRESULT)-6;
+    if (Mapping != -1)
+    {
+        const std::intptr_t View = FileSystem->MapFileView(static_cast<unsigned long>(Mapping), 4, 0, 0, 0);
+        Result = GR_GENERIC;
+        if (View != 0)
+        {
+            Result = MakeCubemap(reinterpret_cast<const void*>(View), Size, OutHandle);
+            FileSystem->UnmapFileView(static_cast<unsigned long>(View));
+        }
+        FileSystem->CloseFile(static_cast<unsigned long>(Mapping));
+    }
+    FileSystem->CloseFile(static_cast<unsigned long>(File));
+    return Result;
+}
+
+// The cube texture of a DDS cube map in memory (LoadCubemap). D3DXERR_INVALIDDATA for a file
+// D3DX would not load as a cube.
+GENRESULT FRpGpu::MakeCubemap(const void* Data, unsigned long Size, void** OutHandle)
+{
+    constexpr GENRESULT kInvalidData = (GENRESULT)0x88760B59;
+    FDdsCube Cube;
+    if (Size > 0xFFFFFFFFul || !ReadDdsCube(&Cube, static_cast<unsigned int>(Size), Data))
+        return kInvalidData;
+    FRpGpuTexture* const Texture = new (std::nothrow) FRpGpuTexture();
+    if (Texture == nullptr)
+        return GR_OUT_OF_MEMORY;
+    const unsigned int Levels = MaxMipLevels(Cube.Edge, Cube.Edge);
+    Texture->Width = Cube.Edge;
+    Texture->Height = Cube.Edge;
+    Texture->Format = Cube.Format;
+    Texture->Levels = Levels;
+    Texture->bCube = true;
+    const unsigned char* const Bytes = static_cast<const unsigned char*>(Data);
+    try
+    {
+        Texture->Images.resize(static_cast<std::size_t>(Levels) * 6);
+        for (unsigned int Face = 0; Face < 6; ++Face)
+        {
+            for (unsigned int Level = 0; Level < Levels; ++Level)
+            {
+                FRpGpuImage& Image = Texture->Images[static_cast<std::size_t>(Face) * Levels + Level];
+                if (!MakeImage(Cube.Format, Cube.Edge >> Level, Cube.Edge >> Level, &Image))
+                {
+                    delete Texture;
+                    return GR_OUT_OF_MEMORY;
+                }
+                if (Level < Cube.Levels)
+                {
+                    // MakeImage's pitch is tight, as the file's rows are.
+                    std::memcpy(Image.Bits.data(), Bytes + Cube.Offset[Face][Level],
+                                std::min<std::size_t>(Image.Bits.size(), Cube.Bytes[Level]));
+                    continue;
+                }
+                const FRpGpuImage& Above = Texture->Images[static_cast<std::size_t>(Face) * Levels + Level - 1];
+                TexConvert::FImage To;
+                To.Format = Cube.Format;
+                To.Width = Image.Width;
+                To.Height = Image.Height;
+                To.Pitch = Image.Pitch;
+                To.Bits = Image.Bits.data();
+                TexConvert::FSource From;
+                From.Format = Cube.Format;
+                From.Width = Above.Width;
+                From.Height = Above.Height;
+                From.Pitch = Above.Pitch;
+                From.Bits = Above.Bits.data();
+                if (TexConvert::Load(To, From) == TexConvert::EResult::Failed)
+                {
+                    delete Texture;
+                    return kInvalidData;
+                }
+            }
+        }
+    }
+    catch (const std::bad_alloc&)
+    {
+        delete Texture;
+        return GR_OUT_OF_MEMORY;
+    }
+    try
+    {
+        Textures_.insert(Texture);
+    }
+    catch (const std::bad_alloc&)
+    {
+        delete Texture;
+        return GR_OUT_OF_MEMORY;
+    }
+    *OutHandle = Texture;
+    return GR_OK;
 }

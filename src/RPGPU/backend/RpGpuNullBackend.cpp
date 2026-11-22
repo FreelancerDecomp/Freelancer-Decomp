@@ -62,16 +62,34 @@ namespace
             return true;
         }
 
-        void UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
-                           const std::uint8_t* Bgra) override
+        void UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image) override
         {
             (void)Key;
-            (void)Width;
-            (void)Height;
-            (void)Bgra;
+            (void)Image;
         }
 
+        // Takes anything: the images are dropped. Saying yes spares RPGPU the DXT decode.
+        bool SupportsBlockCompression() const override { return true; }
+
         void ForgetTexture(std::uint64_t Key) override { (void)Key; }
+        bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override
+        {
+            (void)Key;
+            (void)Vertices;
+            return true;
+        }
+        bool UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices) override
+        {
+            (void)Key;
+            (void)Indices;
+            return true;
+        }
+        void ForgetBlock(std::uint64_t Key) override { (void)Key; }
+        bool IsBlockLost(std::uint64_t Key) const override
+        {
+            (void)Key;
+            return false;
+        }
 
         RpWindowHandle Hwnd() const override { return Hwnd_; }
         std::uint32_t Width() const override { return Width_; }

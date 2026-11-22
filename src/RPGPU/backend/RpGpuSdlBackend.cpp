@@ -8,7 +8,9 @@
 #include <SDL3/SDL.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
+#include <new>
 
 namespace
 {
@@ -71,6 +73,9 @@ namespace
         }
     }
 
+    // RPGPU's colour target: B, G, R, A bytes, as ReadBack hands frames out.
+    constexpr SDL_GPUTextureFormat kTargetFormat = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
+
     SDL_FColor ToFColor(std::uint32_t Argb)
     {
         SDL_FColor Color;
@@ -81,17 +86,39 @@ namespace
         return Color;
     }
 
-    // rpgpu_pretransformed.vert's FScreen and rpgpu_stage0.frag's FStage.
-    struct FScreenUniforms
+    SDL_GPUTextureFormat TextureFormat(ERpGpuTextureFormat Format)
     {
-        float Scale[4];
-        float Offset[4];
-    };
-    struct FStageUniforms
+        switch (Format)
+        {
+        case ERpGpuTextureFormat::Bc1: return SDL_GPU_TEXTUREFORMAT_BC1_RGBA_UNORM;
+        case ERpGpuTextureFormat::Bc2: return SDL_GPU_TEXTUREFORMAT_BC2_RGBA_UNORM;
+        case ERpGpuTextureFormat::Bc3: return SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM;
+        default: return SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
+        }
+    }
+
+    // The bytes of one tightly packed level: 4 a pixel, or 8 / 16 a 4x4 block.
+    std::uint64_t LevelBytes(ERpGpuTextureFormat Format, std::uint32_t Width, std::uint32_t Height)
     {
-        std::uint32_t Ops[4];
-        std::uint32_t AlphaTest[4];
-    };
+        if (Format == ERpGpuTextureFormat::Bgra8)
+            return static_cast<std::uint64_t>(Width) * Height * 4;
+        const std::uint64_t Blocks = static_cast<std::uint64_t>((Width + 3) / 4) * ((Height + 3) / 4);
+        return Blocks * (Format == ERpGpuTextureFormat::Bc1 ? 8u : 16u);
+    }
+
+    // Direct3D 8's ZBIAS has no unit; RPGPU takes one step of a 16-bit depth buffer (1 / 65535
+    // of the depth range) per ZBIAS step, as a depth-bias constant in the depth format's own
+    // steps. Negative: a higher ZBIAS is drawn nearer.
+    float DepthBiasSteps(std::uint32_t DepthFormat, std::uint8_t ZBias)
+    {
+        float StepsPerUnit = 1.0f; // D16
+        if (DepthFormat == SDL_GPU_TEXTUREFORMAT_D24_UNORM || DepthFormat == SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT)
+            StepsPerUnit = 16777215.0f / 65535.0f;
+        else if (DepthFormat == SDL_GPU_TEXTUREFORMAT_D32_FLOAT || DepthFormat == SDL_GPU_TEXTUREFORMAT_D32_FLOAT_S8_UINT)
+            StepsPerUnit = 16777216.0f / 65535.0f; // a float's step is 2^-24 for depths in [0.5, 1)
+        return -static_cast<float>(ZBias) * StepsPerUnit;
+    }
+
 }
 
 FRpGpuSdlBackend::~FRpGpuSdlBackend()
@@ -152,6 +179,13 @@ bool FRpGpuSdlBackend::Create(RpWindowHandle Hwnd, std::uint32_t Width, std::uin
             return false;
         }
         Hwnd_ = Hwnd;
+        bBlockCompression_ = true;
+        for (SDL_GPUTextureFormat Format : {SDL_GPU_TEXTUREFORMAT_BC1_RGBA_UNORM, SDL_GPU_TEXTUREFORMAT_BC2_RGBA_UNORM,
+                                            SDL_GPU_TEXTUREFORMAT_BC3_RGBA_UNORM})
+        {
+            if (!SDL_GPUTextureSupportsFormat(Device_, Format, SDL_GPU_TEXTURETYPE_2D, SDL_GPU_TEXTUREUSAGE_SAMPLER))
+                bBlockCompression_ = false;
+        }
     }
 
     // VSync is always supported; an unsupported immediate mode falls back to it. A failed
@@ -192,12 +226,20 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     for (auto& Entry : Textures_)
         SDL_ReleaseGPUTexture(Device_, Entry.second.Texture);
     Textures_.clear();
+    for (auto& Entry : Blocks_)
+        SDL_ReleaseGPUBuffer(Device_, Entry.second);
+    Blocks_.clear();
+    PendingBlocks_.clear(); // the next device gets them again: RPGPU re-uploads after CreateBuffers
+    LostBlocks_.clear();
     if (VertexShader_ != nullptr)
         SDL_ReleaseGPUShader(Device_, VertexShader_);
     if (FragmentShader_ != nullptr)
         SDL_ReleaseGPUShader(Device_, FragmentShader_);
     if (White_ != nullptr)
         SDL_ReleaseGPUTexture(Device_, White_);
+    if (WhiteCube_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, WhiteCube_);
+    WhiteCube_ = nullptr;
     if (Depth_ != nullptr)
         SDL_ReleaseGPUTexture(Device_, Depth_);
     if (VertexBuffer_ != nullptr)
@@ -211,6 +253,12 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     White_ = nullptr;
     bWhiteUploaded_ = false;
     Depth_ = nullptr;
+    if (Target_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, Target_);
+    Target_ = nullptr;
+    TargetWidth_ = 0;
+    TargetHeight_ = 0;
+    bHasFrame_ = false;
     DepthWidth_ = 0;
     DepthHeight_ = 0;
     VertexBuffer_ = nullptr;
@@ -219,7 +267,6 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     IndexCapacity_ = 0;
     Transfer_ = nullptr;
     TransferCapacity_ = 0;
-    SwapchainFormat_ = 0;
     DepthFormat_ = 0; // probed again on the next device
     // Textures the game still holds come back through UploadTexture: RPGPU uploads a texture
     // again whenever its GPU copy is missing (docs/re/rpgpu.md, "Drawing").
@@ -258,8 +305,8 @@ bool FRpGpuSdlBackend::CreateShaders()
 {
     if (VertexShader_ != nullptr && FragmentShader_ != nullptr)
         return true;
-    const FRpGpuShaderBlob* const Vert = FindRpGpuShader("rpgpu_pretransformed.vert");
-    const FRpGpuShaderBlob* const Frag = FindRpGpuShader("rpgpu_stage0.frag");
+    const FRpGpuShaderBlob* const Vert = FindRpGpuShader("rpgpu_fixed.vert");
+    const FRpGpuShaderBlob* const Frag = FindRpGpuShader("rpgpu_stages.frag");
     if (Vert == nullptr || Frag == nullptr)
         return SDL_SetError("RPGPU: shader bytecode missing");
 
@@ -276,7 +323,8 @@ bool FRpGpuSdlBackend::CreateShaders()
     else
         return SDL_SetError("RPGPU: no shader format the device takes");
 
-    auto Make = [&](const FRpGpuShaderBlob* Blob, SDL_GPUShaderStage Stage, Uint32 Samplers) -> SDL_GPUShader* {
+    auto Make = [&](const FRpGpuShaderBlob* Blob, SDL_GPUShaderStage Stage, Uint32 Samplers,
+                    Uint32 UniformBuffers) -> SDL_GPUShader* {
         SDL_GPUShaderCreateInfo Info = {};
         if (Format == SDL_GPU_SHADERFORMAT_DXIL)
         {
@@ -299,11 +347,13 @@ bool FRpGpuSdlBackend::CreateShaders()
         Info.format = Format;
         Info.stage = Stage;
         Info.num_samplers = Samplers;
-        Info.num_uniform_buffers = 1;
+        Info.num_uniform_buffers = UniformBuffers;
         return SDL_CreateGPUShader(Device_, &Info);
     };
-    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0);
-    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 1);
+    // The vertex shader takes FTransform and FLighting; the fragment shader FStages and, per
+    // stage, a 2D texture and a cube texture with their samplers.
+    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 3); // FTransform, FLighting, FBlend
+    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 2 * kRpGpuStages, 1);
     return VertexShader_ != nullptr && FragmentShader_ != nullptr;
 }
 
@@ -316,21 +366,39 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
 
     SDL_GPUVertexBufferDescription Buffer = {};
     Buffer.slot = 0;
-    Buffer.pitch = sizeof(FRpGpuVertex2D);
+    Buffer.pitch = sizeof(FRpGpuVertex);
     Buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
-    SDL_GPUVertexAttribute Attributes[3] = {};
+    // FRpGpuVertex: position, diffuse, normal, specular, then each stage's coordinates
+    // (rpgpu_fixed.vert's TEXCOORD0..7).
+    SDL_GPUVertexAttribute Attributes[6 + kRpGpuStages] = {};
     Attributes[0].location = 0;
     Attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
-    Attributes[0].offset = 0;
+    Attributes[0].offset = offsetof(FRpGpuVertex, X);
     Attributes[1].location = 1;
     Attributes[1].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
-    Attributes[1].offset = 16;
+    Attributes[1].offset = offsetof(FRpGpuVertex, Diffuse);
     Attributes[2].location = 2;
-    Attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
-    Attributes[2].offset = 20;
+    Attributes[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    Attributes[2].offset = offsetof(FRpGpuVertex, Nx);
+    Attributes[3].location = 3;
+    Attributes[3].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM;
+    Attributes[3].offset = offsetof(FRpGpuVertex, Specular);
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+    {
+        Attributes[4 + Stage].location = static_cast<Uint32>(4 + Stage);
+        Attributes[4 + Stage].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
+        Attributes[4 + Stage].offset = static_cast<Uint32>(offsetof(FRpGpuVertex, Tex) + Stage * 2 * sizeof(float));
+    }
+    // TEXCOORD8, 9: the blend weights and matrix indices.
+    Attributes[4 + kRpGpuStages].location = static_cast<Uint32>(4 + kRpGpuStages);
+    Attributes[4 + kRpGpuStages].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    Attributes[4 + kRpGpuStages].offset = offsetof(FRpGpuVertex, Weights);
+    Attributes[5 + kRpGpuStages].location = static_cast<Uint32>(5 + kRpGpuStages);
+    Attributes[5 + kRpGpuStages].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4;
+    Attributes[5 + kRpGpuStages].offset = offsetof(FRpGpuVertex, Indices);
 
     SDL_GPUColorTargetDescription Color = {};
-    Color.format = static_cast<SDL_GPUTextureFormat>(SwapchainFormat_);
+    Color.format = kTargetFormat;
     Color.blend_state.enable_blend = Key.bBlend != 0;
     Color.blend_state.src_color_blendfactor = BlendFactor(Key.SrcBlend);
     Color.blend_state.dst_color_blendfactor = BlendFactor(Key.DstBlend);
@@ -351,12 +419,25 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Info.vertex_input_state.vertex_buffer_descriptions = &Buffer;
     Info.vertex_input_state.num_vertex_buffers = 1;
     Info.vertex_input_state.vertex_attributes = Attributes;
-    Info.vertex_input_state.num_vertex_attributes = 3;
+    Info.vertex_input_state.num_vertex_attributes = 6 + kRpGpuStages;
     Info.primitive_type = PrimitiveType(Key.Topology);
-    Info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
-    // Pre-transformed 2D draws do not rely on culling; CULLMODE arrives with the 3D draws.
-    Info.rasterizer_state.cull_mode = SDL_GPU_CULLMODE_NONE;
-    Info.rasterizer_state.front_face = SDL_GPU_FRONTFACE_CLOCKWISE;
+    // Points (FILLMODE 1) are drawn solid: SDL_GPU has no point fill.
+    Info.rasterizer_state.fill_mode = Key.FillMode == 2 ? SDL_GPU_FILLMODE_LINE : SDL_GPU_FILLMODE_FILL;
+    // Direct3D 8 clips at the near and far planes rather than clamping depth. (SDL's Direct3D 12
+    // driver clamps regardless.)
+    Info.rasterizer_state.enable_depth_clip = true;
+    // Direct3D 8 culls by the winding on screen, pre-transformed triangles included: CULL_CW (2)
+    // drops clockwise triangles, CULL_CCW (3) counter-clockwise ones. SDL_GPU's winding is
+    // Direct3D's (y up in normalized coordinates).
+    Info.rasterizer_state.cull_mode = Key.CullMode == 2 || Key.CullMode == 3 ? SDL_GPU_CULLMODE_BACK
+                                                                             : SDL_GPU_CULLMODE_NONE;
+    Info.rasterizer_state.front_face =
+        Key.CullMode == 2 ? SDL_GPU_FRONTFACE_COUNTER_CLOCKWISE : SDL_GPU_FRONTFACE_CLOCKWISE;
+    if (Key.ZBias != 0)
+    {
+        Info.rasterizer_state.enable_depth_bias = true;
+        Info.rasterizer_state.depth_bias_constant_factor = DepthBiasSteps(DepthFormat_, Key.ZBias);
+    }
     Info.depth_stencil_state.enable_depth_test = Key.bZEnable != 0;
     Info.depth_stencil_state.enable_depth_write = Key.bZEnable != 0 && Key.bZWrite != 0;
     Info.depth_stencil_state.compare_op = CompareOp(Key.ZFunc);
@@ -373,20 +454,28 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
 
 SDL_GPUSampler* FRpGpuSdlBackend::Sampler(const FRpGpuSamplerKey& Key)
 {
-    const std::uint64_t Packed = Key.Packed();
+    const std::pair<std::uint64_t, std::uint32_t> Packed(Key.Packed(), Key.LodBias);
     auto Found = Samplers_.find(Packed);
     if (Found != Samplers_.end())
         return Found->second;
     SDL_GPUSamplerCreateInfo Info = {};
     Info.mag_filter = Key.MagFilter == 1 ? SDL_GPU_FILTER_NEAREST : SDL_GPU_FILTER_LINEAR;
     Info.min_filter = Key.MinFilter == 1 ? SDL_GPU_FILTER_NEAREST : SDL_GPU_FILTER_LINEAR;
+    // ANISOTROPIC (3) on either filter: linear with MAXANISOTROPY.
+    if ((Key.MinFilter == 3 || Key.MagFilter == 3) && Key.MaxAnisotropy > 1)
+    {
+        Info.enable_anisotropy = true;
+        Info.max_anisotropy = static_cast<float>(Key.MaxAnisotropy);
+    }
+    std::memcpy(&Info.mip_lod_bias, &Key.LodBias, sizeof(Info.mip_lod_bias)); // MIPMAPLODBIAS
     Info.mipmap_mode = Key.MipFilter == 2 ? SDL_GPU_SAMPLERMIPMAPMODE_LINEAR : SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
     Info.address_mode_u = AddressMode(Key.AddressU);
     Info.address_mode_v = AddressMode(Key.AddressV);
     Info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
-    // Textures carry level 0 only so far: no mip levels to choose from.
-    Info.min_lod = 0.0f;
-    Info.max_lod = 0.0f;
+    // MIPFILTER NONE samples level 0 only, whatever MAXMIPLEVEL says (Direct3D applies it only
+    // with mipmapping); otherwise the chain from MAXMIPLEVEL down.
+    Info.min_lod = Key.MipFilter == 0 ? 0.0f : static_cast<float>(Key.MaxMipLevel);
+    Info.max_lod = Key.MipFilter == 0 ? 0.0f : 1000.0f;
     SDL_GPUSampler* const Made = SDL_CreateGPUSampler(Device_, &Info);
     if (Made != nullptr)
         Samplers_[Packed] = Made;
@@ -446,16 +535,27 @@ bool FRpGpuSdlBackend::EnsureBuffer(SDL_GPUBuffer** Buffer, std::uint32_t* Capac
     return *Buffer != nullptr;
 }
 
-void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, std::uint32_t Width, std::uint32_t Height,
-                                     const std::uint8_t* Bgra)
+void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Image)
 {
-    if (Key == 0 || Width == 0 || Height == 0 || Bgra == nullptr)
+    if (Key == 0 || Image.Width == 0 || Image.Height == 0 || Image.Levels.empty())
         return;
+    if (Image.Format != ERpGpuTextureFormat::Bgra8 && !bBlockCompression_)
+        return;
+    // Every level must hold exactly its tightly packed size; a cube map has six square faces.
+    if (Image.bCube && (Image.Levels.size() % 6 != 0 || Image.Width != Image.Height))
+        return;
+    const std::size_t PerFace = Image.bCube ? Image.Levels.size() / 6 : Image.Levels.size();
+    for (std::size_t Index = 0; Index < Image.Levels.size(); ++Index)
+    {
+        const std::size_t Level = Index % PerFace;
+        const std::uint32_t W = std::max<std::uint32_t>(1u, Image.Width >> Level);
+        const std::uint32_t H = std::max<std::uint32_t>(1u, Image.Height >> Level);
+        if (Image.Levels[Index].size() != LevelBytes(Image.Format, W, H))
+            return;
+    }
     FPendingUpload Upload;
     Upload.Key = Key;
-    Upload.Width = Width;
-    Upload.Height = Height;
-    Upload.Bgra.assign(Bgra, Bgra + static_cast<std::size_t>(Width) * Height * 4);
+    Upload.Image = std::move(Image);
     // A newer upload of the same texture replaces a pending older one.
     for (FPendingUpload& Pending : PendingUploads_)
     {
@@ -465,7 +565,15 @@ void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, std::uint32_t Width, std
             return;
         }
     }
-    PendingUploads_.push_back(std::move(Upload));
+    // A queue that cannot grow drops the upload: the texture's draws sample white until it
+    // changes again, and no exception crosses the component boundary.
+    try
+    {
+        PendingUploads_.push_back(std::move(Upload));
+    }
+    catch (const std::bad_alloc&)
+    {
+    }
 }
 
 void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
@@ -481,8 +589,52 @@ void FRpGpuSdlBackend::ForgetTexture(std::uint64_t Key)
     Textures_.erase(Found);
 }
 
-// One copy pass: pending textures (and the white stand-in), then the frame's vertices and
-// indices, all through one transfer buffer.
+bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices)
+{
+    if (Key == 0 || Vertices.empty())
+        return false;
+    try
+    {
+        PendingBlocks_.push_back({Key, std::move(Vertices), {}, false});
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool FRpGpuSdlBackend::UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices)
+{
+    if (Key == 0 || Indices.empty())
+        return false;
+    try
+    {
+        PendingBlocks_.push_back({Key, {}, std::move(Indices), false});
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
+    return true;
+}
+
+void FRpGpuSdlBackend::ForgetBlock(std::uint64_t Key)
+{
+    LostBlocks_.erase(Key);
+    PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
+                                        [Key](const FPendingBlock& Pending) { return Pending.Key == Key; }),
+                         PendingBlocks_.end());
+    auto Found = Blocks_.find(Key);
+    if (Found == Blocks_.end())
+        return;
+    if (Device_ != nullptr)
+        SDL_ReleaseGPUBuffer(Device_, Found->second);
+    Blocks_.erase(Found);
+}
+
+// One copy pass: pending textures (and the white stand-ins), pending vertex blocks, then the
+// frame's vertices and indices, all through one transfer buffer.
 bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuFrameRecording& Frame)
 {
     if (White_ == nullptr)
@@ -499,11 +651,34 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         if (White_ == nullptr)
             return false;
     }
-    // (Re)create the GPU textures of the pending uploads.
+    if (WhiteCube_ == nullptr)
+    {
+        SDL_GPUTextureCreateInfo Info = {};
+        Info.type = SDL_GPU_TEXTURETYPE_CUBE;
+        Info.format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
+        Info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+        Info.width = 1;
+        Info.height = 1;
+        Info.layer_count_or_depth = 6;
+        Info.num_levels = 1;
+        WhiteCube_ = SDL_CreateGPUTexture(Device_, &Info);
+        if (WhiteCube_ == nullptr)
+            return false;
+        bWhiteUploaded_ = false; // the cube's faces go up with the white texel
+    }
+    // (Re)create the GPU textures of the pending uploads. One the device cannot make (too large,
+    // say) is dropped with its upload: its draws sample white, and later frames are not held
+    // back by an upload that can never succeed.
+    std::vector<std::uint64_t> Dropped;
     for (const FPendingUpload& Upload : PendingUploads_)
     {
+        const FRpGpuTextureImage& Image = Upload.Image;
+        const std::uint32_t Levels =
+            static_cast<std::uint32_t>(Image.bCube ? Image.Levels.size() / 6 : Image.Levels.size());
         FTexture& Entry = Textures_[Upload.Key];
-        if (Entry.Texture != nullptr && (Entry.Width != Upload.Width || Entry.Height != Upload.Height))
+        if (Entry.Texture != nullptr && (Entry.Format != Image.Format || Entry.Width != Image.Width ||
+                                         Entry.Height != Image.Height || Entry.Levels != Levels ||
+                                         Entry.bCube != Image.bCube))
         {
             SDL_ReleaseGPUTexture(Device_, Entry.Texture);
             Entry.Texture = nullptr;
@@ -511,31 +686,91 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         if (Entry.Texture == nullptr)
         {
             SDL_GPUTextureCreateInfo Info = {};
-            Info.type = SDL_GPU_TEXTURETYPE_2D;
-            Info.format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
+            Info.type = Image.bCube ? SDL_GPU_TEXTURETYPE_CUBE : SDL_GPU_TEXTURETYPE_2D;
+            Info.format = TextureFormat(Image.Format);
             Info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-            Info.width = Upload.Width;
-            Info.height = Upload.Height;
-            Info.layer_count_or_depth = 1;
-            Info.num_levels = 1;
+            Info.width = Image.Width;
+            Info.height = Image.Height;
+            Info.layer_count_or_depth = Image.bCube ? 6u : 1u;
+            Info.num_levels = Levels;
             Entry.Texture = SDL_CreateGPUTexture(Device_, &Info);
-            Entry.Width = Upload.Width;
-            Entry.Height = Upload.Height;
+            Entry.bCube = Image.bCube;
+            Entry.Format = Image.Format;
+            Entry.Width = Image.Width;
+            Entry.Height = Image.Height;
+            Entry.Levels = Levels;
             if (Entry.Texture == nullptr)
             {
                 Textures_.erase(Upload.Key);
-                return false;
+                Dropped.push_back(Upload.Key);
             }
         }
+    }
+    // The GPU buffers of the pending vertex blocks; one that cannot be made is dropped, and its
+    // draws are skipped.
+    for (std::size_t Index = 0; Index < PendingBlocks_.size();)
+    {
+        FPendingBlock& Pending = PendingBlocks_[Index];
+        Pending.bDeferred = false;
+        const std::uint64_t Bytes64 = Pending.Bytes();
+        SDL_GPUBuffer* Made = nullptr;
+        if (Bytes64 <= 0xFFFFFFFFull)
+        {
+            SDL_GPUBufferCreateInfo Info = {};
+            Info.usage = Pending.Indices.empty() ? SDL_GPU_BUFFERUSAGE_VERTEX : SDL_GPU_BUFFERUSAGE_INDEX;
+            Info.size = static_cast<Uint32>(Bytes64);
+            Made = SDL_CreateGPUBuffer(Device_, &Info);
+        }
+        if (Made == nullptr)
+        {
+            try
+            {
+                LostBlocks_.insert(Pending.Key); // RPGPU asks, forgets it and tries again later
+            }
+            catch (const std::bad_alloc&)
+            {
+                // The loss cannot be recorded: keep the block pending and try again next frame.
+                Pending.bDeferred = true;
+                ++Index;
+                continue;
+            }
+            PendingBlocks_.erase(PendingBlocks_.begin() + static_cast<std::ptrdiff_t>(Index));
+            continue;
+        }
+        auto Existing = Blocks_.find(Pending.Key);
+        if (Existing != Blocks_.end())
+            SDL_ReleaseGPUBuffer(Device_, Existing->second);
+        Blocks_[Pending.Key] = Made;
+        ++Index;
+    }
+    if (!Dropped.empty())
+    {
+        PendingUploads_.erase(std::remove_if(PendingUploads_.begin(), PendingUploads_.end(),
+                                             [&Dropped](const FPendingUpload& Upload) {
+                                                 return std::find(Dropped.begin(), Dropped.end(), Upload.Key) !=
+                                                        Dropped.end();
+                                             }),
+                              PendingUploads_.end());
     }
 
     // Sizes in 64 bits first: SDL_GPU's buffers and offsets are 32-bit, so a frame whose uploads
     // add up to more than that is refused instead of wrapping.
-    const std::uint64_t VertexBytes64 = static_cast<std::uint64_t>(Frame.Vertices.size()) * sizeof(FRpGpuVertex2D);
+    // Each texture level starts on a 16-byte boundary, which every backend accepts for every
+    // format (a BC block is 8 or 16 bytes).
+    const std::uint64_t VertexBytes64 = static_cast<std::uint64_t>(Frame.Vertices.size()) * sizeof(FRpGpuVertex);
     const std::uint64_t IndexBytes64 = static_cast<std::uint64_t>(Frame.Indices.size()) * sizeof(std::uint16_t);
-    std::uint64_t TextureBytes64 = bWhiteUploaded_ ? 0u : 4u;
+    auto Align16 = [](std::uint64_t Value) { return (Value + 15u) & ~static_cast<std::uint64_t>(15u); };
+    std::uint64_t TextureBytes64 = bWhiteUploaded_ ? 0u : 16u; // the white texel, for both stand-ins
     for (const FPendingUpload& Upload : PendingUploads_)
-        TextureBytes64 += Upload.Bgra.size();
+    {
+        for (const std::vector<std::uint8_t>& Level : Upload.Image.Levels)
+            TextureBytes64 += Align16(Level.size());
+    }
+    for (const FPendingBlock& Pending : PendingBlocks_)
+    {
+        if (!Pending.bDeferred)
+            TextureBytes64 += Align16(Pending.Bytes());
+    }
     const std::uint64_t Total64 = TextureBytes64 + VertexBytes64 + IndexBytes64;
     if (Total64 == 0)
         return true;
@@ -571,14 +806,28 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     {
         const std::uint8_t White[4] = {0xFF, 0xFF, 0xFF, 0xFF};
         std::memcpy(Mapped + Offset, White, 4);
-        Offset += 4;
+        Offset += 16;
     }
-    std::vector<std::uint32_t> UploadOffsets;
+    std::vector<std::uint32_t> LevelOffsets; // every pending upload's levels, in order
     for (const FPendingUpload& Upload : PendingUploads_)
     {
-        UploadOffsets.push_back(Offset);
-        std::memcpy(Mapped + Offset, Upload.Bgra.data(), Upload.Bgra.size());
-        Offset += static_cast<std::uint32_t>(Upload.Bgra.size());
+        for (const std::vector<std::uint8_t>& Level : Upload.Image.Levels)
+        {
+            LevelOffsets.push_back(Offset);
+            std::memcpy(Mapped + Offset, Level.data(), Level.size());
+            Offset += static_cast<std::uint32_t>(Align16(Level.size()));
+        }
+    }
+    std::vector<std::uint32_t> BlockOffsets; // every pending vertex block, in order
+    BlockOffsets.reserve(PendingBlocks_.size());
+    for (const FPendingBlock& Pending : PendingBlocks_)
+    {
+        BlockOffsets.push_back(Offset); // a deferred block keeps a slot but uploads nothing
+        if (Pending.bDeferred)
+            continue;
+        const std::size_t Bytes = Pending.Bytes();
+        std::memcpy(Mapped + Offset, Pending.Data(), Bytes);
+        Offset += static_cast<std::uint32_t>(Align16(Bytes));
     }
     const std::uint32_t VertexOffset = Offset;
     if (VertexBytes != 0)
@@ -592,14 +841,18 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     SDL_GPUCopyPass* const Copy = SDL_BeginGPUCopyPass(Commands);
     if (Copy == nullptr)
         return false;
-    auto UploadImage = [&](SDL_GPUTexture* Texture, std::uint32_t From, std::uint32_t W, std::uint32_t H) {
+    // Tightly packed: 0 for pixels_per_row and rows_per_layer means the region's own size.
+    auto UploadImage = [&](SDL_GPUTexture* Texture, std::uint32_t Level, std::uint32_t From, std::uint32_t W,
+                           std::uint32_t H, std::uint32_t Layer) {
         SDL_GPUTextureTransferInfo Source = {};
         Source.transfer_buffer = Transfer_;
         Source.offset = From;
-        Source.pixels_per_row = W;
-        Source.rows_per_layer = H;
+        Source.pixels_per_row = 0;
+        Source.rows_per_layer = 0;
         SDL_GPUTextureRegion Target = {};
         Target.texture = Texture;
+        Target.mip_level = Level;
+        Target.layer = Layer; // a cube map's face
         Target.w = W;
         Target.h = H;
         Target.d = 1;
@@ -607,13 +860,23 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     };
     if (!bWhiteUploaded_)
     {
-        UploadImage(White_, WhiteOffset, 1, 1);
+        UploadImage(White_, 0, WhiteOffset, 1, 1, 0);
+        for (std::uint32_t Face = 0; Face < 6; ++Face)
+            UploadImage(WhiteCube_, 0, WhiteOffset, 1, 1, Face);
         bWhiteUploaded_ = true;
     }
-    for (std::size_t Index = 0; Index < PendingUploads_.size(); ++Index)
+    std::size_t NextLevel = 0;
+    for (const FPendingUpload& Upload : PendingUploads_)
     {
-        const FPendingUpload& Upload = PendingUploads_[Index];
-        UploadImage(Textures_[Upload.Key].Texture, UploadOffsets[Index], Upload.Width, Upload.Height);
+        SDL_GPUTexture* const Texture = Textures_[Upload.Key].Texture;
+        const std::uint32_t Count = static_cast<std::uint32_t>(Upload.Image.Levels.size());
+        const std::uint32_t PerFace = Upload.Image.bCube ? Count / 6 : Count;
+        for (std::uint32_t Index = 0; Index < Count; ++Index)
+        {
+            const std::uint32_t Level = Index % PerFace;
+            UploadImage(Texture, Level, LevelOffsets[NextLevel++], std::max<std::uint32_t>(1u, Upload.Image.Width >> Level),
+                        std::max<std::uint32_t>(1u, Upload.Image.Height >> Level), Index / PerFace);
+        }
     }
     PendingUploads_.clear();
     auto UploadBuffer = [&](SDL_GPUBuffer* Buffer, std::uint32_t From, std::uint32_t Size) {
@@ -626,6 +889,18 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         Target.size = Size;
         SDL_UploadToGPUBuffer(Copy, &Source, &Target, true);
     };
+    for (std::size_t Index = 0; Index < PendingBlocks_.size(); ++Index)
+    {
+        const FPendingBlock& Pending = PendingBlocks_[Index];
+        if (Pending.bDeferred)
+            continue;
+        UploadBuffer(Blocks_[Pending.Key], BlockOffsets[Index],
+                     static_cast<std::uint32_t>(Pending.Bytes()));
+    }
+    // The uploaded blocks are done; deferred ones wait for the next frame.
+    PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
+                                        [](const FPendingBlock& Pending) { return !Pending.bDeferred; }),
+                         PendingBlocks_.end());
     if (VertexBytes != 0)
         UploadBuffer(VertexBuffer_, VertexOffset, VertexBytes);
     if (IndexBytes != 0)
@@ -682,23 +957,17 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
     {
         Width_ = W;
         Height_ = H;
-        const std::uint32_t Format = static_cast<std::uint32_t>(SDL_GetGPUSwapchainTextureFormat(Device_, Window_));
-        if (Format != SwapchainFormat_)
-        {
-            // The pipelines are made for the swap chain's format.
-            for (auto& Entry : Pipelines_)
-                SDL_ReleaseGPUGraphicsPipeline(Device_, Entry.second);
-            Pipelines_.clear();
-            SwapchainFormat_ = Format;
-        }
-        bool bReady = CreateShaders() && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
+        bool bReady = CreateShaders() && EnsureTarget(W, H) && EnsureDepth(W, H) && UploadFrame(Commands, Frame);
         // Every pipeline and sampler the frame needs, before any render pass starts: a draw that
         // cannot get one fails the frame rather than vanishing.
         for (std::size_t Index = 0; bReady && Index < Frame.Commands.size(); ++Index)
         {
             const FRpGpuCommand& Command = Frame.Commands[Index];
-            if (Command.Kind == FRpGpuCommand::EKind::Draw && Command.VertexCount != 0)
-                bReady = Pipeline(Command.Pipeline) != nullptr && Sampler(Command.Sampler) != nullptr;
+            if (Command.Kind != FRpGpuCommand::EKind::Draw || Command.VertexCount == 0)
+                continue;
+            bReady = Pipeline(Command.Pipeline) != nullptr;
+            for (int Stage = 0; bReady && Stage < kRpGpuStages; ++Stage)
+                bReady = Sampler(Command.Sampler[Stage]) != nullptr;
         }
         if (!bReady)
         {
@@ -717,19 +986,22 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Lead = &Frame.Commands[0];
             First = 1;
         }
-        SDL_GPURenderPass* Pass = BeginPass(Commands, Image, Lead, true);
+        SDL_GPURenderPass* Pass = BeginPass(Commands, Target_, Lead, true);
+        bool bLightingPushed = false;
+        std::int32_t PushedLighting = -1;
+        bool bBlendPushed = false;
+        std::int32_t PushedBlend = -1;
         for (std::size_t Index = First; Pass != nullptr && Index < Frame.Commands.size(); ++Index)
         {
             const FRpGpuCommand& Command = Frame.Commands[Index];
             if (Command.Kind == FRpGpuCommand::EKind::Clear)
             {
                 SDL_EndGPURenderPass(Pass);
-                Pass = BeginPass(Commands, Image, &Command, false);
+                Pass = BeginPass(Commands, Target_, &Command, false);
                 continue;
             }
             SDL_GPUGraphicsPipeline* const Bound = Pipeline(Command.Pipeline);
-            SDL_GPUSampler* const Sampling = Sampler(Command.Sampler);
-            if (Bound == nullptr || Sampling == nullptr || Command.VertexCount == 0)
+            if (Bound == nullptr || Command.VertexCount == 0)
                 continue;
             SDL_BindGPUGraphicsPipeline(Pass, Bound);
 
@@ -742,37 +1014,90 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Viewport.max_depth = Command.MaxZ;
             SDL_SetGPUViewport(Pass, &Viewport);
 
+            // The draw's static vertex block, or the frame's vertices.
             SDL_GPUBufferBinding Vertices = {};
             Vertices.buffer = VertexBuffer_;
             Vertices.offset = 0;
+            if (Command.VertexBlock != 0)
+            {
+                auto Block = Blocks_.find(Command.VertexBlock);
+                if (Block == Blocks_.end())
+                    continue; // its buffer could not be made: not drawn
+                Vertices.buffer = Block->second;
+            }
             SDL_BindGPUVertexBuffers(Pass, 0, &Vertices, 1);
 
-            auto Found = Textures_.find(Command.Texture);
-            SDL_GPUTextureSamplerBinding Binding = {};
-            Binding.texture = Found != Textures_.end() ? Found->second.Texture : White_;
-            Binding.sampler = Sampling;
-            SDL_BindGPUFragmentSamplers(Pass, 0, &Binding, 1);
+            // Every stage's texture and sampler; a stage without a GPU copy samples white with
+            // its texture flag off.
+            // The blend block likewise (a draw that does not blend does not read it).
+            const std::int32_t Blend =
+                Command.Blend >= 0 && static_cast<std::size_t>(Command.Blend) < Frame.Blend.size() ? Command.Blend : -1;
+            if (!bBlendPushed || (Blend >= 0 && Blend != PushedBlend))
+            {
+                static const FRpGpuBlendUniforms kNoBlend = {};
+                const FRpGpuBlendUniforms& Block = Blend >= 0 ? Frame.Blend[static_cast<std::size_t>(Blend)] : kNoBlend;
+                SDL_PushGPUVertexUniformData(Commands, 2, &Block, sizeof(Block));
+                PushedBlend = Blend;
+                bBlendPushed = true;
+            }
+            FRpGpuStageUniforms Stage = Command.Stage;
+            // Slots 0..3 take the stages' 2D textures, 4..7 their cube maps; the other kind
+            // gets the white stand-in.
+            SDL_GPUTextureSamplerBinding Bindings[2 * kRpGpuStages] = {};
+            for (int Index = 0; Index < kRpGpuStages; ++Index)
+            {
+                auto Found = Textures_.find(Command.Texture[Index]);
+                const bool bFound = Found != Textures_.end();
+                const bool bCube = bFound && Found->second.bCube;
+                SDL_GPUSampler* const Sampling = Sampler(Command.Sampler[Index]);
+                Bindings[Index].texture = bFound && !bCube ? Found->second.Texture : White_;
+                Bindings[Index].sampler = Sampling;
+                Bindings[kRpGpuStages + Index].texture = bCube ? Found->second.Texture : WhiteCube_;
+                Bindings[kRpGpuStages + Index].sampler = Sampling;
+                if (!bFound)
+                    Stage.Misc[Index][1] = 0;
+                Stage.Misc[Index][3] = bCube ? 1u : 0u;
+            }
+            SDL_BindGPUFragmentSamplers(Pass, 0, Bindings, 2 * kRpGpuStages);
 
-            FScreenUniforms Screen = {};
-            Screen.Scale[0] = 2.0f / Viewport.w;
-            Screen.Scale[1] = -2.0f / Viewport.h;
-            Screen.Scale[2] = Viewport.x;
-            Screen.Scale[3] = Viewport.y;
+            FRpGpuTransformUniforms Transform = Command.Transform;
+            Transform.Scale[0] = 2.0f / Viewport.w;
+            Transform.Scale[1] = -2.0f / Viewport.h;
+            Transform.Scale[2] = Viewport.x;
+            Transform.Scale[3] = Viewport.y;
             // Direct3D 8 puts pixel centres on integer coordinates, SDL_GPU's backends at +0.5.
-            Screen.Offset[0] = 0.5f;
-            SDL_PushGPUVertexUniformData(Commands, 0, &Screen, sizeof(Screen));
-            FStageUniforms Stage = {};
-            std::memcpy(Stage.Ops, Command.Ops, sizeof(Stage.Ops));
-            std::memcpy(Stage.AlphaTest, Command.AlphaTest, sizeof(Stage.AlphaTest));
-            if (Found == Textures_.end())
-                Stage.Ops[2] = 0; // no GPU copy: as if no texture were bound
+            Transform.Mode[0] = 0.5f;
+            SDL_PushGPUVertexUniformData(Commands, 0, &Transform, sizeof(Transform));
+            // The lighting block, when it differs from the one last pushed in this command buffer
+            // (an unlit draw's shader does not read it, but every slot it declares is filled).
+            const std::int32_t Lighting =
+                Command.Lighting >= 0 && static_cast<std::size_t>(Command.Lighting) < Frame.Lighting.size()
+                    ? Command.Lighting
+                    : -1;
+            if (!bLightingPushed || Lighting != PushedLighting)
+            {
+                static const FRpGpuLightingUniforms kUnlit = {};
+                const FRpGpuLightingUniforms& Block =
+                    Lighting >= 0 ? Frame.Lighting[static_cast<std::size_t>(Lighting)] : kUnlit;
+                SDL_PushGPUVertexUniformData(Commands, 1, &Block, sizeof(Block));
+                PushedLighting = Lighting;
+                bLightingPushed = true;
+            }
             SDL_PushGPUFragmentUniformData(Commands, 0, &Stage, sizeof(Stage));
 
             if (Command.IndexCount != 0)
             {
+                // The draw's static index block, or the frame's indices.
                 SDL_GPUBufferBinding Indices = {};
                 Indices.buffer = IndexBuffer_;
                 Indices.offset = 0;
+                if (Command.IndexBlock != 0)
+                {
+                    auto Block = Blocks_.find(Command.IndexBlock);
+                    if (Block == Blocks_.end())
+                        continue; // its buffer is not made (yet): not drawn
+                    Indices.buffer = Block->second;
+                }
                 SDL_BindGPUIndexBuffer(Pass, &Indices, SDL_GPU_INDEXELEMENTSIZE_16BIT);
                 SDL_DrawGPUIndexedPrimitives(Pass, Command.IndexCount, 1, Command.FirstIndex,
                                              static_cast<Sint32>(Command.FirstVertex), 0);
@@ -784,13 +1109,50 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
         }
         if (Pass != nullptr)
             SDL_EndGPURenderPass(Pass);
+
+        // The finished frame to the swap-chain image, one pixel to one pixel (the blit converts
+        // to the swap chain's format).
+        SDL_GPUBlitInfo Blit = {};
+        Blit.source.texture = Target_;
+        Blit.source.w = W;
+        Blit.source.h = H;
+        Blit.destination.texture = Image;
+        Blit.destination.w = W;
+        Blit.destination.h = H;
+        Blit.load_op = SDL_GPU_LOADOP_DONT_CARE;
+        Blit.filter = SDL_GPU_FILTER_NEAREST;
+        SDL_BlitGPUTexture(Commands, &Blit);
     }
     if (!SDL_SubmitGPUCommandBuffer(Commands))
     {
         bNeedsRebuild_ = true;
         return false;
     }
+    if (Image != nullptr)
+        bHasFrame_ = true;
     return true;
+}
+
+bool FRpGpuSdlBackend::EnsureTarget(std::uint32_t Width, std::uint32_t Height)
+{
+    if (Target_ != nullptr && TargetWidth_ == Width && TargetHeight_ == Height)
+        return true;
+    if (Target_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, Target_);
+    bHasFrame_ = false;
+    SDL_GPUTextureCreateInfo Info = {};
+    Info.type = SDL_GPU_TEXTURETYPE_2D;
+    Info.format = kTargetFormat;
+    // A colour target, and a blit source (SAMPLER) for the copy to the swap chain.
+    Info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    Info.width = Width;
+    Info.height = Height;
+    Info.layer_count_or_depth = 1;
+    Info.num_levels = 1;
+    Target_ = SDL_CreateGPUTexture(Device_, &Info);
+    TargetWidth_ = Target_ != nullptr ? Width : 0;
+    TargetHeight_ = Target_ != nullptr ? Height : 0;
+    return Target_ != nullptr;
 }
 
 bool FRpGpuSdlBackend::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
@@ -821,8 +1183,72 @@ bool FRpGpuSdlBackend::QueryDisplayModes(std::vector<FRpGpuDisplayMode>* Out)
 
 bool FRpGpuSdlBackend::ReadBack(FRpGpuFrame* Out)
 {
-    (void)Out;
-    return false;
+    if (Out == nullptr || Device_ == nullptr || Target_ == nullptr || !bHasFrame_)
+        return false;
+    const std::uint32_t W = TargetWidth_;
+    const std::uint32_t H = TargetHeight_;
+    const std::uint64_t Bytes64 = static_cast<std::uint64_t>(W) * H * 4;
+    if (Bytes64 > 0xFFFFFFFFull || Bytes64 > Out->Bgra.max_size())
+        return false;
+    const std::uint32_t Bytes = static_cast<std::uint32_t>(Bytes64);
+
+    SDL_GPUTransferBufferCreateInfo BufferInfo = {};
+    BufferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    BufferInfo.size = Bytes;
+    SDL_GPUTransferBuffer* const Download = SDL_CreateGPUTransferBuffer(Device_, &BufferInfo);
+    if (Download == nullptr)
+        return false;
+    bool bOk = false;
+    SDL_GPUCommandBuffer* const Commands = SDL_AcquireGPUCommandBuffer(Device_);
+    if (Commands != nullptr)
+    {
+        SDL_GPUCopyPass* const Copy = SDL_BeginGPUCopyPass(Commands);
+        if (Copy != nullptr)
+        {
+            SDL_GPUTextureRegion Source = {};
+            Source.texture = Target_;
+            Source.w = W;
+            Source.h = H;
+            Source.d = 1;
+            SDL_GPUTextureTransferInfo Destination = {};
+            Destination.transfer_buffer = Download;
+            Destination.offset = 0;
+            SDL_DownloadFromGPUTexture(Copy, &Source, &Destination);
+            SDL_EndGPUCopyPass(Copy);
+            SDL_GPUFence* const Fence = SDL_SubmitGPUCommandBufferAndAcquireFence(Commands);
+            if (Fence != nullptr)
+            {
+                bOk = SDL_WaitForGPUFences(Device_, true, &Fence, 1);
+                SDL_ReleaseGPUFence(Device_, Fence);
+            }
+        }
+        else
+        {
+            SDL_CancelGPUCommandBuffer(Commands);
+        }
+    }
+    if (bOk)
+    {
+        const std::uint8_t* const Mapped = static_cast<const std::uint8_t*>(SDL_MapGPUTransferBuffer(Device_, Download, false));
+        bOk = Mapped != nullptr;
+        if (bOk)
+        {
+            // Tightly packed rows, top to bottom: FRpGpuFrame's layout already.
+            try
+            {
+                Out->Bgra.assign(Mapped, Mapped + Bytes);
+                Out->Width = W;
+                Out->Height = H;
+            }
+            catch (const std::bad_alloc&)
+            {
+                bOk = false;
+            }
+            SDL_UnmapGPUTransferBuffer(Device_, Download);
+        }
+    }
+    SDL_ReleaseGPUTransferBuffer(Device_, Download);
+    return bOk;
 }
 
 const char* FRpGpuSdlBackend::LastError() const

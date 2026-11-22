@@ -7,8 +7,8 @@
 // interfaces as RP8 (render/IRenderPipeline.h) and registers as the "SDLGPU" component, so the
 // game selects it in DACOM.INI and talks to it through RP8's IIDs.
 //
-// This is the skeleton: it keeps every state the game reads back, holds textures and buffers
-// in CPU memory, and on the GPU only clears and presents (backend/). The return values and
+// It keeps every state the game reads back, holds textures and buffers in CPU memory, and
+// records each frame's draws for the backend (backend/) to replay. The return values and
 // output layouts follow RP8's, since the game checks them.
 
 #include "dacom.h"
@@ -211,16 +211,68 @@ private:
     FRpGpuBuffer* LiveVb(void* Handle) const;
     FRpGpuBuffer* LiveIb(void* Handle) const;
     FRpGpuTexture* LiveTexture(void* Handle) const;
+    FRpGpuImage* LockableImage(FRpGpuTexture* Texture, int Level) const;
+    GENRESULT MakeCubemap(const void* Data, unsigned long Size, void** OutHandle);
     static bool LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* OutStart);
 
     // The backend for the current setting (NULL_DEVICE), made on first use.
     IRpGpuBackend& Backend();
 
-    // RpGpuDraw.cpp: records one draw into Frame_ (Stride: bytes per vertex; Indices null for a
-    // draw without indices), and uploads a texture whose level 0 changed.
+    // RpGpuDraw.cpp: records one draw into Frame_, and uploads a texture that changed. Verts is
+    // the first vertex the draw (or its indices) may use and VertCount how many follow it;
+    // Stride is bytes per vertex; Indices is null for a draw without indices.
+    // StaticSource: the vertex buffer Verts lies in, when that buffer is not a ring, and SourceBase
+    // the vertex Verts starts at in it; the draw then reads the buffer's GPU block.
     void RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
-                    unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount);
+                    unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
+                    FRpGpuBuffer* StaticSource = nullptr, unsigned int SourceBase = 0,
+                    FRpGpuBuffer* IndexSource = nullptr, unsigned int IndexStart = 0);
     void RefreshTexture(FRpGpuTexture* Texture);
+    // The GPU block of a static vertex buffer as draws with this texture-coordinate signature
+    // read it, made on first use (RpGpuDraw.cpp); 0 when it cannot be made.
+    std::uint64_t VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signature, const int* TexOffset,
+                                 const int* TexFloats);
+    void RetireBlocks(FRpGpuBuffer* Buffer);
+    // The GPU block of a static index buffer, made on first use; 0 when it cannot be made.
+    std::uint64_t IndexBlockFor(FRpGpuBuffer* Buffer);
+    bool IsSettled(const FRpGpuBuffer* Buffer) const;
+
+    // RpGpuState.cpp: RP8's transform stores (FRp8TransformCache). The world and view matrices
+    // are kept as Direct3D's 4x4 (row-major, row vectors), as RP8 sends them to the device.
+    void StoreViewIdentity(bool bFlip);
+    void ApplyIdentityTransforms(); // CreateBuffers: RP8's FUN_06d03c94
+    void FlushDrawState();        // every draw: RP8's FlushDrawState (the view, the lights)
+    void ResetStreams();            // RP8's FRp8StreamCache::Reset
+    void ResetTextureStages();      // RP8's ApplyDefaultTextureStages, for the stage bindings
+
+    // RpGpuLighting.cpp: RP8's light manager (FRp8LightManager) and the uniform blocks a draw's
+    // lighting and fog need.
+    struct FLightRecord
+    {
+        bool bEnabled = false;       // the enable state last committed to the "device"
+        bool bWantEnabled = false;   // what SetLightEnable asked for
+        bool bDataDirty = false;     // Data is resent at the next flush
+        std::uint32_t Generation = 0xFFFFFFFFu; // the flush generation it was queued in
+        int Index = -1;              // the light index from the pool
+        const RpLight* Data = nullptr; // AddLight: the caller's own light, read at each flush
+    };
+    // Direct3D's light table: what SetLight and LightEnable left at each index.
+    struct FDeviceLight
+    {
+        RpLight Data = {};
+        bool bSet = false;
+        bool bEnabled = false;
+    };
+    FLightRecord* FindLight(void* Handle);
+    int FindOrCreateLight(void* Handle, const RpLight* Data);
+    void EraseLight(FLightRecord* Record, void* Handle);
+    void QueueLight(FLightRecord* Record);
+    void SetLightWanted(void* Handle, int Enable);
+    void FlushLights();
+    void ResetLights();             // a new device: every light is sent again
+    FDeviceLight& DeviceLight(int Index);
+    bool DeviceLive(); // RP8's NeedDeviceLifetime
+    void FillLightingAndFog(FRpGpuCommand* Command, bool bPretransformed, unsigned int FvfColours);
 
     std::unique_ptr<IRpGpuBackend> Backend_;
     bool bNullDevice_ = false;    // [RenderPipeline] NULL_DEVICE
@@ -245,14 +297,53 @@ private:
     unsigned long AbilityOverrides_[0x15] = {};
     bool bAbilityOverridden_[0x15] = {};
     float Projection_[16] = {}; // D3D row-major
+    float World_[16] = {}; // world matrix 0 (SetWorld, or SetWorldN(0))
+    // SetWorldN's world matrices 1..255 for vertex blending, as Direct3D holds them; [0] unused.
+    float WorldN_[kRpGpuWorldMatrices][16] = {};
+    // SetWorldN(0) replaces the matrix drawn with, as Direct3D's WORLDMATRIX(0) is D3DTS_WORLD,
+    // but RP8's transform cache, which GetWorld reads, keeps SetWorld's: WorldCache_, while
+    // bWorldOverridden_. The next store into the world ends it.
+    float WorldCache_[16] = {};
+    bool bWorldOverridden_ = false;
+    float View_[16] = {};
+    // RP8's view store flags: bViewCommitted_ is cleared by every store and set by the next
+    // draw; bViewMarker_ is set when SetModelview or SetLookat put in their identity view, and
+    // cleared when a draw commits a changed view. While it is set they leave the view alone.
+    bool bViewCommitted_ = false;
+    bool bViewMarker_ = false;
+    // RP8's stream selection (FRp8StreamCache): SelectVb, SelectIb and the draws that set them.
+    // SelectedIb_ is an index buffer or kMinusOne (the scratch ring); IbBaseVertex_ is
+    // SelectIb's base vertex. 0xFFFFFFFF after a reset, as in RP8.
+    void* SelectedVb_ = nullptr;
+    void* SelectedIb_ = nullptr;
+    unsigned int IbBaseVertex_ = 0xFFFFFFFFu;
+    // RP8's light manager: records by handle, the queue for the next flush, the index pool.
+    std::map<void*, FLightRecord> LightRecords_;
+    std::vector<FLightRecord*> DirtyLights_; // null where a queued record was removed
+    // RP8 counts flushes in a signed long and every draw flushes; unsigned here, so the count
+    // wraps where RP8's would overflow.
+    std::uint32_t LightGeneration_ = 0;
+    std::vector<int> LightIndexPool_ = std::vector<int>(0x40, 0);
+    unsigned int LightIndicesUsed_ = 0;
+    unsigned int LightIndexNext_ = 0;
+    std::vector<FDeviceLight> DeviceLights_;
+    RpMaterial Material_ = {}; // SetMaterial's, as Direct3D keeps it
     int Viewport_[4] = {};
     float DepthRange_[2] = {0.0f, 1.0f};
     void* StageTextures_[8] = {}; // SetTextureStageTexture's handles
+    // SetTextureStageTransform's matrices, as Direct3D holds them (RP8 stores the caller's
+    // transposed).
+    float StageTransforms_[8][16] = {};
     FRpGpuFrameRecording Frame_;  // the draws since the last SwapBuffers
     std::uint64_t NextTextureVersion_ = 1;
     // Image versions replaced or destroyed during this frame: the frame's draws may still use
     // them, so the backend lets go of them only after SwapBuffers has presented it.
     std::vector<std::uint64_t> RetiredVersions_;
+    // Vertex blocks retired during this frame (a static buffer written or destroyed), released
+    // after SwapBuffers as the texture versions are. Block keys come from NextTextureVersion_
+    // too, so no key is used twice.
+    std::vector<std::uint64_t> RetiredBlocks_;
+    std::uint64_t FrameNumber_ = 0; // SwapBuffers counts frames
 
     std::set<FRpGpuTexture*> Textures_;
     std::set<FRpGpuBuffer*> VertexBuffers_;

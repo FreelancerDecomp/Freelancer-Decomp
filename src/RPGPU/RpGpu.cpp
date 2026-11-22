@@ -191,6 +191,10 @@ FRpGpu::FRpGpu()
     ScratchIb_.bRing = true;
     ScratchIb_.Data.resize(static_cast<std::size_t>(kScratchIbIndices) * 2);
     Identity(Projection_);
+    Identity(World_);
+    Identity(View_);
+    for (float (&Matrix)[16] : WorldN_)
+        Identity(Matrix);
 }
 
 FRpGpu::~FRpGpu()
@@ -314,8 +318,10 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
     return GR_OK;
 }
 
+// RP8's shutdown ends the buffer session first (DestroyGpuResources), then releases the device.
 GENRESULT DACOM_API FRpGpu::ShutdownPipeline()
 {
+    DestroyGpuResources();
     if (Backend_ != nullptr)
         Backend_->Destroy();
     return GR_OK;
@@ -348,6 +354,7 @@ GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long
     case 11:
     case 12: // vertex / table / range fog
     case 13: // W fog
+    case 8:  // cube maps (LoadCubemap)
     case 16: // trilinear filtering
         Value = 1;
         break;
@@ -356,8 +363,8 @@ GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long
         Value = 4096; // texture width / height limit
         break;
     default:
-        // 1 / 2 gamma (SDL has no gamma ramp), 5 square-only textures, 8 cube maps (not loaded
-        // yet), 14 antialiased edges, 15 low-machine warnings, 17 / 18 device quirks.
+        // 1 / 2 gamma (SDL has no gamma ramp), 5 square-only textures, 14 antialiased edges,
+        // 15 low-machine warnings, 17 / 18 device quirks.
         Value = 0;
         break;
     }
@@ -436,16 +443,36 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
         OutBytes[0x27] = 0;
     }
     ResetDeviceState();
+    ApplyIdentityTransforms();
+    ResetLights();
+    ResetStreams();
     if (Viewport_[2] == 0)
     {
         Viewport_[2] = Mode[2];
         Viewport_[3] = Mode[3];
     }
     bBuffersActive_ = true;
-    // A new device has no GPU copies: every texture goes up again when it is next drawn.
-    for (FRpGpuTexture* Texture : Textures_)
-        Texture->bGpuStale = true;
+    // The device may be new and have no GPU copies: every texture and static vertex buffer goes
+    // up again when it is next drawn, and the old copies are let go (a kept device keeps them
+    // otherwise). Nothing recorded refers to them any more.
     Frame_.Clear();
+    for (FRpGpuTexture* Texture : Textures_)
+    {
+        Texture->bGpuStale = true;
+        if (Texture->GpuVersion != 0)
+            RetiredVersions_.push_back(Texture->GpuVersion);
+        Texture->GpuVersion = 0;
+    }
+    for (FRpGpuBuffer* Buffer : VertexBuffers_)
+        RetireBlocks(Buffer);
+    for (FRpGpuBuffer* Buffer : IndexBuffers_)
+        RetireBlocks(Buffer);
+    for (std::uint64_t Version : RetiredVersions_)
+        Backend().ForgetTexture(Version);
+    RetiredVersions_.clear();
+    for (std::uint64_t Block : RetiredBlocks_)
+        Backend().ForgetBlock(Block);
+    RetiredBlocks_.clear();
     return GR_OK;
 }
 
@@ -467,23 +494,89 @@ GENRESULT DACOM_API FRpGpu::DestroyGpuResources()
 }
 
 // Flags: 1 colour (pipeline state 8), 2 depth (9, a float's bits), 4 stencil (10). Recorded in
-// the frame, in order with the draws; the rectangles (Rects) are not honoured yet: the whole
-// target is cleared.
+// the frame, in order with the draws. As Direct3D 8's Clear, it covers the viewport, or Rects
+// (RP8 passes one D3DRECT: left, top, right, bottom) cut to the viewport. A clear of the whole
+// target is a render-pass clear; any other is drawn as a quad that writes the clear colour and
+// depth over its pixels, with no depth test, blending or write mask. Stencil is not kept.
 GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
 {
-    (void)Rects;
-    if ((Flags & 1) != 0)
-        Backend().SetClearColor(static_cast<std::uint32_t>(PipelineState_[kPsClearColor]));
-    if (bBuffersActive_ && (Flags & 3) != 0)
+    if (!bBuffersActive_ || (Flags & 3) == 0)
+        return GR_OK;
+    const std::uint32_t Argb = static_cast<std::uint32_t>(PipelineState_[kPsClearColor]);
+    float Depth = 1.0f;
+    std::memcpy(&Depth, &PipelineState_[kPsClearZDepth], sizeof(float));
+
+    const int TargetW = static_cast<int>(Backend().Width());
+    const int TargetH = static_cast<int>(Backend().Height());
+    const bool bWholeViewport = Viewport_[0] <= 0 && Viewport_[1] <= 0 &&
+                                (Viewport_[2] <= 0 || Viewport_[0] + Viewport_[2] >= TargetW) &&
+                                (Viewport_[3] <= 0 || Viewport_[1] + Viewport_[3] >= TargetH);
+    if (Rects == nullptr && bWholeViewport)
     {
+        // Only a whole-target colour clear sets the colour a frame without a leading clear
+        // starts from; a partial clear must not reach the pixels outside its area.
+        if ((Flags & 1) != 0)
+            Backend().SetClearColor(Argb);
         FRpGpuCommand Clear;
         Clear.Kind = FRpGpuCommand::EKind::Clear;
         Clear.bClearColor = (Flags & 1) != 0;
         Clear.bClearDepth = (Flags & 2) != 0;
-        Clear.ClearArgb = static_cast<std::uint32_t>(PipelineState_[kPsClearColor]);
-        std::memcpy(&Clear.ClearDepth, &PipelineState_[kPsClearZDepth], sizeof(float));
+        Clear.ClearArgb = Argb;
+        Clear.ClearDepth = Depth;
         Frame_.Commands.push_back(Clear);
+        return GR_OK;
     }
+
+    // The area: the viewport (the target when it has no size yet), cut to the rectangle.
+    long Left = Viewport_[0];
+    long Top = Viewport_[1];
+    long Right = Viewport_[2] > 0 ? static_cast<long>(Viewport_[0]) + Viewport_[2] : TargetW;
+    long Bottom = Viewport_[3] > 0 ? static_cast<long>(Viewport_[1]) + Viewport_[3] : TargetH;
+    if (Rects != nullptr)
+    {
+        std::int32_t Raw[4]; // D3DRECT: four LONGs, 32-bit on Win32 and x64 (LLP64)
+        std::memcpy(Raw, Rects, sizeof(Raw));
+        Left = std::max<long>(Left, Raw[0]);
+        Top = std::max<long>(Top, Raw[1]);
+        Right = std::min<long>(Right, Raw[2]);
+        Bottom = std::min<long>(Bottom, Raw[3]);
+    }
+    if (Left >= Right || Top >= Bottom)
+        return GR_OK; // nothing left to clear
+
+    const std::uint32_t FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
+    const float X[2] = {static_cast<float>(Left), static_cast<float>(Right)};
+    const float Y[2] = {static_cast<float>(Top), static_cast<float>(Bottom)};
+    for (int Corner = 0; Corner < 4; ++Corner)
+    {
+        FRpGpuVertex Vertex = {};
+        Vertex.X = X[Corner & 1];
+        Vertex.Y = Y[Corner >> 1];
+        Vertex.Z = Depth;
+        Vertex.W = 1.0f;
+        Vertex.Diffuse = Argb;
+        Frame_.Vertices.push_back(Vertex);
+    }
+    FRpGpuCommand Quad;
+    Quad.Kind = FRpGpuCommand::EKind::Draw;
+    Quad.Pipeline.Topology = ERpGpuTopology::TriangleStrip;
+    Quad.Pipeline.bZEnable = 1;
+    Quad.Pipeline.bZWrite = (Flags & 2) != 0 ? 1 : 0;
+    Quad.Pipeline.ZFunc = 8; // ALWAYS
+    Quad.Pipeline.bBlend = 0;
+    Quad.Pipeline.ColorWriteMask = (Flags & 1) != 0 ? 0xF : 0;
+    Quad.Pipeline.CullMode = 1;
+    Quad.Pipeline.FillMode = 3;
+    Quad.FirstVertex = FirstVertex;
+    Quad.VertexCount = 4;
+    std::memcpy(Quad.Viewport, Viewport_, sizeof(Quad.Viewport));
+    Quad.MinZ = 0.0f;
+    Quad.MaxZ = 1.0f;
+    Quad.Transform.Mode[1] = 1.0f; // pre-transformed: pixels, z as given
+    Quad.Transform.Flags[1] = 2;   // the diffuse colour is the vertex's
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+        Quad.Stage.Color[Stage][0] = 1; // every stage off: the diffuse colour passes through
+    Frame_.Commands.push_back(Quad);
     return GR_OK;
 }
 
@@ -495,10 +588,14 @@ GENRESULT DACOM_API FRpGpu::SwapBuffers()
         return GR_GENERIC;
     const bool bPresented = Backend().Present(Frame_);
     Frame_.Clear();
-    // The frame is submitted: the image versions it was the last to use can go.
+    ++FrameNumber_;
+    // The frame is submitted: the image versions and vertex blocks it was the last to use can go.
     for (std::uint64_t Version : RetiredVersions_)
         Backend().ForgetTexture(Version);
     RetiredVersions_.clear();
+    for (std::uint64_t Block : RetiredBlocks_)
+        Backend().ForgetBlock(Block);
+    RetiredBlocks_.clear();
     if (!bPresented)
     {
         Log("RPGPU: present failed: %s\n", Backend().LastError());
@@ -569,12 +666,20 @@ GENRESULT DACOM_API FRpGpu::EndScene()
 }
 
 // The draw calls record into the frame (RpGpuDraw.cpp); the return values stay RP8's: the
-// game only propagates them.
+// game only propagates them. The stream selection (SelectedVb_, SelectedIb_) changes as RP8's
+// stream cache does: the user-pointer draws reset it, the vertex-buffer draws select their
+// buffers, and IRPDraw::DrawIndexedPrimitive draws from it. Every draw that passes RP8's
+// primitive-count check runs RP8's FlushDrawState (a changed view is committed, queued lights
+// are sent), whether or not RPGPU can record it.
 GENRESULT DACOM_API FRpGpu::DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts,
                                           unsigned int Count, void* Unused)
 {
     (void)Unused;
+    if (!bBuffersActive_ || static_cast<int>(Count) <= 0)
+        return GR_OK;
+    FlushDrawState();
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), Count, nullptr, 0);
+    ResetStreams();
     return GR_OK;
 }
 
@@ -583,8 +688,12 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(unsigned long Prim, unsigned 
                                                    unsigned int IndexCount, unsigned long Unused)
 {
     (void)Unused;
+    if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0)
+        return GR_OK;
+    FlushDrawState();
     RecordDraw(Prim, Fvf, static_cast<const unsigned char*>(Verts), Rp8FvfStride(Fvf), VertCount,
                static_cast<const std::uint16_t*>(Indices), IndexCount);
+    ResetStreams();
     return GR_OK;
 }
 
@@ -592,34 +701,69 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
                                             unsigned int Count, void* Unused)
 {
     (void)Unused;
-    const FRpGpuBuffer* const Buffer = LiveVb(Vb);
+    if (!bBuffersActive_ || PrimCountFromVerts(Prim, Count) <= 0)
+        return GR_OK;
+    SelectedVb_ = Vb;
+    FlushDrawState();
+    FRpGpuBuffer* const Buffer = LiveVb(Vb);
     if (Buffer != nullptr && StartVertex <= Buffer->Count && Count <= Buffer->Count - StartVertex)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(StartVertex) * Buffer->Stride,
-                   Buffer->Stride, Count, nullptr, 0);
+                   Buffer->Stride, Count, nullptr, 0, Buffer, StartVertex);
     return GR_OK;
 }
 
-// Indices count from BaseVertex, as with Direct3D 8's SetIndices base vertex.
+// RP8 copies the indices into its scratch index buffer and draws from there with BaseVertex as
+// the base vertex, which leaves the vertex buffer and the scratch buffer selected. NumVerts is
+// Direct3D's hint; the vertices the indices reach are what is drawn.
 GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb, unsigned int BaseVertex,
                                                    unsigned int NumVerts, const void* Indices,
                                                    unsigned int IndexCount, unsigned long Unused)
 {
     (void)Unused;
-    const FRpGpuBuffer* const Buffer = LiveVb(Vb);
-    if (Buffer != nullptr && BaseVertex <= Buffer->Count && NumVerts <= Buffer->Count - BaseVertex)
+    (void)NumVerts;
+    if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0 || Indices == nullptr)
+        return GR_OK;
+    // More indices than the scratch ring holds fail, as RP8's LockRange fails them.
+    unsigned int Start = 0;
+    if (!LockRing(&ScratchIb_, IndexCount, &Start))
+        return kFail;
+    std::memcpy(ScratchIb_.Data.data() + static_cast<std::size_t>(Start) * 2, Indices,
+                static_cast<std::size_t>(IndexCount) * 2);
+    SelectedVb_ = Vb;
+    SelectedIb_ = kMinusOne;
+    IbBaseVertex_ = BaseVertex;
+    FlushDrawState();
+    FRpGpuBuffer* const Buffer = LiveVb(Vb);
+    if (Buffer != nullptr && BaseVertex < Buffer->Count)
         RecordDraw(Prim, Buffer->Fvf, Buffer->Data.data() + static_cast<std::size_t>(BaseVertex) * Buffer->Stride,
-                   Buffer->Stride, NumVerts, static_cast<const std::uint16_t*>(Indices), IndexCount);
+                   Buffer->Stride, Buffer->Count - BaseVertex,
+                   reinterpret_cast<const std::uint16_t*>(ScratchIb_.Data.data()) + Start, IndexCount, Buffer,
+                   BaseVertex);
     return GR_OK;
 }
 
+// Direct3D 8's DrawIndexedPrimitive on the selected buffers: Count indices from StartIndex, each
+// counted from SelectIb's base vertex. MinIndex and NumVertices are Direct3D's hints.
 GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned int MinIndex, unsigned int NumVertices,
                                                  unsigned int StartIndex, unsigned int Count)
 {
-    (void)Prim;
     (void)MinIndex;
     (void)NumVertices;
-    (void)StartIndex;
-    (void)Count;
+    if (!bBuffersActive_)
+        return GR_GENERIC;
+    if (PrimCountFromVerts(Prim, Count) <= 0)
+        return kFail;
+    FlushDrawState();
+    FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
+    FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
+    if (Vertices == nullptr || IndexBuffer == nullptr || IbBaseVertex_ >= Vertices->Count ||
+        StartIndex > IndexBuffer->Count || Count > IndexBuffer->Count - StartIndex)
+        return kFail;
+    RecordDraw(Prim, Vertices->Fvf,
+               Vertices->Data.data() + static_cast<std::size_t>(IbBaseVertex_) * Vertices->Stride, Vertices->Stride,
+               Vertices->Count - IbBaseVertex_,
+               reinterpret_cast<const std::uint16_t*>(IndexBuffer->Data.data()) + StartIndex, Count, Vertices,
+               IbBaseVertex_, SelectedIb_ == kMinusOne ? nullptr : IndexBuffer, StartIndex);
     return GR_OK;
 }
 
