@@ -286,6 +286,16 @@ struct FMaterialLibraryRecord
     IMaterial* Material;
 };
 
+// IMaterialLibrary::FindMaterialByCrc's query: a material name and its CRC, of which the library
+// reads only the CRC (retail: query+4). Every caller and the reader use this one struct, so on x64,
+// where the 8-byte name pointer puts the CRC at +8, the CRC is read where the caller put it.
+struct FMaterialCrcQuery
+{
+    const char* Name;
+    unsigned long Crc;
+};
+FL_LAYOUT_ASSERT(offsetof(FMaterialCrcQuery, Crc) == 4, "retail reads the CRC at query+4");
+
 struct IMaterialLibrary : IDAComponent
 {
     // 3 +0x0C 06ecd1d0: prepend a compiled mapping rule; Key 0 matches
@@ -315,7 +325,7 @@ struct IMaterialLibrary : IDAComponent
     virtual GENRESULT DACOM_API GetGroupName(int GroupId, char* Buffer, unsigned long Size) = 0;
     virtual GENRESULT DACOM_API FindOrCreate(const char* Name, const char* Type,
                                              IDAComponent* AggregateOuter, IMaterial** Out) = 0; // 15 +0x3C
-    // 16 +0x40 RET 0xC LAB_06ecd5c0: query+4 CRC lookup, AddRef, no create. Miss → −1.
+    // 16 +0x40 RET 0xC LAB_06ecd5c0: CRC lookup (FMaterialCrcQuery), AddRef, no create. Miss → −1.
     virtual GENRESULT DACOM_API FindMaterialByCrc(void* Query, IMaterial** Out) = 0;
     // Add to the material map and, for nonzero GroupId, to the group.
     virtual GENRESULT DACOM_API AddMaterial(int GroupId, void* Record, IMaterial* Material) = 0;

@@ -649,11 +649,7 @@ unsigned long DACOM_API FTriMeshArch::FRenderableFacet::Release()
 
 // The query IMaterialLibrary Slot16 takes: only +4 is read; retail's +0 is the address of
 // "???" (DAT_06c37330).
-struct FTriMeshMaterialQuery
-{
-    const char* Name;
-    unsigned long Crc;
-};
+using FTriMeshMaterialQuery = FMaterialCrcQuery;
 
 // formerly Slot3
 int DACOM_API FTriMeshArch::FHookFacet::HookUpMaterials()

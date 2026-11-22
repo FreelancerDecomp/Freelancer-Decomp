@@ -1241,11 +1241,7 @@ public:
     // formerly Slot3
     int DACOM_API HookUpMaterials() override
     {
-        struct FMaterialQuery
-        {
-            const char* Name;
-            unsigned long Crc;
-        };
+        using FMaterialQuery = FMaterialCrcQuery;
         if (Library == nullptr)
             return -1;
         unsigned char bFailed = 0;

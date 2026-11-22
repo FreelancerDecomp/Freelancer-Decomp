@@ -1341,8 +1341,8 @@ static bool LoadFaceGroups(FMeshArchetype* Arch, IFileSystem* Fs)
                 else
                 {
                     Group->MaterialCrc = DACOM_CRC::GetCRC32(MaterialName);
-                    FEngineName Query;
-                    Query.Text = MaterialName;
+                    FMaterialCrcQuery Query;
+                    Query.Name = MaterialName;
                     Query.Crc = DACOM_CRC::GetCRC32(MaterialName);
                     if (G_MaterialLibrary
                             ->FindMaterialByCrc(&Query, &Group->Material) < 0)

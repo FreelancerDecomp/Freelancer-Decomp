@@ -313,10 +313,10 @@ int FVMeshPart::HookUp()
         bool bFound = false;
         if (Crc != 0)
         {
-            unsigned long Query[2];
-            Query[0] = 0;
-            Query[1] = Crc;
-            bFound = Library->FindMaterialByCrc(Query, Slot) >= 0;
+            FMaterialCrcQuery Query;
+            Query.Name = nullptr;
+            Query.Crc = Crc;
+            bFound = Library->FindMaterialByCrc(&Query, Slot) >= 0;
         }
         if (bFound)
         {
