@@ -339,6 +339,7 @@ private:
     // after SwapBuffers as the texture versions are. Block keys come from NextTextureVersion_
     // too, so no key is used twice.
     std::vector<std::uint64_t> RetiredBlocks_;
+    std::uint64_t FrameNumber_ = 0; // SwapBuffers counts frames
 
     std::set<FRpGpuTexture*> Textures_;
     std::set<FRpGpuBuffer*> VertexBuffers_;

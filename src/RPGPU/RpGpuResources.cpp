@@ -648,6 +648,7 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
             return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
         RetireVertexBlocks(Buffer);
+        Buffer->LastWriteFrame = FrameNumber_;
     }
     return GR_OK;
 }
@@ -706,6 +707,7 @@ GENRESULT DACOM_API FRpGpu::LockVb(void* Handle, unsigned int* Offset, void** Ou
         *Offset = Start;
     Buffer->bLocked = true;
     RetireVertexBlocks(Buffer); // the caller may write any vertex it locked
+    Buffer->LastWriteFrame = FrameNumber_;
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * Buffer->Stride;
     return GR_OK;
 }

@@ -66,4 +66,8 @@ struct FRpGpuBuffer
         std::uint64_t Key;
     };
     std::vector<FGpuBlock> GpuBlocks;
+    // The frame (FRpGpu::FrameNumber_) of the last write: a buffer written in the current frame,
+    // or locked, is drawn from the frame's vertices, so only buffers that have stayed as they
+    // are get blocks, and one rewritten every frame is not converted whole on every draw.
+    std::uint64_t LastWriteFrame = ~0ull;
 };

@@ -253,6 +253,9 @@ rings) is converted to `FRpGpuVertex` once and kept on the GPU as a vertex block
 base vertex in it, so their indices go up as they are and no vertices are copied.
 - A block is made per texture-coordinate signature: which set each stage's `TEXCOORDINDEX`
   names, since the conversion picks each stage's set.
+- Only a buffer that has stayed as it is gets a block: while it is locked, and in any frame it
+  was written in, it is drawn from the frame's vertices. So a draw never reads half-written
+  vertices into a block, and a buffer rewritten every frame is not converted whole per draw.
 - Any write retires the buffer's blocks: `LockVb` (and `CopyVertices`, which locks),
   `ResizeVb`, `DestroyVb`. Retired blocks are released after the frame that last used them, as
   the texture versions are.

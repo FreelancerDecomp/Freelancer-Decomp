@@ -392,9 +392,10 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     // A static vertex buffer is drawn from its GPU block: the vertices stay where they are and
     // the draw starts at SourceBase in it. Everything else is copied into the frame: with
     // indices, only the range they reach, the indices rebased onto it.
-    const std::uint64_t Block = StaticSource != nullptr && !StaticSource->bRing
-                                    ? VertexBlockFor(StaticSource, Signature, TexOffset, TexFloats)
-                                    : 0;
+    // Not while it is locked or in a frame it was written in (FRpGpuBuffer::LastWriteFrame).
+    const bool bSettled = StaticSource != nullptr && !StaticSource->bRing && !StaticSource->bLocked &&
+                          StaticSource->LastWriteFrame != FrameNumber_;
+    const std::uint64_t Block = bSettled ? VertexBlockFor(StaticSource, Signature, TexOffset, TexFloats) : 0;
     unsigned int First = 0;
     unsigned int Span = Used;
     std::uint32_t FirstVertex = 0;
