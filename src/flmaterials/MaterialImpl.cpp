@@ -35,55 +35,55 @@ namespace
     const char* const kWire2File = "E:\\FL\\Scratch\\Source\\FLMaterials\\WireMaterial2.cpp";
 
     // RS/TSS table: start state/type in [0].
-    const unsigned long kGlassTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    const unsigned long kGlassTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
-    const unsigned long kGlassRs[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kGlassTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    const FlULong kGlassTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kGlassRs[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
 
-    const unsigned long kHudIconRsOpaque[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
-    const unsigned long kHudIconRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kHudIconRsOpaque[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kHudIconRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
     // HUDAnim DAT_067030fc has the same values as Glass stage 1.
-    const unsigned long kHudAnimTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kHudAnimTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
-    const unsigned long kNomadRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
-    const unsigned long kNomadTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    const unsigned long kNomadTssTail[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kNomadRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kNomadTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    const FlULong kNomadTssTail[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
-    const unsigned long kWireRsBlend[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
-    const unsigned long kWireRsPlain[] = {0x89, 0, 0x1D, 0, 0x1B, 0, 0};
-    const unsigned long kWireTss0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kWireRsBlend[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kWireRsPlain[] = {0x89, 0, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kWireTss0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
-    const unsigned long kWire2Rs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
-    const unsigned long kWire2Tss0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kWire2Rs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kWire2Tss0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
-    const unsigned long kCloakTss[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
-    const unsigned long kCloakRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
-    const unsigned long kCloakRsPlain[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kCloakTss[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kCloakRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kCloakRsPlain[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
 
-    const unsigned long kEngineGlowTss[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
-    const unsigned long kEngineGlowRs[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kEngineGlowTss[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kEngineGlowRs[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
 
-    const unsigned long kExclusionTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    const unsigned long kExclusionTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
-    const unsigned long kExclusionRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kExclusionTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    const FlULong kExclusionTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kExclusionRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
 
-    const unsigned long kPlanetTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    const unsigned long kPlanetTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
-    const unsigned long kPlanetRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
-    const unsigned long kPlanetRsPlain[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
+    const FlULong kPlanetTss0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    const FlULong kPlanetTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kPlanetRsBlend[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kPlanetRsPlain[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0};
 
     unsigned char G_EnvMapGlassGuard = 0;
-    unsigned long G_EnvMapGlassCrc = 0;
+    FlULong G_EnvMapGlassCrc = 0;
     void FlmDestroyEnvMapGlassCrc() {} // 066f6320: RET, registered at first CRC use.
 
-    const unsigned long kEnvMapTss0[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
-    const unsigned long kEnvMapTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    const FlULong kEnvMapTss0[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
+    const FlULong kEnvMapTss1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
-    const unsigned long kShadowTss1[] = {1, 4, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
+    const FlULong kShadowTss1[] = {1, 4, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
 
     // DAT_0670402C = 0x3F4CCCCD; DAT_067016D8 = double 1.0; DAT_06702818 ≈ 0.99.
     // Raw PE DAT_06704098 (22 D3D/FourCC IDs), DAT_067040f0 (15 records).
-    const unsigned long GFlmPixelFormatIds[22] = {0x0ul, 0x29ul, 0x14ul, 0x17ul, 0x18ul, 0x1aul, 0x19ul, 0x15ul, 0x16ul, 0x0ul, 0x31545844ul, 0x32545844ul, 0x33545844ul, 0x34545844ul, 0x35545844ul, 0x504f4144ul, 0x544f4144ul, 0x41414144ul, 0x4c414144ul, 0x31414144ul, 0x34414144ul, 0x38414144ul};
-    const unsigned long GFlmPixelFormatDescriptors[15][19] = {
+    const FlULong GFlmPixelFormatIds[22] = {0x0ul, 0x29ul, 0x14ul, 0x17ul, 0x18ul, 0x1aul, 0x19ul, 0x15ul, 0x16ul, 0x0ul, 0x31545844ul, 0x32545844ul, 0x33545844ul, 0x34545844ul, 0x35545844ul, 0x504f4144ul, 0x544f4144ul, 0x41414144ul, 0x4c414144ul, 0x31414144ul, 0x34414144ul, 0x38414144ul};
+    const FlULong GFlmPixelFormatDescriptors[15][19] = {
         {0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul},
         {0x1ul, 0x8ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul},
         {0x2ul, 0x18ul, 0x8ul, 0xff0000ul, 0x10ul, 0x0ul, 0x8ul, 0xff00ul, 0x8ul, 0x0ul, 0x8ul, 0xfful, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul, 0x0ul},
@@ -102,15 +102,15 @@ namespace
     };
 
     // FUN_06700680: return the format-ID array, not an EH table.
-    const unsigned long* FlmPixelFormatIds()
+    const FlULong* FlmPixelFormatIds()
     {
         return GFlmPixelFormatIds;
     }
 
     // FUN_06700690: first matching ID among 22 words; absence returns index 0.
-    int FlmFindPixelFormatIndex(unsigned long Format)
+    int FlmFindPixelFormatIndex(FlULong Format)
     {
-        const unsigned long* Ids = FlmPixelFormatIds();
+        const FlULong* Ids = FlmPixelFormatIds();
         for (int Index = 0; Index < 22; ++Index)
         {
             if (Ids[Index] == Format)
@@ -120,7 +120,7 @@ namespace
     }
 
     // FUN_067006b0: signed Index>14 returns descriptor 0; else stride 0x4c.
-    const unsigned long* FlmPixelFormatDescriptor(int Index)
+    const FlULong* FlmPixelFormatDescriptor(int Index)
     {
         return GFlmPixelFormatDescriptors[Index > 14 ? 0 : Index];
     }
@@ -165,7 +165,7 @@ namespace
     const int kFlmParamDescSize = 0x4C;
 
     // Size of one per-instance texture verification record.
-    const unsigned long kFlmTextureVerifyEntrySize = 0x2C;
+    const FlULong kFlmTextureVerifyEntrySize = 0x2C;
 
     // DAT_067013ec raw PE bits 0x34000000: 2^-23, kept unspilled in x87 bounds.
     const double kFlmVerifyEpsilon = 0x1p-23;
@@ -173,16 +173,16 @@ namespace
     // Colorize declared property descriptor; some fields are type-dependent.
     struct FFlmMaterialParamDesc
     {
-        unsigned long Path; // see comment above -- EntryFlags for indices 8/9, else 0
+        FlULong Path; // see comment above -- EntryFlags for indices 8/9, else 0
         const char* ShortTag;
         const char* Name;
         const char* Field0C; // "" for entries 0-9 (ESI = 067016d4), "flcopt" for entry 10
-        unsigned long Type0;
-        unsigned long Value0[4];
-        unsigned long Type1;
-        unsigned long Value1[4];
-        unsigned long Type2;
-        unsigned long Value2[4];
+        FlULong Type0;
+        FlULong Value0[4];
+        FlULong Type1;
+        FlULong Value1[4];
+        FlULong Type2;
+        FlULong Value2[4];
     };
 
     FL_LAYOUT_ASSERT(sizeof(FFlmMaterialParamDesc) == sizeof(FShadingPropertyRecord), "shared property descriptor size");
@@ -191,10 +191,10 @@ namespace
     FL_LAYOUT_ASSERT(offsetof(FFlmMaterialParamDesc, Type2) == offsetof(FShadingPropertyRecord, Saved), "saved value boundary");
 
     void FlmSetDescriptorEntry(FFlmMaterialParamDesc* Entry, int Type,
-                                unsigned long Flags, const char* Tag, const char* Name,
+                                FlULong Flags, const char* Tag, const char* Name,
                                 const char* Metadata, const void* Value0,
                                 const void* Value1, const void* Value2);
-    void FlmResetDescriptorEntry(unsigned long* Entry);
+    void FlmResetDescriptorEntry(FlULong* Entry);
 
     // Native descriptor objects keep the three typed resources alive until
     // module teardown. An array gives reverse destruction and EH cleanup.
@@ -203,11 +203,11 @@ namespace
         FFlmMaterialParamDesc Entry = {};
         ~FFlmOwnedDescriptor() noexcept(false)
         {
-            FlmResetDescriptorEntry((unsigned long*)(&Entry));
+            FlmResetDescriptorEntry((FlULong*)(&Entry));
         }
     };
 
-    template<unsigned long Count>
+    template<FlULong Count>
     struct FFlmOwnedParameterTable
     {
         FFlmOwnedDescriptor Descriptors[Count];
@@ -217,7 +217,7 @@ namespace
         {
             if (Descriptors[0].Entry.Type0 != 0)
                 return;
-            for (unsigned long Index = 0; Index < Count; ++Index)
+            for (FlULong Index = 0; Index < Count; ++Index)
             {
                 const FFlmMaterialParamDesc& Seed = Seeds[Index];
                 const bool bVector = Seed.Type0 >= 2 && Seed.Type0 <= 4;
@@ -233,8 +233,8 @@ namespace
     FL_LAYOUT_ASSERT(sizeof(FFlmOwnedDescriptor) == kFlmParamDescSize, "Descriptor stride");
 
 
-    void FlmReleaseTypedValue(unsigned long* Slot);
-    void FlmSetDescriptorSubBlockValue(unsigned long* SubBlock, int NewType, const void* ValuePtr);
+    void FlmReleaseTypedValue(FlULong* Slot);
+    void FlmSetDescriptorSubBlockValue(FlULong* SubBlock, int NewType, const void* ValuePtr);
 
     struct FFlmWireParameterState
     {
@@ -263,12 +263,12 @@ namespace
     // FUN_066fba30 / FUN_066fc7f0: each callback owns its separate one-entry table.
     void FlmDestroyWireParameters()
     {
-        FlmResetDescriptorEntry((unsigned long*)(&GFlmWireParameters.Entry));
+        FlmResetDescriptorEntry((FlULong*)(&GFlmWireParameters.Entry));
     }
 
     void FlmDestroyWire2Parameters()
     {
-        FlmResetDescriptorEntry((unsigned long*)(&GFlmWire2Parameters.Entry));
+        FlmResetDescriptorEntry((FlULong*)(&GFlmWire2Parameters.Entry));
     }
 
     // LAB_066fb090 / LAB_066fbd20: construction guard precedes construction;
@@ -287,7 +287,7 @@ namespace
         {
             // Raw PE: 067016bc=Dc, 06702808=Color, 067016d4=empty;
             // Wire 067026cc / Wire2 06702868 both contain four 1.0f words.
-            const unsigned long White[4] = {0x3f800000ul, 0x3f800000ul, 0x3f800000ul, 0x3f800000ul};
+            const FlULong White[4] = {0x3f800000ul, 0x3f800000ul, 0x3f800000ul, 0x3f800000ul};
             Entry.Path = 0;
             Entry.ShortTag = "Dc";
             Entry.Name = "Color";
@@ -314,8 +314,8 @@ namespace
 
     const void* FlmColorizeParamsBase(bool bCloak)
     {
-        const unsigned long kF0 = 0x00000000ul; // 0.0f
-        const unsigned long kF1 = 0x3f800000ul; // 1.0f
+        const FlULong kF0 = 0x00000000ul; // 0.0f
+        const FlULong kF1 = 0x3f800000ul; // 1.0f
         static const FFlmMaterialParamDesc kParams[11] = {
             // 0: Ambient Color / Ac / type4
             {0, "Ac", "Ambient Color", "",
@@ -337,7 +337,7 @@ namespace
              2, {kF1, 0, 0, 0}, 2, {kF0, 0, 0, 0}, 2, {kF1, 0, 0, 0}},
             // 6: Texture Name / Dt_name / type7 (string) -- default "(None)"
             {0, "Dt_name", "Texture Name", "",
-             7, {(unsigned long)("(None)"), 0, 0, 0},
+             7, {(FlULong)("(None)"), 0, 0, 0},
              7, {0, 0, 0, 0}, 7, {0, 0, 0, 0}},
             // 7: Texture Wrap Mode / Dt_flags / type8 (nibble), default nibble=4
             {0, "Dt_flags", "Texture Wrap Mode", "",
@@ -370,8 +370,8 @@ namespace
     // Each material family owns its contiguous declared-property schema.
     const void* FlmGlassParamsBase(EMaterialKind Kind)
     {
-        const unsigned long kZero = 0;
-        const unsigned long kOne = 0x3f800000ul;
+        const FlULong kZero = 0;
+        const FlULong kOne = 0x3f800000ul;
         static const FFlmMaterialParamDesc kParams[10] = {
             {0, "Ac", "Ambient Color", "",
              3, {kOne, kOne, kOne, 0}, 3, {kZero, kZero, kZero, 0},
@@ -392,7 +392,7 @@ namespace
              2, {kOne, 0, 0, 0}, 2, {kZero, 0, 0, 0},
              2, {kOne, 0, 0, 0}},
             {0, "Dt_name", "Texture Name", "",
-             7, {(unsigned long)("(None)"), 0, 0, 0},
+             7, {(FlULong)("(None)"), 0, 0, 0},
              7, {0, 0, 0, 0}, 7, {0, 0, 0, 0}},
             {0, "Dt_flags", "Texture Wrap Mode", "",
              8, {4, 0, 0, 0}, 8, {0, 0, 0, 0}, 8, {0, 0, 0, 0}},
@@ -446,14 +446,14 @@ namespace
 
     const void* FlmNomadParamsBase()
     {
-        const unsigned long kZero = 0;
-        const unsigned long kOne = 0x3f800000ul;
+        const FlULong kZero = 0;
+        const FlULong kOne = 0x3f800000ul;
         static const FFlmMaterialParamDesc kParams[9] = {
             {0, "Dc", "Diffuse Color", "",
              3, {kOne, kOne, kOne, 0}, 3, {kZero, kZero, kZero, 0},
              3, {kOne, kOne, kOne, 0}},
             {0, "Dt_name", "Diffuse Name", "",
-             7, {(unsigned long)("(None)"), 0, 0, 0},
+             7, {(FlULong)("(None)"), 0, 0, 0},
              7, {0, 0, 0, 0}, 7, {0, 0, 0, 0}},
             {0, "Dt_flags", "Diffuse Wrap Mode", "",
              8, {4, 0, 0, 0}, 8, {0, 0, 0, 0}, 8, {0, 0, 0, 0}},
@@ -462,7 +462,7 @@ namespace
             {0x40000ul, "Dt_flags", "Diffuse V Address Mode", "",
              9, {0, 0, 0, 0}, 9, {0, 0, 0, 0}, 9, {0, 0, 0, 0}},
             {0, "nt_name", "NomadTexture Name", "",
-             7, {(unsigned long)("NomadRGB1_NomadAlpha1"), 0, 0, 0},
+             7, {(FlULong)("NomadRGB1_NomadAlpha1"), 0, 0, 0},
              7, {0, 0, 0, 0}, 7, {0, 0, 0, 0}},
             {0, "nt_flags", "NomadTexture Wrap Mode", "",
              8, {5, 0, 0, 0}, 8, {0, 0, 0, 0}, 8, {0, 0, 0, 0}},
@@ -479,9 +479,9 @@ namespace
     // Typed property values own strings and interfaces according to their current type.
 
     // Release the value resource for its current type, then clear the payload.
-    void FlmReleaseTypedValue(unsigned long* Slot)
+    void FlmReleaseTypedValue(FlULong* Slot)
     {
-        const unsigned long OldType = Slot[0];
+        const FlULong OldType = Slot[0];
         if (OldType == 5 || OldType == 7)
         {
             if (Slot[1] != 0)
@@ -504,7 +504,7 @@ namespace
     }
 
     // Typed strings use the process heap because their values cross material boundaries.
-    void FlmAssignString(unsigned long* Slot, const char* NewStr)
+    void FlmAssignString(FlULong* Slot, const char* NewStr)
     {
         if (Slot[1] != 0)
         {
@@ -515,17 +515,17 @@ namespace
         {
             const size_t Len = std::strlen(NewStr) + 1;
             void* Copy = HeapAlloc(GetProcessHeap(), 0, Len);
-            Slot[1] = (unsigned long)(Copy);
+            Slot[1] = (FlULong)(Copy);
             std::memcpy(Copy, NewStr, Len);
         }
     }
 
     // FUN_066f1b80 (flmaterials.dll.txt 5249-5273 / .c 896-910, clean decompile): owned-
     // interface-pointer swap -- AddRef the new pointer before Release-ing the old one.
-    void FlmAssignInterface(unsigned long* Slot, IDAComponent* NewIface)
+    void FlmAssignInterface(FlULong* Slot, IDAComponent* NewIface)
     {
         IDAComponent* Old = (IDAComponent*)(Slot[1]);
-        Slot[1] = (unsigned long)(NewIface);
+        Slot[1] = (FlULong)(NewIface);
         if (NewIface != nullptr)
             NewIface->AddRef();
         if (Old != nullptr)
@@ -533,7 +533,7 @@ namespace
     }
 
     // Raw property storage needs its own assignment path, distinct from typed values.
-    void FlmAssignStringRaw(void** Slot, const unsigned long* Value)
+    void FlmAssignStringRaw(void** Slot, const FlULong* Value)
     {
         if (*Slot != nullptr)
         {
@@ -575,9 +575,9 @@ namespace
     FShadingPropertyValue* FlmAssignTypedValue(FShadingPropertyValue* Dest, const FShadingPropertyValue* Src)
     {
         // Ownership helpers also accept raw tagged DWORD storage.
-        const unsigned long NewType = Src->Type;
+        const FlULong NewType = Src->Type;
         if (Dest->Type != NewType)
-            FlmReleaseTypedValue((unsigned long*)Dest);
+            FlmReleaseTypedValue((FlULong*)Dest);
         Dest->Type = NewType;
         switch (NewType)
         {
@@ -601,10 +601,10 @@ namespace
             break;
         case 5:
         case 7:
-            FlmAssignString((unsigned long*)Dest, (const char*)Src->Payload0);
+            FlmAssignString((FlULong*)Dest, (const char*)Src->Payload0);
             break;
         case 6:
-            FlmAssignInterface((unsigned long*)Dest, (IDAComponent*)Src->Payload0);
+            FlmAssignInterface((FlULong*)Dest, (IDAComponent*)Src->Payload0);
             break;
         default:
             break;
@@ -615,12 +615,12 @@ namespace
     // Type-nine properties use descriptor-owned sub-blocks.
 
     // Sub-block setters take the new type and a pointer to the untagged payload.
-    void FlmSetDescriptorSubBlockValue(unsigned long* SubBlock, int NewType, const void* ValuePtr)
+    void FlmSetDescriptorSubBlockValue(FlULong* SubBlock, int NewType, const void* ValuePtr)
     {
         const int OldType = (int)(SubBlock[0]);
         if (OldType != NewType)
             FlmReleaseTypedValue(SubBlock);
-        SubBlock[0] = (unsigned long)(NewType);
+        SubBlock[0] = (FlULong)(NewType);
         const int* Values = (const int*)(ValuePtr);
         switch (NewType)
         {
@@ -628,21 +628,21 @@ namespace
         case 8:
         case 9:
         case 10:
-            SubBlock[1] = (unsigned long)(ValuePtr);
+            SubBlock[1] = (FlULong)(ValuePtr);
             break;
         case 2:
-            SubBlock[1] = (unsigned long)(Values[0]);
+            SubBlock[1] = (FlULong)(Values[0]);
             break;
         case 3:
-            SubBlock[3] = (unsigned long)(Values[2]);
-            SubBlock[2] = (unsigned long)(Values[1]);
-            SubBlock[1] = (unsigned long)(Values[0]);
+            SubBlock[3] = (FlULong)(Values[2]);
+            SubBlock[2] = (FlULong)(Values[1]);
+            SubBlock[1] = (FlULong)(Values[0]);
             break;
         case 4:
-            SubBlock[4] = (unsigned long)(Values[3]);
-            SubBlock[3] = (unsigned long)(Values[2]);
-            SubBlock[2] = (unsigned long)(Values[1]);
-            SubBlock[1] = (unsigned long)(Values[0]);
+            SubBlock[4] = (FlULong)(Values[3]);
+            SubBlock[3] = (FlULong)(Values[2]);
+            SubBlock[2] = (FlULong)(Values[1]);
+            SubBlock[1] = (FlULong)(Values[0]);
             break;
         case 5:
         case 7:
@@ -661,7 +661,7 @@ namespace
     // FUN_066f3de0, including fragments LAB_066f3e5e/066f3f09:
     // header stores precede three ordered type-dependent assignments.
     void FlmSetDescriptorEntry(FFlmMaterialParamDesc* Entry, int Type,
-                                unsigned long Flags, const char* Tag, const char* Name,
+                                FlULong Flags, const char* Tag, const char* Name,
                                 const char* Metadata, const void* Value0,
                                 const void* Value1, const void* Value2)
     {
@@ -676,7 +676,7 @@ namespace
 
     // FUN_066f3cd0: borrowed header clear, then typed resource cleanup in
     // reverse order. RAII keeps earlier subblocks on the retail EH path.
-    void FlmResetDescriptorEntry(unsigned long* Entry)
+    void FlmResetDescriptorEntry(FlULong* Entry)
     {
         Entry[0] = 0;
         Entry[1] = 0;
@@ -684,7 +684,7 @@ namespace
         Entry[3] = 0;
         struct FReleaseSubBlock
         {
-            unsigned long* Value;
+            FlULong* Value;
             ~FReleaseSubBlock() noexcept(false) { FlmReleaseTypedValue(Value); }
         };
         FReleaseSubBlock First{Entry + 0x10 / 4};
@@ -710,28 +710,28 @@ namespace
         return Desc;
     }
 
-    unsigned long FsOpen(void* FileSystem, const char* Path)
+    FlULong FsOpen(void* FileSystem, const char* Path)
     {
         FFileSystemDesc Desc;
         FlmBuildFileSystemDesc(&Desc, Path);
-        return (unsigned long)(((IFileSystem*)(FileSystem))
+        return (FlULong)(((IFileSystem*)(FileSystem))
             ->OpenByDesc(&Desc)); // +0x7C
     }
 
-    bool FsRead(void* FileSystem, unsigned long Handle, void* Buffer, unsigned long Size)
+    bool FsRead(void* FileSystem, FlULong Handle, void* Buffer, FlULong Size)
     {
-        unsigned long BytesRead = 0;
+        FlULong BytesRead = 0;
         const int Result = ((IFileSystem*)(FileSystem))
                                ->Read(Handle, Buffer, Size, &BytesRead, 0); // +0x14
         return Result != 0 && BytesRead == Size;
     }
 
-    void FsClose(void* FileSystem, unsigned long Handle)
+    void FsClose(void* FileSystem, FlULong Handle)
     {
         ((IFileSystem*)(FileSystem))->CloseFile(Handle); // +0x10
     }
 
-    unsigned long FsGetSize(void* FileSystem, unsigned long Handle)
+    FlULong FsGetSize(void* FileSystem, FlULong Handle)
     {
         if (FileSystem == nullptr)
             return 0;
@@ -739,13 +739,13 @@ namespace
     }
 
     // Load one property by path through the supplied file system.
-    bool FlmLoadParameterFromFileSystem(void* FileSystem, const char* Path, unsigned long Type,
+    bool FlmLoadParameterFromFileSystem(void* FileSystem, const char* Path, FlULong Type,
                                         void* OutValue)
     {
         if (FileSystem == nullptr || Path == nullptr || OutValue == nullptr)
             return false;
 
-        unsigned long ReadSize = 0;
+        FlULong ReadSize = 0;
         switch (Type)
         {
         case 1:
@@ -766,10 +766,10 @@ namespace
 
         if (Type == 5 || Type == 7)
         {
-            const unsigned long Handle = FsOpen(FileSystem, Path);
-            if (Handle == (unsigned long)(-1))
+            const FlULong Handle = FsOpen(FileSystem, Path);
+            if (Handle == (FlULong)(-1))
                 return false;
-            const unsigned long Size = FsGetSize(FileSystem, Handle);
+            const FlULong Size = FsGetSize(FileSystem, Handle);
             char* Buffer = (char*)(std::malloc((size_t)(Size) + 1));
             bool bOk = false;
             if (Buffer != nullptr)
@@ -789,8 +789,8 @@ namespace
             return true;
         }
 
-        const unsigned long Handle = FsOpen(FileSystem, Path);
-        if (Handle == (unsigned long)(-1))
+        const FlULong Handle = FsOpen(FileSystem, Path);
+        if (Handle == (FlULong)(-1))
             return false;
         const bool bOk = FsRead(FileSystem, Handle, OutValue, ReadSize);
         FsClose(FileSystem, Handle);
@@ -800,15 +800,15 @@ namespace
     // FUN_066f30a0: required filesystem; only a successful four-byte read
     // publishes the caller output. The property decoder is a separate function.
     GENRESULT FlmReadPackedWord(IFileSystem* FileSystem, const char* Path,
-                                unsigned long* OutValue)
+                                FlULong* OutValue)
     {
         FFileSystemDesc Desc;
         FlmBuildFileSystemDesc(&Desc, Path);
-        const unsigned long Handle = FileSystem->OpenByDesc(&Desc);
-        if (Handle == (unsigned long)(-1))
+        const FlULong Handle = FileSystem->OpenByDesc(&Desc);
+        if (Handle == (FlULong)(-1))
             return GR_GENERIC;
-        unsigned long RawValue;
-        unsigned long BytesRead = 0;
+        FlULong RawValue;
+        FlULong BytesRead = 0;
         const int ReadResult = FileSystem->Read(Handle, &RawValue, 4, &BytesRead, 0);
         const bool bRead = ReadResult != 0 && BytesRead == 4;
         if (bRead)
@@ -817,7 +817,7 @@ namespace
         return bRead ? GR_OK : GR_GENERIC;
     }
 
-    unsigned long FlmUnpackTwoBitField(unsigned long Value, int FieldIndex)
+    FlULong FlmUnpackTwoBitField(FlULong Value, int FieldIndex)
     {
         // FUN_066f2470: unknown field indices return zero.
         if (FieldIndex == 0)
@@ -828,17 +828,17 @@ namespace
     }
 
     // FUN_066f29b0: field0 deliberately falls through to field1.
-    void FlmPackTwoBitField(unsigned long* InOutWord, unsigned long Value, int FieldIndex)
+    void FlmPackTwoBitField(FlULong* InOutWord, FlULong Value, int FieldIndex)
     {
         if (FieldIndex == 0)
         {
-            const unsigned long Orig = *InOutWord;
+            const FlULong Orig = *InOutWord;
             *InOutWord = Orig ^ ((Orig ^ Value) & 3ul);
         }
         if (FieldIndex == 0 || FieldIndex == 1)
         {
-            const unsigned long Orig = *InOutWord;
-            const unsigned long Shifted = Value << 2;
+            const FlULong Orig = *InOutWord;
+            const FlULong Shifted = Value << 2;
             *InOutWord = Orig ^ ((Orig ^ Shifted) & 0xCul);
         }
     }
@@ -859,17 +859,17 @@ namespace
         Desc->Field30 = 0xFFFFFFFF;
     }
 
-    unsigned long FsOpenForWrite(void* FileSystem, const char* Path)
+    FlULong FsOpenForWrite(void* FileSystem, const char* Path)
     {
         FFileSystemDesc Desc;
         FlmBuildFileSystemDescForWrite(&Desc, Path);
-        return (unsigned long)(((IFileSystem*)(FileSystem))
+        return (FlULong)(((IFileSystem*)(FileSystem))
             ->OpenByDesc(&Desc)); // +0x7C
     }
 
-    bool FsWrite(void* FileSystem, unsigned long Handle, const void* Buffer, unsigned long Size)
+    bool FsWrite(void* FileSystem, FlULong Handle, const void* Buffer, FlULong Size)
     {
-        unsigned long BytesWritten = 0;
+        FlULong BytesWritten = 0;
         // +0x18: typed source, byte-count output, optional position override.
         const int Result = ((IFileSystem*)(FileSystem))
                                ->Write(Handle, Buffer, Size, &BytesWritten, nullptr);
@@ -878,11 +878,11 @@ namespace
 
     // FUN_066f3160: UTF create/write descriptor; the third argument is
     // the caller's four-byte buffer, passed unchanged through Write.
-    unsigned long FlmWriteSmallConfigValue(void* FileSystem, const char* Path,
-                                            const unsigned long* Value)
+    FlULong FlmWriteSmallConfigValue(void* FileSystem, const char* Path,
+                                            const FlULong* Value)
     {
-        const unsigned long Handle = FsOpenForWrite(FileSystem, Path);
-        if (Handle == (unsigned long)(-1))
+        const FlULong Handle = FsOpenForWrite(FileSystem, Path);
+        if (Handle == (FlULong)(-1))
             return 0x80004005ul;
         const bool bOk = FsWrite(FileSystem, Handle, Value, 4);
         FsClose(FileSystem, Handle);
@@ -892,25 +892,25 @@ namespace
     // Keep the copied property value alive through serialization and unwind cleanup.
     struct FFlmScopedTypedValue
     {
-        unsigned long Words[5] = {};
+        FlULong Words[5] = {};
         ~FFlmScopedTypedValue() noexcept(false) { FlmReleaseTypedValue(Words); }
     };
 
     // FUN_066f1fc0: typed load result is committed through Slot26 only
     // after successful I/O. Type6/default cases still commit their zero value.
     bool FlmLoadDeclaredParameter(FMaterialImpl* Material, void* FileSystem,
-                                  unsigned char* Entry, unsigned long Index)
+                                  unsigned char* Entry, FlULong Index)
     {
         FFlmScopedTypedValue Value;
-        const unsigned long Type = *(const unsigned long*)(Entry + 0x10);
+        const FlULong Type = *(const FlULong*)(Entry + 0x10);
         Value.Words[0] = Type;
         if (Type == 9)
         {
             const char* Path = *(const char* const*)(Entry + 4);
-            unsigned long RawValue;
+            FlULong RawValue;
             if (FlmReadPackedWord((IFileSystem*)FileSystem, Path, &RawValue) < 0)
                 return false;
-            const unsigned long Flags = *(const unsigned long*)Entry;
+            const FlULong Flags = *(const FlULong*)Entry;
             const int FieldIndex = (Flags & 0x20000) == 0 && (Flags & 0x40000) != 0 ? 1 : 0;
             Value.Words[1] = FlmUnpackTwoBitField(RawValue, FieldIndex);
             Material->StoreParameterValue(Index, Entry, Value.Words);
@@ -922,12 +922,12 @@ namespace
             FFileSystemDesc Desc;
             FlmBuildFileSystemDesc(&Desc, Path);
             IFileSystem* Fs = (IFileSystem*)FileSystem;
-            const unsigned long Handle = Fs->OpenByDesc(&Desc);
-            if (Handle == (unsigned long)-1)
+            const FlULong Handle = Fs->OpenByDesc(&Desc);
+            if (Handle == (FlULong)-1)
                 return false;
             if (Type == 5 || Type == 7)
             {
-                const unsigned long Size = Fs->GetSize(Handle, 0);
+                const FlULong Size = Fs->GetSize(Handle, 0);
                 char* Buffer = new (std::nothrow) char[Size];
                 if (Buffer == nullptr)
                 {
@@ -943,7 +943,7 @@ namespace
             }
             else
             {
-                const unsigned long Size = Type == 3 ? 12ul : Type == 4 ? 16ul : 4ul;
+                const FlULong Size = Type == 3 ? 12ul : Type == 4 ? 16ul : 4ul;
                 const bool bOk = FsRead(Fs, Handle, Value.Words + 1, Size);
                 Fs->CloseFile(Handle);
                 if (!bOk)
@@ -957,12 +957,12 @@ namespace
     }
 
     bool FlmSaveParameterToFileSystem(FMaterialImpl* Material, void* FileSystem,
-                                      const unsigned char* Entry, unsigned long Index)
+                                      const unsigned char* Entry, FlULong Index)
     {
         FFlmScopedTypedValue Value;
-        const unsigned long Type = *(const unsigned long*)(Entry + 0x10);
+        const FlULong Type = *(const FlULong*)(Entry + 0x10);
         Value.Words[0] = Type;
-        const unsigned long* Raw = (const unsigned long*)(Material->GetParameterAddress(Index));
+        const FlULong* Raw = (const FlULong*)(Material->GetParameterAddress(Index));
         if (Raw == nullptr)
             return false;
         switch (Type)
@@ -989,11 +989,11 @@ namespace
             return true;
         if (Type == 8)
         {
-            unsigned long Packed = 0;
-            const unsigned long Handle = FsOpen(FileSystem, Path);
-            if (Handle != (unsigned long)(-1))
+            FlULong Packed = 0;
+            const FlULong Handle = FsOpen(FileSystem, Path);
+            if (Handle != (FlULong)(-1))
             {
-                unsigned long ReadValue;
+                FlULong ReadValue;
                 if (FsRead(FileSystem, Handle, &ReadValue, 4))
                     Packed = ReadValue;
                 FsClose(FileSystem, Handle);
@@ -1001,21 +1001,21 @@ namespace
             Packed ^= (Packed ^ (Value.Words[1] << 4)) & 0xf0ul;
             // 066f28cb / 066f2924 reread the path after filesystem callbacks.
             const char* WritePath = *(const char* const*)(Entry + 4);
-            return (long)(FlmWriteSmallConfigValue(FileSystem, WritePath, &Packed)) >= 0;
+            return (FlLong)(FlmWriteSmallConfigValue(FileSystem, WritePath, &Packed)) >= 0;
         }
         if (Type == 9)
         {
-            unsigned long Packed = 0;
+            FlULong Packed = 0;
             FlmReadPackedWord((IFileSystem*)(FileSystem), Path, &Packed);
-            const unsigned long Flags = *(const unsigned long*)(Entry);
+            const FlULong Flags = *(const FlULong*)(Entry);
             const int FieldIndex = (Flags & 0x20000) == 0 && (Flags & 0x40000) != 0 ? 1 : 0;
             FlmPackTwoBitField(&Packed, Value.Words[1], FieldIndex);
             // 066f28cb / 066f2924 reread the path after filesystem callbacks.
             const char* WritePath = *(const char* const*)(Entry + 4);
-            return (long)(FlmWriteSmallConfigValue(FileSystem, WritePath, &Packed)) >= 0;
+            return (FlLong)(FlmWriteSmallConfigValue(FileSystem, WritePath, &Packed)) >= 0;
         }
         const void* Buffer = Value.Words + 1;
-        unsigned long Size = 4;
+        FlULong Size = 4;
         if (Type == 3)
             Size = 12;
         else if (Type == 4)
@@ -1023,10 +1023,10 @@ namespace
         else if (Type == 5 || Type == 7)
         {
             Buffer = (const char*)(Value.Words[1]);
-            Size = (unsigned long)(std::strlen((const char*)(Buffer))) + 1;
+            Size = (FlULong)(std::strlen((const char*)(Buffer))) + 1;
         }
-        const unsigned long Handle = FsOpenForWrite(FileSystem, Path);
-        if (Handle == (unsigned long)(-1))
+        const FlULong Handle = FsOpenForWrite(FileSystem, Path);
+        if (Handle == (FlULong)(-1))
             return false;
         const bool bOk = FsWrite(FileSystem, Handle, Buffer, Size);
         FsClose(FileSystem, Handle);
@@ -1058,8 +1058,8 @@ namespace
     const float kNomadPeriod = 5.0f;
     const float kNomadColorScale = 255.0f;
     const double kNomadHalf = 0.5; // double DAT_067022c8
-    const unsigned long kNomadColorLo = 0x000AEAF5;
-    const unsigned long kNomadColorHi = 0x000AFFE6;
+    const FlULong kNomadColorLo = 0x000AEAF5;
+    const FlULong kNomadColorHi = 0x000AFFE6;
     I3DMathEngine* G_NomadMath = nullptr;
 
     struct FNomadContext
@@ -1079,7 +1079,7 @@ namespace
     static_assert(offsetof(FNomadContext, Candidate) == offsetof(FMaterialSubmitContext, ReplacedMaterial),
                   "FNomadContext follows FMaterialSubmitContext");
 
-    int FvfXyzSize(unsigned long Fvf)
+    int FvfXyzSize(FlULong Fvf)
     {
         if ((Fvf & 0xC) == 0xC)
             return 0x1C;
@@ -1090,7 +1090,7 @@ namespace
         return 0;
     }
 
-    int FvfColorSize(unsigned long Fvf)
+    int FvfColorSize(FlULong Fvf)
     {
         int Size = 0;
         if ((Fvf & 0x40) != 0)
@@ -1100,19 +1100,19 @@ namespace
         return Size;
     }
 
-    int FvfNormalSize(unsigned long Fvf)
+    int FvfNormalSize(FlULong Fvf)
     {
         return ((Fvf & 0x10) != 0) ? 0xC : 0;
     }
 
-    int FvfTexSize(unsigned long Fvf)
+    int FvfTexSize(FlULong Fvf)
     {
         int Size = 0;
-        unsigned long Count = (Fvf >> 8) & 0xF;
-        unsigned long Shift = 16;
+        FlULong Count = (Fvf >> 8) & 0xF;
+        FlULong Shift = 16;
         while (Count != 0)
         {
-            const unsigned long Lane = (Fvf >> (Shift & 31)) & 3;
+            const FlULong Lane = (Fvf >> (Shift & 31)) & 3;
             if (Lane == 0)
                 Size += 8;
             else if (Lane == 1)
@@ -1127,16 +1127,16 @@ namespace
         return Size;
     }
 
-    int FvfStride(unsigned long Fvf)
+    int FvfStride(FlULong Fvf)
     {
         return FvfXyzSize(Fvf) + FvfNormalSize(Fvf) + FvfColorSize(Fvf) + FvfTexSize(Fvf);
     }
 
-    unsigned long NomadLockFvf(unsigned long Stage)
+    FlULong NomadLockFvf(FlULong Stage)
     {
-        if ((long)(Stage) > 1)
+        if ((FlLong)(Stage) > 1)
             return 0x242;
-        if ((long)(Stage) > 0)
+        if ((FlLong)(Stage) > 0)
             return 0x142;
         return 0x42;
     }
@@ -1163,7 +1163,7 @@ namespace
         return (char*)(LockOut->Vertices);
     }
 
-    GENRESULT VbMgrLock(IVertexBufferManager* VbMgr, unsigned long Fvf, unsigned long Count, FVertexMemoryLock* Out)
+    GENRESULT VbMgrLock(IVertexBufferManager* VbMgr, FlULong Fvf, FlULong Count, FVertexMemoryLock* Out)
     {
         if (VbMgr == nullptr)
             return GR_GENERIC;
@@ -1177,18 +1177,18 @@ namespace
         VbMgr->UnlockVertexMemory(Out);
     }
 
-    GENRESULT RpDrawIndexed(IRPDraw* RpDraw, unsigned long Prim, unsigned long Start, unsigned long Count,
-                            const void* Indices, unsigned long IndexSpan)
+    GENRESULT RpDrawIndexed(IRPDraw* RpDraw, FlULong Prim, FlULong Start, FlULong Count,
+                            const void* Indices, FlULong IndexSpan)
     {
         return RpDraw->DrawIndexedPrimitive(
             Prim, (unsigned int)(Start), (unsigned int)(Count),
-            (unsigned int)((unsigned long)(Indices)),
+            (unsigned int)((FlULong)(Indices)),
             (unsigned int)(IndexSpan));
     }
 
     // The manager copies mesh channels into the destination using the requested FVF.
-    void VbMgrFillVertexMemory(IVertexBufferManager* VbMgr, void* Dest, unsigned long Fvf, const FRpVertexSrcDesc* Mesh,
-                               unsigned long Start, unsigned long Count)
+    void VbMgrFillVertexMemory(IVertexBufferManager* VbMgr, void* Dest, FlULong Fvf, const FRpVertexSrcDesc* Mesh,
+                               FlULong Start, FlULong Count)
     {
         if (VbMgr == nullptr)
             return;
@@ -1223,10 +1223,10 @@ namespace
     struct FNomadCursor
     {
         char* Pointer;
-        unsigned long Stride;
+        FlULong Stride;
 
         FNomadCursor() : Pointer(nullptr), Stride(8) {}
-        FNomadCursor(char* InPointer, unsigned long InStride)
+        FNomadCursor(char* InPointer, FlULong InStride)
             : Pointer(InPointer), Stride(InStride) {}
         ~FNomadCursor()
         {
@@ -1236,35 +1236,35 @@ namespace
     };
 
     void NomadWriteVert(FNomadCursor& PositionOut, FNomadCursor& ColorOut,
-                        FNomadCursor* TextureOut, unsigned long Index,
-                        const unsigned long& Stage, unsigned long Color, float Phase,
+                        FNomadCursor* TextureOut, FlULong Index,
+                        const FlULong& Stage, FlULong Color, float Phase,
                         const float* Position, const float* Normal, const float* Light,
-                        const unsigned char* UvBase, const unsigned long* UvIndex, unsigned long UvStride, bool bIndexed)
+                        const unsigned char* UvBase, const FlULong* UvIndex, FlULong UvStride, bool bIndexed)
     {
         // DWORD copies preserve all position/UV bit patterns; neither path copies normals.
-        const unsigned long* PositionWords = (const unsigned long*)(Position);
-        unsigned long* DestPosition = (unsigned long*)(PositionOut.Pointer);
+        const FlULong* PositionWords = (const FlULong*)(Position);
+        FlULong* DestPosition = (FlULong*)(PositionOut.Pointer);
         DestPosition[0] = PositionWords[0];
         DestPosition[1] = PositionWords[1];
         DestPosition[2] = PositionWords[2];
         const float NormalX = Normal[0];
         const float NormalY = Normal[1];
         const float NormalZ = Normal[2];
-        *(unsigned long*)(ColorOut.Pointer) = Color;
+        *(FlULong*)(ColorOut.Pointer) = Color;
         // 066f9140..9181 / 066f92de..9326: Z*Z + Y*Y, then X*X, +1, double .5.
         const double Zy = (double)(Light[2]) * NormalZ +
                           (double)(Light[1]) * NormalY;
         const double Lit = ((Zy + (double)(Light[0]) * NormalX) + 1.0) * kNomadHalf;
-        if ((long)(Stage) > 1)
+        if ((FlLong)(Stage) > 1)
         {
-            const unsigned long UvOffset = bIndexed ? UvIndex[Index] * UvStride : Index * UvStride;
-            const unsigned long* SourceUv = (const unsigned long*)(UvBase + UvOffset);
-            unsigned long* DestUv = (unsigned long*)(TextureOut[0].Pointer + Index * TextureOut[0].Stride);
+            const FlULong UvOffset = bIndexed ? UvIndex[Index] * UvStride : Index * UvStride;
+            const FlULong* SourceUv = (const FlULong*)(UvBase + UvOffset);
+            FlULong* DestUv = (FlULong*)(TextureOut[0].Pointer + Index * TextureOut[0].Stride);
             DestUv[0] = SourceUv[0];
             DestUv[1] = SourceUv[1];
         }
         // Re-read the owner's field as in both loops; generated coordinates occupy the last lane.
-        const long GeneratedStage = (long)(Stage);
+        const FlLong GeneratedStage = (FlLong)(Stage);
         if (GeneratedStage > 0)
         {
             FNomadCursor& Generated = TextureOut[GeneratedStage - 1];
@@ -1276,22 +1276,22 @@ namespace
         ColorOut.Pointer += ColorOut.Stride;
     }
 
-    void NomadCopyMesh(const FRpVertexSrcDesc* Mesh, unsigned long Start, unsigned long Count,
+    void NomadCopyMesh(const FRpVertexSrcDesc* Mesh, FlULong Start, FlULong Count,
                        FNomadCursor& PositionOut, FNomadCursor& ColorOut, FNomadCursor* TextureOut,
-                       const unsigned long& Stage, unsigned long Color, float Phase, const float* Light)
+                       const FlULong& Stage, FlULong Color, float Phase, const float* Light)
     {
         if ((Mesh->Flags & 4) != 0)
         {
-            const unsigned long PosStride = Mesh->Position.Stride;
+            const FlULong PosStride = Mesh->Position.Stride;
             const unsigned char* PosBase = Mesh->Position.Base;
-            const unsigned long NrmStride = Mesh->Normal.Stride;
+            const FlULong NrmStride = Mesh->Normal.Stride;
             const unsigned char* NrmBase = Mesh->Normal.Base;
-            const unsigned long* PosIndex = Mesh->Position.IndexArray + Start;
-            const unsigned long* NrmIndex = Mesh->Normal.IndexArray + Start;
-            const unsigned long* UvIndex = Mesh->Tex[0].IndexArray + Start;
-            const unsigned long UvStride = Mesh->Tex[0].Stride;
+            const FlULong* PosIndex = Mesh->Position.IndexArray + Start;
+            const FlULong* NrmIndex = Mesh->Normal.IndexArray + Start;
+            const FlULong* UvIndex = Mesh->Tex[0].IndexArray + Start;
+            const FlULong UvStride = Mesh->Tex[0].Stride;
             const unsigned char* UvBase = Mesh->Tex[0].Base;
-            for (unsigned long Index = 0; Index < Count; ++Index)
+            for (FlULong Index = 0; Index < Count; ++Index)
             {
                 const float* Position = (const float*)(PosBase + PosIndex[Index] * PosStride);
                 const float* Normal = (const float*)(NrmBase + NrmIndex[Index] * NrmStride);
@@ -1301,13 +1301,13 @@ namespace
             return;
         }
 
-        const unsigned long SrcFvf = Mesh->SrcFvf;
-        const unsigned long SrcStride = (unsigned long)(FvfStride(SrcFvf));
-        const unsigned long Offset = Start * SrcStride;
+        const FlULong SrcFvf = Mesh->SrcFvf;
+        const FlULong SrcStride = (FlULong)(FvfStride(SrcFvf));
+        const FlULong Offset = Start * SrcStride;
         const unsigned char* PosBase = Mesh->Position.Base + Offset;
         const unsigned char* NrmBase = Mesh->Normal.Base + Offset;
         const unsigned char* UvBase = Mesh->Tex[0].Base + Offset;
-        for (unsigned long Index = 0; Index < Count; ++Index)
+        for (FlULong Index = 0; Index < Count; ++Index)
         {
             const float* Position = (const float*)(PosBase + Index * SrcStride);
             const float* Normal = (const float*)(NrmBase + Index * SrcStride);
@@ -1362,7 +1362,7 @@ namespace
             return Default;
 
         float Value = Default;
-        const unsigned long Bits = (unsigned long)((intptr_t)(Found));
+        const FlULong Bits = (FlULong)((intptr_t)(Found));
         std::memcpy(&Value, &Bits, sizeof(Value));
         return Value;
     }
@@ -1382,26 +1382,26 @@ namespace
     }
 
     GENRESULT SubmitNomadGeometry(const unsigned char& bSecondTexture, const float& Live6C,
-                          const unsigned long& Stage, IVertexBufferManager* const& VbMgr,
+                          const FlULong& Stage, IVertexBufferManager* const& VbMgr,
                           IRenderPipeline* const& Pipeline, void* Context,
-                          unsigned long Prim, unsigned long Start, unsigned long Count,
-                          unsigned long IbStart, unsigned long IndexSpan)
+                          FlULong Prim, FlULong Start, FlULong Count,
+                          FlULong IbStart, FlULong IndexSpan)
     {
         const double Fade = NomadFadeFromValue(NomadFadeLookup(Context));
         FNomadContext* Submit = (FNomadContext*)(Context);
-        unsigned long Color;
+        FlULong Color;
         float Phase;
         if (bSecondTexture == 0)
         {
             const int Byte = (int)((Fade * kNomadHalf) * kNomadColorScale);
-            Color = ((unsigned long)(Byte) << 24) |
-                    ((long)(Stage) > 0 ? kNomadColorHi : kNomadColorLo);
+            Color = ((FlULong)(Byte) << 24) |
+                    ((FlLong)(Stage) > 0 ? kNomadColorHi : kNomadColorLo);
             Phase = 1.0f;
         }
         else
         {
             const int Byte = (int)(Fade * kNomadColorScale);
-            Color = ((unsigned long)(Byte) << 24) | 0x00ffffff;
+            Color = ((FlULong)(Byte) << 24) | 0x00ffffff;
             // _CIfmod receives ST1=Live6C, ST0=period; division stays wide until FSTP.
             Phase = (float)(1.0 - std::fmod((double)(Live6C),
                 (double)(kNomadPeriod)) / kNomadPeriod);
@@ -1412,10 +1412,10 @@ namespace
                 NomadLockFvf(Stage), Count, &LockOut) < 0)
             return (GENRESULT)(-1);
 
-        const unsigned long Fvf = LockOut.Listing.Fvf;
-        const unsigned long Stride = (unsigned long)(FvfStride(Fvf));
-        const unsigned long ColorOffset = (unsigned long)(FvfXyzSize(Fvf) + FvfNormalSize(Fvf));
-        const unsigned long TextureOffset = ColorOffset + (unsigned long)(FvfColorSize(Fvf));
+        const FlULong Fvf = LockOut.Listing.Fvf;
+        const FlULong Stride = (FlULong)(FvfStride(Fvf));
+        const FlULong ColorOffset = (FlULong)(FvfXyzSize(Fvf) + FvfNormalSize(Fvf));
+        const FlULong TextureOffset = ColorOffset + (FlULong)(FvfColorSize(Fvf));
         char* Vertices = NomadLockDest(&LockOut);
         FNomadCursor PositionOut(Vertices, Stride);
         FNomadCursor ColorOut(Vertices + ColorOffset, Stride);
@@ -1444,27 +1444,27 @@ namespace
 
     // Lock, copy through the vertex manager, unlock, then draw with the granted buffer offset.
     GENRESULT FlmFillMeshAndDraw(IRenderPipeline* Pipeline, IVertexBufferManager* VbMgr, void* Context,
-                                unsigned long Prim, unsigned long Start, unsigned long Count,
-                                unsigned long IbStart, unsigned long IndexSpan, unsigned long /*Flags*/)
+                                FlULong Prim, FlULong Start, FlULong Count,
+                                FlULong IbStart, FlULong IndexSpan, FlULong /*Flags*/)
     {
         // 066f60d0..622a: all pointers required, and lock/draw results pass through.
         FNomadContext* Submit = (FNomadContext*)(Context);
         IVertexBufferManager* Manager = VbMgr;
-        const unsigned long RequestedFvf =
+        const FlULong RequestedFvf =
             Submit->Mesh->SrcFvf;
         FVertexMemoryLock LockOut;
         const GENRESULT Result = Manager->LockVertexMemory(RequestedFvf, Count, &LockOut);
         if (Result < 0)
             return Result;
 
-        const unsigned long GrantedFvf = LockOut.Listing.Fvf;
-        unsigned long TextureBytes = 0;
-        unsigned long TextureCount = (GrantedFvf >> 8) & 0xf;
-        unsigned long Shift = 16;
+        const FlULong GrantedFvf = LockOut.Listing.Fvf;
+        FlULong TextureBytes = 0;
+        FlULong TextureCount = (GrantedFvf >> 8) & 0xf;
+        FlULong Shift = 16;
         while (TextureCount != 0)
         {
             // 066f6182 SHR EAX,CL masks the shift to five bits on x86.
-            const unsigned long Lane = (GrantedFvf >> (Shift & 31)) & 3;
+            const FlULong Lane = (GrantedFvf >> (Shift & 31)) & 3;
             if (Lane == 0)
                 TextureBytes += 8;
             else if (Lane == 1)
@@ -1476,7 +1476,7 @@ namespace
             Shift += 2;
             --TextureCount;
         }
-        const unsigned long Stride = (unsigned long)(FvfXyzSize(GrantedFvf) +
+        const FlULong Stride = (FlULong)(FvfXyzSize(GrantedFvf) +
             FvfNormalSize(GrantedFvf) + FvfColorSize(GrantedFvf)) + TextureBytes;
         void* DestBase = (void*)((uintptr_t)(LockOut.Vertices) -
             Stride * Start);
@@ -1491,8 +1491,8 @@ namespace
 
     // Try the direct draw and existing vertex listing before copying vertices.
     GENRESULT FlmMeshDrawPass(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr, void* Context,
-                              unsigned long Prim, unsigned long Start, unsigned long Count,
-                              unsigned long IbStart, unsigned long IndexSpan, unsigned long Flags)
+                              FlULong Prim, FlULong Start, FlULong Count,
+                              FlULong IbStart, FlULong IndexSpan, FlULong Flags)
     {
         FNomadContext* Submit = (FNomadContext*)(Context);
         if ((Flags & 0x100) != 0)
@@ -1522,7 +1522,7 @@ namespace
     }
 
     // Restore the shared material render-state table after the draw.
-    const unsigned long kEnvGlassDrawTailRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
+    const FlULong kEnvGlassDrawTailRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0};
 
     // FUN_066f3080: restore the saved value through the stored pipeline.
     // Active marks the retail EH lifetime, not whether GetRenderState succeeded.
@@ -1552,8 +1552,8 @@ namespace
 
     // FUN_066f9ea0: normal and EH paths restore 0x17 before 0x0e.
     GENRESULT SubmitPlanetWaterGeometry(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr, void* Context,
-                                unsigned long Prim, unsigned long Start, unsigned long Count,
-                                unsigned long IbStart, unsigned long IndexSpan, unsigned long Flags)
+                                FlULong Prim, FlULong Start, FlULong Count,
+                                FlULong IbStart, FlULong IndexSpan, FlULong Flags)
     {
         FFlmRenderStateRestore DepthWrite(Pipeline, D3DRS_ZWRITEENABLE); // formerly Lighting
         Pipeline->SetRenderState(D3DRS_ZWRITEENABLE, 0);
@@ -1571,8 +1571,8 @@ namespace
     // LAB_066f3370: same draw core, with inline granted-FVF fill in retail.
     // FlmFillMeshAndDraw preserves that complete calculation and call sequence.
     GENRESULT SubmitRpDrawGeometry(IRPDraw* RpDraw, IRenderPipeline* Pipeline, IVertexBufferManager* VbMgr, void* Context,
-                                 unsigned long Prim, unsigned long Start, unsigned long Count,
-                                 unsigned long IbStart, unsigned long IndexSpan, unsigned long Flags)
+                                 FlULong Prim, FlULong Start, FlULong Count,
+                                 FlULong IbStart, FlULong IndexSpan, FlULong Flags)
     {
         return FlmMeshDrawPass(Pipeline, RpDraw, VbMgr, Context, Prim, Start, Count, IbStart,
                               IndexSpan, Flags);
@@ -1580,10 +1580,10 @@ namespace
 
     // LAB_06700260: both initial gates return zero before reading Context.
     // Enabled HUDAnim then uses the complete shared granted-FVF draw sequence.
-    GENRESULT SubmitHudAnimatedGeometry(unsigned long HudAnimFlag, IRPDraw* RpDraw, IRenderPipeline* Pipeline,
-                            IVertexBufferManager* VbMgr, void* Context, unsigned long Prim, unsigned long Start,
-                            unsigned long Count, unsigned long IbStart, unsigned long IndexSpan,
-                            unsigned long Flags)
+    GENRESULT SubmitHudAnimatedGeometry(FlULong HudAnimFlag, IRPDraw* RpDraw, IRenderPipeline* Pipeline,
+                            IVertexBufferManager* VbMgr, void* Context, FlULong Prim, FlULong Start,
+                            FlULong Count, FlULong IbStart, FlULong IndexSpan,
+                            FlULong Flags)
     {
         if (HudAnimFlag == 0 || (Flags & 0x100) == 0)
             return GR_OK;
@@ -1601,14 +1601,14 @@ namespace
     // Wire's own fallback -- 26924/26920; DAT_067045d4/d8 for Wire2 -- 28307/28303). No
     // confirmed external reader anywhere in this DLL, so kept file-local rather than
     // invented as part of the public FMaterialImpl/FLAppearance surface.
-    unsigned long G_WireLockFailCount = 0;
-    unsigned long G_WireDrawAttemptCount = 0;
-    unsigned long G_Wire2LockFailCount = 0;
-    unsigned long G_Wire2DrawAttemptCount = 0;
+    FlULong G_WireLockFailCount = 0;
+    FlULong G_WireDrawAttemptCount = 0;
+    FlULong G_Wire2LockFailCount = 0;
+    FlULong G_Wire2DrawAttemptCount = 0;
 
     // Both listings: select current group, retry zero on any nonzero result.
     // The caller owns the QI pointer before the call, including negative QI outputs.
-    bool MeshSelectAndAdvanceCursor(IMesh* Mesh, unsigned long* Cursor)
+    bool MeshSelectAndAdvanceCursor(IMesh* Mesh, FlULong* Cursor)
     {
         if (Mesh->OpenFaceGroup((int)(*Cursor), 1) != 0)
         {
@@ -1626,7 +1626,7 @@ namespace
         unsigned short* ValueIndices;
         float* Positions;
         unsigned short* PositionIndices;
-        unsigned long IndexCount;
+        FlULong IndexCount;
     };
 
     // Fetch color/value and position channel arrays and their independent indices.
@@ -1643,7 +1643,7 @@ namespace
         Mesh->GetFaceGroupData(0x80, (void**)(&Arrays.Positions),
             &UnusedB, &UnusedC, &UnusedD);
         Mesh->GetFaceGroupIndices(0x80, (void**)(&Arrays.PositionIndices), &IndexCount);
-        Arrays.IndexCount = (unsigned long)((uintptr_t)(IndexCount));
+        Arrays.IndexCount = (FlULong)((uintptr_t)(IndexCount));
     }
 
     void MeshFinalizeIteration(IMesh* Mesh)
@@ -1656,7 +1656,7 @@ namespace
     // Slot18 is a status, only -8 has a special branch. Count comes from Slot24(80).
     // Each accepted edge emits two vertices in 066fb540, twelve in 066fc150.
     GENRESULT WireDrawEdges(IRenderPipeline* Pipeline, IVertexBufferManager* VertexBufferManager,
-                           IMesh* Mesh, const unsigned long& Color0, const unsigned long& Color1, bool bWire2)
+                           IMesh* Mesh, const FlULong& Color0, const FlULong& Color1, bool bWire2)
     {
         if (Mesh->OpenFaceGroupChannels(0x180) == -8)
         {
@@ -1668,15 +1668,15 @@ namespace
         MeshFetchEdgeArrays(Mesh, Arrays);
         FVertexMemoryLock LockOut;
         IVertexBufferManager* Manager = VertexBufferManager;
-        const unsigned long ReservationCount = bWire2 ? Arrays.IndexCount * 6 : Arrays.IndexCount;
+        const FlULong ReservationCount = bWire2 ? Arrays.IndexCount * 6 : Arrays.IndexCount;
         if (Manager->LockVertexMemory(0x42, ReservationCount, &LockOut) >= 0)
         {
-            const unsigned long Stride = (unsigned long)(FvfStride(LockOut.Listing.Fvf));
-            const unsigned long ColorOffset = (unsigned long)(
+            const FlULong Stride = (FlULong)(FvfStride(LockOut.Listing.Fvf));
+            const FlULong ColorOffset = (FlULong)(
                 FvfXyzSize(LockOut.Listing.Fvf) + FvfNormalSize(LockOut.Listing.Fvf));
             unsigned char* Dest = (unsigned char*)(LockOut.Vertices);
-            unsigned long ValidVertexCount = 0;
-            for (unsigned long Edge = 0; Edge < (Arrays.IndexCount >> 1); ++Edge)
+            FlULong ValidVertexCount = 0;
+            for (FlULong Edge = 0; Edge < (Arrays.IndexCount >> 1); ++Edge)
             {
                 // FCOMP double(0.1); TEST AH,41; JNP exits for less/equal.
                 // Unordered has TWO set mask bits: even parity, so it falls through.
@@ -1685,12 +1685,12 @@ namespace
                     break;
                 if (!bWire2)
                 {
-                    for (unsigned long Endpoint = 0; Endpoint < 2; ++Endpoint)
+                    for (FlULong Endpoint = 0; Endpoint < 2; ++Endpoint)
                     {
                         const unsigned short Index = Arrays.PositionIndices[Edge * 2 + Endpoint];
-                        std::memcpy(Dest, Arrays.Positions + (unsigned long)(Index) * 3,
+                        std::memcpy(Dest, Arrays.Positions + (FlULong)(Index) * 3,
                             3 * sizeof(float));
-                        *(unsigned long*)(Dest + ColorOffset) = Color0;
+                        *(FlULong*)(Dest + ColorOffset) = Color0;
                         Dest += Stride;
                         ++ValidVertexCount;
                     }
@@ -1698,15 +1698,15 @@ namespace
                 else
                 {
                     // Emit four triangles from original and offset endpoints.
-                    const unsigned long Endpoints[12] = {0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1};
+                    const FlULong Endpoints[12] = {0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1};
                     const unsigned char ColorSelectors[12] = {0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1};
                     const signed char Offsets[12] = {0, 0, -1, 0, -1, -1, 0, 0, 1, 0, 1, 1};
-                    for (unsigned long Slot = 0; Slot < 12; ++Slot)
+                    for (FlULong Slot = 0; Slot < 12; ++Slot)
                     {
                         const unsigned short Index = Arrays.PositionIndices[Edge * 2 + Endpoints[Slot]];
-                        std::memcpy(Dest, Arrays.Positions + (unsigned long)(Index) * 3,
+                        std::memcpy(Dest, Arrays.Positions + (FlULong)(Index) * 3,
                             3 * sizeof(float));
-                        *(unsigned long*)(Dest + ColorOffset) =
+                        *(FlULong*)(Dest + ColorOffset) =
                             ColorSelectors[Slot] == 0 ? Color0 : Color1;
                         if (Offsets[Slot] != 0)
                         {
@@ -1753,8 +1753,8 @@ namespace
     {
         IRenderPipeline* Pipeline;
         D3DRENDERSTATETYPE State;
-        unsigned long Value;
-        FScopedWireRenderState(IRenderPipeline* InPipeline, D3DRENDERSTATETYPE InState, unsigned long InValue)
+        FlULong Value;
+        FScopedWireRenderState(IRenderPipeline* InPipeline, D3DRENDERSTATETYPE InState, FlULong InValue)
             : Pipeline(InPipeline), State(InState)
         {
             PipelineGetRenderState(Pipeline, State, &Value);
@@ -1768,9 +1768,9 @@ namespace
 
     // 066fb540..ba20: mandatory Context, optional mesh/count/engine gates.
     // QI owners and state savers unwind in reverse construction order.
-    GENRESULT SubmitWireGeometry(const unsigned long& WireColor, IRenderPipeline* Pipeline, IVertexBufferManager* VertexBufferManager,
-                        unsigned long* GroupCursor, void* Context, unsigned long StartArg,
-                        unsigned long CountArg, unsigned long IndexSpanArg)
+    GENRESULT SubmitWireGeometry(const FlULong& WireColor, IRenderPipeline* Pipeline, IVertexBufferManager* VertexBufferManager,
+                        FlULong* GroupCursor, void* Context, FlULong StartArg,
+                        FlULong CountArg, FlULong IndexSpanArg)
     {
         FNomadContext* Submit = (FNomadContext*)(Context);
         if (Submit->Mesh == nullptr || CountArg == 0 || IndexSpanArg == 0 || G_FlmEngineOuter == nullptr)
@@ -1797,9 +1797,9 @@ namespace
     }
 
     // 066fc150..c7d0: only IMesh QI, same status/cursor cleanup, twelve output vertices per edge.
-    GENRESULT SubmitWire2Geometry(const unsigned long& ColorFromP0, const unsigned long& ColorFromP1, IRenderPipeline* Pipeline,
-                         IVertexBufferManager* VertexBufferManager, unsigned long* GroupCursor, void* Context,
-                         unsigned long CountArg, unsigned long IndexSpanArg)
+    GENRESULT SubmitWire2Geometry(const FlULong& ColorFromP0, const FlULong& ColorFromP1, IRenderPipeline* Pipeline,
+                         IVertexBufferManager* VertexBufferManager, FlULong* GroupCursor, void* Context,
+                         FlULong CountArg, FlULong IndexSpanArg)
     {
         FNomadContext* Submit = (FNomadContext*)(Context);
         if (Submit->Mesh == nullptr || CountArg == 0 || IndexSpanArg == 0 || G_FlmEngineOuter == nullptr)
@@ -1817,9 +1817,9 @@ namespace
     // LAB_066f5dc0: Candidate forwarding or two passes. The resolved handle
     // is borrowed by reference because retail reloads it after draw/query calls.
     GENRESULT SubmitEnvMapGeometry(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr,
-                              unsigned long EnvMapFlag, const unsigned long& EnvMapResolvedHandle,
-                              void* Context, unsigned long Prim, unsigned long Start, unsigned long Count,
-                              unsigned long IbStart, unsigned long IndexSpan, unsigned long Flags)
+                              FlULong EnvMapFlag, const FlULong& EnvMapResolvedHandle,
+                              void* Context, FlULong Prim, FlULong Start, FlULong Count,
+                              FlULong IbStart, FlULong IndexSpan, FlULong Flags)
     {
         FNomadContext* Submit = (FNomadContext*)(Context);
         // 066f5dc7: Context is mandatory; Candidate has the actual null branch.
@@ -1839,7 +1839,7 @@ namespace
 
         if (EnvMapResolvedHandle != 0)
         {
-            unsigned long Stage = 0;
+            FlULong Stage = 0;
             int Probe = 1;
             Pipeline->GetTextureStageState(0, 1, &Probe);
             if (Probe != 1)
@@ -1866,20 +1866,20 @@ namespace
 
     // 066f6b40..6dbc: engine/userdata may be null, Context and material are mandatory.
     GENRESULT SubmitExclusionGeometry(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr, void* Context,
-                                 unsigned long PrimArg, unsigned long StartArg, unsigned long CountArg,
-                                 unsigned long IbStartArg, unsigned long IndexSpanArg, unsigned long FlagsArg,
+                                 FlULong PrimArg, FlULong StartArg, FlULong CountArg,
+                                 FlULong IbStartArg, FlULong IndexSpanArg, FlULong FlagsArg,
                                  float* MaterialBlock)
     {
-        const unsigned long Prim = PrimArg;
-        const unsigned long Start = StartArg;
-        const unsigned long Count = CountArg;
-        const unsigned long IbStart = IbStartArg;
-        const unsigned long IndexSpan = IndexSpanArg;
-        const unsigned long Flags = FlagsArg;
+        const FlULong Prim = PrimArg;
+        const FlULong Start = StartArg;
+        const FlULong Count = CountArg;
+        const FlULong IbStart = IbStartArg;
+        const FlULong IndexSpan = IndexSpanArg;
+        const FlULong Flags = FlagsArg;
 
-        unsigned long Old8B = 0;
+        FlULong Old8B = 0;
         PipelineGetRenderState(Pipeline, D3DRS_AMBIENT, &Old8B);
-        PipelineSetRenderState(Pipeline, D3DRS_AMBIENT, (unsigned long)(-1));
+        PipelineSetRenderState(Pipeline, D3DRS_AMBIENT, (FlULong)(-1));
 
         if (G_FlmEngineOuter != nullptr)
         {
@@ -1904,15 +1904,15 @@ namespace
 
     // Glass-family draw path shares the same argument contract.
     GENRESULT SubmitGlassGeometry(IRenderPipeline* Pipeline, IRPDraw* RpDraw, IVertexBufferManager* VbMgr, void* Context,
-                             unsigned long PrimArg, unsigned long StartArg, unsigned long CountArg, unsigned long IbStartArg,
-                             unsigned long IndexSpanArg, unsigned long FlagsArg)
+                             FlULong PrimArg, FlULong StartArg, FlULong CountArg, FlULong IbStartArg,
+                             FlULong IndexSpanArg, FlULong FlagsArg)
     {
-        const unsigned long Prim = PrimArg;
-        const unsigned long Start = StartArg;
-        const unsigned long Count = CountArg;
-        const unsigned long IbStart = IbStartArg;
-        const unsigned long IndexSpan = IndexSpanArg;
-        const unsigned long Flags = FlagsArg;
+        const FlULong Prim = PrimArg;
+        const FlULong Start = StartArg;
+        const FlULong Count = CountArg;
+        const FlULong IbStart = IbStartArg;
+        const FlULong IndexSpan = IndexSpanArg;
+        const FlULong Flags = FlagsArg;
 
         PipelineSetRenderState(Pipeline, D3DRS_CULLMODE, 3);
         const GENRESULT Pass1 = FlmMeshDrawPass(Pipeline, RpDraw, VbMgr, Context, Prim, Start,
@@ -2083,7 +2083,7 @@ FMaterialImpl::~FMaterialImpl() noexcept(false)
 
 void FMaterialImpl::ReleaseMaterialResources()
 {
-    for (unsigned long Index = 0; Index < TextureVerifyCount_; ++Index)
+    for (FlULong Index = 0; Index < TextureVerifyCount_; ++Index)
     {
         unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                Index * kFlmTextureVerifyEntrySize;
@@ -2097,7 +2097,7 @@ void FMaterialImpl::ReleaseMaterialResources()
     // 06700643 -> 0670071b: all groups are released before reverse element teardown.
     if (TextureBlock_ != nullptr)
     {
-        for (unsigned long Remaining = TextureVerifyCount_; Remaining != 0; --Remaining)
+        for (FlULong Remaining = TextureVerifyCount_; Remaining != 0; --Remaining)
         {
             unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                    (Remaining - 1) * kFlmTextureVerifyEntrySize;
@@ -2132,13 +2132,13 @@ GENRESULT DACOM_API FMaterialImpl::QueryInterface(const char* Iid, void** Out)
     return ControllingOuter_->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMaterialImpl::AddRef()
+FlULong DACOM_API FMaterialImpl::AddRef()
 {
     // LAB_066f58f0: no local counter operation on the public face.
     return ControllingOuter_->AddRef();
 }
 
-unsigned long DACOM_API FMaterialImpl::Release()
+FlULong DACOM_API FMaterialImpl::Release()
 {
     // LAB_066f5900: the controller owns destruction of this material.
     return ControllingOuter_->Release();
@@ -2158,17 +2158,17 @@ GENRESULT DACOM_API FMaterialImpl::FInner::QueryInterface(const char* Iid, void*
     return GR_INTERFACE_UNSUPPORTED;
 }
 
-unsigned long DACOM_API FMaterialImpl::FInner::AddRef()
+FlULong DACOM_API FMaterialImpl::FInner::AddRef()
 {
     return ++RefCount;
 }
 
-unsigned long DACOM_API FMaterialImpl::FInner::Release()
+FlULong DACOM_API FMaterialImpl::FInner::Release()
 {
     // LAB_066f5190: saturating decrement, reset before callback into owner teardown.
     if (RefCount != 0)
         --RefCount;
-    const unsigned long Remaining = RefCount;
+    const FlULong Remaining = RefCount;
     if (Remaining == 0)
     {
         RefCount = 1;
@@ -2183,12 +2183,12 @@ GENRESULT DACOM_API FMaterialImpl::InnerQueryInterface(const char* Iid, void** O
     return Inner_.QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMaterialImpl::InnerAddRef()
+FlULong DACOM_API FMaterialImpl::InnerAddRef()
 {
     return Inner_.AddRef();
 }
 
-unsigned long DACOM_API FMaterialImpl::InnerRelease()
+FlULong DACOM_API FMaterialImpl::InnerRelease()
 {
     return Inner_.Release();
 }
@@ -2238,34 +2238,34 @@ GENRESULT DACOM_API FMaterialImpl::Initialize(IDAComponent* Outer)
     VertexBufferManager_->Release();
 
     void* ParamBase = nullptr;
-    const unsigned long ParamCount = GetParameterTable(&ParamBase);
+    const FlULong ParamCount = GetParameterTable(&ParamBase);
     unsigned char* Descriptors = (unsigned char*)(ParamBase);
     TextureVerifyCount_ = 0;
-    for (unsigned long Index = 0; Index < ParamCount; ++Index)
+    for (FlULong Index = 0; Index < ParamCount; ++Index)
     {
         const unsigned char* Entry = Descriptors + Index * kFlmParamDescSize;
-        if (*(const unsigned long*)(Entry + 0x10) == 7)
+        if (*(const FlULong*)(Entry + 0x10) == 7)
             ++TextureVerifyCount_;
     }
     if (TextureVerifyCount_ != 0)
     {
         const size_t WordCount = (size_t)(TextureVerifyCount_) *
-                                 (kFlmTextureVerifyEntrySize / sizeof(unsigned long));
-        TextureBlock_ = new unsigned long[WordCount];
-        for (unsigned long Index = 0; Index < TextureVerifyCount_; ++Index)
+                                 (kFlmTextureVerifyEntrySize / sizeof(FlULong));
+        TextureBlock_ = new FlULong[WordCount];
+        for (FlULong Index = 0; Index < TextureVerifyCount_; ++Index)
         {
             unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                    Index * kFlmTextureVerifyEntrySize;
             *(void**)(Entry) = nullptr;
             *(int*)(Entry + 4) = -1;
-            *(unsigned long*)(Entry + 8) = 0;
-            *(unsigned long*)(Entry + 0x1C) = 4;
-            *(unsigned long*)(Entry + 0x20) = 0;
-            *(unsigned long*)(Entry + 0x24) = 0;
+            *(FlULong*)(Entry + 8) = 0;
+            *(FlULong*)(Entry + 0x1C) = 4;
+            *(FlULong*)(Entry + 0x20) = 0;
+            *(FlULong*)(Entry + 0x24) = 0;
             Entry[0x28] = 0;
         }
     }
-    for (unsigned long Index = 0; Index < ParamCount; ++Index)
+    for (FlULong Index = 0; Index < ParamCount; ++Index)
     {
         unsigned char* Entry = Descriptors +
                                Index * kFlmParamDescSize;
@@ -2287,14 +2287,14 @@ GENRESULT DACOM_API FMaterialImpl::LoadFromFileSystem(void* FileSystem)
     // LAB_066f13e0: bit0 skips loading; failed mandatory (bit2) entries
     // report a diagnostic, while the loop and final success continue.
     void* Base = nullptr;
-    const unsigned long Count = GetParameterTable(&Base);
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    const FlULong Count = GetParameterTable(&Base);
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         unsigned char* Entry = (unsigned char*)(Base) + Index * kFlmParamDescSize;
         if ((*Entry & 1) != 0)
             continue;
         if (!FlmLoadDeclaredParameter(this, FileSystem, Entry, Index) &&
-            (*(const unsigned long*)(Entry) & 4) != 0)
+            (*(const FlULong*)(Entry) & 4) != 0)
         {
             const char* Instance = bInstanceNameSet_ ? InstanceName_ : "(Unnamed)";
             const char* Class = ClassName();
@@ -2313,10 +2313,10 @@ GENRESULT DACOM_API FMaterialImpl::SaveProperties(void* FileSystem)
     // LAB_066f14f0: save each descriptor with bit 0 clear. A failed write is
     // reported, but the loop continues and returns -1 after the last entry.
     void* Base = nullptr;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
 
     GENRESULT Result = GR_OK;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         unsigned char* Entry = (unsigned char*)(Base) + Index * kFlmParamDescSize;
         if ((*Entry & 1) != 0)
@@ -2371,7 +2371,7 @@ GENRESULT DACOM_API FMaterialImpl::ApplyVerify(void* Context, void* Extra)
         } AnimLib;
         if (Pipeline_->QueryInterface(Iids::MatAnimLibrary, (void**)&AnimLib.Object) >= 0)
         {
-            struct FAnimationNameQuery { const char* Name; unsigned long Crc; };
+            struct FAnimationNameQuery { const char* Name; FlULong Crc; };
             FAnimationNameQuery Query = {InstanceName_, DACOM_CRC::GetCRC32(InstanceName_)};
             if (MatAnim_ != nullptr)
             {
@@ -2394,11 +2394,11 @@ GENRESULT DACOM_API FMaterialImpl::ApplyVerify(void* Context, void* Extra)
         bSecondTexture_ = 1;
         GENRESULT BindResult = Bind(nullptr);
         GENRESULT VerifyResult = BindResult;
-        bool bFailed = (long)(BindResult) < 0;
+        bool bFailed = (FlLong)(BindResult) < 0;
         if (!bFailed)
         {
             VerifyResult = PipelineVerifyState(Pipeline_);
-            bFailed = (long)(VerifyResult) < 0;
+            bFailed = (FlLong)(VerifyResult) < 0;
         }
         bSecondTexture_ = bFailed ? 0 : 1;
         if (bFailed)
@@ -2441,12 +2441,12 @@ GENRESULT DACOM_API FMaterialImpl::ResolveTextures(float Delta)
     if (Kind_ == KindHudAnim)
     {
         // LAB_066fff20 resolves texture records before its HUD animation tail.
-        for (unsigned long Index = 0; Index < TextureVerifyCount_; ++Index)
+        for (FlULong Index = 0; Index < TextureVerifyCount_; ++Index)
         {
             unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                    Index * kFlmTextureVerifyEntrySize;
             const int PlaybackGroupId = *(const int*)(Entry + 4);
-            unsigned long* Handle = (unsigned long*)(Entry + 8);
+            FlULong* Handle = (FlULong*)(Entry + 8);
             if (PlaybackGroupId == -1)
                 *Handle = 0;
             else if (Entry[0x28] == 0)
@@ -2455,7 +2455,7 @@ GENRESULT DACOM_API FMaterialImpl::ResolveTextures(float Delta)
 
         if (MaterialLibrary_ != nullptr)
         {
-            unsigned long OutValue = 0;
+            FlULong OutValue = 0;
             const GENRESULT Got =
                 MaterialLibrary_->GetGlobalRecordValue(4, &OutValue);
             if (Got >= 0)
@@ -2474,8 +2474,8 @@ GENRESULT DACOM_API FMaterialImpl::ResolveTextures(float Delta)
                 if (MatAnim_ == nullptr)
                 {
                     const char* Name = InstanceName_;
-                    unsigned long CrcStruct[2];
-                    CrcStruct[0] = (unsigned long)(Name);
+                    FlULong CrcStruct[2];
+                    CrcStruct[0] = (FlULong)(Name);
                     CrcStruct[1] = DACOM_CRC::GetCRC32(Name);
                     if (MatAnim_ != nullptr)
                     {
@@ -2497,12 +2497,12 @@ GENRESULT DACOM_API FMaterialImpl::ResolveTextures(float Delta)
     }
 
     // LAB_066f1610: mandatory storage/library, unsigned count re-read each iteration.
-    for (unsigned long Index = 0; Index < TextureVerifyCount_; ++Index)
+    for (FlULong Index = 0; Index < TextureVerifyCount_; ++Index)
     {
         unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                Index * kFlmTextureVerifyEntrySize;
         const int PlaybackGroupId = *(const int*)(Entry + 4);
-        unsigned long* Handle = (unsigned long*)(Entry + 8);
+        FlULong* Handle = (FlULong*)(Entry + 8);
         if (PlaybackGroupId == -1)
             *Handle = 0;
         else if (Entry[0x28] == 0)
@@ -2627,7 +2627,7 @@ GENRESULT DACOM_API FMaterialImpl::Teardown(void* Context)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long IbStart, unsigned long IndexSpan, unsigned long Flags)
+GENRESULT DACOM_API FMaterialImpl::Submit(void* Context, FlULong PrimType, FlULong Start, FlULong Count, FlULong IbStart, FlULong IndexSpan, FlULong Flags)
 {
     if (Kind_ == KindVisibleCounter)
     {
@@ -2682,7 +2682,7 @@ GENRESULT DACOM_API FMaterialImpl::Submit(void* Context, unsigned long PrimType,
         // 066f4258 reads the material's +64 flag, not the context.
         if (Context == nullptr || ((FNomadContext*)(Context))->Candidate == nullptr)
             return GR_OK;
-        unsigned long ForwardFlags = Flags;
+        FlULong ForwardFlags = Flags;
         if (Flag64_ != 0)
             ForwardFlags |= 0x400;
         return SubmitCandidateGeometry(Context, PrimType, Start, Count, IbStart, IndexSpan,
@@ -2738,7 +2738,7 @@ GENRESULT DACOM_API FMaterialImpl::SetName(const char* Name)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::GetName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FMaterialImpl::GetName(char* Out, FlULong Size)
 {
     // LAB_066f16e0..1710: the only early return is an unset name.
     if (InstanceName_ == nullptr)
@@ -2748,7 +2748,7 @@ GENRESULT DACOM_API FMaterialImpl::GetName(char* Out, unsigned long Size)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::CopyClassName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FMaterialImpl::CopyClassName(char* Out, FlULong Size)
 {
     // FUN_066f1720: two virtual class-name reads; mandatory output and size.
     if (ClassName() == nullptr)
@@ -2765,9 +2765,9 @@ GENRESULT DACOM_API FMaterialImpl::GetPassCount(int* Out)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::GetRenderFlags(unsigned long* Out)
+GENRESULT DACOM_API FMaterialImpl::GetRenderFlags(FlULong* Out)
 {
-    unsigned long Mask = 8;
+    FlULong Mask = 8;
     if (Kind_ == KindColorize)
     {
         // 066f4a90: TEST AH,05 / JP skips the extra bit on >= or unordered;
@@ -2792,18 +2792,18 @@ GENRESULT DACOM_API FMaterialImpl::GetRenderFlags(unsigned long* Out)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::GetParameterCount(unsigned long* OutCount)
+GENRESULT DACOM_API FMaterialImpl::GetParameterCount(FlULong* OutCount)
 {
     // 066f1770: virtual Slot27(null), then mandatory output publication.
     *OutCount = GetParameterTable(nullptr);
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::GetParameterDescriptor(unsigned long Index, void* OutDesc)
+GENRESULT DACOM_API FMaterialImpl::GetParameterDescriptor(FlULong Index, void* OutDesc)
 {
     // Copy the indexed declared-property descriptor including its owned typed values.
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Count <= Index)
         return (GENRESULT)-1;
 
@@ -2821,26 +2821,26 @@ GENRESULT DACOM_API FMaterialImpl::GetParameterDescriptor(unsigned long Index, v
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialImpl::GetParameterValue(unsigned long Index, void* InOutDesc)
+GENRESULT DACOM_API FMaterialImpl::GetParameterValue(FlULong Index, void* InOutDesc)
 {
     // Read the live property into the caller's typed value with ownership preserved.
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Count <= Index)
         return (GENRESULT)-1;
 
     const FShadingPropertyRecord* Entry = (const FShadingPropertyRecord*)Base + Index;
-    const unsigned long RealType = Entry->Current.Type;
+    const FlULong RealType = Entry->Current.Type;
 
     FShadingPropertyValue* Result = (FShadingPropertyValue*)InOutDesc;
     if (Result->Type != RealType)
-        FlmReleaseTypedValue((unsigned long*)Result);
+        FlmReleaseTypedValue((FlULong*)Result);
     Result->Type = RealType;
 
     void* Raw = GetParameterAddress(Index);
     if (Raw == nullptr)
         return (GENRESULT)-1;
-    const unsigned long* RawWords = (const unsigned long*)Raw;
+    const FlULong* RawWords = (const FlULong*)Raw;
 
     // 066f1c29 reloads the output type after virtual Slot28 returns.
     switch (Result->Type)
@@ -2865,21 +2865,21 @@ GENRESULT DACOM_API FMaterialImpl::GetParameterValue(unsigned long Index, void* 
         return GR_OK;
     case 5:
     case 7:
-        FlmAssignString((unsigned long*)Result, (const char*)RawWords[0]);
+        FlmAssignString((FlULong*)Result, (const char*)RawWords[0]);
         return GR_OK;
     case 6:
-        FlmAssignInterface((unsigned long*)Result, (IDAComponent*)RawWords[0]);
+        FlmAssignInterface((FlULong*)Result, (IDAComponent*)RawWords[0]);
         return GR_OK;
     default:
         return GR_OK; // 066f1c2f -> 066f1d02 for unrecognized types.
     }
 }
 
-GENRESULT DACOM_API FMaterialImpl::SetParameterValue(unsigned long Index, void* Value)
+GENRESULT DACOM_API FMaterialImpl::SetParameterValue(FlULong Index, void* Value)
 {
     // Validate before storing the indexed property.
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Count <= Index)
         return (GENRESULT)-1;
 
@@ -2971,14 +2971,14 @@ GENRESULT __thiscall FMaterialImpl::Setup()
 {
     // LAB_066f1da0..066f1fbd: resolve new groups before dropping old IDs.
     void* ResolvedRecord; // Retail does not preclear the Slot12 output scratch.
-    for (unsigned long Index = 0; Index < TextureVerifyCount_; ++Index)
+    for (FlULong Index = 0; Index < TextureVerifyCount_; ++Index)
     {
         unsigned char* Entry = (unsigned char*)(TextureBlock_) +
                                Index * kFlmTextureVerifyEntrySize;
         ITextureLibrary2* Library = TextureLibrary_;
         const int OldPlaybackGroupId = *(int*)(Entry + 4);
         int* PlaybackGroupId = (int*)(Entry + 4);
-        unsigned long* ResolvedHandle = (unsigned long*)(Entry + 8);
+        FlULong* ResolvedHandle = (FlULong*)(Entry + 8);
         const char* Name = *(const char* const*)(Entry);
         unsigned char* SingleFrameFlag = Entry + 0x28;
         *ResolvedHandle = 0;
@@ -2990,7 +2990,7 @@ GENRESULT __thiscall FMaterialImpl::Setup()
             struct FTexLibQuery
             {
                 const char* Name;
-                unsigned long Crc;
+                FlULong Crc;
             } Query = {Name, DACOM_CRC::GetCRC32(Name)};
             if (Library->FindTextureByCrc(&Query, &ResolvedRecord) >= 0)
             {
@@ -3026,16 +3026,16 @@ GENRESULT __thiscall FMaterialImpl::Setup()
     return GR_OK;
 }
 
-bool __thiscall FMaterialImpl::ValueWithinDeclaredRange(unsigned long Index, void* Entry, void* Value)
+bool __thiscall FMaterialImpl::ValueWithinDeclaredRange(FlULong Index, void* Entry, void* Value)
 {
     // Require the declared type, then check the type-specific range.
     const unsigned char* EntryBytes = (const unsigned char*)(Entry);
-    const unsigned long* ValueWords = (const unsigned long*)(Value);
-    const unsigned long EntryType = *(const unsigned long*)(EntryBytes + 0x10);
+    const FlULong* ValueWords = (const FlULong*)(Value);
+    const FlULong EntryType = *(const FlULong*)(EntryBytes + 0x10);
     if (EntryType != ValueWords[0])
         return false;
 
-    unsigned long ComponentCount = 0;
+    FlULong ComponentCount = 0;
     if (EntryType == 2)
         ComponentCount = 1;
     else if (EntryType == 3)
@@ -3049,7 +3049,7 @@ bool __thiscall FMaterialImpl::ValueWithinDeclaredRange(unsigned long Index, voi
     const float* Hi = (const float*)(EntryBytes + 0x3C); // sub-block 3 ("range")
     const float* Val = (const float*)(ValueWords + 1);  // Value+4
 
-    for (unsigned long Component = 0; Component < ComponentCount; ++Component)
+    for (FlULong Component = 0; Component < ComponentCount; ++Component)
     {
         // Upper TEST AH,0x41 / JNP rejects ordered <= (upper vs value).
         // Lower TEST AH,0x1 / JZ rejects ordered >=; unordered passes both.
@@ -3063,7 +3063,7 @@ bool __thiscall FMaterialImpl::ValueWithinDeclaredRange(unsigned long Index, voi
     return true;
 }
 
-GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, void* Entry, void* Value)
+GENRESULT __thiscall FMaterialImpl::StoreParameterValue(FlULong Index, void* Entry, void* Value)
 {
     // Wire families additionally update the packed colors after storing RGBA.
     if (Kind_ == KindWire || Kind_ == KindWire2)
@@ -3071,8 +3071,8 @@ GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, voi
         void* Raw = GetParameterAddress(Index);
         if (Raw != nullptr)
         {
-            const unsigned long* SrcWords = (const unsigned long*)(Value);
-            unsigned long* DestWords = (unsigned long*)(Raw);
+            const FlULong* SrcWords = (const FlULong*)(Value);
+            FlULong* DestWords = (FlULong*)(Raw);
             switch (SrcWords[0])
             {
             case 3:
@@ -3121,11 +3121,11 @@ GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, voi
         if (Index == 0)
         {
             const float* Components = (const float*)(
-                (const unsigned long*)(Value) + 1);
-            unsigned long Red;
-            unsigned long Green;
-            unsigned long Blue;
-            unsigned long Alpha;
+                (const FlULong*)(Value) + 1);
+            FlULong Red;
+            FlULong Green;
+            FlULong Blue;
+            FlULong Alpha;
             if (Kind_ == KindWire)
             {
                 // 066fb30e..066fb3a5: Wire explicitly overwrites RGBA for every type.
@@ -3162,7 +3162,7 @@ GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, voi
     // Colorize has separate color and option-flag storage.
     if (Kind_ == KindColorize)
     {
-        const unsigned long* SrcWords = (const unsigned long*)(Value);
+        const FlULong* SrcWords = (const FlULong*)(Value);
         if (Index == 0)
         {
             MaterialBlock_[4] = *(const float*)(&SrcWords[1]);
@@ -3184,7 +3184,7 @@ GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, voi
         void* Raw = GetParameterAddress(Index);
         if (Raw != nullptr)
         {
-            unsigned long* DestWords = (unsigned long*)(Raw);
+            FlULong* DestWords = (FlULong*)(Raw);
             switch (SrcWords[0])
             {
             case 3:
@@ -3235,8 +3235,8 @@ GENRESULT __thiscall FMaterialImpl::StoreParameterValue(unsigned long Index, voi
     void* Raw = GetParameterAddress(Index);
     if (Raw != nullptr)
     {
-        const unsigned long* SrcWords = (const unsigned long*)(Value);
-        unsigned long* DestWords = (unsigned long*)(Raw);
+        const FlULong* SrcWords = (const FlULong*)(Value);
+        FlULong* DestWords = (FlULong*)(Raw);
         switch (SrcWords[0])
         {
         case 3:
@@ -3295,12 +3295,12 @@ void FMaterialImpl::RecomputeOpacityFlags()
     if (Flag64_ != 0)
         return;
     int ActualFormat = FlmFindPixelFormatIndex(0);
-    const unsigned long Handle = TextureBlock_[2];
+    const FlULong Handle = TextureBlock_[2];
     if (Handle == 0)
         return;
     if (Pipeline_->GetTextureFormat((void*)(Handle), &ActualFormat) < 0)
         return;
-    const unsigned long* ActualDescriptor = FlmPixelFormatDescriptor(ActualFormat);
+    const FlULong* ActualDescriptor = FlmPixelFormatDescriptor(ActualFormat);
     Flag65_ = ActualDescriptor[0x38 / 4] == 1 ? 1 : 0;
     // 066f2c4f PUSH shifts the same GetTextureFormat output from ESP+14 to
     // ESP+18 at 066f2c58; Colorize, Setup and Wire have the same stack shift.
@@ -3311,7 +3311,7 @@ void FMaterialImpl::RecomputeOpacityFlags()
         Flag64_ = 0;
 }
 
-unsigned long __thiscall FMaterialImpl::GetParameterTable(void** OutBase)
+FlULong __thiscall FMaterialImpl::GetParameterTable(void** OutBase)
 {
     // Mutable table objects are exposed through the existing void** API.
     // FUN_066F2CD0 is the zero-property base. Per-kind Slot27 overrides below
@@ -3360,7 +3360,7 @@ unsigned long __thiscall FMaterialImpl::GetParameterTable(void** OutBase)
     return 0;
 }
 
-void* __thiscall FMaterialImpl::GetParameterAddress(unsigned long Index)
+void* __thiscall FMaterialImpl::GetParameterAddress(FlULong Index)
 {
     // Wire families expose their RGBA storage only at index zero.
     if (Kind_ == KindWire || Kind_ == KindWire2)
@@ -3442,9 +3442,9 @@ void FMaterialImpl::BindUnknown(const char* Why)
 }
 
 // Apply this texture entry's coordinates and wrapping to the selected stage.
-void FMaterialImpl::ApplyTssFromTextureBlock(unsigned long Stage, const unsigned long* Block)
+void FMaterialImpl::ApplyTssFromTextureBlock(FlULong Stage, const FlULong* Block)
 {
-    unsigned long const Coord = (Block[7] >= 4) ? (Block[7] - 4) : 0;
+    FlULong const Coord = (Block[7] >= 4) ? (Block[7] - 4) : 0;
     PipelineSetTextureStageState(Pipeline_, Stage, D3DTSS_TEXCOORDINDEX, Coord);
     PipelineSetTextureStageState(Pipeline_, Stage, D3DTSS_ADDRESSU, Block[8] + 1);
     PipelineSetTextureStageState(Pipeline_, Stage, D3DTSS_ADDRESSV, Block[9] + 1);
@@ -3452,7 +3452,7 @@ void FMaterialImpl::ApplyTssFromTextureBlock(unsigned long Stage, const unsigned
 
 // Block+0x08, the texture handle handed to the pipeline's SetTexture (vt+0x108) right before
 // the stage setup above.
-unsigned long FMaterialImpl::TextureHandleAt(const unsigned long* Block) const
+FlULong FMaterialImpl::TextureHandleAt(const FlULong* Block) const
 {
     return Block[2];
 }
@@ -3501,7 +3501,7 @@ void FMaterialImpl::BindNomad()
     if (bSecondTexture_ != 0)
     {
         // 066f8ab0..066f8ac1: the second of Nomad's two allocated texture records.
-        const unsigned long* Second = TextureBlock_ + (0x2C / 4);
+        const FlULong* Second = TextureBlock_ + (0x2C / 4);
         PipelineSetTextureStageTexture(Pipeline_, StageCounter_, TextureHandleAt(Second));
         ApplyTssFromTextureBlock(StageCounter_, Second);
         PipelineSetTextureStageState(Pipeline_, StageCounter_, D3DTSS_COLOROP, 7);
@@ -3596,7 +3596,7 @@ GENRESULT FMaterialImpl::BindColorize(void* Context)
         // binding, then destroys range/default/current before releasing Batched.
         struct FScopedParameterDescriptor
         {
-            unsigned long Words[kFlmParamDescSize / sizeof(unsigned long)] = {};
+            FlULong Words[kFlmParamDescSize / sizeof(FlULong)] = {};
             ~FScopedParameterDescriptor() noexcept(false) { FlmResetDescriptorEntry(Words); }
         } Descriptor;
 
@@ -3610,7 +3610,7 @@ GENRESULT FMaterialImpl::BindColorize(void* Context)
             {
                 struct FScopedParameterValue
                 {
-                    unsigned long Words[5] = {2, 0, 0, 0, 0};
+                    FlULong Words[5] = {2, 0, 0, 0, 0};
                     ~FScopedParameterValue() noexcept(false) { FlmReleaseTypedValue(Words); }
                 } Value;
                 ((IMaterial*)(Submit->Candidate))->GetParameterValue(5, Value.Words);
@@ -3768,7 +3768,7 @@ void FMaterialImpl::BindEnvMap(void* Context)
     }
     else
     {
-        const unsigned long NameCrc = DACOM_CRC::GetCRC32(Name);
+        const FlULong NameCrc = DACOM_CRC::GetCRC32(Name);
         if (NameCrc != EnvMapTexNameCrc_)
         {
             if (TextureLibrary_ != nullptr && ShadowHandle_ != 0)
@@ -3781,7 +3781,7 @@ void FMaterialImpl::BindEnvMap(void* Context)
                 struct FTextureNameQuery
                 {
                     const char* Name;
-                    unsigned long Crc;
+                    FlULong Crc;
                 } Query = {Name, DACOM_CRC::GetCRC32(Name)};
                 TextureLibrary_->FindTextureByCrc(&Query,
                     (void**)(&ShadowHandle_));
@@ -3790,15 +3790,15 @@ void FMaterialImpl::BindEnvMap(void* Context)
     }
     if (ShadowHandle_ != 0)
     {
-        unsigned long Out[5];
+        FlULong Out[5];
         if (TextureLibrary_->GetTextureFrame(
                 (void*)(ShadowHandle_), 0, Out) >= 0)
             EnvMapResolvedHandle_ = Out[0];
     }
     if (EnvMapFlag_ == 0 && EnvMapResolvedHandle_ != 0)
     {
-        unsigned long Stage = 0;
-        unsigned long Probe = 1;
+        FlULong Stage = 0;
+        FlULong Probe = 1;
         PipelineGetTextureStageState(Pipeline_, 0, 1, &Probe);
         if (Probe != 1)
         {
@@ -3841,7 +3841,7 @@ GENRESULT FMaterialImpl::BindShadow(void* Context)
         bShadowTextureInitialized_ = true;
         if (ShadowTextureRecord_ == nullptr)
         {
-            struct FTextureQuery { const char* Name; unsigned long Crc; };
+            struct FTextureQuery { const char* Name; FlULong Crc; };
             FTextureQuery Query = {"efxshadow", DACOM_CRC::GetCRC32("efxshadow")};
             if (ShadowTextureLibrary_->FindTextureByCrc(&Query, &ShadowTextureRecord_) < 0)
                 FDUMP(0x100002, "%s(%d) : WARNING:General:%s",
@@ -3849,7 +3849,7 @@ GENRESULT FMaterialImpl::BindShadow(void* Context)
                     "couldnt find texture 'efxshadow' (from efx.txm?)");
             else
             {
-                unsigned long Frame[5];
+                FlULong Frame[5];
                 if (ShadowTextureLibrary_->GetTextureFrame(ShadowTextureRecord_, 0, Frame) >= 0)
                     ShadowResolvedHandle_ = Frame[0];
             }
@@ -3862,8 +3862,8 @@ GENRESULT FMaterialImpl::BindShadow(void* Context)
         {
             int LayerCount = (int)((intptr_t)(Context));
             ((IMaterial*)(Submit->Candidate))->GetPassCount(&LayerCount);
-            if ((unsigned long)(LayerCount) != ShadowLayerCount_)
-                ShadowLayerCount_ = (unsigned long)(LayerCount);
+            if ((FlULong)(LayerCount) != ShadowLayerCount_)
+                ShadowLayerCount_ = (FlULong)(LayerCount);
             FShadowBatchedReference Batched;
             if (((IDAComponent*)(Submit->Candidate))->QueryInterface(Iids::BatchedMaterial, &Batched.Object) >= 0)
                 ((IBatchedMaterial*)(Batched.Object))->Bind(Context);
@@ -3874,19 +3874,19 @@ GENRESULT FMaterialImpl::BindShadow(void* Context)
     return (GENRESULT)(-1);
 }
 
-GENRESULT FMaterialImpl::DrawShadow(void* Context, unsigned long Prim, unsigned long Start,
-                                    unsigned long Count, unsigned long IbStart,
-                                    unsigned long IndexSpan, unsigned long Flags)
+GENRESULT FMaterialImpl::DrawShadow(void* Context, FlULong Prim, FlULong Start,
+                                    FlULong Count, FlULong IbStart,
+                                    FlULong IndexSpan, FlULong Flags)
 {
     // FUN_066fa5c0. Only the held batched reference is EH-owned; state resets are normal-path work.
     int SavedCull;
     Pipeline_->GetRenderState(D3DRS_ZFUNC, &SavedCull);
-    const unsigned long Stage = ShadowLayerCount_ < 2 ? 1 : 0;
+    const FlULong Stage = ShadowLayerCount_ < 2 ? 1 : 0;
     Pipeline_->SetTextureStageTexture((int)(Stage), (void*)(ShadowResolvedHandle_));
     if (Stage == 1)
     {
         IRenderPipeline* TablePipeline = Pipeline_;
-        for (unsigned long Index = 0; kShadowTss1[Index] != 0; Index += 2)
+        for (FlULong Index = 0; kShadowTss1[Index] != 0; Index += 2)
             TablePipeline->SetTextureStageState(1, kShadowTss1[Index], kShadowTss1[Index + 1]);
     }
     Pipeline_->SetTextureStageState(Stage, D3DTSS_ADDRESSU, 3);
@@ -3912,7 +3912,7 @@ GENRESULT FMaterialImpl::DrawShadow(void* Context, unsigned long Prim, unsigned 
         bool bDrawn = false;
         if ((Flags & 0x100) != 0)
         {
-            const unsigned long IbBase = *(const unsigned long*)(
+            const FlULong IbBase = *(const FlULong*)(
                 (unsigned char*)(Submit->IbWrapper) + 4);
             Result = RpDraw_->DrawIndexedPrimitive(Prim, Start, Count,
                 IbBase + IbStart, IndexSpan);
@@ -3930,14 +3930,14 @@ GENRESULT FMaterialImpl::DrawShadow(void* Context, unsigned long Prim, unsigned 
             }
             if (Result < 0 && Submit->Mesh != nullptr && Count != 0 && IndexSpan != 0)
             {
-                const unsigned long RequestedFvf = Submit->Mesh->SrcFvf;
+                const FlULong RequestedFvf = Submit->Mesh->SrcFvf;
                 FVertexMemoryLock LockOut;
                 Result = VertexBufferManager_->LockVertexMemory(
                     RequestedFvf, Count, &LockOut);
                 if (Result >= 0)
                 {
-                    const unsigned long GrantedFvf = LockOut.Listing.Fvf;
-                    const unsigned long Stride = (unsigned long)(FvfStride(GrantedFvf));
+                    const FlULong GrantedFvf = LockOut.Listing.Fvf;
+                    const FlULong Stride = (FlULong)(FvfStride(GrantedFvf));
                     void* DestBase = (void*)((uintptr_t)(LockOut.Vertices) - Stride * Start);
                     VertexBufferManager_->CopyVertexData(DestBase,
                         GrantedFvf, Submit->Mesh,
@@ -3985,11 +3985,11 @@ void FMaterialImpl::TeardownCandidateIgnoringResult(void* Context)
         ((IMaterial*)(Submit->Candidate))->Teardown(Context);
 }
 
-GENRESULT FMaterialImpl::SubmitCandidateGeometry(void* Context, unsigned long PrimType,
-                                                unsigned long Start, unsigned long Count,
-                                                unsigned long IbStart,
-                                                unsigned long IndexSpan,
-                                                unsigned long Flags)
+GENRESULT FMaterialImpl::SubmitCandidateGeometry(void* Context, FlULong PrimType,
+                                                FlULong Start, FlULong Count,
+                                                FlULong IbStart,
+                                                FlULong IndexSpan,
+                                                FlULong Flags)
 {
     // 066f4220: caller owns the optional candidate checks and material flag.
     FNomadContext* Submit = (FNomadContext*)(Context);
@@ -4039,9 +4039,9 @@ GENRESULT FMaterialImpl::TeardownBackdrop(void* Context)
     return ((IMaterial*)(Submit->Candidate))->Teardown(Context);
 }
 
-GENRESULT FMaterialImpl::DrawBackdrop(void* Context, unsigned long Prim, unsigned long Start,
-                                      unsigned long Count, unsigned long IbStart,
-                                      unsigned long IndexSpan, unsigned long Flags)
+GENRESULT FMaterialImpl::DrawBackdrop(void* Context, FlULong Prim, FlULong Start,
+                                      FlULong Count, FlULong IbStart,
+                                      FlULong IndexSpan, FlULong Flags)
 {
     if (Context == nullptr)
         return (GENRESULT)(-1);

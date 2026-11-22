@@ -189,7 +189,7 @@ namespace AlchemyImpl
 {
     __declspec(noinline) double ForwardAppearanceSingleEval(
         INestedSingleRamp* Ramp, const float& OuterTime, const float& InnerTime);
-    __declspec(noinline) unsigned long ForwardAppearanceColorEval(
+    __declspec(noinline) FlULong ForwardAppearanceColorEval(
         IRampColorRamp* Ramp, const float& OuterTime, const float& InnerTime);
     __declspec(noinline) float* ForwardAppearanceRgbEval(
         IRampColorRamp* Ramp, float* Out, const float& OuterTime, const float& InnerTime);
@@ -199,7 +199,7 @@ namespace AlchemyImpl
     // and the set field it hands out, AddRef'd.
     struct FBillboardRampSlot
     {
-        unsigned long Hash;
+        FlULong Hash;
         INestedSingleRamp* FAppearanceRampDescriptor::*Field;
     };
 
@@ -210,16 +210,16 @@ namespace AlchemyImpl
     {
         // +0x04 / +0x08: the Flags (+0x60) bit table (FFxBillboardPropertySet::GetPropBool).
         const FDescriptorFlagBit* Flags;
-        unsigned long FlagCount;
+        FlULong FlagCount;
         // +0x3c: first match wins; no match -> FUN_06244330 (Appearance_LODCurve).
         const FBillboardRampSlot* SingleRamps;
-        unsigned long SingleRampCount;
+        FlULong SingleRampCount;
         // +0x40: first match wins; no match -> -8.
         const FBillboardRampSlot* AnimatedRamps;
-        unsigned long AnimatedRampCount;
+        FlULong AnimatedRampCount;
         // +0x50: this hash -> LocalTransform (+0x8c) AddRef'd, any other -> FUN_0623fb50;
         // 0 = the class's +0x50 is FUN_0623fb50 itself.
-        unsigned long LocalTransformHash;
+        FlULong LocalTransformHash;
         // +0x54: the class table walked after the base one (FUN_06244320).
         const FNodePropertyRow* Rows;
     };
@@ -236,18 +236,18 @@ namespace AlchemyImpl
     public:
         explicit FFxBillboardPropertySet(const FBillboardPropertyClass* PropertyClass);
 
-        GENRESULT DACOM_API GetPropBool(unsigned long Hash, unsigned char* Out) override;
-        GENRESULT DACOM_API SetPropBool(unsigned long Hash, unsigned char Value) override;
-        GENRESULT DACOM_API GetPropPair(unsigned long Hash, unsigned long* Out2) override;
-        GENRESULT DACOM_API SetPropPair(unsigned long Hash, const unsigned long* In2) override;
-        GENRESULT DACOM_API GetPropName(unsigned long Hash, const char** Out) override;
-        GENRESULT DACOM_API SetPropName(unsigned long Hash, const char* Text) override;
-        GENRESULT DACOM_API GetPropColorRampRamp(unsigned long Hash, IRampColorRamp** Out) override;
-        GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropBool(FlULong Hash, unsigned char* Out) override;
+        GENRESULT DACOM_API SetPropBool(FlULong Hash, unsigned char Value) override;
+        GENRESULT DACOM_API GetPropPair(FlULong Hash, FlULong* Out2) override;
+        GENRESULT DACOM_API SetPropPair(FlULong Hash, const FlULong* In2) override;
+        GENRESULT DACOM_API GetPropName(FlULong Hash, const char** Out) override;
+        GENRESULT DACOM_API SetPropName(FlULong Hash, const char* Text) override;
+        GENRESULT DACOM_API GetPropColorRampRamp(FlULong Hash, IRampColorRamp** Out) override;
+        GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                   INestedSingleRamp** Out) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
-        GENRESULT DACOM_API GetPropTransform(unsigned long Hash, IAnimatedTransform** Out) override;
+        GENRESULT DACOM_API GetPropTransform(FlULong Hash, IAnimatedTransform** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
     private:
@@ -288,7 +288,7 @@ namespace AlchemyImpl
         // Outer +0xA4, LAB_062194b0 -> LAB_06217a60: the batch flush's per-appearance fill.
         GENRESULT DACOM_API FillBatchedGeometry() override;
         // Outer +0x9C FUN_06219390 / +0xA0 FUN_062193b0: batch begin, and end-and-draw.
-        GENRESULT DACOM_API BeginBatchedDraw(unsigned long Verts, unsigned long Indices) override;
+        GENRESULT DACOM_API BeginBatchedDraw(FlULong Verts, FlULong Indices) override;
         GENRESULT DACOM_API EndBatchedDraw() override;
 
         // Outer +0x14 (FUN_06216420), +0x8C (FUN_06216090). See the .cpp.
@@ -415,7 +415,7 @@ namespace AlchemyImpl
         // FUN_062388b0: draw now, or queue on batch list 1 when the material batcher is on.
         GENRESULT DACOM_API DrawOrEnqueue() override;
         // Outer +0x9C LAB_0623b140, +0xA0 FUN_0623b1a0, +0xA4 FUN_0623b2a0 (-> FUN_06238a70).
-        GENRESULT DACOM_API BeginBatchedDraw(unsigned long Verts, unsigned long Indices) override;
+        GENRESULT DACOM_API BeginBatchedDraw(FlULong Verts, FlULong Indices) override;
         GENRESULT DACOM_API EndBatchedDraw() override;
         GENRESULT DACOM_API FillBatchedGeometry() override;
 
@@ -464,7 +464,7 @@ namespace AlchemyImpl
         // FUN_06233170: draw now, or queue on batch list 2 when the material batcher is on.
         GENRESULT DACOM_API DrawOrEnqueue() override;
         // Outer +0x9C FUN_06235a40, +0xA0 FUN_06235a60, +0xA4 FUN_06235b40 (-> FUN_06233330).
-        GENRESULT DACOM_API BeginBatchedDraw(unsigned long Verts, unsigned long Indices) override;
+        GENRESULT DACOM_API BeginBatchedDraw(FlULong Verts, FlULong Indices) override;
         GENRESULT DACOM_API EndBatchedDraw() override;
         GENRESULT DACOM_API FillBatchedGeometry() override;
 
@@ -505,14 +505,14 @@ namespace AlchemyImpl
 
         // FUN_06224c20 (vtable 0x0624dd90 +0x68): the mesh emit-one. Asks the bound
         // IFxMeshFactory (DAT_06257b9c) for the particle's IFxMesh; see the body.
-        GENRESULT DACOM_API EmitOne(const float* Six, unsigned long Extra,
+        GENRESULT DACOM_API EmitOne(const float* Six, FlULong Extra,
                                     float Duration) override;
         // Outer +0xBC is FUN_06227330, the this+0xc thunk into FUN_06224c20 -- the
         // body EmitOne above holds. Until 2026-09-26 +0xBC fell through to the
         // base default, so emitters never reached the mesh spawn.
         GENRESULT DACOM_API Pad47(const float* Six, float Age, float Duration) override
         {
-            unsigned long AgeBits = 0;
+            FlULong AgeBits = 0;
             std::memcpy(&AgeBits, &Age, sizeof(AgeBits));
             return EmitOne(Six, AgeBits, Duration);
         }
@@ -567,9 +567,9 @@ namespace AlchemyImpl
         GENRESULT DACOM_API Pad5(float Dt) override;
         GENRESULT DACOM_API GetBoundingSphere(float* OutSphere) override;
 
-        GENRESULT DACOM_API GetQueuedVertCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetQueuedVertCount(FlULong* Out) override;
 
-        GENRESULT DACOM_API GetQueuedIndexCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetQueuedIndexCount(FlULong* Out) override;
 
         // FUN_0622bbc0 (outer thunk 0622ea00).
         GENRESULT DACOM_API CloneNode(IDAComponent** Out) override;
@@ -607,9 +607,9 @@ namespace AlchemyImpl
         // batcher branch). See the .cpp.
         GENRESULT DACOM_API DrawOrEnqueue() override;
 
-        GENRESULT DACOM_API GetQueuedVertCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetQueuedVertCount(FlULong* Out) override;
 
-        GENRESULT DACOM_API GetQueuedIndexCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetQueuedIndexCount(FlULong* Out) override;
 
         // FUN_0620f600 (outer thunk 06212270).
         GENRESULT DACOM_API CloneNode(IDAComponent** Out) override;
@@ -660,13 +660,13 @@ namespace AlchemyImpl
         // FUN_06205620: draw now, or queue on batch list 3 when the material batcher is on.
         GENRESULT DACOM_API DrawOrEnqueue() override;
         // LAB_062069c0 / LAB_062069e0 / LAB_06206a20 (-> FUN_06205720).
-        GENRESULT DACOM_API BeginBatchedDraw(unsigned long Verts, unsigned long Indices) override;
+        GENRESULT DACOM_API BeginBatchedDraw(FlULong Verts, FlULong Indices) override;
         GENRESULT DACOM_API EndBatchedDraw() override;
         GENRESULT DACOM_API FillBatchedGeometry() override;
         // LAB_06206a30 / LAB_06206a70: 5 verts / 0x18 indices per particle, one more
         // unit when descriptor flag 0x100 is set.
-        GENRESULT DACOM_API GetQueuedVertCount(unsigned long* Out) override;
-        GENRESULT DACOM_API GetQueuedIndexCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetQueuedVertCount(FlULong* Out) override;
+        GENRESULT DACOM_API GetQueuedIndexCount(FlULong* Out) override;
 
         // FUN_06204ef0 (outer thunk 0620df10).
         GENRESULT DACOM_API CloneNode(IDAComponent** Out) override;
@@ -683,7 +683,7 @@ namespace AlchemyImpl
         struct FBeamRingState
         {
             unsigned short Idx[4];  // +0x00
-            long Counter;           // +0x08
+            FlLong Counter;           // +0x08
             FLBeamAppearance* Node; // +0x0c
             float Xform[12];        // +0x10
             float PrevPos[3];       // +0x40
@@ -697,12 +697,12 @@ namespace AlchemyImpl
         void EvalRingParams(const FBeamRingState& State, const FPooledParticle* P, float* OutHalfWidth,
                             float* OutRgba, float* OutV);
         // The callers' packing of that {R, G, B, A} into a diffuse colour.
-        static unsigned long PackRingColor(const float* Rgba);
+        static FlULong PackRingColor(const float* Rgba);
         // FUN_06206020: one ring of four vertices at Pos, joined to the previous ring.
         void EmitRing(FBeamRingState& State, const FPooledParticle* P, const float* Pos);
         // The join both of them inline once Idx[0] != 0xffff: flag 2 -> a centre vertex and
         // eight triangles (FUN_06208b00 order), else two quads (FUN_06208b50 order).
-        void JoinRing(const FBeamRingState& State, const float* Pos, unsigned long Diffuse,
+        void JoinRing(const FBeamRingState& State, const float* Pos, FlULong Diffuse,
                       const unsigned short* NewIdx);
 
         // node+0xe1: cleared by the node ctor FUN_06204e30, flipped by every spawn

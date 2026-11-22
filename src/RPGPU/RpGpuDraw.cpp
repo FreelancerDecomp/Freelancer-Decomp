@@ -384,7 +384,7 @@ std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signatu
     return Key;
 }
 
-void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
+void FRpGpu::RecordDraw(FlULong Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
                         unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
                         FRpGpuBuffer* StaticSource, unsigned int SourceBase, FRpGpuBuffer* IndexSource,
                         unsigned int IndexStart)

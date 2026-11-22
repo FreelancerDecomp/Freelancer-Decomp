@@ -27,11 +27,11 @@ namespace AlchemyImpl
     namespace
     {
         // The base set's hashes (.data 0x062572b0 table below).
-        const unsigned long kNodeClassNameHash = 0xF54EF296u;
-        const unsigned long kNodeNameHash = 0xEFA8CE01u;
-        const unsigned long kNodeLifeSpanHash = 0xF27FDE7Du;
-        const unsigned long kNodeTransformHash = 0xE13A59A1u;
-        const unsigned long kAppearanceLodCurveHash = 0x0C53B008u;
+        const FlULong kNodeClassNameHash = 0xF54EF296u;
+        const FlULong kNodeNameHash = 0xEFA8CE01u;
+        const FlULong kNodeLifeSpanHash = 0xF27FDE7Du;
+        const FlULong kNodeTransformHash = 0xE13A59A1u;
+        const FlULong kAppearanceLodCurveHash = 0x0C53B008u;
 
         // The base set's property table, .data 0x062572b0 (walked by FUN_0623f960).
         const FNodePropertyRow kNodePropertyRows[] = {
@@ -164,8 +164,8 @@ namespace AlchemyImpl
         else if (Text != Buffer)
         {
             // 0x0623fa09..0x0623fa1d: length stored first; reuse only when length < capacity.
-            Length = static_cast<unsigned long>(std::strlen(Text));
-            if (!(static_cast<long>(Length) < static_cast<long>(Capacity)))
+            Length = static_cast<FlULong>(std::strlen(Text));
+            if (!(static_cast<FlLong>(Length) < static_cast<FlLong>(Capacity)))
             {
                 delete[] Buffer;
                 Buffer = new char[Length + 1];
@@ -215,7 +215,7 @@ namespace AlchemyImpl
 
     // Outer +0x08 (sphere 0623cde0; the same body per class): the count drops only while
     // non-zero; at zero it is set to 1 around the destructor, then the object is freed.
-    unsigned long DACOM_API FFxNodePropertySet::Release()
+    FlULong DACOM_API FFxNodePropertySet::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -371,7 +371,7 @@ namespace AlchemyImpl
     {
         // FUN_0623fb80 0x0623fb9b..0x0623fbe0: +0x1c (raw) and +0x4c (composed) are both
         // identity -- 1.0f on the three diagonal dwords, every other dword 0.
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < 12; ++Index)
         {
             const float Value = (Index == 0 || Index == 4 || Index == 8) ? 1.0f : 0.0f;
@@ -486,7 +486,7 @@ namespace AlchemyImpl
         Handle = Id;
         Frame[0] = 0.0f; // MOV dword [+8], 0
         TexInfoLibrary()->SetWrapMode(Id, 0);
-        TexInfoLibrary()->GetFrame(Handle, -1, reinterpret_cast<unsigned long*>(Frame));
+        TexInfoLibrary()->GetFrame(Handle, -1, reinterpret_cast<FlULong*>(Frame));
     }
 
     // FUN_06244f30 (RET 8): Handle != -1 -> library +0x70(Handle, FrameIndex, Out).
@@ -494,7 +494,7 @@ namespace AlchemyImpl
     {
         if (Handle == -1)
             return;
-        TexInfoLibrary()->GetFrame(Handle, FrameIndex, reinterpret_cast<unsigned long*>(Out));
+        TexInfoLibrary()->GetFrame(Handle, FrameIndex, reinterpret_cast<FlULong*>(Out));
     }
 
     FGenericFxObjectBase::~FGenericFxObjectBase() noexcept(false)
@@ -666,13 +666,13 @@ namespace AlchemyImpl
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FGenericFxObjectBase::Release()
+    FlULong DACOM_API FGenericFxObjectBase::Release()
     {
         // FUN_0623a190 / FUN_0623cce0 / FUN_0623dc80: conditional decrement,
         // store 1 at zero, destroy, then free storage only on successful return.
         if (RefCount_ != 0)
             --RefCount_;
-        const unsigned long Next = RefCount_;
+        const FlULong Next = RefCount_;
         if (Next == 0)
         {
             RefCount_ = 1;
@@ -693,7 +693,7 @@ namespace AlchemyImpl
 
     // FUN_062400b0 (alchemy.dll.txt 130637-130665): index 0 -> &node+0x4c,
     // index 1 -> &node+0x1c, anything else -> 0xfffffffe with *OutSlot untouched.
-    GENRESULT DACOM_API FGenericFxObjectBase::GetNodeTransform(unsigned long Index,
+    GENRESULT DACOM_API FGenericFxObjectBase::GetNodeTransform(FlULong Index,
                                                                float** OutSlot)
     {
         if (Index == 0)
@@ -712,7 +712,7 @@ namespace AlchemyImpl
     // FUN_062400f0 (alchemy.dll.txt 130679-130723): index 0 -> copy 12 dwords to
     // node+0x4c and OR flag 0x8; index 1 -> copy to node+0x1c and OR flag 0x4;
     // anything else -> 0xfffffffe, nothing written.
-    GENRESULT DACOM_API FGenericFxObjectBase::SetNodeTransform(unsigned long Index,
+    GENRESULT DACOM_API FGenericFxObjectBase::SetNodeTransform(FlULong Index,
                                                                const float* Source12)
     {
         if (Index == 0)
@@ -747,7 +747,7 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FGenericFxObjectBase::ComposeNodeTransform(void* /*Unused*/,
                                                                    const float* Parent12)
     {
-        const unsigned long Flags = NodeFlags_;
+        const FlULong Flags = NodeFlags_;
         if ((Flags & 0x8) != 0)
         {
             NodeFlags_ = Flags & ~0x8ul;
@@ -761,7 +761,7 @@ namespace AlchemyImpl
             if (bSkipAnim)
             {
                 // LAB_062403a6.
-                unsigned long Index = 0;
+                FlULong Index = 0;
                 for (Index = 0; Index < 12; ++Index)
                     NodeLocalXform_[Index] = (Index == 0 || Index == 4 || Index == 8) ? 1.0f : 0.0f;
                 std::memcpy(NodeWorldXform_, Parent12, sizeof(NodeWorldXform_));
@@ -769,8 +769,8 @@ namespace AlchemyImpl
             }
             // 0x06240355..0x062403a4.
             IAnimatedTransform* const Anim = FindNodeAnimatedTransform();
-            unsigned long TimeA = 0;
-            unsigned long TimeB = 0;
+            FlULong TimeA = 0;
+            FlULong TimeB = 0;
             std::memcpy(&TimeB, &Age_, sizeof(TimeB));
             std::memcpy(&TimeA, &AppearanceOuterTime_, sizeof(TimeA));
             Anim->Evaluate(TimeA, TimeB, NodeLocalXform_);
@@ -796,8 +796,8 @@ namespace AlchemyImpl
         // 0x062401ef..0x062402f5.
         float Local[12] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f };
         IAnimatedTransform* const Anim = FindNodeAnimatedTransform();
-        unsigned long TimeA = 0;
-        unsigned long TimeB = 0;
+        FlULong TimeA = 0;
+        FlULong TimeB = 0;
         std::memcpy(&TimeB, &Age_, sizeof(TimeB));
         std::memcpy(&TimeA, &AppearanceOuterTime_, sizeof(TimeA));
         Anim->Evaluate(TimeA, TimeB, Local);
@@ -1090,7 +1090,7 @@ namespace AlchemyImpl
     // "this is where wave17+ should look") or fabricating a construction
     // call. decomp-tracker items in both clusters updated with this wave's
     // corrected trace and the hook-wiring outcome.
-    GENRESULT DACOM_API FGenericFxObjectBase::EmitOne(const float* Six, unsigned long Extra,
+    GENRESULT DACOM_API FGenericFxObjectBase::EmitOne(const float* Six, FlULong Extra,
                                                         float Duration)
     {
         FAppearancePool* Pool = PoolForAppearanceFactory(FactoryName_);
@@ -1119,25 +1119,25 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FGenericFxObjectBase::GetLiveInstanceCount(unsigned long* Out)
+    GENRESULT DACOM_API FGenericFxObjectBase::GetLiveInstanceCount(FlULong* Out)
     {
         *Out = ResolveLiveInstanceCount();
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FGenericFxObjectBase::GetQueuedVertCount(unsigned long* Out)
+    GENRESULT DACOM_API FGenericFxObjectBase::GetQueuedVertCount(FlULong* Out)
     {
-        unsigned long VertsPer = 0;
-        unsigned long IndicesPer = 0;
+        FlULong VertsPer = 0;
+        FlULong IndicesPer = 0;
         AppearanceDrawUnits(FactoryName_, &VertsPer, &IndicesPer);
         *Out = ResolveLiveInstanceCount() * VertsPer;
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FGenericFxObjectBase::GetQueuedIndexCount(unsigned long* Out)
+    GENRESULT DACOM_API FGenericFxObjectBase::GetQueuedIndexCount(FlULong* Out)
     {
-        unsigned long VertsPer = 0;
-        unsigned long IndicesPer = 0;
+        FlULong VertsPer = 0;
+        FlULong IndicesPer = 0;
         AppearanceDrawUnits(FactoryName_, &VertsPer, &IndicesPer);
         *Out = ResolveLiveInstanceCount() * IndicesPer;
         return GR_OK;
@@ -1148,28 +1148,28 @@ namespace AlchemyImpl
 
     // +0x04 06212e60 / +0x08 06212e70 / +0x0c 06209bc0 / +0x10 06209bd0: `MOV EAX,-8;
     // RET 0xc`.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropBool(unsigned long /*Hash*/, unsigned char* /*Out*/)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropBool(FlULong /*Hash*/, unsigned char* /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::SetPropBool(unsigned long /*Hash*/, unsigned char /*Value*/)
+    GENRESULT DACOM_API FFxNodePropertySet::SetPropBool(FlULong /*Hash*/, unsigned char /*Value*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropInt(unsigned long /*Hash*/, unsigned long* /*Out*/)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropInt(FlULong /*Hash*/, FlULong* /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::SetPropInt(unsigned long /*Hash*/, unsigned long /*Value*/)
+    GENRESULT DACOM_API FFxNodePropertySet::SetPropInt(FlULong /*Hash*/, FlULong /*Value*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
     // +0x14 FUN_0623faf0: Node_LifeSpan -> *Out = [+0x48] (a dword copy), 0; else -8.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropFloat(unsigned long Hash, float* Out)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropFloat(FlULong Hash, float* Out)
     {
         if (Hash != kNodeLifeSpanHash)
             return GR_ALE_CREATE_FAIL;
@@ -1178,7 +1178,7 @@ namespace AlchemyImpl
     }
 
     // +0x18 FUN_0623fb20: Node_LifeSpan -> FLD / FSTP float [+0x48], 0; else -8.
-    GENRESULT DACOM_API FFxNodePropertySet::SetPropFloat(unsigned long Hash, float Value)
+    GENRESULT DACOM_API FFxNodePropertySet::SetPropFloat(FlULong Hash, float Value)
     {
         if (Hash != kNodeLifeSpanHash)
             return GR_ALE_CREATE_FAIL;
@@ -1187,30 +1187,30 @@ namespace AlchemyImpl
     }
 
     // +0x1c 06212e80 / +0x20 06212e90: -8.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropPair(unsigned long /*Hash*/, unsigned long* /*Out2*/)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropPair(FlULong /*Hash*/, FlULong* /*Out2*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::SetPropPair(unsigned long /*Hash*/,
-                                                const unsigned long* /*In2*/)
+    GENRESULT DACOM_API FFxNodePropertySet::SetPropPair(FlULong /*Hash*/,
+                                                const FlULong* /*In2*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
     // +0x24 06209be0 / +0x28 06209bf0 / +0x2c 06209c00: -8 in every set class.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropColorRamp(unsigned long /*Hash*/, IRampColor** /*Out*/)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropColorRamp(FlULong /*Hash*/, IRampColor** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropSingleRamp(unsigned long /*Hash*/,
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropSingleRamp(FlULong /*Hash*/,
                                                       IRampSingle** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropAnimatedSingle(unsigned long /*Hash*/,
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropAnimatedSingle(FlULong /*Hash*/,
                                                           IFxAnimatedSingle** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
@@ -1218,7 +1218,7 @@ namespace AlchemyImpl
 
     // +0x30 FUN_0623f9a0: Node_Name -> *Out = [+0x38], Node_ClassName -> *Out = [+0x14],
     // 0; else -8.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropName(unsigned long Hash, const char** Out)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropName(FlULong Hash, const char** Out)
     {
         if (Hash == kNodeNameHash)
         {
@@ -1236,7 +1236,7 @@ namespace AlchemyImpl
     // +0x34 FUN_0623f9e0: Node_Name -> assign the hashed name, 0; Node_ClassName ->
     // FDUMP(0x100002, ImpFxNode.cpp line 0x65, "You can't set class name!!\n") and -1
     // (`OR EAX,0xffffffff`, 0x0623fad8); else -8.
-    GENRESULT DACOM_API FFxNodePropertySet::SetPropName(unsigned long Hash, const char* Text)
+    GENRESULT DACOM_API FFxNodePropertySet::SetPropName(FlULong Hash, const char* Text)
     {
         if (Hash == kNodeNameHash)
         {
@@ -1253,26 +1253,26 @@ namespace AlchemyImpl
     }
 
     // +0x38 06212ea0 / +0x3c 06212eb0 / +0x40 06225930: -8.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropColorRampRamp(unsigned long /*Hash*/,
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropColorRampRamp(FlULong /*Hash*/,
                                                          IRampColorRamp** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropSingleRampRamp(unsigned long /*Hash*/,
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropSingleRampRamp(FlULong /*Hash*/,
                                                           INestedSingleRamp** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropAnimatedSingleRamp(unsigned long /*Hash*/,
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropAnimatedSingleRamp(FlULong /*Hash*/,
                                                               INestedSingleRamp** /*Out*/)
     {
         return GR_ALE_CREATE_FAIL;
     }
 
     // +0x50 FUN_0623fb50: Node_Transform -> *Out = [+0x24], AddRef, 0; else -8.
-    GENRESULT DACOM_API FFxNodePropertySet::GetPropTransform(unsigned long Hash, IAnimatedTransform** Out)
+    GENRESULT DACOM_API FFxNodePropertySet::GetPropTransform(FlULong Hash, IAnimatedTransform** Out)
     {
         if (Hash != kNodeTransformHash)
             return GR_ALE_CREATE_FAIL;
@@ -1304,7 +1304,7 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FFxNodePropertySet::GetInstanceNameHash(unsigned long* Out)
+    GENRESULT DACOM_API FFxNodePropertySet::GetInstanceNameHash(FlULong* Out)
     {
         *Out = Name.Hash;
         return GR_OK;
@@ -1327,7 +1327,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06244330 (0x06244330..0x06244357).
-    GENRESULT DACOM_API FFxAppearancePropertySet::GetPropSingleRampRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxAppearancePropertySet::GetPropSingleRampRamp(FlULong Hash,
                                                                         INestedSingleRamp** Out)
     {
         if (Hash != kAppearanceLodCurveHash)
@@ -1359,8 +1359,8 @@ namespace AlchemyImpl
         // entries, construct/AddRef the new one, then destroy/Release old storage.
         FScopedFieldReference Argument(Field);
         IDAComponent** Next = nullptr;
-        unsigned long Capacity = 0;
-        unsigned long Index = 0;
+        FlULong Capacity = 0;
+        FlULong Index = 0;
         if (FieldCount_ == FieldCapacity_)
         {
             Capacity = FieldCount_ + (FieldCount_ > 1 ? FieldCount_ : 1);
@@ -1440,11 +1440,11 @@ namespace AlchemyImpl
             return GR_GENERIC;
 
         float SixCopy[6];
-        for (unsigned long CopyIndex = 0; CopyIndex < 6; ++CopyIndex)
+        for (FlULong CopyIndex = 0; CopyIndex < 6; ++CopyIndex)
             SixCopy[CopyIndex] = Six[CopyIndex];
 
         float AgeCopy = Age;
-        for (unsigned long FieldIndex = 0; FieldIndex < FieldCount_; ++FieldIndex)
+        for (FlULong FieldIndex = 0; FieldIndex < FieldCount_; ++FieldIndex)
         {
             IGenericFx* Field = QueryGenericFx(AssociatedFields_[FieldIndex]);
             Field->ApplyFieldToVel(SixCopy, &AgeCopy, 0.0f);
@@ -1489,8 +1489,8 @@ namespace AlchemyImpl
     // an item whose owner performs the list erase; the caller tests FreeCount.
     void FGenericFxObjectBase::EvictOldestListParticle(FAppearancePool* Pool)
     {
-        const unsigned long Index =
-            static_cast<unsigned long>(Pool->UsedHead - Pool->FreeNodes);
+        const FlULong Index =
+            static_cast<FlULong>(Pool->UsedHead - Pool->FreeNodes);
         FPooledParticle* const Particle = reinterpret_cast<FPooledParticle*>(
             static_cast<unsigned char*>(Pool->Items) + Index * Pool->Stride);
         FGenericFxObjectBase* const Owner =
@@ -1525,8 +1525,8 @@ namespace AlchemyImpl
     {
         if (Pool->FreeCount == 0)
         {
-            const unsigned long OldestIndex =
-                static_cast<unsigned long>(Pool->UsedHead - Pool->FreeNodes);
+            const FlULong OldestIndex =
+                static_cast<FlULong>(Pool->UsedHead - Pool->FreeNodes);
             FPooledParticle* Oldest = reinterpret_cast<FPooledParticle*>(
                 static_cast<unsigned char*>(Pool->Items) + OldestIndex * Pool->Stride);
             FGenericFxObjectBase* OldestOwner =
@@ -1590,11 +1590,11 @@ namespace AlchemyImpl
             const float Pos = static_cast<float>(FrameRamp->Eval(AppearanceOuterTime_, Age_));
             if (Texture_.FrameCount != 1 && Texture_.Handle != -1)
             {
-                const unsigned long Span = static_cast<unsigned long>(Texture_.FrameCount - 1);
+                const FlULong Span = static_cast<FlULong>(Texture_.FrameCount - 1);
                 const long long Frame = static_cast<long long>(
                     static_cast<double>(Span) * static_cast<double>(Pos));
                 TexInfoLibrary()->GetFrame(Texture_.Handle, static_cast<int>(Frame),
-                                           reinterpret_cast<unsigned long*>(Texture_.Frame));
+                                           reinterpret_cast<FlULong*>(Texture_.Frame));
             }
         }
         else if (Texture_.FrameCount != 1)
@@ -1617,10 +1617,10 @@ namespace AlchemyImpl
 
     // FUN_06244510, node+0x88 / IFxAppearance+0xDC. The error branch does not
     // write Out; the valid branch writes before AddRef and has no null-field guard.
-    GENRESULT DACOM_API FGenericFxObjectBase::GetAssociatedFieldAt(unsigned long Index,
+    GENRESULT DACOM_API FGenericFxObjectBase::GetAssociatedFieldAt(FlULong Index,
                                                                 IDAComponent** Out)
     {
-        if (static_cast<long>(Index) < 0 || AssociatedFields_ == nullptr || Index >= FieldCount_)
+        if (static_cast<FlLong>(Index) < 0 || AssociatedFields_ == nullptr || Index >= FieldCount_)
         {
             FDUMP(0x100001, "%s(%d) : ERROR:General:%s",
                   "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\ALIL\\ImpFxAppearance.cpp",
@@ -1633,7 +1633,7 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    IDAComponent* FGenericFxObjectBase::BorrowAssociatedFieldAt(unsigned long Index)
+    IDAComponent* FGenericFxObjectBase::BorrowAssociatedFieldAt(FlULong Index)
     {
         if (Index >= FieldCount_ || AssociatedFields_ == nullptr)
             return nullptr;
@@ -1683,7 +1683,7 @@ namespace AlchemyImpl
             }
             ++Cursor;
         }
-        const unsigned long LiveCount = FieldCount_;
+        const FlULong LiveCount = FieldCount_;
         Cleanup.Dismiss();
         FieldCount_ = LiveCount - 1;
         if (FinalValue != nullptr)
@@ -1696,11 +1696,11 @@ namespace AlchemyImpl
     // FUN_06218780's erase branch: each shifted slot uses FUN_0620d690
     // (Release old, clear, copy next, AddRef new); FUN_0620bd70 then destroys
     // the duplicate last slot before the vector end decreases.
-    void FGenericFxObjectBase::RemoveAssociatedFieldAt(unsigned long Index)
+    void FGenericFxObjectBase::RemoveAssociatedFieldAt(FlULong Index)
     {
         if (AssociatedFields_ == nullptr || Index >= FieldCount_)
             return;
-        for (unsigned long Shift = Index; Shift + 1 < FieldCount_; ++Shift)
+        for (FlULong Shift = Index; Shift + 1 < FieldCount_; ++Shift)
         {
             if (AssociatedFields_[Shift] != nullptr)
             {
@@ -1763,7 +1763,7 @@ namespace AlchemyImpl
     void FGenericFxObjectBase::CopyAssociatedFieldsFrom(FGenericFxObjectBase* Source)
     {
         IDAComponent** Next = nullptr;
-        unsigned long Index = 0;
+        FlULong Index = 0;
         if (Source == this)
             return;
         if (Source->FieldCount_ > FieldCapacity_)
@@ -1848,7 +1848,7 @@ namespace AlchemyImpl
 
     void FGenericFxObjectBase::ReleaseAssociatedFields()
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < FieldCount_; ++Index)
         {
             if (AssociatedFields_[Index] != nullptr)
@@ -1860,7 +1860,7 @@ namespace AlchemyImpl
         FieldCapacity_ = 0;
     }
 
-    unsigned long FGenericFxObjectBase::ResolveLiveInstanceCount() const
+    FlULong FGenericFxObjectBase::ResolveLiveInstanceCount() const
     {
         // wave23 (sonnet:alchemy-wave23-lane1, 2026-09-11): LiveInstanceCount_
         // is now maintained incrementally and per-INSTANCE (EmitOne

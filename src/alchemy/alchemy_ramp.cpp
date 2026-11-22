@@ -134,51 +134,51 @@ namespace AlchemyImpl
     // The shared channel blend of every x87 body: W = ftol(w * 255), then per channel
     // ((b - a) * W >> 8) + a with an arithmetic shift, masked back into R (<<16), G (<<8)
     // and B; the top byte comes out 0. The weight never leaves the x87 stack, hence double.
-    static unsigned long RampColorBlend(unsigned long A, unsigned long B, double Weight)
+    static FlULong RampColorBlend(FlULong A, FlULong B, double Weight)
     {
-        const long W = MsvcrtFtol(Weight * kRamp255);
-        const long RedA = static_cast<long>((A >> 16) & 0xFF);
-        const long GreenA = static_cast<long>((A >> 8) & 0xFF);
-        const long BlueA = static_cast<long>(A & 0xFF);
-        const long RedB = static_cast<long>((B >> 16) & 0xFF);
-        const long GreenB = static_cast<long>((B >> 8) & 0xFF);
-        const long BlueB = static_cast<long>(B & 0xFF);
-        const long Red = (((RedB - RedA) * W) >> 8) + RedA;
-        const long Green = (((GreenB - GreenA) * W) >> 8) + GreenA;
-        const long Blue = (((BlueB - BlueA) * W) >> 8) + BlueA;
-        return ((static_cast<unsigned long>(Red) << 16) & 0xFF0000) |
-               ((static_cast<unsigned long>(Green) << 8) & 0xFF00) |
-               (static_cast<unsigned long>(Blue) & 0xFF);
+        const FlLong W = MsvcrtFtol(Weight * kRamp255);
+        const FlLong RedA = static_cast<FlLong>((A >> 16) & 0xFF);
+        const FlLong GreenA = static_cast<FlLong>((A >> 8) & 0xFF);
+        const FlLong BlueA = static_cast<FlLong>(A & 0xFF);
+        const FlLong RedB = static_cast<FlLong>((B >> 16) & 0xFF);
+        const FlLong GreenB = static_cast<FlLong>((B >> 8) & 0xFF);
+        const FlLong BlueB = static_cast<FlLong>(B & 0xFF);
+        const FlLong Red = (((RedB - RedA) * W) >> 8) + RedA;
+        const FlLong Green = (((GreenB - GreenA) * W) >> 8) + GreenA;
+        const FlLong Blue = (((BlueB - BlueA) * W) >> 8) + BlueA;
+        return ((static_cast<FlULong>(Red) << 16) & 0xFF0000) |
+               ((static_cast<FlULong>(Green) << 8) & 0xFF00) |
+               (static_cast<FlULong>(Blue) & 0xFF);
     }
 
     // [0] 06241cc0 / 06242070: `MOV EAX,A` -- step, the whole dword including its top byte.
-    static unsigned long RampColorStep(unsigned long A, unsigned long /*B*/, float /*T*/)
+    static FlULong RampColorStep(FlULong A, FlULong /*B*/, float /*T*/)
     {
         return A;
     }
 
     // [1] 06241cd0 / 06242080: W = T.
-    static unsigned long RampColorLinear(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorLinear(FlULong A, FlULong B, float T)
     {
         return RampColorBlend(A, B, T);
     }
 
     // [2] 06241d50 / 06242100: W = T * T.
-    static unsigned long RampColorEaseIn(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorEaseIn(FlULong A, FlULong B, float T)
     {
         return RampColorBlend(A, B, static_cast<double>(T) * T);
     }
 
     // [3] 06241de0 / 06242190: `FLD 1; FSUB T; FLD ST0; FMUL ST1; FSUBR 1` --
     // W = 1 - (1 - T)^2.
-    static unsigned long RampColorEaseOut(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorEaseOut(FlULong A, FlULong B, float T)
     {
         const double OneMinusT = static_cast<double>(kRampOne) - T;
         return RampColorBlend(A, B, static_cast<double>(kRampOne) - OneMinusT * OneMinusT);
     }
 
     // [4] 06241e80: `FLD T; FADD ST0,ST0; FSUBR 3; FMUL T; FMUL T` -- W = (3 - (T + T)) * T * T.
-    static unsigned long RampColorSmooth(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorSmooth(FlULong A, FlULong B, float T)
     {
         return RampColorBlend(
             A, B, (static_cast<double>(kRampThree) - (static_cast<double>(T) + T)) * T * T);
@@ -186,7 +186,7 @@ namespace AlchemyImpl
 
     // [5] 06241f10 / 062422b0: `CMP A,B; JAE` on the packed dwords (unsigned) -- A < B
     // takes ease-in, otherwise ease-out.
-    static unsigned long RampColorEaseByRise(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorEaseByRise(FlULong A, FlULong B, float T)
     {
         if (A < B)
             return RampColorEaseIn(A, B, T);
@@ -194,7 +194,7 @@ namespace AlchemyImpl
     }
 
     // [6] 06241fc0 / 06242360: `CMP B,A; JAE` -- B < A takes ease-in.
-    static unsigned long RampColorEaseByFall(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorEaseByFall(FlULong A, FlULong B, float T)
     {
         if (B < A)
             return RampColorEaseIn(A, B, T);
@@ -207,13 +207,13 @@ namespace AlchemyImpl
     // per word (b * W) and (a * (255 - W)) keep their low 16 bits (PMULLW), shift right 8
     // (PSRLW), add with signed saturation (PADDSW), pack with unsigned saturation
     // (PACKUSWB). The alpha word has both weights 0, so the top byte comes out 0.
-    static unsigned long RampColorSmoothMmx(unsigned long A, unsigned long B, float T)
+    static FlULong RampColorSmoothMmx(FlULong A, FlULong B, float T)
     {
         const float Weight = (T * -2.0f + 3.0f) * T * T * kRamp255;
         const int W = _mm_cvtss_si32(_mm_set_ss(Weight));
         const unsigned short WeightB = static_cast<unsigned short>(W);
         const unsigned short WeightA = static_cast<unsigned short>(0xFF - WeightB);
-        unsigned long Result = 0;
+        FlULong Result = 0;
         for (int Channel = 0; Channel < 3; ++Channel)
         {
             const unsigned int ByteA = (A >> (Channel * 8)) & 0xFF;
@@ -228,14 +228,14 @@ namespace AlchemyImpl
                 Sum = 0;
             if (Sum > 0xFF)
                 Sum = 0xFF;
-            Result |= static_cast<unsigned long>(Sum) << (Channel * 8);
+            Result |= static_cast<FlULong>(Sum) << (Channel * 8);
         }
         return Result;
     }
 
     // SetMode 06241b50: the same two adjacent seven-entry tables (x87 at DAT_06257be4,
     // SSE at DAT_06257c00, guard DAT_06257be0), stored into +0x24 unchecked.
-    typedef unsigned long (*FRampColorInterpolator)(unsigned long A, unsigned long B, float T);
+    typedef FlULong (*FRampColorInterpolator)(FlULong A, FlULong B, float T);
     static const FRampColorInterpolator G_RampColorInterpolators[14] = {
         RampColorStep,   RampColorLinear, RampColorEaseIn,     RampColorEaseOut,
         RampColorSmooth, RampColorEaseByRise, RampColorEaseByFall,
@@ -246,22 +246,22 @@ namespace AlchemyImpl
     // The float-to-packed conversion AddKey (062098e0) and SetKeyRgb (06209a70) inline:
     // G, R, B each ftol(c * 255), combined as ((R << 8 | G) << 8) | B with no masking,
     // so an out-of-range channel bleeds into its neighbours exactly as in retail.
-    static unsigned long RampPackRgb(const float* Rgb)
+    static FlULong RampPackRgb(const float* Rgb)
     {
-        const unsigned long Green =
-            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[1]) * kRamp255));
-        const unsigned long Red =
-            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[0]) * kRamp255));
-        unsigned long Packed = Green | (Red << 8);
+        const FlULong Green =
+            static_cast<FlULong>(MsvcrtFtol(static_cast<double>(Rgb[1]) * kRamp255));
+        const FlULong Red =
+            static_cast<FlULong>(MsvcrtFtol(static_cast<double>(Rgb[0]) * kRamp255));
+        FlULong Packed = Green | (Red << 8);
         Packed <<= 8;
-        const unsigned long Blue =
-            static_cast<unsigned long>(MsvcrtFtol(static_cast<double>(Rgb[2]) * kRamp255));
+        const FlULong Blue =
+            static_cast<FlULong>(MsvcrtFtol(static_cast<double>(Rgb[2]) * kRamp255));
         return Packed | Blue;
     }
 
     // GetKeyRgb (062099f0) / EvalRgb (06242410): each byte as a float times
     // DAT_0624bc98.
-    static void RampUnpackRgb(unsigned long Packed, float* Out)
+    static void RampUnpackRgb(FlULong Packed, float* Out)
     {
         Out[0] = static_cast<float>((Packed >> 16) & 0xFF) * kRampInv255;
         Out[1] = static_cast<float>((Packed >> 8) & 0xFF) * kRampInv255;
@@ -293,7 +293,7 @@ namespace AlchemyImpl
     }
 
     // 0620aa00: ++[+0x28], returns it.
-    unsigned long DACOM_API FRampSingle::AddRef()
+    FlULong DACOM_API FRampSingle::AddRef()
     {
         ++RefCount_;
         return RefCount_;
@@ -301,7 +301,7 @@ namespace AlchemyImpl
 
     // 0620aa10: guarded decrement; at zero RefCount = 1, the key container's destructor
     // (FUN_0620cce0) and the free, return 0.
-    unsigned long DACOM_API FRampSingle::Release()
+    FlULong DACOM_API FRampSingle::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -467,17 +467,17 @@ namespace AlchemyImpl
     }
 
     // 06209110: [+4].
-    unsigned long DACOM_API FRampSingle::GetMode()
+    FlULong DACOM_API FRampSingle::GetMode()
     {
         return Mode_;
     }
 
     // 06242880: [+4] = Mode, then the interpolator from the x87 or SSE table (see
     // G_RampSingleInterpolators); 0.
-    GENRESULT DACOM_API FRampSingle::SetMode(unsigned long Mode)
+    GENRESULT DACOM_API FRampSingle::SetMode(FlULong Mode)
     {
         Mode_ = Mode;
-        const unsigned long TableBase = RampCpuHasSse() ? 7 : 0;
+        const FlULong TableBase = RampCpuHasSse() ? 7 : 0;
         Interpolator_ = G_RampSingleInterpolators[TableBase + Mode];
         return GR_OK;
     }
@@ -528,14 +528,14 @@ namespace AlchemyImpl
     }
 
     // 0620ab00.
-    unsigned long DACOM_API FRampColor::AddRef()
+    FlULong DACOM_API FRampColor::AddRef()
     {
         ++RefCount_;
         return RefCount_;
     }
 
     // 0620ab10: the FxRampSingle Release shape.
-    unsigned long DACOM_API FRampColor::Release()
+    FlULong DACOM_API FRampColor::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -590,7 +590,7 @@ namespace AlchemyImpl
     // 062098e0: pack the RGB floats (RampPackRgb), then the AddKeyPacked body.
     int DACOM_API FRampColor::AddKey(float Time, const float* Rgb)
     {
-        const unsigned long Packed = RampPackRgb(Rgb);
+        const FlULong Packed = RampPackRgb(Rgb);
         const int Index = Keys_.UpperBound(Time);
         Keys_.InsertAt(Index, Time, Packed);
         ResetEvalCache();
@@ -609,13 +609,13 @@ namespace AlchemyImpl
     // returns Out.
     float* DACOM_API FRampColor::EvalRgb(float* Out, float Time)
     {
-        const unsigned long Packed = EvalPacked(Time);
+        const FlULong Packed = EvalPacked(Time);
         RampUnpackRgb(Packed, Out);
         return Out;
     }
 
     // 062424b0: FxRampSingle::Eval's search and cache (06242b10) over packed values.
-    unsigned long DACOM_API FRampColor::EvalPacked(float Time)
+    FlULong DACOM_API FRampColor::EvalPacked(float Time)
     {
         if (Time <= Keys_.At(0).Time)
             return Keys_.At(0).Value;
@@ -694,16 +694,16 @@ namespace AlchemyImpl
     }
 
     // 06209790.
-    unsigned long DACOM_API FRampColor::GetMode()
+    FlULong DACOM_API FRampColor::GetMode()
     {
         return Mode_;
     }
 
     // 06241b50 (see G_RampColorInterpolators).
-    GENRESULT DACOM_API FRampColor::SetMode(unsigned long Mode)
+    GENRESULT DACOM_API FRampColor::SetMode(FlULong Mode)
     {
         Mode_ = Mode;
-        const unsigned long TableBase = RampCpuHasSse() ? 7 : 0;
+        const FlULong TableBase = RampCpuHasSse() ? 7 : 0;
         Interpolator_ = G_RampColorInterpolators[TableBase + Mode];
         return GR_OK;
     }
@@ -721,7 +721,7 @@ namespace AlchemyImpl
     }
 
     // 06209310: the AddKey body over a caller-packed value.
-    int DACOM_API FRampColor::AddKeyPacked(float Time, const unsigned long* Packed)
+    int DACOM_API FRampColor::AddKeyPacked(float Time, const FlULong* Packed)
     {
         const int Index = Keys_.UpperBound(Time);
         Keys_.InsertAt(Index, Time, *Packed);
@@ -730,14 +730,14 @@ namespace AlchemyImpl
     }
 
     // 062094a0.
-    GENRESULT DACOM_API FRampColor::GetKeyPacked(int Index, unsigned long* Out)
+    GENRESULT DACOM_API FRampColor::GetKeyPacked(int Index, FlULong* Out)
     {
         *Out = Keys_.At(Index).Value;
         return GR_OK;
     }
 
     // 06209770.
-    GENRESULT DACOM_API FRampColor::SetKeyPacked(int Index, const unsigned long* Packed)
+    GENRESULT DACOM_API FRampColor::SetKeyPacked(int Index, const FlULong* Packed)
     {
         Keys_.At(Index).Value = *Packed;
         return GR_OK;
@@ -806,7 +806,7 @@ namespace AlchemyImpl
 
     // 0620adf0 / 0620acf0: ++[+0x1C].
     template <typename TTraits>
-    unsigned long DACOM_API TNestedSingleRamp<TTraits>::AddRef()
+    FlULong DACOM_API TNestedSingleRamp<TTraits>::AddRef()
     {
         ++RefCount_;
         return RefCount_;
@@ -814,7 +814,7 @@ namespace AlchemyImpl
 
     // 0620ae00 / 0620ad00: guarded decrement; at zero RefCount = 1, teardown, free, 0.
     template <typename TTraits>
-    unsigned long DACOM_API TNestedSingleRamp<TTraits>::Release()
+    FlULong DACOM_API TNestedSingleRamp<TTraits>::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -1029,14 +1029,14 @@ namespace AlchemyImpl
 
     // 06207bb0 / 06207400.
     template <typename TTraits>
-    unsigned long DACOM_API TNestedSingleRamp<TTraits>::GetMode()
+    FlULong DACOM_API TNestedSingleRamp<TTraits>::GetMode()
     {
         return Mode_;
     }
 
     // 06207bc0 / 06207410: a plain store; 0.
     template <typename TTraits>
-    GENRESULT DACOM_API TNestedSingleRamp<TTraits>::SetMode(unsigned long Mode)
+    GENRESULT DACOM_API TNestedSingleRamp<TTraits>::SetMode(FlULong Mode)
     {
         Mode_ = Mode;
         return GR_OK;
@@ -1119,14 +1119,14 @@ namespace AlchemyImpl
     }
 
     // 0620aef0.
-    unsigned long DACOM_API FRampColorRamp::AddRef()
+    FlULong DACOM_API FRampColorRamp::AddRef()
     {
         ++RefCount_;
         return RefCount_;
     }
 
     // 0620af00.
-    unsigned long DACOM_API FRampColorRamp::Release()
+    FlULong DACOM_API FRampColorRamp::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -1305,7 +1305,7 @@ namespace AlchemyImpl
     // OuterTime argument slot, then Floor = child(i)->EvalPacked(Inner); the weight is
     // W = ftol(InnerTime * 255) -- retail never computes U here and has no mode switch
     // -- and per channel ((floor - next) * W >> 8) + next, masked into 0x00RRGGBB.
-    unsigned long DACOM_API FRampColorRamp::EvalPacked(float OuterTime, float InnerTime)
+    FlULong DACOM_API FRampColorRamp::EvalPacked(float OuterTime, float InnerTime)
     {
         if (OuterTime <= Keys_.At(0).Time)
             return Keys_.At(0).Value->EvalPacked(InnerTime);
@@ -1322,21 +1322,21 @@ namespace AlchemyImpl
         if (Mode_ == 0)
             return Keys_.At(Index).Value->EvalPacked(InnerTime);
 
-        const unsigned long Next = Keys_.At(Index + 1).Value->EvalPacked(InnerTime);
-        const unsigned long Floor = Keys_.At(Index).Value->EvalPacked(InnerTime);
-        const long W = MsvcrtFtol(static_cast<double>(InnerTime) * kRamp255);
-        const long RedNext = static_cast<long>((Next >> 16) & 0xFF);
-        const long GreenNext = static_cast<long>((Next >> 8) & 0xFF);
-        const long BlueNext = static_cast<long>(Next & 0xFF);
-        const long RedFloor = static_cast<long>((Floor >> 16) & 0xFF);
-        const long GreenFloor = static_cast<long>((Floor >> 8) & 0xFF);
-        const long BlueFloor = static_cast<long>(Floor & 0xFF);
-        const long Red = (((RedFloor - RedNext) * W) >> 8) + RedNext;
-        const long Green = (((GreenFloor - GreenNext) * W) >> 8) + GreenNext;
-        const long Blue = (((BlueFloor - BlueNext) * W) >> 8) + BlueNext;
-        return ((static_cast<unsigned long>(Red) << 16) & 0xFF0000) |
-               ((static_cast<unsigned long>(Green) << 8) & 0xFF00) |
-               (static_cast<unsigned long>(Blue) & 0xFF);
+        const FlULong Next = Keys_.At(Index + 1).Value->EvalPacked(InnerTime);
+        const FlULong Floor = Keys_.At(Index).Value->EvalPacked(InnerTime);
+        const FlLong W = MsvcrtFtol(static_cast<double>(InnerTime) * kRamp255);
+        const FlLong RedNext = static_cast<FlLong>((Next >> 16) & 0xFF);
+        const FlLong GreenNext = static_cast<FlLong>((Next >> 8) & 0xFF);
+        const FlLong BlueNext = static_cast<FlLong>(Next & 0xFF);
+        const FlLong RedFloor = static_cast<FlLong>((Floor >> 16) & 0xFF);
+        const FlLong GreenFloor = static_cast<FlLong>((Floor >> 8) & 0xFF);
+        const FlLong BlueFloor = static_cast<FlLong>(Floor & 0xFF);
+        const FlLong Red = (((RedFloor - RedNext) * W) >> 8) + RedNext;
+        const FlLong Green = (((GreenFloor - GreenNext) * W) >> 8) + GreenNext;
+        const FlLong Blue = (((BlueFloor - BlueNext) * W) >> 8) + BlueNext;
+        return ((static_cast<FlULong>(Red) << 16) & 0xFF0000) |
+               ((static_cast<FlULong>(Green) << 8) & 0xFF00) |
+               (static_cast<FlULong>(Blue) & 0xFF);
     }
 
     // 062080f0.
@@ -1381,13 +1381,13 @@ namespace AlchemyImpl
     }
 
     // 06208420.
-    unsigned long DACOM_API FRampColorRamp::GetMode()
+    FlULong DACOM_API FRampColorRamp::GetMode()
     {
         return Mode_;
     }
 
     // 06208430: plain store; 0.
-    GENRESULT DACOM_API FRampColorRamp::SetMode(unsigned long Mode)
+    GENRESULT DACOM_API FRampColorRamp::SetMode(FlULong Mode)
     {
         Mode_ = Mode;
         return GR_OK;
@@ -1529,7 +1529,7 @@ namespace AlchemyImpl
     }
 
     // 0620ac00: ++[+0xC], returns it.
-    unsigned long DACOM_API FFxAnimatedSingle::AddRef()
+    FlULong DACOM_API FFxAnimatedSingle::AddRef()
     {
         ++RefCount_;
         return RefCount_;
@@ -1537,7 +1537,7 @@ namespace AlchemyImpl
 
     // 0620ac10: guarded decrement; at zero RefCount = 1, the scalar deleting destructor
     // (+0x48, 06209b10) with 1, return 0.
-    unsigned long DACOM_API FFxAnimatedSingle::Release()
+    FlULong DACOM_API FFxAnimatedSingle::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -1577,7 +1577,7 @@ namespace AlchemyImpl
             AddKey(Time, Value);
             ++Index;
         }
-        unsigned long LoopType = 0;
+        FlULong LoopType = 0;
         Other->GetLoopType(&LoopType);
         SetLoopType(LoopType);
         float Weight = 0.0f;
@@ -1714,7 +1714,7 @@ namespace AlchemyImpl
     }
 
     // 06243210: -1 without a track; else track +0 = LoopType, 0.
-    GENRESULT DACOM_API FFxAnimatedSingle::SetLoopType(unsigned long LoopType)
+    GENRESULT DACOM_API FFxAnimatedSingle::SetLoopType(FlULong LoopType)
     {
         if (Track_ == nullptr)
             return GR_GENERIC;
@@ -1723,7 +1723,7 @@ namespace AlchemyImpl
     }
 
     // 06243230: *Out = 0 without a track, else track +0. Returns 0.
-    GENRESULT DACOM_API FFxAnimatedSingle::GetLoopType(unsigned long* Out)
+    GENRESULT DACOM_API FFxAnimatedSingle::GetLoopType(FlULong* Out)
     {
         if (Track_ == nullptr)
         {
@@ -1735,7 +1735,7 @@ namespace AlchemyImpl
     }
 
     // 06243260: -1 without a track; else FUN_06246550(Mode), 0.
-    GENRESULT DACOM_API FFxAnimatedSingle::ComputeSlopes(unsigned long Mode)
+    GENRESULT DACOM_API FFxAnimatedSingle::ComputeSlopes(FlULong Mode)
     {
         if (Track_ == nullptr)
             return GR_GENERIC;
@@ -1804,7 +1804,7 @@ namespace AlchemyImpl
     //   6: `FCOMP; TEST AH,5; JP` -- Prev.Value >= Cur.Value (or unordered) -> as 3,
     //      less -> as 2.
     //   Other modes leave the pair alone. Fewer than two keys: only LoopType changes.
-    void FFxAnimatedSingle::ComputeTrackSlopes(FTrack* Track, unsigned long Mode)
+    void FFxAnimatedSingle::ComputeTrackSlopes(FTrack* Track, FlULong Mode)
     {
         Track->LoopType = 0;
         const int Count = static_cast<int>(Track->Keys.size());
@@ -1822,7 +1822,7 @@ namespace AlchemyImpl
             {
             case 0:
             {
-                const unsigned long StepBits = 0xFFFFFFFFu;
+                const FlULong StepBits = 0xFFFFFFFFu;
                 std::memcpy(&Prev.OutSlope, &StepBits, sizeof(StepBits));
                 break;
             }
@@ -1891,7 +1891,7 @@ namespace AlchemyImpl
             return B->Value;
         const double Span = static_cast<double>(B->Time) - A->Time;
         const float U = static_cast<float>((static_cast<double>(Time) - A->Time) / Span);
-        unsigned long OutBits = 0;
+        FlULong OutBits = 0;
         std::memcpy(&OutBits, &A->OutSlope, sizeof(OutBits));
         if (OutBits == 0xFFFFFFFFu)
             return A->Value;
@@ -1931,7 +1931,7 @@ namespace AlchemyImpl
     {
         const int Count = static_cast<int>(Track->Keys.size());
         const FKey* const Begin = Track->Keys.data();
-        const unsigned long LoopType = Track->LoopType;
+        const FlULong LoopType = Track->LoopType;
         if (Count == 1)
         {
             if (Time == Begin[0].Time)
@@ -1953,7 +1953,7 @@ namespace AlchemyImpl
 
         if (Time < T0)
         {
-            const unsigned long Mode = LoopType & 0xFu;
+            const FlULong Mode = LoopType & 0xFu;
             if (Mode == 0)
                 return V0;
             const double Rel = static_cast<double>(Time) - T0;
@@ -1986,7 +1986,7 @@ namespace AlchemyImpl
         }
         else if (Time > Tl)
         {
-            const unsigned long Mode = LoopType & 0xF0u;
+            const FlULong Mode = LoopType & 0xF0u;
             if (Mode == 0)
                 return Vl;
             const double Rel = static_cast<double>(Time) - T0;
@@ -2018,7 +2018,7 @@ namespace AlchemyImpl
             }
         }
 
-        const long Guess = MsvcrtFtol((static_cast<double>(Time) - T0) / Span * Last);
+        const FlLong Guess = MsvcrtFtol((static_cast<double>(Time) - T0) / Span * Last);
         const FKey* Probe = Begin + Guess;
         const FKey* SegmentA = nullptr;
         const FKey* SegmentB = nullptr;
@@ -2060,7 +2060,7 @@ namespace AlchemyImpl
     // pass (062435ce..0624365f) is FUN_062436a0's body inlined; then ChannelFlags 0x1FF.
     FFxAnimatedTransform::FFxAnimatedTransform() : RefCount_(1), PackedModes_(0x435), ChannelFlags_(0)
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < kChannelCount; ++Index)
             Children_[Index] = nullptr;
         for (Index = 0; Index < kChannelCount; ++Index)
@@ -2096,7 +2096,7 @@ namespace AlchemyImpl
 
     // This module's Release() convention (guard the decrement, store
     // RefCount_=1 before destruction, free object storage only after success).
-    unsigned long DACOM_API FFxAnimatedTransform::Release()
+    FlULong DACOM_API FFxAnimatedTransform::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
@@ -2115,7 +2115,7 @@ namespace AlchemyImpl
     // AddKey(0, key) (+0x14), key Release; then ChannelFlags = 0x1FF. Returns 0.
     GENRESULT DACOM_API FFxAnimatedTransform::Reset()
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < kChannelCount; ++Index)
         {
             Children_[Index]->Reset();
@@ -2134,7 +2134,7 @@ namespace AlchemyImpl
     // GetChannelFlags(+0x1C, &this->ChannelFlags). Returns 0; no null test on Other.
     GENRESULT DACOM_API FFxAnimatedTransform::CopyFrom(IAnimatedTransform* Other)
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < kChannelCount; ++Index)
         {
             IDAComponent* OtherChild = nullptr;
@@ -2143,9 +2143,9 @@ namespace AlchemyImpl
             if (OtherChild != nullptr)
                 OtherChild->Release();
         }
-        unsigned long A = 0;
-        unsigned long B = 0;
-        unsigned long C = 0;
+        FlULong A = 0;
+        FlULong B = 0;
+        FlULong C = 0;
         Other->GetPackedModes(&A, &B, &C);
         SetPackedModes(A, B, C);
         Other->GetChannelFlags(&ChannelFlags_);
@@ -2154,7 +2154,7 @@ namespace AlchemyImpl
 
     // +0x14 LAB_06243830: *Out = Children[Index]; (*Out)->AddRef() (+4); returns 0. No
     // bounds or null tests.
-    GENRESULT DACOM_API FFxAnimatedTransform::GetChild(unsigned long Index, IDAComponent** Out)
+    GENRESULT DACOM_API FFxAnimatedTransform::GetChild(FlULong Index, IDAComponent** Out)
     {
         *Out = Children_[Index];
         (*Out)->AddRef();
@@ -2177,8 +2177,8 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FFxAnimatedTransform::UpdateChannelFlags()
     {
         ChannelFlags_ = 0;
-        unsigned long Bit = 1;
-        unsigned long Index = 0;
+        FlULong Bit = 1;
+        FlULong Index = 0;
         for (Index = 0; Index < kChannelCount; ++Index)
         {
             FAnimatedSingleRamp* Child = Children_[Index];
@@ -2241,8 +2241,8 @@ namespace AlchemyImpl
         const float kDegToRad = 0.017453292f;
 
         const double RadC = static_cast<double>(AngleC) * kDegToRad;
-        const unsigned long ZeroBits = 0;
-        const unsigned long OneBits = 0x3F800000;
+        const FlULong ZeroBits = 0;
+        const FlULong OneBits = 0x3F800000;
         std::memcpy(Out9 + 1, &ZeroBits, sizeof(ZeroBits));
         std::memcpy(Out9 + 4, &OneBits, sizeof(OneBits));
         std::memcpy(Out9 + 5, &ZeroBits, sizeof(ZeroBits));
@@ -2291,10 +2291,10 @@ namespace AlchemyImpl
     //   the pushes are arg3 then arg2, so the ramp's outer time is TimeA.
     //   Rotation (flags & 0x38 != 0x38): children 4, 5, 3 evaluated in that order (each
     //   result FSTP float), then FUN_06243c50(Out; child3, child5, child4).
-    void DACOM_API FFxAnimatedTransform::Evaluate(unsigned long TimeA, unsigned long TimeB,
+    void DACOM_API FFxAnimatedTransform::Evaluate(FlULong TimeA, FlULong TimeB,
                                                   float* Out12)
     {
-        const unsigned long IdentityBits[12] = {
+        const FlULong IdentityBits[12] = {
             0x3F800000, 0, 0, 0, 0x3F800000, 0, 0, 0, 0x3F800000, 0, 0, 0};
         std::memcpy(Out12, IdentityBits, sizeof(IdentityBits));
 

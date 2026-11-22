@@ -82,7 +82,7 @@ namespace AlchemyImpl
     {
         virtual GENRESULT DACOM_API Slot3(void* A) = 0;                    // +0x0C LAB_062032a0 RET 8, returns -1
         virtual GENRESULT DACOM_API Slot4(void* A) = 0;                    // +0x10 LAB_062032b0 RET 8, returns -1
-        virtual GENRESULT DACOM_API Slot5(unsigned long* Out) = 0;         // +0x14 LAB_062032c0 RET 8, *Out=1, returns 0
+        virtual GENRESULT DACOM_API Slot5(FlULong* Out) = 0;         // +0x14 LAB_062032c0 RET 8, *Out=1, returns 0
         virtual GENRESULT DACOM_API Slot6(void* A) = 0;                    // +0x18 LAB_06203300 RET 8, returns 0
         virtual GENRESULT DACOM_API Slot7(void* A) = 0;                    // +0x1C LAB_06203310 RET 8, returns 0
         virtual GENRESULT DACOM_API Slot8(void* A, void* B, void* C, void* D,
@@ -95,12 +95,12 @@ namespace AlchemyImpl
         explicit FALBatchedMaterialFacet(FALMaterial* Outer) : Outer_(Outer) {}
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
 
         GENRESULT DACOM_API Slot3(void* A) override;
         GENRESULT DACOM_API Slot4(void* A) override;
-        GENRESULT DACOM_API Slot5(unsigned long* Out) override;
+        GENRESULT DACOM_API Slot5(FlULong* Out) override;
         GENRESULT DACOM_API Slot6(void* A) override;
         GENRESULT DACOM_API Slot7(void* A) override;
         GENRESULT DACOM_API Slot8(void* A, void* B, void* C, void* D, void* E, void* F,
@@ -125,9 +125,9 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API Slot11(void* A) = 0;                   // +0x2C LAB_06203220 RET 8, returns -1
         virtual GENRESULT DACOM_API Slot12(void* A, void* B) = 0;          // +0x30 LAB_06203230 RET 0xC, returns -1
         virtual GENRESULT DACOM_API Slot13(void* A, void* B) = 0;          // +0x34 LAB_06203240 RET 0xC, returns -1
-        virtual GENRESULT DACOM_API Slot14(unsigned long* Out) = 0;        // +0x38 LAB_06203250 RET 8, *Out=1, returns 0
-        virtual GENRESULT DACOM_API Slot15(unsigned long* Out) = 0;        // +0x3C LAB_062032d0 RET 8, *Out=2, returns 0
-        virtual GENRESULT DACOM_API Slot16(unsigned long* Out) = 0;        // +0x40 LAB_06203260 RET 8, *Out=0, returns 0
+        virtual GENRESULT DACOM_API Slot14(FlULong* Out) = 0;        // +0x38 LAB_06203250 RET 8, *Out=1, returns 0
+        virtual GENRESULT DACOM_API Slot15(FlULong* Out) = 0;        // +0x3C LAB_062032d0 RET 8, *Out=2, returns 0
+        virtual GENRESULT DACOM_API Slot16(FlULong* Out) = 0;        // +0x40 LAB_06203260 RET 8, *Out=0, returns 0
         virtual GENRESULT DACOM_API Slot17(void* A, void* B) = 0;          // +0x44 LAB_06203270 RET 0xC, returns -1
         virtual GENRESULT DACOM_API Slot18(void* A, void* B) = 0;          // +0x48 LAB_06203280 RET 0xC, returns -1
         virtual GENRESULT DACOM_API Slot19(void* A, void* B) = 0;          // +0x4C LAB_06203290 RET 0xC, returns -1
@@ -145,8 +145,8 @@ namespace AlchemyImpl
         FALBatchedMaterialFacet* Facet() { return &Facet_; }
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         GENRESULT DACOM_API Slot3(void* A) override;
         GENRESULT DACOM_API Slot4(void* A) override;
@@ -160,9 +160,9 @@ namespace AlchemyImpl
         GENRESULT DACOM_API Slot11(void* A) override;
         GENRESULT DACOM_API Slot12(void* A, void* B) override;
         GENRESULT DACOM_API Slot13(void* A, void* B) override;
-        GENRESULT DACOM_API Slot14(unsigned long* Out) override;
-        GENRESULT DACOM_API Slot15(unsigned long* Out) override;
-        GENRESULT DACOM_API Slot16(unsigned long* Out) override;
+        GENRESULT DACOM_API Slot14(FlULong* Out) override;
+        GENRESULT DACOM_API Slot15(FlULong* Out) override;
+        GENRESULT DACOM_API Slot16(FlULong* Out) override;
         GENRESULT DACOM_API Slot17(void* A, void* B) override;
         GENRESULT DACOM_API Slot18(void* A, void* B) override;
         GENRESULT DACOM_API Slot19(void* A, void* B) override;
@@ -176,7 +176,7 @@ namespace AlchemyImpl
         // Both interface identities share RefCount_; the modern facet keeps
         // its outer pointer instead of requiring the retail binary layout.
         FALBatchedMaterialFacet Facet_;
-        unsigned long RefCount_;
+        FlULong RefCount_;
     };
 
     // The one global instance retail's CRT static-initializer table

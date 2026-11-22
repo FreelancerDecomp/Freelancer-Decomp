@@ -17,9 +17,9 @@ namespace AlchemyImpl
         return Outer_->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API FFxRuntimeAggregate::AddRef() { return Outer_->AddRef(); }
+    FlULong DACOM_API FFxRuntimeAggregate::AddRef() { return Outer_->AddRef(); }
 
-    unsigned long DACOM_API FFxRuntimeAggregate::Release() { return Outer_->Release(); }
+    FlULong DACOM_API FFxRuntimeAggregate::Release() { return Outer_->Release(); }
 
     GENRESULT DACOM_API FFxRuntime::FInnerUnknown::QueryInterface(const char* Iid, void** Out)
     {
@@ -42,16 +42,16 @@ namespace AlchemyImpl
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FFxRuntime::FInnerUnknown::AddRef()
+    FlULong DACOM_API FFxRuntime::FInnerUnknown::AddRef()
     {
         return ++RefCount_;
     }
 
-    unsigned long DACOM_API FFxRuntime::FInnerUnknown::Release()
+    FlULong DACOM_API FFxRuntime::FInnerUnknown::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
-        const unsigned long Next = RefCount_;
+        const FlULong Next = RefCount_;
         if (Next == 0)
         {
             RefCount_ = 1;
@@ -67,12 +67,12 @@ namespace AlchemyImpl
         return Controller_->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API FFxRuntime::AddRef()
+    FlULong DACOM_API FFxRuntime::AddRef()
     {
         return Controller_->AddRef();
     }
 
-    unsigned long DACOM_API FFxRuntime::Release()
+    FlULong DACOM_API FFxRuntime::Release()
     {
         return Controller_->Release();
     }

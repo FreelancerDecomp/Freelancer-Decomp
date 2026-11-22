@@ -36,7 +36,7 @@ namespace AlchemyImpl
     // FxEffect initialization is not a DACOM aggregation descriptor.
     struct FFxEffectCreateDesc
     {
-        unsigned long Size;
+        FlULong Size;
         const char* NameAt4;
         IFxEffectArchetype* Archetype;
         IDAComponent* RootParent;
@@ -44,14 +44,14 @@ namespace AlchemyImpl
 
     struct FAlchemyDefaults
     {
-        unsigned long BasicPoolSize;
-        unsigned long ParticlePoolSize;
-        unsigned long RectPoolSize;
-        unsigned long PerpPoolSize;
-        unsigned long MeshPoolSize;
-        unsigned long OrientedPoolSize;
-        unsigned long DustPoolSize;
-        unsigned long BeamPoolSize;
+        FlULong BasicPoolSize;
+        FlULong ParticlePoolSize;
+        FlULong RectPoolSize;
+        FlULong PerpPoolSize;
+        FlULong MeshPoolSize;
+        FlULong OrientedPoolSize;
+        FlULong DustPoolSize;
+        FlULong BeamPoolSize;
         unsigned char bUseMaterialBatcher;
     };
 
@@ -68,9 +68,9 @@ namespace AlchemyImpl
     {
         void* Items;
         FPoolLink* FreeNodes;
-        unsigned long Stride;
-        unsigned long Capacity;
-        unsigned long FreeCount;
+        FlULong Stride;
+        FlULong Capacity;
+        FlULong FreeCount;
         FPoolLink* UsedHead;
         FPoolLink* UsedTail;
         FPoolLink* FreeHead;
@@ -89,7 +89,7 @@ namespace AlchemyImpl
     {
         IGenericFx* Head;
         IGenericFx* Tail;
-        unsigned long Count;
+        FlULong Count;
     };
 
     // The draw context FUN_06240f50 (begin) / FUN_06241070 (end) / FUN_06241180 (draw) take in
@@ -106,7 +106,7 @@ namespace AlchemyImpl
     //   DAT_06257bd4 (G_DrawVbHandle), shared by all six.
     struct FAlDrawContext
     {
-        unsigned long Prim;          // +0x00
+        FlULong Prim;          // +0x00
         unsigned short VertCount;    // +0x04
         unsigned short IndexCount;   // +0x06
         unsigned char bInBegin;      // +0x08
@@ -114,8 +114,8 @@ namespace AlchemyImpl
         unsigned short PrimCount;    // +0x0c
         void* LockedVerts;           // +0x10
         void* LockedIndices;         // +0x14
-        unsigned long RequestedVerts;   // +0x18
-        unsigned long RequestedIndices; // +0x1c
+        FlULong RequestedVerts;   // +0x18
+        FlULong RequestedIndices; // +0x1c
         unsigned int VbOffset;       // +0x20
         unsigned int IbOffset;       // +0x24
     };
@@ -125,7 +125,7 @@ namespace AlchemyImpl
         float X;
         float Y;
         float Z;
-        unsigned long Diffuse;
+        FlULong Diffuse;
         float U;
         float V;
     };
@@ -219,34 +219,34 @@ namespace AlchemyImpl
         // +0x10 basic 06218a90 (inner +0x48): *Out = the Node_Name buffer, RET 8, 0.
         virtual GENRESULT DACOM_API GetInstanceName(const char** Out) = 0;
         // +0x14 basic 06218ab0 (inner +0x44): *Out = the Node_Name CRC, RET 8, 0.
-        virtual GENRESULT DACOM_API GetInstanceNameHash(unsigned long* Out) = 0;
+        virtual GENRESULT DACOM_API GetInstanceNameHash(FlULong* Out) = 0;
         // +0x18 (inner +0x50): kind 0x105, the transform AddRef'd.
-        virtual GENRESULT DACOM_API GetPropTransform(unsigned long Hash,
+        virtual GENRESULT DACOM_API GetPropTransform(FlULong Hash,
                                                      IAnimatedTransform** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropBool(unsigned long Hash, unsigned char* Out) = 0;   // +0x1C (+0x04)
-        virtual GENRESULT DACOM_API SetPropBool(unsigned long Hash, unsigned char Value) = 0;  // +0x20 (+0x08)
-        virtual GENRESULT DACOM_API GetPropInt(unsigned long Hash, unsigned long* Out) = 0;    // +0x24 (+0x0c)
-        virtual GENRESULT DACOM_API SetPropInt(unsigned long Hash, unsigned long Value) = 0;   // +0x28 (+0x10)
-        virtual GENRESULT DACOM_API GetPropFloat(unsigned long Hash, float* Out) = 0;          // +0x2C (+0x14)
-        virtual GENRESULT DACOM_API SetPropFloat(unsigned long Hash, float Value) = 0;         // +0x30 (+0x18)
-        virtual GENRESULT DACOM_API GetPropPair(unsigned long Hash, unsigned long* Out2) = 0;  // +0x34 (+0x1c)
-        virtual GENRESULT DACOM_API SetPropPair(unsigned long Hash,
-                                                const unsigned long* In2) = 0;                 // +0x38 (+0x20)
+        virtual GENRESULT DACOM_API GetPropBool(FlULong Hash, unsigned char* Out) = 0;   // +0x1C (+0x04)
+        virtual GENRESULT DACOM_API SetPropBool(FlULong Hash, unsigned char Value) = 0;  // +0x20 (+0x08)
+        virtual GENRESULT DACOM_API GetPropInt(FlULong Hash, FlULong* Out) = 0;    // +0x24 (+0x0c)
+        virtual GENRESULT DACOM_API SetPropInt(FlULong Hash, FlULong Value) = 0;   // +0x28 (+0x10)
+        virtual GENRESULT DACOM_API GetPropFloat(FlULong Hash, float* Out) = 0;          // +0x2C (+0x14)
+        virtual GENRESULT DACOM_API SetPropFloat(FlULong Hash, float Value) = 0;         // +0x30 (+0x18)
+        virtual GENRESULT DACOM_API GetPropPair(FlULong Hash, FlULong* Out2) = 0;  // +0x34 (+0x1c)
+        virtual GENRESULT DACOM_API SetPropPair(FlULong Hash,
+                                                const FlULong* In2) = 0;                 // +0x38 (+0x20)
         // +0x3C / +0x40 / +0x44 (+0x24 / +0x28 / +0x2c): kinds 0x101 / 0x100 / 0x102, -8 in
         // every set class.
-        virtual GENRESULT DACOM_API GetPropColorRamp(unsigned long Hash, IRampColor** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropSingleRamp(unsigned long Hash, IRampSingle** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropAnimatedSingle(unsigned long Hash,
+        virtual GENRESULT DACOM_API GetPropColorRamp(FlULong Hash, IRampColor** Out) = 0;
+        virtual GENRESULT DACOM_API GetPropSingleRamp(FlULong Hash, IRampSingle** Out) = 0;
+        virtual GENRESULT DACOM_API GetPropAnimatedSingle(FlULong Hash,
                                                           IFxAnimatedSingle** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropName(unsigned long Hash, const char** Out) = 0;     // +0x48 (+0x30)
-        virtual GENRESULT DACOM_API SetPropName(unsigned long Hash, const char* Name) = 0;     // +0x4C (+0x34)
+        virtual GENRESULT DACOM_API GetPropName(FlULong Hash, const char** Out) = 0;     // +0x48 (+0x30)
+        virtual GENRESULT DACOM_API SetPropName(FlULong Hash, const char* Name) = 0;     // +0x4C (+0x34)
         // +0x50 / +0x54 / +0x58 (+0x38 / +0x3c / +0x40): kinds 0x201 / 0x200 / 0x202, the
         // set's own ramp AddRef'd into *Out (the reader Resets it and fills it in place).
-        virtual GENRESULT DACOM_API GetPropColorRampRamp(unsigned long Hash,
+        virtual GENRESULT DACOM_API GetPropColorRampRamp(FlULong Hash,
                                                          IRampColorRamp** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        virtual GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                           INestedSingleRamp** Out) = 0;
-        virtual GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        virtual GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                               INestedSingleRamp** Out) = 0;
         // +0x5C (+0x54): the class's rows, base table first; RET 0xc.
         virtual int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) = 0;
@@ -258,8 +258,8 @@ namespace AlchemyImpl
     struct FNodePropertyRow
     {
         const char* Name;
-        unsigned long Hash;
-        unsigned long Kind;
+        FlULong Hash;
+        FlULong Kind;
         float Min;
         float Max;
     };
@@ -278,10 +278,10 @@ namespace AlchemyImpl
     // text is copied with its terminator. Every path ends with Hash = FUN_0623ef70(buffer).
     struct FFxHashedName
     {
-        unsigned long Hash;
+        FlULong Hash;
         char* Buffer;
-        unsigned long Length;
-        unsigned long Capacity;
+        FlULong Length;
+        FlULong Capacity;
 
         FFxHashedName();
         ~FFxHashedName();
@@ -315,33 +315,33 @@ namespace AlchemyImpl
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
         // Outer +0x04 / +0x08 (e.g. sphere 0623cdd0 / 0623cde0): the count lives at the end
         // of the outer object; Release decrements only while non-zero and destroys at 0.
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         // The base set's bodies (inner 0x0624f8d8; the FxNode outer 0x0624f980 has copies
         // at 0x06240450..0x06240800). See alchemy_genericfx.cpp.
         GENRESULT DACOM_API SetInstanceName(const char* Text) override;
         GENRESULT DACOM_API GetInstanceName(const char** Out) override;
-        GENRESULT DACOM_API GetInstanceNameHash(unsigned long* Out) override;
-        GENRESULT DACOM_API GetPropTransform(unsigned long Hash, IAnimatedTransform** Out) override;
-        GENRESULT DACOM_API GetPropBool(unsigned long Hash, unsigned char* Out) override;
-        GENRESULT DACOM_API SetPropBool(unsigned long Hash, unsigned char Value) override;
-        GENRESULT DACOM_API GetPropInt(unsigned long Hash, unsigned long* Out) override;
-        GENRESULT DACOM_API SetPropInt(unsigned long Hash, unsigned long Value) override;
-        GENRESULT DACOM_API GetPropFloat(unsigned long Hash, float* Out) override;
-        GENRESULT DACOM_API SetPropFloat(unsigned long Hash, float Value) override;
-        GENRESULT DACOM_API GetPropPair(unsigned long Hash, unsigned long* Out2) override;
-        GENRESULT DACOM_API SetPropPair(unsigned long Hash, const unsigned long* In2) override;
-        GENRESULT DACOM_API GetPropColorRamp(unsigned long Hash, IRampColor** Out) override;
-        GENRESULT DACOM_API GetPropSingleRamp(unsigned long Hash, IRampSingle** Out) override;
-        GENRESULT DACOM_API GetPropAnimatedSingle(unsigned long Hash,
+        GENRESULT DACOM_API GetInstanceNameHash(FlULong* Out) override;
+        GENRESULT DACOM_API GetPropTransform(FlULong Hash, IAnimatedTransform** Out) override;
+        GENRESULT DACOM_API GetPropBool(FlULong Hash, unsigned char* Out) override;
+        GENRESULT DACOM_API SetPropBool(FlULong Hash, unsigned char Value) override;
+        GENRESULT DACOM_API GetPropInt(FlULong Hash, FlULong* Out) override;
+        GENRESULT DACOM_API SetPropInt(FlULong Hash, FlULong Value) override;
+        GENRESULT DACOM_API GetPropFloat(FlULong Hash, float* Out) override;
+        GENRESULT DACOM_API SetPropFloat(FlULong Hash, float Value) override;
+        GENRESULT DACOM_API GetPropPair(FlULong Hash, FlULong* Out2) override;
+        GENRESULT DACOM_API SetPropPair(FlULong Hash, const FlULong* In2) override;
+        GENRESULT DACOM_API GetPropColorRamp(FlULong Hash, IRampColor** Out) override;
+        GENRESULT DACOM_API GetPropSingleRamp(FlULong Hash, IRampSingle** Out) override;
+        GENRESULT DACOM_API GetPropAnimatedSingle(FlULong Hash,
                                                   IFxAnimatedSingle** Out) override;
-        GENRESULT DACOM_API GetPropName(unsigned long Hash, const char** Out) override;
-        GENRESULT DACOM_API SetPropName(unsigned long Hash, const char* Text) override;
-        GENRESULT DACOM_API GetPropColorRampRamp(unsigned long Hash, IRampColorRamp** Out) override;
-        GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropName(FlULong Hash, const char** Out) override;
+        GENRESULT DACOM_API SetPropName(FlULong Hash, const char* Text) override;
+        GENRESULT DACOM_API GetPropColorRampRamp(FlULong Hash, IRampColorRamp** Out) override;
+        GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                   INestedSingleRamp** Out) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
@@ -367,7 +367,7 @@ namespace AlchemyImpl
                                     void* Context);
 
     private:
-        unsigned long RefCount_;
+        FlULong RefCount_;
 
         void CleanupFailedConstruction();
         FFxNodePropertySet(const FFxNodePropertySet&) = delete;
@@ -400,7 +400,7 @@ namespace AlchemyImpl
         // 0x0C53B008 -> +0x58 AddRef'd, 0; else -8. Every appearance set's 0x200 getter
         // ends here (particle and mesh have it as the slot itself). Inner +0x54
         // FUN_06244320 is `JMP FUN_0623f960`, the base walk, so it is not overridden.
-        GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                   INestedSingleRamp** Out) override;
 
         // +0x50: unused private trivial-word list; actual methods neither populate
@@ -423,13 +423,13 @@ namespace AlchemyImpl
         FAppearanceRampDescriptor();
         ~FAppearanceRampDescriptor() override;
 
-        unsigned long Flags;
+        FlULong Flags;
         // BasicApp_TexName 0x1BA23359: the set stores DACOM_CRC::GetCRC32(name) only
         // (basic FUN_06218c90 and its five twins); the getter hands out "???".
-        unsigned long TextureCrc;
+        FlULong TextureCrc;
         // BasicApp_BlendInfo 0x1506EB6C: {5, 2} (D3DBLEND_SRCALPHA, D3DBLEND_ONE) from every
         // builder (basic 0x062155c3 / 0x062155ca and the five twins).
-        unsigned long BlendInfo[2];
+        FlULong BlendInfo[2];
         INestedSingleRamp* SizeRamp;
         IRampColorRamp* ColorRamp;
         INestedSingleRamp* PrimarySizeRamp;
@@ -451,15 +451,15 @@ namespace AlchemyImpl
     public:
         FFxParticleAppearancePropertySet();
 
-        GENRESULT DACOM_API GetPropBool(unsigned long Hash, unsigned char* Out) override;
-        GENRESULT DACOM_API SetPropBool(unsigned long Hash, unsigned char Value) override;
-        GENRESULT DACOM_API GetPropName(unsigned long Hash, const char** Out) override;
-        GENRESULT DACOM_API SetPropName(unsigned long Hash, const char* Text) override;
+        GENRESULT DACOM_API GetPropBool(FlULong Hash, unsigned char* Out) override;
+        GENRESULT DACOM_API SetPropBool(FlULong Hash, unsigned char Value) override;
+        GENRESULT DACOM_API GetPropName(FlULong Hash, const char** Out) override;
+        GENRESULT DACOM_API SetPropName(FlULong Hash, const char* Text) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
         FFxHashedName LifeName;
         FFxHashedName DeathName;
-        unsigned long Flags;
+        FlULong Flags;
     };
 
     // FxMeshAppearance's set (inner ctor FUN_06224710, create FUN_06224b60, 0x90 bytes,
@@ -472,16 +472,16 @@ namespace AlchemyImpl
         FFxMeshAppearancePropertySet();
         ~FFxMeshAppearancePropertySet() override;
 
-        GENRESULT DACOM_API GetPropBool(unsigned long Hash, unsigned char* Out) override;
-        GENRESULT DACOM_API SetPropBool(unsigned long Hash, unsigned char Value) override;
-        GENRESULT DACOM_API GetPropInt(unsigned long Hash, unsigned long* Out) override;
-        GENRESULT DACOM_API SetPropInt(unsigned long Hash, unsigned long Value) override;
-        GENRESULT DACOM_API GetPropName(unsigned long Hash, const char** Out) override;
-        GENRESULT DACOM_API SetPropName(unsigned long Hash, const char* Text) override;
-        GENRESULT DACOM_API GetPropTransform(unsigned long Hash, IAnimatedTransform** Out) override;
+        GENRESULT DACOM_API GetPropBool(FlULong Hash, unsigned char* Out) override;
+        GENRESULT DACOM_API SetPropBool(FlULong Hash, unsigned char Value) override;
+        GENRESULT DACOM_API GetPropInt(FlULong Hash, FlULong* Out) override;
+        GENRESULT DACOM_API SetPropInt(FlULong Hash, FlULong Value) override;
+        GENRESULT DACOM_API GetPropName(FlULong Hash, const char** Out) override;
+        GENRESULT DACOM_API SetPropName(FlULong Hash, const char* Text) override;
+        GENRESULT DACOM_API GetPropTransform(FlULong Hash, IAnimatedTransform** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
-        unsigned long MeshId;
+        FlULong MeshId;
         FFxHashedName MeshName;
         unsigned char bUseParticleTransform;
         IAnimatedTransform* ParticleTransform;
@@ -489,7 +489,7 @@ namespace AlchemyImpl
 
     struct FNodeLibEntry
     {
-        unsigned long Hash;
+        FlULong Hash;
         char Name[256];
         IDAComponent* Node;
     };
@@ -506,7 +506,7 @@ namespace AlchemyImpl
     {
         IDAComponent* Left;
         IDAComponent* Right;
-        unsigned long Kind;
+        FlULong Kind;
     };
 
     // Owning effect record: its node reference has observable copy/assignment calls.
@@ -516,12 +516,12 @@ namespace AlchemyImpl
         // Retail list record +4: the archetype rec16's first dword (Rec.A). 0 = node
         // looked up through Alchemy+0x2C, non-zero = CreateNamedFx("FxNode") group.
         // FUN_0621eed0 0621f52b gates the child-duration pass on Kind == 1.
-        unsigned long Kind;
-        unsigned long Id;
-        unsigned long Parent;
+        FlULong Kind;
+        FlULong Id;
+        FlULong Parent;
 
-        FFxEffectNodeRec(IDAComponent* InitialNode, unsigned long InitialKind,
-                         unsigned long InitialId, unsigned long InitialParent)
+        FFxEffectNodeRec(IDAComponent* InitialNode, FlULong InitialKind,
+                         FlULong InitialId, FlULong InitialParent)
             : Node(InitialNode)
         {
             // 062209e0: the reference is published before AddRef.
@@ -574,7 +574,7 @@ namespace AlchemyImpl
     struct FAleChunk
     {
         IFileSystem* Filesys;
-        unsigned long Handle;
+        FlULong Handle;
         unsigned char bEntered_;
 
         FAleChunk() : Filesys(nullptr), Handle(0xFFFFFFFF), bEntered_(0) {}
@@ -594,12 +594,12 @@ namespace AlchemyImpl
 
         void CloseChunk();
 
-        int ReadBytes(void* Buffer, unsigned long Size);
+        int ReadBytes(void* Buffer, FlULong Size);
 
-        int WriteBytes(const void* Buffer, unsigned long Size);
+        int WriteBytes(const void* Buffer, FlULong Size);
 
         // FUN_06223070: uint16 length + bytes; odd length gets 1 pad byte. RET <0 fail.
-        int ReadString(char* Buffer, unsigned long MaxChars);
+        int ReadString(char* Buffer, FlULong MaxChars);
 
         // FUN_06222f80: uint16 (strlen+1 or 0) + bytes + odd pad.
         int WriteString(const char* Text);
@@ -663,12 +663,12 @@ namespace AlchemyImpl
         // This slot was declared as a two-argument SetPropBool(Hash, Value) until
         // 2026-09-26; the walk called it with one argument, so every call popped a dword
         // the caller never pushed. SetPropBool is PORT(api) and lives in the tail now.
-        virtual GENRESULT DACOM_API GetNodeFlags(unsigned long* Out) = 0;            // +0x20
+        virtual GENRESULT DACOM_API GetNodeFlags(FlULong* Out) = 0;            // +0x20
         // +0x24 RET 8 -- `[node+4] = Flags; return 0` (FxNode LAB_062026f0, basic
         // appearance FUN_06218e30, field LAB_0620ea50). The emitters override it with
         // FUN_06245bb0, which first tells a bound appearance to drop its emitter count
         // (appearance +0xc8) when the new flags are negative. Was Pad9 until 2026-09-26.
-        virtual GENRESULT DACOM_API SetNodeFlags(unsigned long Flags) = 0;           // +0x24
+        virtual GENRESULT DACOM_API SetNodeFlags(FlULong Flags) = 0;           // +0x24
         virtual IDAComponent* DACOM_API GetAttachParent() = 0;                       // +0x28 FUN_06201e90 RET 4
         virtual IDAComponent* DACOM_API GetFirstChild() = 0;                         // +0x2C FUN_06201e00 RET 4
         virtual IDAComponent* DACOM_API GetPrevSibling() = 0;                        // +0x30 FUN_06201f00 RET 4
@@ -682,9 +682,9 @@ namespace AlchemyImpl
         //   Index 1 = the raw local transform (node+0x1c; set ORs flag 0x4),
         //   any other Index -> 0xfffffffe, nothing written.
         // The setter copies 12 floats in; the getter hands out the slot's address.
-        virtual GENRESULT DACOM_API SetNodeTransform(unsigned long Index,
+        virtual GENRESULT DACOM_API SetNodeTransform(FlULong Index,
                                                      const float* Source12) = 0;    // +0x3C RET 0xC
-        virtual GENRESULT DACOM_API GetNodeTransform(unsigned long Index,
+        virtual GENRESULT DACOM_API GetNodeTransform(FlULong Index,
                                                      float** OutSlot) = 0;          // +0x40 RET 0xC
         // wave89 (sonnet:alchemy-wave89-lane1, 2026-09-15): CORRECTED from the
         // zero-arg `Pad17()` every prior wave stubbed here. Real retail body
@@ -780,7 +780,7 @@ namespace AlchemyImpl
         // at +0x78: wave79 read PTR_LAB_0624e848 -- FxPerpAppearance's 0xc-byte factory
         // vtable -- as the object vtable; 0x0624e8c0 is the next table's +0x10, the node
         // draw, reached from outer +0x18.
-        virtual GENRESULT DACOM_API GetInstanceNameHash(unsigned long* Out) = 0;     // +0x74
+        virtual GENRESULT DACOM_API GetInstanceNameHash(FlULong* Out) = 0;     // +0x74
         virtual GENRESULT DACOM_API GetInstanceName(const char** Out) = 0;           // +0x78
         virtual GENRESULT DACOM_API SetInstanceName(const char* Name) = 0;           // +0x7C
         // +0x80 RET 8 -- the node's property set: *Out = node+0x7c (the set's outer),
@@ -946,18 +946,18 @@ namespace AlchemyImpl
         // 2026-09-26.
         virtual GENRESULT DACOM_API AddEmitterRef() = 0;                             // +0xC4
         virtual GENRESULT DACOM_API ReleaseEmitterRef() = 0;                         // +0xC8
-        virtual GENRESULT DACOM_API GetLiveInstanceCount(unsigned long* Out) = 0;    // +0xCC LAB_06219500
-        virtual GENRESULT DACOM_API GetQueuedVertCount(unsigned long* Out) = 0;      // +0xD0 LAB_06219520
-        virtual GENRESULT DACOM_API GetQueuedIndexCount(unsigned long* Out) = 0;     // +0xD4 LAB_06219540
+        virtual GENRESULT DACOM_API GetLiveInstanceCount(FlULong* Out) = 0;    // +0xCC LAB_06219500
+        virtual GENRESULT DACOM_API GetQueuedVertCount(FlULong* Out) = 0;      // +0xD0 LAB_06219520
+        virtual GENRESULT DACOM_API GetQueuedIndexCount(FlULong* Out) = 0;     // +0xD4 LAB_06219540
         // IFxAppearance +0xD8 / +0xDC (node +0x84 / +0x88): count and indexed
         // field getter. FUN_06244510 takes Index and Out; success writes the field
         // and AddRefs it, an invalid index reports -1 without changing Out.
-        virtual GENRESULT DACOM_API GetAssociatedFieldCount(unsigned long* Out) = 0;
-        virtual GENRESULT DACOM_API GetAssociatedFieldAt(unsigned long Index,
+        virtual GENRESULT DACOM_API GetAssociatedFieldCount(FlULong* Out) = 0;
+        virtual GENRESULT DACOM_API GetAssociatedFieldAt(FlULong Index,
                                                         IDAComponent** Out) = 0;
         // PORT(api): after +0xDC. Kind 2/3/0x103/0x104 setters are IFxNodePropertySet,
         // not IFxNode +0x30/+0x38/+0x4C (those are prev / sort key / first-child).
-        virtual GENRESULT DACOM_API SetLiveInstanceCount(unsigned long Count) = 0;
+        virtual GENRESULT DACOM_API SetLiveInstanceCount(FlULong Count) = 0;
         // PORT(api): IFxField +0x9C Begin (LAB_062241a0 / LAB_06214bf0 / LAB_06236ea0).
         // Appearance is the appearance whose particles this field is about to act on
         // (retail Begin's one stack argument, RET 8). The Begin bodies that need a
@@ -1059,7 +1059,7 @@ namespace AlchemyImpl
         // PORT(api): position. Retail has this method -- FUN_06215f40 / FUN_0620e430 /
         // FUN_0620be90 are its three bodies -- but not at +0x68, where it used to be
         // declared. It is parked at the end of the table until its real slot is read.
-        virtual GENRESULT DACOM_API EmitOne(const float* Six, unsigned long Extra,
+        virtual GENRESULT DACOM_API EmitOne(const float* Six, FlULong Extra,
                                             float Duration) = 0;
 
         // Retail +0x9C / +0xA0 on the four batched appearances' outer vtables (basic
@@ -1072,8 +1072,8 @@ namespace AlchemyImpl
         // order is a verification convention only (no retail DLL is loaded).
         // BeginBatchedDraw is FUN_06240f50(ctx, 4, Verts, Indices) folded to 0 / -1 by
         // `NEG AL; SBB; NEG; DEC` in all four bodies. EndBatchedDraw differs per kind.
-        virtual GENRESULT DACOM_API BeginBatchedDraw(unsigned long Verts,
-                                                     unsigned long Indices) = 0;
+        virtual GENRESULT DACOM_API BeginBatchedDraw(FlULong Verts,
+                                                     FlULong Indices) = 0;
         virtual GENRESULT DACOM_API EndBatchedDraw() = 0;
     };
 
@@ -1108,8 +1108,8 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API SetKeyTime(int Index, float Time,
                                                int* OutNewIndex) = 0;                 // +0x28 06208e40
         virtual GENRESULT DACOM_API SetKeyValue(int Index, const float* Value) = 0;   // +0x2C 062090f0
-        virtual unsigned long DACOM_API GetMode() = 0;                                // +0x30 06209110
-        virtual GENRESULT DACOM_API SetMode(unsigned long Mode) = 0;                  // +0x34 06242880
+        virtual FlULong DACOM_API GetMode() = 0;                                // +0x30 06209110
+        virtual GENRESULT DACOM_API SetMode(FlULong Mode) = 0;                  // +0x34 06242880
         virtual int DACOM_API GetKeyCount() = 0;                                      // +0x38 06209120
         virtual GENRESULT DACOM_API GetKeyFactoryName(const char** Out) = 0;          // +0x3C 06209130
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                    // +0x40 06209210
@@ -1124,20 +1124,20 @@ namespace AlchemyImpl
         virtual int DACOM_API AddKey(float Time, const float* Rgb) = 0;               // +0x14 062098e0
         virtual GENRESULT DACOM_API RemoveKey(int Index) = 0;                         // +0x18 06209400
         virtual float* DACOM_API EvalRgb(float* Out, float Time) = 0;                 // +0x1C 06242410
-        virtual unsigned long DACOM_API EvalPacked(float Time) = 0;                   // +0x20 062424b0
+        virtual FlULong DACOM_API EvalPacked(float Time) = 0;                   // +0x20 062424b0
         virtual GENRESULT DACOM_API GetKeyTime(int Index, float* Out) = 0;            // +0x24 06209480
         virtual GENRESULT DACOM_API GetKeyRgb(int Index, float* Out) = 0;             // +0x28 062099f0
         virtual GENRESULT DACOM_API SetKeyTime(int Index, float Time,
                                                int* OutNewIndex) = 0;                 // +0x2C 062094c0
         virtual GENRESULT DACOM_API SetKeyRgb(int Index, const float* Rgb) = 0;       // +0x30 06209a70
-        virtual unsigned long DACOM_API GetMode() = 0;                                // +0x34 06209790
-        virtual GENRESULT DACOM_API SetMode(unsigned long Mode) = 0;                  // +0x38 06241b50
+        virtual FlULong DACOM_API GetMode() = 0;                                // +0x34 06209790
+        virtual GENRESULT DACOM_API SetMode(FlULong Mode) = 0;                  // +0x38 06241b50
         virtual int DACOM_API GetKeyCount() = 0;                                      // +0x3C 062097a0
         virtual GENRESULT DACOM_API GetKeyFactoryName(const char** Out) = 0;          // +0x40 062097b0
-        virtual int DACOM_API AddKeyPacked(float Time, const unsigned long* Packed) = 0; // +0x44 06209310
-        virtual GENRESULT DACOM_API GetKeyPacked(int Index, unsigned long* Out) = 0;  // +0x48 062094a0
+        virtual int DACOM_API AddKeyPacked(float Time, const FlULong* Packed) = 0; // +0x44 06209310
+        virtual GENRESULT DACOM_API GetKeyPacked(int Index, FlULong* Out) = 0;  // +0x48 062094a0
         virtual GENRESULT DACOM_API SetKeyPacked(int Index,
-                                                 const unsigned long* Packed) = 0;    // +0x4C 06209770
+                                                 const FlULong* Packed) = 0;    // +0x4C 06209770
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                    // +0x50 06209890
     };
 
@@ -1161,8 +1161,8 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API SetKeyTime(int Index, float Time,
                                                int* OutNewIndex) = 0;                 // +0x28
         virtual GENRESULT DACOM_API SetKeyValue(int Index, IDAComponent* Child) = 0;  // +0x2C
-        virtual unsigned long DACOM_API GetMode() = 0;                                // +0x30
-        virtual GENRESULT DACOM_API SetMode(unsigned long Mode) = 0;                  // +0x34
+        virtual FlULong DACOM_API GetMode() = 0;                                // +0x30
+        virtual GENRESULT DACOM_API SetMode(FlULong Mode) = 0;                  // +0x34
         virtual int DACOM_API GetKeyCount() = 0;                                      // +0x38
         virtual GENRESULT DACOM_API GetKeyFactoryName(const char** Out) = 0;          // +0x3C
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                    // +0x40
@@ -1198,14 +1198,14 @@ namespace AlchemyImpl
         virtual GENRESULT DACOM_API RemoveKey(int Index) = 0;                         // +0x18 06207ea0
         virtual float* DACOM_API EvalRgb(float* Out, float OuterTime,
                                          float InnerTime) = 0;                        // +0x1C 06207ef0
-        virtual unsigned long DACOM_API EvalPacked(float OuterTime, float InnerTime) = 0; // +0x20 06241320
+        virtual FlULong DACOM_API EvalPacked(float OuterTime, float InnerTime) = 0; // +0x20 06241320
         virtual GENRESULT DACOM_API GetKeyTime(int Index, float* Out) = 0;            // +0x24 062080f0
         virtual GENRESULT DACOM_API GetKeyValue(int Index, IRampColor** Out) = 0;     // +0x28 06208110 AddRefs
         virtual GENRESULT DACOM_API SetKeyTime(int Index, float Time,
                                                int* OutNewIndex) = 0;                 // +0x2C 06208130
         virtual GENRESULT DACOM_API SetKeyValue(int Index, IRampColor* Child) = 0;    // +0x30 062083e0
-        virtual unsigned long DACOM_API GetMode() = 0;                                // +0x34 06208420
-        virtual GENRESULT DACOM_API SetMode(unsigned long Mode) = 0;                  // +0x38 06208430
+        virtual FlULong DACOM_API GetMode() = 0;                                // +0x34 06208420
+        virtual GENRESULT DACOM_API SetMode(FlULong Mode) = 0;                  // +0x38 06208430
         virtual int DACOM_API GetKeyCount() = 0;                                      // +0x3C 06208440
         virtual GENRESULT DACOM_API GetKeyFactoryName(const char** Out) = 0;          // +0x40 06209b50
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                    // +0x44 06207c90
@@ -1238,10 +1238,10 @@ namespace AlchemyImpl
                                                int* OutNewIndex) = 0;              // +0x34 062431a0
         virtual GENRESULT DACOM_API SetKeyValue(int Index, const float* Value) = 0; // +0x38 062431d0
         // "Failed to set non-zero loop type" (FUN_06227a20's FDUMP) names this slot.
-        virtual GENRESULT DACOM_API SetLoopType(unsigned long LoopType) = 0;       // +0x3C 06243210
-        virtual GENRESULT DACOM_API GetLoopType(unsigned long* Out) = 0;           // +0x40 06243230
+        virtual GENRESULT DACOM_API SetLoopType(FlULong LoopType) = 0;       // +0x3C 06243210
+        virtual GENRESULT DACOM_API GetLoopType(FlULong* Out) = 0;           // +0x40 06243230
         // Recomputes every key's slopes for a mode 0..6 and zeroes LoopType (06246550).
-        virtual GENRESULT DACOM_API ComputeSlopes(unsigned long Mode) = 0;         // +0x44 06243260
+        virtual GENRESULT DACOM_API ComputeSlopes(FlULong Mode) = 0;         // +0x44 06243260
         // +0x48 in retail is the scalar deleting destructor (06209b10); the port's Release
         // deletes directly, so Initialize sits one slot earlier here.
         virtual GENRESULT DACOM_API Initialize(AGGDESC* Desc) = 0;                 // +0x4C 06242f20
@@ -1331,22 +1331,22 @@ namespace AlchemyImpl
     {
         virtual GENRESULT DACOM_API Reset() = 0;                                     // +0x0C
         virtual GENRESULT DACOM_API CopyFrom(IAnimatedTransform* Other) = 0;          // +0x10
-        virtual GENRESULT DACOM_API GetChild(unsigned long Index,
+        virtual GENRESULT DACOM_API GetChild(FlULong Index,
                                              IDAComponent** Out) = 0;                // +0x14
         virtual GENRESULT DACOM_API UpdateChannelFlags() = 0;                        // +0x18
-        virtual GENRESULT DACOM_API GetChannelFlags(unsigned long* Out) = 0;         // +0x1C
+        virtual GENRESULT DACOM_API GetChannelFlags(FlULong* Out) = 0;         // +0x1C
         virtual unsigned char DACOM_API IsIdentity() = 0;                            // +0x20
-        virtual GENRESULT DACOM_API SetPackedModes(unsigned long A, unsigned long B,
-                                                   unsigned long C) = 0;             // +0x24
-        virtual GENRESULT DACOM_API GetPackedModes(unsigned long* A, unsigned long* B,
-                                                   unsigned long* C) = 0;            // +0x28
-        virtual void DACOM_API Evaluate(unsigned long TimeA, unsigned long TimeB,
+        virtual GENRESULT DACOM_API SetPackedModes(FlULong A, FlULong B,
+                                                   FlULong C) = 0;             // +0x24
+        virtual GENRESULT DACOM_API GetPackedModes(FlULong* A, FlULong* B,
+                                                   FlULong* C) = 0;            // +0x28
+        virtual void DACOM_API Evaluate(FlULong TimeA, FlULong TimeB,
                                         float* Out12) = 0;                          // +0x2C
         // +0x30 LAB_06243690 (item 135221): `XOR EAX,EAX; RET 8` -- an
         // always-success 1-arg stub shared with several other trivial
         // vtable fillers in this module. No observable behavior beyond
         // returning GR_OK; declared for vtable-shape completeness.
-        virtual GENRESULT DACOM_API Slot0x30(unsigned long Arg) = 0;
+        virtual GENRESULT DACOM_API Slot0x30(FlULong Arg) = 0;
     };
 
     struct IFxEffect;

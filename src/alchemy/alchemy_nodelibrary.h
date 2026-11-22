@@ -55,22 +55,22 @@ namespace AlchemyImpl
         FNodePrototypeRegistry(const FNodePrototypeRegistry&) = delete;
         FNodePrototypeRegistry& operator=(const FNodePrototypeRegistry&) = delete;
 
-        IDAComponent* Find(unsigned long Hash);
-        GENRESULT FindWithRef(unsigned long Hash, IDAComponent** Out);
+        IDAComponent* Find(FlULong Hash);
+        GENRESULT FindWithRef(FlULong Hash, IDAComponent** Out);
         GENRESULT Insert(IFxNodeLibrary* Library, const char* Name, IDAComponent* Node,
-                         unsigned long* OutHash);
-        GENRESULT Remove(unsigned long Hash);
+                         FlULong* OutHash);
+        GENRESULT Remove(FlULong Hash);
         GENRESULT Enumerate(FNodeLibraryEnumCallback Callback, void* Context);
         GENRESULT Load(IFxNodeLibrary* Library, IFileSystem* Filesys);
         void Clear();
         void Destroy();
-        unsigned long Count() const { return Count_; }
-        const unsigned long* CountAddress() const { return &Count_; }
+        FlULong Count() const { return Count_; }
+        const FlULong* CountAddress() const { return &Count_; }
         IDAComponent* First() const { return Head_; }
 
     private:
         IDAComponent* UnlinkPrototype(IDAComponent* Node);
-        using FPrototypeMap = std::map<unsigned long, FAlchemyComponentReference>;
+        using FPrototypeMap = std::map<FlULong, FAlchemyComponentReference>;
         struct FMapStorageOwner
         {
             FMapStorageOwner(FNodePrototypeRegistry* InOwner, FPrototypeMap* InStorage)
@@ -87,7 +87,7 @@ namespace AlchemyImpl
         void DestroyMapStorage(FPrototypeMap* Storage);
         FPrototypeMap* Entries_;
         FMapStorageOwner MapOwner_;
-        unsigned long Count_;
+        FlULong Count_;
         IDAComponent* Head_;
         IDAComponent* Tail_;
     };
@@ -103,19 +103,19 @@ namespace AlchemyImpl
         ~FFxNodeLibrary() noexcept(false);
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         GENRESULT DACOM_API LoadNodeLibrary(IFileSystem* Filesys) override;
         GENRESULT DACOM_API SaveNodeLibrary(IFileSystem* Filesys) override;
-        unsigned long DACOM_API HashNodeName(const char* Name) override
+        FlULong DACOM_API HashNodeName(const char* Name) override
         {
             return HashNameCrc(Name);
         }
         // FUN_062274b0 RET 0x10: name, prototype, optional output hash.
         GENRESULT DACOM_API NodeLibSlot6(const char* Name, IDAComponent* Node,
-                                       unsigned long* OutHash) override;
-        GENRESULT DACOM_API NodeLibSlot7(unsigned long Hash) override;
+                                       FlULong* OutHash) override;
+        GENRESULT DACOM_API NodeLibSlot7(FlULong Hash) override;
         // FUN_06228b00: enumerate this object's own node-lib entries,
         // Callback(Node, Context) cdecl, stop at first nonzero result.
         GENRESULT DACOM_API NodeLibSlot8(FNodeLibraryEnumCallback Callback, void* Context) override;
@@ -125,19 +125,19 @@ namespace AlchemyImpl
         GENRESULT DACOM_API NodeLibSlot10(void* Name, void* Out) override;
         // LAB_06227710: find the prototype by hash, then CloneNode(Out).
         // Miss = GR_ALE_CREATE_FAIL (-8), output untouched.
-        GENRESULT DACOM_API NodeLibSlot11(unsigned long Hash, IDAComponent** Out) override;
+        GENRESULT DACOM_API NodeLibSlot11(FlULong Hash, IDAComponent** Out) override;
         // LAB_06227770: find CRC in this object's own table, out = stored
         // node, AddRef.
-        GENRESULT DACOM_API NodeLibSlot12(unsigned long Hash, IDAComponent** Out) override;
+        GENRESULT DACOM_API NodeLibSlot12(FlULong Hash, IDAComponent** Out) override;
 
     private:
-        IDAComponent* FindNodeEntry(unsigned long Hash);
+        IDAComponent* FindNodeEntry(FlULong Hash);
         GENRESULT InsertNodeByName(const char* Name, IDAComponent* Node,
-                                  unsigned long* OutHash = nullptr);
-        GENRESULT RemoveNodeByHash(unsigned long Hash);
+                                  FlULong* OutHash = nullptr);
+        GENRESULT RemoveNodeByHash(FlULong Hash);
         void ClearNodeList();
 
-        unsigned long RefCount_;
+        FlULong RefCount_;
         FNodePrototypeRegistry NodeRegistry_;
     };
 

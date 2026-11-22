@@ -129,7 +129,7 @@ namespace
         const HRESULT Hr = CoInitialize(nullptr);
         if (Hr != S_OK && Hr != S_FALSE)
             return 0;
-        const unsigned long Result = This->PumpStreams();
+        const FlULong Result = This->PumpStreams();
         CoUninitialize();
         return Result;
     }
@@ -150,22 +150,22 @@ namespace
     }
 
     // FUN_06ef1d70: +0xB8 set and GetVolume (+0x18) >= 0 -> the queried value, else +0x88.
-    long QueryBufferVolume(FStreamingSound* Stream)
+    FlLong QueryBufferVolume(FStreamingSound* Stream)
     {
         if (Stream->Buffer != nullptr)
         {
-            long Queried = 0;
+            FlLong Queried = 0;
             if (Stream->Buffer->GetVolume(&Queried) >= 0)
                 return Queried;
         }
         return Stream->Volume;
     }
 
-    long QueryBufferPan(FStreamingSound* Stream)
+    FlLong QueryBufferPan(FStreamingSound* Stream)
     {
         if (Stream->Buffer != nullptr)
         {
-            long Queried = 0;
+            FlLong Queried = 0;
             if (Stream->Buffer->GetPan(&Queried) >= 0)
                 return Queried;
         }
@@ -203,8 +203,8 @@ namespace
         const size_t NameLen = strlen(Name);
         Stream->Path = static_cast<char*>(malloc(NameLen + 1));
         memcpy(Stream->Path, Name, NameLen + 1);
-        Stream->PathLen = static_cast<unsigned long>(NameLen);
-        Stream->PathCap = static_cast<unsigned long>(NameLen + 1);
+        Stream->PathLen = static_cast<FlULong>(NameLen);
+        Stream->PathCap = static_cast<FlULong>(NameLen + 1);
         Stream->FileSystem = FileSystem;
         if (FileSystem != nullptr)
             FileSystem->AddRef();
@@ -215,10 +215,10 @@ namespace
     }
 
     // 06ef311c..3127: FileSystem slot 0x70 (GetFileAttributes-like) on the path, no checks.
-    unsigned long FileSystemAttributes(IDAComponent* FileSystem, const char* Path)
+    FlULong FileSystemAttributes(IDAComponent* FileSystem, const char* Path)
     {
         // +0x70 GetPathAttributes reads the const char* path.
-        return static_cast<unsigned long>(
+        return static_cast<FlULong>(
             static_cast<IFileSystem*>(FileSystem)->GetPathAttributes(Path));
     }
 
@@ -242,17 +242,17 @@ namespace
 
 
     void ReopenAcmStream(FStreamingSound* Stream);
-    void AdvanceSourceOrDrain(FStreamingSound* Stream, unsigned long Used);
+    void AdvanceSourceOrDrain(FStreamingSound* Stream, FlULong Used);
     void SilenceLocked(FStreamingSound* Stream);
 
     // Retail copies with inline MOVSD/MOVSB or memcpy and no pointer tests.
-    void CopyBytes(void* Dest, const void* Src, unsigned long Count)
+    void CopyBytes(void* Dest, const void* Src, FlULong Count)
     {
         memcpy(Dest, Src, Count);
     }
 
     // 06ef1f18..1f57: REP STOSD/STOSB only when the count is non-zero; no pointer test.
-    void ZeroBytes(void* Dest, unsigned long Count)
+    void ZeroBytes(void* Dest, FlULong Count)
     {
         if (Count == 0)
             return;
@@ -260,24 +260,24 @@ namespace
     }
 
     // 06ef21cc..21d6: DIV / IMUL by the block with no zero test.
-    unsigned long AlignDown(unsigned long Value, unsigned long Align)
+    FlULong AlignDown(FlULong Value, FlULong Align)
     {
         return (Value / Align) * Align;
     }
 
-    unsigned long AlignUp(unsigned long Value, unsigned long Align)
+    FlULong AlignUp(FlULong Value, FlULong Align)
     {
         if (Align == 0)
             return 0;
         return ((Value + Align - 1) / Align) * Align;
     }
 
-    unsigned long PcmFrameBytes(FStreamingSound* Stream)
+    FlULong PcmFrameBytes(FStreamingSound* Stream)
     {
-        const unsigned long Bits = static_cast<unsigned long>(Stream->PcmBits);
-        const unsigned long Channels = static_cast<unsigned long>(Stream->PcmChannels);
-        const long Product = static_cast<long>(Bits * Channels);
-        return static_cast<unsigned long>((Product + (Product >> 31 & 7)) >> 3);
+        const FlULong Bits = static_cast<FlULong>(Stream->PcmBits);
+        const FlULong Channels = static_cast<FlULong>(Stream->PcmChannels);
+        const FlLong Product = static_cast<FlLong>(Bits * Channels);
+        return static_cast<FlULong>((Product + (Product >> 31 & 7)) >> 3);
     }
 
     unsigned char DecodeHeapExhausted(FStreamingSound* Stream)
@@ -290,7 +290,7 @@ namespace
     }
 
     // retail FUN_06ef28c0
-    unsigned char* PeekMapped(FStreamingSound* Stream, unsigned long Offset, unsigned long Size)
+    unsigned char* PeekMapped(FStreamingSound* Stream, FlULong Offset, FlULong Size)
     {
         // 06ef28c0..28e3: map -1, or offset + size >u +0x20 -> 0; else +0x1C + offset (no view
         // test).
@@ -308,8 +308,8 @@ namespace
             return 0;
         IFileSystem* Fs = static_cast<IFileSystem*>(Stream->FileSystem);
         // +0x3C CreateFileMappingA-like, +0x40 MapViewOfFile-like, +0x28 GetSize
-        const unsigned long Map =
-            static_cast<unsigned long>(Fs->CreateMapping(Stream->FileHandle, 0, 2, 0, 0, 0));
+        const FlULong Map =
+            static_cast<FlULong>(Fs->CreateMapping(Stream->FileHandle, 0, 2, 0, 0, 0));
         Stream->MapHandle = Map;
         if (Map == 0xFFFFFFFFu)
             return 0;
@@ -341,7 +341,7 @@ namespace
     }
 
     // retail FUN_06ef1040 — play cursor, not the buffer pointer
-    unsigned long GetPlayCursor(FStreamingSound* Stream)
+    FlULong GetPlayCursor(FStreamingSound* Stream)
     {
         if (Stream->State != 2 && Stream->State != 3 && Stream->State != 6)
             return 0;
@@ -355,24 +355,24 @@ namespace
     }
 
     // retail FUN_06ef1080
-    unsigned long GetBufferedBytes(FStreamingSound* Stream)
+    FlULong GetBufferedBytes(FStreamingSound* Stream)
     {
-        const unsigned long Play = GetPlayCursor(Stream);
-        const unsigned long Write = Stream->WriteCursor;
+        const FlULong Play = GetPlayCursor(Stream);
+        const FlULong Write = Stream->WriteCursor;
         if (Write >= Play)
             return Write - Play;
         return (Stream->BufferBytes - Play) + Write;
     }
 
     // retail FUN_06ef10b0
-    unsigned long ComputeLockFree(FStreamingSound* Stream, unsigned long* Lock1, unsigned long* Lock2)
+    FlULong ComputeLockFree(FStreamingSound* Stream, FlULong* Lock1, FlULong* Lock2)
     {
         *Lock1 = 0;
         *Lock2 = 0;
         if (Stream->State != 2 && Stream->State != 3)
             return 0;
-        const unsigned long Play = GetPlayCursor(Stream);
-        const unsigned long Write = Stream->WriteCursor;
+        const FlULong Play = GetPlayCursor(Stream);
+        const FlULong Write = Stream->WriteCursor;
         if (Write < Play)
         {
             *Lock1 = Play - Write;
@@ -389,7 +389,7 @@ namespace
     }
 
     // retail FUN_06ef23c0
-    unsigned char LockBufferRegion(FStreamingSound* Stream, unsigned long Want)
+    unsigned char LockBufferRegion(FStreamingSound* Stream, FlULong Want)
     {
         // 06ef23c0..2438: wrap +0xC0 at +0xBC; want == 0 or a failed Lock (+0x2C, no buffer
         // test) clears only the two pointers (+0x100 / +0x108), the byte counts are left as they are.
@@ -409,28 +409,28 @@ namespace
     }
 
     // retail FUN_06ef22d0
-    unsigned long TrimEncoderDelay(FStreamingSound* Stream, unsigned char* Dest, unsigned long Count)
+    FlULong TrimEncoderDelay(FStreamingSound* Stream, unsigned char* Dest, FlULong Count)
     {
-        long Delay = Stream->EncoderDelayBytes;
+        FlLong Delay = Stream->EncoderDelayBytes;
         if (Delay > 0)
         {
-            if (Delay < static_cast<long>(Count))
+            if (Delay < static_cast<FlLong>(Count))
             {
-                const unsigned long Skip = static_cast<unsigned long>(Delay);
+                const FlULong Skip = static_cast<FlULong>(Delay);
                 memmove(Dest, Dest + Skip, Count - Skip);
                 Stream->EncoderDelayBytes = 0;
                 Count -= Skip;
             }
             else
             {
-                Stream->EncoderDelayBytes = Delay - static_cast<long>(Count);
+                Stream->EncoderDelayBytes = Delay - static_cast<FlLong>(Count);
                 Count = 0;
             }
         }
         if (Stream->FactSamples != 0xFFFFFFFFu)
         {
-            const unsigned long Limit = PcmFrameBytes(Stream) * Stream->FactSamples;
-            if (static_cast<long>(Stream->EmittedPcm + Count) >= static_cast<long>(Limit))
+            const FlULong Limit = PcmFrameBytes(Stream) * Stream->FactSamples;
+            if (static_cast<FlLong>(Stream->EmittedPcm + Count) >= static_cast<FlLong>(Limit))
             {
                 Count = Limit - Stream->EmittedPcm;
                 Stream->AcmHeader.cbSrcLengthUsed = Stream->DataSize - Stream->DataCursor;
@@ -446,12 +446,12 @@ namespace
     }
 
     // retail FUN_06ef2440
-    unsigned long UnlockAdvance(FStreamingSound* Stream, unsigned long Used1, unsigned long Used2)
+    FlULong UnlockAdvance(FStreamingSound* Stream, FlULong Used1, FlULong Used2)
     {
         if (Stream->LockPtr1 == nullptr)
             return 0;
-        unsigned long Trimmed1 = 0;
-        unsigned long Trimmed2 = 0;
+        FlULong Trimmed1 = 0;
+        FlULong Trimmed2 = 0;
         if (Used1 != 0)
             Trimmed1 = TrimEncoderDelay(Stream, static_cast<unsigned char*>(Stream->LockPtr1), Used1);
         if (Used2 != 0)
@@ -473,7 +473,7 @@ namespace
     }
 
     // retail FUN_06ef1fb0
-    void PrepareAcmSource(FStreamingSound* Stream, unsigned long Want)
+    void PrepareAcmSource(FStreamingSound* Stream, FlULong Want)
     {
         if (Want < Stream->DecodeOutSize)
             Want = Stream->DecodeOutSize;
@@ -484,7 +484,7 @@ namespace
             Stream->DecodeRead = 0;
             Stream->DecodeFilled = 0;
         }
-        unsigned long Remain = Stream->DataSize - Stream->DataCursor;
+        FlULong Remain = Stream->DataSize - Stream->DataCursor;
         if (Remain < Want)
             Want = Remain;
         if (Want == 0)
@@ -495,7 +495,7 @@ namespace
     }
 
     // retail FUN_06ef2190
-    unsigned char AcmConvertBlock(FStreamingSound* Stream, void* Dest, unsigned long DestBytes)
+    unsigned char AcmConvertBlock(FStreamingSound* Stream, void* Dest, FlULong DestBytes)
     {
         Stream->AcmHeader.cbSrcLengthUsed = 0;
         Stream->AcmHeader.cbDstLengthUsed = 0;
@@ -503,7 +503,7 @@ namespace
             return 0;
         // 06ef21ae..21d6: -1 passes through; otherwise (+0xEC * dest) / +0xF0, aligned down
         // to +0x94, with both DIVs unguarded.
-        unsigned long SrcWant = 0;
+        FlULong SrcWant = 0;
         if (DestBytes == 0xFFFFFFFFu)
             SrcWant = 0xFFFFFFFFu;
         else
@@ -517,16 +517,16 @@ namespace
         WAVEFORMATEX* Fmt = reinterpret_cast<WAVEFORMATEX*>(Stream->FmtBlob);
         if (Fmt->wFormatTag == 0x55 &&
             Stream->AcmHeader.pbSrc == Stream->DataPtr && Stream->EncoderDelayBytes == -1)
-            Stream->EncoderDelayBytes = static_cast<long>(PcmFrameBytes(Stream) * Stream->TrimSamples);
+            Stream->EncoderDelayBytes = static_cast<FlLong>(PcmFrameBytes(Stream) * Stream->TrimSamples);
         Stream->AcmHeader.cbDstLength = DestBytes;
         Stream->AcmHeader.pbDst = static_cast<LPBYTE>(Dest);
-        unsigned long Flags = 0x24;
+        FlULong Flags = 0x24;
         if (Stream->AcmHeader.pbSrc == Stream->DataPtr)
             Flags = 0x14;
-        const unsigned long SrcEnd = Stream->DataCursor + Stream->AcmHeader.cbSrcLength;
+        const FlULong SrcEnd = Stream->DataCursor + Stream->AcmHeader.cbSrcLength;
         if (SrcEnd >= Stream->DataSize && Stream->AcmHeader.cbSrcLength > Stream->DecodeOutSize)
         {
-            unsigned long Reduced = Stream->AcmHeader.cbSrcLength - Stream->DecodeOutSize;
+            FlULong Reduced = Stream->AcmHeader.cbSrcLength - Stream->DecodeOutSize;
             if (Reduced < Stream->DecodeOutSize)
                 Reduced = Stream->DecodeOutSize;
             Stream->AcmHeader.cbSrcLength = Reduced;
@@ -558,7 +558,7 @@ namespace
     {
         if (Stream->SilenceBytes == 0)
             return;
-        const unsigned long Buffered = GetBufferedBytes(Stream);
+        const FlULong Buffered = GetBufferedBytes(Stream);
         if (Stream->BufferBytes - Buffered < Stream->SilenceBytes)
             return;
         if (LockBufferRegion(Stream, Stream->SilenceBytes) == 0)
@@ -576,7 +576,7 @@ namespace
         Stream->SilenceBytes = 0;
     }
 
-    void AdvanceSourceOrDrain(FStreamingSound* Stream, unsigned long Used)
+    void AdvanceSourceOrDrain(FStreamingSound* Stream, FlULong Used)
     {
         Stream->DataCursor += Used;
         if (Stream->DataCursor < Stream->DataSize)
@@ -605,13 +605,13 @@ namespace
         Stream->EncoderDelayBytes = -1;
     }
 
-    unsigned long CopyHeapIntoLocks(FStreamingSound* Stream, unsigned long Lock1, unsigned long Lock2)
+    FlULong CopyHeapIntoLocks(FStreamingSound* Stream, FlULong Lock1, FlULong Lock2)
     {
-        unsigned long Copied1 = 0;
+        FlULong Copied1 = 0;
         if (Stream->DecodeHeap != nullptr)
         {
-            unsigned long Avail = Stream->DecodeFilled - Stream->DecodeRead;
-            unsigned long Take = Lock1;
+            FlULong Avail = Stream->DecodeFilled - Stream->DecodeRead;
+            FlULong Take = Lock1;
             if (Avail < Take)
                 Take = Avail;
             if (Take != 0)
@@ -621,11 +621,11 @@ namespace
                 Copied1 = Take;
             }
         }
-        unsigned long Copied2 = 0;
+        FlULong Copied2 = 0;
         if (Stream->DecodeHeap != nullptr)
         {
-            unsigned long Avail = Stream->DecodeFilled - Stream->DecodeRead;
-            unsigned long Take = Lock2;
+            FlULong Avail = Stream->DecodeFilled - Stream->DecodeRead;
+            FlULong Take = Lock2;
             if (Avail < Take)
                 Take = Avail;
             if (Take != 0)
@@ -641,20 +641,20 @@ namespace
     }
 
     // retail FUN_06ef1df0
-    unsigned long FillPcmLocked(FStreamingSound* Stream, unsigned long Want)
+    FlULong FillPcmLocked(FStreamingSound* Stream, FlULong Want)
     {
-        unsigned long Copied = 0;
+        FlULong Copied = 0;
         if (Want == 0)
             return 0;
         while (Copied < Want)
         {
-            unsigned long Lock1 = 0;
-            unsigned long Lock2 = 0;
-            unsigned long Free = ComputeLockFree(Stream, &Lock1, &Lock2);
-            unsigned long Take = Want - Copied;
+            FlULong Lock1 = 0;
+            FlULong Lock2 = 0;
+            FlULong Free = ComputeLockFree(Stream, &Lock1, &Lock2);
+            FlULong Take = Want - Copied;
             if (Free < Take)
                 Take = Free;
-            const unsigned long Remain = Stream->DataSize - Stream->DataCursor;
+            const FlULong Remain = Stream->DataSize - Stream->DataCursor;
             if (Remain < Take)
                 Take = Remain;
             if (Take == 0)
@@ -665,7 +665,7 @@ namespace
             CopyBytes(Stream->LockPtr1, Src, Stream->LockBytes1);
             if (Stream->LockBytes2 != 0)
                 CopyBytes(Stream->LockPtr2, Src + Stream->LockBytes1, Stream->LockBytes2);
-            const unsigned long Used =
+            const FlULong Used =
                 UnlockAdvance(Stream, Stream->LockBytes1, Stream->LockBytes2);
             AdvanceSourceOrDrain(Stream, Used);
             Copied += Used;
@@ -674,7 +674,7 @@ namespace
     }
 
     // retail FUN_06ef24f0
-    void FillAcmBlock(FStreamingSound* Stream, unsigned long Want)
+    void FillAcmBlock(FStreamingSound* Stream, FlULong Want)
     {
         if (Stream->AcmStream == nullptr || Want == 0)
             return;
@@ -687,7 +687,7 @@ namespace
             CopyHeapIntoLocks(Stream, Stream->LockBytes1, Stream->LockBytes2);
             // 06ef25e9..262c: the amount written (FUN_06ef2440's result, after the encoder-delay
             // trim) is what comes off the request, not the bytes copied out of the heap.
-            const unsigned long Written =
+            const FlULong Written =
                 UnlockAdvance(Stream, Stream->LockBytes1, Stream->LockBytes2);
             if (Stream->AcmHeader.cbSrcLengthUsed != 0)
             {
@@ -711,7 +711,7 @@ namespace
         {
             if (AcmConvertBlock(Stream, Stream->DecodeHeap, Stream->DecodeCap) == 0)
                 bOk = 0;
-            const unsigned long Produced = Stream->AcmHeader.cbDstLengthUsed;
+            const FlULong Produced = Stream->AcmHeader.cbDstLengthUsed;
             if (Produced != 0)
             {
                 Stream->DecodeRead = 0;
@@ -747,13 +747,13 @@ namespace
     }
 
     // retail FUN_06ef27a0
-    void FillStreamEntry(FStreamingSound* Stream, unsigned long Want)
+    void FillStreamEntry(FStreamingSound* Stream, FlULong Want)
     {
         if (Stream->State != 2 && Stream->State != 3)
             return;
-        unsigned long Lock1 = 0;
-        unsigned long Lock2 = 0;
-        const unsigned long Free = ComputeLockFree(Stream, &Lock1, &Lock2);
+        FlULong Lock1 = 0;
+        FlULong Lock2 = 0;
+        const FlULong Free = ComputeLockFree(Stream, &Lock1, &Lock2);
         if (Free < Stream->DecodeFilled)
             return;
         if (Free < Want)
@@ -789,7 +789,7 @@ namespace
         float Thresh = Stream->Threshold;
         if (Thresh > 1.0)
             Thresh = 1.0f;
-        unsigned long Buffered = GetBufferedBytes(Stream); // FUN_06ef1080
+        FlULong Buffered = GetBufferedBytes(Stream); // FUN_06ef1080
         // FILD qword {rate, 0} -> FSTP float; FILD qword {buffered, 0}; FDIV float; FCOMP float.
         // No zero-rate guard: buffered/0 is inf or NaN, and TEST AH,5 / JP sends both to Play.
         const float RateF = static_cast<float>(static_cast<unsigned long long>(Stream->BytesPerSec));
@@ -797,12 +797,12 @@ namespace
             static_cast<double>(static_cast<unsigned long long>(Buffered)) / static_cast<double>(RateF);
         if (Seconds < static_cast<double>(Thresh))
         {
-            const unsigned long Block = Stream->PcmBlock; // MOVZX word [+0xE4]
-            unsigned long Want = 0;
+            const FlULong Block = Stream->PcmBlock; // MOVZX word [+0xE4]
+            FlULong Want = 0;
             if (Block != 0)
             {
                 // FLD rate float; FMUL thresh float; _ftol (product of two floats is exact in double).
-                const unsigned long Raw = static_cast<unsigned long>(
+                const FlULong Raw = static_cast<FlULong>(
                     static_cast<long long>(static_cast<double>(RateF) * static_cast<double>(Thresh)));
                 Want = ((Raw + Block - 1) / Block) * Block;
             }
@@ -815,7 +815,7 @@ namespace
             // FILD qword {buffered, 0}; FIDIV dword [+0xF0] (signed); FXCH; FCOMPP; TEST AH,0x41 / JZ:
             // return when the threshold is greater than the quotient; equal or unordered plays.
             const double Seconds2 = static_cast<double>(static_cast<unsigned long long>(Buffered)) /
-                                    static_cast<double>(static_cast<long>(Stream->BytesPerSec));
+                                    static_cast<double>(static_cast<FlLong>(Stream->BytesPerSec));
             if (static_cast<double>(WaitThresh) > Seconds2)
                 return;
         }
@@ -861,8 +861,8 @@ namespace
             unsigned char bInside = 0;
             if (Hr >= 0)
             {
-                const unsigned long StartMark = Stream->EndMarkF4;
-                const unsigned long EndMark = Stream->EndMarkF8;
+                const FlULong StartMark = Stream->EndMarkF4;
+                const FlULong EndMark = Stream->EndMarkF8;
                 if (StartMark > EndMark)
                 {
                     if (Play < EndMark || Play >= StartMark)
@@ -922,17 +922,17 @@ GENRESULT DACOM_API FStreamerInner::QueryInterface(const char* Iid, void** Out)
     return GR_INTERFACE_UNSUPPORTED;
 }
 
-unsigned long DACOM_API FStreamerInner::AddRef()
+FlULong DACOM_API FStreamerInner::AddRef()
 {
     ++RefCount;
     return RefCount;
 }
 
-unsigned long DACOM_API FStreamerInner::Release()
+FlULong DACOM_API FStreamerInner::Release()
 {
     if (RefCount > 0)
         --RefCount;
-    const unsigned long Remaining = RefCount;
+    const FlULong Remaining = RefCount;
     if (Remaining == 0)
     {
         // LAB_06ef3dd0: count = 1; if Self(+8) run the dtor FUN_06ef2b50 (whose ShutdownDevice
@@ -960,17 +960,17 @@ GENRESULT DACOM_API FSoundStreamerFactory::QueryInterface(const char* Iid, void*
     return GR_OK;
 }
 
-unsigned long DACOM_API FSoundStreamerFactory::AddRef()
+FlULong DACOM_API FSoundStreamerFactory::AddRef()
 {
     ++RefCount;
     return RefCount;
 }
 
-unsigned long DACOM_API FSoundStreamerFactory::Release()
+FlULong DACOM_API FSoundStreamerFactory::Release()
 {
     if (RefCount > 0)
         --RefCount;
-    const unsigned long Remaining = RefCount;
+    const FlULong Remaining = RefCount;
     if (Remaining == 0)
     {
         RefCount = 1;
@@ -1063,12 +1063,12 @@ GENRESULT DACOM_API FSoundStreamer::QueryInterface(const char* Iid, void** Out)
     return Controlling->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FSoundStreamer::AddRef()
+FlULong DACOM_API FSoundStreamer::AddRef()
 {
     return Controlling->AddRef();
 }
 
-unsigned long DACOM_API FSoundStreamer::Release()
+FlULong DACOM_API FSoundStreamer::Release()
 {
     return Controlling->Release();
 }
@@ -1307,11 +1307,11 @@ bool FSoundStreamer::OpenAcmStream(FStreamingSound* Stream)
         return false;
     memset(&Stream->AcmHeader, 0, sizeof(Stream->AcmHeader));
     Stream->AcmHeader.cbStruct = 0x54;
-    const unsigned long Avg = *reinterpret_cast<unsigned long*>(Stream->FmtBlob + 8);
+    const FlULong Avg = *reinterpret_cast<FlULong*>(Stream->FmtBlob + 8);
     // 06ef1468..147d: ftol(FILD qword(u32 avg) * float +0xC4) - low dword of the int64 truncation.
     const double Scaled = static_cast<double>(static_cast<unsigned long long>(Avg)) *
                           static_cast<double>(Stream->Threshold);
-    const unsigned long SrcGuess = static_cast<unsigned long>(static_cast<long long>(Scaled));
+    const FlULong SrcGuess = static_cast<FlULong>(static_cast<long long>(Scaled));
     Stream->AcmHeader.cbSrcLength = SrcGuess;
     if (acmStreamSize(Stream->AcmStream, SrcGuess, &Stream->AcmHeader.cbDstLength,
                       ACM_STREAMSIZEF_SOURCE) != 0)
@@ -1338,7 +1338,7 @@ bool FSoundStreamer::OpenAcmStream(FStreamingSound* Stream)
 
 // Direct calls of FUN_06ef27a0 / FUN_06ef1b70 from the worker and StartStream; retail passes the
 // handle straight through.
-void FSoundStreamer::FillStreamBlock(FStreamingSound* Stream, unsigned long Want)
+void FSoundStreamer::FillStreamBlock(FStreamingSound* Stream, FlULong Want)
 {
     FillStreamEntry(Stream, Want);
 }
@@ -1383,7 +1383,7 @@ void FSoundStreamer::MovePendingActive()
     Platform::LockLeave(&Lock);
 }
 
-unsigned long FSoundStreamer::PumpStreams()
+FlULong FSoundStreamer::PumpStreams()
 {
     ThreadFlags |= 1;
     while (static_cast<char>(ThreadFlags) >= 0)
@@ -1407,7 +1407,7 @@ unsigned long FSoundStreamer::PumpStreams()
                 PumpOneStream(Stream);
                 if (Stream->State != 3 && Stream->State != 2)
                     continue;
-                const unsigned long Buffered = GetBufferedBytes(Stream); // FUN_06ef1080
+                const FlULong Buffered = GetBufferedBytes(Stream); // FUN_06ef1080
                 // FILD qword {rate, 0} -> FSTP float; FILD qword {buffered, 0}; FDIV. A zero rate
                 // gives inf/NaN, which fails both '<' tests below exactly as FCOM/JP does.
                 const float Rate = static_cast<float>(static_cast<unsigned long long>(Stream->BytesPerSec));
@@ -1415,11 +1415,11 @@ unsigned long FSoundStreamer::PumpStreams()
                     static_cast<double>(static_cast<unsigned long long>(Buffered)) / static_cast<double>(Rate);
                 if (Seconds < static_cast<double>(Threshold))
                 {
-                    unsigned long Want = 0;
-                    const unsigned long Block = Stream->PcmBlock;
+                    FlULong Want = 0;
+                    const FlULong Block = Stream->PcmBlock;
                     if (Block != 0)
                     {
-                        const unsigned long Raw = static_cast<unsigned long>(
+                        const FlULong Raw = static_cast<FlULong>(
                             static_cast<long long>(static_cast<double>(Threshold) * static_cast<double>(Rate)));
                         Want = ((Raw + Block - 1) / Block) * Block;
                     }
@@ -1433,19 +1433,19 @@ unsigned long FSoundStreamer::PumpStreams()
             }
             if (Emptiest != nullptr)
             {
-                unsigned long Count = 0;
+                FlULong Count = 0;
                 if (ActiveBegin != nullptr)
-                    Count = static_cast<unsigned long>(ActiveEnd - ActiveBegin);
-                unsigned long Want = 0;
-                const unsigned long Block = Emptiest->PcmBlock;
+                    Count = static_cast<FlULong>(ActiveEnd - ActiveBegin);
+                FlULong Want = 0;
+                const FlULong Block = Emptiest->PcmBlock;
                 if (Block != 0)
                 {
                     // FILD count; FMUL 4.0f (DAT_06efc170); FMUL 0.04f; FIMUL dword rate; _ftol.
                     const double Raw = static_cast<double>(static_cast<int>(Count)) * 4.0 *
                                        static_cast<double>(0.04f) *
                                        static_cast<double>(static_cast<int>(Emptiest->BytesPerSec));
-                    const unsigned long Bytes =
-                        static_cast<unsigned long>(static_cast<long long>(Raw));
+                    const FlULong Bytes =
+                        static_cast<FlULong>(static_cast<long long>(Raw));
                     Want = ((Bytes + Block - 1) / Block) * Block;
                 }
                 FillStreamBlock(Emptiest, Want);
@@ -1486,9 +1486,9 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
     if (Riff == nullptr)
         return false;
     Stream->ReadCursor += 0xC;
-    if (*reinterpret_cast<unsigned long*>(Riff) != 0x46464952)
+    if (*reinterpret_cast<FlULong*>(Riff) != 0x46464952)
         return false;
-    if (*reinterpret_cast<unsigned long*>(Riff + 8) != 0x45564157)
+    if (*reinterpret_cast<FlULong*>(Riff + 8) != 0x45564157)
         return false;
 
     unsigned char* FmtHdr = nullptr;
@@ -1501,8 +1501,8 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
         if (Chunk == nullptr)
             break;
         Stream->ReadCursor += 8;
-        const unsigned long Id = *reinterpret_cast<unsigned long*>(Chunk);
-        const unsigned long Size = *reinterpret_cast<unsigned long*>(Chunk + 4);
+        const FlULong Id = *reinterpret_cast<FlULong*>(Chunk);
+        const FlULong Size = *reinterpret_cast<FlULong*>(Chunk + 4);
         if (Id == 0x6D697274)
             TrimHdr = Chunk;
         else if (Id == 0x20746D66)
@@ -1512,26 +1512,26 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
         else if (Id == 0x74636166)
             FactHdr = Chunk;
         // 06ef16e0..16f4: JNS -> 0, then a signed JLE clamp against +0x20.
-        long Next = static_cast<long>(Stream->ReadCursor + Size);
+        FlLong Next = static_cast<FlLong>(Stream->ReadCursor + Size);
         if (Next < 0)
             Next = 0;
-        if (Next > static_cast<long>(Stream->MappedSize))
-            Next = static_cast<long>(Stream->MappedSize);
-        Stream->ReadCursor = static_cast<unsigned long>(Next);
+        if (Next > static_cast<FlLong>(Stream->MappedSize))
+            Next = static_cast<FlLong>(Stream->MappedSize);
+        Stream->ReadCursor = static_cast<FlULong>(Next);
         if (FmtHdr != nullptr && FactHdr != nullptr && DataHdr != nullptr)
             break;
     }
     if (FmtHdr == nullptr || DataHdr == nullptr)
         return false;
 
-    if (FactHdr != nullptr && *reinterpret_cast<unsigned long*>(FactHdr + 4) >= 4)
-        Stream->FactSamples = *reinterpret_cast<unsigned long*>(FactHdr + 8);
+    if (FactHdr != nullptr && *reinterpret_cast<FlULong*>(FactHdr + 4) >= 4)
+        Stream->FactSamples = *reinterpret_cast<FlULong*>(FactHdr + 8);
     else
         Stream->FactSamples = 0xFFFFFFFF;
 
     Stream->FmtBlob = FmtHdr + 8;
     const unsigned short Tag = *reinterpret_cast<unsigned short*>(Stream->FmtBlob);
-    const unsigned long FmtSize = *reinterpret_cast<unsigned long*>(FmtHdr + 4);
+    const FlULong FmtSize = *reinterpret_cast<FlULong*>(FmtHdr + 4);
     if (Tag == 1)
     {
         if (FmtSize < 0x10)
@@ -1540,18 +1540,18 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
     else if (FmtSize < 0x12)
         return false;
 
-    if (TrimHdr != nullptr && *reinterpret_cast<unsigned long*>(TrimHdr + 4) == 4)
-        Stream->TrimSamples = *reinterpret_cast<unsigned long*>(TrimHdr + 8);
+    if (TrimHdr != nullptr && *reinterpret_cast<FlULong*>(TrimHdr + 4) == 4)
+        Stream->TrimSamples = *reinterpret_cast<FlULong*>(TrimHdr + 8);
     else
         Stream->TrimSamples = 0;
 
     Stream->DataPtr = DataHdr + 8;
-    Stream->DataSize = *reinterpret_cast<unsigned long*>(DataHdr + 4);
+    Stream->DataSize = *reinterpret_cast<FlULong*>(DataHdr + 4);
     const unsigned short BlockAlign = *reinterpret_cast<unsigned short*>(Stream->FmtBlob + 0xC);
-    const unsigned long Avg = *reinterpret_cast<unsigned long*>(Stream->FmtBlob + 8);
+    const FlULong Avg = *reinterpret_cast<FlULong*>(Stream->FmtBlob + 8);
     Stream->AlignedSize = AlignUp(Avg, BlockAlign);
 
-    unsigned long BufferBytes = 0;
+    FlULong BufferBytes = 0;
     char Msg[0x2000];
     if (Tag == 1)
     {
@@ -1561,7 +1561,7 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
         Stream->BytesPerSec = Stream->PcmAvg;
         const double Scaled = static_cast<double>(static_cast<unsigned long long>(Stream->PcmAvg)) *
                               static_cast<double>(Stream->Threshold);
-        BufferBytes = static_cast<unsigned long>(static_cast<long long>(Scaled));
+        BufferBytes = static_cast<FlULong>(static_cast<long long>(Scaled));
     }
     else
     {
@@ -1616,7 +1616,7 @@ bool FSoundStreamer::LoadWav(FStreamingSound* Stream, const char* Path, IDACompo
 }
 
 void* DACOM_API FSoundStreamer::CreateStream(const char* Path, IDAComponent* FileSystem,
-                                             unsigned long Flags)
+                                             FlULong Flags)
 {
     // FUN_06ef3060 stdcall (this, Path, FileSystem, Flags) RET 0x10.
     if (WorkerThread == nullptr) // +0x60
@@ -1646,8 +1646,8 @@ void* DACOM_API FSoundStreamer::CreateStream(const char* Path, IDAComponent* Fil
     {
         // 06ef311c..3135: attributes -1 or directory bit 0x10 -> -1 (nothing owned yet).
         Name = Path;
-        const unsigned long Attrs = FileSystemAttributes(FileSystem, Path);
-        if (Attrs == static_cast<unsigned long>(-1) || (Attrs & 0x10) != 0)
+        const FlULong Attrs = FileSystemAttributes(FileSystem, Path);
+        if (Attrs == static_cast<FlULong>(-1) || (Attrs & 0x10) != 0)
             return reinterpret_cast<void*>(static_cast<uintptr_t>(0xFFFFFFFFu));
     }
 
@@ -1750,7 +1750,7 @@ GENRESULT DACOM_API FSoundStreamer::StartStream(void* Handle)
     return static_cast<GENRESULT>(1);
 }
 
-GENRESULT DACOM_API FSoundStreamer::SetVolume(void* Handle, long Volume)
+GENRESULT DACOM_API FSoundStreamer::SetVolume(void* Handle, FlLong Volume)
 {
     FStreamingSound* Stream = static_cast<FStreamingSound*>(Handle);
     if (Stream == nullptr || WorkerThread == nullptr)
@@ -1761,7 +1761,7 @@ GENRESULT DACOM_API FSoundStreamer::SetVolume(void* Handle, long Volume)
     return static_cast<GENRESULT>(1);
 }
 
-GENRESULT DACOM_API FSoundStreamer::GetVolume(void* Handle, long* Out)
+GENRESULT DACOM_API FSoundStreamer::GetVolume(void* Handle, FlLong* Out)
 {
     FStreamingSound* Stream = static_cast<FStreamingSound*>(Handle);
     if (Stream == nullptr || WorkerThread == nullptr)
@@ -1770,7 +1770,7 @@ GENRESULT DACOM_API FSoundStreamer::GetVolume(void* Handle, long* Out)
     return static_cast<GENRESULT>(1);
 }
 
-unsigned long DACOM_API FSoundStreamer::QueryStatus(void* Handle)
+FlULong DACOM_API FSoundStreamer::QueryStatus(void* Handle)
 {
     FStreamingSound* Stream = static_cast<FStreamingSound*>(Handle);
     if (Stream == nullptr || WorkerThread == nullptr)
@@ -1794,17 +1794,17 @@ unsigned long DACOM_API FSoundStreamer::QueryStatus(void* Handle)
     }
 }
 
-unsigned long DACOM_API FSoundStreamer::GetReserved58()
+FlULong DACOM_API FSoundStreamer::GetReserved58()
 {
     return Reserved58;
 }
 
-unsigned long DACOM_API FSoundStreamer::GetReserved5C()
+FlULong DACOM_API FSoundStreamer::GetReserved5C()
 {
     return Reserved5C;
 }
 
-GENRESULT DACOM_API FSoundStreamer::SetPan(void* Handle, long Pan)
+GENRESULT DACOM_API FSoundStreamer::SetPan(void* Handle, FlLong Pan)
 {
     FStreamingSound* Stream = static_cast<FStreamingSound*>(Handle);
     if (Stream == nullptr || WorkerThread == nullptr)
@@ -1815,7 +1815,7 @@ GENRESULT DACOM_API FSoundStreamer::SetPan(void* Handle, long Pan)
     return static_cast<GENRESULT>(1);
 }
 
-GENRESULT DACOM_API FSoundStreamer::GetPan(void* Handle, long* Out)
+GENRESULT DACOM_API FSoundStreamer::GetPan(void* Handle, FlLong* Out)
 {
     FStreamingSound* Stream = static_cast<FStreamingSound*>(Handle);
     if (Stream == nullptr || WorkerThread == nullptr)

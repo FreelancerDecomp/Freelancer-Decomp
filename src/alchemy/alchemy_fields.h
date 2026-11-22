@@ -45,7 +45,7 @@ namespace AlchemyImpl
     public:
         FFxGravityFieldPropertySet();
         ~FFxGravityFieldPropertySet() override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* GravityRamp; // +0x4c GravityField_Gravity 0xE02B8BD4, 9.8
@@ -57,7 +57,7 @@ namespace AlchemyImpl
     public:
         FFxAirFieldPropertySet();
         ~FFxAirFieldPropertySet() override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* ApproachRamp;  // +0x4c AirField_Approach 0x10423CEB, 1.0
@@ -70,9 +70,9 @@ namespace AlchemyImpl
     public:
         FFxRadialFieldPropertySet();
         ~FFxRadialFieldPropertySet() override;
-        GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                   INestedSingleRamp** Out) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* MagnitudeRamp; // +0x4c RadialField_Magnitude 0x0064B3B9, 10
@@ -87,7 +87,7 @@ namespace AlchemyImpl
     public:
         FFxTurbulenceFieldPropertySet();
         ~FFxTurbulenceFieldPropertySet() noexcept(false) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* ApproachRamp;  // +0x4c TurbulenceField_Approach 0x1B970B9A, 1
@@ -100,7 +100,7 @@ namespace AlchemyImpl
     public:
         FFxCollideFieldPropertySet();
         ~FFxCollideFieldPropertySet() noexcept(false) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* ReflectRamp; // +0x4c CollideField_Reflectivity 0xF2468210, 0.7
@@ -114,7 +114,7 @@ namespace AlchemyImpl
     public:
         FFxDustFieldPropertySet();
         ~FFxDustFieldPropertySet() override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
         INestedSingleRamp* RadiusRamp; // +0x4c "SphereEmitter_MaxRadius" 0x1874DE74, 60.1

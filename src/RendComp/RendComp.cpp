@@ -92,25 +92,25 @@ int FileOpenNode(void* File, const char* Name)
 // ReadFile's handle 0 names the current file, and an open never returns it.
 int FileClose(void* File, int Handle)
 {
-    return AsFileSystem(File)->CloseFile((unsigned long)Handle); // +0x10
+    return AsFileSystem(File)->CloseFile((FlULong)Handle); // +0x10
 }
 
-int FileRead(void* File, int Handle, void* Buffer, unsigned long Size, unsigned long* ReadOut)
+int FileRead(void* File, int Handle, void* Buffer, FlULong Size, FlULong* ReadOut)
 {
     if (File == nullptr)
         return -1;
-    return AsFileSystem(File)->Read((unsigned long)Handle, Buffer, Size,
+    return AsFileSystem(File)->Read((FlULong)Handle, Buffer, Size,
                                     ReadOut, 0); // +0x14
 }
 
-unsigned long FileGetSize(void* File, int Handle)
+FlULong FileGetSize(void* File, int Handle)
 {
     if (File == nullptr)
         return 0;
-    return AsFileSystem(File)->GetSize((unsigned long)Handle, 0); // +0x28
+    return AsFileSystem(File)->GetSize((FlULong)Handle, 0); // +0x28
 }
 
-int FileGetCurrentPath(void* File, char* Out, unsigned long MaxChars)
+int FileGetCurrentPath(void* File, char* Out, FlULong MaxChars)
 {
     if (File == nullptr || Out == nullptr || MaxChars == 0)
         return 0;
@@ -289,7 +289,7 @@ GENRESULT DACOM_API FDacomFactory::QueryInterface(const char* Iid, void** Out)
 }
 
 // LAB_06c306b0: ++[this+4], return it.
-unsigned long DACOM_API FDacomFactory::AddRef()
+FlULong DACOM_API FDacomFactory::AddRef()
 {
     RefCount += 1;
     return RefCount;
@@ -297,7 +297,7 @@ unsigned long DACOM_API FDacomFactory::AddRef()
 
 // FUN_06c2a3a0: decrement when above 0; still non-zero -> return it; zero -> pin the count
 // at 1, operator delete (FUN_06c34ea0), return 0.
-unsigned long DACOM_API FDacomFactory::Release()
+FlULong DACOM_API FDacomFactory::Release()
 {
     if (RefCount > 0)
         RefCount -= 1;

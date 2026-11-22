@@ -148,7 +148,7 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    unsigned long DACOM_API FComponentFactory::Release()
+    FlULong DACOM_API FComponentFactory::Release()
     {
         // Retail (FUN_06203ea0 / FUN_062040f0 / FUN_06222150 — byte-identical
         // across every one of the 33 per-name factory Release slots, sampled
