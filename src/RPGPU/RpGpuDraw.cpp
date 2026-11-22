@@ -286,7 +286,18 @@ void FRpGpu::RetireVertexBlocks(FRpGpuBuffer* Buffer)
     if (Buffer == nullptr)
         return;
     for (const FRpGpuBuffer::FGpuBlock& Block : Buffer->GpuBlocks)
-        RetiredBlocks_.push_back(Block.Key);
+    {
+        try
+        {
+            RetiredBlocks_.push_back(Block.Key);
+        }
+        catch (const std::bad_alloc&)
+        {
+            // No room to wait for the frame's end: let it go now (a draw recorded with it this
+            // frame is then skipped).
+            Backend().ForgetVertexBlock(Block.Key);
+        }
+    }
     Buffer->GpuBlocks.clear();
 }
 
@@ -295,10 +306,19 @@ void FRpGpu::RetireVertexBlocks(FRpGpuBuffer* Buffer)
 std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signature, const int* TexOffset,
                                      const int* TexFloats)
 {
-    for (const FRpGpuBuffer::FGpuBlock& Block : Buffer->GpuBlocks)
+    for (std::size_t Index = 0; Index < Buffer->GpuBlocks.size(); ++Index)
     {
-        if (Block.Signature == Signature)
+        const FRpGpuBuffer::FGpuBlock Block = Buffer->GpuBlocks[Index];
+        if (Block.Signature != Signature)
+            continue;
+        if (!Backend().IsVertexBlockLost(Block.Key))
             return Block.Key;
+        // The device could not make its buffer: forget it, draw from the frame this time, and
+        // make the block again in a later frame.
+        Backend().ForgetVertexBlock(Block.Key);
+        Buffer->GpuBlocks.erase(Buffer->GpuBlocks.begin() + static_cast<std::ptrdiff_t>(Index));
+        Buffer->LastWriteFrame = FrameNumber_;
+        return 0;
     }
     const FLayout Layout = LayoutOf(Buffer->Fvf);
     if (Buffer->Count == 0 || Buffer->Stride == 0 || static_cast<unsigned int>(Layout.Size) > Buffer->Stride)

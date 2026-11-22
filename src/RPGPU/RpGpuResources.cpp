@@ -720,6 +720,7 @@ GENRESULT DACOM_API FRpGpu::UnlockVb(void* Handle)
     if (Buffer == nullptr)
         return kFail;
     Buffer->bLocked = false;
+    Buffer->LastWriteFrame = FrameNumber_; // written up to now: settled from the next frame
     return GR_OK;
 }
 

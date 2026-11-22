@@ -79,6 +79,11 @@ namespace
             return true;
         }
         void ForgetVertexBlock(std::uint64_t Key) override { (void)Key; }
+        bool IsVertexBlockLost(std::uint64_t Key) const override
+        {
+            (void)Key;
+            return false;
+        }
 
         RpWindowHandle Hwnd() const override { return Hwnd_; }
         std::uint32_t Width() const override { return Width_; }

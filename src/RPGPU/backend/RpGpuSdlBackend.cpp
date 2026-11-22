@@ -230,6 +230,7 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
         SDL_ReleaseGPUBuffer(Device_, Entry.second);
     VertexBlocks_.clear();
     PendingBlocks_.clear(); // the next device gets them again: RPGPU re-uploads after CreateBuffers
+    LostBlocks_.clear();
     if (VertexShader_ != nullptr)
         SDL_ReleaseGPUShader(Device_, VertexShader_);
     if (FragmentShader_ != nullptr)
@@ -605,6 +606,7 @@ bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVe
 
 void FRpGpuSdlBackend::ForgetVertexBlock(std::uint64_t Key)
 {
+    LostBlocks_.erase(Key);
     PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
                                         [Key](const FPendingBlock& Pending) { return Pending.Key == Key; }),
                          PendingBlocks_.end());
@@ -705,6 +707,13 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         }
         if (Made == nullptr)
         {
+            try
+            {
+                LostBlocks_.insert(Pending.Key); // RPGPU asks, forgets it and tries again later
+            }
+            catch (const std::bad_alloc&)
+            {
+            }
             PendingBlocks_.erase(PendingBlocks_.begin() + static_cast<std::ptrdiff_t>(Index));
             continue;
         }

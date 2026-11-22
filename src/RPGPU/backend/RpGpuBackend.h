@@ -347,6 +347,9 @@ public:
     // then draws from the frame's vertices instead. No exception leaves either call.
     virtual bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) = 0;
     virtual void ForgetVertexBlock(std::uint64_t Key) = 0;
+    // True when Key's block was dropped because the device could not make its buffer: RPGPU
+    // forgets it and makes it again later.
+    virtual bool IsVertexBlockLost(std::uint64_t Key) const = 0;
 
     virtual RpWindowHandle Hwnd() const = 0;
     virtual std::uint32_t Width() const = 0;

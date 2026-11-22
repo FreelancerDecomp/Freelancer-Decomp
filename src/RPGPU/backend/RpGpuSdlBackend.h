@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -56,6 +57,7 @@ public:
     void ForgetTexture(std::uint64_t Key) override;
     bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override;
     void ForgetVertexBlock(std::uint64_t Key) override;
+    bool IsVertexBlockLost(std::uint64_t Key) const override { return LostBlocks_.count(Key) != 0; }
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }
     std::uint32_t Width() const override { return Width_; }
@@ -129,6 +131,7 @@ private:
     // Static vertex buffers kept on the GPU (UploadVertexBlock), one GPU buffer each.
     std::unordered_map<std::uint64_t, SDL_GPUBuffer*> VertexBlocks_;
     std::vector<FPendingBlock> PendingBlocks_;
+    std::unordered_set<std::uint64_t> LostBlocks_; // blocks whose buffer could not be made
     SDL_GPUTexture* White_ = nullptr;     // bound when a draw has no texture
     SDL_GPUTexture* WhiteCube_ = nullptr; // bound to the cube slots when a stage has no cube map
     bool bWhiteUploaded_ = false;
