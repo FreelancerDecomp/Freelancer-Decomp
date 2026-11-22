@@ -265,7 +265,7 @@ struct IObjInspect
     virtual Matrix const& get_orientation() const = 0;  //  4 +0x010  ABVMatrix@@XZ (folded with slot 3)
     virtual Vector get_center_of_mass() const = 0;  //  5 +0x014  ?AVVector@@XZ
     virtual int get_sub_obj_center_of_mass(unsigned short SubId, Vector& OutCenter) const = 0;  //  6 +0x018  HGAAVVector@@@Z
-    virtual long get_index() const = 0;  //  7 +0x01C  JXZ
+    virtual FlLong get_index() const = 0;  //  7 +0x01C  JXZ
     virtual unsigned int const get_id() const = 0;  //  8 +0x020  ?BIXZ (const-qualified return)
     virtual int get_good_id(unsigned& OutId) const = 0;  //  9 +0x024  HAAI@Z
     virtual int get_archetype_extents(Vector& Min, Vector& Max) const = 0;  // 10 +0x028  HAAVVector@@0@Z
@@ -298,7 +298,7 @@ struct IObjInspect
     virtual int get_base(uint& OutBase) const = 0;  // 35 +0x08C  HAAI@Z
     virtual int get_dock_target(uint& OutDock) const = 0;  // 36 +0x090  HAAI@Z
     virtual int get_power(float& OutPower) const = 0;  // 37 +0x094  HAAM@Z
-    virtual int get_zone_props(unsigned long& OutProps) const = 0;  // 38 +0x098  HAAK@Z
+    virtual int get_zone_props(FlULong& OutProps) const = 0;  // 38 +0x098  HAAK@Z
     virtual float get_scanner_interference() const = 0;  // 39 +0x09C  MXZ
     virtual int get_hold_left(float& OutHold) const = 0;  // 40 +0x0A0  HAAM@Z
     virtual int enumerate_cargo(CargoEnumerator* Enum) const = 0;  // 41 +0x0A4  HPAUCargoEnumerator@IObjInspect@@@Z
@@ -851,7 +851,7 @@ struct COMMON_API IObjInspectImpl : public IObjRW, public CBase
     Vector get_angular_velocity() const override;
     Transform const& get_transform() const override;
     Matrix const& get_orientation() const override;
-    long get_index() const override;
+    FlLong get_index() const override;
     unsigned int const get_id() const override;
     int get_good_id(unsigned& OutId) const override;
     int get_archetype_extents(Vector& Min, Vector& Max) const override;
@@ -893,7 +893,7 @@ struct COMMON_API IObjInspectImpl : public IObjRW, public CBase
     int get_type(uint& OutType) const override;
     int get_base(uint& OutBase) const override;
     int get_dock_target(uint& OutDock) const override;
-    int get_zone_props(unsigned long& OutProps) const override;
+    int get_zone_props(FlULong& OutProps) const override;
     float get_scanner_interference() const override;
     int get_power(float& OutPower) const override;
     int get_reputation(float& OutRep, uint const& GroupId) const override;
@@ -1689,7 +1689,7 @@ public:
     void clear();
     void destroy();
     // ?get_key@ScriptBehavior@@QBEKXZ -- returns `unsigned long` (K), not `unsigned int`.
-    unsigned long get_key() const;
+    FlULong get_key() const;
     void init(CharacterBehaviorDescription const& Desc);
     void marshal(MarshalBuffer* Buf) const;
     void unmarshal(MarshalBuffer* Buf);

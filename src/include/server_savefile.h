@@ -147,7 +147,7 @@ struct SaveGame {
     // FUN_06d48960 (.text:06d48960 .. .text:06d48b50, RET 4): fseek end, size =
     // ftell - Offset, fseek(Offset), resize(size), fread through the writable
     // pointer, resize(read). 17 call sites.
-    void ReadTail(long Offset);
+    void ReadTail(FlLong Offset);
 
     // FUN_06d48b60 (.text:06d48b60 .. .text:06d48c10, plain RET): length read
     // first (.text:06d48b65 `MOV EBP,[ECX + 0xc]`), the buffer unshared, then the

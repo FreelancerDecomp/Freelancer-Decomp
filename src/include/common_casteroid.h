@@ -69,7 +69,7 @@ namespace CmnAsteroid
     // grid coordinate into a single id: bit 0x15+ = X (11 bits + sign), bits 10-0x14 = Z
     // (10 bits + sign folded into bit 10), bits 0-9 = Y (9 bits + sign folded into bit
     // 0x200). Returns 0 if any axis falls outside the packable range.
-    COMMON_API unsigned long __cdecl compute_cube_id(Vector const& Pos);
+    COMMON_API FlULong __cdecl compute_cube_id(Vector const& Pos);
 
     // CmnAsteroid::compute_cube_orientation (Common.dll.txt 0x44010 -- raw disasm only,
     // the Ghidra .c decompiler dropped the ftol() call arguments here so this was
@@ -81,7 +81,7 @@ namespace CmnAsteroid
     // into *InOutOrient -- so the caller must pre-initialize *InOutOrient (retail always
     // passes an identity matrix here; composing 90-degree-multiple presets onto identity
     // is what gives CAsteroidField its axis-aligned cube "snap" rotations).
-    COMMON_API bool __cdecl compute_cube_orientation(unsigned long Seed, Matrix* InOutOrient, AxisRotations const& Rot, float Freq);
+    COMMON_API bool __cdecl compute_cube_orientation(FlULong Seed, Matrix* InOutOrient, AxisRotations const& Rot, float Freq);
 
     // CmnAsteroid::CAsteroidField::load's "[LootableZone]" header record (Common.dll.c
     // 72686-72701, Common.dll.txt 130673-130696 -- retail heap-allocates one of these,
@@ -231,8 +231,8 @@ namespace CmnAsteroid
                 delete Next;
         }
 
-        unsigned long CubeId;       // +0x00  owning cube's id (cube+0x08)
-        unsigned long AsteroidId;   // +0x04  CAsteroid::AsteroidId (+0xe8)
+        FlULong CubeId;       // +0x00  owning cube's id (cube+0x08)
+        FlULong AsteroidId;   // +0x04  CAsteroid::AsteroidId (+0xe8)
         unsigned ObjId;             // +0x08  CSimple::Id (+0xb0)
         bool bCubeActive;           // +0x0c  cube State == CubeStateActive
         bool bMine;                 // +0x0d  CAsteroid::bMine (+0xf0)
@@ -276,7 +276,7 @@ namespace CmnAsteroid
         // (MOV EAX,[this+0x40]), set_size .text:062a66b0 (MOV [this+0x3c],arg).
         Vector get_pos();
         Matrix get_orient();
-        unsigned long get_id();
+        FlULong get_id();
         CubeState get_state();
         void set_size(int SizeValue);
         void set_system(unsigned SystemId);
@@ -288,14 +288,14 @@ namespace CmnAsteroid
         // the entry's Extent), fed to compute_asteroid_id and then added to Pos; its
         // orientation is +0x20 MulMatrix (Orient times the entry's Orient). Both go through
         // Acquire3DMathEngine() (retail DAT_063fc2b4 / FUN_06391cf0).
-        void init(Vector const& Pos, unsigned long CubeIdValue, AsteroidCubeArch* CubeArch, AxisRotations const& Rot, float Freq);
+        void init(Vector const& Pos, FlULong CubeIdValue, AsteroidCubeArch* CubeArch, AxisRotations const& Rot, float Freq);
 
         // .text:062a65c0 (ordinal 2665). Null for an empty cube (bEmpty, +0x54) and for any
         // State other than CubeStateActive/CubeStateFar; otherwise one freshly allocated
         // asteroid_marker per live asteroid, linked in list order, head returned.
         asteroid_marker* get_changes();
 
-        unsigned long CubeId;
+        FlULong CubeId;
         // Owning field's back-pointer (retail +0x04); stamped by both the
         // CAsteroidField*-taking ctor and init(), read back by init()'s spawn loop when
         // building each new asteroid's CreateParms::OwnerField.
@@ -325,7 +325,7 @@ namespace CmnAsteroid
         // closest_cube_pos. Pure function of Pos -- does not read/write any CAsteroidCube
         // state despite being a member. Returns false (leaving OutId untouched) if any
         // axis doesn't fit in 10 bits.
-        bool compute_asteroid_id(Vector const& Pos, unsigned long& OutId);
+        bool compute_asteroid_id(Vector const& Pos, FlULong& OutId);
     };
 
     // CmnAsteroid::CAsteroidField (Common.dll.c 0x44660 ctor .. 0x45e50 Release). Owns a
@@ -368,7 +368,7 @@ namespace CmnAsteroid
         // CmnAsteroid::CAsteroidField::create_cube_id (Common.dll.c 0x43270). Snaps Pos to
         // this field's cube grid (via closest_cube_coord using CubeSize/HalfSize) and
         // returns the packed id for that cube via compute_cube_id.
-        unsigned long create_cube_id(Vector const& Pos);
+        FlULong create_cube_id(Vector const& Pos);
 
         // CmnAsteroid::CAsteroidField::closest_cube_pos (Common.dll.c 0x45ee0). Same
         // per-axis snap as create_cube_id (closest_cube_coord + the same
@@ -379,7 +379,7 @@ namespace CmnAsteroid
         // CmnAsteroid::CAsteroidField::find_cube (Common.dll.c 0x46100). Retail's hand-
         // rolled RB-tree lookup by CubeId, faithfully reproduced here as a std::map
         // lookup: returns the cube if present, nullptr otherwise.
-        CAsteroidCube* find_cube(unsigned long CubeId);
+        CAsteroidCube* find_cube(FlULong CubeId);
 
         // CmnAsteroid::CAsteroidField::populate_asteroids (item 70308, Common.dll.txt
         // 131451-131803, no Ghidra .c -- raw disasm only, hand-traced 2026-09-10). Called
@@ -428,7 +428,7 @@ namespace CmnAsteroid
         int Release();
 
         int RefCount;
-        std::map<unsigned long, CAsteroidCube> Cubes;
+        std::map<FlULong, CAsteroidCube> Cubes;
         // Retail field+0x28: IZone pointer. Assigned by set_zone (exe CliAsteroid path);
         // Common.dll load/exclusion only reads it. Stored as Universe::IZone* (port's
         // plain struct); retail's polymorphic shape-base identity is item 2574.

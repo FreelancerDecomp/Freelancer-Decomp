@@ -273,9 +273,19 @@ smoke test passes on it, and then it becomes the default on x64. Win32's default
 
 ## Phase 6: other platforms (Linux, macOS, Windows ARM64)
 
-Not started until the hold on the non-Windows port is lifted. It needs CMake (#11), which is
-not on the critical path before then: MSBuild builds Win32 and x64, and #11 would have to prove
-byte-identical Win32 output again.
+The hold was lifted on 2026-11-22, aiming at a local macOS run. It builds on the CMake build
+(#95). Milestones:
+
+- **M1, 32-bit `long`.** Windows keeps `long` at 32 bits (LLP64); macOS and Linux make it 64
+  (LP64), which would change every retail structure, file format and packet holding one. Code
+  uses `FlULong` / `FlLong` (`fl_layout.h`): exactly `unsigned long` / `long` on Windows, so the
+  Windows binaries and their exported names stay the same, and 32-bit integers elsewhere. The
+  layout checks (`FL_LAYOUT_ASSERT`) apply to the 32-bit Windows build only. Third-party code
+  and the Windows-only modules keep `long`.
+- **M2:** every client module compiles and links on macOS (the platform layer below; DACOM's
+  components from `dlopen` or registered statically).
+- **M3:** an SDL window to the main menu, drawn by RPGPU through Metal, without sound.
+- **M4:** audio, input and gameplay.
 
 - An SDL3 implementation of `platform.h` (window, timers, threads, files, modules).
 - Input: DirectInput replaced by SDL events.

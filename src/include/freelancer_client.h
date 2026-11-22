@@ -127,7 +127,7 @@ public:
                                         const FServerSetMissionObjectivesInfo& Info) override;
     void SendServerSetMissionObjectiveState(const unsigned int& ClientId,
                                             const FServerMissionObjectiveStateInfo& Info) override;
-    void SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId) override;
+    void SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId) override;
     void SendServerMarkObj(const unsigned int& ClientId, unsigned int ObjectId, int MarkType) override;
     void SendServerCfgInterfaceNotification(const unsigned int& ClientId,
                                             const FPayloadServerCfgInterfaceNotification& Info) override;
@@ -162,7 +162,7 @@ public:
     void SendCommonPlayerTradeInitiateTrade(unsigned int ClientId, unsigned int ShipId) override;
     void SendCommonPlayerTradeTerminateTrade(unsigned int ClientId, int Reason) override;
     void SendCommonPlayerTradeAcceptTrade(unsigned int ClientId, unsigned int ShipId, bool bAccepted) override;
-    void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, unsigned long Money) override;
+    void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, FlULong Money) override;
     void SendCommonPlayerTradeAddTradeEquip(unsigned int ClientId, unsigned int ShipId, const EquipDesc& Item) override;
     void SendCommonPlayerTradeDelTradeEquip(unsigned int ClientId, unsigned int ShipId, const EquipDesc& Item) override;
     void SendCommonPlayerTradeRequestTrade(unsigned int ClientId, unsigned int ShipId) override;
@@ -192,7 +192,7 @@ public:
     void DumpPacketStats(const char* Name) override;
 
     // IChatClient slot 0 (retail .text:005a6250, ch1 CHATMSG).
-    void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, unsigned long Size, const void* Data) override;
+    void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, FlULong Size, const void* Data) override;
 
     // +0x08, zeroed by .text:005b0840. TODO: no other reference to .data:0067ea6c in the
     // retail listing -- meaning unrecovered.

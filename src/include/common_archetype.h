@@ -330,7 +330,7 @@ namespace Archetype
         virtual void Bind(Root* Record) = 0;                // 5 +0x14
         virtual void FreeResources() = 0;                   // 6 +0x18  thunk → Slot11
         virtual void Inherit(ICliObj* Donor) = 0;           // 7 +0x1C
-        virtual unsigned long Load(int LoadMode) = 0;       // 8 +0x20  LAB_00407380
+        virtual FlULong Load(int LoadMode) = 0;       // 8 +0x20  LAB_00407380
         virtual void* Slot09(unsigned Flags) = 0;           // 9 +0x24  FUN_00406940 scalar dtor
         virtual void Slot10() = 0;                          // 10 +0x28 FUN_00407320
         virtual void Slot11() = 0;                          // 11 +0x2C FUN_00406d20
@@ -343,7 +343,7 @@ namespace Archetype
     void CliObjBind(ICliObj* Companion, Root* Record);                // slot 5
     void CliObjFreeResources(ICliObj* Companion);                     // slot 6
     void CliObjInherit(ICliObj* Companion, ICliObj* Donor);           // slot 7
-    unsigned long CliObjLoad(ICliObj* Companion, int LoadMode);       // slot 8 +0x20
+    FlULong CliObjLoad(ICliObj* Companion, int LoadMode);       // slot 8 +0x20
 
     // sizeof 0x5C. Phy map at +0x48 is VC6 std::map — opaque, not constructed.
     struct COMMON_API Root
@@ -381,7 +381,7 @@ namespace Archetype
         virtual AClassType get_class_type() const;
 
         bool is_loaded() const;
-        long get_engine_index() const { return EngineIndex; }
+        FlLong get_engine_index() const { return EngineIndex; }
         int get_script_index() const { return AnimIndex; }
         unsigned get_id() const { return Nickname.Id; }
         void AddRef();
@@ -391,7 +391,7 @@ namespace Archetype
         // Listing 0x905d0. IEngine+0x5C(EngineIndex, IEngineInstance*).
         // Pass EngineObject* (stdcall IEngineInstance); nullptr = CNonPhys owned identity.
         // Mesh not loaded → FDUMP, -1.
-        long create_instance(IEngineInstance* EngineInstance) const;
+        FlLong create_instance(IEngineInstance* EngineInstance) const;
 
         ICliObj* Companion;                 // +0x04
         ID_String Nickname;                 // +0x08
@@ -409,7 +409,7 @@ namespace Archetype
         bool bHasRotationInertia;           // +0x38
         bool bPhantomPhysics;               // +0x39
         int LoadCount;                      // +0x3C  AddRef/Release *and* load attempts
-        long EngineIndex;                   // +0x40  -1 = not loaded
+        FlLong EngineIndex;                   // +0x40  -1 = not loaded
         int AnimIndex;                      // +0x44  -1
         // +0x48: the surfaces map PhyArch::LoadSurfaces fills (retail's export takes it as
         // std::map<unsigned int, PhyArch::Part>&). A modern std::map is smaller than retail's
@@ -1492,7 +1492,7 @@ namespace Archetype
         // Protected in retail: ?free_resources@Munition@Archetype@@MAEXXZ (MAE) and
         // ?BEAM_ARCH_INDEX@Munition@Archetype@@1JA (1 = protected static).
         virtual void free_resources();
-        static long BEAM_ARCH_INDEX;
+        static FlLong BEAM_ARCH_INDEX;
 
         // ShieldGenerator::get_hp_type_by_index (062f5e40) reads its default table
         // DAT_063ecc98[0..0x22]; entry 0x22 is one past the 34-dword table and lands on
@@ -1915,8 +1915,8 @@ namespace Archetype
 
     // Mesh bind — Common.dll listing 0x8fd80 (IFileSystem*) / 0x8fe40 (path).
     // CRC hit → IEngine+0x44; miss → open FS + IEngine+0x30. PhyArch surfaces not here.
-    COMMON_API bool __cdecl Load(char const* Path, long* EngineIndex, int* AnimIndex);
-    COMMON_API bool __cdecl Load(IFileSystem* Filesys, long* EngineIndex, int* AnimIndex);
+    COMMON_API bool __cdecl Load(char const* Path, FlLong* EngineIndex, int* AnimIndex);
+    COMMON_API bool __cdecl Load(IFileSystem* Filesys, FlLong* EngineIndex, int* AnimIndex);
 
     // Table loaders (common_archetypeloader.cpp). int = ArchDB insert delta (0 = open fail /
     // nothing added).

@@ -116,8 +116,8 @@ static_assert(MsvcrtWideCharToDigit(L'\x0669') == 9 && MsvcrtWideCharToDigit(L'\
 // result in EDX:EAX. Retail callers keep EAX, the low dword, so a value outside the int32 range
 // wraps, and a NaN, an infinity or a value outside the int64 range (the integer indefinite
 // 0x8000000000000000) gives 0. A plain static_cast<int> is undefined for those inputs.
-inline long MsvcrtFtol(double Value)
+inline FlLong MsvcrtFtol(double Value)
 {
     const unsigned long long Bits = static_cast<unsigned long long>(X87TruncateToInt64(Value));
-    return static_cast<long>(static_cast<unsigned long>(Bits & 0xFFFFFFFFull));
+    return static_cast<FlLong>(static_cast<FlULong>(Bits & 0xFFFFFFFFull));
 }

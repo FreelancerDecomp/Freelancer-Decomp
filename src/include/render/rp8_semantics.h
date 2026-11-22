@@ -30,7 +30,7 @@ struct FRp8StateKey
 {
     int Id;
     const char* Name;
-    unsigned long Default;
+    FlULong Default;
 };
 
 // FUN_06d01c68 (06d01d07..06d02032), RP8's map object+0x278: the pipeline states. Id 6,

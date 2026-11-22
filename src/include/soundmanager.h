@@ -32,15 +32,15 @@ struct ISoundArchetype : IDAComponent
 {
     virtual GENRESULT DACOM_API GetFormat(void* Out) = 0;          // +0x0C LAB_06ee1530
     virtual GENRESULT DACOM_API GetSamples(void* Out) = 0;         // +0x10 stub FDUMP
-    virtual unsigned long DACOM_API GetNumFrames() = 0;            // +0x14
+    virtual FlULong DACOM_API GetNumFrames() = 0;            // +0x14
     virtual float DACOM_API GetGain() = 0;                         // +0x18
-    virtual unsigned long DACOM_API GetChannelCount() = 0;         // +0x1C
-    virtual unsigned long DACOM_API GetDurationMs() = 0;           // +0x20
+    virtual FlULong DACOM_API GetChannelCount() = 0;         // +0x1C
+    virtual FlULong DACOM_API GetDurationMs() = 0;           // +0x20
     virtual GENRESULT DACOM_API SetSamples(void* A, void* B) = 0;  // +0x24 stub FDUMP
     virtual GENRESULT DACOM_API SetGain(float Gain) = 0;           // +0x28
-    virtual unsigned long DACOM_API IsReady() = 0;                 // +0x2C AL=1
-    virtual GENRESULT DACOM_API GetLoopRange(unsigned long* Start,
-                                             unsigned long* End) = 0; // +0x30
+    virtual FlULong DACOM_API IsReady() = 0;                 // +0x2C AL=1
+    virtual GENRESULT DACOM_API GetLoopRange(FlULong* Start,
+                                             FlULong* End) = 0; // +0x30
 };
 
 // ISoundSource -- the "play key". SoundManager never creates one: freelancer.exe hands it in
@@ -76,10 +76,10 @@ struct ISoundSource : IDAComponent
     // 3 +0x0C RET 0x4 -- FUN_004298b0. Refresh pass slot 4 runs first: on flag 0x4 without
     // 0x10 it asks DALib::Sound for the tick (slot 44) and restamps this+0x14. The mixer
     // never calls this one directly; it is slot 4's own first instruction.
-    virtual unsigned long DACOM_API Slot3() = 0;
+    virtual FlULong DACOM_API Slot3() = 0;
     // 4 +0x10 RET 0x4 -- FUN_004298f0: unless flag 0x10 is set, call slot 3, then return
     // this+0x14. That field is the tick the sound started on.
-    virtual unsigned long DACOM_API GetStartTick() = 0;
+    virtual FlULong DACOM_API GetStartTick() = 0;
     // 5 +0x14 RET 0x4 -- FUN_00429910: `this+0x2C != 0`.
     virtual unsigned char DACOM_API IsActive() = 0;
     // 6 +0x18 RET 0x4 -- LAB_0043d8e0. True only for the spatial (3D) source class; retail
@@ -98,7 +98,7 @@ struct ISoundSource : IDAComponent
     virtual GENRESULT DACOM_API GetPitch(float* Out) = 0;
     // 11 +0x2C RET 0x8 -- LAB_00429bd0: `ftol(this+0x20)` into the out-param. The mixer
     // clamps it to +/-10000 and hands it to IDirectSoundBuffer::SetPan, so it is a pan.
-    virtual GENRESULT DACOM_API GetPan(long* Out) = 0;
+    virtual GENRESULT DACOM_API GetPan(FlLong* Out) = 0;
     // 12 +0x30 RET 0x8 -- LAB_00429d30: world position, resolved through DALib::Engine when
     // the source is attached (this+0x60 != -1).
     virtual GENRESULT DACOM_API GetPosition(FVec3* Out) = 0;
@@ -107,8 +107,8 @@ struct ISoundSource : IDAComponent
     // 14 +0x38 RET 0x8 -- FUN_00429c20. Default 500.0f; squared into the mixer's range cull.
     virtual GENRESULT DACOM_API GetMaxDistance(float* Out) = 0;
     // 15 +0x3C RET 0xC -- FUN_00429ec0, the two DS3D cone angles.
-    virtual GENRESULT DACOM_API GetConeAngles(unsigned long* Inside,
-                                              unsigned long* Outside) = 0;
+    virtual GENRESULT DACOM_API GetConeAngles(FlULong* Inside,
+                                              FlULong* Outside) = 0;
     // 16 +0x40 RET 0x8 -- LAB_00429f60.
     virtual GENRESULT DACOM_API GetConeOrientation(FVec3* Out) = 0;
     // 17 +0x44 RET 0x8 -- LAB_00429f20.
@@ -117,14 +117,14 @@ struct ISoundSource : IDAComponent
     virtual GENRESULT DACOM_API GetVelocity(FVec3* Out) = 0;
     // 19 +0x4C RET 0x8 -- the mixer forwards the answer straight into EAX 2.0 listener
     // property 1 via IKsPropertySet, so it is an environment id.
-    virtual GENRESULT DACOM_API GetEaxEnvironment(unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API GetEaxEnvironment(FlULong* Out) = 0;
     // 20 +0x50 RET 0x8 -- 0 => DS3DMODE_NORMAL, 1 => DS3DMODE_HEADRELATIVE, anything else is
     // a warning and NORMAL.
-    virtual GENRESULT DACOM_API GetSoundMode(unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API GetSoundMode(FlULong* Out) = 0;
     // 21 +0x54 RET 0x8 -- the SoundManager mixer (FUN_06ee64c0) maps 0 => dwApply 1
     // (DS3D_DEFERRED, committed once per tick by CommitDeferredSettings at 06ee524e) and
     // 1 => dwApply 0 (DS3D_IMMEDIATE); anything else is a warning and 1.
-    virtual GENRESULT DACOM_API GetApplyMode(unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API GetApplyMode(FlULong* Out) = 0;
     // Slots 19/20/21 all share one retail implementation, LAB_00454190:
     // `MOV EAX,0xFFFFFFF9; RET 0x8` -- "unsupported", one argument. The port used to install a
     // zero-argument stub here, which is what made these three a live stack bug (see below).
@@ -146,13 +146,13 @@ struct ISoundSource : IDAComponent
     // 27 LAB_004296e0: adjusts a latched start tick, plays the buffer, then clears the pause tick.
     virtual void __thiscall Resume() = 0;
     // 28 LAB_004287e0: pause timestamp != 0; pausing at clock zero still reports false.
-    virtual unsigned long __thiscall IsPaused() = 0;
+    virtual FlULong __thiscall IsPaused() = 0;
     // 29 FUN_00429840 bare RET, 0 args. an earlier note read this one as
     // *is_finished*: it returns false when the looping bit at +0x0C is set, which squares with
     // SoundManager handing looping buffers DSBPLAY_LOOPING. Slot 42 calls it.
     virtual unsigned char __thiscall IsFinished() = 0;
     // 30 LAB_00429730 bare RET, 0 args -- sets up an SEH frame, so it owns a C++ object.
-    virtual unsigned long __thiscall Slot30() = 0;
+    virtual FlULong __thiscall Slot30() = 0;
     // 31 LAB_00429450 RET 0x4: write mixer score, preserving x87 rounding and unordered branches.
     virtual void __thiscall ComputeMixerScore(const float* Listener) = 0;
     // 32 LAB_00429330: clamps source attenuation to [-96, 0] dB, preserving NaN bits.
@@ -163,7 +163,7 @@ struct ISoundSource : IDAComponent
     virtual void __thiscall SetLooping(unsigned char bLooping) = 0;
     // 35 LAB_00429ca0 RET 0x4, one argument. In the two non-3D vtables this slot is folded
     // onto IDPMsgHandler::OnAddHost (`RET 0x4`), an unrelated do-nothing of the same shape.
-    virtual unsigned long __thiscall Slot35(void* Arg) = 0;
+    virtual FlULong __thiscall Slot35(void* Arg) = 0;
 
     // 36..39: __thiscall, object in ECX -- see the header note above.
     // 36 +0x90 RET 0x4 -- LAB_00429dc0 copies three floats into this+0x48.
@@ -215,16 +215,16 @@ struct ISoundManager : IDAComponent
     virtual GENRESULT DACOM_API SetPcmFormat(unsigned short* Fmt) = 0;                 // 3  +0x0C
     virtual GENRESULT DACOM_API GetPcmFormat(unsigned short* Fmt) = 0;                 // 4
     virtual GENRESULT DACOM_API SetMasterGain(float Gain) = 0;                         // 5
-    virtual GENRESULT DACOM_API SetMaxChannels(unsigned long Count) = 0;               // 6
-    virtual GENRESULT DACOM_API SetSpeakerConfig(unsigned long Index) = 0;             // 7
+    virtual GENRESULT DACOM_API SetMaxChannels(FlULong Count) = 0;               // 6
+    virtual GENRESULT DACOM_API SetSpeakerConfig(FlULong Index) = 0;             // 7
     virtual float DACOM_API GetMasterGain() = 0;                                       // 8
-    virtual unsigned long DACOM_API GetMaxChannels() = 0;                              // 9
-    virtual unsigned long DACOM_API GetSpeakerConfig() = 0;                            // 10
+    virtual FlULong DACOM_API GetMaxChannels() = 0;                              // 9
+    virtual FlULong DACOM_API GetSpeakerConfig() = 0;                            // 10
     virtual GENRESULT DACOM_API SetEaxPreview(int Env, float Vol, float Decay,
                                               float Damp) = 0;                         // 11
-    virtual GENRESULT DACOM_API GetEaxPreview(unsigned long* Env, unsigned long* Vol,
-                                              unsigned long* Decay,
-                                              unsigned long* Damp) = 0;                // 12
+    virtual GENRESULT DACOM_API GetEaxPreview(FlULong* Env, FlULong* Vol,
+                                              FlULong* Decay,
+                                              FlULong* Damp) = 0;                // 12
     virtual GENRESULT DACOM_API SetOrientation(FVector* Front, FVector* Up) = 0;           // 13
     // 14: Front = column 2 (m[2], m[5], m[8]), Up = column 1 (m[1], m[4], m[7]) - 06ee2380.
     virtual GENRESULT DACOM_API SetOrientationFromMatrix(float* Matrix) = 0;           // 14
@@ -243,46 +243,46 @@ struct ISoundManager : IDAComponent
     virtual float DACOM_API GetDistanceFactor() = 0;                                   // 24
     virtual float DACOM_API GetDopplerFactor() = 0;                                    // 25
     virtual float DACOM_API GetRolloffFactor() = 0;                                    // 26
-    virtual GENRESULT DACOM_API EaxGetInstance(void* Id, GUID* Set, unsigned long Prop,
-                                               void* Buf, unsigned long Cb,
-                                               unsigned long* Pcb) = 0;                // 27 RET 0x1C
-    virtual GENRESULT DACOM_API EaxSetInstance(void* Id, GUID* Set, unsigned long Prop,
-                                               void* Data, unsigned long Cb) = 0;      // 28 RET 0x18
-    virtual GENRESULT DACOM_API EaxGetPrimary(GUID* Set, unsigned long Prop, void* Buf,
-                                              unsigned long Cb, unsigned long* Pcb) = 0; // 29
-    virtual GENRESULT DACOM_API EaxSetPrimary(GUID* Set, unsigned long Prop, void* Data,
-                                              unsigned long Cb) = 0;                   // 30
-    virtual int DACOM_API CreateArchetypePcm(void* Fmt, unsigned long ByteCount, unsigned long LoopStart,
-                                             unsigned long LoopEnd, void* Samples,
-                                             unsigned long ArchFlags) = 0;             // 31 +0x7C RET 0x1C
+    virtual GENRESULT DACOM_API EaxGetInstance(void* Id, GUID* Set, FlULong Prop,
+                                               void* Buf, FlULong Cb,
+                                               FlULong* Pcb) = 0;                // 27 RET 0x1C
+    virtual GENRESULT DACOM_API EaxSetInstance(void* Id, GUID* Set, FlULong Prop,
+                                               void* Data, FlULong Cb) = 0;      // 28 RET 0x18
+    virtual GENRESULT DACOM_API EaxGetPrimary(GUID* Set, FlULong Prop, void* Buf,
+                                              FlULong Cb, FlULong* Pcb) = 0; // 29
+    virtual GENRESULT DACOM_API EaxSetPrimary(GUID* Set, FlULong Prop, void* Data,
+                                              FlULong Cb) = 0;                   // 30
+    virtual int DACOM_API CreateArchetypePcm(void* Fmt, FlULong ByteCount, FlULong LoopStart,
+                                             FlULong LoopEnd, void* Samples,
+                                             FlULong ArchFlags) = 0;             // 31 +0x7C RET 0x1C
     // 32 +0x80 RET 0xC. LAB_06ee2dc0: Source is a plain PCM descriptor, not a COM object --
     // format 8 bytes at +0, loop start +0x8, loop end +0xC, byte count +0x14, samples +0x18,
     // fed to the same FUN_06ee1330 fill as slot 31.
-    virtual int DACOM_API CreateArchetypeFromSource(void* Source, unsigned long ArchFlags) = 0;
+    virtual int DACOM_API CreateArchetypeFromSource(void* Source, FlULong ArchFlags) = 0;
     // 33 +0x84 RET 0xC. Retail 0042b72f pushes the caller's IFileSystem, not a path.
     virtual int DACOM_API CreateArchetypeFromWav(IDAComponent* FileSystem,
-                                                 unsigned long ArchFlags) = 0;
+                                                 FlULong ArchFlags) = 0;
     virtual GENRESULT DACOM_API DestroyArchetype(int Id) = 0;                          // 34 +0x88 RET 0x8
     virtual GENRESULT DACOM_API QueryArchetype(int Id, void** Out) = 0;                // 35 +0x8C RET 0xC
     virtual GENRESULT DACOM_API AttachPlayKey(ISoundSource* PlayKey,
-                                              unsigned long Index) = 0;                // 36 +0x90 RET 0xC
+                                              FlULong Index) = 0;                // 36 +0x90 RET 0xC
     virtual GENRESULT DACOM_API DetachPlayKey(ISoundSource* PlayKey) = 0;              // 37 +0x94 RET 0x8
-    virtual GENRESULT DACOM_API ReplaceAttachedList(void** Keys, unsigned long Count) = 0; // 38 +0x98 RET 0xC
-    virtual unsigned long DACOM_API GetAttachedCount() = 0;                            // 39 RET 0x4
-    virtual unsigned long DACOM_API GetPlayingCount() = 0;                             // 40 RET 0x4
-    virtual GENRESULT DACOM_API StartupDevice(HWND Hwnd, unsigned long Flags) = 0;     // 41 +0xA4
+    virtual GENRESULT DACOM_API ReplaceAttachedList(void** Keys, FlULong Count) = 0; // 38 +0x98 RET 0xC
+    virtual FlULong DACOM_API GetAttachedCount() = 0;                            // 39 RET 0x4
+    virtual FlULong DACOM_API GetPlayingCount() = 0;                             // 40 RET 0x4
+    virtual GENRESULT DACOM_API StartupDevice(HWND Hwnd, FlULong Flags) = 0;     // 41 +0xA4
     virtual GENRESULT DACOM_API ShutdownDevice() = 0;                                  // 42 +0xA8
     virtual GENRESULT DACOM_API GetDirectSound(IDirectSound** Out) = 0;                // 43 +0xAC
-    virtual unsigned long DACOM_API GetTickCountSlot() = 0;                            // 44 +0xB0
+    virtual FlULong DACOM_API GetTickCountSlot() = 0;                            // 44 +0xB0
     virtual GENRESULT GetDeviceSnapshot(void* Out) = 0;                                // 45 +0xB4 thiscall
     virtual GENRESULT DACOM_API MixerTick(ISoundListenerPose* Listener) = 0;           // 46
     virtual GENRESULT DACOM_API StopInstanceBuffer(ISoundSource* PlayKey) = 0;       // 47
     virtual GENRESULT DACOM_API PlayInstanceBuffer(ISoundSource* PlayKey) = 0;         // 48
     virtual GENRESULT DACOM_API GetArchetypeFormat(void* Id, void* Out) = 0;           // 49
     virtual GENRESULT DACOM_API GetArchetypeSamples(void* Id, void* Out) = 0;          // 50
-    virtual unsigned long DACOM_API GetArchetypeFrames(void* Id) = 0;                  // 51
+    virtual FlULong DACOM_API GetArchetypeFrames(void* Id) = 0;                  // 51
     virtual float DACOM_API GetArchetypeGain(void* Id) = 0;                            // 52
-    virtual unsigned long DACOM_API GetArchetypeChannels(void* Id) = 0;                // 53
+    virtual FlULong DACOM_API GetArchetypeChannels(void* Id) = 0;                // 53
     virtual GENRESULT DACOM_API SetArchetypeSamples(void* A, void* B, void* C) = 0;    // 54
-    virtual unsigned long DACOM_API GetArchetypeReady(void* Id) = 0;                   // 55
+    virtual FlULong DACOM_API GetArchetypeReady(void* Id) = 0;                   // 55
 };

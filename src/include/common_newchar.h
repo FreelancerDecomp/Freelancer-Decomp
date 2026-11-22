@@ -342,7 +342,7 @@ namespace RtcSlider
 {
     COMMON_API void __cdecl load(char const* Path);
     COMMON_API bool __cdecl is_enabled(char const* Name);
-    COMMON_API bool __cdecl is_enabled(unsigned long NameCrc);
+    COMMON_API bool __cdecl is_enabled(FlULong NameCrc);
     COMMON_API void __cdecl set_slider(float Value);
     COMMON_API float __cdecl get_slider();
     COMMON_API float __cdecl get_fps_cap();

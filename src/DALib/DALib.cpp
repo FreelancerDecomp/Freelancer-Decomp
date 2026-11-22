@@ -40,7 +40,7 @@ namespace
     }
 
     // Kept across calls for Shutdown's trailing-reference checks.
-    unsigned long GLastReleaseCount = 0;
+    FlULong GLastReleaseCount = 0;
 }
 
 // Retail .data:065ca2ac -- DALib's own module handle, stored by DllMain (.text:065c5d4c) and

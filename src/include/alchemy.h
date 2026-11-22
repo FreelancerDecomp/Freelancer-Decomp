@@ -25,16 +25,16 @@ struct IFileSystem;
 // These are node IDs / edges, not factory names — no emitter/field objects from them.
 struct FAleRec16
 {
-    unsigned long A;
-    unsigned long B;
-    unsigned long C;
-    unsigned long D;
+    FlULong A;
+    FlULong B;
+    FlULong C;
+    FlULong D;
 };
 
 struct FAleRec8
 {
-    unsigned long A;
-    unsigned long B;
+    FlULong A;
+    FlULong B;
 };
 
 struct IFxEffectArchetype : IDAComponent
@@ -42,24 +42,24 @@ struct IFxEffectArchetype : IDAComponent
     virtual GENRESULT DACOM_API ResetRecords() = 0;                              // 3  +0x0C LAB_0621e670 RET 4
     virtual GENRESULT DACOM_API SetName(const char* Name) = 0;                   // 4  +0x10 FUN_0621e6f0 RET 8
     virtual const char* DACOM_API GetName() = 0;                                 // 5  +0x14 LAB_0621e7b0 RET 4
-    virtual GENRESULT DACOM_API AddRec16(const FAleRec16* Rec, unsigned long* OutId,
-                                         unsigned long Flag) = 0;                // 6  +0x18 FUN_0621e7d0 RET 0x10
-    virtual GENRESULT DACOM_API RemoveRec16(unsigned long Id) = 0;               // 7  +0x1C FUN_0621e890 RET 8
-    virtual GENRESULT DACOM_API Slot8(unsigned long Id, unsigned long Value) = 0; // 8  +0x20 LAB_0621e950 RET 0xC
+    virtual GENRESULT DACOM_API AddRec16(const FAleRec16* Rec, FlULong* OutId,
+                                         FlULong Flag) = 0;                // 6  +0x18 FUN_0621e7d0 RET 0x10
+    virtual GENRESULT DACOM_API RemoveRec16(FlULong Id) = 0;               // 7  +0x1C FUN_0621e890 RET 8
+    virtual GENRESULT DACOM_API Slot8(FlULong Id, FlULong Value) = 0; // 8  +0x20 LAB_0621e950 RET 0xC
     virtual GENRESULT DACOM_API AddRec8(const FAleRec8* Rec) = 0;                // 9  +0x24 FUN_0621e990 RET 8
     virtual GENRESULT DACOM_API RemoveRec8(const FAleRec8* Rec) = 0;             // 10 +0x28 FUN_0621eb70 RET 8
     // 11/12: retail LAB_06220e40 / LAB_06220e60 are thiscall (RET 0). No retail DLL is loaded,
     // so the convention only has to agree between our caller and callee: DACOM_API like every
     // other interface method (AGENTS.md), as done for IMatAnimLibrary 3-6.
-    virtual unsigned long DACOM_API GetRec16Count() = 0;               // 11 +0x2C LAB_06220e40
-    virtual unsigned long DACOM_API GetRec8Count() = 0;                // 12 +0x30 LAB_06220e60
-    virtual GENRESULT DACOM_API GetRec16(unsigned long Index, FAleRec16* Out) = 0; // 13 +0x34 LAB_0621ec80 RET 0xC
-    virtual GENRESULT DACOM_API GetRec8(unsigned long Index, FAleRec8* Out) = 0; // 14 +0x38 LAB_0621ecc0 RET 0xC
-    virtual GENRESULT DACOM_API GetRec16ById(unsigned long Id, FAleRec16* Out) = 0; // 15 +0x3C LAB_0621ebe0 RET 0xC
+    virtual FlULong DACOM_API GetRec16Count() = 0;               // 11 +0x2C LAB_06220e40
+    virtual FlULong DACOM_API GetRec8Count() = 0;                // 12 +0x30 LAB_06220e60
+    virtual GENRESULT DACOM_API GetRec16(FlULong Index, FAleRec16* Out) = 0; // 13 +0x34 LAB_0621ec80 RET 0xC
+    virtual GENRESULT DACOM_API GetRec8(FlULong Index, FAleRec8* Out) = 0; // 14 +0x38 LAB_0621ecc0 RET 0xC
+    virtual GENRESULT DACOM_API GetRec16ById(FlULong Id, FAleRec16* Out) = 0; // 15 +0x3C LAB_0621ebe0 RET 0xC
     virtual GENRESULT DACOM_API FindRec8Index(const FAleRec8* Rec,
-                                             unsigned long* OutIndex) = 0;      // 16 +0x40 LAB_0621ec20 RET 0xC
-    virtual GENRESULT DACOM_API RemapRec16FieldD(unsigned long OldId,
-                                                 unsigned long NewId) = 0;      // 17 +0x44 LAB_0621ecf0 RET 0xC
+                                             FlULong* OutIndex) = 0;      // 16 +0x40 LAB_0621ec20 RET 0xC
+    virtual GENRESULT DACOM_API RemapRec16FieldD(FlULong OldId,
+                                                 FlULong NewId) = 0;      // 17 +0x44 LAB_0621ecf0 RET 0xC
     virtual GENRESULT DACOM_API GetHeader16(unsigned char* Out16) = 0;           // 18 +0x48 LAB_0621ed20 RET 8
     virtual GENRESULT DACOM_API SetHeader16(const unsigned char* Header16) = 0;  // 19 +0x4C FUN_0621ed50 RET 8
     virtual GENRESULT DACOM_API Slot20(void* Arg) = 0;                           // 20 +0x50 LAB_0621e660 RET 8
@@ -73,16 +73,16 @@ struct IFxNodeLibrary : IDAComponent
 {
     virtual GENRESULT DACOM_API LoadNodeLibrary(IFileSystem* FileSystem) = 0;   // 3  RET 8
     virtual GENRESULT DACOM_API SaveNodeLibrary(IFileSystem* FileSystem) = 0;   // 4  RET 8
-    virtual unsigned long DACOM_API HashNodeName(const char* Name) = 0;         // 5  RET 8 → FUN_0623ef70
+    virtual FlULong DACOM_API HashNodeName(const char* Name) = 0;         // 5  RET 8 → FUN_0623ef70
     virtual GENRESULT DACOM_API NodeLibSlot6(const char* Name, IDAComponent* Node,
-                                           unsigned long* OutHash) = 0;        // 6 RET 0x10
-    virtual GENRESULT DACOM_API NodeLibSlot7(unsigned long Hash) = 0;          // 7 RET 8
+                                           FlULong* OutHash) = 0;        // 6 RET 0x10
+    virtual GENRESULT DACOM_API NodeLibSlot7(FlULong Hash) = 0;          // 7 RET 8
     virtual GENRESULT DACOM_API NodeLibSlot8(FNodeLibraryEnumCallback Callback,
                                            void* Context) = 0;                // 8 RET 0xC
     virtual GENRESULT DACOM_API ClearNodeLibrary() = 0;                         // 9  RET 4
     virtual GENRESULT DACOM_API NodeLibSlot10(void* A, void* B) = 0;            // 10 RET 0xC
-    virtual GENRESULT DACOM_API NodeLibSlot11(unsigned long Hash, IDAComponent** Out) = 0; // 11 RET 0xC
-    virtual GENRESULT DACOM_API NodeLibSlot12(unsigned long Hash, IDAComponent** Out) = 0; // 12 RET 0xC
+    virtual GENRESULT DACOM_API NodeLibSlot11(FlULong Hash, IDAComponent** Out) = 0; // 11 RET 0xC
+    virtual GENRESULT DACOM_API NodeLibSlot12(FlULong Hash, IDAComponent** Out) = 0; // 12 RET 0xC
 };
 
 // IAlchemy retains the same slots 0–40; slots 3–12 are inherited unchanged.
@@ -162,8 +162,8 @@ struct IFxEffectLibrary : IDAComponent
     // LAB_0621fd30: independent raw bindings DAT_06257a3c and DAT_06257a38. RET 0xC.
     virtual GENRESULT DACOM_API BindAlchemy(IAlchemy* Alchemy, IFxNodeLibrary* NodeLibrary) = 0;
     virtual GENRESULT DACOM_API InsertArchetype(IFxEffectArchetype* Archetype,
-                                                unsigned long* OutHash) = 0; // 4 FUN_0621fd50 RET 0xC
-    virtual GENRESULT DACOM_API RemoveByHash(unsigned long Hash) = 0;   // 5 LAB_0621ff90 RET 8
+                                                FlULong* OutHash) = 0; // 4 FUN_0621fd50 RET 0xC
+    virtual GENRESULT DACOM_API RemoveByHash(FlULong Hash) = 0;   // 5 LAB_0621ff90 RET 8
     virtual GENRESULT DACOM_API CreateEffect(void* Unused, void* Key,
                                              IFxEffect** Out) = 0;      // FUN_06220020 RET 0x10
     virtual GENRESULT DACOM_API SaveAle(IFileSystem* FileSystem) = 0;   // FUN_06220140 RET 8
@@ -171,11 +171,11 @@ struct IFxEffectLibrary : IDAComponent
     virtual GENRESULT DACOM_API ClearEffects() = 0;                     // FUN_06220600 RET 4
     virtual GENRESULT DACOM_API EnumerateArchetypes(FEffectLibraryEnumCallback Callback,
                                                     void* Context) = 0; // 10 FUN_062206d0 RET 0xC
-    virtual GENRESULT DACOM_API FindByHash(unsigned long Hash,
+    virtual GENRESULT DACOM_API FindByHash(FlULong Hash,
                                            IFxEffectArchetype** Out) = 0; // 11 LAB_06220760 RET 0xC
     virtual GENRESULT DACOM_API MakeUniqueName(const char* Name, const char** Out) = 0; // 12 RET 0xC
-    virtual GENRESULT DACOM_API RemapAllRec16FieldD(unsigned long OldId,
-                                                    unsigned long NewId) = 0; // 13 FUN_06220950 RET 0xC
+    virtual GENRESULT DACOM_API RemapAllRec16FieldD(FlULong OldId,
+                                                    FlULong NewId) = 0; // 13 FUN_06220950 RET 0xC
     virtual GENRESULT DACOM_API Slot14(void* Unused) = 0;               // LAB_0621fd20 RET 8 → ClearEffects
 };
 

@@ -339,7 +339,7 @@ public:
     // found anywhere in the decompiled retail code, so kept non-overridden here too.
     virtual CacheString GetParentHPName() const;
     // Listing 0x3eed0 (?GetParentConnector@CExternalEquip@@UBEJ_N@Z, public virtual).
-    virtual long GetParentConnector(bool bSearch) const;
+    virtual FlLong GetParentConnector(bool bSearch) const;
     // Common.dll.c 66517-66538 (raw 0629ef60-0629efdd, listing 0x3ef60). New virtual introduced
     // at this level (no CEquip base slot) -- vtable+0x68, called by this class's own
     // GetConnectionPosition override below. Live-queries the engine/hardpoint store for the
@@ -384,7 +384,7 @@ class COMMON_API CAttachmentObj
 {
 public:
     virtual ~CAttachmentObj();
-    virtual long GetRootIndex() const = 0;
+    virtual FlLong GetRootIndex() const = 0;
     virtual CObject* GetPhysicsOwner() const = 0;
     virtual void EnableCollisions(bool bEnable) = 0;
     virtual bool Connect(CAttachedEquip* Equip) = 0;
@@ -399,13 +399,13 @@ public:
     CNonPhysAttachment& operator=(const CNonPhysAttachment& Other);
     virtual ~CNonPhysAttachment();
 
-    virtual long GetRootIndex() const;
+    virtual FlLong GetRootIndex() const;
     virtual CObject* GetPhysicsOwner() const;
     virtual void EnableCollisions(bool bEnable);
     virtual bool Connect(CAttachedEquip* Equip);
     virtual CObject* Disconnect(CAttachedEquip* Equip, bool bMakeDebris);
 
-    long EngineInstanceId;            // +0x04  -1
+    FlLong EngineInstanceId;            // +0x04  -1
     unsigned HpCrc;                   // +0x08
     unsigned char bCollisions;        // +0x0c
     // +0x0d: NOT padding -- resolved while tracing tracker item 10932's FUN_0628f700 call
@@ -430,7 +430,7 @@ public:
     CPhysAttachment(const CPhysAttachment& Other);
     virtual ~CPhysAttachment();
 
-    virtual long GetRootIndex() const;
+    virtual FlLong GetRootIndex() const;
     virtual CObject* GetPhysicsOwner() const;
     virtual void EnableCollisions(bool bEnable);
     virtual bool Connect(CAttachedEquip* Equip);
@@ -484,8 +484,8 @@ public:
     // semantics (compare InstIndex to it, then IsDescendant(it, InstIndex)) match GetRootIndex()
     // exactly, so this is ported as GetRootIndex() reuse. Not fully vtable-slot-verified --
     // flagged partial rather than ready_unverified.
-    virtual bool IsInstOnEquip(long InstIndex) const;
-    virtual long GetRootIndex() const;
+    virtual bool IsInstOnEquip(FlLong InstIndex) const;
+    virtual FlLong GetRootIndex() const;
     // Listing 0xc75d0 -- sets the Fate field below. 21 call sites in the retail ship
     // damage/death path (0x62c656b..0x62c8358 range); those callers are not ported yet.
     virtual void SetFate(DamageEntry::SubObjFate FateValue);
@@ -634,7 +634,7 @@ public:
     // Attachment->GetRootIndex(), -1 when not connected, so it can never false-positive against
     // a real instance id). See common_ceqobj.cpp's compute_explosion_dmg_bounding_sphere comment
     // for the caller-side context (inst_to_subobj_id) this unblocks.
-    unsigned short InstToSubObjID(long Instance) const;
+    unsigned short InstToSubObjID(FlLong Instance) const;
     // Common.dll.c 0x3b750: cross-checks a serialized EquipDescList against this manager's live
     // equipment (Id/ArchId/relative-health match, plus a discarded-result hardpoint stricmp for
     // external equips -- retail computes it but never checks it, reproduced verbatim), then walks
@@ -963,7 +963,7 @@ public:
         virtual int GetId() const override;
 
         // FUN_06299080 (__thiscall, RET 8): bind to an engine joint instance.
-        void Bind(CEGun* NewOwner, long Instance);
+        void Bind(CEGun* NewOwner, FlLong Instance);
 
         CEGun* Owner;                     // +0x04
         int EngineIndex;                  // +0x08  -1 none

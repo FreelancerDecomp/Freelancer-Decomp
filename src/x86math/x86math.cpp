@@ -784,8 +784,8 @@ struct FMathEngine final : I3DMathEngine, IComponentFactory
         return GR_GENERIC;
     }
 
-    unsigned long DACOM_API AddRef() override { return 1; }
-    unsigned long DACOM_API Release() override { return 1; }
+    FlULong DACOM_API AddRef() override { return 1; }
+    FlULong DACOM_API Release() override { return 1; }
 
     GENRESULT DACOM_API CreateInstance(AGGDESC* Desc, void** Instance) override
     {

@@ -19,7 +19,7 @@ namespace
 FL_LAYOUT_ASSERT(sizeof(FQuaternion) == 4 * sizeof(float), "quaternion transport is four floats");
 FL_LAYOUT_ASSERT(sizeof(FMatrix) == 9 * sizeof(float), "matrix transport is nine floats");
 
-enum EMixerNodeType : unsigned long
+enum EMixerNodeType : FlULong
 {
     MixerLeafNode = 0,
     MixerBlendNode = 1,
@@ -41,7 +41,7 @@ unsigned char G_bMixerEaseReady = 0;
 
 // The joint-type table FUN_066152d0 (0661558e..066155c0) and FUN_0661d5b0 (0661d68e..0661d6c0)
 // share: IEngine+0xC4's first dword to the number of floats the joint's parameters take.
-unsigned long MixerJointValueCount(unsigned long JointType)
+FlULong MixerJointValueCount(FlULong JointType)
 {
     switch (JointType)
     {
@@ -62,11 +62,11 @@ unsigned long MixerJointValueCount(unsigned long JointType)
 }
 
 // FUN_0661d050 cdecl: the ease table, built on first use, indexed without a range check.
-float MixerEase(long Index)
+float MixerEase(FlLong Index)
 {
     if (G_bMixerEaseReady == 0)                                  // 0661d051..58
     {
-        long Step = 0;
+        FlLong Step = 0;
         while (Step < 0x100)                                     // 0661d065..8d
         {
             // FILD i; FMUL qword K; FCOS; FSUBR qword 1.0; FMUL qword 0.5; FSTP dword.
@@ -97,7 +97,7 @@ FMixerNode* MixerStackPop(FMixerStack* Stack)
 
 // FUN_0661d0f0 thiscall RET 8 (Out, Kind): pop, then `JMP [EDX+4]` into the node's Evaluate
 // after overwriting the Kind slot with the stack pointer (0661d0fb). Kind is never read.
-void MixerStackEvaluate(FMixerStack* Stack, float* Out, unsigned long Kind)
+void MixerStackEvaluate(FMixerStack* Stack, float* Out, FlULong Kind)
 {
     (void)Kind;
     FMixerNode* Node = MixerStackPop(Stack);
@@ -194,7 +194,7 @@ void MixerMarkDropped(FMixerNode* Node)
 // ---------------------------------------------------------------------------------------------
 
 // LAB_0661d110: `MOV ECX,[ECX+0x14]; JMP FUN_0661b420`.
-unsigned long FMixerLeaf::Tick(float Dt)
+FlULong FMixerLeaf::Tick(float Dt)
 {
     return TypedTick(Typed, Dt);
 }
@@ -221,7 +221,7 @@ float* FMixerLeaf::SampleDisplacement(float* Out, float Dt) // formerly Slot03
 
 // LAB_0661d130 RET 4: FLD Dt; FADD [Time]; FST [Time]; FCOMP [Duration]; AND AX,0x100 (C0);
 // JNZ -> 0. C0 is set for "less" and for unordered, so only Sum >= Duration answers 1.
-unsigned long FMixerBlend::Tick(float Dt)
+FlULong FMixerBlend::Tick(float Dt)
 {
     const double Sum = (double)(Dt) + (double)(Time);
     Time = (float)(Sum);
@@ -242,7 +242,7 @@ void FMixerBlend::Evaluate(float* Out, FMixerStack* Stack)
 
     // FLD [Duration]; FCOMP 0.0f; AND AX,0x4100; JNZ -> 0xFF. The mask is C3|C0, the jump is
     // taken for "equal", "less" and unordered, so only Duration > 0 computes an index.
-    long WeightIndex = 0xFF;                                     // 0661d1cc
+    FlLong WeightIndex = 0xFF;                                     // 0661d1cc
     if (Duration > 0.0f)
     {
         // FLD Inv; FMUL Time; FMUL 255.0f; FSTP qword; floor; _ftol (0661d1aa..c5).
@@ -269,7 +269,7 @@ void FMixerBlend::Evaluate(float* Out, FMixerStack* Stack)
 
         // 0661d227..47: one axis of the result survives the pose curve, picked by the
         // channel's LoopFlags bits 3/4/5.
-        const unsigned long Axis = Typed->LoopFlags;
+        const FlULong Axis = Typed->LoopFlags;
         float Kept = 0.0f;
         if ((Axis & 0x8) != 0)
             Kept = Out[0];
@@ -326,7 +326,7 @@ void FMixerBlend::Evaluate(float* Out, FMixerStack* Stack)
     case 3:                                                      // 0661d38d
     {
         float Lerped[3];
-        unsigned long Index = 0;
+        FlULong Index = 0;
         while (Index < 3)
         {
             Lerped[Index] = (float)(
@@ -373,7 +373,7 @@ FMixerOverlay::FMixerOverlay(const FAnimBindOut* Desc)
     Type = MixerOverlayNode;                                                    // 0661d5cd
     if (Desc->Kind == 0)                                         // 0661d5d8 -> 0661d678
     {
-        const unsigned long* Relative = G_AnimEngine->GetInstanceRelative(Desc->Instance);
+        const FlULong* Relative = G_AnimEngine->GetInstanceRelative(Desc->Instance);
         if (Relative != nullptr)                                 // 0661d68a
         {
             Count = MixerJointValueCount(Relative[0]);           // 0661d68e..c5
@@ -405,7 +405,7 @@ FMixerOverlay::FMixerOverlay(const FAnimBindOut* Desc)
 }
 
 // FUN_0661d700: `XOR EAX,EAX; RET 4`.
-unsigned long FMixerOverlay::Tick(float Dt)
+FlULong FMixerOverlay::Tick(float Dt)
 {
     (void)Dt;
     return 0;
@@ -439,7 +439,7 @@ float* FMixerOverlay::SampleDisplacement(float* Out, float Dt) // formerly Slot0
 bool FAnimBindLess::operator()(const FAnimBindOut& Left, const FAnimBindOut& Right) const
 {
     if (Left.Kind != Right.Kind)                                 // 06612b29..3b SETL: signed
-        return (long)(Left.Kind) < (long)(Right.Kind);
+        return (FlLong)(Left.Kind) < (FlLong)(Right.Kind);
     if (Left.Kind == 0 || Left.Kind == 1)                        // 06612b31 / 06612b49: SETL
         return (ptrdiff_t)(Left.Instance) < (ptrdiff_t)(Right.Instance);
     if (Left.Kind == 2)                                          // 06612b5f..6a: SBB, unsigned
@@ -521,7 +521,7 @@ void MixerUnlinkParentBlend(FMixerList* List, FMixerNode* Node, unsigned char bO
 // ---------------------------------------------------------------------------------------------
 
 // FUN_06614f70: lower_bound on the signed key plus the equality check; null on a miss.
-FMixerDescMap* MixerFindKey(FAnimationObject* Animation, long Key)
+FMixerDescMap* MixerFindKey(FAnimationObject* Animation, FlLong Key)
 {
     FMixerKeyMap::iterator It = Animation->Mixers->find(Key);
     if (It == Animation->Mixers->end())
@@ -530,7 +530,7 @@ FMixerDescMap* MixerFindKey(FAnimationObject* Animation, long Key)
 }
 
 // FUN_06614e20: find-or-insert, returns the inner map.
-FMixerDescMap* MixerFindOrAddKey(FAnimationObject* Animation, long Key)
+FMixerDescMap* MixerFindOrAddKey(FAnimationObject* Animation, FlLong Key)
 {
     return &(*Animation->Mixers)[Key];
 }
@@ -560,7 +560,7 @@ void MixerWalkPlayback(FAnimationObject* Animation, const FAnimBindOut* Desc, FM
     (void)Animation;
 
     FMixerNode* Snapshot[0x140];
-    long SnapshotCount = 0;
+    FlLong SnapshotCount = 0;
     FMixerNode* Cursor = List->Head;
     while (Cursor != nullptr)
     {
@@ -569,7 +569,7 @@ void MixerWalkPlayback(FAnimationObject* Animation, const FAnimBindOut* Desc, FM
         Cursor = Cursor->Next;
     }
 
-    long Index = 0;
+    FlLong Index = 0;
     while (Index < SnapshotCount)                                // 06615316..066154f0
     {
         FMixerNode* Node = Snapshot[Index];
@@ -665,10 +665,10 @@ void MixerWalkPlayback(FAnimationObject* Animation, const FAnimBindOut* Desc, FM
 
     if (Stack.Count != 0)                                        // 0661552a..33
     {
-        unsigned long Kind = 0;
+        FlULong Kind = 0;
         if (Desc->Kind == 0)                                     // 06615578..94
         {
-            const unsigned long* Relative = G_AnimEngine->GetInstanceRelative(Desc->Instance);
+            const FlULong* Relative = G_AnimEngine->GetInstanceRelative(Desc->Instance);
             if (Relative != nullptr)
                 Kind = MixerJointValueCount(Relative[0]);
         }
@@ -680,7 +680,7 @@ void MixerWalkPlayback(FAnimationObject* Animation, const FAnimBindOut* Desc, FM
         {
             EngBaseFdump(G_MixerFdumpFatal, G_MixerFdumpFile, 0x3D0, "FATAL",
                          "Unknown data type!\n");
-            Kind = (unsigned long)(Index);            // 0661556f: the loop counter
+            Kind = (FlULong)(Index);            // 0661556f: the loop counter
         }
 
         float Out[7];
@@ -714,7 +714,7 @@ void MixerWalkPlayback(FAnimationObject* Animation, const FAnimBindOut* Desc, FM
 }
 
 void MixerBlendAttach(FAnimationObject* Animation, FTypedChannel* Typed, float Duration,
-                      unsigned long Flags)
+                      FlULong Flags)
 {
     FMixerDescMap* Inner = MixerFindOrAddKey(Animation, TypedMixerKey(Typed)); // 0661609b..9f
     if (Inner == nullptr)                                        // 066160a8: retail tests it
@@ -915,7 +915,7 @@ unsigned char MixerHasLeaf(FAnimationObject* Animation, FTypedChannel* Typed)
 }
 
 // LAB_06616800 RET 0xC (this, Key, Dt), after the receiver.
-void MixerWalkKey(FAnimationObject* Animation, long Key, float Dt)
+void MixerWalkKey(FAnimationObject* Animation, FlLong Key, float Dt)
 {
     if (Key == -1)                                               // 06616806
         return;
@@ -988,7 +988,7 @@ void MixerWalkAll(FAnimationObject* Animation, float Dt)
 // FUN_06612a70 thiscall RET 8 (Pos, Inner).
 void PlaybackWriteOverlayPos(FAnimPlayback* Playback, const float* Pos, FMixerDescMap* Inner)
 {
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < Playback->Typed.size())                    // 06612a72..06612b0e
     {
         FTypedChannel* Typed = Playback->Typed[Index];
@@ -1024,7 +1024,7 @@ void PlaybackWriteOverlayOrient(FAnimPlayback* Playback, const float* Matrix, FM
     FQuaternion Quat;
     Math->MatrixToQuaternion(Quat,
                              *(const FMatrix*)(Matrix)); // 06612ba2..af
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < Playback->Typed.size())                    // 06612bb2..06612c48
     {
         FTypedChannel* Typed = Playback->Typed[Index];
@@ -1056,7 +1056,7 @@ void PlaybackWriteOverlayOrient(FAnimPlayback* Playback, const float* Matrix, FM
 // FUN_06612c60 thiscall RET 8 (Delta, Inner).
 void PlaybackAddOverlayPos(FAnimPlayback* Playback, const float* Delta, FMixerDescMap* Inner)
 {
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < Playback->Typed.size())                    // 06612c64..06612d04
     {
         FTypedChannel* Typed = Playback->Typed[Index];

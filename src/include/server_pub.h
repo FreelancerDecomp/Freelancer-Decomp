@@ -289,11 +289,11 @@ SERVER_API void __cdecl GetCostumeByID(int Id, Costume& OutCostume);
 
 // pub::GF::AmbientScriptDestroy — Server.dll BaseDB destroy.
 // Content.dll FUN_06eb9ef0 walk at 06eb9fd2. Body: src/Server/server_pub.cpp.
-SERVER_API void __cdecl AmbientScriptDestroy(unsigned long* Handle);
+SERVER_API void __cdecl AmbientScriptDestroy(FlULong* Handle);
 
 // ?AmbientScriptCreate@GF@pub@@YAKABUAmbientScriptDescription@@@Z -- Server.dll 0x384e0.
 // Content.dll FUN_06eb9dc0 (06eb9e5e). Body: src/Server/server_pub.cpp:5798.
-SERVER_API unsigned long __cdecl AmbientScriptCreate(AmbientScriptDescription const& Description);
+SERVER_API FlULong __cdecl AmbientScriptCreate(AmbientScriptDescription const& Description);
 
 // Bar characters -- Content.dll TU17 FUN_06ea7d20 / FUN_06ea94c0 / FUN_06ea7ce0.
 // Bodies: src/Server/server_pub.cpp (5504-5557, 5631, 5601).
@@ -304,31 +304,31 @@ SERVER_API unsigned int __cdecl CharacterCreate(CharacterDescription const& Desc
 // ?CharacterDestroy@GF@pub@@YAXPAI@Z -- Server.dll .text:06d17fb0.
 SERVER_API void __cdecl CharacterDestroy(unsigned int* Handle);
 // ?CharacterSetBehavior@GF@pub@@YAXIK@Z -- Server.dll .text:06d17fe0.
-SERVER_API void __cdecl CharacterSetBehavior(unsigned int CharacterId, unsigned long BehaviorHandle);
+SERVER_API void __cdecl CharacterSetBehavior(unsigned int CharacterId, FlULong BehaviorHandle);
 // ?CharacterBehaviorCreate@GF@pub@@YAKABUCharacterBehaviorDescription@@@Z -- Server.dll
 // .text:06d18000 (common_iface.h has the struct). Content.dll callers: the bar scene
 // creator FUN_06ea9640 (06ea9c2b), FUN_06f00b90. Body: src/Server/server_pub.cpp:5544.
-SERVER_API unsigned long __cdecl CharacterBehaviorCreate(CharacterBehaviorDescription const& Description);
+SERVER_API FlULong __cdecl CharacterBehaviorCreate(CharacterBehaviorDescription const& Description);
 // ?CharacterBehaviorDestroy@GF@pub@@YAXPAK@Z -- Server.dll .text:06d18090.
-SERVER_API void __cdecl CharacterBehaviorDestroy(unsigned long* Handle);
+SERVER_API void __cdecl CharacterBehaviorDestroy(FlULong* Handle);
 // ?GetNumCharacterPlacements@GF@pub@@YAHI@Z -- Server.dll 0x380e0. Body: server_pub.cpp.
 SERVER_API int __cdecl GetNumCharacterPlacements(unsigned int LocationId);
 // ?GetCharacterPlacementName@GF@pub@@YAPBDIH@Z -- Server.dll 0x38140.
 SERVER_API char const* __cdecl GetCharacterPlacementName(unsigned int LocationId, int Index);
 // ?GetCharacterPlacementPosture@GF@pub@@YAHIHAAK@Z -- Server.dll 0x381a0.
 SERVER_API int __cdecl GetCharacterPlacementPosture(unsigned int LocationId, int Index,
-                                                    unsigned long& OutPosture);
+                                                    FlULong& OutPosture);
 // News and mission vendor -- Content.dll TU19 BaseSupport (LAB_06eb4ba0) and TU35
 // FUN_06f04a40. Bodies: src/Server/server_pub.cpp (5739, 5754, 5778, 5786).
 // ?NewsBroadcastCreate@GF@pub@@YAKABUNewsBroadcastDescription@@@Z (IAT 06fb3674).
-SERVER_API unsigned long __cdecl NewsBroadcastCreate(NewsBroadcastDescription const& Description);
+SERVER_API FlULong __cdecl NewsBroadcastCreate(NewsBroadcastDescription const& Description);
 // ?NewsBroadcastDestroy@GF@pub@@YAXPAK@Z (IAT 06fb367c).
-SERVER_API void __cdecl NewsBroadcastDestroy(unsigned long* Handle);
+SERVER_API void __cdecl NewsBroadcastDestroy(FlULong* Handle);
 // ?MissionVendorOfferCreate@GF@pub@@YAKABUMissionVendorOfferDescription@@@Z (IAT 06fb36b0;
 // Content.dll caller TU35 FUN_06f047e0 06f049a6). Body: server_pub.cpp:5731.
-SERVER_API unsigned long __cdecl MissionVendorOfferCreate(MissionVendorOfferDescription const& Description);
+SERVER_API FlULong __cdecl MissionVendorOfferCreate(MissionVendorOfferDescription const& Description);
 // ?MissionVendorOfferDestroy@GF@pub@@YAXPAK@Z (IAT 06fb3668).
-SERVER_API void __cdecl MissionVendorOfferDestroy(unsigned long* Handle);
+SERVER_API void __cdecl MissionVendorOfferDestroy(FlULong* Handle);
 // ?ReportWhyMissionVendorEmpty@GF@pub@@YAHIW4MVEmptyReason@@@Z (IAT 06fb36ac). Body:
 // server_pub.cpp:5760. Content.dll TU35 FUN_06f047e0 passes the PLAYER id (State +0xc,
 // 06f0484d / 06f048ca) and the reason of FUN_06f04450 (0 offers made, 1 no faction to offer
@@ -336,7 +336,7 @@ SERVER_API void __cdecl MissionVendorOfferDestroy(unsigned long* Handle);
 // forwards both to IClient slot 42.
 SERVER_API int __cdecl ReportWhyMissionVendorEmpty(unsigned int ClientId, MVEmptyReason Reason);
 // ?MissionVendorAcceptance@GF@pub@@YAXK_NABUFmtStr@@I@Z (IAT 06fb3670).
-SERVER_API void __cdecl MissionVendorAcceptance(unsigned long Handle, bool bAccepted,
+SERVER_API void __cdecl MissionVendorAcceptance(FlULong Handle, bool bAccepted,
                                                 FmtStr const& Reason, unsigned int PlayerId);
 } // namespace GF
 } // namespace pub
@@ -415,7 +415,7 @@ SERVER_API int __cdecl EnumerateZones(unsigned int const& SystemId, ZoneEnumerat
 // pub::System::GetNestedProperties — Server.dll ISystem zone-property query.
 // Content.dll FUN_06f9ac80 at 06f9adab. Body: src/Server/server_pub.cpp.
 SERVER_API int __cdecl GetNestedProperties(unsigned int const& SystemId, Vector const& Position,
-                                           unsigned long& OutProps);
+                                           FlULong& OutProps);
 
 // ?GetName@System@pub@@YAHIAAI@Z -- Server.dll .text:06cfb8e0: the system's name string id.
 // Content.dll FUN_06f89550 (06f89597, TARGET_SYSTEM). Body: src/Server/server_pub.cpp.
@@ -458,7 +458,7 @@ SERVER_API Vector __cdecl GetPos(unsigned int zone_id);
 SERVER_API int __cdecl GetOrientation(const unsigned int& zone_id, Matrix& out_matrix);
 // ?GetProperties@Zone@pub@@YAHIAAK@Z -- Server.dll .text:06cfbbe0. Content Cnd_InZone
 // (LAB_06ec2980 06ec2a3a).
-SERVER_API int __cdecl GetProperties(unsigned int zone_id, unsigned long& out_props);
+SERVER_API int __cdecl GetProperties(unsigned int zone_id, FlULong& out_props);
 // ?GetSystem@Zone@pub@@YAII@Z -- Server.dll .text:06cfb970 (0 for an unknown zone).
 // Content.dll TU27 FUN_06ef15b0 / FUN_06ef1c70. Body: server_pub.cpp:6426.
 SERVER_API unsigned int __cdecl GetSystem(unsigned int zone_id);
@@ -625,7 +625,7 @@ public:
     void HandleClientLogout(unsigned int PlayerId);
     void SendGroup(BaseGroupMessage::Type MsgType, unsigned int Param);
     void SendChat(int Style, const wchar_t* Msg, ...);
-    void DeliverChat(unsigned long MsgType, const void* MsgData);
+    void DeliverChat(FlULong MsgType, const void* MsgData);
     void SetMissionObjectives(CMissionObjectives& Objs);
     void SetMissionMessage(CSetMissionMessage& Msg);
     void StoreMemberList(std::vector<unsigned int>& OutMembers);
@@ -1091,7 +1091,7 @@ public:
 
     // GetSampleCount -- Common .text:06283540, Server .text:06ce23c0, freelancer.exe
     // .text:0053fd10: MOV EAX,[this+0x2b8]; RET.
-    unsigned long GetSampleCount()
+    FlULong GetSampleCount()
     {
         return m_SampleCount;
     }
@@ -1181,7 +1181,7 @@ public:
     Quaternion m_Orientation;                 // +0x29C
     // Mirror of m_PositionDRV.ProjectedPosition (.text:062922b7..062922cd).
     Vector m_ProjectedPosition;               // +0x2AC
-    unsigned long m_SampleCount;              // +0x2B8
+    FlULong m_SampleCount;              // +0x2B8
     // (+0x2BC: alignment padding, not copied by the copy ctor / operator=)
     double m_SimulationTime;                  // +0x2C0
     // The blend window: RemoteUpdate copies m_PositionDRV.ConvergeWindow here
@@ -1189,7 +1189,7 @@ public:
     double m_ConvergeWindow;                  // +0x2C8
     // Eight bytes the copy ctor and operator= copy as two dwords; no other Common.dll code
     // reads or writes them (the ctor and Reset leave them alone). Their type is unknown.
-    unsigned long m_Unread2D0[2];             // +0x2D0
+    FlULong m_Unread2D0[2];             // +0x2D0
     // "Force a resync" backoff timer used by CheckForSync (retail 0x325c0). Seeded to 5.0 by
     // the ctor/Reset; CheckForSync doubles it each time m_SimulationTime outgrows it
     // (geometric backoff) and resets it back to 5.0 once a resync is actually forced.

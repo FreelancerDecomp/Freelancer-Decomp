@@ -20,8 +20,8 @@
 // Aggregate that loads System profile entries and fans interface queries out to its children.
 
 
-static constexpr unsigned long kAggDescSize = 0x14;
-static constexpr unsigned long kRegisterPriority = 0x40000000;
+static constexpr FlULong kAggDescSize = 0x14;
+static constexpr FlULong kRegisterPriority = 0x40000000;
 static constexpr unsigned int kFdumpNotice = 0x100003;
 static constexpr int kLoadComponentsLine = 0x123;
 
@@ -75,10 +75,10 @@ public:
     FInnerUnknown();
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
-    unsigned long RefCount;
+    FlULong RefCount;
     FSystemContainer* Outer;
 };
 
@@ -89,8 +89,8 @@ public:
     ~FSystemContainer();
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
     GENRESULT DACOM_API Initialize() override;
     GENRESULT DACOM_API Shutdown() override;
@@ -107,8 +107,8 @@ public:
     FComponentNode* Tail;
     FInnerUnknown Inner;
     IDAComponent* Controlling;
-    unsigned long bAggregated;
-    unsigned long bLoaded;
+    FlULong bAggregated;
+    FlULong bLoaded;
 };
 
 FL_LAYOUT_ASSERT(offsetof(FSystemContainer, Head) == 0x08, "Head at +8");
@@ -126,11 +126,11 @@ public:
     FSystemContainerFactory();
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     GENRESULT DACOM_API CreateInstance(AGGDESC* Desc, void** Instance) override;
 
-    unsigned long RefCount;
+    FlULong RefCount;
     const char* Name;
 };
 
@@ -183,14 +183,14 @@ GENRESULT DACOM_API FInnerUnknown::QueryInterface(const char* Iid, void** Out)
     struct FQiEntry
     {
         const char* Iid;
-        unsigned long ByteOffset;
+        FlULong ByteOffset;
     };
     static const FQiEntry Table[] = {
         {Iids::SystemContainer, 0},            // 06f1205c / 06f12060
         {Iids::AggregateComponent, 0},         // 06f12064 / 06f12068
         {Iids::SystemComponent, 0},            // 06f1206c / 06f12070
         {Iids::DAConnectionPointContainer,     // 06f12074 / 06f12078
-         static_cast<unsigned long>(FL_FACET_OFFSET(4, FSystemContainer, IDAConnectionPointContainer))},
+         static_cast<FlULong>(FL_FACET_OFFSET(4, FSystemContainer, IDAConnectionPointContainer))},
         {nullptr, 0},                          // 06f1207c
     };
 
@@ -199,7 +199,7 @@ GENRESULT DACOM_API FInnerUnknown::QueryInterface(const char* Iid, void** Out)
         if (strcmp(Table[Index].Iid, Iid) == 0)
         {
             unsigned char* Base = (unsigned char*)(Outer);
-            unsigned long Offset = Table[Index].ByteOffset;
+            FlULong Offset = Table[Index].ByteOffset;
             IDAComponent* Face = nullptr;
             if ((Offset & 0x80000000u) != 0)
                 Face = *(IDAComponent**)(Base + (Offset & 0x7FFFFFFFu));
@@ -224,7 +224,7 @@ GENRESULT DACOM_API FInnerUnknown::QueryInterface(const char* Iid, void** Out)
 }
 
 // LAB_06f11990 (shared with the factory's AddRef).
-unsigned long DACOM_API FInnerUnknown::AddRef()
+FlULong DACOM_API FInnerUnknown::AddRef()
 {
     ++RefCount;
     return RefCount;
@@ -232,7 +232,7 @@ unsigned long DACOM_API FInnerUnknown::AddRef()
 
 // LAB_06f119a0: last release runs the container destructor (FUN_06f11130) and free()s the
 // calloc'd block.
-unsigned long DACOM_API FInnerUnknown::Release()
+FlULong DACOM_API FInnerUnknown::Release()
 {
     if (RefCount > 0)
         --RefCount;
@@ -272,12 +272,12 @@ GENRESULT DACOM_API FSystemContainer::QueryInterface(const char* Iid, void** Out
     return Controlling->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FSystemContainer::AddRef()
+FlULong DACOM_API FSystemContainer::AddRef()
 {
     return Controlling->AddRef();
 }
 
-unsigned long DACOM_API FSystemContainer::Release()
+FlULong DACOM_API FSystemContainer::Release()
 {
     return Controlling->Release();
 }
@@ -550,14 +550,14 @@ GENRESULT DACOM_API FSystemContainerFactory::QueryInterface(const char* Iid, voi
     return GR_OK;
 }
 
-unsigned long DACOM_API FSystemContainerFactory::AddRef()
+FlULong DACOM_API FSystemContainerFactory::AddRef()
 {
     ++RefCount;
     return RefCount;
 }
 
 // FUN_06f11870.
-unsigned long DACOM_API FSystemContainerFactory::Release()
+FlULong DACOM_API FSystemContainerFactory::Release()
 {
     if (RefCount > 0)
         --RefCount;

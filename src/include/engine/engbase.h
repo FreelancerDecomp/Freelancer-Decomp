@@ -18,14 +18,14 @@
 struct FEngineName
 {
     const char* Text;
-    unsigned long Crc;
+    FlULong Crc;
 };
 
 // Both Engine IIDs share one interface; invalid handles use the -1 pointer sentinel.
 static void* const G_InvalidEngineHandle = (void*)((ptrdiff_t)-1);
 
 // Joint payload contains 23 DWORDs; mixed values are copied without numeric conversion.
-static constexpr unsigned long G_EngineJointPayloadDwords = 0x17;
+static constexpr FlULong G_EngineJointPayloadDwords = 0x17;
 
 // Transform callbacks carry an instance argument and have no IDAComponent prefix.
 struct IInstanceTransform
@@ -43,20 +43,20 @@ struct IInstanceTransform
                                          float* OutVec) = 0;                            // 9 +0x24
     virtual GENRESULT DACOM_API SetExtra(void* Instance, float Extra,
                                          const float* Vec) = 0;                         // 10 +0x28
-    virtual GENRESULT DACOM_API SetUser(void* Instance, unsigned long User) = 0;         // 11 +0x2C
-    virtual unsigned long DACOM_API GetUser(void* Instance) = 0;                        // 12 +0x30
+    virtual GENRESULT DACOM_API SetUser(void* Instance, FlULong User) = 0;         // 11 +0x2C
+    virtual FlULong DACOM_API GetUser(void* Instance) = 0;                        // 12 +0x30
     // Returns whether dirtiness should propagate to children; roots stop propagation.
-    virtual unsigned long DACOM_API MarkWorldDirty(void* Instance) = 0; // formerly Slot13; +0x34
+    virtual FlULong DACOM_API MarkWorldDirty(void* Instance) = 0; // formerly Slot13; +0x34
 };
 
 struct IEngine : IDAComponent
 {
     virtual GENRESULT DACOM_API LoadEngineComponents(IDAComponent* SystemContainer) = 0; // 3 +0x0C
-    virtual unsigned long DACOM_API EnumerateEngineComponents(
+    virtual FlULong DACOM_API EnumerateEngineComponents(
         int(__cdecl* Callback)(const char*, void*)) = 0;                                 // 4
     virtual GENRESULT DACOM_API NotifyEngineComponents(void* Arg) = 0;                 // 5
     virtual GENRESULT DACOM_API SetSearchPath(const char* Path) = 0;                     // 6
-    virtual GENRESULT DACOM_API QuerySearchPath(char* Dest, unsigned long MaxChars) = 0; // 7
+    virtual GENRESULT DACOM_API QuerySearchPath(char* Dest, FlULong MaxChars) = 0; // 7
     virtual GENRESULT DACOM_API SetFilesystem(IDAComponent* NewPath) = 0;                 // 8
     virtual GENRESULT DACOM_API GetSearchPath(void** Out) = 0;                          // 9
     virtual GENRESULT DACOM_API CreateFileSystem(const char* Path, void** Out,
@@ -64,14 +64,14 @@ struct IEngine : IDAComponent
     virtual void* DACOM_API CreateCompoundArchetype(FEngineName* Name) = 0;             // 11
     virtual void* DACOM_API CreateArchetypeHandle(FEngineName* Name, void* FileSystem) = 0; // 12
     virtual void* DACOM_API DuplicateArchetype(void* ArchIn, FEngineName* Name) = 0;     // 13
-    virtual unsigned long DACOM_API AddRefHandle(void* Handle) = 0;                      // 14
-    virtual unsigned long DACOM_API ReleaseHandle(void* Handle) = 0;                    // 15
+    virtual FlULong DACOM_API AddRefHandle(void* Handle) = 0;                      // 14
+    virtual FlULong DACOM_API ReleaseHandle(void* Handle) = 0;                    // 15
     // LAB_06621850 RET 0xC: Out is the FIRST argument ([ESP+8]), Handle the second
     // ([ESP+0xC]) -- same order as slot 26; FUN_06622860 pushes Handle, &Out, this.
     virtual FEngineName* DACOM_API GetArchetypeName(FEngineName* Out, void* Handle) = 0; // 16
     virtual void* DACOM_API FindArchetype(FEngineName* Name) = 0;                         // 17
     virtual GENRESULT DACOM_API QueryEngineComponent(int Id, void* Name, void** Out) = 0; // 18
-    virtual unsigned long DACOM_API IsCompoundArchetype(void* Handle) = 0;                // 19
+    virtual FlULong DACOM_API IsCompoundArchetype(void* Handle) = 0;                // 19
     // LAB_06622360: walks the ARCHETYPE handle's constraint records (+0x2C, stride 0x64);
     // Callback is cdecl (parent part handle, child part handle, record + 8, ctx), AL 0 stops.
     virtual GENRESULT DACOM_API EnumerateArchetypeConstraints(
@@ -87,7 +87,7 @@ struct IEngine : IDAComponent
     virtual GENRESULT DACOM_API DestroyInstance(void* Instance) = 0;                     // 24
     virtual void* DACOM_API GetInstanceArchetype(void* Instance) = 0;                     // 25
     virtual FEngineName* DACOM_API GetInstanceName(FEngineName* Out, void* Instance) = 0; // 26
-    virtual GENRESULT DACOM_API UpdateInstance(void* Instance, unsigned long Flags,
+    virtual GENRESULT DACOM_API UpdateInstance(void* Instance, FlULong Flags,
                                               void* Arg) = 0;                           // 27
     virtual GENRESULT DACOM_API SetInstanceTransform(void* Instance, void* Transform) = 0; // 28
     virtual GENRESULT DACOM_API GetInstanceTransformObject(void* Instance, void** Out) = 0; // 29
@@ -95,9 +95,9 @@ struct IEngine : IDAComponent
                                               void** Out) = 0;                          // 30
     virtual GENRESULT DACOM_API SetInstanceUserData(void* Instance, void* Value) = 0;    // 31
     virtual void* DACOM_API GetInstanceUserData(void* Instance) = 0;                    // 32
-    virtual GENRESULT DACOM_API SetInstanceExtent(void* Instance, unsigned long Flags,
+    virtual GENRESULT DACOM_API SetInstanceExtent(void* Instance, FlULong Flags,
                                                  float Extent, const float* Vec) = 0;   // 33
-    virtual GENRESULT DACOM_API GetInstanceExtent(void* Instance, unsigned long Flags,
+    virtual GENRESULT DACOM_API GetInstanceExtent(void* Instance, FlULong Flags,
                                                  float* OutExtent, float* OutVec) = 0;  // 34
     virtual GENRESULT DACOM_API SetInstancePosition(void* Instance, void* Position) = 0; // 35
     virtual float* DACOM_API GetInstancePosition(void* Instance) = 0;                    // 36
@@ -109,27 +109,27 @@ struct IEngine : IDAComponent
     virtual float* DACOM_API GetIdentityMatrix(void* Unused) = 0;                      // 42
     virtual GENRESULT DACOM_API NoOp43(void* A, void* B) = 0; // formerly UnusedSlot43; TODO: original operation purpose.
     virtual float* DACOM_API GetIdentityMatrix2(void* Unused) = 0;                     // 44 = 42
-    virtual GENRESULT DACOM_API SetTransformUser(void* Instance, unsigned long User) = 0; // 45
-    virtual unsigned long DACOM_API GetTransformUser(void* Instance) = 0;               // 46
-    virtual unsigned long DACOM_API CreateJoint(void* Parent, void* Child,
-                                                 const unsigned long* Payload) = 0;     // 47
+    virtual GENRESULT DACOM_API SetTransformUser(void* Instance, FlULong User) = 0; // 45
+    virtual FlULong DACOM_API GetTransformUser(void* Instance) = 0;               // 46
+    virtual FlULong DACOM_API CreateJoint(void* Parent, void* Child,
+                                                 const FlULong* Payload) = 0;     // 47
     // Detach Child from its current parent; Parent is diagnostic context.
-    virtual unsigned long DACOM_API DestroyJoint(void* Parent, void* Child) = 0;        // 48
-    virtual unsigned long* DACOM_API GetInstanceRelative(void* Instance) = 0;         // 49
-    virtual unsigned long DACOM_API SetJointParams(void* Instance, unsigned long Index,
+    virtual FlULong DACOM_API DestroyJoint(void* Parent, void* Child) = 0;        // 48
+    virtual FlULong* DACOM_API GetInstanceRelative(void* Instance) = 0;         // 49
+    virtual FlULong DACOM_API SetJointParams(void* Instance, FlULong Index,
                                                     const float* Values) = 0;          // 50
-    virtual unsigned long DACOM_API GetJointParams(void* Instance, unsigned long Index,
+    virtual FlULong DACOM_API GetJointParams(void* Instance, FlULong Index,
                                                     float* Out) = 0;                   // 51
     // 52 -- LAB_066222a0: an iterator over the engine's hierarchy-root map. -1 -> the first
     // root (or -1 when there is none); a mapped root -> the next root in key order (or -1 at
     // the end); anything not in the map -> -1. The port name is a label, not retail's.
     virtual void* DACOM_API FindMappedInstance(void* Instance) = 0;                    // 52
     virtual void* DACOM_API GetInstanceParent(void* Instance) = 0;                     // 53
-    virtual void* DACOM_API GetRelatedInstance(void* From, unsigned long Flags,
+    virtual void* DACOM_API GetRelatedInstance(void* From, FlULong Flags,
                                                void* Cursor) = 0;                       // 54
     virtual void* DACOM_API GetInstanceRoot(void* Instance) = 0;                         // 55
     virtual void* DACOM_API FindArchetypeChild(void* Handle, void* ChildHandle) = 0;   // 56
-    virtual unsigned long DACOM_API RejectOperation(void* A, void* B) = 0; // formerly UnusedSlot57; TODO: original operation purpose.
+    virtual FlULong DACOM_API RejectOperation(void* A, void* B) = 0; // formerly UnusedSlot57; TODO: original operation purpose.
 };
 
 #ifndef FREELANCER_IENGINE2_DEFINED
@@ -165,7 +165,7 @@ struct IEngineComponent : IDAComponent
 // Raw DWORD tokens use explicit bit-preserving transport at animation boundaries.
 inline void* AsOpaqueDword(float Value)
 {
-    unsigned long Bits = 0;
+    FlULong Bits = 0;
     std::memcpy(&Bits, &Value, sizeof(Bits));
     return (void*)Bits;
 }
@@ -175,7 +175,7 @@ inline void* AsOpaqueDword(int Value)
     return (void*)((ptrdiff_t)Value);
 }
 
-inline void* AsOpaqueDword(unsigned long Value)
+inline void* AsOpaqueDword(FlULong Value)
 {
     return (void*)Value;
 }
@@ -208,49 +208,49 @@ struct IAnimation2 : IDAComponent
     virtual GENRESULT DACOM_API FindScriptName(void* Callback, void* Script,
                                               const char* Name, void* Context) = 0;    // 8
     // Root precedes Name; extra arguments remain heterogeneous DWORD carriers.
-    virtual unsigned long DACOM_API PlayScript(void* Script, void* Root, const char* Name,
+    virtual FlULong DACOM_API PlayScript(void* Script, void* Root, const char* Name,
                                                void* ArgD, void* ArgE) = 0;            // 9
     virtual GENRESULT DACOM_API DestroyScript(void* PlaybackId) = 0;                     // 10
-    virtual unsigned long DACOM_API EvalPlayback(unsigned long PlaybackId, unsigned long Flags,
+    virtual FlULong DACOM_API EvalPlayback(FlULong PlaybackId, FlULong Flags,
                                                  float Time, float Scale, void* A, void* B,
                                                  void* C, void* D) = 0;                  // 11
-    virtual unsigned long DACOM_API EvalStored(unsigned long PlaybackId) = 0;             // 12
-    virtual unsigned long DACOM_API ApplyChannels(unsigned long PlaybackId) = 0;          // 13
-    virtual unsigned long DACOM_API StopPlayback(unsigned long PlaybackId) = 0;           // 14
-    virtual unsigned long DACOM_API StopChannels(unsigned long PlaybackId, void* Unused) = 0; // 15
-    virtual float DACOM_API GetStoredDuration(unsigned long PlaybackId) = 0;              // 16
-    virtual unsigned long DACOM_API FilterObjects(void* PlaybackId) = 0;                 // 17
-    virtual unsigned long DACOM_API SetOverlayPos(unsigned long PlaybackId, float* Pos) = 0; // 18
-    virtual unsigned long DACOM_API SetOverlayExtra(unsigned long PlaybackId, float* Extra) = 0; // 19
-    virtual unsigned long DACOM_API HasObject(unsigned long PlaybackId, void* Object) = 0; // 20
-    virtual unsigned long DACOM_API TouchMapped(unsigned long PlaybackId, float* Pos,
+    virtual FlULong DACOM_API EvalStored(FlULong PlaybackId) = 0;             // 12
+    virtual FlULong DACOM_API ApplyChannels(FlULong PlaybackId) = 0;          // 13
+    virtual FlULong DACOM_API StopPlayback(FlULong PlaybackId) = 0;           // 14
+    virtual FlULong DACOM_API StopChannels(FlULong PlaybackId, void* Unused) = 0; // 15
+    virtual float DACOM_API GetStoredDuration(FlULong PlaybackId) = 0;              // 16
+    virtual FlULong DACOM_API FilterObjects(void* PlaybackId) = 0;                 // 17
+    virtual FlULong DACOM_API SetOverlayPos(FlULong PlaybackId, float* Pos) = 0; // 18
+    virtual FlULong DACOM_API SetOverlayExtra(FlULong PlaybackId, float* Extra) = 0; // 19
+    virtual FlULong DACOM_API HasObject(FlULong PlaybackId, void* Object) = 0; // 20
+    virtual FlULong DACOM_API TouchMapped(FlULong PlaybackId, float* Pos,
                                                float* Extra) = 0;                      // 21
-    virtual unsigned long DACOM_API AddOverlayPos(unsigned long PlaybackId, float* Delta) = 0; // 22
-    virtual unsigned long DACOM_API GetFirstInstanceField(unsigned long PlaybackId,
-                                                      unsigned long* Out) = 0;         // 23
-    virtual unsigned long DACOM_API GetDurationIfNamed(unsigned long PlaybackId,
+    virtual FlULong DACOM_API AddOverlayPos(FlULong PlaybackId, float* Delta) = 0; // 22
+    virtual FlULong DACOM_API GetFirstInstanceField(FlULong PlaybackId,
+                                                      FlULong* Out) = 0;         // 23
+    virtual FlULong DACOM_API GetDurationIfNamed(FlULong PlaybackId,
                                                      float* Out) = 0;                  // 24
-    virtual unsigned long DACOM_API GetNamedDurationOut(void* Script, const char* Name,
+    virtual FlULong DACOM_API GetNamedDurationOut(void* Script, const char* Name,
                                                          float* Out) = 0;              // 25
-    virtual unsigned long DACOM_API FindObject(unsigned long PlaybackId, void* Query) = 0; // 26
-    virtual unsigned long DACOM_API MixerWalk(unsigned long PlaybackId, float Time) = 0; // 27
-    virtual unsigned long DACOM_API MixerWalkAll(float Time) = 0;                      // 28
+    virtual FlULong DACOM_API FindObject(FlULong PlaybackId, void* Query) = 0; // 26
+    virtual FlULong DACOM_API MixerWalk(FlULong PlaybackId, float Time) = 0; // 27
+    virtual FlULong DACOM_API MixerWalkAll(float Time) = 0;                      // 28
     virtual void* DACOM_API CreateEmptyScript() = 0;                                      // 29
-    virtual unsigned long DACOM_API AddScriptNames(void* Script, void* FileSystem,
+    virtual FlULong DACOM_API AddScriptNames(void* Script, void* FileSystem,
                                                    const char** Names, int Count) = 0; // 30
-    virtual unsigned long DACOM_API RemoveScriptNames(void* Script, const char** Names,
+    virtual FlULong DACOM_API RemoveScriptNames(void* Script, const char** Names,
                                                     int Count) = 0;                    // 31
     // Callback(name, Context) cdecl per "Animation\Script\<dir>" (engbase FUN_06611a40; the
     // callback is argument 1, not 3 -- freelancer.exe 0x00435272..0x00435282 agrees).
-    virtual unsigned long DACOM_API EnumFsScripts(void* Callback, void* FileSystem,
+    virtual FlULong DACOM_API EnumFsScripts(void* Callback, void* FileSystem,
                                                   void* Context) = 0;                  // 32
-    virtual unsigned long DACOM_API HasScriptName(void* Script, const char* Name) = 0; // 33
-    virtual unsigned long DACOM_API GetScriptNameCount(void* Script, unsigned long* Out) = 0; // 34
-    virtual unsigned long DACOM_API EnumObjects(void* Callback, unsigned long PlaybackId,
+    virtual FlULong DACOM_API HasScriptName(void* Script, const char* Name) = 0; // 33
+    virtual FlULong DACOM_API GetScriptNameCount(void* Script, FlULong* Out) = 0; // 34
+    virtual FlULong DACOM_API EnumObjects(void* Callback, FlULong PlaybackId,
                                                  void* Context) = 0;                    // 35
-    virtual unsigned long DACOM_API RegisterHandle(unsigned long Key) = 0;              // 36
-    virtual unsigned long DACOM_API HasHandle(unsigned long Key, unsigned char* Out) = 0; // 37
-    virtual unsigned long DACOM_API HasAnyHandle(unsigned long Key) = 0;                 // 38
+    virtual FlULong DACOM_API RegisterHandle(FlULong Key) = 0;              // 36
+    virtual FlULong DACOM_API HasHandle(FlULong Key, unsigned char* Out) = 0; // 37
+    virtual FlULong DACOM_API HasAnyHandle(FlULong Key) = 0;                 // 38
 };
 
 using IAnimation = IAnimation2;
@@ -258,7 +258,7 @@ using IAnimation = IAnimation2;
 // Owner callbacks receive samples, channel key, bind descriptor and time.
 struct IChannelOwner
 {
-    virtual int DACOM_API Apply(float* Sampled, unsigned long ChannelKey, void* BindDesc,
+    virtual int DACOM_API Apply(float* Sampled, FlULong ChannelKey, void* BindDesc,
                                 float Time) = 0; // +0x00
 };
 // Keys an event channel (archetype flags 8) crossed in one tick: FUN_0661b120 fills at most
@@ -267,48 +267,48 @@ struct IChannelOwner
 struct FChannelKeyBatch
 {
     float Keys[0x40][2];
-    unsigned long Count;
+    FlULong Count;
 };
 // Key batches and loop transforms borrow context from the bind descriptor.
 struct IChannelSink
 {
-    virtual void DACOM_API OnKeys(unsigned long ChannelKey, void* Context,
+    virtual void DACOM_API OnKeys(FlULong ChannelKey, void* Context,
                                   FChannelKeyBatch* Batch) = 0; // +0x00
     // TODO: purpose of both opaque notification arguments remains unknown.
     virtual void DACOM_API OnOpaqueNotification(void* A, void* B) = 0; // formerly Slot01; +0x04
-    virtual void DACOM_API OnLoop(unsigned long ChannelKey, float* Transform,
+    virtual void DACOM_API OnLoop(FlULong ChannelKey, float* Transform,
                                   void* Context) = 0; // +0x08
 };
 
 struct IChannel : IDAComponent
 {
-    virtual unsigned long DACOM_API CreateTyped(void* Owner, unsigned long Type, void* BindA,
+    virtual FlULong DACOM_API CreateTyped(void* Owner, FlULong Type, void* BindA,
                                                   void* BindB) = 0;                     // 3
-    virtual unsigned long DACOM_API CreateFromObject(void* Object, void* BindA,
+    virtual FlULong DACOM_API CreateFromObject(void* Object, void* BindA,
                                                      void* BindB) = 0;                  // 4
-    virtual unsigned long DACOM_API Destroy(unsigned long Key) = 0;                    // 5
-    virtual unsigned long DACOM_API GetObject(unsigned long Key, void** Out) = 0;       // 6
-    virtual unsigned long DACOM_API Play(unsigned long Key, float* Time) = 0;          // 7
-    virtual unsigned long DACOM_API StopGraph(unsigned long Key) = 0;                  // 8
-    virtual float DACOM_API GetDuration(unsigned long Key) = 0;                         // 9
-    virtual unsigned long DACOM_API Blend(unsigned long Key, float Duration) = 0;        // 10
-    virtual GENRESULT DACOM_API SetUser(unsigned long Key, unsigned long User) = 0;         // 11
-    virtual float DACOM_API GetUser(unsigned long Key) = 0;                            // 12
-    virtual GENRESULT DACOM_API SetOverlayPos(unsigned long Key, float* Pos) = 0;         // 13
-    virtual GENRESULT DACOM_API SetOverlayExtra(unsigned long Key, float* Extra) = 0;  // 14
-    virtual unsigned long DACOM_API InMixer(unsigned long Key) = 0;                    // 15
+    virtual FlULong DACOM_API Destroy(FlULong Key) = 0;                    // 5
+    virtual FlULong DACOM_API GetObject(FlULong Key, void** Out) = 0;       // 6
+    virtual FlULong DACOM_API Play(FlULong Key, float* Time) = 0;          // 7
+    virtual FlULong DACOM_API StopGraph(FlULong Key) = 0;                  // 8
+    virtual float DACOM_API GetDuration(FlULong Key) = 0;                         // 9
+    virtual FlULong DACOM_API Blend(FlULong Key, float Duration) = 0;        // 10
+    virtual GENRESULT DACOM_API SetUser(FlULong Key, FlULong User) = 0;         // 11
+    virtual float DACOM_API GetUser(FlULong Key) = 0;                            // 12
+    virtual GENRESULT DACOM_API SetOverlayPos(FlULong Key, float* Pos) = 0;         // 13
+    virtual GENRESULT DACOM_API SetOverlayExtra(FlULong Key, float* Extra) = 0;  // 14
+    virtual FlULong DACOM_API InMixer(FlULong Key) = 0;                    // 15
     // Hidden result buffer precedes Key and receives the 16-byte bind descriptor.
-    virtual unsigned long* DACOM_API GetHeader(unsigned long* Out, unsigned long Key) = 0;
-    virtual GENRESULT DACOM_API AddOverlayPos(unsigned long Key, float* Delta) = 0;     // 17
-    virtual GENRESULT DACOM_API GetMapped(unsigned long Key, unsigned char* Out) = 0;      // 18
+    virtual FlULong* DACOM_API GetHeader(FlULong* Out, FlULong Key) = 0;
+    virtual GENRESULT DACOM_API AddOverlayPos(FlULong Key, float* Delta) = 0;     // 17
+    virtual GENRESULT DACOM_API GetMapped(FlULong Key, unsigned char* Out) = 0;      // 18
 };
 
 // IRootData — 4 slots. Facet at Animation+0xC.
 struct IRootData : IDAComponent
 {
     // Extra play-header arguments remain opaque; Arg8 is a float payload.
-    virtual unsigned char DACOM_API Eval(unsigned long PlaybackId, void* TouchArg,
-                                         unsigned long Flags, float Time, float Scale,
+    virtual unsigned char DACOM_API Eval(FlULong PlaybackId, void* TouchArg,
+                                         FlULong Flags, float Time, float Scale,
                                          void* Arg6, void* Arg7, float Arg8) = 0; // 3
 };
 
@@ -316,7 +316,7 @@ struct IRootData : IDAComponent
 struct FHardpointKey
 {
     char const* Name;
-    unsigned long Crc;
+    FlULong Crc;
 };
 
 // Enumerates borrowed lowercase names in insertion order; callback result is discarded.
@@ -327,18 +327,18 @@ struct IHardpoint : IDAComponent
 {
     // 3 -- look one hardpoint up by name on an archetype handle and copy its 0x48-byte blob
     // into Out. Non-zero on a hit.
-    virtual unsigned long DACOM_API GetHardpoint(void* Handle, FHardpointKey const* Key,
+    virtual FlULong DACOM_API GetHardpoint(void* Handle, FHardpointKey const* Key,
                                                  void* Out) = 0;                        // 3
-    virtual unsigned long DACOM_API AddHardpoint(void* Handle, FHardpointKey const* Key,
+    virtual FlULong DACOM_API AddHardpoint(void* Handle, FHardpointKey const* Key,
                                                   const void* Data) = 0;                // 4
     virtual GENRESULT DACOM_API EnumerateHardpoints(FHardpointEnumProc Callback,
                                                     void* Handle, void* Context) = 0;    // 5
     // formerly GetRelative; nonzero reports failure when connecting two hardpoints.
-    virtual unsigned long DACOM_API ConnectHardpoints(void* InstA, FHardpointKey const* KeyA,
+    virtual FlULong DACOM_API ConnectHardpoints(void* InstA, FHardpointKey const* KeyA,
                                                       void* InstB,
                                                       FHardpointKey const* KeyB) = 0;     // 6
     // Lookup by a bare CRC; returns a borrowed lowercase name or nullptr.
-    virtual char const* DACOM_API FindHardpoint(void* Handle, unsigned long const* Crc) = 0; // 7
+    virtual char const* DACOM_API FindHardpoint(void* Handle, FlULong const* Crc) = 0; // 7
 };
 
 // ChannelArchetype — 11 slots. Not in [Engine] INI.
@@ -346,7 +346,7 @@ struct IChannelArchetype : IDAComponent
 {
     virtual GENRESULT DACOM_API Load(void* FileSystem) = 0;                             // 3
     virtual GENRESULT DACOM_API GetDuration(float* Out) = 0;                             // 4
-    virtual GENRESULT DACOM_API GetFlags(unsigned long* Out) = 0;                         // 5
+    virtual GENRESULT DACOM_API GetFlags(FlULong* Out) = 0;                         // 5
     virtual GENRESULT DACOM_API Sample(float Time, const unsigned char** OutA,
                                         const unsigned char** OutB, float* Alpha) = 0; // 6
     virtual GENRESULT DACOM_API SamplePair(float Time, const unsigned char** OutLo,
@@ -354,18 +354,18 @@ struct IChannelArchetype : IDAComponent
                                             float* TimeHi, float* Alpha) = 0;           // 7
     virtual GENRESULT DACOM_API GetFrame(unsigned char bLast, const unsigned char** Out) = 0; // 8
     virtual GENRESULT DACOM_API CollectRange(float Time0, float Time1, float* OutKeys,
-                                                unsigned long Capacity, unsigned long* Count) = 0; // 9
-    virtual GENRESULT DACOM_API CollectAt(float Time, float* OutKeys, unsigned long Capacity,
-                                             unsigned long* Count) = 0;                // 10
+                                                FlULong Capacity, FlULong* Count) = 0; // 9
+    virtual GENRESULT DACOM_API CollectAt(float Time, float* OutKeys, FlULong Capacity,
+                                             FlULong* Count) = 0;                // 10
 };
 
 // Aim event parameters; target pointers are borrowed.
 struct FDeformAimDesc
 {
     char const* Name;    // +0x00
-    long RootPart;       // +0x04 the chain's root (end effector's count_to_root-th ancestor)
-    long EndPart;        // +0x08 the end effector
-    unsigned long Flags; // +0x0c
+    FlLong RootPart;       // +0x04 the chain's root (end effector's count_to_root-th ancestor)
+    FlLong EndPart;        // +0x08 the end effector
+    FlULong Flags; // +0x0c
     float* TargetPos;    // +0x10 three floats the aim follows
     float* TargetOrient; // +0x14 nine floats
     float Damping;       // +0x18
@@ -390,8 +390,8 @@ struct FDeformPartDesc
     FDeformLodDesc* Lods;   // +0x04
     int Field08;            // +0x08 TODO: not read by 065f36c0
     char const* Path;       // +0x0C the part file, opened through DACOM_Acquire()
-    unsigned long Flags;    // +0x10 bit 1 (2): skip LOD 0; bit 0 (1): stop after LOD 0
-    unsigned long LodLimit; // +0x14 a mesh whose LOD index is below this (unsigned) gets
+    FlULong Flags;    // +0x10 bit 1 (2): skip LOD 0; bit 0 (1): stop after LOD 0
+    FlULong LodLimit; // +0x14 a mesh whose LOD index is below this (unsigned) gets
                             //       mesh+0x70 = 1 (065f3b3a SETC)
 };
 

@@ -15,7 +15,7 @@
 
 #include "dacom_iids.h"  // every "1.11_*" interface id, in one place
 
-typedef long GENRESULT;
+typedef FlLong GENRESULT;
 
 // Shared DACOM result codes; module-specific failures remain with their modules.
 static const GENRESULT GR_OK = 0;
@@ -29,8 +29,8 @@ static const GENRESULT GR_OUT_OF_MEMORY = (GENRESULT)0xFFFFFFFC;
 struct IDAComponent
 {
     virtual GENRESULT DACOM_API QueryInterface(const char* iid, void** out) = 0;
-    virtual unsigned long DACOM_API AddRef() = 0;
-    virtual unsigned long DACOM_API Release() = 0;
+    virtual FlULong DACOM_API AddRef() = 0;
+    virtual FlULong DACOM_API Release() = 0;
 };
 
 // Aggregate initialization is defined by the concrete component.
@@ -47,14 +47,14 @@ struct IAggregateComponent : IDAComponent
 // 0x08: size and the registered component / interface name (Digital Anvil's field names).
 struct AGGDESC
 {
-    unsigned long size;
+    FlULong size;
     const char* interface_name;
 };
 
 // 0x0C: the "3DMathEngine" request (DA3DMATHDESC). Callers leave Implementation null.
 struct FMathDesc
 {
-    unsigned long Size;          // +0x00  0x0C
+    FlULong Size;          // +0x00  0x0C
     const char* InterfaceName;   // +0x04
     const char* Implementation;  // +0x08
 };
@@ -67,7 +67,7 @@ FL_LAYOUT_ASSERT(sizeof(FMathDesc) == 0xC, "retail AGGDESC / DA3DMATHDESC size 0
 // [System] section.
 struct FAGGDESC14
 {
-    unsigned long Size;          // +0x00  0x14
+    FlULong Size;          // +0x00  0x14
     const char* Name;            // +0x04
     IDAComponent* Outer;         // +0x08  controlling outer, or null
     IDAComponent** InnerOut;     // +0x0C  receives the inner IDAComponent when Outer is set
@@ -80,7 +80,7 @@ FL_LAYOUT_ASSERT(sizeof(FAGGDESC14) == 0x14, "retail AGGDESC size 0x14");
 // RenderManager, Deformable, FLAppearance, VMeshWire).
 struct FAGGDESC18
 {
-    unsigned long Size;              // +0x00  0x18
+    FlULong Size;              // +0x00  0x18
     const char* Name;                // +0x04
     IDAComponent* Outer;             // +0x08
     IDAComponent** InnerOut;         // +0x0C
@@ -94,22 +94,22 @@ FL_LAYOUT_ASSERT(sizeof(FAGGDESC18) == 0x18, "retail AGGDESC size 0x18");
 // DALib::OpenData / ReadFile.dll.c.
 struct FFileSystemDesc
 {
-    unsigned long Size;              // +0x00  0x30 or 0x34
+    FlULong Size;              // +0x00  0x30 or 0x34
     const char* ComponentName;       // +0x04  "FileSystem"
     const char* Implementation;      // +0x08  "DOS" / "UTF" / "MEM"
     const char* Path;                // +0x0C
-    unsigned long Access;            // +0x10  GENERIC_READ 0x80000000
-    unsigned long ShareMode;         // +0x14  FILE_SHARE_READ
+    FlULong Access;            // +0x10  GENERIC_READ 0x80000000
+    FlULong ShareMode;         // +0x14  FILE_SHARE_READ
     void* Security;                  // +0x18
-    unsigned long Creation;          // +0x1C  OPEN_EXISTING 3
-    unsigned long Flags;             // +0x20  0x08000080
+    FlULong Creation;          // +0x1C  OPEN_EXISTING 3
+    FlULong Flags;             // +0x20  0x08000080
     void* TemplateFile;              // +0x24
     IDAComponent* Parent;            // +0x28
-    unsigned long Extra;             // +0x2C
-    unsigned long Field30;           // +0x30  0xFFFFFFFF when Size==0x34
+    FlULong Extra;             // +0x2C
+    FlULong Field30;           // +0x30  0xFFFFFFFF when Size==0x34
     void* MemBuffer;                 // +0x34  MEM size 0x40 only (FUN_06b777f0)
-    unsigned long MemSize;           // +0x38
-    unsigned long MemFlags;          // +0x3C  bit0=wrap pointer, bit1=flag+1
+    FlULong MemSize;           // +0x38
+    FlULong MemFlags;          // +0x3C  bit0=wrap pointer, bit1=flag+1
 };
 
 // Callers fill `Size` (0x30 / 0x34 for DOS and UTF, 0x40 for MEM) and the callee reads
@@ -162,15 +162,15 @@ struct IRegExp : IDAComponent
 namespace DACOM_CRC
 {
     // Retail dacom.dll — CRC32 over lowercased name; keys FUN_065b21e0 / FUN_065b2100 tree.
-    unsigned long __cdecl GetCRC32(const char* str);
+    FlULong __cdecl GetCRC32(const char* str);
     // Retail FUN_065b60b0 (export ordinal 3, ?GetCRC32@DACOM_CRC@@YAKPBD0@Z). begin == end
     // returns 0; any other range never terminates (retail has no exit test). No importer.
-    unsigned long __cdecl GetCRC32(const char* begin, const char* end);
+    FlULong __cdecl GetCRC32(const char* begin, const char* end);
     // Retail FUN_065b6140 — continues a prior GetCRC32/GetContinuedCRC32 result over another
     // string (null str -> initial_crc unchanged; GetContinuedCRC32(0, s) == GetCRC32(s)).
-    unsigned long __cdecl GetContinuedCRC32(unsigned long initial_crc, const char* str);
+    FlULong __cdecl GetContinuedCRC32(FlULong initial_crc, const char* str);
     // Retail FUN_065b6190 — single-character overload, one CRC table step over ch (case-folded).
-    unsigned long __cdecl GetContinuedCRC32(unsigned long initial_crc, char ch);
+    FlULong __cdecl GetContinuedCRC32(FlULong initial_crc, char ch);
     int __cdecl CompareStringsI(const char* a, const char* b);
 }
 
@@ -178,7 +178,7 @@ namespace LogStream
 {
     // ?LogEvent@LogStream@@YAXPBDMK@Z (dacom.dll export, dacom.def). freelancer.exe imports it
     // through .rdata:005c6d1c (sole caller 0x0052fcc5, "Timing_cu.collide.num_bullets").
-    void __cdecl LogEvent(const char* Name, float Value, unsigned long Flags);
+    void __cdecl LogEvent(const char* Name, float Value, FlULong Flags);
 }
 
 #ifdef DACOM_EXPORTS

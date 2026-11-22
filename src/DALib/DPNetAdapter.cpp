@@ -357,7 +357,7 @@ namespace
         {
             char Text[64];
             std::snprintf(Text, sizeof(Text), "%%7B%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X%%7D",
-                          (unsigned long)Guid.Data1, Guid.Data2, Guid.Data3, Guid.Data4[0], Guid.Data4[1],
+                          (FlULong)Guid.Data1, Guid.Data2, Guid.Data3, Guid.Data4[0], Guid.Data4[1],
                           Guid.Data4[2], Guid.Data4[3], Guid.Data4[4], Guid.Data4[5], Guid.Data4[6],
                           Guid.Data4[7]);
             return Text;
@@ -890,7 +890,7 @@ namespace
                 fd_set Readable;
                 FD_ZERO(&Readable);
                 FD_SET(Socket, &Readable);
-                timeval Timeout{0, (long)(kTickMs * 1000)};
+                timeval Timeout{0, (FlLong)(kTickMs * 1000)};
                 select(0, &Readable, nullptr, nullptr, &Timeout);
 
                 std::lock_guard<std::recursive_mutex> Guard(Lock);

@@ -97,7 +97,7 @@ namespace
 }
 
 // Retail .text:065c5840.
-CGunWrapper::CGunWrapper(const char* DllPath, GUID& Guid, const char* ServerNameIn, unsigned long PortIn,
+CGunWrapper::CGunWrapper(const char* DllPath, GUID& Guid, const char* ServerNameIn, FlULong PortIn,
                          wchar_t* CdKey)
 {
     Module = nullptr;
@@ -134,7 +134,7 @@ CGunWrapper::CGunWrapper(const char* DllPath, GUID& Guid, const char* ServerName
 }
 
 // Retail .text:065c5b30: XOR EAX,EAX; RET 8.
-long __stdcall CGunWrapper::Read(Gun2::GUNQueueMessage* Message)
+FlLong __stdcall CGunWrapper::Read(Gun2::GUNQueueMessage* Message)
 {
     (void)Message;
     return 0;

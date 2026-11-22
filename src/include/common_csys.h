@@ -113,7 +113,7 @@ COMMON_API Matrix __cdecl LookMatrixYup(Vector const& Direction);
 // Common.dll.txt:06307900, ?DALib_Engine_get_csys@@YA?AVCsys@@J@Z. The engine instance's
 // transform (slot 40, +0xa0) repackaged as a Csys. Retail dereferences the returned
 // transform without a null check.
-COMMON_API Csys __cdecl DALib_Engine_get_csys(long Handle);
+COMMON_API Csys __cdecl DALib_Engine_get_csys(FlLong Handle);
 
 // Common.dll.txt:06303c10, ?GetDirectionMatrix@@YA?AVMatrix@@ABVTransform@@ABVVector@@@Z.
 // Orthonormal basis whose column 2 points from Target back to the transform. Column 1 is
@@ -187,7 +187,7 @@ COMMON_API Matrix __cdecl EulerMatrix(Vector const& AnglesDegrees);
 COMMON_API float __cdecl Csys_error(Csys const& A, Csys const& B);
 // Retail takes both frames by value: ?Csys_interpolate@@YA?AVCsys@@V1@0M@Z.
 COMMON_API Csys __cdecl Csys_interpolate(Csys A, Csys B, float T);
-COMMON_API void __cdecl DALib_Engine_set_csys(long Handle, Csys const& InCsys);
+COMMON_API void __cdecl DALib_Engine_set_csys(FlLong Handle, Csys const& InCsys);
 
 // Returns x86math.dll's 3DMathEngine singleton (DACOM CreateInstance by component name).
 // The return type used to be void*, so all 113 call sites in the tree had to cast it

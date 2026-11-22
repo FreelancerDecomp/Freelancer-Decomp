@@ -37,7 +37,7 @@ struct IRenderer2 : IDAComponent
     virtual int DACOM_API GetCentroid(void* Id, float Lod, void* Out) = 0; // formerly Slot5
     virtual int DACOM_API NoOp(void* A, void* B, void* C, void* D, void* E, void* F,
                                 void* G) = 0; // formerly Slot6
-    virtual int DACOM_API RenderInstance(void* Camera, void* Inst, float Threshold, unsigned long Flags,
+    virtual int DACOM_API RenderInstance(void* Camera, void* Inst, float Threshold, FlULong Flags,
                                 void* Matrix, void* Extra) = 0; // formerly Slot7
     virtual int DACOM_API GetInstanceLodCount(void* Inst, void* Out) = 0; // formerly Slot8
     virtual int DACOM_API GetInstanceCurrentLod(void* Inst, void* Out) = 0; // formerly Slot9
@@ -52,9 +52,9 @@ struct IRenderer2 : IDAComponent
     virtual int DACOM_API SetInstanceLodRange(void* Inst, int Index, float A, float B) = 0; // formerly Slot17
     virtual int DACOM_API QueryGeometryAtLod(void* A, void* B, void* C, void* D, void* E, void* F,
                                  void* G) = 0; // formerly Slot18
-    virtual int DACOM_API SetArchetypeRootLodSelection(void* Id, void* Unused, unsigned long Flags) = 0; // formerly Slot19
+    virtual int DACOM_API SetArchetypeRootLodSelection(void* Id, void* Unused, FlULong Flags) = 0; // formerly Slot19
     virtual int DACOM_API SetInstanceRootLodSelection(void* Id, void* A, void* B) = 0; // formerly Slot20
-    virtual int DACOM_API GetArchetypeRootLodSelection(void* Key, void* Unused, unsigned long* Out) = 0; // formerly Slot21
+    virtual int DACOM_API GetArchetypeRootLodSelection(void* Key, void* Unused, FlULong* Out) = 0; // formerly Slot21
     virtual int DACOM_API GetInstanceRootLodSelection(void* Id, void* A, void* B) = 0; // formerly Slot22
 };
 
@@ -75,7 +75,7 @@ struct IRenderComponent : IDAComponent
     virtual int DACOM_API GetCentroid(void* Handle, float Lod, void* Out) = 0; // formerly Slot14
     virtual int DACOM_API SplitByPlane(void* Handle, void* A, void* B, void* C, void* D, void* E,
                                  void* F) = 0; // formerly Slot15
-    virtual int DACOM_API RenderInstance(ICamera* Camera, void* Handle, void* Inst, unsigned long Flags,
+    virtual int DACOM_API RenderInstance(ICamera* Camera, void* Handle, void* Inst, FlULong Flags,
                                  void* Matrix, void* Extra) = 0; // formerly Slot16
     virtual int DACOM_API BindMeshInstance(void* Inst, void* Handle) = 0; // formerly Slot17
 };
@@ -103,7 +103,7 @@ struct FVmeshDataHeader;
 struct IVMeshPart : IDAComponent
 {
     // +0x0C LAB_06c319e0 (RET 0x14): draw every facegroup of the part.
-    virtual bool DACOM_API Draw(ICamera* Camera, void* Inst, unsigned long Flags,
+    virtual bool DACOM_API Draw(ICamera* Camera, void* Inst, FlULong Flags,
                                 const void* Matrix, IMaterial* Override) = 0;
     // +0x10 FUN_06c31950 (RET 8): make the group VB/IB current; fills a 12-byte VB listing
     // {VB, FVF, base vertex} and an 8-byte IB scratch {IB, start index}.
@@ -150,7 +150,7 @@ struct FVmeshDataHeader
     unsigned char Flags;        // +0x00 bit0 set = facegroup-relative indices (FUN_06c2d5a0);
                                 //        clear = "mesh in old format" (FUN_06c2dd20 refuses it)
     unsigned char Unread01[3];  // +0x01..+0x03 unread
-    unsigned long PrimitiveType; // +0x04 IMaterial::Submit PrimType (LAB_06c319e0), IMesh Slot13
+    FlULong PrimitiveType; // +0x04 IMaterial::Submit PrimType (LAB_06c319e0), IMesh Slot13
     unsigned short FaceGroups;  // +0x08
     unsigned short Indices;     // +0x0A
     unsigned short Fvf;         // +0x0C
@@ -160,15 +160,15 @@ struct FVmeshDataHeader
 // VMeshRef record 0x3C. +0x00 unread. +0x04 is the VMeshData CRC (LAB_06c317b0).
 struct FVmeshRef
 {
-    unsigned long Unread00;     // +0x00 unread
-    unsigned long Crc;          // +0x04 VMeshData key (LAB_06c317b0)
+    FlULong Unread00;     // +0x00 unread
+    FlULong Crc;          // +0x04 VMeshData key (LAB_06c317b0)
     unsigned short VertexStart; // +0x08 FUN_06c31500 / FUN_06c31950
     unsigned short VertexCount; // +0x0A
     unsigned short IndexStart;  // +0x0C FUN_06c31950 / LAB_06c319e0
     unsigned short IndexCount;  // +0x0E IRenderableMesh Slot5/Slot6 (LAB_06c30f70 / LAB_06c30f10)
     unsigned short FacegroupStart; // +0x10
     unsigned short FacegroupCount; // +0x12
-    unsigned long Box14[6];     // +0x14 copied out whole by FUN_06c310a0 (IRC Slot13)
+    FlULong Box14[6];     // +0x14 copied out whole by FUN_06c310a0 (IRC Slot13)
     float Extra2C[3];           // +0x2C center (FUN_06c310c0 / FUN_06c310f0)
     float Extra38;              // +0x38 radius (FUN_06c310c0 / SetInstanceExtent)
 };
@@ -176,7 +176,7 @@ struct FVmeshRef
 // Facegroup 0xC (header +0x10 + 12 * index).
 struct FVmeshFacegroup
 {
-    unsigned long MaterialCrc;  // +0x00 IMaterialLibrary Slot16 key (LAB_06c317b0)
+    FlULong MaterialCrc;  // +0x00 IMaterialLibrary Slot16 key (LAB_06c317b0)
     unsigned short VertexBegin; // +0x04 added onto each index (FUN_06c2d5a0), Submit Start
     unsigned short VertexEnd;   // +0x06 Submit Count = End - Begin + 1 (LAB_06c319e0)
     unsigned short IndexCount;  // +0x08
@@ -188,7 +188,7 @@ struct FVwireDataHeader
 {
     unsigned short Unread00;    // +0x00
     unsigned short Unread02;    // +0x02
-    unsigned long Crc;          // +0x04 VMeshData key (FUN_06c2f7e0 / FUN_06c2f820)
+    FlULong Crc;          // +0x04 VMeshData key (FUN_06c2f7e0 / FUN_06c2f820)
     unsigned short IbBias;      // +0x08 added to VMeshData+0x14 for select_ib (FUN_06c2f820)
     unsigned short RemapCount;  // +0x0A unread in RendComp (the exe part cache reads it)
     unsigned short Count;       // +0x0C index count: CopyIndices and the draw count

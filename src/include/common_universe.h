@@ -311,11 +311,11 @@ namespace Universe
         virtual Vector const& GetPos() const = 0;               // +0x10 063390a0  LEA +0x30
         virtual Matrix const& GetOrientation() const = 0;       // +0x14 062d1ae0  LEA +0x0c
         virtual unsigned GetShape() const = 0;                  // +0x18 0626c6b0  [+0x3c]
-        virtual unsigned long GetProperties() const = 0;        // +0x1c 062a6690  [+0x40]
+        virtual FlULong GetProperties() const = 0;        // +0x1c 062a6690  [+0x40]
         virtual bool Slot20() const = 0;                        // +0x20 063390b0  flags & 0x18000
         virtual Vector const& GetFogColor() const = 0;          // +0x24 063390c0  LEA +0x78 property_fog_color (formerly Slot24)
         virtual Vector GetSize() const = 0;                     // +0x28 063390d0  copy of +0x44
-        virtual long GetMeshHandle() const = 0;                 // +0x2c 063390f0  [+0x50] (formerly Slot2C)
+        virtual FlLong GetMeshHandle() const = 0;                 // +0x2c 063390f0  [+0x50] (formerly Slot2C)
         virtual float GetRadius() const = 0;                    // +0x30 06339100  cached +0x68
 
         // W6-ZONE: ready for pub::System::InZones
@@ -371,7 +371,7 @@ namespace Universe
         unsigned Shape;                    // +0x3c EZoneShape
         unsigned PropertyFlags;            // +0x40
         Vector Size;                       // +0x44
-        long MeshHandle = -1;              // +0x50 Archetype::Load("mesh"); -1 when none
+        FlLong MeshHandle = -1;              // +0x50 Archetype::Load("mesh"); -1 when none
         float EdgeFraction;                // +0x54 clamped to [0, 1]
         mutable int PhysicalEffect = -1;   // +0x58 slot +0x54's cache, -1 until computed
         float DragModifier;                // +0x5c
