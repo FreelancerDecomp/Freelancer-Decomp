@@ -27,10 +27,24 @@ PATH_ENCODING = "mbcs" if os.name == "nt" else "utf-8"
 
 
 def rewrite_paths(data, bin_abs, out_abs):
-    """Replace every bin_abs prefix in data (bytes) with out_abs, ignoring case, for \\ and /."""
+    """Replace every bin_abs prefix in data (bytes) with out_abs, ignoring case, for \\ and /.
+
+    A bin_abs the ANSI code page cannot spell cannot occur in the file, so data is returned
+    unchanged. An out_abs it cannot spell cannot be written either: those paths keep pointing
+    at bin\\, with a warning."""
     for sep in (os.sep, "/"):
-        old = bin_abs.replace(os.sep, sep).encode(PATH_ENCODING)
-        new = out_abs.replace(os.sep, sep).encode(PATH_ENCODING)
+        try:
+            old = bin_abs.replace(os.sep, sep).encode(PATH_ENCODING)
+        except UnicodeEncodeError:
+            return data
+        if not re.search(re.escape(old), data, flags=re.IGNORECASE):
+            continue
+        try:
+            new = out_abs.replace(os.sep, sep).encode(PATH_ENCODING)
+        except UnicodeEncodeError:
+            print("copy_dev_ini: %s has no %s spelling; its paths are left pointing at bin"
+                  % (out_abs, PATH_ENCODING), file=sys.stderr)
+            return data
         data = re.sub(re.escape(old), lambda _match: new, data, flags=re.IGNORECASE)
     return data
 
@@ -55,9 +69,10 @@ def main():
         dest_path = os.path.join(out_dir, name)
         if name.lower().endswith(".ini"):
             with open(src_path, "rb") as handle:
-                data = handle.read()
+                data = rewrite_paths(handle.read(), bin_abs, out_abs)
+            # Rewritten before the copy is opened, so a failure cannot leave it truncated.
             with open(dest_path, "wb") as handle:
-                handle.write(rewrite_paths(data, bin_abs, out_abs))
+                handle.write(data)
         elif name.lower() in VERBATIM_FILES:
             shutil.copyfile(src_path, dest_path)
         else:
