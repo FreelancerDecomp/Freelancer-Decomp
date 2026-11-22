@@ -481,7 +481,7 @@ namespace
     }
 
     // FUN_00533930 (cdecl) -- the same shape as FUN_00533880 around Slot8 (+0x20) (arg1, arg2).
-    bool GetAppearanceOverrideMaterial(unsigned long Index, void** Out)
+    bool GetAppearanceOverrideMaterial(FlULong Index, void** Out)
     {
         IFLAppearance* Ifl = nullptr;
         if (DALib::Engine->QueryInterface(Iids::FLAppearance, reinterpret_cast<void**>(&Ifl)) < 0)
@@ -721,7 +721,7 @@ namespace
     // static initializer LAB_004f6ed0 sets it to -1 and nothing else writes it (XREFs 004f6ed0 W,
     // 004f774d R). -1 is FUN_00403ea0's "current list" key DAT_0061648c: the container of the
     // current material key is flushed.
-    unsigned long G_EffectsListKey = 0xffffffffu;
+    FlULong G_EffectsListKey = 0xffffffffu;
 
     // FUN_00538200 (thiscall on the pool DAT_00675578, RET 0xc: out slot, node, query),
     // listing-traced 0x00538200..0x005382e4. `this` is only handed on to the recursion, so the
@@ -1627,7 +1627,7 @@ namespace
             if (GetGameOption(kGameOptParticles) != 0 && Alchemy != nullptr)
             {
                 GENRESULT const BeginHr = Alchemy->BeginDraw();
-                if (static_cast<long>(BeginHr) >= 0)
+                if (static_cast<FlLong>(BeginHr) >= 0)
                 {
                     if (TypeIndex >= 0)
                     {
@@ -2316,7 +2316,7 @@ unsigned* GameobjSubmitDrawRetail(FClientGameobj* Self, unsigned* OutLod, void* 
     // the player, FUN_004022d0(&Scale) (DAT_006101d4) FCOMP double 0.75 (DAT_005debf8), TEST
     // AH,0x41 / JP: greater or unordered -> 0; otherwise FUN_00402580(get_index (vt+0x1c), 1, 0)
     // with its result unused, and 0x80.
-    unsigned long Flags = 0;
+    FlULong Flags = 0;
     if (static_cast<void*>(static_cast<IObjRW*>(Self)) != GetPlayerObjRW())
     {
         Flags = 8u;
@@ -2350,7 +2350,7 @@ unsigned* GameobjSubmitDrawRetail(FClientGameobj* Self, unsigned* OutLod, void* 
     }
 
     // 0x00539a5f..0x00539a68: EBX = get_index (vt+0x1c).
-    long const Inst = Self->get_index();
+    FlLong const Inst = Self->get_index();
 
     // 0x00539a66..0x00539a8d: FUN_005b3510(0) FCOMP 0.0f (DAT_005c7474), TEST AH,0x41 / JNZ
     // (not above, NaN included, skips); high word below 1; Extra null.
@@ -2420,7 +2420,7 @@ unsigned* EquippedObjSubmitDrawRetail(FClientEquippedObj* Self, unsigned* OutLod
         // FUN_00533880(get_index (vt+0x1c), the float's bits).
         float const Opacity = static_cast<float>(1.0 - static_cast<double>(Fade));
         Self->Field_0xe0 = 1;
-        long const Inst = Self->get_index();
+        FlLong const Inst = Self->get_index();
         void* OpacityBits = nullptr;
         memcpy(&OpacityBits, &Opacity, sizeof(float));
         SetAppearanceInstanceValue(reinterpret_cast<void*>(static_cast<intptr_t>(Inst)), OpacityBits);
@@ -2439,7 +2439,7 @@ unsigned* EquippedObjSubmitDrawRetail(FClientEquippedObj* Self, unsigned* OutLod
     {
         // 0x00533827..0x0053384c: +0xe0 = 0; get_index != -1 -> FUN_00532170(index).
         Self->Field_0xe0 = 0;
-        long const Inst = Self->get_index();
+        FlLong const Inst = Self->get_index();
         if (Inst != -1)
             RemoveAppearanceInstanceValue(static_cast<int>(Inst));
     }
@@ -2769,9 +2769,9 @@ void SpaceObjDrawPass(FSpaceCamera* Cam, unsigned LayerFlags, unsigned Param2)
             if (!NebulaVolume::ShowsRealBackground())
 #endif
             {
-                ClearR = static_cast<unsigned char>(static_cast<long>(static_cast<double>(Col[0]) * 255.0f));
-                ClearG = static_cast<unsigned char>(static_cast<long>(static_cast<double>(Col[1]) * 255.0f));
-                ClearB = static_cast<unsigned char>(static_cast<long>(static_cast<double>(Col[2]) * 255.0f));
+                ClearR = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(Col[0]) * 255.0f));
+                ClearG = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(Col[1]) * 255.0f));
+                ClearB = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(Col[2]) * 255.0f));
             }
         }
     }

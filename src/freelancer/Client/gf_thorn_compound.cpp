@@ -20,7 +20,7 @@ namespace
         "E:\\FL\\Scratch\\Source\\Client\\Gf\\ScriptCompound.cpp";
 
     void* const kCompoundNoAnimScript = reinterpret_cast<void*>(static_cast<intptr_t>(-1));
-    unsigned long const kCompoundNoPlayback = 0xFFFFFFFFu;
+    FlULong const kCompoundNoPlayback = 0xFFFFFFFFu;
 
     // DAT_0066d11c -- this file's 3DMathEngine, acquired (FUN_005b73e0) on first use by each of
     // the eight bodies that read it (0x00451515 .. 0x00451d17; nothing else references it).
@@ -33,7 +33,7 @@ namespace
         return G_ThornCompoundMath;
     }
 
-    void* InstancePointer(long Instance)
+    void* InstancePointer(FlLong Instance)
     {
         return reinterpret_cast<void*>(static_cast<intptr_t>(Instance));
     }
@@ -174,12 +174,12 @@ GENRESULT DACOM_API FThornCompound::StartMotion(void* DescArg)
 
     EventId[Slot] = Desc->Common.UniqueId;
     bPlaying[Slot] = 1;
-    unsigned long const PlaybackId = DALib::Anim->PlayScript(
+    FlULong const PlaybackId = DALib::Anim->PlayScript(
         AnimScript, InstancePointer(Instance), Desc->Animation, nullptr, nullptr);
     Playback[Slot] = PlaybackId;
     if (PlaybackId != kCompoundNoPlayback)
     {
-        DALib::Anim->EvalPlayback(PlaybackId, static_cast<unsigned long>(Desc->Common.EventFlags),
+        DALib::Anim->EvalPlayback(PlaybackId, static_cast<FlULong>(Desc->Common.EventFlags),
                                   Desc->StartTime, Desc->TimeScale,
                                   AsOpaqueDword(Desc->TransTime), AsOpaqueDword(Desc->Weight),
                                   AsOpaqueDword(Desc->TransScale), nullptr);
@@ -271,7 +271,7 @@ GENRESULT DACOM_API FThornCompound::GetHardpointXform(int TargetType, char const
             int const Index = Hardpoints.find_name(Name);
             if (Index == -1)
                 return GR_GENERIC;
-            long const HpInstance = Hardpoints.get_instance(Index);
+            FlLong const HpInstance = Hardpoints.get_instance(Index);
             HardpointInfo const Info = Hardpoints.get_info(Index);
             Vector const InstPos = *reinterpret_cast<Vector const*>(
                 DALib::Engine->GetInstancePosition(InstancePointer(HpInstance)));
@@ -441,7 +441,7 @@ void FThornCompound::SetFlags(unsigned char bVisible, unsigned char bLit, unsign
 }
 
 // FUN_00451330.
-void FThornCompound::SetInstance(long InInstance)
+void FThornCompound::SetInstance(FlLong InInstance)
 {
     Instance = InInstance;
     Hardpoints.destroy();

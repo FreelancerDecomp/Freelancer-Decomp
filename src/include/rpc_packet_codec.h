@@ -115,8 +115,8 @@ public:
     void PutReserved(const void* Value, unsigned int Width) {
         const std::uintptr_t Destination = Packet.MarshalPtr;
         const unsigned int DwordBytes = Width & ~3u;
-        __movsd(reinterpret_cast<unsigned long*>(Destination),
-            static_cast<const unsigned long*>(Value), Width >> 2);
+        __movsd(reinterpret_cast<FlULong*>(Destination),
+            static_cast<const FlULong*>(Value), Width >> 2);
         __movsb(reinterpret_cast<unsigned char*>(Destination + DwordBytes),
             static_cast<const unsigned char*>(Value) + DwordBytes, Width & 3u);
         Packet.MarshalPtr = Destination + Width;
@@ -338,7 +338,7 @@ public:
     }
     // TODO: recover the semantic name of the first native DWORD argument.
     unsigned int Field_0x00;
-    unsigned long MissionId;
+    FlULong MissionId;
     unsigned char bAccepted;
 };
 

@@ -33,9 +33,9 @@ namespace HandleValue
         struct FTable
         {
             std::mutex Lock;
-            std::unordered_map<const void*, unsigned long> Ids;
-            std::unordered_map<unsigned long, const void*> Objects;
-            unsigned long NextId = 1;
+            std::unordered_map<const void*, FlULong> Ids;
+            std::unordered_map<FlULong, const void*> Objects;
+            FlULong NextId = 1;
         };
 
         inline FTable& Table()
@@ -46,7 +46,7 @@ namespace HandleValue
     }
 
     // The value that names Object (null gives 0).
-    inline unsigned long Of(const void* Object)
+    inline FlULong Of(const void* Object)
     {
         if (Object == nullptr)
             return 0;
@@ -55,7 +55,7 @@ namespace HandleValue
         const auto Found = Table.Ids.find(Object);
         if (Found != Table.Ids.end())
             return Found->second;
-        unsigned long Id = Table.NextId;
+        FlULong Id = Table.NextId;
         while (Id == 0 || Id == 0xFFFFFFFFu || Table.Objects.contains(Id))
             Id = Id + 1;
         Table.NextId = Id + 1;
@@ -65,7 +65,7 @@ namespace HandleValue
     }
 
     // The object a value names, or null for a value this module never made.
-    inline const void* ObjectOf(unsigned long Value)
+    inline const void* ObjectOf(FlULong Value)
     {
         if (Value == 0)
             return nullptr;
@@ -90,12 +90,12 @@ namespace HandleValue
         Table.Ids.erase(Found);
     }
 #else
-    inline unsigned long Of(const void* Object)
+    inline FlULong Of(const void* Object)
     {
-        return (unsigned long)(Object);
+        return (FlULong)(Object);
     }
 
-    inline const void* ObjectOf(unsigned long Value)
+    inline const void* ObjectOf(FlULong Value)
     {
         return (const void*)(Value);
     }
@@ -107,7 +107,7 @@ namespace HandleValue
 
     // ObjectOf, typed.
     template <class T>
-    T* To(unsigned long Value)
+    T* To(FlULong Value)
     {
         return (T*)(ObjectOf(Value));
     }

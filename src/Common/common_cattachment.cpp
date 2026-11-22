@@ -28,7 +28,7 @@ namespace
     // FUN_0628f700 (VC6 vector<FPartMapEntry>::_Insert_n on CObject+0x64). Every call site
     // (CNonPhysAttachment::Connect 062939a2, EnableCollisions 0629382e) inserts one element at
     // _Last, i.e. a push_back onto CObject::PartMap.
-    void AppendPartMapEntry(CObject* Owner, unsigned PartId, long InstanceId, bool bShieldPart)
+    void AppendPartMapEntry(CObject* Owner, unsigned PartId, FlLong InstanceId, bool bShieldPart)
     {
         FPartMapEntry Entry;
         Entry.PartId = PartId;
@@ -39,7 +39,7 @@ namespace
 
     // 0629386c (EnableCollisions(false)): the first PartMap entry for InstanceId is erased (tail
     // shifted down one slot) and its shield byte handed back; false when there is none.
-    bool RemovePartMapEntryByInstance(CObject* Owner, long InstanceId, unsigned char& OutFlag)
+    bool RemovePartMapEntryByInstance(CObject* Owner, FlLong InstanceId, unsigned char& OutFlag)
     {
         // No null check: retail 0629383f reads Owner+0x68 directly.
         for (std::vector<FPartMapEntry>::iterator It = Owner->PartMap.begin(); It != Owner->PartMap.end(); ++It)
@@ -88,10 +88,10 @@ namespace
     // that frame) through IEngine::CreateJoint; otherwise IHardpoint::ConnectHardpoints. Returns
     // the child's IEngine::GetInstanceRelative block, or null when either archetype or
     // hardpoint lookup fails. Both archetype handles are released, also when they are -1.
-    unsigned long* ConnectAttachedHardpoints(long ParentInst, char const* ParentHp, long ChildInst,
+    FlULong* ConnectAttachedHardpoints(FlLong ParentInst, char const* ParentHp, FlLong ChildInst,
                                              char const* ChildHp)
     {
-        unsigned long* Result = nullptr;
+        FlULong* Result = nullptr;
         void* ParentHandle = DALib::Engine->GetInstanceArchetype((void*)ParentInst); // +0x64
         if (ParentHandle != (void*)-1)
         {
@@ -165,7 +165,7 @@ namespace
                                 Joint.Max = ChildData.Max;
                             }
                             DALib::Engine->CreateJoint((void*)ParentInst, (void*)ChildInst,
-                                                       (unsigned long const*)&Joint); // +0xbc
+                                                       (FlULong const*)&Joint); // +0xbc
                         }
                         else
                         {
@@ -234,7 +234,7 @@ CNonPhysAttachment::~CNonPhysAttachment()
     // with the owner's instance tree.
 }
 
-long CNonPhysAttachment::GetRootIndex() const
+FlLong CNonPhysAttachment::GetRootIndex() const
 {
     return EngineInstanceId;
 }
@@ -420,7 +420,7 @@ CPhysAttachment::~CPhysAttachment()
     }
 }
 
-long CPhysAttachment::GetRootIndex() const
+FlLong CPhysAttachment::GetRootIndex() const
 {
     if (EquipObject == nullptr)
         return -1;
@@ -471,9 +471,9 @@ bool CPhysAttachment::Connect(CAttachedEquip* Equip)
     // 06293dea-06293e19: the child hardpoint (Arch+0x80) and the instance id are read first,
     // then GetParentHPName (vt+0x60), then GetParentConnector(false) (vt+0x64).
     char const* ChildHp = Arch->HpChild.Value;
-    long const Inst = EquipObject->EngineInstanceId;
+    FlLong const Inst = EquipObject->EngineInstanceId;
     char const* ParentHp = Equip->GetParentHPName().Value;
-    long const ParentInst = Equip->GetParentConnector(false);
+    FlLong const ParentInst = Equip->GetParentConnector(false);
     if (ConnectAttachedHardpoints(ParentInst, ParentHp, Inst, ChildHp) == nullptr)
     {
         // 06293f50-06293f8c.

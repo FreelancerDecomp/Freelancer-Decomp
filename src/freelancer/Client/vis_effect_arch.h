@@ -31,7 +31,7 @@ struct FVisEffectArch
     // node build clears it first (CacheString::clear, the port's "").
     char const* Nickname = "";
     char AlchemyPath[MAX_PATH];      // +0x08  "alchemy", StringAlloc'd
-    unsigned long EffectCrc = 0;     // +0x04  "effect_crc" bit pattern (may be negative in source)
+    FlULong EffectCrc = 0;     // +0x04  "effect_crc" bit pattern (may be negative in source)
     std::vector<std::string> Textures; // +0x0c..+0x18  "textures", one per key
     bool bHasAlpha = false;          // +0x1c  bit 0, "has_alpha"
     int RefCount = 0;                // +0x20

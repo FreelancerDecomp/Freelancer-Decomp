@@ -423,7 +423,7 @@ namespace
     }
 }
 
-void CliEffectListDetachPart(void* ListOwnerPlus28, long PartIndex, FClientGameobj* NewOwner)
+void CliEffectListDetachPart(void* ListOwnerPlus28, FlLong PartIndex, FClientGameobj* NewOwner)
 {
     // FUN_004fd230 (thiscall on the list, RET 8). Every effect node attached to PartIndex or
     // one of its descendants leaves this list: with NewOwner, one that is still alive moves to
@@ -445,13 +445,13 @@ void CliEffectListDetachPart(void* ListOwnerPlus28, long PartIndex, FClientGameo
         // sound's attach handle (slot 39), else, for a light-only node, the dword at absolute
         // address 0x40 (`a1 40 00 00 00` at 0x004fd27f: retail faults there). A node with
         // nothing, or with instance -1, stays.
-        long InstIndex = 0;
+        FlLong InstIndex = 0;
         if (Particle != nullptr)
             InstIndex = Particle->EngineIndex;
         else if (Sound != nullptr)
             InstIndex = Sound->GetAttachHandle();
         else if (Companion[3] != nullptr)
-            InstIndex = *reinterpret_cast<long volatile*>(static_cast<uintptr_t>(0x40));
+            InstIndex = *reinterpret_cast<FlLong volatile*>(static_cast<uintptr_t>(0x40));
         else
             continue;
         if (InstIndex == -1)
@@ -1099,7 +1099,7 @@ void CliLauncherPlayMuzzleFx(FCliLauncherFx* Launcher)
     if (Launcher->AnimJointIndex.Value != -1)
     {
         DALib::Anim->EvalPlayback(
-            static_cast<unsigned long>(Launcher->AnimJointIndex.Value), 0, 0.0f, 1.0f, nullptr,
+            static_cast<FlULong>(Launcher->AnimJointIndex.Value), 0, 0.0f, 1.0f, nullptr,
             AsOpaqueDword(1.0f), AsOpaqueDword(1.0f), nullptr);
         AnimDB::Add(Launcher->AnimJointIndex.Value);
     }
@@ -1772,9 +1772,9 @@ FLauncherAnimHandle::~FLauncherAnimHandle()
     // inlined at 0x0052cc56 at the end of FUN_0052caa0.
     if (Value != -1)
     {
-        DALib::Anim->StopPlayback(static_cast<unsigned long>(Value));        // vt+0x38
+        DALib::Anim->StopPlayback(static_cast<FlULong>(Value));        // vt+0x38
         DALib::Anim->DestroyScript(reinterpret_cast<void*>(
-            static_cast<uintptr_t>(static_cast<unsigned long>(Value))));    // vt+0x28
+            static_cast<uintptr_t>(static_cast<FlULong>(Value))));    // vt+0x28
         Value = -1;
     }
 }
@@ -1900,9 +1900,9 @@ FCliLauncherFx::~FCliLauncherFx()
     AnimDB::Rem(AnimJointIndex.Value);
     if (AnimJointIndex.Value != -1)
     {
-        DALib::Anim->StopPlayback(static_cast<unsigned long>(AnimJointIndex.Value));
+        DALib::Anim->StopPlayback(static_cast<FlULong>(AnimJointIndex.Value));
         DALib::Anim->DestroyScript(reinterpret_cast<void*>(
-            static_cast<uintptr_t>(static_cast<unsigned long>(AnimJointIndex.Value))));
+            static_cast<uintptr_t>(static_cast<FlULong>(AnimJointIndex.Value))));
         AnimJointIndex.Value = -1;
     }
     // 0x0052cbe3..0x0052cbea: the multi_sparks02 arch released (FUN_0040e990).
@@ -1922,9 +1922,9 @@ void FCliLauncherFx::DropOnDestroying()
     AnimDB::Rem(AnimJointIndex.Value);
     if (AnimJointIndex.Value != -1)
     {
-        DALib::Anim->StopPlayback(static_cast<unsigned long>(AnimJointIndex.Value));
+        DALib::Anim->StopPlayback(static_cast<FlULong>(AnimJointIndex.Value));
         DALib::Anim->DestroyScript(reinterpret_cast<void*>(
-            static_cast<uintptr_t>(static_cast<unsigned long>(AnimJointIndex.Value))));
+            static_cast<uintptr_t>(static_cast<FlULong>(AnimJointIndex.Value))));
         AnimJointIndex.Value = -1;
     }
     // 0x0052ccf9..0x0052cd03: FUN_004fcef0 on the host's effect list (+0x28) with &this+0x30.
@@ -1968,7 +1968,7 @@ bool FCliLauncherFx::Update(float Dt)
                 ID_String SparksId;
                 SparksId.Id = CreateID("multi_sparks02");
                 FTransform const Local = IdentityTransform();
-                long const Part = static_cast<CAttachedEquip*>(Launch)->GetRootIndex();
+                FlLong const Part = static_cast<CAttachedEquip*>(Launch)->GetRootIndex();
                 // 0x0052ce3d..0x0052ce6b: an empty id ends here; otherwise FUN_0040f080 and
                 // FUN_00503070 on DAT_00674c60 with the host and &this+0x30.
                 if (!SparksId.IsEmpty())
@@ -2137,7 +2137,7 @@ namespace
         if (UseAnimation[0] != '\0')
         {
             int const ScriptIndex = LaunchArch->AnimIndex;
-            long const RootIndex = Launch->GetRootIndex();
+            FlLong const RootIndex = Launch->GetRootIndex();
             Wrapper->AnimJointIndex.Value = static_cast<int>(DALib::Anim->PlayScript(
                 AsOpaqueDword(ScriptIndex), AsOpaqueDword(static_cast<int>(RootIndex)),
                 UseAnimation, nullptr, nullptr));
@@ -2247,7 +2247,7 @@ FCliLauncherFx* CliGunEquipFxConstruct(CEquip* Equip, void* Host)
         // 0x0052d95e..0x0052d9de: looping (vtable +0x88 with 1), then posed (vtable +0x94) on
         // the equipment's root (vtable +0x84) with an identity frame.
         Wrapper->TurretVoice->SetLooping(1);
-        long const RootIndex = Wrapper->LaunchEquip()->GetRootIndex();
+        FlLong const RootIndex = Wrapper->LaunchEquip()->GetRootIndex();
         FTransform const Identity = IdentityTransform();
         Wrapper->TurretVoice->SetPose(static_cast<int>(RootIndex),
                                       reinterpret_cast<float const*>(&Identity));

@@ -21,7 +21,7 @@ namespace
 
     // EngineObject::update_tree .text:0627caf0..0627cb05: IEngine +0x6c UpdateInstance(
     // instance, 0, 0) -- no test on DALib::Engine.
-    void UpdateEngineInstance(long Instance)
+    void UpdateEngineInstance(FlLong Instance)
     {
         DALib::Engine->UpdateInstance((void*)Instance, 0, nullptr);
     }
@@ -49,20 +49,20 @@ EngineObject::~EngineObject()
 {
 }
 
-void DACOM_API EngineObject::initialize_instance(long Inst)
+void DACOM_API EngineObject::initialize_instance(FlLong Inst)
 {
     // Listing 0xa9910. this+4 = FEngineInstance*.
     EngineInstanceId = (int)Inst;
     CmnCobject::ClassListKeysChanged(this); // PORT(perf-index): the class-list index
 }
 
-void DACOM_API EngineObject::create_instance(long Inst)
+void DACOM_API EngineObject::create_instance(FlLong Inst)
 {
     // Listing 0x2f050 RET. EngBase slot 1 = AddRef stub.
     (void)Inst;
 }
 
-void DACOM_API EngineObject::destroy_instance(long Inst)
+void DACOM_API EngineObject::destroy_instance(FlLong Inst)
 {
     // Listing 0xa9920. Clears this+4 only.
     (void)Inst;
@@ -70,43 +70,43 @@ void DACOM_API EngineObject::destroy_instance(long Inst)
     CmnCobject::ClassListKeysChanged(this); // PORT(perf-index): the class-list index
 }
 
-void DACOM_API EngineObject::set_position(long Inst, Vector const& Pos)
+void DACOM_API EngineObject::set_position(FlLong Inst, Vector const& Pos)
 {
     (void)Inst;
     set_position(Pos);
 }
 
-Vector const& DACOM_API EngineObject::get_position(long Inst) const
+Vector const& DACOM_API EngineObject::get_position(FlLong Inst) const
 {
     (void)Inst;
     return WorldPosition;
 }
 
-void DACOM_API EngineObject::set_orientation(long Inst, Matrix const& Orient)
+void DACOM_API EngineObject::set_orientation(FlLong Inst, Matrix const& Orient)
 {
     (void)Inst;
     set_orientation(Orient);
 }
 
-Matrix const& DACOM_API EngineObject::get_orientation(long Inst) const
+Matrix const& DACOM_API EngineObject::get_orientation(FlLong Inst) const
 {
     (void)Inst;
     return Orientation;
 }
 
-void DACOM_API EngineObject::set_transform(long Inst, Transform const& Xform)
+void DACOM_API EngineObject::set_transform(FlLong Inst, Transform const& Xform)
 {
     (void)Inst;
     set_transform(Xform);
 }
 
-Transform const& DACOM_API EngineObject::get_transform(long Inst) const
+Transform const& DACOM_API EngineObject::get_transform(FlLong Inst) const
 {
     (void)Inst;
     return get_transform();
 }
 
-void DACOM_API EngineObject::get_centered_radius(long Inst, float* OutRadius,
+void DACOM_API EngineObject::get_centered_radius(FlLong Inst, float* OutRadius,
                                                  Vector* OutCenter) const
 {
     // .text:06309a30..06309a54: *OutRadius = [this+0x38], *OutCenter = [this+0x3c..+0x44];
@@ -116,7 +116,7 @@ void DACOM_API EngineObject::get_centered_radius(long Inst, float* OutRadius,
     *OutCenter = RadiusCenter;
 }
 
-void DACOM_API EngineObject::set_centered_radius(long Inst, float NewRadius,
+void DACOM_API EngineObject::set_centered_radius(FlLong Inst, float NewRadius,
                                                  Vector const& Center)
 {
     (void)Inst;
@@ -124,25 +124,25 @@ void DACOM_API EngineObject::set_centered_radius(long Inst, float NewRadius,
     RadiusCenter = Center;
 }
 
-void DACOM_API EngineObject::set_instance_flags(long Inst, unsigned long Flags)
+void DACOM_API EngineObject::set_instance_flags(FlLong Inst, FlULong Flags)
 {
     (void)Inst;
     InstanceFlags = Flags;
 }
 
-unsigned long DACOM_API EngineObject::get_instance_flags(long Inst) const
+FlULong DACOM_API EngineObject::get_instance_flags(FlLong Inst) const
 {
     (void)Inst;
     return InstanceFlags;
 }
 
-bool DACOM_API EngineObject::joint_changed(long Inst)
+bool DACOM_API EngineObject::joint_changed(FlLong Inst)
 {
     (void)Inst;
     return false;
 }
 
-Vector const& DACOM_API EngineObject::get_velocity(long Inst) const
+Vector const& DACOM_API EngineObject::get_velocity(FlLong Inst) const
 {
     // Listing 0xa99b0. Always the zero vector at this level.
     (void)Inst;
@@ -150,14 +150,14 @@ Vector const& DACOM_API EngineObject::get_velocity(long Inst) const
     return Zero;
 }
 
-void DACOM_API EngineObject::set_velocity(long Inst, Vector const& Vel)
+void DACOM_API EngineObject::set_velocity(FlLong Inst, Vector const& Vel)
 {
     // .text:062a8910: RET 0xc.
     (void)Inst;
     (void)Vel;
 }
 
-Vector const& DACOM_API EngineObject::get_angular_velocity(long Inst) const
+Vector const& DACOM_API EngineObject::get_angular_velocity(FlLong Inst) const
 {
     // Listing 0xa99f0. Always the zero vector at this level.
     (void)Inst;
@@ -165,7 +165,7 @@ Vector const& DACOM_API EngineObject::get_angular_velocity(long Inst) const
     return Zero;
 }
 
-void DACOM_API EngineObject::set_angular_velocity(long Inst, Vector const& AngVel)
+void DACOM_API EngineObject::set_angular_velocity(FlLong Inst, Vector const& AngVel)
 {
     // .text:062a8910: RET 0xc (the same body as set_velocity).
     (void)Inst;
@@ -209,7 +209,7 @@ Vector const& EngineObject::get_position() const
     return WorldPosition;
 }
 
-long EngineObject::get_index() const
+FlLong EngineObject::get_index() const
 {
     // .text:062d1ad0: MOV EAX,[this+0x4]; RET.
     return EngineInstanceId;

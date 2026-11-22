@@ -723,7 +723,7 @@ static bool MarshalRequestEvent(FPacketBase* Packet, const unsigned int* Args, u
 static bool DeliverRequestEvent(const FPacketBase* Packet, IServer* Server, unsigned int SessionId) {
     const FPayloadClientRequestEvent Wire = RpcPayloadRead<FPayloadClientRequestEvent>(Packet, 0);
     Server->RequestEvent((int)Wire.EventType, Wire.Field_0x04, Wire.Field_0x08, Wire.Field_0x0c,
-                         (unsigned long)Wire.Field_0x10, SessionId);
+                         (FlULong)Wire.Field_0x10, SessionId);
     return true;
 }
 
@@ -745,7 +745,7 @@ static bool MarshalRequestCancel(FPacketBase* Packet, const unsigned int* Args, 
 static bool DeliverRequestCancel(const FPacketBase* Packet, IServer* Server, unsigned int SessionId) {
     const FPayloadClientRequestCancel Wire = RpcPayloadRead<FPayloadClientRequestCancel>(Packet, 0);
     Server->RequestCancel((int)Wire.EventType, Wire.Field_0x04, Wire.Field_0x08,
-                          (unsigned long)Wire.Field_0x0c, SessionId);
+                          (FlULong)Wire.Field_0x0c, SessionId);
     return true;
 }
 

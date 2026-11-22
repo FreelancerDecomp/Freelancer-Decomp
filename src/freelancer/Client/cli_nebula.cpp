@@ -164,7 +164,7 @@ void FogApplyColorAndRange(float const* Rgb3, float FogStart, float FogEnd)
 
     // 004224cb..004224ed: Pipeline vt+0x20 queries device ability 0xd (W-fog),
     // preset to 0. GetPipelineState is vt+0x18 and reads an unrelated setting.
-    unsigned long WFogAbility = 0;
+    FlULong WFogAbility = 0;
     DALib::Pipeline->QueryDeviceAbility(0xd, &WFogAbility);
     if (WFogAbility == 0)
     {
@@ -199,7 +199,7 @@ namespace
 
     // DALib::MaterialBatcher slot +0x20. Retail reads the import and calls through it with no
     // null test at every site (e.g. 0x00508e67, 0x00508ed1).
-    void SetMaterialBatchBinOrder(unsigned long Index, long Key)
+    void SetMaterialBatchBinOrder(FlULong Index, FlLong Key)
     {
         DALib::MaterialBatcher->SetBinOrder(Index, Key);
     }

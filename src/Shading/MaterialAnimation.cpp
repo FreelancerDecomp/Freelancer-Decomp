@@ -8,11 +8,11 @@
 
 static FImaInstance* GImaHead = nullptr;
 static FImaInstance* GImaTail = nullptr;
-static unsigned long GImaCount = 0;
+static FlULong GImaCount = 0;
 
 struct FMatAnimLoadEntry
 {
-    unsigned long Crc;
+    FlULong Crc;
     FImaData* Data;
 };
 
@@ -85,8 +85,8 @@ static void ParseMaKeys(void* FileSystem, FMaKeyBlock* Block)
     // array reads retain their published allocation regardless of read result/size.
     IFileSystem* Fs = AsFileSystem(FileSystem);
     FFileSystemDesc Desc;
-    unsigned long BytesRead;
-    unsigned long Scalar;
+    FlULong BytesRead;
+    FlULong Scalar;
     InitializeMaFileDesc(&Desc, "MACount");
     int Handle = Fs->OpenByDesc(&Desc);
     if (Handle != -1)
@@ -109,14 +109,14 @@ static void ParseMaKeys(void* FileSystem, FMaKeyBlock* Block)
         Fs->CloseFile(Handle);
     }
 
-    unsigned long DeltaCount = Block->Count;
+    FlULong DeltaCount = Block->Count;
     InitializeMaFileDesc(&Desc, "MADeltas");
     Handle = Fs->OpenByDesc(&Desc);
     if (Handle != -1)
     {
         if (DeltaCount == 0)
             DeltaCount = Fs->GetSize(Handle, 0) / 0x14;
-        const unsigned long DeltaBytes = DeltaCount * 0x14;
+        const FlULong DeltaBytes = DeltaCount * 0x14;
         // The wrapped byte size may be smaller than a whole array of records.
         FMaDelta* Deltas = (FMaDelta*)operator new(DeltaBytes);
         if (Deltas != nullptr)
@@ -130,14 +130,14 @@ static void ParseMaKeys(void* FileSystem, FMaKeyBlock* Block)
     // The MAKeys branch is independent of MADeltas open/allocation/read success.
     if (Block->Count <= 1)
         return;
-    unsigned long KeyCount = Block->Count - 1;
+    FlULong KeyCount = Block->Count - 1;
     InitializeMaFileDesc(&Desc, "MAKeys");
     Handle = Fs->OpenByDesc(&Desc);
     if (Handle != -1)
     {
         if (KeyCount == 0)
             KeyCount = Fs->GetSize(Handle, 0) >> 4;
-        const unsigned long KeyBytes = KeyCount << 4;
+        const FlULong KeyBytes = KeyCount << 4;
         FMaKey* Keys = (FMaKey*)operator new(KeyBytes);
         if (Keys != nullptr)
         {
@@ -173,16 +173,16 @@ GENRESULT DACOM_API FImaData::QueryInterface(const char* Iid, void** Out)
     return GR_OK;
 }
 
-unsigned long DACOM_API FImaData::AddRef()
+FlULong DACOM_API FImaData::AddRef()
 {
     return ++RefCount;
 }
 
-unsigned long DACOM_API FImaData::Release()
+FlULong DACOM_API FImaData::Release()
 {
     if (RefCount != 0)
         --RefCount;
-    const unsigned long Next = RefCount;
+    const FlULong Next = RefCount;
     if (Next == 0)
     {
         RefCount = 1;
@@ -197,7 +197,7 @@ FMaKeyBlock* DACOM_API FImaData::KeyBlock()
     return &Keys;
 }
 
-void DACOM_API FImaData::CrcOut(unsigned long* Out)
+void DACOM_API FImaData::CrcOut(FlULong* Out)
 {
     *Out = NameCrc;
 }
@@ -230,16 +230,16 @@ GENRESULT DACOM_API FImaInstance::QueryInterface(const char* Iid, void** Out)
     return GR_OK;
 }
 
-unsigned long DACOM_API FImaInstance::AddRef()
+FlULong DACOM_API FImaInstance::AddRef()
 {
     return ++RefCount;
 }
 
-unsigned long DACOM_API FImaInstance::Release()
+FlULong DACOM_API FImaInstance::Release()
 {
     if (RefCount != 0)
         --RefCount;
-    const unsigned long Next = RefCount;
+    const FlULong Next = RefCount;
     if (Next == 0)
     {
         RefCount = 1;
@@ -339,12 +339,12 @@ GENRESULT DACOM_API FMatAnimAggregate::QueryInterface(const char* Iid, void** Ou
     return Owner->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMatAnimAggregate::AddRef()
+FlULong DACOM_API FMatAnimAggregate::AddRef()
 {
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FMatAnimAggregate::Release()
+FlULong DACOM_API FMatAnimAggregate::Release()
 {
     return Owner->Release();
 }
@@ -377,16 +377,16 @@ GENRESULT DACOM_API FMaterialAnimationController::QueryInterface(const char* Iid
     return GR_OK;
 }
 
-unsigned long DACOM_API FMaterialAnimationController::AddRef()
+FlULong DACOM_API FMaterialAnimationController::AddRef()
 {
     return ++Owner->RefCount;
 }
 
-unsigned long DACOM_API FMaterialAnimationController::Release()
+FlULong DACOM_API FMaterialAnimationController::Release()
 {
     if (Owner->RefCount != 0)
         --Owner->RefCount;
-    const unsigned long Next = Owner->RefCount;
+    const FlULong Next = Owner->RefCount;
     if (Next == 0)
     {
         FMaterialAnimation* DeleteOwner = Owner;
@@ -421,19 +421,19 @@ GENRESULT DACOM_API FMaterialAnimation::QueryInterface(const char* Iid, void** O
     return Controlling->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMaterialAnimation::AddRef()
+FlULong DACOM_API FMaterialAnimation::AddRef()
 {
     IDAComponent* Controlling = Outer != nullptr ? Outer : &Controller;
     return Controlling->AddRef();
 }
 
-unsigned long DACOM_API FMaterialAnimation::Release()
+FlULong DACOM_API FMaterialAnimation::Release()
 {
     IDAComponent* Controlling = Outer != nullptr ? Outer : &Controller;
     return Controlling->Release();
 }
 
-FImaData* FMaterialAnimation::FindData(unsigned long Crc) const
+FImaData* FMaterialAnimation::FindData(FlULong Crc) const
 {
     for (size_t Index = 0; Index < CrcMap.size(); ++Index)
     {
@@ -443,7 +443,7 @@ FImaData* FMaterialAnimation::FindData(unsigned long Crc) const
     return nullptr;
 }
 
-void FMaterialAnimation::StoreData(unsigned long Crc, FImaData* Data)
+void FMaterialAnimation::StoreData(FlULong Crc, FImaData* Data)
 {
     size_t Index = 0;
     while (Index < CrcMap.size() && CrcMap[Index].Crc != Crc)
@@ -484,12 +484,12 @@ void* DACOM_API FMaterialAnimation::LoadAnimationGroup(void* FileSystem)
             const char* ChildName = FindData.cFileName;
             if ((FindData.dwFileAttributes & 0x10) != 0 && ChildName[0] != '.')
             {
-                const unsigned long Crc = DACOM_CRC::GetCRC32(ChildName);
+                const FlULong Crc = DACOM_CRC::GetCRC32(ChildName);
                 FImaData* Data = new FImaData();
                 Data->NameCrc = Crc;
                 FFileSystemDesc Desc;
                 InitializeMaFileDesc(&Desc, ChildName);
-                Desc.Field30 = (unsigned long)Find;
+                Desc.Field30 = (FlULong)Find;
                 IFileSystem* ChildFs = nullptr;
                 const GENRESULT Result = Fs->CreateInstance(
                     (AGGDESC*)&Desc, (void**)&ChildFs);
@@ -528,7 +528,7 @@ GENRESULT DACOM_API FMaterialAnimation::UnloadAnimationGroup(void* Arg)
     // LAB_06ec70c0: remove every live CRC before releasing any group reference.
     for (size_t EntryIndex = 0; EntryIndex < Group->Entries.size(); ++EntryIndex)
     {
-        unsigned long Crc;
+        FlULong Crc;
         Group->Entries[EntryIndex].Data->CrcOut(&Crc);
         size_t MapIndex = 0;
         while (MapIndex < CrcMap.size())
@@ -559,7 +559,7 @@ GENRESULT DACOM_API FMaterialAnimation::UnloadAnimationGroup(void* Arg)
 GENRESULT DACOM_API FMaterialAnimation::CreateAnimationInstance(int /*Unused*/, void* Query, IImaInstance** OutInstance)
 {
     // LAB_06ec7190..7275: lookup miss leaves the caller's output untouched.
-    const unsigned long Crc = *(const unsigned long*)((const unsigned char*)Query + 4);
+    const FlULong Crc = *(const FlULong*)((const unsigned char*)Query + 4);
     size_t MapIndex = 0;
     while (MapIndex < CrcMap.size() && CrcMap[MapIndex].Crc != Crc)
         ++MapIndex;

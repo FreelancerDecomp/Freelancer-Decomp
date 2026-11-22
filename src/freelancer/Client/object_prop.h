@@ -54,7 +54,7 @@ public:
 
     // RoomControl's reads (FUN_0044a030 0x0044a2a3 / FUN_0044e430 0x0044e506 read +0x58, the
     // script table's +0x0c; FUN_00449420 0x00449566 tests +0x49).
-    unsigned long GetMainScript() const { return Scripts.Script; }
+    FlULong GetMainScript() const { return Scripts.Script; }
     char const* GetName() const { return Name.c_str(); }
 
     void* Instance;                                // +0x30 -1 until a mesh loaded

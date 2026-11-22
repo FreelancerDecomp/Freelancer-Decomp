@@ -516,7 +516,7 @@ void FCommVoice::Play(FCommMessage const* Msg, bool bStaticSound, bool bDuck, bo
                     ++Scan;
                 }
                 wchar_t* End = nullptr;
-                long const Value = wcstol(Scan, &End, 10);
+                FlLong const Value = wcstol(Scan, &End, 10);
                 // CMP ECX,ESI / JBE: stop when nothing was consumed.
                 if (!(End > Scan))
                 {
@@ -753,7 +753,7 @@ bool FCommWindow::ReadIni(INI_Reader& Reader)
         ClientMeshLoadFromPath(&Corner, Reader.get_value_string(), 0, false); // FUN_0059ec80(p, 0, 0)
         // 0x004ccc0a..0x004ccc69: DAT_00679bb0's four bytes / 255 into +0x14/+0x18/+0x1c/+0x24,
         // FUN_004a1af0's body inlined.
-        unsigned long const Palette = G_NnPaletteArgb_679bb0;
+        FlULong const Palette = G_NnPaletteArgb_679bb0;
         unsigned char Colour[4];
         memcpy(Colour, &Palette, sizeof(Colour));
         ClientMeshHolderSetColor(&Corner, Colour);

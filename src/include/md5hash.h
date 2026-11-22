@@ -21,7 +21,7 @@ public:
 
     // Retail mangling ?AddData@MD5Hash@@QAE_NQAXK@Z = `void* const` (const pointer to mutable
     // data). The body only reads Data; callers holding const data cast it, as retail's did.
-    bool AddData(void* const Data, unsigned long Length);
+    bool AddData(void* const Data, FlULong Length);
     bool CalcValue();
     const char* AsString();
     void FromString(const char* Text);
@@ -35,12 +35,12 @@ public:
 
 protected:
     void Transform(unsigned char* Block);
-    void Encode(unsigned char* Output, unsigned long* Input, unsigned long Length);
-    void Decode(unsigned long* Output, unsigned char* Input, unsigned long Length);
+    void Encode(unsigned char* Output, FlULong* Input, FlULong Length);
+    void Decode(FlULong* Output, unsigned char* Input, FlULong Length);
 
-    unsigned long State[4];         // +0x04
-    unsigned long BitCountLow;      // +0x14
-    unsigned long BitCountHigh;     // +0x18
+    FlULong State[4];         // +0x04
+    FlULong BitCountLow;      // +0x14
+    FlULong BitCountHigh;     // +0x18
     unsigned char Buffer[64];       // +0x1c
     char StringValue[128];          // +0x5c
 };

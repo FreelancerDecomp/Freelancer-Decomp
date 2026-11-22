@@ -38,7 +38,7 @@ struct FButtonMontageTile
     float Scale;        // +0x20 the key's optional second value (FUN_00559aa0 reads it), else 0
 };
 
-extern unsigned long G_ButtonsMaterialKey;                  // DAT_00679a28
+extern FlULong G_ButtonsMaterialKey;                  // DAT_00679a28
 extern FShapeDB G_ButtonShapeDB;                            // DAT_00679a2c
 extern std::vector<FButtonMontageTile> G_ButtonMontageTiles; // DAT_00679a44
 extern bool G_bButtonMontageLoaded;                         // DAT_00679af0

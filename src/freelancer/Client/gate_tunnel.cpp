@@ -828,7 +828,7 @@ void FGateTunnel::EmitLayer(float T0, float T1, FGateTunnelLayer* Layer, int Lay
     }
 
     // 0x004ffea3..0x004ffec0: the layer texture's frame 0 (ITextureLibrary2 vt+0x58).
-    unsigned long TextureFrame[5];
+    FlULong TextureFrame[5];
     DALib::TextureLib->GetTextureFrame(Layer->Texture.Texture, 0, TextureFrame);
 
     // 0x004ffec3..0x004fff75: the window [T0, T1] around the ship, clamped to [0, 1] (NaN

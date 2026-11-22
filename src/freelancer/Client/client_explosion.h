@@ -60,7 +60,7 @@ private:
     // as a Debris gameobj (process = shatter).
     void Shatter();
     // FUN_00536c20 (RET 0xc): collect the pieces of Instance's subtree, at most MaxPieces.
-    void CollectChildPieces(long Instance, int MaxPieces, std::vector<CObject*>& Pieces);
+    void CollectChildPieces(FlLong Instance, int MaxPieces, std::vector<CObject*>& Pieces);
     // FUN_00536fb0: throw innards_debris_num Debris gameobjs out of the Gameobj.
     void SpawnInnardsDebris();
 

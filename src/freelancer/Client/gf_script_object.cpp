@@ -1220,7 +1220,7 @@ void __cdecl FGfScriptSequence::OnOfferAnswer(void* Context, int Answer)
                 if (!SinglePlayer() && Seq->OfferType == 3)
                     SetMissionOfferSequenceRetail(Seq);
                 G_Server->MissionResponse(static_cast<unsigned>(Seq->OfferArg),
-                                          static_cast<unsigned long>(Seq->OfferMissionId),
+                                          static_cast<FlULong>(Seq->OfferMissionId),
                                           Seq->bOfferAccepted != 0, GetPlayerConnectionId());
             }
         }
@@ -1238,7 +1238,7 @@ void __cdecl FGfScriptSequence::OnOfferAnswer(void* Context, int Answer)
             Seq->bOfferAnswered = 1;
             Seq->bOfferAccepted = 0;
             G_Server->MissionResponse(static_cast<unsigned>(Seq->OfferArg),
-                                      static_cast<unsigned long>(Seq->OfferMissionId), false,
+                                      static_cast<FlULong>(Seq->OfferMissionId), false,
                                       GetPlayerConnectionId());
         }
     }

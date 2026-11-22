@@ -220,7 +220,7 @@ void CELightEquip::NotifyArchGroupDestroyed(unsigned short SubObjId)
     // notification is EquipDestroying (0xa) with the equip id as its parameter.
     if (!IsConnected())
         return;
-    long const GroupInst = Owner->sub_obj_id_to_inst(SubObjId);
+    FlLong const GroupInst = Owner->sub_obj_id_to_inst(SubObjId);
     if (GroupInst == -1)
         return;
     if (!IsDescendant(GroupInst, ConnectionIndex))
@@ -234,7 +234,7 @@ void CEAttachedFX::NotifyArchGroupDestroyed(unsigned short SubObjId)
     // Same body as CELightEquip::NotifyArchGroupDestroyed (listing 0x3f110).
     if (!IsConnected())
         return;
-    long const GroupInst = Owner->sub_obj_id_to_inst(SubObjId);
+    FlLong const GroupInst = Owner->sub_obj_id_to_inst(SubObjId);
     if (GroupInst == -1)
         return;
     if (!IsDescendant(GroupInst, ConnectionIndex))

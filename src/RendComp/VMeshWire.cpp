@@ -19,7 +19,7 @@ class FVmeshWireInstance : public IVMeshWire
 {
 public:
     FVwireDataHeader* Blob;     // +0x04 the whole VWireData leaf, owned
-    unsigned long RefCount;     // +0x08
+    FlULong RefCount;     // +0x08
 
     // LAB_06c304f0: table {"1.11_IVMeshWire", 0}; hit -> AddRef, *Out = this, 0; miss -> 0, -3.
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override
@@ -35,7 +35,7 @@ public:
     }
 
     // FUN_06c305a0.
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         RefCount += 1;
         return RefCount;
@@ -43,7 +43,7 @@ public:
 
     // FUN_06c305b0: decrement when above 0; at 0 pin the count at 1, free the blob and the
     // object (the base vtable 06c365cc is stored first; there is no destructor body), return 0.
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         if (RefCount > 0)
             RefCount -= 1;
@@ -112,12 +112,12 @@ public:
     // +0x1C: vtable PTR_LAB_06c36564.
     struct FInner : public IDAComponent
     {
-        unsigned long RefCount; // +0x20
+        FlULong RefCount; // +0x20
         FVMeshWire* Owner;      // +0x24
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
     };
 
     // Stored instances retain their own references.
@@ -155,12 +155,12 @@ public:
         return Outer->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         return Outer->AddRef();
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         return Outer->Release();
     }
@@ -221,7 +221,7 @@ GENRESULT DACOM_API FVMeshWire::FInner::QueryInterface(const char* Iid, void** O
 }
 
 // LAB_06c306b0.
-unsigned long DACOM_API FVMeshWire::FInner::AddRef()
+FlULong DACOM_API FVMeshWire::FInner::AddRef()
 {
     RefCount += 1;
     return RefCount;
@@ -229,7 +229,7 @@ unsigned long DACOM_API FVMeshWire::FInner::AddRef()
 
 // LAB_06c306c0: decrement when above 0; at 0 pin the count at 1, clear the archetype map
 // (releasing every wrapper), free the owner, return 0.
-unsigned long DACOM_API FVMeshWire::FInner::Release()
+FlULong DACOM_API FVMeshWire::FInner::Release()
 {
     if (RefCount > 0)
         RefCount -= 1;
@@ -266,15 +266,15 @@ int DACOM_API FVMeshWire::CreateArchetype(void* Archetype, void* FileSystem)
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        const unsigned long Size = File->GetSize((unsigned long)Handle, 0);
+        const FlULong Size = File->GetSize((FlULong)Handle, 0);
         unsigned char* Buffer = new unsigned char[Size];
-        unsigned long ReadCount = 0;
-        bRead = File->Read((unsigned long)Handle, Buffer, Size, &ReadCount, 0);
+        FlULong ReadCount = 0;
+        bRead = File->Read((FlULong)Handle, Buffer, Size, &ReadCount, 0);
         if (bRead != 0)
             Blob = Buffer;
         else
             delete[] Buffer;
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     if (bRead == 0)
     {

@@ -50,10 +50,10 @@ struct FEquipVisualSet
     // instance, empty the flashlight set, free both arrays and delete the summary.
     void Clear();
     // FUN_00457f00 (RET 4) -- Instances[Index], no range check.
-    long GetInstance(int Index) const;
+    FlLong GetInstance(int Index) const;
     // FUN_00457f10 (RET 4) -- a new HardpointSummary analysed on RootInstance, and both
     // per-hardpoint arrays sized to its count (-1 / 0).
-    void Populate(long RootInstance);
+    void Populate(FlLong RootInstance);
     // FUN_00457fe0 (RET 8) -- put Equip's visual attachment on hardpoint HpIndex: either
     // connect the attachment's HpChild hardpoint to it (DALib::Hardpoint slot 6) or join it to
     // the hardpoint's frame (IEngine::CreateJoint). False when the hardpoint is taken, the good
@@ -75,7 +75,7 @@ struct FEquipVisualSet
 
     HardpointSummary* Summary;                                  // +0x00
     int Count;                                                  // +0x04
-    long* Instances;                                            // +0x08
+    FlLong* Instances;                                            // +0x08
     unsigned* ArchIds;                                          // +0x0c
     std::vector<Archetype::FCliMaterialEntry*> MaterialEntries; // +0x10
     FFlashLightSet FlashLights;                                 // +0x20

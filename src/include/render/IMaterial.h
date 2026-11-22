@@ -24,38 +24,38 @@ struct IMaterial : IDAComponent
     virtual GENRESULT DACOM_API ResolveTextures(float Delta) = 0;
     virtual GENRESULT DACOM_API Bind(void* Context) = 0;
     virtual GENRESULT DACOM_API Teardown(void* Context) = 0;
-    virtual GENRESULT DACOM_API Submit(void* Context, unsigned long PrimType,
-                                       unsigned long Start, unsigned long Count,
-                                       unsigned long IbStart, unsigned long IndexSpan,
-                                       unsigned long Flags) = 0;
+    virtual GENRESULT DACOM_API Submit(void* Context, FlULong PrimType,
+                                       FlULong Start, FlULong Count,
+                                       FlULong IbStart, FlULong IndexSpan,
+                                       FlULong Flags) = 0;
     virtual GENRESULT DACOM_API SetName(const char* Name) = 0;
-    virtual GENRESULT DACOM_API GetName(char* Out, unsigned long Size) = 0;
-    virtual GENRESULT DACOM_API CopyClassName(char* Out, unsigned long Size) = 0;
+    virtual GENRESULT DACOM_API GetName(char* Out, FlULong Size) = 0;
+    virtual GENRESULT DACOM_API CopyClassName(char* Out, FlULong Size) = 0;
     virtual GENRESULT DACOM_API GetPassCount(int* Out) = 0;
-    virtual GENRESULT DACOM_API GetRenderFlags(unsigned long* Out) = 0;
-    virtual GENRESULT DACOM_API GetParameterCount(unsigned long* OutCount) = 0;
+    virtual GENRESULT DACOM_API GetRenderFlags(FlULong* Out) = 0;
+    virtual GENRESULT DACOM_API GetParameterCount(FlULong* OutCount) = 0;
     // OutDesc receives one kMaterialParamDescSize-byte property descriptor.
-    virtual GENRESULT DACOM_API GetParameterDescriptor(unsigned long Index, void* OutDesc) = 0;
-    virtual GENRESULT DACOM_API GetParameterValue(unsigned long Index, void* InOutDesc) = 0;
-    virtual GENRESULT DACOM_API SetParameterValue(unsigned long Index, void* Value) = 0;
+    virtual GENRESULT DACOM_API GetParameterDescriptor(FlULong Index, void* OutDesc) = 0;
+    virtual GENRESULT DACOM_API GetParameterValue(FlULong Index, void* InOutDesc) = 0;
+    virtual GENRESULT DACOM_API SetParameterValue(FlULong Index, void* Value) = 0;
     virtual const char* __thiscall ClassName() = 0;
     virtual void* __thiscall ScalarDeletingDestructor(unsigned char bDelete) = 0;
     virtual GENRESULT __thiscall InitializeFromDescriptor(void* Arg) = 0;
     virtual GENRESULT __thiscall ApplyInitialRenderStates(void* Arg) = 0;
     virtual GENRESULT __thiscall Setup() = 0;
-    virtual bool __thiscall ValueWithinDeclaredRange(unsigned long Index, void* Entry,
+    virtual bool __thiscall ValueWithinDeclaredRange(FlULong Index, void* Entry,
                                                      void* Value) = 0;
-    virtual GENRESULT __thiscall StoreParameterValue(unsigned long Index, void* Entry,
+    virtual GENRESULT __thiscall StoreParameterValue(FlULong Index, void* Entry,
                                                      void* Value) = 0;
     // Return the count; OutBase is optional and receives the shared contiguous table.
-    virtual unsigned long __thiscall GetParameterTable(void** OutBase) = 0;
+    virtual FlULong __thiscall GetParameterTable(void** OutBase) = 0;
     // Return the live backing address of the indexed property.
-    virtual void* __thiscall GetParameterAddress(unsigned long Index) = 0;
+    virtual void* __thiscall GetParameterAddress(FlULong Index) = 0;
     virtual GENRESULT DACOM_API InnerQueryInterface(const char* Iid, void** Out) = 0;
-    virtual unsigned long DACOM_API InnerAddRef() = 0;
-    virtual unsigned long DACOM_API InnerRelease() = 0;
+    virtual FlULong DACOM_API InnerAddRef() = 0;
+    virtual FlULong DACOM_API InnerRelease() = 0;
 };
-static constexpr unsigned long kMaterialParamDescSize = 0x4C;
+static constexpr FlULong kMaterialParamDescSize = 0x4C;
 // Material factories take dacom.h's FAGGDESC14 (formerly FMaterialAggregateDesc here).
 // Material properties retain their contiguous 17-float storage.
 FL_LAYOUT_ASSERT(sizeof(D3DMATERIAL8) == 17 * sizeof(float), "material render block size");
@@ -74,7 +74,7 @@ inline GENRESULT GetMaterialBlock(IRenderPipeline* Pipeline, float* Block)
 struct FIbScratch
 {
     void* IndexBuffer;          // IRPIndexBuffer handle
-    unsigned long Bias;         // RendComp: VMeshData+0x1C + VMeshRef.IndexStart;
+    FlULong Bias;         // RendComp: VMeshData+0x1C + VMeshRef.IndexStart;
 };
 
 // Borrowed context for Bind, Teardown and Submit.

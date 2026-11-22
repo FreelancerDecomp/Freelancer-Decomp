@@ -108,9 +108,9 @@ void MissionVendorProperties::destroy()
     clear();
 }
 
-unsigned long MissionVendorProperties::get_key() const
+FlULong MissionVendorProperties::get_key() const
 {
-    return (unsigned long)Key;
+    return (FlULong)Key;
 }
 
 // .text:0631add0: a jump table on MissionClass - 1 (0..5); anything else is null.
@@ -258,9 +258,9 @@ void MissionVendorAcceptance::unmarshal(MarshalBuffer* Buf)
 }
 
 // 0x06261d90: MOV EAX,dword ptr [ECX] / RET.
-unsigned long MissionVendorAcceptance::get_key() const
+FlULong MissionVendorAcceptance::get_key() const
 {
-    return (unsigned long)Key;
+    return (FlULong)Key;
 }
 
 // ---------------------------------------------------------------------------
@@ -340,9 +340,9 @@ void NewsBroadcastProperties::destroy()
     clear();
 }
 
-unsigned long NewsBroadcastProperties::get_key() const
+FlULong NewsBroadcastProperties::get_key() const
 {
-    return (unsigned long)Key;
+    return (FlULong)Key;
 }
 
 // .text:0631b790
@@ -467,7 +467,7 @@ void CharacterProperties::destroy()
     NameAnsi = nullptr;
 }
 
-unsigned long CharacterProperties::get_key() const
+FlULong CharacterProperties::get_key() const
 {
     return Key;
 }
@@ -613,9 +613,9 @@ void AmbientScriptProperties::destroy()
 }
 
 // 0x06261d90 (ICF-folded with BaseData::get_base_id and other first-dword getters).
-unsigned long AmbientScriptProperties::get_key() const
+FlULong AmbientScriptProperties::get_key() const
 {
-    return (unsigned long)Key;
+    return (FlULong)Key;
 }
 
 // .text:0631b8e0: destroy() inlined, then a memberwise copy with Name duplicated. With no self
@@ -798,7 +798,7 @@ CObject* CBase::cobject() const
     return Object;
 }
 
-long CBase::get_index() const
+FlLong CBase::get_index() const
 {
     // .text:062a82e0-062a82e6 `MOV EAX,[ECX+4]; MOV EAX,[EAX+4]; RET`: Object's
     // EngineInstanceId (EngineObject+0x04), not a field of CBase itself; no null test.

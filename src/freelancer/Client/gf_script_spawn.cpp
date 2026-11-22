@@ -444,7 +444,7 @@ FThornComponent* FGfScript::SpawnCompound(int Index, FThornEntitySnap const* Sna
     }
 
     FRoomObject* Object = nullptr;
-    long Instance = -1;
+    FlLong Instance = -1;
     void* AnimScript = nullptr;
     Csys Offset;
     // Retail's stack slot for the category is not initialized by FUN_0044e430 when a reference
@@ -611,7 +611,7 @@ FThornComponent* FGfScript::SpawnPlayerEnginePsys(FThornEntitySnap const* Snap)
 //       {template, name, the old category, the snapshot pose, "loadout" or ""}; its instance and
 //       main script; handed to the sequence (FUN_00455b80, with the name) unless the script's
 //       +0x5c sends it to the room (FUN_0044a380).
-void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* OutInstance,
+void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, FlLong* OutInstance,
                                       void** OutAnimScript, Csys* OutOffset, int* OutCategory,
                                       unsigned char* bOutUseScene)
 {
@@ -632,7 +632,7 @@ void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* 
             return;
         }
         *OutObject = Prop;
-        *OutInstance = static_cast<long>(reinterpret_cast<intptr_t>(Prop->GetEngineInstance()));
+        *OutInstance = static_cast<FlLong>(reinterpret_cast<intptr_t>(Prop->GetEngineInstance()));
         *OutAnimScript = reinterpret_cast<void*>(static_cast<uintptr_t>(Prop->GetMainScript()));
         *OutCategory = 6;
         *bOutUseScene = 0;
@@ -650,7 +650,7 @@ void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* 
         // (slot 6), script -1, and the "HpMount" offset from the ship's hardpoint summary
         // (FUN_0043d940) against the instance (slot 6 again) through FUN_004478c0.
         *OutObject = Ship;
-        *OutInstance = static_cast<long>(reinterpret_cast<intptr_t>(Ship->GetEngineInstance()));
+        *OutInstance = static_cast<FlLong>(reinterpret_cast<intptr_t>(Ship->GetEngineInstance()));
         *OutAnimScript = reinterpret_cast<void*>(static_cast<intptr_t>(-1));
         void* const ShipInstance = Ship->GetEngineInstance();
         *OutOffset = GfShipMountOffset(Ship->GetHardpointSummary(), "HpMount", ShipInstance);
@@ -674,7 +674,7 @@ void FGfScript::ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* 
 
     FObjectProp* const Prop = new FObjectProp(Room, Data);
     *OutObject = Prop;
-    *OutInstance = static_cast<long>(reinterpret_cast<intptr_t>(Prop->GetEngineInstance()));
+    *OutInstance = static_cast<FlLong>(reinterpret_cast<intptr_t>(Prop->GetEngineInstance()));
     *OutAnimScript = reinterpret_cast<void*>(static_cast<uintptr_t>(Prop->GetMainScript()));
     *bOutUseScene = 1;
     if (bPropsToRoom == 0)

@@ -11,27 +11,27 @@
 
 namespace
 {
-    inline unsigned long RotateLeft(unsigned long Value, unsigned long Bits)
+    inline FlULong RotateLeft(FlULong Value, FlULong Bits)
     {
         return (Value << Bits) | (Value >> (32 - Bits));
     }
 
-    inline unsigned long F(unsigned long X, unsigned long Y, unsigned long Z)
+    inline FlULong F(FlULong X, FlULong Y, FlULong Z)
     {
         return (X & Y) | (~X & Z);
     }
 
-    inline unsigned long G(unsigned long X, unsigned long Y, unsigned long Z)
+    inline FlULong G(FlULong X, FlULong Y, FlULong Z)
     {
         return (X & Z) | (Y & ~Z);
     }
 
-    inline unsigned long H(unsigned long X, unsigned long Y, unsigned long Z)
+    inline FlULong H(FlULong X, FlULong Y, FlULong Z)
     {
         return X ^ Y ^ Z;
     }
 
-    inline unsigned long I(unsigned long X, unsigned long Y, unsigned long Z)
+    inline FlULong I(FlULong X, FlULong Y, FlULong Z)
     {
         return Y ^ (X | ~Z);
     }
@@ -55,11 +55,11 @@ MD5Hash::~MD5Hash() = default;
 // .text:065c67d0 (RET 0xc): Length is a BYTE count. Length 0 -> nothing (JBE); otherwise one
 // word per step, low byte first, while the byte offset (a multiple of 4) is below Length --
 // a Length that is not a multiple of 4 still writes the whole last word, as retail does.
-void MD5Hash::Encode(unsigned char* Output, unsigned long* Input, unsigned long Length)
+void MD5Hash::Encode(unsigned char* Output, FlULong* Input, FlULong Length)
 {
-    for (unsigned long Offset = 0; Offset < Length; Offset += 4)
+    for (FlULong Offset = 0; Offset < Length; Offset += 4)
     {
-        const unsigned long Word = Input[Offset / 4];
+        const FlULong Word = Input[Offset / 4];
         Output[Offset] = (unsigned char)(Word & 0xFF);
         Output[Offset + 1] = (unsigned char)((Word >> 8) & 0xFF);
         Output[Offset + 2] = (unsigned char)((Word >> 16) & 0xFF);
@@ -69,25 +69,25 @@ void MD5Hash::Encode(unsigned char* Output, unsigned long* Input, unsigned long 
 
 // .text:065c6820 (RET 0xc): Length is a BYTE count, the same loop shape as Encode -- one
 // little-endian word per 4 input bytes while the byte offset is below Length.
-void MD5Hash::Decode(unsigned long* Output, unsigned char* Input, unsigned long Length)
+void MD5Hash::Decode(FlULong* Output, unsigned char* Input, FlULong Length)
 {
-    for (unsigned long Offset = 0; Offset < Length; Offset += 4)
+    for (FlULong Offset = 0; Offset < Length; Offset += 4)
     {
-        Output[Offset / 4] = (unsigned long)(Input[Offset]) |
-                             ((unsigned long)(Input[Offset + 1]) << 8) |
-                             ((unsigned long)(Input[Offset + 2]) << 16) |
-                             ((unsigned long)(Input[Offset + 3]) << 24);
+        Output[Offset / 4] = (FlULong)(Input[Offset]) |
+                             ((FlULong)(Input[Offset + 1]) << 8) |
+                             ((FlULong)(Input[Offset + 2]) << 16) |
+                             ((FlULong)(Input[Offset + 3]) << 24);
     }
 }
 
 // Decode one 64-byte block, mix all MD5 rounds and accumulate the four state words.
 void MD5Hash::Transform(unsigned char* Block)
 {
-    unsigned long A = State[0];
-    unsigned long B = State[1];
-    unsigned long C = State[2];
-    unsigned long D = State[3];
-    unsigned long X[16];
+    FlULong A = State[0];
+    FlULong B = State[1];
+    FlULong C = State[2];
+    FlULong D = State[3];
+    FlULong X[16];
     Decode(X, Block, 64);
 
 #define STEP(Func, ARef, BRef, CRef, DRef, XIndex, Sin, Shift) \
@@ -172,19 +172,19 @@ void MD5Hash::Transform(unsigned char* Block)
 
 // Retail .text:065c6870..6926. No null/zero-length early-out (the port used to have one; retail
 // runs the counter update and a zero-byte copy for Length 0, and would fault on a null Data).
-bool MD5Hash::AddData(void* const Data, unsigned long Length)
+bool MD5Hash::AddData(void* const Data, FlULong Length)
 {
     unsigned char* const Input = (unsigned char*)Data;
-    unsigned long BitCount = BitCountLow;
+    FlULong BitCount = BitCountLow;
     BitCountLow += Length << 3;
     if (BitCountLow < BitCount)
         BitCountHigh += 1;
     BitCountHigh += Length >> 29;
 
-    unsigned long BufferIndex = (BitCount >> 3) & 0x3F;
-    const unsigned long PartLength = 64 - BufferIndex;
+    FlULong BufferIndex = (BitCount >> 3) & 0x3F;
+    const FlULong PartLength = 64 - BufferIndex;
     // Index = EDI in retail: bytes already consumed from Input.
-    unsigned long Index = 0;
+    FlULong Index = 0;
     if (Length >= PartLength)
     {
         memcpy(Buffer + BufferIndex, Input, PartLength);
@@ -211,8 +211,8 @@ bool MD5Hash::CalcValue()
     unsigned char Bits[8];
     Encode(Bits, &BitCountLow, 8);
 
-    const unsigned long BufferIndex = (BitCountLow >> 3) & 0x3F;
-    const unsigned long PadLength = (BufferIndex < 56) ? (56 - BufferIndex) : (120 - BufferIndex);
+    const FlULong BufferIndex = (BitCountLow >> 3) & 0x3F;
+    const FlULong PadLength = (BufferIndex < 56) ? (56 - BufferIndex) : (120 - BufferIndex);
     AddData(G_Md5Padding, PadLength);
     AddData(Bits, 8);
     return true;

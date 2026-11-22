@@ -1011,7 +1011,7 @@ intptr_t NnDealer::SetProperty(int Msg, uintptr_t A, uintptr_t B)
 
     case 0x15:
         // 004822dd: the ship view picked an instance -- select the row of its hardpoint.
-        SelectHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<long>(A))); // FUN_00585e20, FUN_0047e270
+        SelectHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<FlLong>(A))); // FUN_00585e20, FUN_0047e270
         return 0;
 
     case 0x16:

@@ -36,8 +36,8 @@ public:
 
     // Slots 0..2 -- LAB_00558600 / LAB_005586b0 / LAB_005586c0.
     GENRESULT DACOM_API QueryInterface(char const* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
     // Slots 3..16.
     float const* DACOM_API GetPosition() override;          // LAB_00556a80  this + 0x80
@@ -93,7 +93,7 @@ public:
     float YScale;                // +0x3c
     float PlaneX[3];             // +0x40
     float PlaneY[3];             // +0x4c
-    unsigned long RefCount;      // +0x58
+    FlULong RefCount;      // +0x58
     float Orient[9];             // +0x5c  row-major; followed by Pos -- together an FTransform
     float Pos[3];                // +0x80
     float View[12];              // +0x8c  GetViewTransform's output

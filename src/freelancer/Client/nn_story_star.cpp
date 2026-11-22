@@ -696,7 +696,7 @@ void MissionObjectiveWindow::Update()
     }
 
     // 0x004bb563..0x004bb670: the alpha of DAT_00679bb0 (its top byte) scaled by the phase.
-    unsigned long Colour = G_NnPaletteArgb_679bb0;
+    FlULong Colour = G_NnPaletteArgb_679bb0;
     unsigned char Bytes[4];
     memcpy(Bytes, &Colour, sizeof(Bytes));
     unsigned char const BaseAlpha = Bytes[3];

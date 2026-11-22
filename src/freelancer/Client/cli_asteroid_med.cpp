@@ -178,7 +178,7 @@ FCliAsteroidCube::~FCliAsteroidCube()
 {
     // FUN_00524af0 (thiscall on the value). 0x00524b12..0x00524b66: slot 87 (vt+0x15c) with
     // true on every asteroid in map order -- the ObjDB reap deletes them later.
-    for (std::map<unsigned long, FCliMedAsteroidGameobj*>::iterator It = Asteroids.begin();
+    for (std::map<FlULong, FCliMedAsteroidGameobj*>::iterator It = Asteroids.begin();
          It != Asteroids.end(); ++It)
     {
         It->second->Slot15c(true);
@@ -189,7 +189,7 @@ FCliAsteroidCube::~FCliAsteroidCube()
 void FCliAsteroidCube::ApplyEvent(CmnAsteroid::asteroid_marker const* Event)
 {
     // FUN_00524cb0 (RET 4). 0x00524cd2..0x00524ce0: find the event's asteroid id (+4).
-    std::map<unsigned long, FCliMedAsteroidGameobj*>::iterator const It =
+    std::map<FlULong, FCliMedAsteroidGameobj*>::iterator const It =
         Asteroids.find(Event->AsteroidId);
 
     if (Event->bCubeActive) // +0x0c
@@ -204,7 +204,7 @@ void FCliAsteroidCube::ApplyEvent(CmnAsteroid::asteroid_marker const* Event)
         // 0x00524cff..0x00524d3b: operator new(0xac) and the inlined ctor.
         FCliMedAsteroidGameobj* const Med = new FCliMedAsteroidGameobj();
         // 0x00524d3f..0x00524d5e: FUN_0046d6d0 -- insert {AsteroidId, Med}.
-        Asteroids.insert(std::pair<unsigned long const, FCliMedAsteroidGameobj*>(
+        Asteroids.insert(std::pair<FlULong const, FCliMedAsteroidGameobj*>(
             Event->AsteroidId, Med));
         // 0x00524d63..0x00524d75: vt+0x16c find(&Event->ObjId), then vt+0x170 (FUN_00539740).
         Med->find(Event->ObjId);

@@ -147,7 +147,7 @@ unsigned HudCollisionGroupTypeIds(unsigned CollisionGroupType);
 // {ff, 40, 40, ff}; above that a red that follows the UI pulse: t = FUN_0059d570, flipped to
 // 1 - t while FUN_0059d560 is set, bytes {R, G, G, ff} with R = ftol(255 * t) and
 // G = ftol(R * t). Callers: 0x004e6d58 (ColourGroupParts), 0x004e6f82 (ColourEquipParts).
-unsigned long* HudDamageColorArgb(unsigned long* OutArgb, float Damage);
+FlULong* HudDamageColorArgb(FlULong* OutArgb, float Damage);
 
 // FUN_004c71b0 (cdecl, returns Out4) -- the screen rectangle of two points through the Win3D
 // camera (DAT_0067dbf8) slot 0x34 Project: A gives left / top, B right / bottom, each
@@ -173,7 +173,7 @@ CShip* HudShipOfObjRw(IObjRW* ObjRw);
 // +0x1b4); else by Other's attitude towards Player: <= -0.6 red (DAT_00679ba8), >= 0.6 green
 // (DAT_00679bac), otherwise -- or when the query fails -- white. Callers: HUD_Target
 // 0x004e2378 / 0x004e476e, HUD_ContactList 0x004d2875 / 0x004d3a97, 0x004ec0fd, 0x004eef2d.
-void HudReputationColor(unsigned long* OutArgb, IObjRW* Player, IObjRW* Other);
+void HudReputationColor(FlULong* OutArgb, IObjRW* Player, IObjRW* Other);
 
 // FUN_0045a6e0 (cdecl) -- the band of a reputation Attitude: 0 at or below -0.6, 1 at or below
 // -0.2, 4 at or above 0.6, 3 above 0.2, otherwise 2. Sole retail caller 0x004a830a
@@ -488,7 +488,7 @@ private:
     void SelectPreviousSubTarget();
     // FUN_004e4dd0 (RET 4) -- refill Map with the view object's live groups and equipment;
     // returns its size. Map is always &SubTargets.
-    int RebuildSubTargets(std::map<unsigned short, long>* Map);
+    int RebuildSubTargets(std::map<unsigned short, FlLong>* Map);
     // FUN_004e49c0 (RET 4) -- the name of the flashing sub-target into Out (0x80 wide chars).
     void GetSubTargetName(wchar_t* Out);
     // FUN_004e4f70 (RET 4) -- the next hardpoint of HardpointNames projected to the screen.
@@ -513,7 +513,7 @@ public:
     FHudSubTargetFlash SubTargetFlash;     // +0x534
     float LabelRefreshTimer;               // +0x558 counts to 1.0f (FUN_004e22b0)
     unsigned char bHadViewObject;          // +0x55c
-    std::map<unsigned short, long> SubTargets; // +0x560 sub id -> root instance (FUN_004e4dd0)
+    std::map<unsigned short, FlLong> SubTargets; // +0x560 sub id -> root instance (FUN_004e4dd0)
     int SubTargetCursor;                   // +0x574
     int SubTargetCount;                    // +0x578
     std::vector<std::string> HardpointNames; // +0x57c (Slot16's hardpoint walk)

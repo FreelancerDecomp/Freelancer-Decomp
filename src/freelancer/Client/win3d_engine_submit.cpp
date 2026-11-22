@@ -156,7 +156,7 @@ void Win3DUnprojectScreenRayDir(FSpaceCamera* Cam, float ScreenX, float ScreenY,
 }
 
 void SubmitWin3DEngineInstance(FClientMeshHolder* Holder, void* ArchAnchor, unsigned char bFrontCull,
-                               float Scale, unsigned long Flags)
+                               float Scale, FlULong Flags)
 {
     // FUN_0059efa0 (thiscall on the holder, RET 0x10) -- listing 0059efa0..0059f0cd.
     // 0x0059efa0..0x0059efea: cull 4 / lighting off with bFrontCull, else cull 8 / lighting on.
@@ -166,7 +166,7 @@ void SubmitWin3DEngineInstance(FClientMeshHolder* Holder, void* ArchAnchor, unsi
     // 0x0059eff0..0x0059f0a3: Scale != 1 (FCOMP 1.0 / TEST AH,0x44 / JNP: equal skips) scales a
     // local identity through DAT_0067dd10 and passes it with Flags | 0x30; else no matrix.
     void* Matrix = nullptr;
-    unsigned long SlotFlags = Flags;
+    FlULong SlotFlags = Flags;
     float ScaleMtx[12];
     if (Scale != kOne)
     {
@@ -184,7 +184,7 @@ void SubmitWin3DEngineInstance(FClientMeshHolder* Holder, void* ArchAnchor, unsi
 }
 
 void SubmitWin3DTintedEngineInstance(void* ArchAnchor, void* EngineInstance,
-                                     unsigned char MaterialSelector, unsigned long Flags,
+                                     unsigned char MaterialSelector, FlULong Flags,
                                      unsigned char const ColorRgba[4],
                                      unsigned char bCullLightingByte, float Scale)
 {
@@ -212,7 +212,7 @@ void SubmitWin3DTintedEngineInstance(void* ArchAnchor, void* EngineInstance,
     if (DALib::Engine->QueryInterface(Iids::FLAppearance, reinterpret_cast<void**>(&Ifl)) >= 0)
     {
         void* OutMat = nullptr;
-        Ifl->GetOverrideMaterial(static_cast<unsigned long>(MaterialSelector), &OutMat);
+        Ifl->GetOverrideMaterial(static_cast<FlULong>(MaterialSelector), &OutMat);
         Material = reinterpret_cast<IMaterial*>(OutMat);
         Ifl->Release();
     }
@@ -224,7 +224,7 @@ void SubmitWin3DTintedEngineInstance(void* ArchAnchor, void* EngineInstance,
     // 0x00434431..0x004344b2: parameter 0 = the colour (type 4, each byte times the double
     // 1/255 of DAT_005c89c8, stored as floats), material +0x4c.
     alignas(4) unsigned char ValueBlob[4 + 16];
-    *reinterpret_cast<unsigned long*>(ValueBlob) = 4u;
+    *reinterpret_cast<FlULong*>(ValueBlob) = 4u;
     float* const Floats = reinterpret_cast<float*>(ValueBlob + 4);
     double const ByteToUnit = 0.00392156862745098; // DAT_005c89c8
     Floats[0] = static_cast<float>(static_cast<double>(ColorRgba[0]) * ByteToUnit);
@@ -239,7 +239,7 @@ void SubmitWin3DTintedEngineInstance(void* ArchAnchor, void* EngineInstance,
     // 0x004344b5..0x0043456b: Scale != 1 (FCOMP 1.0 / TEST AH,0x44 / JNP: equal skips) scales a
     // local identity through DAT_00667e38 and passes it with Flags | 0x30; else no matrix.
     void* Matrix = nullptr;
-    unsigned long SlotFlags = Flags;
+    FlULong SlotFlags = Flags;
     float ScaleMtx[12];
     if (Scale != kOne)
     {
@@ -261,10 +261,10 @@ void SubmitWin3DTintedEngineInstanceWrapped(void* ArchAnchor, void* EngineInstan
                                             unsigned char bFrontCull,
                                             unsigned char const ColorRgba[4],
                                             unsigned char bCullLightingByte, float Scale,
-                                            unsigned long Flags)
+                                            FlULong Flags)
 {
     // FUN_00434630.
-    unsigned long OrFlags = Flags | 0x8200u;
+    FlULong OrFlags = Flags | 0x8200u;
     if (bFrontCull == 0)
         OrFlags |= 0x2000u;
     // 0x00434646..0x0043466a: (Arch, Instance, 1, OrFlags, ColorRgba, bCullLightingByte,
@@ -276,7 +276,7 @@ void SubmitWin3DTintedEngineInstanceWrapped(void* ArchAnchor, void* EngineInstan
 int SubmitWin3DMaterialEngineInstance(void* Camera, void* EngineInstance, unsigned char bFrontCull,
                                       unsigned char const ColorRgba[4],
                                       unsigned char bCullLightingByte, float Scale,
-                                      unsigned char bParam10, unsigned long Flags)
+                                      unsigned char bParam10, FlULong Flags)
 {
     // FUN_00433f40 -- listing 00433f40..00434304.
     if (EngineInstance == reinterpret_cast<void*>(static_cast<ptrdiff_t>(-1)))
@@ -309,7 +309,7 @@ int SubmitWin3DMaterialEngineInstance(void* Camera, void* EngineInstance, unsign
     // 0x00434071..0x0043413d: parameter 0 = the colour (type 4, each byte times the double
     // 1/255 of DAT_005c89c8, stored as floats), parameter 0xa = bParam10 (type 1).
     alignas(4) unsigned char ColourValue[4 + 16];
-    *reinterpret_cast<unsigned long*>(ColourValue) = 4u;
+    *reinterpret_cast<FlULong*>(ColourValue) = 4u;
     float* const Colour = reinterpret_cast<float*>(ColourValue + 4);
     double const ByteToUnit = 0.00392156862745098; // DAT_005c89c8
     Colour[0] = static_cast<float>(static_cast<double>(ColorRgba[0]) * ByteToUnit);
@@ -322,12 +322,12 @@ int SubmitWin3DMaterialEngineInstance(void* Camera, void* EngineInstance, unsign
     Material->SetParameterValue(0, ColourValue);
     alignas(4) unsigned char FlagValue[4 + 16];
     memset(FlagValue, 0, sizeof(FlagValue));
-    *reinterpret_cast<unsigned long*>(FlagValue) = 1u;
-    *reinterpret_cast<unsigned long*>(FlagValue + 4) = (bParam10 != 0) ? 1u : 0u;
+    *reinterpret_cast<FlULong*>(FlagValue) = 1u;
+    *reinterpret_cast<FlULong*>(FlagValue + 4) = (bParam10 != 0) ? 1u : 0u;
     Material->SetParameterValue(0xa, FlagValue);
 
     // 0x00434140..0x00434235: the flags, the optional scaled identity, IRenderer2 +0x1c.
-    unsigned long SlotFlags = Flags | 0x100u;
+    FlULong SlotFlags = Flags | 0x100u;
     if (bFrontCull == 0)
         SlotFlags |= 0x2000u;
     void* Matrix = nullptr;
@@ -351,13 +351,13 @@ int SubmitWin3DMaterialEngineInstance(void* Camera, void* EngineInstance, unsign
 
 void SubmitWin3DOutlinedEngineInstance(void* Camera, void* EngineInstance,
                                        unsigned char bFrontCull, unsigned char const ColorRgba[4],
-                                       float Scale, unsigned long Flags)
+                                       float Scale, FlULong Flags)
 {
     // FUN_00434670 -- listing 00434670..004346e1.
     unsigned char const Black[4] = {0, 0, 0, 0};
     SubmitWin3DMaterialEngineInstance(Camera, EngineInstance, bFrontCull, Black, 0, Scale, 0,
                                       Flags);
-    unsigned long OrFlags = Flags | 0x8100u;
+    FlULong OrFlags = Flags | 0x8100u;
     if (bFrontCull == 0)
         OrFlags |= 0x2000u;
     // FUN_00434310(Camera, Instance, 1, OrFlags, ColorRgba, 1, Scale).

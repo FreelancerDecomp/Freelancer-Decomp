@@ -53,44 +53,44 @@ namespace Platform
     // ---------------------------------------------------------------------------------------
 
     // Access, sharing and creation values (GENERIC_*, FILE_SHARE_*, the creation disposition).
-    constexpr unsigned long kAccessRead = GENERIC_READ;
-    constexpr unsigned long kAccessWrite = GENERIC_WRITE;
-    constexpr unsigned long kShareRead = FILE_SHARE_READ;
-    constexpr unsigned long kShareWrite = FILE_SHARE_WRITE;
-    constexpr unsigned long kCreateAlways = CREATE_ALWAYS;
-    constexpr unsigned long kOpenExisting = OPEN_EXISTING;
-    constexpr unsigned long kOpenAlways = OPEN_ALWAYS;
+    constexpr FlULong kAccessRead = GENERIC_READ;
+    constexpr FlULong kAccessWrite = GENERIC_WRITE;
+    constexpr FlULong kShareRead = FILE_SHARE_READ;
+    constexpr FlULong kShareWrite = FILE_SHARE_WRITE;
+    constexpr FlULong kCreateAlways = CREATE_ALWAYS;
+    constexpr FlULong kOpenExisting = OPEN_EXISTING;
+    constexpr FlULong kOpenAlways = OPEN_ALWAYS;
 
     // CreateFileA with no security attributes and no template. Returns InvalidHandle() on
     // failure.
-    inline Handle FileOpen(char const* Path, unsigned long Access, unsigned long Share,
-                           unsigned long Creation, unsigned long FlagsAndAttributes = 0)
+    inline Handle FileOpen(char const* Path, FlULong Access, FlULong Share,
+                           FlULong Creation, FlULong FlagsAndAttributes = 0)
     {
         return ::CreateFileA(Path, Access, Share, nullptr, Creation, FlagsAndAttributes, nullptr);
     }
 
     // ReadFile, synchronous. BytesRead receives the count.
-    inline bool FileRead(Handle File, void* Buffer, unsigned long Size, unsigned long* BytesRead)
+    inline bool FileRead(Handle File, void* Buffer, FlULong Size, FlULong* BytesRead)
     {
         return ::ReadFile(File, Buffer, Size, BytesRead, nullptr) != FALSE;
     }
 
     // WriteFile, synchronous.
-    inline bool FileWrite(Handle File, void const* Buffer, unsigned long Size,
-                          unsigned long* BytesWritten)
+    inline bool FileWrite(Handle File, void const* Buffer, FlULong Size,
+                          FlULong* BytesWritten)
     {
         return ::WriteFile(File, Buffer, Size, BytesWritten, nullptr) != FALSE;
     }
 
     // GetFileSize: the low 32 bits; 0xffffffff (INVALID_FILE_SIZE) on failure.
-    inline unsigned long FileGetSize(Handle File) { return ::GetFileSize(File, nullptr); }
+    inline FlULong FileGetSize(Handle File) { return ::GetFileSize(File, nullptr); }
 
     // File attribute values (FILE_ATTRIBUTE_*).
-    constexpr unsigned long kInvalidAttributes = INVALID_FILE_ATTRIBUTES;
-    constexpr unsigned long kAttributeDirectory = FILE_ATTRIBUTE_DIRECTORY;
+    constexpr FlULong kInvalidAttributes = INVALID_FILE_ATTRIBUTES;
+    constexpr FlULong kAttributeDirectory = FILE_ATTRIBUTE_DIRECTORY;
 
     // GetFileAttributesA: kInvalidAttributes when the path does not exist.
-    inline unsigned long PathAttributes(char const* Path) { return ::GetFileAttributesA(Path); }
+    inline FlULong PathAttributes(char const* Path) { return ::GetFileAttributesA(Path); }
 
     // CopyFileA. FailIfExists false overwrites the destination.
     inline bool FileCopy(char const* From, char const* To, bool FailIfExists)
@@ -129,15 +129,15 @@ namespace Platform
     // CreateThread with no security attributes. StackSize 0 takes the module default.
     // Suspended creates it with CREATE_SUSPENDED. ThreadId may be nullptr. Returns nullptr on
     // failure.
-    inline Handle ThreadCreate(ThreadProc Proc, void* Parameter, unsigned long StackSize = 0,
-                               bool Suspended = false, unsigned long* ThreadId = nullptr)
+    inline Handle ThreadCreate(ThreadProc Proc, void* Parameter, FlULong StackSize = 0,
+                               bool Suspended = false, FlULong* ThreadId = nullptr)
     {
         return ::CreateThread(nullptr, StackSize, Proc, Parameter,
                               Suspended ? CREATE_SUSPENDED : 0, ThreadId);
     }
 
     // ResumeThread: the previous suspend count, or 0xffffffff on failure.
-    inline unsigned long ThreadResume(Handle Thread) { return ::ResumeThread(Thread); }
+    inline FlULong ThreadResume(Handle Thread) { return ::ResumeThread(Thread); }
 
     // SetThreadPriority.
     inline bool ThreadSetPriority(Handle Thread, int Priority)
@@ -146,22 +146,22 @@ namespace Platform
     }
 
     // TerminateThread. Kills the thread without unwinding, as retail does.
-    inline bool ThreadTerminate(Handle Thread, unsigned long ExitCode)
+    inline bool ThreadTerminate(Handle Thread, FlULong ExitCode)
     {
         return ::TerminateThread(Thread, ExitCode) != FALSE;
     }
 
     // GetCurrentThreadId.
-    inline unsigned long CurrentThreadId() { return ::GetCurrentThreadId(); }
+    inline FlULong CurrentThreadId() { return ::GetCurrentThreadId(); }
 
     // Sleep. 0 gives up the rest of the time slice.
-    inline void SleepMs(unsigned long Milliseconds) { ::Sleep(Milliseconds); }
+    inline void SleepMs(FlULong Milliseconds) { ::Sleep(Milliseconds); }
 
     // Thread-local slots. TlsSlotAlloc returns kInvalidTlsSlot (TLS_OUT_OF_INDEXES) on failure.
-    constexpr unsigned long kInvalidTlsSlot = TLS_OUT_OF_INDEXES;
-    inline unsigned long TlsSlotAlloc() { return ::TlsAlloc(); }
-    inline void* TlsSlotGet(unsigned long Slot) { return ::TlsGetValue(Slot); }
-    inline bool TlsSlotSet(unsigned long Slot, void* Value) { return ::TlsSetValue(Slot, Value) != FALSE; }
+    constexpr FlULong kInvalidTlsSlot = TLS_OUT_OF_INDEXES;
+    inline FlULong TlsSlotAlloc() { return ::TlsAlloc(); }
+    inline void* TlsSlotGet(FlULong Slot) { return ::TlsGetValue(Slot); }
+    inline bool TlsSlotSet(FlULong Slot, void* Value) { return ::TlsSetValue(Slot, Value) != FALSE; }
 
     // ---------------------------------------------------------------------------------------
     // Synchronisation
@@ -186,22 +186,22 @@ namespace Platform
     inline bool MutexRelease(Handle Mutex) { return ::ReleaseMutex(Mutex) != FALSE; }
 
     // Wait timeouts and results (INFINITE, WAIT_*).
-    constexpr unsigned long kWaitForever = INFINITE;
-    constexpr unsigned long kWaitSignaled = WAIT_OBJECT_0;
-    constexpr unsigned long kWaitAbandoned = WAIT_ABANDONED;
-    constexpr unsigned long kWaitTimeout = WAIT_TIMEOUT;
-    constexpr unsigned long kWaitFailed = WAIT_FAILED;
+    constexpr FlULong kWaitForever = INFINITE;
+    constexpr FlULong kWaitSignaled = WAIT_OBJECT_0;
+    constexpr FlULong kWaitAbandoned = WAIT_ABANDONED;
+    constexpr FlULong kWaitTimeout = WAIT_TIMEOUT;
+    constexpr FlULong kWaitFailed = WAIT_FAILED;
 
     // WaitForSingleObject.
-    inline unsigned long WaitOne(Handle Object, unsigned long TimeoutMs)
+    inline FlULong WaitOne(Handle Object, FlULong TimeoutMs)
     {
         return ::WaitForSingleObject(Object, TimeoutMs);
     }
 
     // WaitForMultipleObjects. WaitAll false returns kWaitSignaled + the index of the object
     // that ended the wait.
-    inline unsigned long WaitMany(unsigned long Count, Handle const* Objects, bool WaitAll,
-                                  unsigned long TimeoutMs)
+    inline FlULong WaitMany(FlULong Count, Handle const* Objects, bool WaitAll,
+                                  FlULong TimeoutMs)
     {
         return ::WaitForMultipleObjects(Count, Objects, WaitAll ? TRUE : FALSE, TimeoutMs);
     }
@@ -218,13 +218,13 @@ namespace Platform
 
     // Interlocked*: full-barrier atomics on a 32-bit value. Increment and Decrement return
     // the new value, Exchange and CompareExchange the previous one.
-    inline long AtomicIncrement(long volatile* Value) { return ::InterlockedIncrement(Value); }
-    inline long AtomicDecrement(long volatile* Value) { return ::InterlockedDecrement(Value); }
-    inline long AtomicExchange(long volatile* Value, long NewValue)
+    inline FlLong AtomicIncrement(FlLong volatile* Value) { return ::InterlockedIncrement(Value); }
+    inline FlLong AtomicDecrement(FlLong volatile* Value) { return ::InterlockedDecrement(Value); }
+    inline FlLong AtomicExchange(FlLong volatile* Value, FlLong NewValue)
     {
         return ::InterlockedExchange(Value, NewValue);
     }
-    inline long AtomicCompareExchange(long volatile* Value, long NewValue, long Expected)
+    inline FlLong AtomicCompareExchange(FlLong volatile* Value, FlLong NewValue, FlLong Expected)
     {
         return ::InterlockedCompareExchange(Value, NewValue, Expected);
     }
@@ -235,10 +235,10 @@ namespace Platform
 
     // timeGetTime: milliseconds, wraps every 49.7 days. Its resolution follows
     // timeBeginPeriod; the two clocks are kept apart because retail reads both.
-    inline unsigned long TimerMs() { return ::timeGetTime(); }
+    inline FlULong TimerMs() { return ::timeGetTime(); }
 
     // GetTickCount: milliseconds since boot, wraps every 49.7 days, system-tick resolution.
-    inline unsigned long TickCountMs() { return ::GetTickCount(); }
+    inline FlULong TickCountMs() { return ::GetTickCount(); }
 
     // QueryPerformanceCounter / QueryPerformanceFrequency. False when the call fails (never
     // on Windows XP and later); the value is then 0.
@@ -305,7 +305,7 @@ namespace Platform
 
     // GetModuleFileNameA: the length written, 0 on failure. Library nullptr names the
     // executable.
-    inline unsigned long ModulePath(Module Library, char* Path, unsigned long Size)
+    inline FlULong ModulePath(Module Library, char* Path, FlULong Size)
     {
         return ::GetModuleFileNameA(Library, Path, Size);
     }
@@ -315,7 +315,7 @@ namespace Platform
     // ---------------------------------------------------------------------------------------
 
     // GetCurrentDirectoryA: the length written, or the size needed when Size is too small.
-    inline unsigned long CurrentDirectory(char* Path, unsigned long Size)
+    inline FlULong CurrentDirectory(char* Path, FlULong Size)
     {
         return ::GetCurrentDirectoryA(Size, Path);
     }
@@ -325,14 +325,14 @@ namespace Platform
 
     // GetFullPathNameA: the length written, or the size needed when Size is too small.
     // FilePart may be nullptr.
-    inline unsigned long FullPath(char const* Path, char* Full, unsigned long Size,
+    inline FlULong FullPath(char const* Path, char* Full, FlULong Size,
                                   char** FilePart = nullptr)
     {
         return ::GetFullPathNameA(Path, Size, Full, FilePart);
     }
 
     // GetTempPathA: the length written (with the trailing backslash).
-    inline unsigned long TempDirectory(char* Path, unsigned long Size) { return ::GetTempPathA(Size, Path); }
+    inline FlULong TempDirectory(char* Path, FlULong Size) { return ::GetTempPathA(Size, Path); }
 
     // Per-user folders (UserFolder) are in platform_folders.h: it needs the shell headers.
 } // namespace Platform

@@ -73,10 +73,10 @@ void SaveGame::CloseFile() {
     }
 }
 
-void SaveGame::ReadTail(long Offset) {
+void SaveGame::ReadTail(FlLong Offset) {
     // Retail FUN_06d48960 (.text:06d48960 .. .text:06d48b50, RET 4).
     fseek(File, 0, SEEK_END);                               // .text:06d48978
-    long const Size = ftell(File) - Offset;                 // .text:06d4897d, 06d4898f SUB EDI,EAX
+    FlLong const Size = ftell(File) - Offset;                 // .text:06d4897d, 06d4898f SUB EDI,EAX
     fseek(File, Offset, SEEK_SET);                          // .text:06d48991
     // .text:06d4899c .. .text:06d48a40: MSVCP60's resize(Size) inlined -- erase
     // at Size when the length is not below it (CMP / JC), else an append of
@@ -187,7 +187,7 @@ void SaveGame_Writer::ReadBackAndEncode() {
         return;                                             // .text:06d53b9c JZ LAB_06d53d43
 
     fseek(File, 0, SEEK_END);                             // .text:06d53baf
-    long const Size = ftell(File);                        // .text:06d53bb5
+    FlLong const Size = ftell(File);                        // .text:06d53bb5
     fseek(File, 0, SEEK_SET);                             // .text:06d53bc9
 
     // .text:06d53bd4 .. .text:06d53c46: MSVCP60's resize(Size) inlined -- an

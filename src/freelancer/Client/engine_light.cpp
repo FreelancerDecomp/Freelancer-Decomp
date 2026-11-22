@@ -70,7 +70,7 @@ namespace
         case 2:
         case 3:
             if (bAlsoD3dType)
-                Light->D3d.Type = static_cast<unsigned long>(LightType);
+                Light->D3d.Type = static_cast<FlULong>(LightType);
             Light->Type = LightType;
             break;
         case -2:

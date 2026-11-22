@@ -29,14 +29,14 @@ static constexpr float G_ParamRangeSlack = 1.1920928955078125e-07f;
 // .rdata:06601580 (a double): FUN_066001c0's dead zone.
 static constexpr double G_EyeUvDeadZone = 1.0e-4;
 
-static void* DwordToPointer(unsigned long Value)
+static void* DwordToPointer(FlULong Value)
 {
     return (void*)((uintptr_t)(Value));
 }
 
-static unsigned long PointerToDword(const void* Pointer)
+static FlULong PointerToDword(const void* Pointer)
 {
-    return (unsigned long)((uintptr_t)(Pointer));
+    return (FlULong)((uintptr_t)(Pointer));
 }
 
 
@@ -44,28 +44,28 @@ namespace
 {
     struct FPixelFormatChannel
     {
-        unsigned long Bits;
-        unsigned long Mask;
-        unsigned long Shift;
-        unsigned long Loss;
+        FlULong Bits;
+        FlULong Mask;
+        FlULong Shift;
+        FlULong Loss;
     };
 
     // DAT_06602c88 entry (0x4C).
     struct FPixelFormatDesc
     {
-        unsigned long Id;            // +0x00
-        unsigned long Bpp;           // +0x04
+        FlULong Id;            // +0x00
+        FlULong Bpp;           // +0x04
         FPixelFormatChannel Red;     // +0x08
         FPixelFormatChannel Green;   // +0x18
         FPixelFormatChannel Blue;    // +0x28
         FPixelFormatChannel Alpha;   // +0x38
-        unsigned long HasAlpha;      // +0x48 (low byte read)
+        FlULong HasAlpha;      // +0x48 (low byte read)
     };
 
     FL_LAYOUT_ASSERT(sizeof(FPixelFormatDesc) == 0x4C, "PixelFormat descriptor is 0x4C bytes");
 
     // DAT_06602c30 (.data, 0x16 dwords), read verbatim from the PE bytes.
-    unsigned long G_PixelFormatD3D[0x16] = {
+    FlULong G_PixelFormatD3D[0x16] = {
         0x0,        0x29,       0x14,       0x17,       0x18,       0x1a,
         0x19,       0x15,       0x16,       0x0,        0x31545844, 0x32545844,
         0x33545844, 0x34545844, 0x35545844, 0x504f4144, 0x544f4144, 0x41414144,
@@ -92,15 +92,15 @@ namespace
 }
 
 // FUN_06600d90: MOV EAX,DAT_06602c30; RET.
-static unsigned long* PixelFormatGetD3DFormats()
+static FlULong* PixelFormatGetD3DFormats()
 {
     return G_PixelFormatD3D;
 }
 
 // FUN_06600da0 (cdecl): the index of the first entry equal to D3DFormat among 0x16, else 0.
-static int PixelFormatFromD3D(unsigned long D3DFormat)
+static int PixelFormatFromD3D(FlULong D3DFormat)
 {
-    const unsigned long* const Formats = PixelFormatGetD3DFormats();
+    const FlULong* const Formats = PixelFormatGetD3DFormats();
     int Index = 0;
     while (Index < 0x16)
     {
@@ -122,7 +122,7 @@ static FPixelFormatDesc* PixelFormatGetDesc(int Id)
 
 static GENRESULT MaterialFsResult(bool bOk)
 {
-    return (GENRESULT)(((unsigned long)(bOk ? 1 : 0) - 1u) & 0x80004005u);
+    return (GENRESULT)(((FlULong)(bOk ? 1 : 0) - 1u) & 0x80004005u);
 }
 
 static void FillMaterialWriteDesc(FFileSystemDesc* Desc, const char* Key)
@@ -136,7 +136,7 @@ static void FillMaterialWriteDesc(FFileSystemDesc* Desc, const char* Key)
 
 // FUN_066003a0 (FS, Key, Out): Read(h, &Data, 4, &Got, 0); *Out = Data only when the read
 // answered non-zero with Got == 4.
-static GENRESULT MaterialFsReadDword(IFileSystem* Fs, const char* Key, unsigned long* Out)
+static GENRESULT MaterialFsReadDword(IFileSystem* Fs, const char* Key, FlULong* Out)
 {
     FFileSystemDesc Desc;
     FillFileDesc(&Desc, Key);
@@ -144,14 +144,14 @@ static GENRESULT MaterialFsReadDword(IFileSystem* Fs, const char* Key, unsigned 
     const int Handle = Fs->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        unsigned long Data;
-        unsigned long Got;
-        if (Fs->Read((unsigned long)(Handle), &Data, 4, &Got, 0) != 0 && Got == 4)
+        FlULong Data;
+        FlULong Got;
+        if (Fs->Read((FlULong)(Handle), &Data, 4, &Got, 0) != 0 && Got == 4)
         {
             *Out = Data;
             bOk = true;
         }
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
@@ -166,21 +166,21 @@ static GENRESULT MaterialFsReadFloat(IFileSystem* Fs, const char* Key, float* Ou
     if (Handle != -1)
     {
         float Data;
-        unsigned long Got;
-        if (Fs->Read((unsigned long)(Handle), &Data, 4, &Got, 0) != 0 && Got == 4)
+        FlULong Got;
+        if (Fs->Read((FlULong)(Handle), &Data, 4, &Got, 0) != 0 && Got == 4)
         {
             *Out = Data;
             bOk = true;
         }
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
 // FUN_06600520 (FS, Key, Count, Out, OutCount): with OutCount, Count = min(GetSize(h, 0) >> 2,
 // Count) is stored through it first; then Read(h, Out, Count * 4) must deliver all of it.
-static GENRESULT MaterialFsReadFloats(IFileSystem* Fs, const char* Key, unsigned long Count,
-                                      float* Out, unsigned long* OutCount)
+static GENRESULT MaterialFsReadFloats(IFileSystem* Fs, const char* Key, FlULong Count,
+                                      float* Out, FlULong* OutCount)
 {
     FFileSystemDesc Desc;
     FillFileDesc(&Desc, Key);
@@ -190,20 +190,20 @@ static GENRESULT MaterialFsReadFloats(IFileSystem* Fs, const char* Key, unsigned
     {
         if (OutCount != nullptr)
         {
-            const unsigned long Available = Fs->GetSize((unsigned long)(Handle), 0) >> 2;
+            const FlULong Available = Fs->GetSize((FlULong)(Handle), 0) >> 2;
             if (Available < Count)
                 Count = Available;
             *OutCount = Count;
         }
-        const unsigned long Bytes = Count * 4;
-        unsigned long Got;
-        bOk = Fs->Read((unsigned long)(Handle), Out, Bytes, &Got, 0) != 0 && Got == Bytes;
-        Fs->CloseFile((unsigned long)(Handle));
+        const FlULong Bytes = Count * 4;
+        FlULong Got;
+        bOk = Fs->Read((FlULong)(Handle), Out, Bytes, &Got, 0) != 0 && Got == Bytes;
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
-static GENRESULT MaterialFsReadBlock(IFileSystem* Fs, const char* Key, unsigned long Size,
+static GENRESULT MaterialFsReadBlock(IFileSystem* Fs, const char* Key, FlULong Size,
                                      char** Out)
 {
     FFileSystemDesc Desc;
@@ -213,25 +213,25 @@ static GENRESULT MaterialFsReadBlock(IFileSystem* Fs, const char* Key, unsigned 
     if (Handle != -1)
     {
         if (Size == 0)
-            Size = Fs->GetSize((unsigned long)(Handle), 0);
+            Size = Fs->GetSize((FlULong)(Handle), 0);
         char* const Block = new (std::nothrow) char[Size];
         if (Block != nullptr)
         {
             *Out = Block;
-            unsigned long Got;
-            bOk = Fs->Read((unsigned long)(Handle), Block, Size, &Got, 0) != 0 &&
+            FlULong Got;
+            bOk = Fs->Read((FlULong)(Handle), Block, Size, &Got, 0) != 0 &&
                   Got == Size;
         }
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
 // IFileSystem::Write +0x18: (h, Src, Size, &Done, 0).
-static bool MaterialFsWrite(IFileSystem* Fs, int Handle, const void* Src, unsigned long Size)
+static bool MaterialFsWrite(IFileSystem* Fs, int Handle, const void* Src, FlULong Size)
 {
-    unsigned long Done;
-    return Fs->Write((unsigned long)(Handle), Src, Size, &Done, nullptr) != 0 &&
+    FlULong Done;
+    return Fs->Write((FlULong)(Handle), Src, Size, &Done, nullptr) != 0 &&
            Done == Size;
 }
 
@@ -245,13 +245,13 @@ static GENRESULT MaterialFsWriteDword(IFileSystem* Fs, const char* Key, const vo
     if (Handle != -1)
     {
         bOk = MaterialFsWrite(Fs, Handle, Src, 4);
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
 // FUN_06600790 (FS, Key, Count, Src): Count * 4 bytes.
-static GENRESULT MaterialFsWriteFloats(IFileSystem* Fs, const char* Key, unsigned long Count,
+static GENRESULT MaterialFsWriteFloats(IFileSystem* Fs, const char* Key, FlULong Count,
                                        const void* Src)
 {
     FFileSystemDesc Desc;
@@ -261,13 +261,13 @@ static GENRESULT MaterialFsWriteFloats(IFileSystem* Fs, const char* Key, unsigne
     if (Handle != -1)
     {
         bOk = MaterialFsWrite(Fs, Handle, Src, Count * 4);
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
 // FUN_06600850 (FS, Key, Size, Src): Size bytes.
-static GENRESULT MaterialFsWriteBlock(IFileSystem* Fs, const char* Key, unsigned long Size,
+static GENRESULT MaterialFsWriteBlock(IFileSystem* Fs, const char* Key, FlULong Size,
                                       const void* Src)
 {
     FFileSystemDesc Desc;
@@ -277,13 +277,13 @@ static GENRESULT MaterialFsWriteBlock(IFileSystem* Fs, const char* Key, unsigned
     if (Handle != -1)
     {
         bOk = MaterialFsWrite(Fs, Handle, Src, Size);
-        Fs->CloseFile((unsigned long)(Handle));
+        Fs->CloseFile((FlULong)(Handle));
     }
     return MaterialFsResult(bOk);
 }
 
 // FUN_065fe590 (cdecl: Flags, Which): Which 0 -> Flags & 3, 1 -> (Flags >> 2) & 3, else 0.
-static unsigned long MaterialAddressModeBits(unsigned long Flags, int Which)
+static FlULong MaterialAddressModeBits(FlULong Flags, int Which)
 {
     if (Which == 0)
         return Flags & 3u;
@@ -294,7 +294,7 @@ static unsigned long MaterialAddressModeBits(unsigned long Flags, int Which)
 
 // The pair index a type-9 parameter works on: 0065fe4e8 / 065fe86f -- flag 0x20000 -> 0 (U),
 // else 0x40000 -> 1 (V), else 0.
-static int MaterialAddressModeWhich(unsigned long Flags)
+static int MaterialAddressModeWhich(FlULong Flags)
 {
     if ((Flags & 0x20000) != 0)
         return 0;
@@ -418,13 +418,13 @@ FMaterialParamValue& FMaterialParamValue::operator=(const FMaterialParamValue& S
     return *this;
 }
 
-void FMaterialParamValue::Set(int InType, unsigned long Arg)
+void FMaterialParamValue::Set(int InType, FlULong Arg)
 {
     // FUN_065ffab0, 065ffab0..fbed (jump table 065ffbf0).
     if (InType != Type)
         Clear();
     Type = InType;
-    const unsigned long* const Source = (const unsigned long*)(DwordToPointer(Arg));
+    const FlULong* const Source = (const FlULong*)(DwordToPointer(Arg));
     switch (InType)
     {
     case 1:
@@ -476,9 +476,9 @@ FMaterialParamDesc::~FMaterialParamDesc()
     Description = nullptr;
 }
 
-void FMaterialParamDesc::Init(int Type, unsigned long InFlags, const char* InKey,
+void FMaterialParamDesc::Init(int Type, FlULong InFlags, const char* InKey,
                               const char* InName, const char* InDescription,
-                              unsigned long Default, unsigned long InMin, unsigned long InMax)
+                              FlULong Default, FlULong InMin, FlULong InMax)
 {
     Flags = InFlags;
     Key = InKey;
@@ -536,7 +536,7 @@ FEyeMaterialImpl::FEyeMaterialImpl()
 FEyeMaterialImpl::~FEyeMaterialImpl()
 {
     // FUN_06600a30, 06600a30..0ae3 (vtable 06601598 stored first).
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < TextureRowCount)
     {
         FMaterialTextureRow* const Row = &TextureRows[Index];
@@ -590,9 +590,9 @@ GENRESULT DACOM_API FEyeMaterialImpl::Initialize(IDAComponent* Outer)
     // 065fe260..e30b: one texture row per type-7 parameter, then every parameter's default
     // stored through slot 26.
     FMaterialParamDesc* Table = nullptr;
-    const unsigned long Count = GetParameterTable((void**)(&Table));
+    const FlULong Count = GetParameterTable((void**)(&Table));
     TextureRowCount = 0;
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < Count)
     {
         if (Table[Index].Value.Type == 7)
@@ -614,8 +614,8 @@ GENRESULT DACOM_API FEyeMaterialImpl::LoadFromFileSystem(void* FileSystem)
 {
     IFileSystem* const Fs = (IFileSystem*)(FileSystem);
     FMaterialParamDesc* Table = nullptr;
-    const unsigned long Count = GetParameterTable((void**)(&Table));
-    unsigned long Index = 0;
+    const FlULong Count = GetParameterTable((void**)(&Table));
+    FlULong Index = 0;
     while (Index < Count)
     {
         FMaterialParamDesc* const Entry = &Table[Index];
@@ -635,7 +635,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::LoadFromFileSystem(void* FileSystem)
                 break;
             case 3:
             case 4:
-                Result = MaterialFsReadFloats(Fs, Entry->Key, (unsigned long)(Cell.Type),
+                Result = MaterialFsReadFloats(Fs, Entry->Key, (FlULong)(Cell.Type),
                                               (float*)(&Cell.Value[0]), nullptr);
                 break;
             case 5:
@@ -652,7 +652,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::LoadFromFileSystem(void* FileSystem)
             }
             case 8:
             {
-                unsigned long Raw;
+                FlULong Raw;
                 Result = MaterialFsReadDword(Fs, Entry->Key, &Raw);
                 if (Result >= 0)
                     Cell.Value[0] = (Raw >> 4) & 0xF;
@@ -660,7 +660,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::LoadFromFileSystem(void* FileSystem)
             }
             case 9:
             {
-                unsigned long Raw;
+                FlULong Raw;
                 Result = MaterialFsReadDword(Fs, Entry->Key, &Raw);
                 if (Result >= 0)
                     Cell.Value[0] = MaterialAddressModeBits(Raw,
@@ -682,17 +682,17 @@ GENRESULT DACOM_API FEyeMaterialImpl::SaveProperties(void* FileSystem)
 {
     IFileSystem* const Fs = (IFileSystem*)(FileSystem);
     FMaterialParamDesc* Table = nullptr;
-    const unsigned long Count = GetParameterTable((void**)(&Table));
+    const FlULong Count = GetParameterTable((void**)(&Table));
     GENRESULT Result = GR_OK;
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < Count)
     {
         const FMaterialParamDesc* const Entry = &Table[Index];
         if ((Entry->Flags & 1) == 0)
         {
             FMaterialParamValue Cell(Entry->Value.Type);
-            const unsigned long* const Address =
-                (const unsigned long*)(GetParameterAddress(Index));
+            const FlULong* const Address =
+                (const FlULong*)(GetParameterAddress(Index));
             if (Address == nullptr)
             {
                 Result = GR_GENERIC;
@@ -737,7 +737,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::SaveProperties(void* FileSystem)
                 case 3:
                 case 4:
                     WriteResult = MaterialFsWriteFloats(Fs, Entry->Key,
-                                                        (unsigned long)(Cell.Type),
+                                                        (FlULong)(Cell.Type),
                                                         &Cell.Value[0]);
                     break;
                 case 5:
@@ -745,14 +745,14 @@ GENRESULT DACOM_API FEyeMaterialImpl::SaveProperties(void* FileSystem)
                 {
                     const char* const Text = (const char*)(DwordToPointer(Cell.Value[0]));
                     WriteResult = MaterialFsWriteBlock(
-                        Fs, Entry->Key, (unsigned long)(std::strlen(Text) + 1), Text);
+                        Fs, Entry->Key, (FlULong)(std::strlen(Text) + 1), Text);
                     break;
                 }
                 case 8:
                 {
                     // 065fe817..e855: the stored dword is read back (result ignored) and only its
                     // bits 4..7 replaced.
-                    unsigned long Raw = 0;
+                    FlULong Raw = 0;
                     MaterialFsReadDword(Fs, Entry->Key, &Raw);
                     Raw ^= ((Cell.Value[0] << 4) ^ Raw) & 0xF0u;
                     WriteResult = MaterialFsWriteDword(Fs, Entry->Key, &Raw);
@@ -762,10 +762,10 @@ GENRESULT DACOM_API FEyeMaterialImpl::SaveProperties(void* FileSystem)
                 {
                     // 065fe85a..e8b8: pair 0 (U) writes bits 0..1 AND then falls into the pair-1
                     // code writing bits 2..3 as well (JMP 065fe896); pair 1 writes bits 2..3.
-                    unsigned long Raw = 0;
+                    FlULong Raw = 0;
                     MaterialFsReadDword(Fs, Entry->Key, &Raw);
                     const int Which = MaterialAddressModeWhich(Entry->Flags);
-                    const unsigned long Mode = Cell.Value[0];
+                    const FlULong Mode = Cell.Value[0];
                     if (Which == 0)
                         Raw ^= (Raw ^ Mode) & 3u;
                     if (Which == 0 || Which == 1)
@@ -800,7 +800,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::ResolveTextures(float /*Delta*/)
 {
     // LAB_065fe9a0 (RET 8): per row, Handle -1 -> Frame = 0; else a row that is not single-frame
     // re-reads its frame through TextureLib +0x70 GetFrame(Handle, -1, &Frame). Always 0.
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < TextureRowCount)
     {
         FMaterialTextureRow* const Row = &TextureRows[Index];
@@ -842,10 +842,10 @@ GENRESULT DACOM_API FEyeMaterialImpl::Teardown(void* Context)
 }
 
 
-GENRESULT DACOM_API FEyeMaterialImpl::Submit(void* Context, unsigned long PrimType,
-                                          unsigned long Start, unsigned long Count,
-                                          unsigned long IbStart, unsigned long IndexSpan,
-                                          unsigned long Flags)
+GENRESULT DACOM_API FEyeMaterialImpl::Submit(void* Context, FlULong PrimType,
+                                          FlULong Start, FlULong Count,
+                                          FlULong IbStart, FlULong IndexSpan,
+                                          FlULong Flags)
 {
     // LAB_065fea00 (RET 0x20), 065fea00..ebf7.
     FMaterialSubmitContext* const Ctx = (FMaterialSubmitContext*)(Context);
@@ -878,21 +878,21 @@ GENRESULT DACOM_API FEyeMaterialImpl::Submit(void* Context, unsigned long PrimTy
         return Result;
 
     // 065feacb..eb78: the vertex stride from the locked FVF.
-    const unsigned long Fvf = Lock.Listing.Fvf;
-    unsigned long PositionBytes = 0;
+    const FlULong Fvf = Lock.Listing.Fvf;
+    FlULong PositionBytes = 0;
     if ((Fvf & 0xC) == 0xC)
         PositionBytes = 0x1C;
     else if ((Fvf & 4) == 4)
         PositionBytes = 0x10;
     else if ((Fvf & 2) == 2)
         PositionBytes = 0xC;
-    const unsigned long NormalBytes = (Fvf & 0x10) != 0 ? 0xCu : 0u;
-    unsigned long ColorBytes = (Fvf & 0x40) != 0 ? 4u : 0u;
+    const FlULong NormalBytes = (Fvf & 0x10) != 0 ? 0xCu : 0u;
+    FlULong ColorBytes = (Fvf & 0x40) != 0 ? 4u : 0u;
     if ((Fvf & 0x80) != 0)
         ColorBytes += 4;
-    unsigned long TexBytes = 0;
-    unsigned long TexCount = (Fvf >> 8) & 0xF;
-    unsigned long Shift = 0x10;
+    FlULong TexBytes = 0;
+    FlULong TexCount = (Fvf >> 8) & 0xF;
+    FlULong Shift = 0x10;
     while (TexCount > 0)
     {
         // SHR EAX,CL: x86 masks the count to five bits.
@@ -914,7 +914,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::Submit(void* Context, unsigned long PrimTy
         Shift += 2;
         TexCount -= 1;
     }
-    const unsigned long Stride = TexBytes + ColorBytes + NormalBytes + PositionBytes;
+    const FlULong Stride = TexBytes + ColorBytes + NormalBytes + PositionBytes;
 
     VertexBufferMgr->CopyVertexData((unsigned char*)Lock.Vertices - Stride * Start, Fvf, Source, Start, Count); // +0x20
     VertexBufferMgr->UnlockVertexMemory(&Lock);                                  // +0x18
@@ -940,7 +940,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::SetName(const char* InName)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::GetName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FEyeMaterialImpl::GetName(char* Out, FlULong Size)
 {
     // LAB_065fec80 (RET 0xC): -1 before SetName; else strncpy and a forced NUL.
     if (Name == nullptr)
@@ -950,7 +950,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::GetName(char* Out, unsigned long Size)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::CopyClassName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FEyeMaterialImpl::CopyClassName(char* Out, FlULong Size)
 {
     // FUN_065fecc0 (RET 0xC): slot 20 tested, then called again for the strncpy.
     if (ClassName() == nullptr)
@@ -967,14 +967,14 @@ GENRESULT DACOM_API FEyeMaterialImpl::GetPassCount(int* Out)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::GetParameterCount(unsigned long* OutCount)
+GENRESULT DACOM_API FEyeMaterialImpl::GetParameterCount(FlULong* OutCount)
 {
     // LAB_065fed10 (RET 8): slot 27 with a null out-pointer.
     *OutCount = GetParameterTable(nullptr);
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::GetParameterDescriptor(unsigned long Index, void* OutDesc)
+GENRESULT DACOM_API FEyeMaterialImpl::GetParameterDescriptor(FlULong Index, void* OutDesc)
 {
     FMaterialParamDesc* Table = nullptr;
     if (GetParameterTable((void**)(&Table)) <= Index)
@@ -991,7 +991,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::GetParameterDescriptor(unsigned long Index
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::GetParameterValue(unsigned long Index, void* InOutDesc)
+GENRESULT DACOM_API FEyeMaterialImpl::GetParameterValue(FlULong Index, void* InOutDesc)
 {
     // FUN_065ff060 (RET 0xC), jump table 065ff1c8. InOutDesc is one value cell: retyped to the
     // parameter's type (old value cleared by its old type), then filled from slot 28's address.
@@ -1003,7 +1003,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::GetParameterValue(unsigned long Index, voi
     if (Out->Type != Type)
         Out->Clear();
     Out->Type = Type;
-    const unsigned long* const Address = (const unsigned long*)(GetParameterAddress(Index));
+    const FlULong* const Address = (const FlULong*)(GetParameterAddress(Index));
     if (Address == nullptr)
         return GR_GENERIC;
     switch (Out->Type)
@@ -1036,7 +1036,7 @@ GENRESULT DACOM_API FEyeMaterialImpl::GetParameterValue(unsigned long Index, voi
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterialImpl::SetParameterValue(unsigned long Index, void* Value)
+GENRESULT DACOM_API FEyeMaterialImpl::SetParameterValue(FlULong Index, void* Value)
 {
     // LAB_065ff1f0 (RET 0xC): Index >= count or slot 25 false -> -1; else slot 26, 0.
     FMaterialParamDesc* Table = nullptr;
@@ -1093,7 +1093,7 @@ GENRESULT FEyeMaterialImpl::UpdateTranslucency()
 GENRESULT __thiscall FEyeMaterialImpl::Setup()
 {
     char Message[0x2000];
-    unsigned long Index = 0;
+    FlULong Index = 0;
     while (Index < TextureRowCount)
     {
         FMaterialTextureRow* const Row = &TextureRows[Index];
@@ -1137,7 +1137,7 @@ GENRESULT __thiscall FEyeMaterialImpl::Setup()
     return UpdateTranslucency();
 }
 
-bool __thiscall FEyeMaterialImpl::ValueWithinDeclaredRange(unsigned long /*Index*/, void* Entry,
+bool __thiscall FEyeMaterialImpl::ValueWithinDeclaredRange(FlULong /*Index*/, void* Entry,
                                                         void* Value)
 {
     const FMaterialParamDesc* const Desc = (const FMaterialParamDesc*)(Entry);
@@ -1169,11 +1169,11 @@ bool __thiscall FEyeMaterialImpl::ValueWithinDeclaredRange(unsigned long /*Index
     return true;
 }
 
-GENRESULT __thiscall FEyeMaterialImpl::StoreParameterValue(unsigned long Index, void* Entry,
+GENRESULT __thiscall FEyeMaterialImpl::StoreParameterValue(FlULong Index, void* Entry,
                                                         void* Value)
 {
     const FMaterialParamValue* const Cell = (const FMaterialParamValue*)(Value);
-    unsigned long* const Address = (unsigned long*)(GetParameterAddress(Index));
+    FlULong* const Address = (FlULong*)(GetParameterAddress(Index));
     if (Address != nullptr)
     {
         switch (Cell->Type)
@@ -1244,7 +1244,7 @@ GENRESULT __thiscall FEyeMaterialImpl::StoreParameterValue(unsigned long Index, 
     return GR_OK;
 }
 
-unsigned long __thiscall FEyeMaterialImpl::GetParameterTable(void** OutBase)
+FlULong __thiscall FEyeMaterialImpl::GetParameterTable(void** OutBase)
 {
     // LAB_06600b80 (RET 4): no table.
     if (OutBase != nullptr)
@@ -1252,7 +1252,7 @@ unsigned long __thiscall FEyeMaterialImpl::GetParameterTable(void** OutBase)
     return 0;
 }
 
-void* __thiscall FEyeMaterialImpl::GetParameterAddress(unsigned long /*Index*/)
+void* __thiscall FEyeMaterialImpl::GetParameterAddress(FlULong /*Index*/)
 {
     // FUN_06600ba0.
     return nullptr;
@@ -1269,7 +1269,7 @@ namespace
     struct FInterfaceOffset
     {
         const char* Iid;
-        unsigned long Offset;
+        FlULong Offset;
     };
 
     const FInterfaceOffset G_EyeMaterialInterfaces[] = {
@@ -1284,7 +1284,7 @@ GENRESULT DACOM_API FEyeMaterialInner::QueryInterface(const char* Iid, void** Ou
     {
         if (std::strcmp(G_EyeMaterialInterfaces[Index].Iid, Iid) == 0)
         {
-            const unsigned long Offset = G_EyeMaterialInterfaces[Index].Offset;
+            const FlULong Offset = G_EyeMaterialInterfaces[Index].Offset;
             unsigned char* const Base = (unsigned char*)(Owner);
             IDAComponent* Face;
             if ((Offset & 0x80000000u) != 0)
@@ -1301,14 +1301,14 @@ GENRESULT DACOM_API FEyeMaterialInner::QueryInterface(const char* Iid, void** Ou
     return GR_INTERFACE_UNSUPPORTED;
 }
 
-unsigned long DACOM_API FEyeMaterialInner::AddRef()
+FlULong DACOM_API FEyeMaterialInner::AddRef()
 {
     // LAB_065fe060 (the factory's AddRef too): ++[this+4].
     RefCount += 1;
     return RefCount;
 }
 
-unsigned long DACOM_API FEyeMaterialInner::Release()
+FlULong DACOM_API FEyeMaterialInner::Release()
 {
     // LAB_066009d0 (RET 4): decrement when above 0; reaching 0 re-arms it to 1 and calls the
     // owner's slot 21 with 1, then returns 0.
@@ -1381,13 +1381,13 @@ GENRESULT DACOM_API FEyeMaterial::QueryInterface(const char* Iid, void** Out)
     return Controlling->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FEyeMaterial::AddRef()
+FlULong DACOM_API FEyeMaterial::AddRef()
 {
     // LAB_06600a10.
     return Controlling->AddRef();
 }
 
-unsigned long DACOM_API FEyeMaterial::Release()
+FlULong DACOM_API FEyeMaterial::Release()
 {
     // LAB_06600a20.
     return Controlling->Release();
@@ -1470,7 +1470,7 @@ GENRESULT DACOM_API FEyeMaterial::Teardown(void* Context)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FEyeMaterial::GetRenderFlags(unsigned long* Out)
+GENRESULT DACOM_API FEyeMaterial::GetRenderFlags(FlULong* Out)
 {
     // LAB_065ffef0 (RET 8): NEG/SBB -> 0xA when translucent, else 8.
     *Out = bTranslucent != 0 ? 0xAu : 0x8u;
@@ -1483,13 +1483,13 @@ const char* __thiscall FEyeMaterial::ClassName()
     return G_EyeMaterialName;
 }
 
-unsigned long __thiscall FEyeMaterial::GetParameterTable(void** OutBase)
+FlULong __thiscall FEyeMaterial::GetParameterTable(void** OutBase)
 {
     static FMaterialParamDesc Table[10];
     if (Table[0].Value.Type == 0)
     {
-        const unsigned long Ones = PointerToDword(G_ParamOnes);
-        const unsigned long Zeros = PointerToDword(G_ParamZeros);
+        const FlULong Ones = PointerToDword(G_ParamOnes);
+        const FlULong Zeros = PointerToDword(G_ParamZeros);
         Table[0].Init(3, 0, "Ac", "Ambient Color", G_ParamNoDescription, Ones, Zeros, Ones);
         Table[1].Init(3, 0, "Dc", "Diffuse Color", G_ParamNoDescription, Ones, Zeros, Ones);
         Table[2].Init(3, 0, "Ec", "Emissive Color", G_ParamNoDescription, Zeros, Zeros, Ones);
@@ -1510,7 +1510,7 @@ unsigned long __thiscall FEyeMaterial::GetParameterTable(void** OutBase)
     return 10;
 }
 
-void* __thiscall FEyeMaterial::GetParameterAddress(unsigned long Index)
+void* __thiscall FEyeMaterial::GetParameterAddress(FlULong Index)
 {
     // LAB_065ffe60 (RET 4), jump table 065ffebc. 6..9 are offsets from the row pointer itself
     // (no null test).
@@ -1546,12 +1546,12 @@ GENRESULT DACOM_API FEyeMaterial::InnerQueryInterface(const char* Iid, void** Ou
     return Inner.QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FEyeMaterial::InnerAddRef()
+FlULong DACOM_API FEyeMaterial::InnerAddRef()
 {
     return Inner.AddRef();
 }
 
-unsigned long DACOM_API FEyeMaterial::InnerRelease()
+FlULong DACOM_API FEyeMaterial::InnerRelease()
 {
     return Inner.Release();
 }

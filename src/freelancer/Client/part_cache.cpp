@@ -675,19 +675,19 @@ namespace
     // DAT_005c7608 / DAT_005c7628 / DAT_005c7640: {render state, value} pairs ended by state 0.
     // 0x89 D3DRS_LIGHTING, 0x1d D3DRS_SPECULARENABLE, 0x1b D3DRS_ALPHABLENDENABLE,
     // 0x8d D3DRS_COLORVERTEX, 0x91 D3DRS_DIFFUSEMATERIALSOURCE.
-    unsigned long const kPartDrawStatesOff[] = {0x89, 0, 0x1d, 0, 0x1b, 0, 0};
-    unsigned long const kPartDrawColourVertexOn[] = {0x8d, 1, 0x91, 1, 0};
-    unsigned long const kPartDrawColourVertexOff[] = {0x8d, 0, 0};
+    FlULong const kPartDrawStatesOff[] = {0x89, 0, 0x1d, 0, 0x1b, 0, 0};
+    FlULong const kPartDrawColourVertexOn[] = {0x8d, 1, 0x91, 1, 0};
+    FlULong const kPartDrawColourVertexOff[] = {0x8d, 0, 0};
     // DAT_005c7650: {texture stage state, value} pairs for stage 0, ended by type 0 -- COLOROP
     // SELECTARG1, COLORARG1 DIFFUSE, COLORARG2 CURRENT, ALPHAOP SELECTARG1, ALPHAARG1 DIFFUSE,
     // ALPHAARG2 CURRENT.
-    unsigned long const kPartDrawStage0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    FlULong const kPartDrawStage0[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
     // FUN_00406510's loops: the first pair's state is an immediate, then [cursor + 8] until 0.
-    void PartDrawApplyStates(IRenderPipeline* Pipeline, unsigned long const* Table)
+    void PartDrawApplyStates(IRenderPipeline* Pipeline, FlULong const* Table)
     {
-        unsigned long State = Table[0];
-        unsigned long const* Cursor = Table;
+        FlULong State = Table[0];
+        FlULong const* Cursor = Table;
         while (State != 0)
         {
             Pipeline->SetRenderState((D3DRENDERSTATETYPE)State, static_cast<int>(Cursor[1]));
@@ -788,8 +788,8 @@ void PartCacheDraw(FPartCache* Cache, ICamera* Camera, FTransform const* Xform)
     }
     DALib::VertexBuffer->UnlockVertexMemory(&LockOut);
 
-    unsigned long const* Stage = kPartDrawStage0;
-    unsigned long Type = Stage[0];
+    FlULong const* Stage = kPartDrawStage0;
+    FlULong Type = Stage[0];
     while (Type != 0)
     {
         DALib::Pipeline->SetTextureStageState(0, static_cast<int>(Type), static_cast<int>(Stage[1]));

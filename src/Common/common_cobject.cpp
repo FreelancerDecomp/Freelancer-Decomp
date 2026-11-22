@@ -71,14 +71,14 @@ namespace
         std::list<CObject*>::iterator Node;
         unsigned long long Seq;
         int ListIndex;
-        long FiledInstance; // the EngineInstanceId it is filed under; -1 = not filed
+        FlLong FiledInstance; // the EngineInstanceId it is filed under; -1 = not filed
         bool bFiledId;
         unsigned FiledId;   // the CSimple::Id it is filed under when bFiledId
     };
 
     struct FClassListIndex
     {
-        std::unordered_map<long, FFiledObjects> ByInstance;
+        std::unordered_map<FlLong, FFiledObjects> ByInstance;
         std::unordered_map<unsigned, FFiledObjects> ById;
     };
 
@@ -215,7 +215,7 @@ namespace
 
 #ifdef _DEBUG
     // The retail walks of Find(long) / Find(unsigned const&), for the index cross-check.
-    CObject* WalkByInstance(std::list<CObject*> const& List, long EngineInstanceId)
+    CObject* WalkByInstance(std::list<CObject*> const& List, FlLong EngineInstanceId)
     {
         for (std::list<CObject*>::const_iterator It = List.begin(); It != List.end(); ++It)
         {
@@ -321,7 +321,7 @@ namespace CmnCobject
     }
 } // namespace CmnCobject
 
-void DACOM_API CObject::destroy_instance(long Inst)
+void DACOM_API CObject::destroy_instance(FlLong Inst)
 {
     // Listing 0x4f610 stdcall. this+4 = -1; if RefCount==1, RefCount=0 then
     // vcall +0x38(1) (scalar deleting dtor). Not FindChild / IVP.
@@ -560,7 +560,7 @@ int __cdecl CObject::Count(Class ObjectClass)
     return (int)List->size();
 }
 
-CObject* __cdecl CObject::Find(long EngineInstanceId, Class ObjectClass)
+CObject* __cdecl CObject::Find(FlLong EngineInstanceId, Class ObjectClass)
 {
     // .text:062ae960..062aea30: -1 or a class without a list -> null; the first entry whose
     // instance (+0x4) matches gets RefCount (+0x98) + 1 and is returned.
@@ -719,11 +719,11 @@ namespace
     // inserted into Set (find, absent -> insert at the end, then found again; the result is
     // not used) and descended from ITS OWN engine instance (+0x04). No null test on the user
     // data.
-    void CollectHierarchyObjects(CObject* Parent, long Inst, CheapSet<CObject*, std::less<CObject*>>& Set)
+    void CollectHierarchyObjects(CObject* Parent, FlLong Inst, CheapSet<CObject*, std::less<CObject*>>& Set)
     {
         // IEngine passes instance handles as pointer-sized values.
         void* const InstHandle = (void*)Inst;
-        long Child = (long)DALib::Engine->GetRelatedInstance(InstHandle, 1, (void*)(intptr_t)-1);
+        FlLong Child = (FlLong)DALib::Engine->GetRelatedInstance(InstHandle, 1, (void*)(intptr_t)-1);
         while (Child != -1)
         {
             CObject* const Obj = (CObject*)DALib::Engine->GetInstanceUserData((void*)Child);
@@ -736,7 +736,7 @@ namespace
                 Set.Insert(Obj);                                           // 062ad73a..062ad77b
                 CollectHierarchyObjects(Obj, Obj->EngineInstanceId, Set); // 062ad77d..062ad788
             }
-            Child = (long)DALib::Engine->GetRelatedInstance(InstHandle, 1, (void*)Child);
+            Child = (FlLong)DALib::Engine->GetRelatedInstance(InstHandle, 1, (void*)Child);
         }
     }
 }
@@ -838,7 +838,7 @@ void CObject::remake_physical(PhySys::CreateParms const& Parms, float Radius)
     enable_controllers();
 }
 
-long CObject::part_to_inst(unsigned PartId) const
+FlLong CObject::part_to_inst(unsigned PartId) const
 {
     // .text:0627d1e0..0627d214: SurfaceManager (+0x5c) == 0 -> EngineInstanceId; else the
     // first PartMap entry with PartId -> its instance; none -> -1.
@@ -884,7 +884,7 @@ void CObject::add_impulse(Vector const& Impulse, Vector const& Point)
     }
 }
 
-unsigned CObject::inst_to_part(long EngineInst) const
+unsigned CObject::inst_to_part(FlLong EngineInst) const
 {
     // .text:0627d220..0627d243: the first PartMap entry whose instance matches -> its PartId;
     // none -> 0. No +0x5c test.

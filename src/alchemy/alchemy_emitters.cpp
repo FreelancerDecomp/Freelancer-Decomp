@@ -29,27 +29,27 @@ namespace AlchemyImpl
 
         // Emitter property hashes (descriptor table 0x06257700, records of
         // {name, hash, kind, min, max}); descriptor-inner slot in parentheses.
-        const unsigned long kEmitterLodCurveHash = 0xFE077E05;          // +0x68, kind 0x200
-        const unsigned long kEmitterInitialParticlesHash = 0x0F9A9D52;  // +0x64, kind 2 (int)
-        const unsigned long kEmitterFrequencyHash = 0x023C350C;         // +0x4c
-        const unsigned long kEmitterMaxParticlesHash = 0xF5042852;      // +0x50
-        const unsigned long kEmitterEmitCountHash = 0xE7221F95;         // +0x5c (keyed bursts)
-        const unsigned long kEmitterInitLifeSpanHash = 0x0A635880;      // +0x54
-        const unsigned long kEmitterPressureHash = 0x0AB180C5;          // +0x58
-        const unsigned long kEmitterVelocityApproachHash = 0x0681233E;  // +0x60
+        const FlULong kEmitterLodCurveHash = 0xFE077E05;          // +0x68, kind 0x200
+        const FlULong kEmitterInitialParticlesHash = 0x0F9A9D52;  // +0x64, kind 2 (int)
+        const FlULong kEmitterFrequencyHash = 0x023C350C;         // +0x4c
+        const FlULong kEmitterMaxParticlesHash = 0xF5042852;      // +0x50
+        const FlULong kEmitterEmitCountHash = 0xE7221F95;         // +0x5c (keyed bursts)
+        const FlULong kEmitterInitLifeSpanHash = 0x0A635880;      // +0x54
+        const FlULong kEmitterPressureHash = 0x0AB180C5;          // +0x58
+        const FlULong kEmitterVelocityApproachHash = 0x0681233E;  // +0x60
 
         // Shape properties (per-type property sets, slots +0x6c..).
-        const unsigned long kConeMinRadiusHash = 0x1C73D16B;   // +0x6c
-        const unsigned long kConeMaxRadiusHash = 0xF636F07F;   // +0x70
-        const unsigned long kConeMinSpreadHash = 0x100E7F55;   // +0x74 (degrees)
-        const unsigned long kConeMaxSpreadHash = 0xFA4B5E41;   // +0x78 (degrees)
-        const unsigned long kCubeWidthHash = 0xFD22A11C;       // +0x6c
-        const unsigned long kCubeHeightHash = 0xEFB0F8CF;      // +0x70
-        const unsigned long kCubeDepthHash = 0x14B74EB2;       // +0x74
-        const unsigned long kCubeMinSpreadHash = 0xE282006B;   // +0x78 (degrees)
-        const unsigned long kCubeMaxSpreadHash = 0x08C7217F;   // +0x7c (degrees)
-        const unsigned long kSphereMinRadiusHash = 0xF231FF60; // +0x6c
-        const unsigned long kSphereMaxRadiusHash = 0x1874DE74; // +0x70
+        const FlULong kConeMinRadiusHash = 0x1C73D16B;   // +0x6c
+        const FlULong kConeMaxRadiusHash = 0xF636F07F;   // +0x70
+        const FlULong kConeMinSpreadHash = 0x100E7F55;   // +0x74 (degrees)
+        const FlULong kConeMaxSpreadHash = 0xFA4B5E41;   // +0x78 (degrees)
+        const FlULong kCubeWidthHash = 0xFD22A11C;       // +0x6c
+        const FlULong kCubeHeightHash = 0xEFB0F8CF;      // +0x70
+        const FlULong kCubeDepthHash = 0x14B74EB2;       // +0x74
+        const FlULong kCubeMinSpreadHash = 0xE282006B;   // +0x78 (degrees)
+        const FlULong kCubeMaxSpreadHash = 0x08C7217F;   // +0x7c (degrees)
+        const FlULong kSphereMinRadiusHash = 0xF231FF60; // +0x6c
+        const FlULong kSphereMaxRadiusHash = 0x1874DE74; // +0x70
 
         // The property tables the sets enumerate (.data 0x06257700 emitter, 0x06255e28
         // cone, 0x06255f30 cube, 0x06256c4c sphere; {name, hash, kind, min, max}).
@@ -107,7 +107,7 @@ namespace AlchemyImpl
             StoreAlchemyFpuFloat(LengthSq, static_cast<double>(Vec[0]) * Vec[0] +
                                               static_cast<double>(Vec[1]) * Vec[1] +
                                               static_cast<double>(Vec[2]) * Vec[2]);
-            long Bits = 0;
+            FlLong Bits = 0;
             std::memcpy(&Bits, &LengthSq, sizeof(Bits));
             Bits = 0x5F3759DF - (Bits >> 1);
             float Guess = 0.0f;
@@ -246,7 +246,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06245ad0.
-    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropInt(unsigned long Hash, unsigned long* Out)
+    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropInt(FlULong Hash, FlULong* Out)
     {
         if (Hash != kEmitterInitialParticlesHash)
             return GR_ALE_CREATE_FAIL;
@@ -255,7 +255,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06245b00.
-    GENRESULT DACOM_API FFxEmitterPropertySet::SetPropInt(unsigned long Hash, unsigned long Value)
+    GENRESULT DACOM_API FFxEmitterPropertySet::SetPropInt(FlULong Hash, FlULong Value)
     {
         if (Hash != kEmitterInitialParticlesHash)
             return GR_ALE_CREATE_FAIL;
@@ -264,7 +264,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06245aa0 (0x06245aa0..0x06245ac7).
-    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropSingleRampRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropSingleRampRamp(FlULong Hash,
                                                                      INestedSingleRamp** Out)
     {
         if (Hash != kEmitterLodCurveHash)
@@ -275,7 +275,7 @@ namespace AlchemyImpl
     // FUN_06245a20 (0x06245a20..0x06245a9a): Frequency +0x4c, MaxParticles +0x50,
     // EmitCount +0x5c, Pressure +0x58, InitLifeSpan +0x54, VelocityApproach +0x60, in
     // that test order; else -8.
-    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropAnimatedSingleRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxEmitterPropertySet::GetPropAnimatedSingleRamp(FlULong Hash,
                                                                          INestedSingleRamp** Out)
     {
         if (Hash == kEmitterFrequencyHash)
@@ -323,9 +323,9 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FFxEmitterBase::SetNodeFlags(unsigned long Flags)
+    GENRESULT DACOM_API FFxEmitterBase::SetNodeFlags(FlULong Flags)
     {
-        if (AssociatedAppearance_ != nullptr && static_cast<long>(Flags) < 0)
+        if (AssociatedAppearance_ != nullptr && static_cast<FlLong>(Flags) < 0)
             AsFxNode(AssociatedAppearance_)->ReleaseEmitterRef();
         NodeFlags_ = Flags;
         return GR_OK;
@@ -344,7 +344,7 @@ namespace AlchemyImpl
             return GR_OK;
         IGenericFx* const Appearance = AsFxNode(AssociatedAppearance_);
         if (static_cast<unsigned char>(Appearance->IsNodeDead()) != 0 ||
-            static_cast<long>(NodeFlags_) < 0)
+            static_cast<FlLong>(NodeFlags_) < 0)
         {
             AssociatedAppearance_->Release();
             AssociatedAppearance_ = nullptr;
@@ -367,7 +367,7 @@ namespace AlchemyImpl
         // the frequency uses the unrounded difference; ftol truncates.
         const double ElapsedExt = static_cast<double>(Age_) - LastEmitTime_;
         const float Elapsed = static_cast<float>(ElapsedExt);
-        long EmitCount = static_cast<long>(ElapsedExt * Frequency);
+        FlLong EmitCount = static_cast<FlLong>(ElapsedExt * Frequency);
 
         // 06245cd9..06245d12: first frame after construction / re-association:
         // + D+0x64 (InitialParticles, ADD), PrevNodePos = node+0x70.. (translation).
@@ -375,7 +375,7 @@ namespace AlchemyImpl
         {
             bResetEmitHistory_ = 0;
             EmitCount =
-                static_cast<long>(static_cast<unsigned long>(EmitCount) + Set->InitialParticles);
+                static_cast<FlLong>(static_cast<FlULong>(EmitCount) + Set->InitialParticles);
             PrevNodePos_[0] = NodeWorldXform_[9];
             PrevNodePos_[1] = NodeWorldXform_[10];
             PrevNodePos_[2] = NodeWorldXform_[11];
@@ -388,8 +388,8 @@ namespace AlchemyImpl
             IDAComponent* KeyObject = nullptr;
             Set->EmitCountRamp->GetKeyValue(0, &KeyObject);
             IFxAnimatedSingle* Keys = static_cast<IFxAnimatedSingle*>(KeyObject);
-            const long KeyCount = static_cast<long>(Keys->GetKeyCount());
-            long KeyIndex = 0;
+            const FlLong KeyCount = static_cast<FlLong>(Keys->GetKeyCount());
+            FlLong KeyIndex = 0;
             for (KeyIndex = 0; KeyIndex < KeyCount; ++KeyIndex)
             {
                 // 06245d51: GetKeyTime (+0x2C); a non-zero result skips the key.
@@ -407,7 +407,7 @@ namespace AlchemyImpl
                 if (Keys->GetKeyValue(static_cast<int>(KeyIndex), Value) != GR_OK)
                     continue;
                 // `FILD count; FADD Value[0]; CALL ftol` -- the sum stays on the x87 stack.
-                EmitCount = static_cast<long>(static_cast<double>(EmitCount) + Value[0]);
+                EmitCount = static_cast<FlLong>(static_cast<double>(EmitCount) + Value[0]);
             }
             // 06245dbe..06245dd1: the holder releases a non-null object.
             if (Keys != nullptr)
@@ -420,7 +420,7 @@ namespace AlchemyImpl
         const double FractionExt =
             Set->LodCurveRamp->Eval(AppearanceOuterTime_, LodInput_) * EmitCount + EmitFraction_;
         EmitFraction_ = static_cast<float>(FractionExt);
-        long EmitNow = static_cast<long>(FractionExt);
+        FlLong EmitNow = static_cast<FlLong>(FractionExt);
         const float EmitNowF = static_cast<float>(EmitNow);
         EmitFraction_ = EmitFraction_ - EmitNowF;
 
@@ -486,12 +486,12 @@ namespace AlchemyImpl
         // unless only C0 is set (room < N), then N = ftol(room).
         const float MaxParticles =
             static_cast<float>(Set->MaxParticlesRamp->Eval(AppearanceOuterTime_, Age_));
-        unsigned long LiveCount = 0;
+        FlULong LiveCount = 0;
         Appearance->GetLiveInstanceCount(&LiveCount);
         const double Room =
-            static_cast<double>(MaxParticles) - static_cast<double>(static_cast<long>(LiveCount));
+            static_cast<double>(MaxParticles) - static_cast<double>(static_cast<FlLong>(LiveCount));
         if (Room < EmitNowF)
-            EmitNow = static_cast<long>(Room);
+            EmitNow = static_cast<FlLong>(Room);
 
         // 0624602c..06246091: outer +0xB4, N x node slot 20, outer +0xC0.
         Appearance->Pad45();
@@ -606,7 +606,7 @@ namespace AlchemyImpl
     // +0x70, 0x100E7F55 -> +0x74, 0xFA4B5E41 -> +0x78 (AddRef'd, 0); otherwise JMP
     // FUN_06245a20.
     GENRESULT DACOM_API FFxConeEmitterPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == kConeMinRadiusHash)
             return HandOutRamp(MinRadiusRamp, Out);
@@ -701,7 +701,7 @@ namespace AlchemyImpl
     // +0x74, 0xE282006B -> +0x78, 0x08C7217F -> +0x7c (AddRef'd, 0); otherwise JMP
     // FUN_06245a20.
     GENRESULT DACOM_API FFxCubeEmitterPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == kCubeWidthHash)
             return HandOutRamp(WidthRamp, Out);
@@ -791,7 +791,7 @@ namespace AlchemyImpl
     // LAB_0623c210 (RET 0xc): 0xF231FF60 -> +0x6c, 0x1874DE74 -> +0x70 (AddRef'd, 0);
     // otherwise JMP FUN_06245a20.
     GENRESULT DACOM_API FFxSphereEmitterPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == kSphereMinRadiusHash)
             return HandOutRamp(MinRadiusRamp, Out);

@@ -448,7 +448,7 @@ namespace ErrorHandler
     }
 
     void __cdecl log_last_error(char const* Source, int Line, SeverityLevel Severity,
-                                 char* Format, unsigned long ErrorCode)
+                                 char* Format, FlULong ErrorCode)
     {
         // Common.dll.txt:0630b680. Full trace: ECX=ErrorCode captured up front (the
         // caller's stack slot for it is then reused as the local `char* MsgBuf` that

@@ -32,7 +32,7 @@ static int IrcHandleOk(void* Handle)
 
 // LAB_06c215a0 after PUSH ESI: switch [ESP+0x14] = 3rd stdcall arg after this (A),
 // flags [ESP+0x18] = B, Out [ESP+0x20] = D. Header names 2nd arg Mode; that slot is Lod.
-static int IrcSlot12CanWrite(int QueryMode, unsigned long Flags, void* Out)
+static int IrcSlot12CanWrite(int QueryMode, FlULong Flags, void* Out)
 {
     if (QueryMode != 0 && QueryMode != 2 && QueryMode != 3)
         return 0;
@@ -56,13 +56,13 @@ static GENRESULT TriMeshAnimQueryInterface(FTriMeshAnim* Anim, const char* Iid, 
 class FRenderPlugin : public IRenderComponent
 {
 public:
-    unsigned long RefCount;
+    FlULong RefCount;
     std::map<void*, FTriMeshAnim*> InstanceMap;
     void* LastHitKey;
     FTriMeshAnim* LastHitAnim;
     unsigned char bLastHit;
-    unsigned long LookupCount;
-    unsigned long HitCount;
+    FlULong LookupCount;
+    FlULong HitCount;
 
     FRenderPlugin()
         : RefCount(1)
@@ -96,17 +96,17 @@ public:
         return GR_OK;
     }
 
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         RefCount += 1;
         return RefCount;
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         if (RefCount != 0)
             RefCount -= 1;
-        const unsigned long Count = RefCount;
+        const FlULong Count = RefCount;
         if (Count == 0)
         {
             delete this;
@@ -174,7 +174,7 @@ public:
         if (IrcHandleOk(Handle) == 0)
             return 0;
         const int QueryMode = (int)((intptr_t)A);
-        const unsigned long Flags = (unsigned long)((uintptr_t)B);
+        const FlULong Flags = (FlULong)((uintptr_t)B);
         if (IrcSlot12CanWrite(QueryMode, Flags, Out) == 0)
             return 0;
         return 1;
@@ -291,12 +291,12 @@ public:
         }
 
         // LAB_06c27670: this - 4, then FUN_06c2b100 (MOV EAX,1).
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             return 1;
         }
 
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             return 1;
         }
@@ -327,12 +327,12 @@ public:
         }
 
         // LAB_06c27690: this - 8, then FUN_06c2b100 (MOV EAX,1).
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             return 1;
         }
 
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             return 1;
         }
@@ -352,17 +352,17 @@ public:
             if (Sum >= (double)Uv->Period)
                 Anim->Clock = (float)(Sum - (double)Uv->Period);
             const double Position = (double)Anim->Clock * (double)Uv->Fps;
-            const unsigned long Frame =
-                static_cast<unsigned long>(MsvcrtFtol(Position)) % (Uv->FrameCount - 1);
-            const float T = (float)(Position - (double)((long)Frame));
-            const unsigned long Count = Uv->LookupCount;
+            const FlULong Frame =
+                static_cast<FlULong>(MsvcrtFtol(Position)) % (Uv->FrameCount - 1);
+            const float T = (float)(Position - (double)((FlLong)Frame));
+            const FlULong Count = Uv->LookupCount;
             if (Uv->Interpolate != 0)
             {
                 const float* A = Uv->Frames + Count * Frame * 2;
                 const float* B = Uv->Frames + (Count * Frame + Count) * 2;
-                for (unsigned long Index = 0; Index < Count; ++Index)
+                for (FlULong Index = 0; Index < Count; ++Index)
                 {
-                    const long Slot = Uv->Lookup[Index];
+                    const FlLong Slot = Uv->Lookup[Index];
                     if (Slot == -1)
                         continue;
                     const float U = (float)(
@@ -374,14 +374,14 @@ public:
                 }
                 return;
             }
-            const unsigned long Previous = static_cast<unsigned long>(MsvcrtFtol(
+            const FlULong Previous = static_cast<FlULong>(MsvcrtFtol(
                 ((double)Anim->Clock - (double)Dt) * (double)Uv->Fps));
             if (Frame == Previous)
                 return;
             const float* A = Uv->Frames + Count * Frame * 2;
-            for (unsigned long Index = 0; Index < Count; ++Index)
+            for (FlULong Index = 0; Index < Count; ++Index)
             {
-                const long Slot = Uv->Lookup[Index];
+                const FlLong Slot = Uv->Lookup[Index];
                 if (Slot == -1)
                     continue;
                 Dest[Slot * 2] = A[Index * 2];
@@ -442,7 +442,7 @@ public:
         return 0;
     }
 
-    int Draw(ICamera* Camera, unsigned long Flags, const void* Transform, IMaterial* Extra)
+    int Draw(ICamera* Camera, FlULong Flags, const void* Transform, IMaterial* Extra)
     {
         if (MeshLive == nullptr || InstId == (void*)((intptr_t)-1))
             return 0;
@@ -452,7 +452,7 @@ public:
 
         FTriMeshArch* Arch = MeshLive;
         FRpVertexSrcDesc* Desc = &Arch->Vertices;
-        unsigned long DrawFlags = Flags | 0xC;
+        FlULong DrawFlags = Flags | 0xC;
         if (UvTrack != nullptr)
         {
             G_TriMeshSavedUv0 = Desc->Tex[0];
@@ -503,7 +503,7 @@ public:
             Material->Submit(&Context, Group->Type, Group->MinIndex, Group->MaxIndex - Group->MinIndex + 1, 0,
                              Group->IndexCount, DrawFlags);
             Material->Teardown(&Context);
-            if ((long)Group->Bucket >= 2)
+            if ((FlLong)Group->Bucket >= 2)
                 Context.VbListing = nullptr;
         }
 
@@ -544,12 +544,12 @@ public:
     }
 
     // FUN_06c2b100 (06c36224 / 06c36228): MOV EAX,1.
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         return 1;
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         return 1;
     }
@@ -567,7 +567,7 @@ public:
         return MeshLive->NoOp();
     }
     // formerly Slot5
-    int DACOM_API RefreshMaterials(unsigned long Flags) override
+    int DACOM_API RefreshMaterials(FlULong Flags) override
     {
         return MeshLive->RefreshMaterials(Flags);
     }
@@ -634,7 +634,7 @@ public:
         return MeshLive->SetFaceGroupMaterialContext(A);
     }
     // formerly Slot18
-    int DACOM_API OpenFaceGroupChannels(unsigned long Flags) override
+    int DACOM_API OpenFaceGroupChannels(FlULong Flags) override
     {
         return MeshLive->OpenFaceGroupChannels(Flags);
     }
@@ -644,7 +644,7 @@ public:
         return MeshLive->CloseFaceGroupChannels();
     }
     // formerly Slot20
-    int DACOM_API LockFaceGroupChannels(unsigned long Mask) override
+    int DACOM_API LockFaceGroupChannels(FlULong Mask) override
     {
         return MeshLive->LockFaceGroupChannels(Mask);
     }
@@ -684,12 +684,12 @@ public:
         return MeshLive->SetFaceGroupIndexCount(Selector, Count);
     }
     // formerly Slot28
-    int DACOM_API AddFaceGroupChannels(unsigned long Flags) override
+    int DACOM_API AddFaceGroupChannels(FlULong Flags) override
     {
         return MeshLive->AddFaceGroupChannels(Flags);
     }
     // formerly Slot29
-    int DACOM_API RemoveFaceGroupChannels(unsigned long Flags) override
+    int DACOM_API RemoveFaceGroupChannels(FlULong Flags) override
     {
         return MeshLive->RemoveFaceGroupChannels(Flags);
     }
@@ -703,8 +703,8 @@ static GENRESULT TriMeshAnimQueryInterface(FTriMeshAnim* Anim, const char* Iid, 
 // The IRenderComponent tick argument is a float passed in a dword stack slot.
 static float TickArgAsFloat(void* Arg)
 {
-    const unsigned long Bits =
-        (unsigned long)((uintptr_t)Arg);
+    const FlULong Bits =
+        (FlULong)((uintptr_t)Arg);
     float Value = 0.0f;
     std::memcpy(&Value, &Bits, sizeof(Value));
     return Value;
@@ -919,7 +919,7 @@ public:
         if (IrcHandleOk(Handle) == 0)
             return 0;
         const int QueryMode = (int)((intptr_t)A);
-        const unsigned long Flags = (unsigned long)((uintptr_t)B);
+        const FlULong Flags = (FlULong)((uintptr_t)B);
         if (IrcSlot12CanWrite(QueryMode, Flags, Out) == 0)
             return 0;
         FTriMeshArch* Mesh = (FTriMeshArch*)Handle;
@@ -978,14 +978,14 @@ public:
     }
 
     // formerly Slot16
-    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, unsigned long Flags,
+    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, FlULong Flags,
                          void* Transform, void* Extra) override
     {
         LookupCount += 1;
         FTriMeshAnim* Anim = FindInstance(Inst);
         if (Anim == nullptr)
             return 0;
-        unsigned long Remapped = 0;
+        FlULong Remapped = 0;
         if ((Flags & 0x4000) == 0)
             Remapped = 0x40;
         if ((Flags & 0x1000) != 0)
@@ -1008,7 +1008,7 @@ public:
     FL_LOW_ARENA_NEW
 
     IMaterial** Materials;        // +0x04 operator new(Sides * 4), zeroed; filled by Slot3
-    unsigned long Sides;          // +0x08 "Sides": the number of materials
+    FlULong Sides;          // +0x08 "Sides": the number of materials
     float Radius;                 // +0x0C "Radius"; -1.0f after a reset
     float Scale;                  // +0x10 not written by the ctor; the load seeds 1.0f and an
                                   //       AtmosphereMaterial's parameter 8 overwrites it
@@ -1045,12 +1045,12 @@ public:
         Radius = -1.0f;
         if (MaterialNames != nullptr)
         {
-            for (unsigned long Index = 0; Index < Sides; ++Index)
+            for (FlULong Index = 0; Index < Sides; ++Index)
                 std::free(MaterialNames[Index]);
             delete[] (const unsigned char*)MaterialNames;
             MaterialNames = nullptr;
         }
-        for (unsigned long Index = 0; Index < Sides; ++Index)
+        for (FlULong Index = 0; Index < Sides; ++Index)
         {
             if (Materials[Index] != nullptr)
             {
@@ -1078,20 +1078,20 @@ public:
             return -1;
 
         FFileSystemDesc Desc;
-        unsigned long ReadCount = 0;
+        FlULong ReadCount = 0;
         FileDescInit(&Desc, "Radius", "FileSystem");
         bool bRead = false;
         int Handle = File->OpenByDesc(&Desc);
         if (Handle != -1)
         {
             float Value = 0.0f;
-            if (File->Read((unsigned long)Handle, &Value, 4, &ReadCount, 0) != 0 &&
+            if (File->Read((FlULong)Handle, &Value, 4, &ReadCount, 0) != 0 &&
                 ReadCount == 4)
             {
                 bRead = true;
                 Radius = Value;
             }
-            File->CloseFile((unsigned long)Handle);
+            File->CloseFile((FlULong)Handle);
         }
         if (!bRead)
             RendCompFdumpAt(kFdumpWarning, G_FileSphereMeshArchetype, 0x5F,
@@ -1102,14 +1102,14 @@ public:
         Handle = File->OpenByDesc(&Desc);
         if (Handle != -1)
         {
-            unsigned long Value = 0;
-            if (File->Read((unsigned long)Handle, &Value, 4, &ReadCount, 0) != 0 &&
+            FlULong Value = 0;
+            if (File->Read((FlULong)Handle, &Value, 4, &ReadCount, 0) != 0 &&
                 ReadCount == 4)
             {
                 bRead = true;
                 Sides = Value;
             }
-            File->CloseFile((unsigned long)Handle);
+            File->CloseFile((FlULong)Handle);
         }
         if (!bRead)
         {
@@ -1127,7 +1127,7 @@ public:
             std::memset(MaterialNames, 0, Sides * sizeof(char*));
 
             char Buffer[0x80];
-            for (unsigned long Index = 0; Index < Sides; ++Index)
+            for (FlULong Index = 0; Index < Sides; ++Index)
             {
                 char NodeName[0x80];
                 std::sprintf(NodeName, "M%d", (int)Index);
@@ -1136,17 +1136,17 @@ public:
                 Handle = File->OpenByDesc(&Desc);
                 if (Handle != -1)
                 {
-                    unsigned long Size = File->GetSize((unsigned long)Handle, 0);
+                    FlULong Size = File->GetSize((FlULong)Handle, 0);
                     if (Size >= 0x3F)
                         Size = 0x3F;
-                    if (File->Read((unsigned long)Handle, Buffer, Size, &ReadCount, 0) !=
+                    if (File->Read((FlULong)Handle, Buffer, Size, &ReadCount, 0) !=
                             0 &&
                         ReadCount == Size)
                     {
                         bRead = true;
                         Buffer[ReadCount] = '\0';
                     }
-                    File->CloseFile((unsigned long)Handle);
+                    File->CloseFile((FlULong)Handle);
                 }
                 if (!bRead)
                 {
@@ -1183,7 +1183,7 @@ public:
                     Candidate->CopyClassName(Buffer, 0x80);
                     if (std::strcmp(Buffer, "AtmosphereMaterial") == 0)
                     {
-                        unsigned long Count = 0;
+                        FlULong Count = 0;
                         Candidate->GetParameterCount(&Count);
                         if (Count > 8)
                         {
@@ -1228,12 +1228,12 @@ public:
     }
 
     // FUN_06c2b100: MOV EAX,1.
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         return 1;
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         return 1;
     }
@@ -1244,12 +1244,12 @@ public:
         struct FMaterialQuery
         {
             const char* Name;
-            unsigned long Crc;
+            FlULong Crc;
         };
         if (Library == nullptr)
             return -1;
         unsigned char bFailed = 0;
-        for (unsigned long Index = 0; Index < Sides; ++Index)
+        for (FlULong Index = 0; Index < Sides; ++Index)
         {
             IMaterial* Previous = Materials[Index];
             FMaterialQuery Query;
@@ -1352,11 +1352,11 @@ static void SphereFaceRotation(FTransform& Out, int Face, float HalfPi)
 struct FSphereMaterialSlot
 {
     IMaterial* Material;        // +0x00
-    unsigned long BaseVertex;   // +0x04 FUN_06c2c690 argument 4; IMaterial::Submit Start
-    unsigned long VertexCount;  // +0x08 vertices written by FUN_06c2c690; Submit Count
+    FlULong BaseVertex;   // +0x04 FUN_06c2c690 argument 4; IMaterial::Submit Start
+    FlULong VertexCount;  // +0x08 vertices written by FUN_06c2c690; Submit Count
     unsigned short* Indices;    // +0x0C realloc'd by FUN_06c2c690, freed by FUN_06c2c660;
                                 //       the submit context's CPU indices (+0x10)
-    unsigned long IndexCount;   // +0x10 indices written by FUN_06c2c690; Submit IndexSpan
+    FlULong IndexCount;   // +0x10 indices written by FUN_06c2c690; Submit IndexSpan
 
     FSphereMaterialSlot()
         : Material(nullptr)
@@ -1393,7 +1393,7 @@ struct FSphereMaterialSlot
     void WriteVertex(FRpVertexSrcDesc* Desc, float Nx, float Ny, float Nz, float Radius, double S,
                      double T)
     {
-        const unsigned long Vertex = VertexCount + BaseVertex;
+        const FlULong Vertex = VertexCount + BaseVertex;
         float* Position = (float*)(
             (unsigned char*)(Desc->Position.Base) + Vertex * 0xC);
         Position[0] = Nx * Radius;
@@ -1409,8 +1409,8 @@ struct FSphereMaterialSlot
         Tex[Vertex * 2 + 1] = (float)T;
     }
 
-    void Tessellate(float Radius, int Face, int Level, unsigned long InBaseVertex,
-                    unsigned long /*Count*/, FRpVertexSrcDesc* Desc)
+    void Tessellate(float Radius, int Face, int Level, FlULong InBaseVertex,
+                    FlULong /*Count*/, FRpVertexSrcDesc* Desc)
     {
         const float K = (float)(1.0 / std::sqrt(3.0));
         BaseVertex = InBaseVertex;
@@ -1706,12 +1706,12 @@ public:
         }
 
         // LAB_06c27670 -> FUN_06c2b100: returns 1.
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             return 1;
         }
 
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             return 1;
         }
@@ -1725,7 +1725,7 @@ public:
     };
 
     FHook Hook;                   // +0x04
-    unsigned long Flags;          // +0x08 bit 1: rebuild requested (Slot07/09/11); FUN_06c2c430
+    FlULong Flags;          // +0x08 bit 1: rebuild requested (Slot07/09/11); FUN_06c2c430
                                   //       clears it and sets bit 0 after a rebuild
     float Radius;                 // +0x0C archetype radius; ISphereMesh Slot09/10; the
                                   //       tessellation radius and the level formula's scale
@@ -1744,7 +1744,7 @@ public:
     std::list<void*> List_0x38;   // +0x38..+0x40: built by the ctor and freed by the dtor; no
                                   //       other access in the sphere code (06c2af00..06c2c690)
     FRpVertexSrcDesc Desc;        // +0x44..+0xB3: 0x1C dwords zeroed by FUN_06c2b110 and
-    unsigned long VertexCount;    // +0xB4 vertices the streams are sized for (FUN_06c2c430)
+    FlULong VertexCount;    // +0xB4 vertices the streams are sized for (FUN_06c2c430)
     unsigned char bHasAtmosphere; // +0xB8 more than 6 archetype materials
 
     // FUN_06c2b110: vtables, both lists empty, 0x1C dwords at +0x44 zeroed, then
@@ -1831,7 +1831,7 @@ public:
         if (Arch == nullptr)
             return 0;
         Radius = Arch->Radius;
-        unsigned long Index = 0;
+        FlULong Index = 0;
         if (Arch->Sides == 0)
             return 0;
         for (; Index < Arch->Sides; ++Index)
@@ -1854,7 +1854,7 @@ public:
             return -1;
         Arch->HookUpMaterials();
         std::list<FSphereMaterialSlot*>::iterator Walk = MaterialSlots.begin();
-        for (unsigned long Index = 0; Index < Arch->Sides; ++Index)
+        for (FlULong Index = 0; Index < Arch->Sides; ++Index)
         {
             FSphereMaterialSlot* Slot = *Walk;
             IMaterial* Previous = Slot->Material;
@@ -1884,8 +1884,8 @@ public:
 
         CachedLevel = Level;
         const int Half = (int)((float)Level * 0.5f);
-        const unsigned long N = 1u << Half;
-        unsigned long Count = (N + 1) * (N + 1);
+        const FlULong N = 1u << Half;
+        FlULong Count = (N + 1) * (N + 1);
         if ((Level % 2) != 0)
             Count += N * N;
         VertexCount = Count;
@@ -2157,12 +2157,12 @@ public:
     }
 
     // FUN_06c2b100: MOV EAX,1 -- the plugin's instance map owns the object.
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         return 1;
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         return 1;
     }
@@ -2433,7 +2433,7 @@ public:
         if (IrcHandleOk(Handle) == 0)
             return 0;
         const int QueryMode = (int)((intptr_t)A);
-        const unsigned long Flags = (unsigned long)((uintptr_t)B);
+        const FlULong Flags = (FlULong)((uintptr_t)B);
         if (IrcSlot12CanWrite(QueryMode, Flags, Out) == 0)
             return 0;
         *(int*)Out = 0;
@@ -2481,7 +2481,7 @@ public:
     }
 
     // formerly Slot16
-    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, unsigned long /*Flags*/,
+    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, FlULong /*Flags*/,
                          void* Matrix, void* Extra) override
     {
         LookupCount += 1;

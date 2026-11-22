@@ -32,7 +32,7 @@ namespace
 
     // Same `- 8` as everywhere else: the watcher holds the Watchable, eight bytes into the
     // IObjRW.
-    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
+    const FlLong kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // Retail CEqObj offsets used by FUN_00543350.
     struct FPlayerShipView

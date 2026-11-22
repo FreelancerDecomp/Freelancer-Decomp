@@ -71,7 +71,7 @@ CEEngine::CEEngine(CShip* OwnerObj, unsigned short EquipId, Archetype::Engine co
     // to -1 once, before the loop; the owner's archetype is read with no null test.
     CacheString HpName;
     HpName.clear();
-    long HpHandle = -1;
+    FlLong HpHandle = -1;
     HardpointInfo Info;
     Archetype::Ship* ShipArch = (Archetype::Ship*)(OwnerObj->Archetype);
     int const NumNozzles = ShipArch->NumExhaustNozzles;

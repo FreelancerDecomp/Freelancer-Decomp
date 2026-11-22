@@ -194,7 +194,7 @@ namespace
     // The colour a part is drawn with: the byte quad into holder +0x14 / +0x18 / +0x1c / +0x24
     // (FILD, FMUL 1/255 DAT_005c7f68, FSTP float -- FUN_004a1af0's arithmetic, inlined in
     // every Draw block), FUN_0059efa0(camera, 0, 1.0f, 0), then FUN_00421ed0(GL_DEPTH_TEST).
-    void DrawPartMesh(FClientMeshHolder* Holder, unsigned long const* Rgba)
+    void DrawPartMesh(FClientMeshHolder* Holder, FlULong const* Rgba)
     {
         ClientMeshHolderSetColor(Holder, reinterpret_cast<unsigned char const*>(Rgba));
         SubmitWin3DEngineInstance(Holder, Win3DGetCamera(), 0, 1.0f, 0);
@@ -970,9 +970,9 @@ void ScrollControl::Draw()
 
     // 0x00582721..0x00582760: the idle colour DAT_00679bb0 and the hot colour
     // {0xf5, 0xea, 0x52, 0xff}, each kept twice on the stack.
-    unsigned long const Idle = G_NnPaletteArgb_679bb0;
+    FlULong const Idle = G_NnPaletteArgb_679bb0;
     unsigned char const HotBytes[4] = {0xf5, 0xea, 0x52, 0xff};
-    unsigned long Hot = 0;
+    FlULong Hot = 0;
     memcpy(&Hot, HotBytes, sizeof(Hot));
     FSpaceCamera* const Camera = Win3DGetCamera();
 
@@ -983,7 +983,7 @@ void ScrollControl::Draw()
         if (Back.bNoMeshRender == 0)
             DrawPartMesh(&Back.Holder, &Idle);
         Win3DDisable(kWin3DDepthTest);
-        unsigned long Tint = Idle;
+        FlULong Tint = Idle;
         SubmitWin3DTintedEngineInstanceWrapped(Camera, Back.Holder.EngineInstance, 1,
                                                reinterpret_cast<unsigned char const*>(&Tint), 1,
                                                1.0f, 0);
@@ -992,7 +992,7 @@ void ScrollControl::Draw()
     // 0x0058282f..0x005828e4: next -- hot while pressed or hovered; no tinted pass.
     if (ClientMeshHolderHasInstance(&Next.Holder))
     {
-        unsigned long const* const Color =
+        FlULong const* const Color =
             (bNextPressed != 0 || bNextHover != 0) ? &Hot : &Idle;
         if (Next.bNoMeshRender == 0)
             DrawPartMesh(&Next.Holder, Color);
@@ -1002,7 +1002,7 @@ void ScrollControl::Draw()
     // 0x005828e7..0x0058299c: prev.
     if (ClientMeshHolderHasInstance(&Prev.Holder))
     {
-        unsigned long const* const Color =
+        FlULong const* const Color =
             (bPrevPressed != 0 || bPrevHover != 0) ? &Hot : &Idle;
         if (Prev.bNoMeshRender == 0)
             DrawPartMesh(&Prev.Holder, Color);
@@ -1017,7 +1017,7 @@ void ScrollControl::Draw()
         return;
     if (bThumbNoMeshRender == 0)
         DrawPartMesh(&ThumbHolder, &Idle);
-    unsigned long Tint = (bDragging != 0 || bThumbHover != 0) ? Hot : Idle;
+    FlULong Tint = (bDragging != 0 || bThumbHover != 0) ? Hot : Idle;
     SubmitWin3DTintedEngineInstanceWrapped(Camera, ThumbHolder.EngineInstance, 1,
                                            reinterpret_cast<unsigned char const*>(&Tint), 1, 1.0f,
                                            0);

@@ -254,7 +254,7 @@ void CShip::init(CreateParms const& Parms)
     Archetype::Ship const* const ShipArch = shiparch();
     if (ShipArch->BayDoorAnim.Value[0] != '\0')
     {
-        unsigned long const PlayId = DALib::Anim->PlayScript(AsOpaqueDword(Archetype->AnimIndex),
+        FlULong const PlayId = DALib::Anim->PlayScript(AsOpaqueDword(Archetype->AnimIndex),
                                                              AsOpaqueDword(EngineInstanceId),
                                                              ShipArch->BayDoorAnim.Value,
                                                              nullptr, nullptr);
@@ -1671,7 +1671,7 @@ void CShip::VerifyTarget()
     // (class & 0x103); then CEqObj::sub_obj_id_to_inst (vtable +0xf8) on the sub-target.
     // Otherwise the instance is -1. Retail fetches cobject() twice; the second fetch is the
     // same call on the same watcher.
-    long SubInst = -1;
+    FlLong SubInst = -1;
     CObject const* const Obj = TargetObj->cobject();
     if (Obj != nullptr && (Obj->ObjectClass & CObject::ClassEqObj) == CObject::ClassEqObj)
     {
@@ -2645,7 +2645,7 @@ float const CShip::JETTISON_CLEARANCE_TIME = 4.0f;
 // Listing 0x52310: reads Target at +0x220, then subtarget index at +0x228
 // ============================================================================
 
-long CShip::get_renderable_subtarget() const
+FlLong CShip::get_renderable_subtarget() const
 {
     // .text:062b2310..062b23b4: no target, SubTargetIndex == SUBOBJ_ID_NONE, or a target
     // object (slot 0x150 cobject) that is not a CEqObj (class & 0x103) -> -1. Otherwise

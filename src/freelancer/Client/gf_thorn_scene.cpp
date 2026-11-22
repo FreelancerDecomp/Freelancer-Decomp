@@ -128,10 +128,10 @@ GENRESULT DACOM_API FThorn_Scene::GetReverb(float* OutEnvironment, float* OutVol
                                            float* OutDecay, float* OutDamping)
 {
     if (DALib::Sound != nullptr)
-        DALib::Sound->GetEaxPreview(reinterpret_cast<unsigned long*>(OutEnvironment),
-                                    reinterpret_cast<unsigned long*>(OutVolume),
-                                    reinterpret_cast<unsigned long*>(OutDecay),
-                                    reinterpret_cast<unsigned long*>(OutDamping));
+        DALib::Sound->GetEaxPreview(reinterpret_cast<FlULong*>(OutEnvironment),
+                                    reinterpret_cast<FlULong*>(OutVolume),
+                                    reinterpret_cast<FlULong*>(OutDecay),
+                                    reinterpret_cast<FlULong*>(OutDamping));
     return GR_OK;
 }
 

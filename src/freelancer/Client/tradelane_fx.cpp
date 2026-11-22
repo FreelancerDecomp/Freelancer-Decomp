@@ -522,7 +522,7 @@ namespace
             Id = TlCompanionId(Companion, kTlPlayerEnter);
         FTransform Xform;
         TlIdentityXform(&Xform);
-        long const Index = Ship->get_index();
+        FlLong const Index = Ship->get_index();
         if (Id->IsEmpty())
             return;
         CliCreateEffectOneShotOn(&G_CliEffectFactoryC60, FindEffectArch(&Id->Id), Ship,
@@ -563,7 +563,7 @@ namespace
         }
         FTransform Xform;
         TlIdentityXform(&Xform);
-        long const Index = Ship->get_index();
+        FlLong const Index = Ship->get_index();
         TlCreateEffectFromId(&G_CliEffectFactoryC60, TlCompanionId(Companion, kTlShipTravel), Ship,
                              static_cast<int>(Index), &Xform,
                              TlShipCompanion(Ship, kTlShipFxBinder164));
@@ -642,7 +642,7 @@ namespace
         }
         FTransform Xform;
         TlIdentityXform(&Xform);
-        long const Index = Ship->get_index();
+        FlLong const Index = Ship->get_index();
         ID_String const* const Id = TlCompanionId(Companion, kTlShipExit);
         if (Id->IsEmpty())
             return;
@@ -685,7 +685,7 @@ namespace
         {
             FTransform Xform;
             TlIdentityXform(&Xform);
-            long const Index = Ship->get_index();
+            FlLong const Index = Ship->get_index();
             ID_String const* const Id = TlCompanionId(Companion, kTlShipDisrupt);
             if (!Id->IsEmpty())
                 CliCreateEffectOneShotOn(&G_CliEffectFactoryC60, FindEffectArch(&Id->Id), Ship,
@@ -879,7 +879,7 @@ namespace
                 FTransform Xform;
                 TradeLaneRingMakeTranslationXform(&Xform, &Hp);
                 FClientGameobj* const Owner = TlWatchedGameobj(Ring);
-                long const Index = TlWatchedGameobj(Ring)->get_index();
+                FlLong const Index = TlWatchedGameobj(Ring)->get_index();
                 TlCreateEffectFromId(&G_CliEffectFactoryC60, TlCompanionId(Companion, kTlRingActive),
                                      Owner, static_cast<int>(Index), &Xform, &Ring->EffectSlot0);
             }
@@ -1041,7 +1041,7 @@ void TradeLaneRingLaneHardpoint(FVector* Out, FClientGameobj* RingGameobj, unsig
     if (!G_TlHpCached)
     {
         G_TlHpCached = true;
-        long HpHandle = 0;
+        FlLong HpHandle = 0;
         HardpointInfo HpInfo = {};
         FindHardpoint_PS(RingGameobj->get_index(), "HpRightLane", HpHandle, HpInfo);
         G_TlHpRight.X = HpInfo.Position.x;

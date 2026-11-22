@@ -124,7 +124,7 @@ public:
     float SpinAngle;               // +0x33c
     float SpinSpeed;               // +0x340
     float BlinkTimer;              // +0x344
-    unsigned long GlowArgb;        // +0x348
+    FlULong GlowArgb;        // +0x348
     int CommandId;                 // +0x34c
     std::string Mesh2;             // retail +0x350 (VC6 std::string)
     std::string SoundName;         // retail +0x360 (VC6 std::string)

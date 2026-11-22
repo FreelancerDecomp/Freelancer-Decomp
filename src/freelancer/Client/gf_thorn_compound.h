@@ -52,7 +52,7 @@ struct FThornCompound : FThornComponent
 
     // FUN_00451330 (thiscall, RET 4) -- the instance, and its hardpoints re-analyzed. The spawn
     // FUN_0044dd80 calls it (0x0044de67).
-    void SetInstance(long InInstance);
+    void SetInstance(FlLong InInstance);
 
     // FUN_00451380 -- every motion slot back to {-1, -1, 0}.
     void ResetMotionSlots();
@@ -60,13 +60,13 @@ struct FThornCompound : FThornComponent
     static const int kMotionSlots = 16;
 
     FRoomObject* Object;               // +0x6c the room object owning Instance, or null
-    long Instance;                     // +0x70 -1
+    FlLong Instance;                     // +0x70 -1
     void* AnimScript;                  // +0x74 IAnimation2 script, -1 = none
     int Category;                      // +0x78 -1 (written by the spawn; TODO meaning)
     unsigned char bUseScene;           // +0x7c not written by the ctor (the spawn sets it)
     Csys Offset;                       // +0x80 the entity's offset from its instance
     Csys Local;                        // +0xb0 identity; the last frame the script set
-    unsigned long Playback[kMotionSlots]; // +0xe0 IAnimation2 playback ids, -1
+    FlULong Playback[kMotionSlots]; // +0xe0 IAnimation2 playback ids, -1
     int EventId[kMotionSlots];         // +0x120 the START_MOTION's unique id, -1
     unsigned char bPlaying[kMotionSlots]; // +0x160
     HardpointSummary Hardpoints;       // +0x170 of Instance

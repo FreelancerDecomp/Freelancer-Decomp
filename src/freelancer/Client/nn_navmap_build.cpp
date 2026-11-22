@@ -276,7 +276,7 @@ void NeuroNetNavMap::BuildMapZones()
         {
             // Retail copies the 0xc0c record to the stack and reads the zone from the copy.
             Universe::IZone const* const Zone = It->Zone;
-            unsigned long const Props = Zone->GetProperties();
+            FlULong const Props = Zone->GetProperties();
             bool bAdd = false;
             if (Pass == 0)
                 bAdd = (Props & 0x8000) != 0 && (Props & 0x30000) == 0;
@@ -302,8 +302,8 @@ void NeuroNetNavMap::BuildMapZones()
         {
             Universe::IZone const* const Right = MapZones[Index + 1];
             Universe::IZone const* const Left = MapZones[Index];
-            unsigned long const RightKey = Right->GetProperties() & 0x7fc0;
-            unsigned long const LeftKey = Left->GetProperties() & 0x7fc0;
+            FlULong const RightKey = Right->GetProperties() & 0x7fc0;
+            FlULong const LeftKey = Left->GetProperties() & 0x7fc0;
             if (LeftKey > RightKey)
             {
                 MapZones[Index] = Right;

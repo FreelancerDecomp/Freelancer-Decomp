@@ -1261,7 +1261,7 @@ unsigned ZONE::GetShape() const
 }
 
 // 062a6690 (ICF): MOV EAX,[ECX+0x40].
-unsigned long ZONE::GetProperties() const
+FlULong ZONE::GetProperties() const
 {
     return PropertyFlags;
 }
@@ -1285,7 +1285,7 @@ Vector ZONE::GetSize() const
 }
 
 // 063390f0 (ICF): MOV EAX,[ECX+0x50].
-long ZONE::GetMeshHandle() const
+FlLong ZONE::GetMeshHandle() const
 {
     return MeshHandle;
 }

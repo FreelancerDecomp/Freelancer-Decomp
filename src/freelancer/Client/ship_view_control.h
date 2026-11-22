@@ -129,7 +129,7 @@ public:
     // FUN_005850f0 (RET 4) -- replace the shown equipment (null: none) and the marker meshes.
     void LoadEquipment(EquipDescList const* List);
     // FUN_00585380 (RET 8) -- frame Instance: bounds, camera distance, camera placement.
-    void SetInstance(long NewInstance, bool bFixedDistance);
+    void SetInstance(FlLong NewInstance, bool bFixedDistance);
     // FUN_00585630 (RET 4) -- place the camera on the framed instance (mode 1 from the side,
     // mode 0 along its own z axis); other modes do nothing.
     void PlaceCamera(int PlaceMode);
@@ -140,7 +140,7 @@ public:
     // FUN_00585a90 (RET 0xc) -- LoadEquipment(null), then the ship archetype's mesh.
     bool LoadShip(ID_String const* ShipId, bool bFixedDistance, bool bDpConnect);
     // FUN_00585bd0 (RET 0xc) -- select Instance (-1: no change); Unused is never read.
-    void SelectInstance(long NewSelection, bool bFlag, int Unused);
+    void SelectInstance(FlLong NewSelection, bool bFlag, int Unused);
     // FUN_00585cd0 (RET 0x10) -- select a hp class / weapon / shield directly.
     void SelectHpClass(int HpClass, Archetype::Equipment const* Weapon,
                        Archetype::Equipment const* Shield, bool bFlag);
@@ -149,9 +149,9 @@ public:
     // FUN_00585d90 (RET 8) -- select by a good id.
     void SelectGood(unsigned GoodId, bool bFlag);
     // FUN_00585e20 (RET 4) -- the hardpoint name of the attached item instance, or null.
-    char const* GetHardpointOfInstance(long ItemInstance) const;
+    char const* GetHardpointOfInstance(FlLong ItemInstance) const;
     // FUN_00585e80 (RET 4) -- the item instance on the hardpoint named Name, or -1.
-    long GetInstanceOnHardpoint(char const* Name) const;
+    FlLong GetInstanceOnHardpoint(char const* Name) const;
     // FUN_00585ef0 (RET 8) -- FindHardpointForGood(Arch2Good(Desc->ArchId)), null for no Desc.
     char const* FindHardpointForEquipDesc(EquipDesc const* Desc, bool bFirstMatch) const;
     // FUN_00585f20 (RET 8) -- a hardpoint of the ship that can take GoodId.
@@ -197,7 +197,7 @@ public:
     float Distance;                            // +0x4a4
     float Center[3];                           // +0x4a8
     float FovY;                                // +0x4b4
-    long Instance;                             // +0x4b8
+    FlLong Instance;                             // +0x4b8
     unsigned char WireColor[4];                // +0x4bc
     unsigned char RectColor[4];                // +0x4c0
     unsigned char Color4c4[4];                 // +0x4c4 -- no reader in this class
@@ -211,7 +211,7 @@ public:
     int SelHpClass;                            // +0x4fc
     Archetype::Equipment const* SelWeapon;     // +0x500
     Archetype::Equipment const* SelShield;     // +0x504
-    long SelInstance;                          // +0x508
+    FlLong SelInstance;                          // +0x508
     float SelRadius;                           // +0x50c
     float SelExtent;                           // +0x510
     int Field514;                              // +0x514 -- never written here

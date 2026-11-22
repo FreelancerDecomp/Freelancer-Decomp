@@ -940,7 +940,7 @@ FCameraRayHit* CameraRayPickTo(FCameraRayHit* Out, ICamera* Camera, Vector const
         // 0x0051debd..0x0051df0d: the part's engine instance -- the inlined
         // CObject::part_to_inst, where -1 (and an unmapped part) falls back to the object's own
         // instance (+4).
-        long Instance = Hit.Object->part_to_inst(Hit.PartId);
+        FlLong Instance = Hit.Object->part_to_inst(Hit.PartId);
         if (Instance == -1)
             Instance = Hit.Object->EngineInstanceId;
 
@@ -1818,15 +1818,15 @@ namespace
     }
 
     // Every FUN_005a2940 call in FUN_004eada0 passes width 2.0f (0x40000000).
-    void DrawBracketLine(Vector const& A, Vector const& B, unsigned long Color,
-                         unsigned long EdgeColor)
+    void DrawBracketLine(Vector const& A, Vector const& B, FlULong Color,
+                         FlULong EdgeColor)
     {
         Win3DImmedDrawLine(&A.x, &B.x, Color, EdgeColor, 2.0f);
     }
 }
 
 void HudTargetableObjects::DrawContactBracket(FHudContactRecord const* Record,
-                                              unsigned long const* Color, bool bHostile,
+                                              FlULong const* Color, bool bHostile,
                                               bool bWatchListed)
 {
     // FUN_004eada0. 0x004eadae..0x004eadc7: nothing for a radius that equals 0.0 (FCOMP double
@@ -1854,10 +1854,10 @@ void HudTargetableObjects::DrawContactBracket(FHudContactRecord const* Record,
 
     // 0x004eaf66..0x004eafae: the RGBA bytes as A:R:G:B (ESI) and the same with alpha 0 (EDI).
     unsigned char const* const Rgba = reinterpret_cast<unsigned char const*>(Color);
-    unsigned long EdgeColor = (static_cast<unsigned long>(Rgba[0]) << 16) |
-                              (static_cast<unsigned long>(Rgba[1]) << 8) |
-                              static_cast<unsigned long>(Rgba[2]);
-    unsigned long LineColor = (static_cast<unsigned long>(Rgba[3]) << 24) | EdgeColor;
+    FlULong EdgeColor = (static_cast<FlULong>(Rgba[0]) << 16) |
+                              (static_cast<FlULong>(Rgba[1]) << 8) |
+                              static_cast<FlULong>(Rgba[2]);
+    FlULong LineColor = (static_cast<FlULong>(Rgba[3]) << 24) | EdgeColor;
 
     if (bHostile)
     {
@@ -1910,7 +1910,7 @@ void HudTargetableObjects::DrawContactBracket(FHudContactRecord const* Record,
         // 0x004eb93d..0x004eb94e: watch-listed, they are blue (A:00:00:FF, edge 000000FF).
         if (bWatchListed)
         {
-            LineColor = (static_cast<unsigned long>(Rgba[3]) << 24) | 0xffu;
+            LineColor = (static_cast<FlULong>(Rgba[3]) << 24) | 0xffu;
             EdgeColor = 0xffu;
         }
 
@@ -2022,11 +2022,11 @@ void HudTargetableObjects::DrawContactMarkers()
         // 0x004ec0d7..0x004ec11b: the idle cyan (DAT_00679bb0); with the player in ObjDB bucket 1
         // its reputation colour (FUN_0045a4e0) and whether the contact is hostile (FUN_0045a490
         // == -1).
-        unsigned long Color = G_NnPaletteArgb_679bb0;   // [ESP+0x10]
+        FlULong Color = G_NnPaletteArgb_679bb0;   // [ESP+0x10]
         bool bHostile = false;                           // [ESP+0x1c]
         if (static_cast<FClientGameobj*>(Player)->ManagerKind == 1)
         {
-            unsigned long Reputation = 0;
+            FlULong Reputation = 0;
             HudReputationColor(&Reputation, Player, Contact);
             Color = Reputation;
             if (GetAttitudeClass(Player, Contact) == -1)
@@ -2046,7 +2046,7 @@ void HudTargetableObjects::DrawContactMarkers()
             // blocked (FUN_0045a740).
             if (!HudIsMousePickBlocked())
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendFromArgb(&Pulsed, Color);   // FUN_00561f20
                 Color = Pulsed;
             }
@@ -2170,7 +2170,7 @@ namespace
 }
 
 void HudTargetableObjects::DrawWaypointMarker(FHudContactRecord const* Record,
-                                              unsigned long const* Color, int /*Unused*/)
+                                              FlULong const* Color, int /*Unused*/)
 {
     // FUN_004ebde0. 0x004ebde3..0x004ebedd: the midpoints of the four edges (float adds of the
     // screen position and +-R).
@@ -2184,10 +2184,10 @@ void HudTargetableObjects::DrawWaypointMarker(FHudContactRecord const* Record,
 
     // 0x004ebec0..0x004ebf54: RGBA -> A:R:G:B and R:G:B, four 2-wide lines.
     unsigned char const* const Rgba = reinterpret_cast<unsigned char const*>(Color);
-    unsigned long const EdgeColor = (static_cast<unsigned long>(Rgba[0]) << 16) |
-                                    (static_cast<unsigned long>(Rgba[1]) << 8) |
-                                    static_cast<unsigned long>(Rgba[2]);
-    unsigned long const LineColor = (static_cast<unsigned long>(Rgba[3]) << 24) | EdgeColor;
+    FlULong const EdgeColor = (static_cast<FlULong>(Rgba[0]) << 16) |
+                                    (static_cast<FlULong>(Rgba[1]) << 8) |
+                                    static_cast<FlULong>(Rgba[2]);
+    FlULong const LineColor = (static_cast<FlULong>(Rgba[3]) << 24) | EdgeColor;
     DrawBracketLine(Top, Right, LineColor, EdgeColor);
     DrawBracketLine(Right, Bottom, LineColor, EdgeColor);
     DrawBracketLine(Bottom, Left, LineColor, EdgeColor);
@@ -2529,7 +2529,7 @@ void HudTargetableObjects::DrawWaypointArrow(FHudContactRecord const* Record)
     if (WaypointArrow != nullptr && WaypointArrowBackground != nullptr)
     {
         unsigned char const BackgroundRgba[4] = {0x0c, 0x3e, 0x7a, 0xff};
-        unsigned long const ArrowRgba = G_NnPaletteArgb_679b80;
+        FlULong const ArrowRgba = G_NnPaletteArgb_679b80;
         NnMontageDrawTileAt(WaypointArrowBackground, &ArrowPos.x, BackgroundRgba, 0.06f, 0, 0.0f);
         NnMontageDrawTileAt(WaypointArrow, &ArrowPos.x,
                             reinterpret_cast<unsigned char const*>(&ArrowRgba), 0.06f, 0, 0.0f);
@@ -2591,7 +2591,7 @@ namespace
 
     // FUN_00421b70 with a palette colour's R, G, B bytes (whole, or each * 3 / 4 truncated --
     // CDQ / AND 3 / SAR 2) and alpha 0xff.
-    void SetReticleBarColor(unsigned long Argb, bool bDimmed)
+    void SetReticleBarColor(FlULong Argb, bool bDimmed)
     {
         unsigned char const* const Bytes = reinterpret_cast<unsigned char const*>(&Argb);
         if (bDimmed)
@@ -2739,14 +2739,14 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
     // 0x004ef36e..0x004ef3d4: violet for a waypoint or the best-path object, else the marker
     // colour (FUN_004eeea0); the HUD_Comm speaker amber (DAT_00679ba4) over either.
     bool const bWaypoint = (TypeBits & 0x200u) != 0;   // [ESP+0x48]
-    unsigned long Color;   // [ESP+0x5c]
+    FlULong Color;   // [ESP+0x5c]
     if (bWaypoint || Record->bIsBestPath != 0)
     {
         Color = G_NnPaletteArgb_679b80;
     }
     else
     {
-        unsigned long Marker = 0;   // [ESP+0x6c]
+        FlULong Marker = 0;   // [ESP+0x6c]
         Color = *HudTargetMarkerColor(&Marker, Object);
     }
     if (bWatched)
@@ -2788,7 +2788,7 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
         else if (Fade < 0.0)
             Fade = 0.0;
         int const Alpha = static_cast<int>((1.0 - Fade) * 150.0 + Fade * static_cast<double>(255.0f));
-        unsigned long WaypointColor = Color;   // [ESP+0x20]
+        FlULong WaypointColor = Color;   // [ESP+0x20]
         reinterpret_cast<unsigned char*>(&WaypointColor)[3] = static_cast<unsigned char>(Alpha);
         NnMontageDrawTileAt(WaypointTarget, &P.x,
                             reinterpret_cast<unsigned char const*>(&WaypointColor), Size, 0, 0.0f);
@@ -3141,10 +3141,10 @@ void HudTargetableObjects::DrawOnScreenTarget(IObjRW* Object, FHudContactRecord 
         free(Caption.Text);
 }
 
-unsigned long* HudTargetMarkerColor(unsigned long* OutArgb, IObjRW* Object)
+FlULong* HudTargetMarkerColor(FlULong* OutArgb, IObjRW* Object)
 {
     // FUN_004eeea0. 0x004eeea2: the idle cyan unless a rule below replaces it.
-    unsigned long Color = G_NnPaletteArgb_679bb0;
+    FlULong Color = G_NnPaletteArgb_679bb0;
     unsigned Type = 0;   // retail reuses the Object argument's stack slot
     if (Object->get_type(Type) == 0)   // slot 34 (+0x88); a failure keeps the cyan
     {
@@ -3167,7 +3167,7 @@ unsigned long* HudTargetMarkerColor(unsigned long* OutArgb, IObjRW* Object)
             void* const Player = GetPlayerObjRW();
             if (Player != nullptr && static_cast<FClientGameobj*>(Player)->ManagerKind == 1)
             {
-                unsigned long Reputation = 0;
+                FlULong Reputation = 0;
                 HudReputationColor(&Reputation, static_cast<IObjRW*>(Player), Object);
                 Color = Reputation;
             }
@@ -3265,7 +3265,7 @@ namespace
 
     // 0x004f1631..0x004f166d / 0x004f16f9..0x004f1735: a palette colour at three quarters (each
     // byte * 3 / 4, CDQ / AND 3 / SAR 2 -- truncating), through FUN_00421a70 (R, G, B).
-    void SetDimmedPaletteColor(unsigned long Argb)
+    void SetDimmedPaletteColor(FlULong Argb)
     {
         unsigned char const* const Bytes = reinterpret_cast<unsigned char const*>(&Argb);
         Win3DColor3ub(static_cast<unsigned char>((static_cast<int>(Bytes[0]) * 3) / 4),
@@ -3357,14 +3357,14 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
 
     // 0x004f0b63..0x004f0b98: violet for a waypoint, else the marker colour (FUN_004eeea0); the
     // HUD_Comm speaker amber (DAT_00679ba4) over either; the alpha byte replaced.
-    unsigned long Color;   // [ESP+0x24]
+    FlULong Color;   // [ESP+0x24]
     if (bWaypoint)
     {
         Color = G_NnPaletteArgb_679b80;
     }
     else
     {
-        unsigned long Marker = 0;   // [ESP+0x50]
+        FlULong Marker = 0;   // [ESP+0x50]
         Color = *HudTargetMarkerColor(&Marker, Object);
     }
     if (bWatched)
@@ -3518,7 +3518,7 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
         {
             if (bHat)
             {
-                unsigned long HatColor = Color;   // [ESP+0x14]
+                FlULong HatColor = Color;   // [ESP+0x14]
                 reinterpret_cast<unsigned char*>(&HatColor)[3] = static_cast<unsigned char>(Alpha);
                 NnMontageDrawTileAt(CurrentTargetArrowHat, Point,
                                     reinterpret_cast<unsigned char const*>(&HatColor), 0.1f, 0,
@@ -3639,7 +3639,7 @@ void HudTargetableObjects::DrawOffScreenContact(IObjRW* Object, FHudContactRecor
     {
         // 0x004f0e77..0x004f0ed2: a watch-listed / best-path non-target's hat, Color with the
         // alpha byte, at 0.05.
-        unsigned long HatColor = Color;   // [ESP+0x14]
+        FlULong HatColor = Color;   // [ESP+0x14]
         reinterpret_cast<unsigned char*>(&HatColor)[3] = static_cast<unsigned char>(Alpha);
         NnMontageDrawTileAt(NSTargetHat, Point, reinterpret_cast<unsigned char const*>(&HatColor),
                             0.05f, 0, Angle);
@@ -3749,10 +3749,10 @@ void HudTargetableObjects::DrawLeadMarkers()
     // 0x004f2097..0x004f20d0: the red of DAT_00679ba8 (bytes b0..b3) as b3:b0:b1:b2, once with
     // its alpha and once with alpha 0 for the edges.
     unsigned char const* const Red = reinterpret_cast<unsigned char const*>(&G_NnPaletteArgb_679ba8);
-    unsigned long const EdgeColor = (static_cast<unsigned long>(Red[0]) << 16) |
-                                    (static_cast<unsigned long>(Red[1]) << 8) |
-                                    static_cast<unsigned long>(Red[2]);
-    unsigned long const Color = (static_cast<unsigned long>(Red[3]) << 24) | EdgeColor;
+    FlULong const EdgeColor = (static_cast<FlULong>(Red[0]) << 16) |
+                                    (static_cast<FlULong>(Red[1]) << 8) |
+                                    static_cast<FlULong>(Red[2]);
+    FlULong const Color = (static_cast<FlULong>(Red[3]) << 24) | EdgeColor;
 
     // 0x004f20e0..0x004f2207: a cross on every marker whose object is still there: 6 pixels
     // of the 640-wide unit (DAT_005d966c 0.0015625 * DAT_005d4f08 6) on the player's target,

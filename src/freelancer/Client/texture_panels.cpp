@@ -56,20 +56,20 @@ namespace
     // terminator included (the walks stop at a zero state).
     // DAT_005db0d8 -- RS: LIGHTING (0x89) 0, SPECULARENABLE (0x1d) 0, ALPHABLENDENABLE (0x1b) 1,
     // SRCBLEND (0x13) SRCALPHA, DESTBLEND (0x14) INVSRCALPHA.
-    unsigned long const kRsPanelBoth[] = {0x89, 0, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
+    FlULong const kRsPanelBoth[] = {0x89, 0, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
     // DAT_005db108 stage0 / DAT_005db140 stage1 / DAT_005db178 stage2 -- TSS COLOROP, COLORARG1,
     // COLORARG2, ALPHAOP, ALPHAARG1, ALPHAARG2.
-    unsigned long const kTssStage0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    unsigned long const kTssStage1[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
-    unsigned long const kTssStage2[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    FlULong const kTssStage0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    FlULong const kTssStage1[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0};
+    FlULong const kTssStage2[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
     // DAT_005e09c8 used by FUN_00551500
-    unsigned long const kRsCloudsDraw[] = {0x8d, 1, 0x91, 1, 0};
+    FlULong const kRsCloudsDraw[] = {0x8d, 1, 0x91, 1, 0};
     // DAT_005e09e0 -- restore after DrawClouds: only 0x8d (the table is {0x8d, 0, 0}).
-    unsigned long const kRsCloudsRestore[] = {0x8d, 0, 0};
+    FlULong const kRsCloudsRestore[] = {0x8d, 0, 0};
     // DAT_005e09f0 / DAT_005e0a28 -- TSS stage0/1 tables used by FUN_00551500
-    unsigned long const kTssClouds0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
-    unsigned long const kTssClouds1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
+    FlULong const kTssClouds0[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0};
+    FlULong const kTssClouds1[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0};
 
     // FUN_00552420 (thiscall on the format id) — 0x00552420..0x0055243b: ids 10..14 (CMP 0xa JL /
     // CMP 0xe JG) have alpha; any other id returns its descriptor's +0x48 byte (FUN_005b7030).
@@ -162,10 +162,10 @@ namespace
 
     struct FPanelVertexBatcher
     {
-        unsigned long Field00;     // +0x00  primitive type: ctor 1, DrawPiece writes 5
+        FlULong Field00;     // +0x00  primitive type: ctor 1, DrawPiece writes 5
         FPanelVert20* Verts;       // +0x04
         int VertCount;             // +0x08
-        unsigned long Fvf;         // +0x0c  ctor 0x242 (XYZ|DIFFUSE|TEX2, 0x20-byte vertex)
+        FlULong Fvf;         // +0x0c  ctor 0x242 (XYZ|DIFFUSE|TEX2, 0x20-byte vertex)
         unsigned short* Indices;   // +0x10
         int IndexCount;            // +0x14
         // +0x18 DAT_00675030: the pipeline the batch draws through, AddRef'd while held
@@ -311,11 +311,11 @@ namespace
     // FUN_0050bb20 (cdecl: pipeline, stage, table), listing-traced 0x0050bb20..0x0050bb51 --
     // pipeline slot 62 (+0xf8, SetTextureStageState) on each {type, value} pair until a 0 type.
     // Neither the pipeline nor the table is tested.
-    void PipelineApplyTssPairTable(IRenderPipeline* Pipe, unsigned long Stage,
-                                   unsigned long const* Table)
+    void PipelineApplyTssPairTable(IRenderPipeline* Pipe, FlULong Stage,
+                                   FlULong const* Table)
     {
-        unsigned long const* Cursor = Table;
-        unsigned long State = Cursor[0];
+        FlULong const* Cursor = Table;
+        FlULong State = Cursor[0];
         while (State != 0)
         {
             Pipe->SetTextureStageState(static_cast<int>(Stage), static_cast<int>(State),
@@ -1382,7 +1382,7 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
     IRenderPipeline* const Pipe = DALib::Pipeline;
 
     // 0x0055179d..0x005517e9: DAT_005e09c8 {state, value} walk, first state 0x8d.
-    for (unsigned long const* Pair = kRsCloudsDraw; Pair[0] != 0; Pair += 2)
+    for (FlULong const* Pair = kRsCloudsDraw; Pair[0] != 0; Pair += 2)
         Pipe->SetRenderState((D3DRENDERSTATETYPE)Pair[0], static_cast<int>(Pair[1]));
 
     // 0x005517eb..0x00551889: RS 0x89 saved then 0; RS 0x16 saved then 1; RS 7 = 1; RS 0xe = 0;
@@ -1425,9 +1425,9 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
 
     // 0x00551948..0x005519b8: DAT_005e09f0 on stage 0, DAT_005e0a28 on stage 1 (pipeline +0xf8),
     // each walked up to a zero state.
-    for (unsigned long const* Pair = kTssClouds0; Pair[0] != 0; Pair += 2)
+    for (FlULong const* Pair = kTssClouds0; Pair[0] != 0; Pair += 2)
         Pipe->SetTextureStageState(0, static_cast<int>(Pair[0]), static_cast<int>(Pair[1]));
-    for (unsigned long const* Pair = kTssClouds1; Pair[0] != 0; Pair += 2)
+    for (FlULong const* Pair = kTssClouds1; Pair[0] != 0; Pair += 2)
         Pipe->SetTextureStageState(1, static_cast<int>(Pair[0]), static_cast<int>(Pair[1]));
 
     // 0x005519ba..0x005519ed: RS 0x18 saved (into a zeroed local) then 5.
@@ -1692,7 +1692,7 @@ void TexturePanelDrawClouds(FNebulaClouds* Clouds, void* Camera, void* Exclusion
     Pipe->SetRenderState(D3DRS_ALPHAREF, Saved18);
     Pipe->SetRenderState(D3DRS_LIGHTING, Saved89);
     Pipe->SetRenderState(D3DRS_CULLMODE, Saved16);
-    for (unsigned long const* Pair = kRsCloudsRestore; Pair[0] != 0; Pair += 2)
+    for (FlULong const* Pair = kRsCloudsRestore; Pair[0] != 0; Pair += 2)
         Pipe->SetRenderState((D3DRENDERSTATETYPE)Pair[0], static_cast<int>(Pair[1]));
     Pipe->SetRenderState(D3DRS_ZWRITEENABLE, 1);
     Pipe->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
@@ -1723,9 +1723,9 @@ void NebulaDrawCloudsPanels(FNebulaEffect* Nebula, void* Camera)
     DALib::MaterialBatcher->SetBinOrder(1u, -1);
     PipelineSetRenderState(DALib::Pipeline, D3DRS_LIGHTING, 0);
     EngineLightClearRegisteredList();
-    unsigned long Saved8b = 0;
+    FlULong Saved8b = 0;
     PipelineGetRenderState(DALib::Pipeline, D3DRS_AMBIENT, &Saved8b);
-    PipelineSetRenderState(DALib::Pipeline, D3DRS_AMBIENT, static_cast<unsigned long>(-1));
+    PipelineSetRenderState(DALib::Pipeline, D3DRS_AMBIENT, static_cast<FlULong>(-1));
     Win3DSetDepthWrite(0);
 
     // 0x00509225..0x0050925b: FUN_00422440(&+0x2a0, +0x2ac, +0x2b0); DAT_00675004 = 0; RS 0x16 = 1.
@@ -1755,8 +1755,8 @@ void NebulaDrawCloudsPanels(FNebulaEffect* Nebula, void* Camera)
     // (slot +0x48).
     if (G_NebulaCloudsLockBackBuffer != 0)
     {
-        unsigned long LockDesc[5];
-        LockDesc[4] = static_cast<unsigned long>(PixelFormatFromD3D(0));
+        FlULong LockDesc[5];
+        LockDesc[4] = static_cast<FlULong>(PixelFormatFromD3D(0));
         DALib::Pipeline->LockBuffer(LockDesc);
         DALib::Pipeline->UnlockBuffer();
     }

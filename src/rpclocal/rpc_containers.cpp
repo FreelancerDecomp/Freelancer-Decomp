@@ -2294,7 +2294,7 @@ unsigned int RpcEncodeCreateObjectCommon(FRpcMarshalStream& Stream,
                                    static_cast<double>(MaxHitPts)) *
                                   FRpcMarshalStream::kPercentScale;
             Percent = static_cast<unsigned char>(
-                static_cast<unsigned long>(static_cast<long>(Scaled)) & 0xffu);
+                static_cast<FlULong>(static_cast<FlLong>(Scaled)) & 0xffu);
         }
         // MaxHitPts == 0 cannot be reached through Common.dll (GetArchMaxHitPts defaults
         // to 1 on a miss). If it ever were, retail's FDIVR would produce an infinity and
@@ -2444,7 +2444,7 @@ unsigned int RpcDecodeCreateObjectCommon(FRpcMarshalStream& Stream,
         const double Fraction = static_cast<double>(static_cast<unsigned int>(Percent)) *
                                 FRpcMarshalStream::kPercentInvScale;
         Wire->Field_0x48 = static_cast<unsigned int>(
-            static_cast<long>(MaxHitPts * Fraction));                    // 06da4394
+            static_cast<FlLong>(MaxHitPts * Fraction));                    // 06da4394
     }
     if (SinglePlayer()) {                                                // 06da4397 / 06da439f
         if (!Stream.GetDword(Wire->Field_0x4c)) {                        // 06da43c8

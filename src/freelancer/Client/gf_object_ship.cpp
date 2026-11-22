@@ -117,7 +117,7 @@ namespace
     }
 
     // FUN_005595a0 (cdecl) -- FUN_00406cd0(Handle, 0, 0) on the companion unless Handle is -1.
-    void RecomputeShipCompanionLod(Archetype::ICliObj* Companion, long Handle)
+    void RecomputeShipCompanionLod(Archetype::ICliObj* Companion, FlLong Handle)
     {
         if (Handle == -1)
             return;
@@ -422,7 +422,7 @@ void FObjectShip::RebuildModel()
     // material list, the material entries into RoomObject +0x20 and the handle into a local
     // (-1 first).
     Archetype::ICliObj* const Companion = Ship->Companion;
-    long Handle = -1;
+    FlLong Handle = -1;
     Instance = MiscUtilLoadEngineInstance(Ship->DaArchetype.Value, DALib::Data, nullptr, nullptr,
                                           Archetype::CliObjMaterialPaths(Companion),
                                           &MaterialEntries, &Handle);
@@ -438,7 +438,7 @@ void FObjectShip::RebuildModel()
         // 0x00447331..0x00447347: +0x13 = the companion's envmap material is not empty.
         bEnvMap = Archetype::CliObjEnvmapMaterial(Companion)[0] != '\0' ? 1 : 0;
         // 0x0044734a: FUN_00457f10 on +0x74 with the model.
-        Visuals.Populate(static_cast<long>(reinterpret_cast<intptr_t>(Instance)));
+        Visuals.Populate(static_cast<FlLong>(reinterpret_cast<intptr_t>(Instance)));
         // 0x0044734f..0x00447372: with "ship_loadouts", FUN_004581b0 and FUN_00458220 on +0x74
         // with the +0x6c list.
         if (RtcSlider::is_enabled("ship_loadouts"))
@@ -507,7 +507,7 @@ void FObjectShip::Update(double DeltaSeconds)
     }
 
     // 0x004474b0..0x004474cc: Anim +0x6c (model, Delta).
-    DALib::Anim->MixerWalk(static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Instance)), Delta);
+    DALib::Anim->MixerWalk(static_cast<FlULong>(reinterpret_cast<uintptr_t>(Instance)), Delta);
     // 0x004474cf..0x004474e0: Engine +0x6c (model, 0, Delta).
     DALib::Engine->UpdateInstance(Instance, 0, AsOpaqueDword(Delta));
     // 0x004474e3..0x004474ef: FUN_004582c0 on +0x74 while +0x14.
@@ -539,9 +539,9 @@ void FObjectShip::DrawOpaque(ICamera* Camera)
     if (bShadow != 0)
     {
         float const Height = GetFloat1C();
-        unsigned long HeightBits = 0;
+        FlULong HeightBits = 0;
         memcpy(&HeightBits, &Height, sizeof(HeightBits));
-        RoomControlDrawShadow(Owner, static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Instance)),
+        RoomControlDrawShadow(Owner, static_cast<FlULong>(reinterpret_cast<uintptr_t>(Instance)),
                               HeightBits, 0);
     }
     // 0x0044755b..0x0044755f: FUN_0044af60.
@@ -901,7 +901,7 @@ void FDealerShipObject::Load(FDealerShipDesc const& Desc)
     // 0x00443945..0x00443982: FUN_0041c540 on the ship's mesh with the companion's material
     // list, the material entries into RoomObject +0x20 and the handle into a local (-1 first).
     Archetype::ICliObj* const Companion = Desc.Ship->Companion;
-    long Handle = -1;
+    FlLong Handle = -1;
     Instance = MiscUtilLoadEngineInstance(Desc.Ship->DaArchetype.Value, DALib::Data, nullptr,
                                           nullptr, Archetype::CliObjMaterialPaths(Companion),
                                           &MaterialEntries, &Handle);
@@ -916,7 +916,7 @@ void FDealerShipObject::Load(FDealerShipDesc const& Desc)
         bEnvMap = Archetype::CliObjEnvmapMaterial(Companion)[0] != '\0' ? 1 : 0;
         // 0x004439cc..0x004439dd: FUN_00457f10 with the model, FUN_004581b0 with the loadout
         // (no "ship_loadouts" test and no flashlights here, unlike the player's ship).
-        Visuals.Populate(static_cast<long>(reinterpret_cast<intptr_t>(Instance)));
+        Visuals.Populate(static_cast<FlLong>(reinterpret_cast<intptr_t>(Instance)));
         Visuals.AttachAll(Desc.Loadout);
     }
     // 0x004439e7..0x004439fc: +0x15 = 3, +0x16 = 0, +0x18 = 0, FUN_005595a0 (companion,
@@ -946,9 +946,9 @@ void FDealerShipObject::DrawOpaque(ICamera* /*Camera*/)
     if (bShadow != 0)
     {
         float const Height = GetFloat1C();
-        unsigned long HeightBits = 0;
+        FlULong HeightBits = 0;
         memcpy(&HeightBits, &Height, sizeof(HeightBits));
-        RoomControlDrawShadow(Owner, static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Instance)),
+        RoomControlDrawShadow(Owner, static_cast<FlULong>(reinterpret_cast<uintptr_t>(Instance)),
                               HeightBits, 0);
     }
     // 0x00443a51..0x00443a55: FUN_0044af60.
@@ -962,13 +962,13 @@ void FDealerShipObject::DrawOpaque(ICamera* /*Camera*/)
 void GfShipApplyCollisionDamage(void* InstancePtr)
 {
     // FUN_004482b0. 0x004482cc..0x004482da: the player's ship archetype (FUN_004c3e10).
-    long const Instance = static_cast<long>(reinterpret_cast<intptr_t>(InstancePtr));
+    FlLong const Instance = static_cast<FlLong>(reinterpret_cast<intptr_t>(InstancePtr));
     Archetype::Ship* const Ship = Archetype::GetShip(GetPlayerShipArchetypeIdRetail());
     // 0x004482de..0x00448309: the player's collision groups (FUN_004c3f00) and every instance
     // of the compound.
     std::list<CollisionGroupDesc>& Groups = GetPlayerCollisionGroupListRetail();
     int PartCount = 0;
-    long* Parts = nullptr;
+    FlLong* Parts = nullptr;
     CompoundInstanceList(Instance, &PartCount, &Parts);
 
     // 0x00448320..0x004483c1: a destroyed group (health == 0.0f: TEST AH,0x44 + JP skips the
@@ -1023,7 +1023,7 @@ void GfShipApplyCollisionDamage(void* InstancePtr)
             FHardpointKey ParentKey;
             ParentKey.Name = HpName;
             ParentKey.Crc = DACOM_CRC::GetCRC32(HpName);
-            long const Parent = Summary.find_name_instance(HpName);
+            FlLong const Parent = Summary.find_name_instance(HpName);
             DALib::Hardpoint->ConnectHardpoints(reinterpret_cast<void*>(static_cast<intptr_t>(Parent)),
                                                 &ParentKey, Child, &ChildKey);
         }

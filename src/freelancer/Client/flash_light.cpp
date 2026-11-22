@@ -37,7 +37,7 @@ namespace
     struct FFlareTextureQuery
     {
         char const* Name;  // +0
-        unsigned long Crc; // +4
+        FlULong Crc; // +4
     };
 
     // DAT_006799c8 -- set by FUN_00558580 when a set holds more than 0x20 lights.
@@ -472,7 +472,7 @@ void DrawFlashlightFlares(FFlashLight* const* Lights, int Count, ICamera* Camera
     // 0x00558090..0x005580ba: TextureLib slot 22 on the "shine" record (DAT_006799c4), frame 0;
     // its out[0] bound (FUN_004220a0) without testing the result, then FUN_00421670(8) (quads).
     // Retail's out buffer is uninitialised stack; the port zeroes it.
-    unsigned long ShineFrame[5] = {0, 0, 0, 0, 0};
+    FlULong ShineFrame[5] = {0, 0, 0, 0, 0};
     DALib::TextureLib->GetTextureFrame(G_FlashlightShineTexture, 0, ShineFrame);
     Win3DBindTexture(reinterpret_cast<void*>(ShineFrame[0]));
     Win3DBegin(kWin3DQuads);
@@ -484,7 +484,7 @@ void DrawFlashlightFlares(FFlashLight* const* Lights, int Count, ICamera* Camera
     Win3DEnd();
 
     // 0x005580e4..0x0055810c: the same with the "bulb" record (DAT_006799c0).
-    unsigned long BulbFrame[5] = {0, 0, 0, 0, 0};
+    FlULong BulbFrame[5] = {0, 0, 0, 0, 0};
     DALib::TextureLib->GetTextureFrame(G_FlashlightBulbTexture, 0, BulbFrame);
     Win3DBindTexture(reinterpret_cast<void*>(BulbFrame[0]));
     Win3DBegin(kWin3DQuads);

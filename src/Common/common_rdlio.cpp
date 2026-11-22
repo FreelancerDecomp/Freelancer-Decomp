@@ -42,7 +42,7 @@
 struct FRdlxNamedColor
 {
     wchar_t const* Name;
-    unsigned long Value; // COLORREF (0x00BBGGRR)
+    FlULong Value; // COLORREF (0x00BBGGRR)
 };
 static const FRdlxNamedColor GRdlxNamedColors[8] = {
     {L"gray", 0x00808080},   {L"blue", 0x00E04848},  {L"green", 0x001DBF3B},
@@ -233,14 +233,14 @@ namespace
     // which case hex via wcstoul. The port copies the same Len+1 characters and terminates
     // after them; retail's parse would run on into uninitialised stack if Value[Len] and the
     // bytes behind it were all digits (undefined behaviour, not reproduced).
-    unsigned long ParseRdlxNumber(wchar_t const* Value, int Len)
+    FlULong ParseRdlxNumber(wchar_t const* Value, int Len)
     {
         std::wstring Temp(Value, (std::wstring::size_type)Len + 1u);
         if (Len > 2 && Temp[0] == L'0' && Temp[1] == L'x')
         {
             return wcstoul(Temp.c_str(), nullptr, 16);
         }
-        return (unsigned long)wcstol(Temp.c_str(), nullptr, 10);
+        return (FlULong)wcstol(Temp.c_str(), nullptr, 10);
     }
 
     // "true"/"false" boolean attribute parser shared by TRA's bold/italic/underline and POS's
@@ -669,7 +669,7 @@ namespace
     struct FRdlTraRecord        // type 1, Length 8
     {
         FRdlRecordHeader Header;
-        unsigned long Attrs;    // +0x08  TRANode +0x04
+        FlULong Attrs;    // +0x08  TRANode +0x04
         unsigned int Mask;      // +0x0c  TRANode +0x0c
     };
     struct FRdlPositionRecord   // type 4, Length 9

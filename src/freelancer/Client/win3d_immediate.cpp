@@ -84,7 +84,7 @@ namespace
         float         X;
         float         Y;
         float         Z;
-        unsigned long Diffuse;
+        FlULong Diffuse;
         float         U;
         float         V;
     };
@@ -102,7 +102,7 @@ namespace
     // 0x00616898 / 0x0061689c / 0x006168a0 -- the current vertex attributes. DAT_00616898 is 0 in
     // .data and neither the static initializer (LAB_00421160) nor FUN_004213d0 writes it; only
     // the colour setters do.
-    unsigned long G_CurrentColour = 0;
+    FlULong G_CurrentColour = 0;
     float         G_CurrentU = 0.0f;
     float         G_CurrentV = 0.0f;
 
@@ -338,10 +338,10 @@ void Win3DColor4f(float R, float G, float B, float A)
     const int Blue = ScaleClampToByte(B);
     const int Alpha = ScaleClampToByte(A);
 
-    G_CurrentColour = (static_cast<unsigned long>(Alpha) << 24) |
-                      (static_cast<unsigned long>(Red) << 16) |
-                      (static_cast<unsigned long>(Green) << 8) |
-                      static_cast<unsigned long>(Blue);
+    G_CurrentColour = (static_cast<FlULong>(Alpha) << 24) |
+                      (static_cast<FlULong>(Red) << 16) |
+                      (static_cast<FlULong>(Green) << 8) |
+                      static_cast<FlULong>(Blue);
 }
 
 void Win3DColor3f(float R, float G, float B)
@@ -354,9 +354,9 @@ void Win3DColor3f(float R, float G, float B)
     const int Blue = ScaleClampToByte(B);
 
     G_CurrentColour = 0xff000000ul |
-                      (static_cast<unsigned long>(Red) << 16) |
-                      (static_cast<unsigned long>(Green) << 8) |
-                      static_cast<unsigned long>(Blue);
+                      (static_cast<FlULong>(Red) << 16) |
+                      (static_cast<FlULong>(Green) << 8) |
+                      static_cast<FlULong>(Blue);
 }
 
 void Win3DSetPipelineClearColor(float R, float G, float B, float A)
@@ -370,10 +370,10 @@ void Win3DSetPipelineClearColor(float R, float G, float B, float A)
     const int Blue = ScaleClampToByte(B);
     const int Alpha = ScaleClampToByte(A);
 
-    const unsigned long Packed = (static_cast<unsigned long>(Alpha) << 24) |
-                                  (static_cast<unsigned long>(Red) << 16) |
-                                  (static_cast<unsigned long>(Green) << 8) |
-                                  static_cast<unsigned long>(Blue);
+    const FlULong Packed = (static_cast<FlULong>(Alpha) << 24) |
+                                  (static_cast<FlULong>(Red) << 16) |
+                                  (static_cast<FlULong>(Green) << 8) |
+                                  static_cast<FlULong>(Blue);
 
     const int kPipelineStateClearColor = 8;
     Pipe->SetPipelineState(kPipelineStateClearColor, static_cast<int>(Packed));
@@ -383,38 +383,38 @@ void Win3DColor3ub(unsigned char R, unsigned char G, unsigned char B)
 {
     // FUN_00421a70: `((R | 0xffffff00) << 8 | G) << 8 | B`, which is the alpha byte left at 0xff
     // with the three components shifted in under it.
-    G_CurrentColour = ((static_cast<unsigned long>(R) | 0xffffff00u) << 8 |
-                       static_cast<unsigned long>(G)) << 8 |
-                      static_cast<unsigned long>(B);
+    G_CurrentColour = ((static_cast<FlULong>(R) | 0xffffff00u) << 8 |
+                       static_cast<FlULong>(G)) << 8 |
+                      static_cast<FlULong>(B);
 }
 
 void Win3DColor3ubv(const unsigned char* Rgb)
 {
     // FUN_00421aa0 (.text:00421aa0-00421ac5): MOVZX the three bytes, `((R | 0xffffff00) << 8 |
     // G) << 8 | B` into DAT_00616898.
-    G_CurrentColour = ((static_cast<unsigned long>(Rgb[0]) | 0xffffff00u) << 8 |
-                       static_cast<unsigned long>(Rgb[1])) << 8 |
-                      static_cast<unsigned long>(Rgb[2]);
+    G_CurrentColour = ((static_cast<FlULong>(Rgb[0]) | 0xffffff00u) << 8 |
+                       static_cast<FlULong>(Rgb[1])) << 8 |
+                      static_cast<FlULong>(Rgb[2]);
 }
 
 void Win3DColor4ub(unsigned char R, unsigned char G, unsigned char B, unsigned char A)
 {
     // FUN_00421b70. The same ARGB pack as Win3DColor4f, but the four components arrive as bytes
     // already -- no scale by 255, no clamp.
-    G_CurrentColour = (static_cast<unsigned long>(A) << 24) |
-                      (static_cast<unsigned long>(R) << 16) |
-                      (static_cast<unsigned long>(G) << 8) |
-                      static_cast<unsigned long>(B);
+    G_CurrentColour = (static_cast<FlULong>(A) << 24) |
+                      (static_cast<FlULong>(R) << 16) |
+                      (static_cast<FlULong>(G) << 8) |
+                      static_cast<FlULong>(B);
 }
 
 void Win3DColor4ubv(const unsigned char* Rgba)
 {
     // FUN_00421ba0. The pointer form of Win3DColor4ub: Rgba[0]=R, Rgba[1]=G, Rgba[2]=B, Rgba[3]=A,
     // packed the same way.
-    G_CurrentColour = (static_cast<unsigned long>(Rgba[3]) << 24) |
-                      (static_cast<unsigned long>(Rgba[0]) << 16) |
-                      (static_cast<unsigned long>(Rgba[1]) << 8) |
-                      static_cast<unsigned long>(Rgba[2]);
+    G_CurrentColour = (static_cast<FlULong>(Rgba[3]) << 24) |
+                      (static_cast<FlULong>(Rgba[0]) << 16) |
+                      (static_cast<FlULong>(Rgba[1]) << 8) |
+                      static_cast<FlULong>(Rgba[2]);
 }
 
 void Win3DTexCoord2f(float U, float V)
@@ -994,12 +994,12 @@ int Win3DGetIndexCount()
     return G_IndexCount;
 }
 
-unsigned long Win3DGetCurrentColour()
+FlULong Win3DGetCurrentColour()
 {
     return G_CurrentColour;
 }
 
-bool Win3DGetVertex(int Index, float* OutXyz3, unsigned long* OutColour)
+bool Win3DGetVertex(int Index, float* OutXyz3, FlULong* OutColour)
 {
     if (Index < 0 || Index >= G_VertexCount)
         return false;
@@ -1202,7 +1202,7 @@ namespace
     // One camera-facing quad (0x00423ff6..0x0042416a, 0x00423786..0x004238ee): glBindTexture of
     // the frame's handle, GL_QUADS, then (0,0) Mid + Along, (1,0) Mid + Side, (1,1) Mid - Along,
     // (0,1) Mid - Side, glEnd.
-    void FuzzyEmitQuad(unsigned long Handle, float const* Mid, float const* Along,
+    void FuzzyEmitQuad(FlULong Handle, float const* Mid, float const* Along,
                        float const* Side)
     {
         float Corner[3];
@@ -1280,7 +1280,7 @@ void Win3DDrawFuzzyLine(FWin3DFuzzyLine const* Line)
 
     // 0x00423ce2..0x00423d31: frame 0 of the texture (ITextureLibrary2 +0x58), additive blend.
     float Cur[3] = {Line->Start[0], Line->Start[1], Line->Start[2]};
-    unsigned long Frame[5];
+    FlULong Frame[5];
     DALib::TextureLib->GetTextureFrame(Line->Texture, 0, Frame);
     Win3DEnable(kWin3DBlend);
     Win3DSetBlendFunc(kWin3DBlendOne, kWin3DBlendOne);
@@ -1448,7 +1448,7 @@ void Win3DDrawFuzzyArc(FWin3DFuzzyLine const* Line)
     // 0x0042340b..0x00423459: frame 0 of the texture, additive blend. No colour is set on this
     // path.
     float Cur[3] = {Line->Start[0], Line->Start[1], Line->Start[2]};
-    unsigned long Frame[5];
+    FlULong Frame[5];
     DALib::TextureLib->GetTextureFrame(Line->Texture, 0, Frame);
     Win3DEnable(kWin3DBlend);
     Win3DSetBlendFunc(kWin3DBlendOne, kWin3DBlendOne);

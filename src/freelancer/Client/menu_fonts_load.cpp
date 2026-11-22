@@ -101,7 +101,7 @@ void LoadRichFontsFromIni(char const* RelPath, IFileSystem* Filesys)
                 // the name is always the local buffer, the three style bytes always 0.
                 TextRenderContext::FontDesc Desc = {};
                 Desc.Name = FaceName;
-                Desc.Size = static_cast<unsigned long>(Reader.get_value_int(2));
+                Desc.Size = static_cast<FlULong>(Reader.get_value_int(2));
                 Desc.bBold = 0;
                 Desc.bItalic = 0;
                 Desc.bUnderline = 0;

@@ -217,7 +217,7 @@ namespace
         {
             // 0x00424e2e. Local.width/height/color_bpp stay unset: every rung below writes them.
             Local.fullscreen = bFullscreen;
-            unsigned long VideoMemory = 0;
+            FlULong VideoMemory = 0;
             DALib::Pipeline->QueryDeviceAbility(3, &VideoMemory);
             Width = 0x320;
             Height = 0x258;
@@ -225,7 +225,7 @@ namespace
             VideoMemory >>= 20;
             if (VideoMemory >= 0x11)
             {
-                unsigned long Ability4 = 0;
+                FlULong Ability4 = 0;
                 DALib::Pipeline->QueryDeviceAbility(4, &Ability4);
                 Format = 0x20;
                 if (Ability4 != 0)
@@ -284,7 +284,7 @@ namespace
 
         using FnSetApproach = void(__cdecl*)(int);
         using FnStartup = void(__cdecl*)();
-        using FnPlayMovie = long(__cdecl*)(HWND, bool, const char*);
+        using FnPlayMovie = FlLong(__cdecl*)(HWND, bool, const char*);
         using FnUpdateMovie = bool(__cdecl*)();
         using FnStopMovie = void(__cdecl*)();
         using FnShutdown = void(__cdecl*)();
@@ -399,7 +399,7 @@ namespace
         if (GetSkipMachineWarnings())
             goto Done;
         {
-            unsigned long Level = 0;
+            FlULong Level = 0;
             DALib::Pipeline->QueryDeviceAbility(0xf, &Level);
             if (Level != 0)
             {

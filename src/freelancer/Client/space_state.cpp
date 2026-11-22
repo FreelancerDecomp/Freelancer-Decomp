@@ -306,7 +306,7 @@ bool SpaceApp::Slot01(unsigned A, unsigned B, unsigned C)
     return false;
 }
 
-bool SpaceApp::Slot02(unsigned A, unsigned B, unsigned long Packed)
+bool SpaceApp::Slot02(unsigned A, unsigned B, FlULong Packed)
 {
     (void)A;
     (void)B;
@@ -314,7 +314,7 @@ bool SpaceApp::Slot02(unsigned A, unsigned B, unsigned long Packed)
     return false;
 }
 
-bool SpaceApp::Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed)
+bool SpaceApp::Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed)
 {
     (void)A;
     (void)Message;

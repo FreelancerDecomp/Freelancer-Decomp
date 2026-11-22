@@ -52,11 +52,11 @@ namespace AlchemyImpl
         // (Emitter_InitialParticles -> +0x64), +0x3c FUN_06245aa0 (Emitter_LODCurve),
         // +0x40 FUN_06245a20 (the six 0x202 ramps), +0x54 FUN_062458f0 (base rows, then
         // .data 0x06257700).
-        GENRESULT DACOM_API GetPropInt(unsigned long Hash, unsigned long* Out) override;
-        GENRESULT DACOM_API SetPropInt(unsigned long Hash, unsigned long Value) override;
-        GENRESULT DACOM_API GetPropSingleRampRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropInt(FlULong Hash, FlULong* Out) override;
+        GENRESULT DACOM_API SetPropInt(FlULong Hash, FlULong Value) override;
+        GENRESULT DACOM_API GetPropSingleRampRamp(FlULong Hash,
                                                   INestedSingleRamp** Out) override;
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
@@ -66,7 +66,7 @@ namespace AlchemyImpl
         INestedSingleRamp* PressureRamp;         // +0x58 Emitter_Pressure 0x0AB180C5, 10
         INestedSingleRamp* EmitCountRamp;        // +0x5c Emitter_EmitCount 0xE7221F95, 0
         INestedSingleRamp* VelocityApproachRamp; // +0x60 Emitter_VelocityApproach 0x0681233E, 0
-        unsigned long InitialParticles;          // +0x64 Emitter_InitialParticles 0x0F9A9D52, 0
+        FlULong InitialParticles;          // +0x64 Emitter_InitialParticles 0x0F9A9D52, 0
         INestedSingleRamp* LodCurveRamp;         // +0x68 Emitter_LODCurve 0xFE077E05 (0x200), 1
     };
 
@@ -79,7 +79,7 @@ namespace AlchemyImpl
 
         // +0x40 LAB_0621c030 (the four shape ramps, else FUN_06245a20); +0x54 LAB_0621c0e0
         // (FUN_062458f0, then .data 0x06255e28).
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
@@ -98,7 +98,7 @@ namespace AlchemyImpl
 
         // +0x40 LAB_0621d080 (the five shape ramps, else FUN_06245a20); +0x54 LAB_0621d8c0
         // (FUN_062458f0, then .data 0x06255f30).
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
@@ -118,7 +118,7 @@ namespace AlchemyImpl
 
         // +0x40 LAB_0623c210 (the two shape ramps, else FUN_06245a20); +0x54 LAB_0623c290
         // (FUN_062458f0, then .data 0x06256c4c).
-        GENRESULT DACOM_API GetPropAnimatedSingleRamp(unsigned long Hash,
+        GENRESULT DACOM_API GetPropAnimatedSingleRamp(FlULong Hash,
                                                       INestedSingleRamp** Out) override;
         int DACOM_API EnumerateProps(FNodePropertyRowCallback Callback, void* Context) override;
 
@@ -140,7 +140,7 @@ namespace AlchemyImpl
         GENRESULT DACOM_API AssociateAppearance(IDAComponent* Appearance) override;
         // FUN_06245bb0: with an appearance associated and the new flags negative
         // (dead), call its outer +0xC8 (ReleaseEmitterRef) first; then store.
-        GENRESULT DACOM_API SetNodeFlags(unsigned long Flags) override;
+        GENRESULT DACOM_API SetNodeFlags(FlULong Flags) override;
 
     protected:
         FFxEmitterPropertySet* EmitterProps() const

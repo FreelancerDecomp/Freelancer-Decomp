@@ -19,29 +19,29 @@ struct IRenderPipeline;
 // Retail provider identity and its remaining methods are unrecovered.
 struct IBigImageSource : IDAComponent
 {
-    virtual GENRESULT DACOM_API CopyPixels(unsigned long Format, void* Buffer,
-                                           unsigned long Pitch, int Arg4) = 0; // +0x0c; TODO: Arg4 meaning
-    virtual GENRESULT DACOM_API GetSize(unsigned long* Width, unsigned long* Height) = 0; // +0x10
-    virtual GENRESULT DACOM_API GetFormat(unsigned long* Format) = 0; // +0x14
+    virtual GENRESULT DACOM_API CopyPixels(FlULong Format, void* Buffer,
+                                           FlULong Pitch, int Arg4) = 0; // +0x0c; TODO: Arg4 meaning
+    virtual GENRESULT DACOM_API GetSize(FlULong* Width, FlULong* Height) = 0; // +0x10
+    virtual GENRESULT DACOM_API GetFormat(FlULong* Format) = 0; // +0x14
 };
 
 // DestXy has four floats, UvQuad has eight; TextureHandle is an opaque RP8 handle.
-typedef void(__cdecl* FBigImageDrawTile)(void* TextureHandle, unsigned long PackedColor,
+typedef void(__cdecl* FBigImageDrawTile)(void* TextureHandle, FlULong PackedColor,
                                          float* DestXy, float* UvQuad);
 
 // AGGDESC size 0x2C — not the generic 0x14 DACOM descriptor.
 struct FBigImageDesc
 {
-    unsigned long Size;           // +0x00 must be 0x2C
+    FlULong Size;           // +0x00 must be 0x2C
     const char* Name;             // +0x04 "BigImage"
     IRenderPipeline* Pipeline;  // +0x08
     IBigImageSource* ImageSource; // +0x0C optional external image provider
-    unsigned long* SrcFormat;     // +0x10 requested texture format
-    unsigned long* DstFormat;     // +0x14 input pixel format
+    FlULong* SrcFormat;     // +0x10 requested texture format
+    FlULong* DstFormat;     // +0x14 input pixel format
     const void* Pixels;           // +0x18
-    unsigned long Width;          // +0x1C
-    unsigned long Height;         // +0x20
-    unsigned long Pitch;          // +0x24
+    FlULong Width;          // +0x1C
+    FlULong Height;         // +0x20
+    FlULong Pitch;          // +0x24
     FBigImageDrawTile DrawTile;    // +0x28
 };
 
@@ -55,14 +55,14 @@ struct IBigImage2 : IDAComponent
     virtual GENRESULT DACOM_API NoOp(void* A, void* B) = 0;
 
     virtual GENRESULT DACOM_API Draw(const RECT* Src, const RECT* Dest) = 0; // +0x10
-    virtual GENRESULT DACOM_API GetSize(unsigned long* Width, unsigned long* Height) = 0; // +0x14
+    virtual GENRESULT DACOM_API GetSize(FlULong* Width, FlULong* Height) = 0; // +0x14
     virtual GENRESULT DACOM_API SetAlpha(float Alpha) = 0;                   // +0x18
     virtual GENRESULT DACOM_API SetColor(const float* Rgb) = 0;              // +0x1C three floats
-    virtual unsigned long DACOM_API GetTileCount() = 0;                      // +0x20
+    virtual FlULong DACOM_API GetTileCount() = 0;                      // +0x20
     virtual GENRESULT DACOM_API GetTile(int Index, void** OutHandle, RECT* OutRect) = 0; // +0x24
-    virtual GENRESULT DACOM_API SetFromBuffer(const void* Pixels, unsigned long* Format,
-                                              unsigned long Width, unsigned long Height,
-                                              unsigned long Pitch) = 0; // +0x28 RET 0x18; fail parms −2
+    virtual GENRESULT DACOM_API SetFromBuffer(const void* Pixels, FlULong* Format,
+                                              FlULong Width, FlULong Height,
+                                              FlULong Pitch) = 0; // +0x28 RET 0x18; fail parms −2
     // formerly Slot11; TODO: original operation purpose.
     virtual GENRESULT DACOM_API ReturnMinusSeven(void* Unused) = 0;
 };

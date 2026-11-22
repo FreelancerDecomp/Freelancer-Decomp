@@ -26,21 +26,21 @@ namespace AlchemyImpl
         ~FFxEffectLibrary() noexcept(false);
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         GENRESULT DACOM_API BindAlchemy(IAlchemy* Alchemy, IFxNodeLibrary* NodeLibrary) override;
         GENRESULT DACOM_API InsertArchetype(IFxEffectArchetype* Archetype,
-                                            unsigned long* OutHash) override;
-        GENRESULT DACOM_API RemoveByHash(unsigned long Hash) override;
+                                            FlULong* OutHash) override;
+        GENRESULT DACOM_API RemoveByHash(FlULong Hash) override;
         GENRESULT DACOM_API CreateEffect(void* /*Unused*/, void* Key, IFxEffect** Out) override;
         GENRESULT DACOM_API SaveAle(IFileSystem* Filesys) override;
         GENRESULT DACOM_API LoadAle(IFileSystem* Filesys) override;
         GENRESULT DACOM_API ClearEffects() override;
         GENRESULT DACOM_API EnumerateArchetypes(FEffectLibraryEnumCallback Callback, void* Context) override;
-        GENRESULT DACOM_API FindByHash(unsigned long Hash, IFxEffectArchetype** Out) override;
+        GENRESULT DACOM_API FindByHash(FlULong Hash, IFxEffectArchetype** Out) override;
         GENRESULT DACOM_API MakeUniqueName(const char* Name, const char** Out) override;
-        GENRESULT DACOM_API RemapAllRec16FieldD(unsigned long OldId, unsigned long NewId) override;
+        GENRESULT DACOM_API RemapAllRec16FieldD(FlULong OldId, FlULong NewId) override;
         GENRESULT DACOM_API Slot14(void* /*Unused*/) override { return ClearEffects(); }
 
     private:
@@ -76,7 +76,7 @@ namespace AlchemyImpl
             FArchetypeReference Reference;
         };
 
-        using FArchetypeMap = std::map<unsigned long, FAleLibEntry>;
+        using FArchetypeMap = std::map<FlULong, FAleLibEntry>;
         struct FMapStorageOwner
         {
             FMapStorageOwner(FFxEffectLibrary* InOwner, FArchetypeMap* InStorage)
@@ -89,19 +89,19 @@ namespace AlchemyImpl
             FArchetypeMap* Storage;
         };
 
-        unsigned char ContainsHash(unsigned long Hash) const;
+        unsigned char ContainsHash(FlULong Hash) const;
 
         void ClearEffectList();
         void DetachEffectList();
         void ClearMapEntries(FArchetypeMap* Storage);
         void DestroyMapStorage(FArchetypeMap* Storage);
 
-        unsigned long RefCount_;
+        FlULong RefCount_;
         FArchetypeMap* Entries_;
         FMapStorageOwner MapOwner_;
         FAleLibEntry* Head_;
         FAleLibEntry* Tail_;
-        unsigned long EntryCount_;
+        FlULong EntryCount_;
     };
 
 } // namespace AlchemyImpl

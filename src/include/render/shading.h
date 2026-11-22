@@ -17,13 +17,13 @@
 // Scalar payloads retain their bit patterns; lifetime is managed explicitly.
 struct FShadingPropertyValue
 {
-    unsigned long Type;       // +0x00
-    unsigned long Payload0;   // +0x04
-    unsigned long Payload1;   // +0x08
-    unsigned long Payload2;   // +0x0C
-    unsigned long Payload3;   // +0x10
+    FlULong Type;       // +0x00
+    FlULong Payload0;   // +0x04
+    FlULong Payload1;   // +0x08
+    FlULong Payload2;   // +0x0C
+    FlULong Payload3;   // +0x10
 
-    void SetType(unsigned long NewType)
+    void SetType(FlULong NewType)
     {
         // Changing the tag releases its old owned payload; the same tag preserves it.
         if (NewType == Type)
@@ -66,7 +66,7 @@ struct FShadingPropertyValue
         Payload0 = 0;
     }
 
-    void Assign(unsigned long NewType, const void* Source)
+    void Assign(FlULong NewType, const void* Source)
     {
         // Copy scalar words, own strings, and retain component references.
         SetType(NewType);
@@ -77,21 +77,21 @@ struct FShadingPropertyValue
         case 8:
         case 9:
         case 10:
-            Payload0 = (unsigned long)Source;
+            Payload0 = (FlULong)Source;
             break;
         case 2:
-            Payload0 = *(const unsigned long*)Source;
+            Payload0 = *(const FlULong*)Source;
             break;
         case 3:
-            Payload2 = ((const unsigned long*)Source)[2];
-            Payload1 = ((const unsigned long*)Source)[1];
-            Payload0 = ((const unsigned long*)Source)[0];
+            Payload2 = ((const FlULong*)Source)[2];
+            Payload1 = ((const FlULong*)Source)[1];
+            Payload0 = ((const FlULong*)Source)[0];
             break;
         case 4:
-            Payload3 = ((const unsigned long*)Source)[3];
-            Payload2 = ((const unsigned long*)Source)[2];
-            Payload1 = ((const unsigned long*)Source)[1];
-            Payload0 = ((const unsigned long*)Source)[0];
+            Payload3 = ((const FlULong*)Source)[3];
+            Payload2 = ((const FlULong*)Source)[2];
+            Payload1 = ((const FlULong*)Source)[1];
+            Payload0 = ((const FlULong*)Source)[0];
             break;
         case 5:
         case 7:
@@ -105,7 +105,7 @@ struct FShadingPropertyValue
             {
                 const size_t Size = std::strlen(Text) + 1;
                 char* Copy = (char*)HeapAlloc(GetProcessHeap(), 0, Size);
-                Payload0 = (unsigned long)Copy;
+                Payload0 = (FlULong)Copy;
                 // Publish before copying; the copy is mandatory.
                 std::memcpy(Copy, Text, Size);
             }
@@ -116,7 +116,7 @@ struct FShadingPropertyValue
             IDAComponent* Previous = (IDAComponent*)Payload0;
             // Source is a const view; component reference management needs its mutable face.
             IDAComponent* Component = static_cast<IDAComponent*>(const_cast<void*>(Source));
-            Payload0 = (unsigned long)Component;
+            Payload0 = (FlULong)Component;
             if (Component != nullptr)
                 Component->AddRef();
             if (Previous != nullptr)
@@ -131,7 +131,7 @@ struct FShadingPropertyValue
 
 struct FShadingPropertyRecord
 {
-    unsigned long Flags;                   // +0x00
+    FlULong Flags;                   // +0x00
     const char* Name;                       // +0x04
     const char* Description;                // +0x08
     void* Callback;                         // +0x0C
@@ -154,8 +154,8 @@ static constexpr char kIidImaInstance[] = "IMAInstance";
 struct ITextureLibrary2 : IDAComponent
 {
     // 3/4 +0x0C/+0x10 LAB_06ec0d10/0d30: generic dword-slot array at this+0x10 (7 words).
-    virtual GENRESULT DACOM_API SetGenericSlot(int Index, unsigned long Value) = 0;
-    virtual GENRESULT DACOM_API GetGenericSlot(int Index, unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API SetGenericSlot(int Index, FlULong Value) = 0;
+    virtual GENRESULT DACOM_API GetGenericSlot(int Index, FlULong* Out) = 0;
     // LAB_06ec1c40: load every child below "Texture library" and return the
     // id of the resulting texture group.
     virtual GENRESULT DACOM_API LoadTextureGroup(void* FileSystem, int* OutGroupId) = 0; // 5 +0x14 RET 0xC
@@ -167,7 +167,7 @@ struct ITextureLibrary2 : IDAComponent
     virtual GENRESULT DACOM_API TickAllPlayback(int Unused, float DeltaSeconds) = 0;
     // 9/10 +0x24/+0x28 FUN_06ec20f0/21a0: rename/read a texture entry by id.
     virtual GENRESULT DACOM_API SetGroupName(int Id, const char* Name) = 0;
-    virtual GENRESULT DACOM_API GetGroupName(int Id, char* Buf, unsigned long Size) = 0;
+    virtual GENRESULT DACOM_API GetGroupName(int Id, char* Buf, FlULong Size) = 0;
     // 11 +0x2C LAB_06ec2760: find-or-create by name, returns via slot-12 style handle (§15.1).
     virtual GENRESULT DACOM_API FindOrCreateByName(const char* Name, void** OutTex) = 0;
     // 12 +0x30 LAB_06ec2810 RET 0xC: Query+4 = CRC, *OutTex = texture object (node+0x10).
@@ -181,7 +181,7 @@ struct ITextureLibrary2 : IDAComponent
     virtual GENRESULT DACOM_API AddRefById(int Id) = 0;
     virtual GENRESULT DACOM_API DecRefById(int Id) = 0;
     // 17 +0x44 LAB_06ec2890: bounded copy of a resolved entry's name.
-    virtual GENRESULT DACOM_API CopyName(void* Node, char* Buf, unsigned long Size) = 0;
+    virtual GENRESULT DACOM_API CopyName(void* Node, char* Buf, FlULong Size) = 0;
     // 18 +0x48 LAB_06ec28e0: replace a record's name and re-index it in the
     // by-name map. The port's name lookup is a linear scan over merged entries.
     virtual GENRESULT DACOM_API SetRecordName(void* Record, const char* Name) = 0;
@@ -189,12 +189,12 @@ struct ITextureLibrary2 : IDAComponent
     // creating an anonymous texture record when the id is not registered.
     virtual GENRESULT DACOM_API SetSubTexture(void* Record, int Index, int TextureId) = 0;
     // 20/21 +0x50/+0x54 LAB_06ec2bf0/2d60: write one frame's handle / UV rect.
-    virtual GENRESULT DACOM_API SetFrameHandle(void* Record, int Index, unsigned long Handle) = 0;
+    virtual GENRESULT DACOM_API SetFrameHandle(void* Record, int Index, FlULong Handle) = 0;
     virtual GENRESULT DACOM_API SetFrameRect(void* Record, int Index, float U0, float V0, float U1,
                                              float V1) = 0;
     // 22 +0x58 LAB_06ec2ee0 RET 0x10: tex* from slot 12, frame, out 5 dwords (handle+UV).
     // frame==-2 → last. Miss/null: 0,0,0,1.0,1.0 and EAX=-1. flmaterials efxshadow after +0x30.
-    virtual GENRESULT DACOM_API GetTextureFrame(void* Tex, int Frame, unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API GetTextureFrame(void* Tex, int Frame, FlULong* Out) = 0;
     // 23 +0x5C FUN_06ec3780: multi-frame record's first child's GPU pixel format.
     // Retail stdcall RET 0x10 = this + Record + Unused + OutFormat (Unused unread).
     virtual GENRESULT DACOM_API GetGroupPixelFormat(void* Record, void* Unused, int* OutFormat) = 0;
@@ -205,7 +205,7 @@ struct ITextureLibrary2 : IDAComponent
     // 27 +0x6C FUN_06ec3290: resolve an id-map entry to the corresponding
     // texture record. Retail returns -1 for id==-1/miss and leaves Out intact.
     virtual GENRESULT DACOM_API ResolveTextureRecord(int Id, void** Out) = 0;
-    virtual GENRESULT DACOM_API GetFrame(int Id, int Frame, unsigned long* Out) = 0; // 28 +0x70 RET 0x10
+    virtual GENRESULT DACOM_API GetFrame(int Id, int Frame, FlULong* Out) = 0; // 28 +0x70 RET 0x10
     // 29–37 playback-state accessors on record+0x18, keyed by id.
     virtual GENRESULT DACOM_API SetElapsedTime(int Id, float Seconds) = 0;
     virtual GENRESULT DACOM_API GetElapsedTime(int Id, float* Out) = 0;
@@ -217,7 +217,7 @@ struct ITextureLibrary2 : IDAComponent
     virtual GENRESULT DACOM_API GetWrapMode(int Id, int* Out) = 0;
     virtual GENRESULT DACOM_API AdvanceTime(int Id, float DeltaSeconds) = 0;
     // 38 +0x98 LAB_06ec2240: peek next group id.
-    virtual GENRESULT DACOM_API PeekNextGroupId(unsigned long* Out) = 0;
+    virtual GENRESULT DACOM_API PeekNextGroupId(FlULong* Out) = 0;
     // 39 +0x9C LAB_06ec2260: ordinal 0 maps to reserved id 0; later ordinals
     // enumerate the named-group tree and return its stored id.
     virtual GENRESULT DACOM_API EnumGroup(int Index, int* OutId) = 0;
@@ -226,7 +226,7 @@ struct ITextureLibrary2 : IDAComponent
     virtual GENRESULT DACOM_API EnumTexture(int Id, int Index, void** OutRecord) = 0; // 41 +0xA4
     virtual GENRESULT DACOM_API AddSubTexture(int GroupId, void* Record) = 0;
     virtual GENRESULT DACOM_API RemoveSubTexture(int GroupId, void* Record) = 0;
-    virtual GENRESULT DACOM_API PickGpuFormat(const unsigned long* Src, unsigned long* OutId) = 0; // 44 +0xB0 RET 0xC
+    virtual GENRESULT DACOM_API PickGpuFormat(const FlULong* Src, FlULong* OutId) = 0; // 44 +0xB0 RET 0xC
     // 45 +0xB4 FUN_06ec1950: allocate a fresh unnamed group with no playback members.
     virtual GENRESULT DACOM_API AllocateNewTextureId(int* OutId) = 0;
 };
@@ -255,8 +255,8 @@ FL_LAYOUT_ASSERT(sizeof(FMaKey) == 0x10, "FMaKey 0x10");
 
 struct FMaKeyBlock
 {
-    unsigned long Count; // +0 MACount
-    unsigned long Flags; // +4 MAFlags
+    FlULong Count; // +0 MACount
+    FlULong Flags; // +4 MAFlags
     FMaDelta* Deltas;    // +8 MADeltas
     FMaKey* Keys;        // +C MAKeys
 };
@@ -267,7 +267,7 @@ class IImaData : public IDAComponent
 {
 public:
     virtual FMaKeyBlock* DACOM_API KeyBlock() = 0;
-    virtual void DACOM_API CrcOut(unsigned long* Out) = 0;
+    virtual void DACOM_API CrcOut(FlULong* Out) = 0;
 };
 
 class IImaInstance : public IDAComponent
@@ -282,7 +282,7 @@ public:
 // Borrowed library master payload; ownership changes through library operations.
 struct FMaterialLibraryRecord
 {
-    unsigned long RefCount;
+    FlULong RefCount;
     IMaterial* Material;
 };
 
@@ -299,7 +299,7 @@ struct IMaterialLibrary : IDAComponent
                                           void* Unused, char* OutType) = 0;
     // 6 +0x18 06ecd480: remove the first exact Key/Pattern rule.
     virtual GENRESULT DACOM_API RemoveMapRule(int Key, const char* Pattern) = 0;
-    virtual GENRESULT DACOM_API AllocateGroup(unsigned long* OutId) = 0; // 7 +0x1C
+    virtual GENRESULT DACOM_API AllocateGroup(FlULong* OutId) = 0; // 7 +0x1C
     virtual GENRESULT DACOM_API LoadFromFileSystem(void* FileSystem, void* Extra) = 0; // 8 +0x20 RET 0xC
     // 9 +0x24 LAB_06eccce0: unimplemented in retail
     // — unconditional `return 0xFFFFFFF9` ignoring both args.
@@ -312,32 +312,32 @@ struct IMaterialLibrary : IDAComponent
     virtual GENRESULT DACOM_API ResolveTexturesGroup(int GroupId, float Delta) = 0;
     // 13/14 +0x34/+0x38 FUN_06ecd080/0130: set/get the name stored on a group node.
     virtual GENRESULT DACOM_API SetGroupName(int GroupId, const char* Name) = 0;
-    virtual GENRESULT DACOM_API GetGroupName(int GroupId, char* Buffer, unsigned long Size) = 0;
+    virtual GENRESULT DACOM_API GetGroupName(int GroupId, char* Buffer, FlULong Size) = 0;
     virtual GENRESULT DACOM_API FindOrCreate(const char* Name, const char* Type,
                                              IDAComponent* AggregateOuter, IMaterial** Out) = 0; // 15 +0x3C
     // 16 +0x40 RET 0xC LAB_06ecd5c0: query+4 CRC lookup, AddRef, no create. Miss → −1.
     virtual GENRESULT DACOM_API FindMaterialByCrc(void* Query, IMaterial** Out) = 0;
     // Add to the material map and, for nonzero GroupId, to the group.
     virtual GENRESULT DACOM_API AddMaterial(int GroupId, void* Record, IMaterial* Material) = 0;
-    virtual GENRESULT DACOM_API RemoveMaterial(unsigned long GroupId, void* Record) = 0; // 18 +0x48 RET 0xC
+    virtual GENRESULT DACOM_API RemoveMaterial(FlULong GroupId, void* Record) = 0; // 18 +0x48 RET 0xC
     // 19 +0x4C LAB_06ecd830: group-tree size plus reserved group zero.
-    virtual GENRESULT DACOM_API GetGroupCount(unsigned long* OutCount) = 0;
+    virtual GENRESULT DACOM_API GetGroupCount(FlULong* OutCount) = 0;
     // Enumerate group IDs, including the reserved group zero.
-    virtual GENRESULT DACOM_API EnumGroup(unsigned long Index, unsigned long* OutId) = 0;
+    virtual GENRESULT DACOM_API EnumGroup(FlULong Index, FlULong* OutId) = 0;
     // 21/22 +0x54/+0x58 FUN_06ecd8f0/d990: group member count/enumeration;
     // group zero addresses the complete material map.
-    virtual GENRESULT DACOM_API GetGroupMaterialCount(unsigned long GroupId, int* OutCount) = 0;
-    virtual GENRESULT DACOM_API EnumGroupMaterial(unsigned long GroupId, unsigned long Index,
+    virtual GENRESULT DACOM_API GetGroupMaterialCount(FlULong GroupId, int* OutCount) = 0;
+    virtual GENRESULT DACOM_API EnumGroupMaterial(FlULong GroupId, FlULong Index,
                                                    IMaterial** Out) = 0;
     // 23 +0x5C LAB_06ecdaa0: grow the process-wide 8-byte record array through
     // Index, mark the selected record active, and copy Value[0] into record+4.
-    virtual GENRESULT DACOM_API SetGlobalRecord(unsigned long Index,
-                                                 const unsigned long* Value) = 0;
+    virtual GENRESULT DACOM_API SetGlobalRecord(FlULong Index,
+                                                 const FlULong* Value) = 0;
     // 24/25 +0x60/+0x64 LAB_06ecdc10/dc40: overwrite/read record+4.
-    virtual GENRESULT DACOM_API SetGlobalRecordValue(unsigned long Index,
-                                                      const unsigned long* Value) = 0;
-    virtual GENRESULT DACOM_API GetGlobalRecordValue(unsigned long Index,
-                                                      unsigned long* OutValue) = 0;
+    virtual GENRESULT DACOM_API SetGlobalRecordValue(FlULong Index,
+                                                      const FlULong* Value) = 0;
+    virtual GENRESULT DACOM_API GetGlobalRecordValue(FlULong Index,
+                                                      FlULong* OutValue) = 0;
     // 26 +0x68: borrowed master record, remap byte, aggregate outer.
     virtual FMaterialLibraryRecord* DACOM_API CreateAfterMap(const char* Name, const char* Type,
                                                unsigned char bRemap, IDAComponent* AggregateOuter) = 0;
@@ -358,25 +358,25 @@ struct IMaterialBatcher2 : IDAComponent
     // 3 +0x0C 06ec8f20: Clear compiled name/type rules.
     virtual GENRESULT DACOM_API ClearRules() = 0;
     // 4 +0x10 06ec8fa0: Append Kind/pattern rule.
-    virtual GENRESULT DACOM_API AddRule(unsigned long Kind, const char* Pattern) = 0;
+    virtual GENRESULT DACOM_API AddRule(FlULong Kind, const char* Pattern) = 0;
     // 5 +0x14 06ec9080: Remove first exact Kind/pattern rule.
-    virtual GENRESULT DACOM_API RemoveRule(unsigned long Kind, const char* Pattern) = 0;
+    virtual GENRESULT DACOM_API RemoveRule(FlULong Kind, const char* Pattern) = 0;
     // 6 +0x18 06ec9140: Select one of two queue bins.
-    virtual GENRESULT DACOM_API SelectBin(unsigned long Index) = 0;
+    virtual GENRESULT DACOM_API SelectBin(FlULong Index) = 0;
     // 7 +0x1C 06ec9160: Set queue sorting kind.
-    virtual GENRESULT DACOM_API SetBinSortKind(unsigned long Index, void* Value) = 0;
+    virtual GENRESULT DACOM_API SetBinSortKind(FlULong Index, void* Value) = 0;
     // 8 +0x20 06ec9190: Set signed bin ordering key; negative disables batching.
-    virtual GENRESULT DACOM_API SetBinOrder(unsigned long Index, long Key) = 0;
+    virtual GENRESULT DACOM_API SetBinOrder(FlULong Index, FlLong Key) = 0;
     // 9 +0x24 06ec9270: Flush one indexed bin.
-    virtual GENRESULT DACOM_API FlushBin(unsigned long Index, unsigned char Clear) = 0;
+    virtual GENRESULT DACOM_API FlushBin(FlULong Index, unsigned char Clear) = 0;
     // 10 +0x28 06ec9350: Flush bins in configured order.
     virtual GENRESULT DACOM_API FlushAll(unsigned char Clear) = 0;
     // 11 +0x2C 06ec9570: Draw immediately or queue context/geometry in the selected bin.
     virtual GENRESULT DACOM_API Submit(IMaterial* Material, void* Context,
-                                       unsigned long PrimType, unsigned long Start,
-                                       unsigned long Count, unsigned long IbStart,
-                                       unsigned long IndexSpan, void* Unused,
-                                       unsigned long Flags) = 0;
+                                       FlULong PrimType, FlULong Start,
+                                       FlULong Count, FlULong IbStart,
+                                       FlULong IndexSpan, void* Unused,
+                                       FlULong Flags) = 0;
     // 12 +0x30 06ec9480: Clear both bin queues and synchronize frame value.
     virtual GENRESULT DACOM_API ClearBins() = 0;
     // 13 +0x34 06ec9560: Retail success stub; ignores argument.

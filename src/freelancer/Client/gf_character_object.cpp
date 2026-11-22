@@ -68,8 +68,8 @@ namespace
     {
         // 0x00443b6e..0x00443b9d: "low_character_lod" sets Flags bit 1 (Deformable2 skips LOD 0)
         // and raises the LOD limit of the non-first parts from 2 to 3.
-        unsigned long PartFlags = 0;
-        unsigned long ChildLodLimit = 2;
+        FlULong PartFlags = 0;
+        FlULong ChildLodLimit = 2;
         if (RtcSlider::is_enabled("low_character_lod"))
         {
             PartFlags = 2;
@@ -531,7 +531,7 @@ void FCharacterObject::Load(FCharacterDesc const& Desc)
         void* const Instance = MiscUtilLoadEngineInstance(Found->Mesh.c_str(), DALib::Data,
                                                           nullptr, nullptr, &Paths,
                                                           &MaterialEntries, nullptr);
-        AccessoryInstances[Index] = static_cast<long>(reinterpret_cast<std::intptr_t>(Instance));
+        AccessoryInstances[Index] = static_cast<FlLong>(reinterpret_cast<std::intptr_t>(Instance));
         AccessoryHardpoints[Index].analyze_instance(AccessoryInstances[Index]);
         if (AccessoryInstances[Index] != -1)
         {
@@ -676,7 +676,7 @@ void FCharacterObject::Update(double DeltaSeconds)
     if (ActiveMotions != 0 || ActiveAims != 0 || bPoseDirty != 0)
     {
         float const Time = static_cast<float>(DeltaSeconds);
-        DALib::Anim->MixerWalk(static_cast<unsigned long>(
+        DALib::Anim->MixerWalk(static_cast<FlULong>(
                                    reinterpret_cast<uintptr_t>(GetEngineInstance())),
                                Time);
         void* TimeArg = nullptr;
@@ -838,9 +838,9 @@ void FCharacterObject::DrawOpaque(ICamera* Camera)
 
     // 0x0044522c..0x0044523d: the shadow (FUN_0044b370 with the instance, the height and 1).
     float const Height = GetFloat1C();
-    unsigned long HeightBits = 0;
+    FlULong HeightBits = 0;
     memcpy(&HeightBits, &Height, sizeof(HeightBits));
-    RoomControlDrawShadow(Owner, static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Instance)),
+    RoomControlDrawShadow(Owner, static_cast<FlULong>(reinterpret_cast<uintptr_t>(Instance)),
                           HeightBits, 1);
     // 0x00445242..0x00445246: FUN_0044ae80.
     RoomControlLightObject(Owner, this);
@@ -984,7 +984,7 @@ void FCharacterObject::UpdateHotspotEnabled()
     Hotspot->bEnabled = 1;
 }
 
-void FCharacterObject::Slot10(unsigned long /*Cookie*/, int const* /*Point*/)
+void FCharacterObject::Slot10(FlULong /*Cookie*/, int const* /*Point*/)
 {
     // FUN_00445a90 (RET 8). Not while a window holds the mouse.
     if (Win3DAnyCaptured())
@@ -1036,7 +1036,7 @@ void FCharacterObject::Slot10(unsigned long /*Cookie*/, int const* /*Point*/)
     MouseSetCursor(Cursor, false);
 }
 
-void FCharacterObject::Slot11(unsigned long /*Cookie*/, int const* /*Point*/)
+void FCharacterObject::Slot11(FlULong /*Cookie*/, int const* /*Point*/)
 {
     // FUN_00445be0 (RET 8): unless a window holds the mouse, the arrow, no name, the tooltip
     // hidden (FUN_004be390).
@@ -1047,7 +1047,7 @@ void FCharacterObject::Slot11(unsigned long /*Cookie*/, int const* /*Point*/)
     NnToolTipHideGlobal();
 }
 
-void FCharacterObject::Slot12(unsigned long Cookie, int const* Point)
+void FCharacterObject::Slot12(FlULong Cookie, int const* Point)
 {
 #ifdef FREELANCER_WALK_MODE
     BaseWalkBeforeInteraction();
@@ -1128,7 +1128,7 @@ void FCharacterObject::ResetScriptState(unsigned char bRelease)
     malloc_strfree(&OwnScriptName);
 }
 
-long FCharacterObject::FindPart(char const* PartName)
+FlLong FCharacterObject::FindPart(char const* PartName)
 {
     // FUN_00445620. The scan (0x00445631..0x0044566d) returns a used entry whose name matches
     // (DACOM stricmp) and whose part is not -1; on the way it remembers the first unused entry
@@ -1149,8 +1149,8 @@ long FCharacterObject::FindPart(char const* PartName)
     if (Unused < 0)
         Unused = 0;
 
-    long const Part = CompoundInstanceFindFirstName(
-        static_cast<long>(reinterpret_cast<intptr_t>(GetEngineInstance())), PartName);
+    FlLong const Part = CompoundInstanceFindFirstName(
+        static_cast<FlLong>(reinterpret_cast<intptr_t>(GetEngineInstance())), PartName);
     if (Part != -1)
     {
         FPartCacheEntry& Entry = Parts[Unused];

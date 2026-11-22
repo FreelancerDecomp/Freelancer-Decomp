@@ -27,11 +27,11 @@ public:
     FVMeshPart* Owner;
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     int DACOM_API ResetMesh() override; // formerly Slot3
     int DACOM_API NoOp() override; // formerly Slot4
-    int DACOM_API RefreshMaterials(unsigned long Flags) override; // formerly Slot5
+    int DACOM_API RefreshMaterials(FlULong Flags) override; // formerly Slot5
     int DACOM_API RejectOperation(void* A) override; // formerly Slot6
     int DACOM_API RejectOperation() override; // formerly Slot7
     int DACOM_API GetFaceGroupCount(int* Out) override; // formerly Slot8
@@ -44,9 +44,9 @@ public:
     int DACOM_API SetFaceGroupMaterial(IMaterial* Material) override; // formerly Slot15
     int DACOM_API GetFaceGroupMaterialContext(void** Out) override; // formerly Slot16
     int DACOM_API SetFaceGroupMaterialContext(void* A) override; // formerly Slot17
-    int DACOM_API OpenFaceGroupChannels(unsigned long Flags) override; // formerly Slot18
+    int DACOM_API OpenFaceGroupChannels(FlULong Flags) override; // formerly Slot18
     int DACOM_API CloseFaceGroupChannels() override; // formerly Slot19
-    int DACOM_API LockFaceGroupChannels(unsigned long Mask) override; // formerly Slot20
+    int DACOM_API LockFaceGroupChannels(FlULong Mask) override; // formerly Slot20
     int DACOM_API UnlockFaceGroupChannels() override; // formerly Slot21
     int DACOM_API GetFaceGroupData(int Channel, void** A, void** B, void** C, void** D) override; // formerly Slot22
     int DACOM_API SetFaceGroupData(int Channel, void* A, void* B, void* C, void* D) override; // formerly Slot23
@@ -54,8 +54,8 @@ public:
     int DACOM_API SetFaceGroupIndices(int Channel, void* Src, int Count) override; // formerly Slot25
     int DACOM_API GetFaceGroupIndexCount(int Selector, void** Out) override; // formerly Slot26
     int DACOM_API SetFaceGroupIndexCount(int Selector, int Count) override; // formerly Slot27
-    int DACOM_API AddFaceGroupChannels(unsigned long Flags) override; // formerly Slot28
-    int DACOM_API RemoveFaceGroupChannels(unsigned long Flags) override; // formerly Slot29
+    int DACOM_API AddFaceGroupChannels(FlULong Flags) override; // formerly Slot28
+    int DACOM_API RemoveFaceGroupChannels(FlULong Flags) override; // formerly Slot29
 };
 
 // +0x08: IMatHookUp face (PTR_LAB_06c36628, four entries).
@@ -65,8 +65,8 @@ public:
     FVMeshPart* Owner;
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     int DACOM_API HookUpMaterials() override; // formerly Slot3
 };
 
@@ -77,8 +77,8 @@ public:
     FVMeshPart* Owner;
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     int DACOM_API GetVertexCount(int* Out) override; // formerly Slot3
     int DACOM_API CopyVertexData(void* Dest, unsigned int Fvf, unsigned int StartVertex, unsigned int VertexCount) override; // formerly Slot4
     int DACOM_API GetIndexCount(int* Out) override; // formerly Slot5
@@ -107,9 +107,9 @@ public:
     ~FVMeshPart();
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
-    bool DACOM_API Draw(ICamera* Camera, void* Inst, unsigned long Flags, const void* Matrix,
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
+    bool DACOM_API Draw(ICamera* Camera, void* Inst, FlULong Flags, const void* Matrix,
                         IMaterial* Override) override;
     bool DACOM_API Prepare(void* Listing, void* Scratch) override;
     FVmeshRef* DACOM_API GetRef() override;
@@ -198,12 +198,12 @@ GENRESULT DACOM_API FVMeshPart::QueryInterface(const char* Iid, void** Out)
 }
 
 // FUN_06c2b100: MOV EAX,1 -- the part is not reference counted.
-unsigned long DACOM_API FVMeshPart::AddRef()
+FlULong DACOM_API FVMeshPart::AddRef()
 {
     return 1;
 }
 
-unsigned long DACOM_API FVMeshPart::Release()
+FlULong DACOM_API FVMeshPart::Release()
 {
     return 1;
 }
@@ -262,14 +262,14 @@ int FVMeshPart::Claim(IFileSystem* File)
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        const unsigned long Size = File->GetSize((unsigned long)Handle, 0);
+        const FlULong Size = File->GetSize((FlULong)Handle, 0);
         FVmeshRef* Buffer = (FVmeshRef*)new unsigned char[(Size / sizeof(FVmeshRef)) * sizeof(FVmeshRef)];
-        unsigned long ReadCount = 0;
-        if (File->Read((unsigned long)Handle, Buffer, Size, &ReadCount, 0) != 0)
+        FlULong ReadCount = 0;
+        if (File->Read((FlULong)Handle, Buffer, Size, &ReadCount, 0) != 0)
             Ref = Buffer;
         else
             delete[] (const unsigned char*)Buffer;
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     Hook.HookUpMaterials();
     return 0;
@@ -309,11 +309,11 @@ int FVMeshPart::HookUp()
         const FVmeshFacegroup* Facegroup = Facegroups() + GroupIndex;
         IMaterial** Slot = &Data->Materials[GroupIndex];
         IMaterial* Previous = *Slot;
-        const unsigned long Crc = Facegroup->MaterialCrc;
+        const FlULong Crc = Facegroup->MaterialCrc;
         bool bFound = false;
         if (Crc != 0)
         {
-            unsigned long Query[2];
+            FlULong Query[2];
             Query[0] = 0;
             Query[1] = Crc;
             bFound = Library->FindMaterialByCrc(Query, Slot) >= 0;
@@ -364,7 +364,7 @@ bool DACOM_API FVMeshPart::Prepare(void* ListingArg, void* ScratchArg)
     return Result >= 0;
 }
 
-bool DACOM_API FVMeshPart::Draw(ICamera* Camera, void* Inst, unsigned long Flags,
+bool DACOM_API FVMeshPart::Draw(ICamera* Camera, void* Inst, FlULong Flags,
                                 const void* Matrix, IMaterial* Override)
 {
     if (Data == nullptr)
@@ -418,13 +418,13 @@ bool DACOM_API FVMeshPart::Draw(ICamera* Camera, void* Inst, unsigned long Flags
     Context.SourceVertices = &VertexDesc;
     Context.Indices = (unsigned short*)(
         (unsigned char*)((const unsigned char*)Header) + 0x10 +
-        (unsigned long)Header->FaceGroups * 0xC +
-        (unsigned long)Ref->IndexStart * 2);
+        (FlULong)Header->FaceGroups * 0xC +
+        (FlULong)Ref->IndexStart * 2);
     Context.VbListing = &Listing;
     Context.IbScratch = &Scratch;
     Context.Field20 = 0;
 
-    unsigned long IndexStart = 0;
+    FlULong IndexStart = 0;
     const unsigned int FacegroupCount = Ref->FacegroupCount;
     for (unsigned int Index = 0; Index < FacegroupCount; ++Index)
     {
@@ -464,12 +464,12 @@ GENRESULT DACOM_API FVMeshPartMesh::QueryInterface(const char* Iid, void** Out)
 }
 
 // LAB_06c27670 -> FUN_06c2b100.
-unsigned long DACOM_API FVMeshPartMesh::AddRef()
+FlULong DACOM_API FVMeshPartMesh::AddRef()
 {
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FVMeshPartMesh::Release()
+FlULong DACOM_API FVMeshPartMesh::Release()
 {
     return Owner->Release();
 }
@@ -489,7 +489,7 @@ int DACOM_API FVMeshPartMesh::NoOp()
 
 // LAB_06c2c2d0.
 // formerly Slot5
-int DACOM_API FVMeshPartMesh::RefreshMaterials(unsigned long /*Flags*/)
+int DACOM_API FVMeshPartMesh::RefreshMaterials(FlULong /*Flags*/)
 {
     return 0;
 }
@@ -620,7 +620,7 @@ int DACOM_API FVMeshPartMesh::SetFaceGroupMaterialContext(void* /*A*/)
 
 // LAB_06c30c10 (slots 18 and 20): channel present -> 0, absent -> -8.
 // formerly Slot18
-int DACOM_API FVMeshPartMesh::OpenFaceGroupChannels(unsigned long Flags)
+int DACOM_API FVMeshPartMesh::OpenFaceGroupChannels(FlULong Flags)
 {
     if (Owner->Cursor < 0)
         return -1;
@@ -635,7 +635,7 @@ int DACOM_API FVMeshPartMesh::CloseFaceGroupChannels()
 }
 
 // formerly Slot20
-int DACOM_API FVMeshPartMesh::LockFaceGroupChannels(unsigned long Mask)
+int DACOM_API FVMeshPartMesh::LockFaceGroupChannels(FlULong Mask)
 {
     if (Owner->Cursor < 0)
         return -1;
@@ -731,7 +731,7 @@ int DACOM_API FVMeshPartMesh::SetFaceGroupIndexCount(int /*Selector*/, int /*Cou
 
 // LAB_06c30e20.
 // formerly Slot28
-int DACOM_API FVMeshPartMesh::AddFaceGroupChannels(unsigned long /*Flags*/)
+int DACOM_API FVMeshPartMesh::AddFaceGroupChannels(FlULong /*Flags*/)
 {
     RendCompFdumpAt(kFdumpNotice, G_FileVMPartArch, 0x18F,
                     "VMPartArch add_elements: not implemented");
@@ -740,7 +740,7 @@ int DACOM_API FVMeshPartMesh::AddFaceGroupChannels(unsigned long /*Flags*/)
 
 // LAB_06c30e50.
 // formerly Slot29
-int DACOM_API FVMeshPartMesh::RemoveFaceGroupChannels(unsigned long /*Flags*/)
+int DACOM_API FVMeshPartMesh::RemoveFaceGroupChannels(FlULong /*Flags*/)
 {
     RendCompFdumpAt(kFdumpNotice, G_FileVMPartArch, 0x196,
                     "VMPartArch remove_elements: not implemented");
@@ -758,12 +758,12 @@ GENRESULT DACOM_API FVMeshPartHook::QueryInterface(const char* Iid, void** Out)
 }
 
 // LAB_06c27690 -> FUN_06c2b100.
-unsigned long DACOM_API FVMeshPartHook::AddRef()
+FlULong DACOM_API FVMeshPartHook::AddRef()
 {
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FVMeshPartHook::Release()
+FlULong DACOM_API FVMeshPartHook::Release()
 {
     return Owner->Release();
 }
@@ -786,12 +786,12 @@ GENRESULT DACOM_API FVMeshPartRenderable::QueryInterface(const char* Iid, void**
 }
 
 // LAB_06c31e30 -> FUN_06c2b100.
-unsigned long DACOM_API FVMeshPartRenderable::AddRef()
+FlULong DACOM_API FVMeshPartRenderable::AddRef()
 {
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FVMeshPartRenderable::Release()
+FlULong DACOM_API FVMeshPartRenderable::Release()
 {
     return Owner->Release();
 }
@@ -849,8 +849,8 @@ class FVMeshPlugin : public IRenderComponent
 {
 public:
     FVMeshPart* Bound;          // +0x04 FUN_06c2d710 zeroes it, Slot17 sets it
-    unsigned long Field08;      // +0x08 TODO: calloc-zeroed, no reader in 06c2d710..06c2dd19
-    unsigned long RefCount;     // +0x0C
+    FlULong Field08;      // +0x08 TODO: calloc-zeroed, no reader in 06c2d710..06c2dd19
+    FlULong RefCount;     // +0x0C
 
     // LAB_06c2dc30: table {"1.11_IRenderComponent", 0}; miss -> 0, -3.
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override
@@ -866,14 +866,14 @@ public:
     }
 
     // LAB_06c2dce0.
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         RefCount += 1;
         return RefCount;
     }
 
     // LAB_06c2dcf0: decrement when above 0; at 0 pin the count at 1 and free() the object.
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         if (RefCount > 0)
             RefCount -= 1;
@@ -1007,7 +1007,7 @@ public:
         if (Part->Data == nullptr)
             return 0;
         const int Mode = (int)((intptr_t)A);
-        const unsigned long Flags = (unsigned long)((uintptr_t)B);
+        const FlULong Flags = (FlULong)((uintptr_t)B);
         int* Out = (int*)D;
         if (Mode != 0 && Mode != 2 && Mode != 3)
             return 0;
@@ -1026,7 +1026,7 @@ public:
     {
         if (!VMeshHandleValid(Handle))
             return 0;
-        std::memcpy(Out, ((FVMeshPart*)Handle)->Ref->Box14, 6 * sizeof(unsigned long));
+        std::memcpy(Out, ((FVMeshPart*)Handle)->Ref->Box14, 6 * sizeof(FlULong));
         return 1;
     }
 
@@ -1051,10 +1051,10 @@ public:
     // LAB_06c2da10 (RET 0x1C) -> AL: draw the part bound by Slot17 (the Handle argument is
     // not read) with the flag word translated: 0x4000 clear -> 0x40, 0x1000 -> 2, 0x8000 -> 0x80.
     // formerly Slot16
-    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, unsigned long Flags,
+    int DACOM_API RenderInstance(ICamera* Camera, void* /*Handle*/, void* Inst, FlULong Flags,
                          void* Matrix, void* Extra) override
     {
-        unsigned long PartFlags = 0;
+        FlULong PartFlags = 0;
         if ((Flags & 0x4000) == 0)
             PartFlags = 0x40;
         if ((Flags & 0x1000) != 0)

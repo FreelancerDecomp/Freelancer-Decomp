@@ -239,7 +239,7 @@ void CliEffectListClear(void* ListOwnerPlus28, void* ArchFilter);
 // instance is PartIndex or a descendant leaves the list: with NewOwner, a still-alive one is
 // moved to the end of NewOwner's list (FUN_004fd420 + FUN_004f7d80); the rest are stopped and
 // released. Callers: EquippedObj notify 5/6/7/8 (0x005347c7, 0x00534842), FUN_00533d10.
-void CliEffectListDetachPart(void* ListOwnerPlus28, long PartIndex, FClientGameobj* NewOwner);
+void CliEffectListDetachPart(void* ListOwnerPlus28, FlLong PartIndex, FClientGameobj* NewOwner);
 
 // FUN_004fd480 — copy 4 pointers + AddRef particle(+8) / sound(+4) / light(+0xc).
 void CliEffectListCopyPayload(void* DstSlots, void const* SrcSlots);

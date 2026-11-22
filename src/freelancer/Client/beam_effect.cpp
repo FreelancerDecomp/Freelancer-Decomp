@@ -79,7 +79,7 @@ namespace
     unsigned char ColorByte(float Component, float Scale)
     {
         double const V = static_cast<double>(Scale) * static_cast<double>(Component) * kByteScale;
-        return static_cast<unsigned char>(static_cast<long>(V));
+        return static_cast<unsigned char>(static_cast<FlLong>(V));
     }
 
     void SetBatchColorRgb(FEffectVertexBatch* Batch, float Scale, float R, float G, float B)

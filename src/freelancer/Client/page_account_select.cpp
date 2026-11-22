@@ -142,7 +142,7 @@ bool PageAccountSelect::Create(Win3D* NewParent, void* /*Payload*/)
     }
     AccountId->SetMaxLength(0x28);                                                    // FUN_0057bdb0
     AccountId->SetDrawFrame(true);                                                    // FUN_00579860
-    AccountId->SetFrameColor(reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba)); // FUN_00579870
+    AccountId->SetFrameColor(reinterpret_cast<FlULong const*>(G_HudChromeColorRgba)); // FUN_00579870
     AccountId->SetAlignMode(2);                                                       // FUN_00579a60
     AccountId->AddFilterChars(kAccountIdChars, 0x12);                                 // FUN_0057c860
     AccountId->SetReplacementChar(L'-');                                              // FUN_0057c920

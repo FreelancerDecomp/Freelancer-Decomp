@@ -129,7 +129,7 @@ FJumpGateEffect::FJumpGateEffect(FClientSolarGameobj* InSolar)
     CSolar const* const SolarObj = AsSolar(Solar != nullptr ? Solar->Object : nullptr);
     Archetype::Solar const* const Arch = static_cast<Archetype::Solar const*>(SolarObj->Archetype);
     HardpointInfo Info;
-    long HpHandle = 0;
+    FlLong HpHandle = 0;
     FindHardpoint_PS(Solar->get_index(), Arch->JumpOutHp.Value, HpHandle, Info);
     JumpOutPosition = Info.Position;
 
@@ -549,11 +549,11 @@ FJumpShipEffect::FJumpShipEffect(FClientShipGameobj* InShip, FClientSolarGameobj
     // with no test; +0xa8 reset to identity; its archetype's JumpOutHp (+0xa4) looked up on
     // its engine instance (+4).
     CSolar const* const SolarObj = AsSolar(GateSolar->cobject());
-    long const Instance = SolarObj->EngineInstanceId;
+    FlLong const Instance = SolarObj->EngineInstanceId;
     Archetype::Solar const* const Arch = static_cast<Archetype::Solar const*>(SolarObj->Archetype);
     SetIdentityTransform(Field_0xa8);
     HardpointInfo Info;
-    long HpHandle = 0;
+    FlLong HpHandle = 0;
     if (FindHardpoint_PS(Instance, Arch->JumpOutHp.Value, HpHandle, Info))
     {
         // 0x005036bd..0x00503706: HardpointToWorld(instance, info), then +0xa8 = {orientation,

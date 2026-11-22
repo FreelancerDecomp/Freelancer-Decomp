@@ -28,7 +28,7 @@ namespace
 {
     // FUN_0059ec60 (cdecl Instance, Context) -- the CompoundInstanceAnalyze callback of
     // FUN_0059ec80: IEngine vt+0x7c SetInstanceUserData(Instance, Context), nothing else.
-    void __cdecl MeshAnalyzeSetUserData(long Instance, void* Context)
+    void __cdecl MeshAnalyzeSetUserData(FlLong Instance, void* Context)
     {
         DALib::Engine->SetInstanceUserData(reinterpret_cast<void*>(Instance), Context);
     }
@@ -37,7 +37,7 @@ namespace
     // with the holder's floats +0x14 as the context.
     void AnalyzeBoundInstance(FClientMeshHolder* Holder)
     {
-        long const Inst = static_cast<long>(reinterpret_cast<ptrdiff_t>(Holder->EngineInstance));
+        FlLong const Inst = static_cast<FlLong>(reinterpret_cast<ptrdiff_t>(Holder->EngineInstance));
         CompoundInstanceAnalyze(Inst, MeshAnalyzeSetUserData, Holder->UserFloats);
     }
 
@@ -116,7 +116,7 @@ bool ArchetypeLoadFromPath(IEngine* Engine, char const* RelPath, void** OutHandl
     char const* Ext = strrchr(RelPath, '.');
     if (Ext != nullptr && _stricmp(Ext, ".sph") == 0)
     {
-        const unsigned long StemLen = static_cast<unsigned long>(Ext - RelPath);
+        const FlULong StemLen = static_cast<FlULong>(Ext - RelPath);
         if (StemLen + 5 < sizeof(AltPath))
         {
             memcpy(AltPath, RelPath, StemLen);
@@ -126,7 +126,7 @@ bool ArchetypeLoadFromPath(IEngine* Engine, char const* RelPath, void** OutHandl
     }
     TryPaths[TryCount++] = RelPath;
 
-    long EngineIndex = -1;
+    FlLong EngineIndex = -1;
     char const* LoadedPath = RelPath;
     int TryIndex = 0;
     while (TryIndex < TryCount)
@@ -258,7 +258,7 @@ bool ClientMeshHolderLoad(FMeshHolder* Holder, char const* Path, char const* Aux
         if (AuxPath != nullptr)
             Holder->AuxMaterialEntry = Archetype::ResolveMaterialEntry(AuxPath, true, 0xffffffffu);
 
-        long Handle = -1;
+        FlLong Handle = -1;
         bOk = Archetype::Load(static_cast<IFileSystem*>(FsOut), &Handle, nullptr);
         if (bOk)
         {
@@ -345,7 +345,7 @@ void ClientMeshHolderSetMatrix(FMeshHolder* Holder, void* Transform)
     DALib::Engine->SetInstanceMatrix(Holder->EngineInstance, Transform);
 }
 
-void ClientMeshHolderRender(FMeshHolder* Holder, void* Camera, unsigned long Flags)
+void ClientMeshHolderRender(FMeshHolder* Holder, void* Camera, FlULong Flags)
 {
     // FUN_00421120: Renderer->vt+0x1c(Renderer, Camera, Holder+0x04, 1.0f, Flags, 0, 0).
     DALib::Renderer->RenderInstance(Camera, Holder->EngineInstance, 1.0f, Flags, nullptr, nullptr);
@@ -427,7 +427,7 @@ bool ClientMeshLoadFromPath(FClientMeshHolder* Holder, char const* RelPath,
 
         // Archetype::Load(Fs, &handle, holder +0x10) on both branches; the handle lands in
         // retail's own RelPath argument slot.
-        long LoadedHandle = -1;
+        FlLong LoadedHandle = -1;
         int* const AnimIndex = reinterpret_cast<int*>(&Holder->AnimOrArchIndex);
         if (bRegisterCache)
         {
@@ -503,7 +503,7 @@ bool Win3DModelCachePreload(char const* Path, char const* AuxPath)
             Archetype::ResolveMaterialEntry(AuxPath, true, 0xffffffffu);
 
         // 0x0059eadc..0x0059eb08: Archetype::Load(Fs, &handle, &anim) with anim = -1.
-        long LoadedHandle = -1;
+        FlLong LoadedHandle = -1;
         int AnimIndex = -1;
         if (Archetype::Load(Filesys, &LoadedHandle, &AnimIndex))
         {

@@ -19,75 +19,75 @@
 #include "float_bits.h"
 
 // Retail DAT_06ed188c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed188c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed18ac, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed18ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed18ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed18dc, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed18dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed18dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1914, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1914[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1914[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed194c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed194c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed194c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed1e7c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1e7c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1e7c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1e9c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1e9c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1e9c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed1ecc, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1ecc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1ecc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1f04, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1f04[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1f04[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed1f3c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1f3c[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1f3c[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed1f74, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed1f74[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed1f74[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed220c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed220c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed220c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 // Retail DAT_06ed222c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed222c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed222c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
 // Retail DAT_06ed225c, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed225c[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed225c[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
 // Retail DAT_06ed2294, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed2294[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed2294[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 // Retail DAT_06ed22cc, bytes read from EXE/Shading.dll.
-static constexpr unsigned long GDetailTable_06ed22cc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GDetailTable_06ed22cc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
 // LAB_06eb81e0: all four tables decoded from their own retail PE bytes.
-static constexpr unsigned long GDetailMapTable_06ed1a9c[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0, 0};
-static constexpr unsigned long GDetailMapTable_06ed1abc[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
-static constexpr unsigned long GDetailMapTable_06ed1af4[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0, 0};
-static constexpr unsigned long GDetailMapTable_06ed1b2c[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
+static constexpr FlULong GDetailMapTable_06ed1a9c[] = {0x89, 1, 0x1D, 0, 0x1B, 0, 0, 0};
+static constexpr FlULong GDetailMapTable_06ed1abc[] = {1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
+static constexpr FlULong GDetailMapTable_06ed1af4[] = {1, 5, 2, 2, 3, 1, 4, 4, 5, 2, 6, 1, 0, 0};
+static constexpr FlULong GDetailMapTable_06ed1b2c[] = {1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
 
 // Own retail PE state tables for material Bind callbacks.
-static constexpr unsigned long GBindTable_06ed209c[] = {0x8D, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed20ac[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed20e4[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed206c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x9, 0x14, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed209c[] = {0x8D, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed20ac[] = {0x1, 0x2, 0x2, 0x2, 0x3, 0x0, 0x4, 0x2, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed20e4[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed206c[] = {0x89, 0x0, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x9, 0x14, 0x1, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static constexpr unsigned long GBindTable_06ed26dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed2714[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed26ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed268c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed26dc[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed2714[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed26ac[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x5, 0x14, 0x6, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed268c[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static constexpr unsigned long GBindTable_06ed1484[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed14a4[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed14dc[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed1514[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1484[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed14a4[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed14dc[] = {0x1, 0x5, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1514[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
 // Own retail PE state tables for material Bind callbacks.
-static constexpr unsigned long GBindTable_06ed16cc[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed16ec[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed1724[] = {0x1, 0x7, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed175c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed16cc[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed16ec[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1724[] = {0x1, 0x7, 0x2, 0x2, 0x3, 0x1, 0x4, 0x4, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed175c[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
 
-static constexpr unsigned long GBindTable_06ed1c84[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed1cbc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
-static constexpr unsigned long GBindTable_06ed1c54[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x2, 0x14, 0x2, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1c84[] = {0x1, 0x4, 0x2, 0x2, 0x3, 0x0, 0x4, 0x4, 0x5, 0x2, 0x6, 0x0, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1cbc[] = {0x1, 0x1, 0x2, 0x2, 0x3, 0x1, 0x4, 0x1, 0x5, 0x2, 0x6, 0x1, 0x0, 0x0};
+static constexpr FlULong GBindTable_06ed1c54[] = {0x89, 0x1, 0x1D, 0x0, 0x1B, 0x1, 0x13, 0x2, 0x14, 0x2, 0x0, 0x0};
 
 // FUN_06eb7120: one texture block, four calls in the original order.
 static void BindDetailTexture(IRenderPipeline* Pipeline, const FTexBlock& Block,
-                              unsigned long Stage)
+                              FlULong Stage)
 {
     Pipeline->SetTextureStageTexture((int)Stage,
                                     (void*)(Block.Handle));
@@ -97,10 +97,10 @@ static void BindDetailTexture(IRenderPipeline* Pipeline, const FTexBlock& Block,
     Pipeline->SetTextureStageState((int)Stage, D3DTSS_ADDRESSV, Block.AddressV + 1);
 }
 
-static void ApplyDetailTable(IRenderPipeline* Pipeline, const unsigned long* Table,
-                             bool bTextureStage, unsigned long Stage)
+static void ApplyDetailTable(IRenderPipeline* Pipeline, const FlULong* Table,
+                             bool bTextureStage, FlULong Stage)
 {
-    for (unsigned long Index = 0; Table[Index] != 0; Index += 2)
+    for (FlULong Index = 0; Table[Index] != 0; Index += 2)
     {
         if (bTextureStage)
             Pipeline->SetTextureStageState((int)Stage, Table[Index], Table[Index + 1]);
@@ -130,7 +130,7 @@ static void SetDetailTileTransform(IRenderPipeline* Pipeline, float TileRate)
     Pipeline->SetTextureStageTransform(1, Matrix);
 }
 
-bool FMaterial::ApplyDetailPassState(unsigned long Pass)
+bool FMaterial::ApplyDetailPassState(FlULong Pass)
 {
     // FUN_06eb71f0: +0x74 is the pass count, +0x79 is stage-1 verification.
     if (DetailPassCount == 1)
@@ -147,7 +147,7 @@ bool FMaterial::ApplyDetailPassState(unsigned long Pass)
         SetMaterialBlock(Pipeline, &DiffuseR);
         BindDetailTexture(Pipeline, TexBlocks[0], 0);
         ApplyDetailTable(Pipeline, GDetailTable_06ed18dc, true, 0);
-        unsigned long DisabledStage = 1;
+        FlULong DisabledStage = 1;
         if (bDetailSecondStageVerified)
         {
             BindDetailTexture(Pipeline, TexBlocks[1], 1);
@@ -169,7 +169,7 @@ bool FMaterial::ApplyDetailPassState(unsigned long Pass)
     return true;
 }
 
-bool FMaterial::ApplyIllumDetailPassState(unsigned long Pass)
+bool FMaterial::ApplyIllumDetailPassState(FlULong Pass)
 {
     // FUN_06eb9b10: no pass-count test; pass 1 always uses the third block.
     if (Pass == 0)
@@ -177,7 +177,7 @@ bool FMaterial::ApplyIllumDetailPassState(unsigned long Pass)
         SetMaterialBlock(Pipeline, &DiffuseR);
         BindDetailTexture(Pipeline, TexBlocks[0], 0);
         ApplyDetailTable(Pipeline, GDetailTable_06ed1ecc, true, 0);
-        unsigned long DisabledStage = 1;
+        FlULong DisabledStage = 1;
         if (bDetailSecondStageVerified)
         {
             BindDetailTexture(Pipeline, TexBlocks[1], 1);
@@ -203,7 +203,7 @@ bool FMaterial::ApplyIllumDetailPassState(unsigned long Pass)
     return true;
 }
 
-bool FMaterial::ApplyMaskedDetailPassState(unsigned long Pass)
+bool FMaterial::ApplyMaskedDetailPassState(FlULong Pass)
 {
     // FUN_06ebb890: mode 1 ignores the requested pass.
     if (DetailPassCount == 1)
@@ -242,13 +242,13 @@ bool FMaterial::ApplyMaskedDetailPassState(unsigned long Pass)
 }
 
 // Raw retail tables at 06ed1140/1178 and 06ed23fc/2434 are identical.
-static constexpr unsigned long GAtmosphereNebulaTss0[] = {
+static constexpr FlULong GAtmosphereNebulaTss0[] = {
     1, 4, 2, 2, 3, 0, 4, 4, 5, 2, 6, 0, 0, 0};
-static constexpr unsigned long GAtmosphereNebulaTss1[] = {
+static constexpr FlULong GAtmosphereNebulaTss1[] = {
     1, 1, 2, 2, 3, 1, 4, 1, 5, 2, 6, 1, 0, 0};
 // Raw retail RS tables 06ed1100 and 06ed23cc.
-static constexpr unsigned long GAtmosphereRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0, 0};
-static constexpr unsigned long GNebulaRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 2, 0, 0};
+static constexpr FlULong GAtmosphereRs[] = {0x89, 1, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 6, 0, 0};
+static constexpr FlULong GNebulaRs[] = {0x89, 0, 0x1D, 0, 0x1B, 1, 0x13, 5, 0x14, 2, 0, 0};
 
 namespace
 {
@@ -286,7 +286,7 @@ bool IsSinglePassPropertySchemaFamily(const char* FactoryName)
                                         "DcDtOcOtTwo", "DcDtEcOcOtTwo"};
     if (FactoryName == nullptr)
         return false;
-    for (unsigned long Index = 0; Index < std::size(Names); ++Index)
+    for (FlULong Index = 0; Index < std::size(Names); ++Index)
     {
         if (std::strcmp(FactoryName, Names[Index]) == 0)
             return true;
@@ -310,9 +310,9 @@ FShadingPropertyRecord* ConstructPropertyRecord(FShadingPropertyRecord* Record)
     return Record;
 }
 
-void ConstructPropertyRecords(FShadingPropertyRecord* Records, unsigned long Count)
+void ConstructPropertyRecords(FShadingPropertyRecord* Records, FlULong Count)
 {
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
         ConstructPropertyRecord(&Records[Index]);
 }
 
@@ -331,9 +331,9 @@ void ReleaseSchemaPayload(FShadingPropertyValue& Value)
         Value.ReleaseOwnedPayload();
 }
 
-void DestroyPropertyRecords(FShadingPropertyRecord* Records, unsigned long Count)
+void DestroyPropertyRecords(FShadingPropertyRecord* Records, FlULong Count)
 {
-    for (unsigned long Remaining = Count; Remaining != 0; --Remaining)
+    for (FlULong Remaining = Count; Remaining != 0; --Remaining)
     {
         FShadingPropertyRecord& Record = Records[Remaining - 1];
         Record.Flags = 0;
@@ -371,11 +371,11 @@ void DestroyDcDtEtPropertySchema()
     DestroyPropertyRecords(GDcDtEtPropertySchema, 9);
 }
 
-void SetAtmospherePropertyRecord(FShadingPropertyRecord& Record, unsigned long Flags,
+void SetAtmospherePropertyRecord(FShadingPropertyRecord& Record, FlULong Flags,
                                  const char* Name, const char* Description,
-                                 unsigned long CurrentType, const void* Current,
-                                 unsigned long DefaultType, const void* Default,
-                                 unsigned long SavedType, const void* Saved)
+                                 FlULong CurrentType, const void* Current,
+                                 FlULong DefaultType, const void* Default,
+                                 FlULong SavedType, const void* Saved)
 {
     Record.Flags = Flags;
     Record.Name = Name;
@@ -386,11 +386,11 @@ void SetAtmospherePropertyRecord(FShadingPropertyRecord& Record, unsigned long F
     Record.Saved.Assign(SavedType, Saved);
 }
 
-void SetSinglePassPropertyRecord(FShadingPropertyRecord& Record, unsigned long Flags,
+void SetSinglePassPropertyRecord(FShadingPropertyRecord& Record, FlULong Flags,
                                  const char* Name, const char* Description,
-                                 unsigned long CurrentType, const void* Current,
-                                 unsigned long DefaultType, const void* Default,
-                                 unsigned long SavedType, const void* Saved)
+                                 FlULong CurrentType, const void* Current,
+                                 FlULong DefaultType, const void* Default,
+                                 FlULong SavedType, const void* Saved)
 {
     Record.Flags = Flags;
     Record.Name = Name;
@@ -413,14 +413,14 @@ void InitializeAtmospherePropertySchema()
     if (GAtmospherePropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr FlULong Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[2], 0x0, "Dt_name", "Fade 1D Texture Name",
@@ -431,19 +431,19 @@ void InitializeAtmospherePropertySchema()
                                 9, (void*)2, 9, nullptr, 9, nullptr);
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[5], 0x40000, "Dt_flags", "Fade 1D Texture V Address Mode",
                                 9, (void*)2, 9, nullptr, 9, nullptr);
-    static constexpr unsigned long Payload_6_0[] = {0x3F800000};
-    static constexpr unsigned long Payload_6_1[] = {0xFF7FFFFF};
-    static constexpr unsigned long Payload_6_2[] = {0x7F7FFFFF};
+    static constexpr FlULong Payload_6_0[] = {0x3F800000};
+    static constexpr FlULong Payload_6_1[] = {0xFF7FFFFF};
+    static constexpr FlULong Payload_6_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[6], 0x0, "Fade", "Fade Off",
                                 2, Payload_6_0, 2, Payload_6_1, 2, Payload_6_2);
-    static constexpr unsigned long Payload_7_0[] = {0x3F400000};
-    static constexpr unsigned long Payload_7_1[] = {0xFF7FFFFF};
-    static constexpr unsigned long Payload_7_2[] = {0x7F7FFFFF};
+    static constexpr FlULong Payload_7_0[] = {0x3F400000};
+    static constexpr FlULong Payload_7_1[] = {0xFF7FFFFF};
+    static constexpr FlULong Payload_7_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[7], 0x0, "Alpha", "Alpha",
                                 2, Payload_7_0, 2, Payload_7_1, 2, Payload_7_2);
-    static constexpr unsigned long Payload_8_0[] = {0x3F833333};
-    static constexpr unsigned long Payload_8_1[] = {0xFF7FFFFF};
-    static constexpr unsigned long Payload_8_2[] = {0x7F7FFFFF};
+    static constexpr FlULong Payload_8_0[] = {0x3F833333};
+    static constexpr FlULong Payload_8_1[] = {0xFF7FFFFF};
+    static constexpr FlULong Payload_8_2[] = {0x7F7FFFFF};
     SetAtmospherePropertyRecord(GAtmospherePropertySchema[8], 0x0, "Scale", "Scale",
                                 2, Payload_8_0, 2, Payload_8_1, 2, Payload_8_2);
 }
@@ -459,34 +459,34 @@ void InitializeSinglePassPropertySchema()
     if (GSinglePassPropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
-    static constexpr unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[2], 0x0, "Ec", "Emissive Color",
                                 3, Payload_2_0, 3, Payload_2_1, 3, Payload_2_2);
-    static constexpr unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[3], 0x0, "Sc", "Specular Color",
                                 3, Payload_3_0, 3, Payload_3_1, 3, Payload_3_2);
-    static constexpr unsigned long Payload_4_0[] = {0x00000000};
-    static constexpr unsigned long Payload_4_1[] = {0x00000000};
-    static constexpr unsigned long Payload_4_2[] = {0x3F800000};
+    static constexpr FlULong Payload_4_0[] = {0x00000000};
+    static constexpr FlULong Payload_4_1[] = {0x00000000};
+    static constexpr FlULong Payload_4_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[4], 0x0, "Sp", "Specular Power",
                                 2, Payload_4_0, 2, Payload_4_1, 2, Payload_4_2);
-    static constexpr unsigned long Payload_5_0[] = {0x3F800000};
-    static constexpr unsigned long Payload_5_1[] = {0x00000000};
-    static constexpr unsigned long Payload_5_2[] = {0x3F800000};
+    static constexpr FlULong Payload_5_0[] = {0x3F800000};
+    static constexpr FlULong Payload_5_1[] = {0x00000000};
+    static constexpr FlULong Payload_5_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[5], 0x0, "Oc", "Opacity ",
                                 2, Payload_5_0, 2, Payload_5_1, 2, Payload_5_2);
     SetSinglePassPropertyRecord(GSinglePassPropertySchema[6], 0x0, "Dt_name", "Texture Name",
@@ -501,11 +501,11 @@ void InitializeSinglePassPropertySchema()
 
 void InitializeDetailPropertyRecords(FShadingPropertyRecord* Records)
 {
-    static constexpr unsigned long kZero3[3] = {0, 0, 0};
-    static constexpr unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long kFourBits = 0x40800000;
-    static constexpr unsigned long kFloatMinBits = 0xFF7FFFFF;
-    static constexpr unsigned long kFloatMaxBits = 0x7F7FFFFF;
+    static constexpr FlULong kZero3[3] = {0, 0, 0};
+    static constexpr FlULong kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong kFourBits = 0x40800000;
+    static constexpr FlULong kFloatMinBits = 0xFF7FFFFF;
+    static constexpr FlULong kFloatMaxBits = 0x7F7FFFFF;
 
     SetSinglePassPropertyRecord(Records[0], 0, "Ac", "Ambient Color", 3,
                                 kWhite3, 3, kZero3, 3, kWhite3);
@@ -593,12 +593,12 @@ void InitializeMaskedDetailPropertySchema()
 
 void InitializeDetail2PassPropertyRecords(FShadingPropertyRecord* Records)
 {
-    static constexpr unsigned long kZero3[3] = {0, 0, 0};
-    static constexpr unsigned long kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long kTen3[3] = {0x41200000, 0x41200000, 0x41200000};
-    static constexpr unsigned long kFourBits = 0x40800000;
-    static constexpr unsigned long kFloatMinBits = 0xFF7FFFFF;
-    static constexpr unsigned long kFloatMaxBits = 0x7F7FFFFF;
+    static constexpr FlULong kZero3[3] = {0, 0, 0};
+    static constexpr FlULong kWhite3[3] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong kTen3[3] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr FlULong kFourBits = 0x40800000;
+    static constexpr FlULong kFloatMinBits = 0xFF7FFFFF;
+    static constexpr FlULong kFloatMaxBits = 0x7F7FFFFF;
 
     SetSinglePassPropertyRecord(Records[0], 0, "Ac", "Ambient Color", 3,
                                 kWhite3, 3, kZero3, 3, kWhite3);
@@ -672,14 +672,14 @@ void InitializeDetailMapPropertySchema()
     if (GDetailMapPropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
+    static constexpr FlULong Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_1_2[] = {0x41200000, 0x41200000, 0x41200000};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[2], 0x0, "Dt_name", "Diffuse Texture Name",
@@ -702,9 +702,9 @@ void InitializeDetailMapPropertySchema()
                                 9, nullptr, 9, nullptr, 9, nullptr);
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[11], 0x40000, "Dm_flags", "Detail Texture V Address Mode",
                                 9, nullptr, 9, nullptr, 9, nullptr);
-    static constexpr unsigned long Payload_12_0[] = {0x40800000};
-    static constexpr unsigned long Payload_12_1[] = {0xFF7FFFFF};
-    static constexpr unsigned long Payload_12_2[] = {0x7F7FFFFF};
+    static constexpr FlULong Payload_12_0[] = {0x40800000};
+    static constexpr FlULong Payload_12_1[] = {0xFF7FFFFF};
+    static constexpr FlULong Payload_12_2[] = {0x7F7FFFFF};
     SetSinglePassPropertyRecord(GDetailMapPropertySchema[12], 0x0, "TileRate", "Tile Rate ",
                                 2, Payload_12_0, 2, Payload_12_1, 2, Payload_12_2);
 }
@@ -717,9 +717,9 @@ void DestroyBtDetailPropertySchema()
 // The fourteenth Bt descriptor overlaps Atmosphere by one word. Keep each
 // aliased tag/payload write live during foreign Release, without forming a
 // second C++ record object over the first one's storage.
-void AssignOverlappingZeroAddressMode(void* TypeAddress, unsigned long& Payload)
+void AssignOverlappingZeroAddressMode(void* TypeAddress, FlULong& Payload)
 {
-    unsigned long PreviousType;
+    FlULong PreviousType;
     std::memcpy(&PreviousType, TypeAddress, sizeof(PreviousType));
     if (PreviousType != 9)
     {
@@ -737,7 +737,7 @@ void AssignOverlappingZeroAddressMode(void* TypeAddress, unsigned long& Payload)
         }
         Payload = 0;
     }
-    const unsigned long NewType = 9;
+    const FlULong NewType = 9;
     std::memcpy(TypeAddress, &NewType, sizeof(NewType));
     Payload = 0;
 }
@@ -753,34 +753,34 @@ void InitializeBtDetailPropertySchema()
     if (GBtDetailPropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[0], 0x0, "Ac", "Ambient Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
-    static constexpr unsigned long Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_1_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_1_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[1], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_1_0, 3, Payload_1_1, 3, Payload_1_2);
-    static constexpr unsigned long Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_2_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_2_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_2_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[2], 0x0, "Ec", "Emissive Color",
                                 3, Payload_2_0, 3, Payload_2_1, 3, Payload_2_2);
-    static constexpr unsigned long Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_3_0[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_3_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_3_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[3], 0x0, "Sc", "Specular Color",
                                 3, Payload_3_0, 3, Payload_3_1, 3, Payload_3_2);
-    static constexpr unsigned long Payload_4_0[] = {0x00000000};
-    static constexpr unsigned long Payload_4_1[] = {0x00000000};
-    static constexpr unsigned long Payload_4_2[] = {0x3F800000};
+    static constexpr FlULong Payload_4_0[] = {0x00000000};
+    static constexpr FlULong Payload_4_1[] = {0x00000000};
+    static constexpr FlULong Payload_4_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[4], 0x0, "Sp", "Specular Power",
                                 2, Payload_4_0, 2, Payload_4_1, 2, Payload_4_2);
-    static constexpr unsigned long Payload_5_0[] = {0x3F800000};
-    static constexpr unsigned long Payload_5_1[] = {0x00000000};
-    static constexpr unsigned long Payload_5_2[] = {0x3F800000};
+    static constexpr FlULong Payload_5_0[] = {0x3F800000};
+    static constexpr FlULong Payload_5_1[] = {0x00000000};
+    static constexpr FlULong Payload_5_2[] = {0x3F800000};
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[5], 0x0, "Oc", "Opacity ",
                                 2, Payload_5_0, 2, Payload_5_1, 2, Payload_5_2);
     SetSinglePassPropertyRecord(GBtDetailPropertySchema[6], 0x0, "Dt_name", "Texture Name",
@@ -802,7 +802,7 @@ void InitializeBtDetailPropertySchema()
     // following words overlap record zero and are published in setter order.
     GbAtmospherePropertySchemaInitialized = false;
     FShadingPropertyRecord& Atmosphere = GAtmospherePropertySchema[0];
-    Atmosphere.Flags = (unsigned long)("Bt_flags");
+    Atmosphere.Flags = (FlULong)("Bt_flags");
     Atmosphere.Name = "DetailTexture V Address Mode";
     Atmosphere.Description = GPropertyMetadata_06ed56c4;
     AssignOverlappingZeroAddressMode(&Atmosphere.Callback, Atmosphere.Current.Type);
@@ -872,9 +872,9 @@ void InitializeEcEtPropertySchema()
     if (GEcEtPropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GEcEtPropertySchema[0], 0x4, "Ec", "Emissive Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
     SetSinglePassPropertyRecord(GEcEtPropertySchema[1], 0x0, "Et_name", "Emissive Texture Name",
@@ -898,9 +898,9 @@ void InitializeDcDtEtPropertySchema()
     if (GDcDtEtPropertySchema[0].Current.Type != 0)
         return;
 
-    static constexpr unsigned long Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
-    static constexpr unsigned long Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
-    static constexpr unsigned long Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_0[] = {0x3F800000, 0x3F800000, 0x3F800000};
+    static constexpr FlULong Payload_0_1[] = {0x00000000, 0x00000000, 0x00000000};
+    static constexpr FlULong Payload_0_2[] = {0x3F800000, 0x3F800000, 0x3F800000};
     SetSinglePassPropertyRecord(GDcDtEtPropertySchema[0], 0x0, "Dc", "Diffuse Color",
                                 3, Payload_0_0, 3, Payload_0_1, 3, Payload_0_2);
     SetSinglePassPropertyRecord(GDcDtEtPropertySchema[1], 0x0, "Dt_name", "Diffuse Texture Name",
@@ -986,18 +986,18 @@ GENRESULT DACOM_API FMaterialInner::QueryInterface(const char* Iid, void** Out)
     return GR_INTERFACE_UNSUPPORTED;
 }
 
-unsigned long DACOM_API FMaterialInner::AddRef()
+FlULong DACOM_API FMaterialInner::AddRef()
 {
     return ++OwnerFromThis()->RefCount;
 }
 
-unsigned long DACOM_API FMaterialInner::Release()
+FlULong DACOM_API FMaterialInner::Release()
 {
     // LAB_06eb65f0: the inner count never delegates to the aggregate outer.
     FMaterial* Owner = OwnerFromThis();
     if (Owner->RefCount != 0)
         --Owner->RefCount;
-    const unsigned long Remaining = Owner->RefCount;
+    const FlULong Remaining = Owner->RefCount;
     if (Remaining == 0)
     {
         Owner->RefCount = 1;
@@ -1063,7 +1063,7 @@ FMaterial::FMaterial(const char* InFactoryName, const char* InClassName, EMateri
     Pad75[1] = 0;
     Pad75[2] = 0;
     {
-        const unsigned long ScaleBits = 0x3F833333;
+        const FlULong ScaleBits = 0x3F833333;
         std::memcpy(&Scale, &ScaleBits, sizeof(Scale));
     }
 
@@ -1079,7 +1079,7 @@ FMaterial::~FMaterial() noexcept(false)
         MatAnim = nullptr;
     }
     // FUN_06ebc150: forward group release uses the live count.
-    for (unsigned long Index = 0; Index < TexCount; ++Index)
+    for (FlULong Index = 0; Index < TexCount; ++Index)
     {
         if (TexBlocks[Index].TextureId != -1)
         {
@@ -1090,7 +1090,7 @@ FMaterial::~FMaterial() noexcept(false)
     if (TexBlocks != nullptr)
     {
         // Reverse name destruction uses the allocation's count, not TexCount.
-        for (unsigned long Index = TextureAllocationCount; Index != 0; --Index)
+        for (FlULong Index = TextureAllocationCount; Index != 0; --Index)
         {
             delete[] TexBlocks[Index - 1].Name;
             TexBlocks[Index - 1].Name = nullptr;
@@ -1114,7 +1114,7 @@ void FMaterial::SetInstanceName(const char* Name)
 
 static constexpr float kAtmosphereOne = 1.0f;
 static constexpr float kAtmosphereHalf = 0.5f;
-static constexpr unsigned long kAtmosphereEpsBits = 0x33D6BF95;
+static constexpr FlULong kAtmosphereEpsBits = 0x33D6BF95;
 
 FL_LAYOUT_ASSERT(offsetof(FMaterial, Pipeline) == 0x04, "Pipeline +4");
 FL_LAYOUT_ASSERT(offsetof(FMaterial, TexLib) == 0x08, "TexLib +8");
@@ -1147,12 +1147,12 @@ GENRESULT DACOM_API FMaterial::QueryInterface(const char* Iid, void** Out)
     return Outer != nullptr ? Outer->QueryInterface(Iid, Out) : Inner.QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMaterial::AddRef()
+FlULong DACOM_API FMaterial::AddRef()
 {
     return Outer != nullptr ? Outer->AddRef() : Inner.AddRef();
 }
 
-unsigned long DACOM_API FMaterial::Release()
+FlULong DACOM_API FMaterial::Release()
 {
     return Outer != nullptr ? Outer->Release() : Inner.Release();
 }
@@ -1161,11 +1161,11 @@ GENRESULT DACOM_API FMaterial::InnerQueryInterface(const char* Iid, void** Out)
 {
     return Inner.QueryInterface(Iid, Out);
 }
-unsigned long DACOM_API FMaterial::InnerAddRef()
+FlULong DACOM_API FMaterial::InnerAddRef()
 {
     return Inner.AddRef();
 }
-unsigned long DACOM_API FMaterial::InnerRelease()
+FlULong DACOM_API FMaterial::InnerRelease()
 {
     return Inner.Release();
 }
@@ -1194,10 +1194,10 @@ GENRESULT DACOM_API FMaterial::Initialize(IDAComponent* Component)
 GENRESULT FMaterial::InitializeOwnedSchema()
 {
     void* Table;
-    const unsigned long Count = GetParameterTable(&Table);
+    const FlULong Count = GetParameterTable(&Table);
     FShadingPropertyRecord* Records = (FShadingPropertyRecord*)Table;
     TexCount = 0;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         if (Records[Index].Current.Type == 7)
             ++TexCount;
@@ -1208,7 +1208,7 @@ GENRESULT FMaterial::InitializeOwnedSchema()
         TexBlocks = new (std::nothrow) FTexBlock[TexCount];
         if (TexBlocks != nullptr)
         {
-            for (unsigned long Index = 0; Index < TexCount; ++Index)
+            for (FlULong Index = 0; Index < TexCount; ++Index)
             {
                 TexBlocks[Index].Name = nullptr;
                 TexBlocks[Index].TextureId = -1;
@@ -1220,7 +1220,7 @@ GENRESULT FMaterial::InitializeOwnedSchema()
             }
         }
     }
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
         StoreParameterValue(Index, &Records[Index], &Records[Index].Current);
     return GR_OK;
 }
@@ -1228,7 +1228,7 @@ GENRESULT FMaterial::InitializeOwnedSchema()
 namespace
 {
     // FUN_06eb3450 / FUN_06eb3510: scalar output is committed only on full success.
-    GENRESULT ReadSinglePassWord(IFileSystem* FileSystem, const char* Name, unsigned long* Output,
+    GENRESULT ReadSinglePassWord(IFileSystem* FileSystem, const char* Name, FlULong* Output,
                                  bool bFloat = false)
     {
         FFileSystemDesc Desc;
@@ -1236,8 +1236,8 @@ namespace
         const int Handle = FileSystem->OpenByDesc((FFileSystemDesc*)(&Desc));
         if (Handle == -1)
             return GR_GENERIC;
-        unsigned long ReadValue;
-        unsigned long BytesRead;
+        FlULong ReadValue;
+        FlULong BytesRead;
         const int ReadResult = FileSystem->Read(Handle, &ReadValue, sizeof(ReadValue), &BytesRead, 0);
         const bool bSuccess = ReadResult != 0 && BytesRead == sizeof(ReadValue);
         if (bSuccess)
@@ -1267,7 +1267,7 @@ namespace
 {
     // FUN_06eb35d0: vector reads write directly; optional count is in float elements.
     GENRESULT ReadSinglePassVector(IFileSystem* FileSystem, const char* Name,
-                                   unsigned long Count, void* Out, unsigned long* OutCount)
+                                   FlULong Count, void* Out, FlULong* OutCount)
     {
         FFileSystemDesc Desc;
         InitializeShadingFileDesc(&Desc, Name);
@@ -1276,13 +1276,13 @@ namespace
             return GR_GENERIC;
         if (OutCount != nullptr)
         {
-            const unsigned long Available = FileSystem->GetSize(Handle, 0) >> 2;
+            const FlULong Available = FileSystem->GetSize(Handle, 0) >> 2;
             if (Available < Count)
                 Count = Available;
             *OutCount = Count;
         }
-        const unsigned long Size = Count * 4;
-        unsigned long BytesRead;
+        const FlULong Size = Count * 4;
+        FlULong BytesRead;
         const int ReadResult = FileSystem->Read(Handle, Out, Size, &BytesRead, 0);
         const bool bSuccess = ReadResult != 0 && BytesRead == Size;
         FileSystem->CloseFile(Handle);
@@ -1294,7 +1294,7 @@ namespace
 {
     // FUN_06eb36b0 publishes allocation before Read, including on a failed read.
     GENRESULT ReadSinglePassString(IFileSystem* FileSystem, const char* Name,
-                                   unsigned long Size, char** Out)
+                                   FlULong Size, char** Out)
     {
         FFileSystemDesc Desc;
         InitializeShadingFileDesc(&Desc, Name);
@@ -1308,7 +1308,7 @@ namespace
         if (Storage != nullptr)
         {
             *Out = Storage;
-            unsigned long BytesRead;
+            FlULong BytesRead;
             const int ReadResult = FileSystem->Read(Handle, Storage, Size, &BytesRead, 0);
             bSuccess = ReadResult != 0 && BytesRead == Size;
         }
@@ -1321,9 +1321,9 @@ GENRESULT FMaterial::LoadDeclaredSchema(IFileSystem* FileSystem)
 {
     // LAB_06eb1370: walk the actual schema in order; no aliases or early texture resolve.
     void* Table;
-    const unsigned long Count = GetParameterTable(&Table);
+    const FlULong Count = GetParameterTable(&Table);
     FShadingPropertyRecord* Records = (FShadingPropertyRecord*)Table;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         FShadingPropertyRecord& Record = Records[Index];
         if ((Record.Flags & 1) != 0)
@@ -1361,7 +1361,7 @@ GENRESULT FMaterial::LoadDeclaredSchema(IFileSystem* FileSystem)
         case 8:
         case 9:
         {
-            unsigned long Packed;
+            FlULong Packed;
             Result = ReadSinglePassWord(FileSystem, Record.Name, &Packed);
             if (Result >= 0)
             {
@@ -1397,7 +1397,7 @@ namespace
 {
     // FUN_06eb3780 (word), 3840 (float elements), 3900 (bytes).
     GENRESULT WriteMaterialPropertyBytes(IFileSystem* FileSystem, const char* Name,
-                                         const void* Buffer, unsigned long Size)
+                                         const void* Buffer, FlULong Size)
     {
         FFileSystemDesc Desc;
         InitializeShadingFileDesc(&Desc, Name);
@@ -1407,9 +1407,9 @@ namespace
         const int Handle = FileSystem->OpenByDesc(&Desc);
         if (Handle == -1)
             return (GENRESULT)0x80004005UL;
-        unsigned long BytesWritten;
+        FlULong BytesWritten;
         const int WriteResult = FileSystem->Write(
-            (unsigned long)Handle, Buffer, Size, &BytesWritten, nullptr);
+            (FlULong)Handle, Buffer, Size, &BytesWritten, nullptr);
         const bool bSuccess = WriteResult != 0 && BytesWritten == Size;
         FileSystem->CloseFile(Handle);
         return bSuccess ? GR_OK : (GENRESULT)0x80004005UL;
@@ -1420,18 +1420,18 @@ GENRESULT DACOM_API FMaterial::SaveProperties(void* FileSystem)
 {
     // FUN_06eb1720: table-driven snapshot, then write, then typed cleanup.
     void* Table;
-    const unsigned long Count = GetParameterTable(&Table);
+    const FlULong Count = GetParameterTable(&Table);
     FShadingPropertyRecord* Records = (FShadingPropertyRecord*)Table;
     IFileSystem* Files = (IFileSystem*)FileSystem;
     GENRESULT Result = GR_OK;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         FShadingPropertyRecord& Record = Records[Index];
         if ((Record.Flags & 1) != 0)
             continue;
         FShadingPropertyValue Value = {};
         Value.Type = Record.Current.Type;
-        const unsigned long* Target = (const unsigned long*)(GetParameterAddress(Index));
+        const FlULong* Target = (const FlULong*)(GetParameterAddress(Index));
         if (Target == nullptr)
         {
             Value.ReleaseOwnedPayload();
@@ -1473,13 +1473,13 @@ GENRESULT DACOM_API FMaterial::SaveProperties(void* FileSystem)
         {
             const char* Text = (const char*)(Value.Payload0);
             WriteResult = WriteMaterialPropertyBytes(Files, Record.Name, Text,
-                (unsigned long)(std::strlen(Text) + 1));
+                (FlULong)(std::strlen(Text) + 1));
             break;
         }
         case 8:
         case 9:
         {
-            unsigned long Packed = 0;
+            FlULong Packed = 0;
             ReadSinglePassWord(Files, Record.Name, &Packed); // Read failure is ignored.
             if (Value.Type == 8)
                 Packed = (Packed & ~0xF0UL) | ((Value.Payload0 << 4) & 0xF0UL);
@@ -1513,8 +1513,8 @@ GENRESULT FMaterial::ApplyVerifyMatAnim()
     const GENRESULT QueryResult = Pipeline->QueryInterface(Iids::MatAnimLibrary, (void**)&AnimationLibrary);
     if (QueryResult >= 0)
     {
-        unsigned long Query[2];
-        Query[0] = (unsigned long)InstanceName;
+        FlULong Query[2];
+        Query[0] = (FlULong)InstanceName;
         Query[1] = DACOM_CRC::GetCRC32(InstanceName);
         if (MatAnim != nullptr)
         {
@@ -1729,7 +1729,7 @@ GENRESULT DACOM_API FMaterial::ResolveTextures(float /*Delta*/)
     if (BindKind == BindAtmosphere)
     {
         // LAB_06eb2c40: unsigned count, mandatory block/library on lookup.
-        for (unsigned long Index = 0; Index < TexCount; ++Index)
+        for (FlULong Index = 0; Index < TexCount; ++Index)
         {
             FTexBlock& Entry = TexBlocks[Index];
             if (Entry.TextureId == -1)
@@ -1742,7 +1742,7 @@ GENRESULT DACOM_API FMaterial::ResolveTextures(float /*Delta*/)
         return GR_OK;
     }
     // LAB_06eb3ae0: stride 0x2C, TexLib +0x70(id, -1, out=+8). id==-1 → handle 0.
-    for (unsigned long Index = 0; Index < TexCount; ++Index)
+    for (FlULong Index = 0; Index < TexCount; ++Index)
     {
         FTexBlock* Entry = &TexBlocks[Index];
         if (Entry->TextureId == -1)
@@ -1832,7 +1832,7 @@ void FMaterial::BindDcDtEtTables(void* Context)
     ApplyDetailTable(Pipeline, GBindTable_06ed16cc, false, 0);
     BindDetailTexture(Pipeline, TexBlocks[0], 0);
     ApplyDetailTable(Pipeline, GBindTable_06ed16ec, true, 0);
-    unsigned long DisabledStage = 1;
+    FlULong DisabledStage = 1;
     if (bSecondaryTextureEnabled && TexBlocks[1].TextureId != -1)
     {
         Pipeline->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);
@@ -1865,7 +1865,7 @@ void FMaterial::BindDetailMapTables(void* Context)
     }
     BindDetailTexture(Pipeline, TexBlocks[0], 0);
     ApplyDetailTable(Pipeline, GDetailMapTable_06ed1abc, true, 0);
-    unsigned long DisabledStage = 1;
+    FlULong DisabledStage = 1;
     if (bDetailSecondStageVerified)
     {
         BindDetailTexture(Pipeline, TexBlocks[1], 1);
@@ -1890,7 +1890,7 @@ void FMaterial::BindBtDetailTables(void* Context)
     ApplyDetailTable(Pipeline, GBindTable_06ed1484, false, 0);
     BindDetailTexture(Pipeline, TexBlocks[0], 0);
     ApplyDetailTable(Pipeline, GBindTable_06ed14a4, true, 0);
-    unsigned long DisabledStage = 1;
+    FlULong DisabledStage = 1;
     if (bSecondaryTextureVerified)
     {
         BindDetailTexture(Pipeline, TexBlocks[1], 1);
@@ -1962,7 +1962,7 @@ GENRESULT DACOM_API FMaterial::Teardown(void* Context)
         SubmitKind == SubmitMaskedDetail2Pass)
     {
         // 6e80 / 98b0 / b610 ignore Context and perform the same nine TSS writes.
-        const unsigned long* Table = SubmitKind == SubmitDetail2Pass ? GDetailTable_06ed194c :
+        const FlULong* Table = SubmitKind == SubmitDetail2Pass ? GDetailTable_06ed194c :
                                      SubmitKind == SubmitIllumDetail2Pass ? GDetailTable_06ed1f74 :
                                                                           GDetailTable_06ed22cc;
         ApplyDetailTable(Pipeline, Table, true, 1);
@@ -2009,16 +2009,16 @@ static float AtmosphereEps()
     return Value;
 }
 
-static void NegateTwoPassNormals(const FRpVertexSrcDesc* Source, unsigned long Start,
-                                 unsigned long Count, void* Vertices, unsigned long DestStride,
-                                 unsigned long DestPosSize)
+static void NegateTwoPassNormals(const FRpVertexSrcDesc* Source, FlULong Start,
+                                 FlULong Count, void* Vertices, FlULong DestStride,
+                                 FlULong DestPosSize)
 {
     // LAB_06ebe1ff: read original source normals, not the copied destination.
     uintptr_t Destination = (uintptr_t)Vertices + DestPosSize;
     if ((Source->Flags & 4) != 0)
     {
-        const unsigned long* Indices = Source->Normal.IndexArray + Start;
-        for (unsigned long Index = 0; Index < Count; ++Index)
+        const FlULong* Indices = Source->Normal.IndexArray + Start;
+        for (FlULong Index = 0; Index < Count; ++Index)
         {
             const float* Normal = (const float*)(
                 (uintptr_t)(Source->Normal.Base) + Indices[Index] * Source->Normal.Stride);
@@ -2030,10 +2030,10 @@ static void NegateTwoPassNormals(const FRpVertexSrcDesc* Source, unsigned long S
         }
         return;
     }
-    const unsigned long SourceStride = FvfPosSize(Source->SrcFvf) + FvfNormalSize(Source->SrcFvf) +
+    const FlULong SourceStride = FvfPosSize(Source->SrcFvf) + FvfNormalSize(Source->SrcFvf) +
                                        FvfColorSize(Source->SrcFvf) + FvfTexSize(Source->SrcFvf);
     uintptr_t NormalAddress = (uintptr_t)(Source->Normal.Base) + SourceStride * Start;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         const float* Normal = (const float*)NormalAddress;
         float* Out = (float*)Destination;
@@ -2045,8 +2045,8 @@ static void NegateTwoPassNormals(const FRpVertexSrcDesc* Source, unsigned long S
     }
 }
 
-GENRESULT FMaterial::SubmitDcDtTwoSecondPass(void* Context, unsigned long PrimType, unsigned long Start,
-                                            unsigned long Count, unsigned long IbStart, unsigned long IndexSpan)
+GENRESULT FMaterial::SubmitDcDtTwoSecondPass(void* Context, FlULong PrimType, FlULong Start,
+                                            FlULong Count, FlULong IbStart, FlULong IndexSpan)
 {
     // LAB_06ebe0d2..06ebe38d: the caller has already tested first result and source presence.
     FMaterialSubmitContext* SubmitContext = (FMaterialSubmitContext*)Context;
@@ -2056,8 +2056,8 @@ GENRESULT FMaterial::SubmitDcDtTwoSecondPass(void* Context, unsigned long PrimTy
     const GENRESULT Locked = Manager->LockVertexMemory(Source->SrcFvf, Count, &Lock);
     if (Locked < 0)
         return Locked;
-    const unsigned long DestPosSize = FvfPosSize(Lock.Listing.Fvf);
-    const unsigned long DestStride = DestPosSize + FvfNormalSize(Lock.Listing.Fvf) +
+    const FlULong DestPosSize = FvfPosSize(Lock.Listing.Fvf);
+    const FlULong DestStride = DestPosSize + FvfNormalSize(Lock.Listing.Fvf) +
                                      FvfColorSize(Lock.Listing.Fvf) + FvfTexSize(Lock.Listing.Fvf);
     void* Destination = (void*)((uintptr_t)(Lock.Vertices) - DestStride * Start);
     Manager->CopyVertexData(Destination, Lock.Listing.Fvf,
@@ -2079,11 +2079,11 @@ GENRESULT FMaterial::SubmitDcDtTwoSecondPass(void* Context, unsigned long PrimTy
 }
 
 // DAT_06ed44cc aliases the Ec string as word zero of this cull lookup.
-static constexpr unsigned long GBtDetailTwoCullFlip[4] = {0x00006345, 1, 3, 2};
+static constexpr FlULong GBtDetailTwoCullFlip[4] = {0x00006345, 1, 3, 2};
 
-GENRESULT FMaterial::SubmitBtDetailTwoSecondPass(void* Context, unsigned long PrimType,
-                                                unsigned long Start, unsigned long Count,
-                                                unsigned long IbStart, unsigned long IndexSpan)
+GENRESULT FMaterial::SubmitBtDetailTwoSecondPass(void* Context, FlULong PrimType,
+                                                FlULong Start, FlULong Count,
+                                                FlULong IbStart, FlULong IndexSpan)
 {
     // LAB_06eb5655..593a: no alpha-state scope surrounds this second pass.
     FMaterialSubmitContext* SubmitContext = (FMaterialSubmitContext*)Context;
@@ -2095,8 +2095,8 @@ GENRESULT FMaterial::SubmitBtDetailTwoSecondPass(void* Context, unsigned long Pr
         return Locked;
     Source = SubmitContext->SourceVertices;
     const bool bHasNormals = (Source->SrcFvf & 0x10) != 0;
-    const unsigned long DestPosSize = FvfPosSize(Lock.Listing.Fvf);
-    const unsigned long DestStride = DestPosSize + FvfNormalSize(Lock.Listing.Fvf) +
+    const FlULong DestPosSize = FvfPosSize(Lock.Listing.Fvf);
+    const FlULong DestStride = DestPosSize + FvfNormalSize(Lock.Listing.Fvf) +
                                      FvfColorSize(Lock.Listing.Fvf) + FvfTexSize(Lock.Listing.Fvf);
     void* Destination = (void*)((uintptr_t)(Lock.Vertices) -
                                                 DestStride * Start);
@@ -2122,8 +2122,8 @@ GENRESULT FMaterial::SubmitBtDetailTwoSecondPass(void* Context, unsigned long Pr
     return Result;
 }
 
-GENRESULT FMaterial::SubmitAtmosphereLock(void* Context, unsigned long PrimType, unsigned long Start,
-                                          unsigned long Count, unsigned long IbStart, unsigned long IndexSpan)
+GENRESULT FMaterial::SubmitAtmosphereLock(void* Context, FlULong PrimType, FlULong Start,
+                                          FlULong Count, FlULong IbStart, FlULong IndexSpan)
 {
     // LAB_06eb2d40: readiness is the only early success branch.
     if (bAtmosphereReady == 0)
@@ -2135,14 +2135,14 @@ GENRESULT FMaterial::SubmitAtmosphereLock(void* Context, unsigned long PrimType,
     const GENRESULT Locked = Manager->LockVertexMemory(Source->SrcFvf, Count, &Lock);
     if (Locked < 0)
         return Locked;
-    const unsigned long DestStride = FvfTexSize(Lock.Listing.Fvf) + FvfColorSize(Lock.Listing.Fvf) +
+    const FlULong DestStride = FvfTexSize(Lock.Listing.Fvf) + FvfColorSize(Lock.Listing.Fvf) +
                                      FvfNormalSize(Lock.Listing.Fvf) + FvfPosSize(Lock.Listing.Fvf);
     void* Destination = (void*)((uintptr_t)(Lock.Vertices) -
                                                  DestStride * Start);
     Manager->CopyVertexData(Destination, Lock.Listing.Fvf,
                            SubmitContext->SourceVertices, Start,
                            Count);
-    const unsigned long TexOffset = FvfColorSize(Lock.Listing.Fvf) + FvfNormalSize(Lock.Listing.Fvf) +
+    const FlULong TexOffset = FvfColorSize(Lock.Listing.Fvf) + FvfNormalSize(Lock.Listing.Fvf) +
                                     FvfPosSize(Lock.Listing.Fvf);
     uintptr_t DestUv = (uintptr_t)(Lock.Vertices) + TexOffset;
 
@@ -2257,9 +2257,9 @@ GENRESULT FMaterial::SubmitAtmosphereLock(void* Context, unsigned long PrimType,
 }
 
 GENRESULT FMaterial::SubmitIndexedListing(FMaterialSubmitContext* Context,
-                                         unsigned long PrimType, unsigned long Start,
-                                         unsigned long Count, unsigned long IbStart,
-                                         unsigned long IndexSpan)
+                                         FlULong PrimType, FlULong Start,
+                                         FlULong Count, FlULong IbStart,
+                                         FlULong IndexSpan)
 {
     // FUN_06eb59a0: only the listing pointer is optional.
     if (Context->VbListing == nullptr)
@@ -2271,9 +2271,9 @@ GENRESULT FMaterial::SubmitIndexedListing(FMaterialSubmitContext* Context,
 }
 
 GENRESULT FMaterial::SubmitCopiedVertices(FMaterialSubmitContext* Context,
-                                         unsigned long PrimType, unsigned long Start,
-                                         unsigned long Count, unsigned long IbStart,
-                                         unsigned long IndexSpan)
+                                         FlULong PrimType, FlULong Start,
+                                         FlULong Count, FlULong IbStart,
+                                         FlULong IndexSpan)
 {
     // FUN_06eb59f0: all dependencies are mandatory; only lock failure exits early.
     const FRpVertexSrcDesc* Source = Context->SourceVertices;
@@ -2282,7 +2282,7 @@ GENRESULT FMaterial::SubmitCopiedVertices(FMaterialSubmitContext* Context,
     const GENRESULT Result = Manager->LockVertexMemory(Source->SrcFvf, Count, &Lock);
     if (Result < 0)
         return Result;
-    const unsigned long Stride = FvfPosSize(Lock.Listing.Fvf) + FvfNormalSize(Lock.Listing.Fvf) +
+    const FlULong Stride = FvfPosSize(Lock.Listing.Fvf) + FvfNormalSize(Lock.Listing.Fvf) +
                                  FvfColorSize(Lock.Listing.Fvf) + FvfTexSize(Lock.Listing.Fvf);
     void* Destination = (void*)((uintptr_t)(Lock.Vertices) -
                                                Stride * Start);
@@ -2295,9 +2295,9 @@ GENRESULT FMaterial::SubmitCopiedVertices(FMaterialSubmitContext* Context,
         IndexSpan, 0);
 }
 
-GENRESULT FMaterial::SubmitKernel(void* Context, unsigned long PrimType, unsigned long Start,
-                                  unsigned long Count, unsigned long IbStart, unsigned long IndexSpan,
-                                  unsigned long Flags)
+GENRESULT FMaterial::SubmitKernel(void* Context, FlULong PrimType, FlULong Start,
+                                  FlULong Count, FlULong IbStart, FlULong IndexSpan,
+                                  FlULong Flags)
 {
     // FUN_06eb3b90: direct draw, indexed listing, then vertex-copy fallback.
     FMaterialSubmitContext* SubmitContext = (FMaterialSubmitContext*)Context;
@@ -2315,9 +2315,9 @@ GENRESULT FMaterial::SubmitKernel(void* Context, unsigned long PrimType, unsigne
     return Result;
 }
 
-GENRESULT FMaterial::SubmitAlphaTest(void* Context, unsigned long PrimType, unsigned long Start,
-                                     unsigned long Count, unsigned long IbStart, unsigned long IndexSpan,
-                                     unsigned long Flags)
+GENRESULT FMaterial::SubmitAlphaTest(void* Context, FlULong PrimType, FlULong Start,
+                                     FlULong Count, FlULong IbStart, FlULong IndexSpan,
+                                     FlULong Flags)
 {
     // LAB_06ebda80: alpha scope surrounds the complete FUN_06eb3b90 draw route.
     const bool bSetAlphaTest = bAlphatest != 0 && (Flags & 0x400) == 0;
@@ -2343,7 +2343,7 @@ GENRESULT FMaterial::SubmitAlphaTest(void* Context, unsigned long PrimType, unsi
     return Result;
 }
 
-GENRESULT DACOM_API FMaterial::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long Zero, unsigned long Field, unsigned long Flags)
+GENRESULT DACOM_API FMaterial::Submit(void* Context, FlULong PrimType, FlULong Start, FlULong Count, FlULong Zero, FlULong Field, FlULong Flags)
 {
     if (SubmitKind == SubmitNull)
         return GR_OK;
@@ -2511,7 +2511,7 @@ GENRESULT DACOM_API FMaterial::SetName(const char* Name)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::GetName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FMaterial::GetName(char* Out, FlULong Size)
 {
     // LAB_06eb1ac0 RET 0xC: GetName(outBuf, size).
     if (InstanceName == nullptr)
@@ -2521,7 +2521,7 @@ GENRESULT DACOM_API FMaterial::GetName(char* Out, unsigned long Size)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::CopyClassName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FMaterial::CopyClassName(char* Out, FlULong Size)
 {
     if (ClassName() == nullptr)
         return GR_GENERIC;
@@ -2538,7 +2538,7 @@ GENRESULT DACOM_API FMaterial::GetPassCount(int* Out)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::GetRenderFlags(unsigned long* Out)
+GENRESULT DACOM_API FMaterial::GetRenderFlags(FlULong* Out)
 {
     if (BindKind == BindAtmosphere)
         *Out = 0xA2;
@@ -2558,7 +2558,7 @@ GENRESULT DACOM_API FMaterial::GetRenderFlags(unsigned long* Out)
     {
         const bool bTwo = FactoryName != nullptr &&
                           std::strcmp(FactoryName, "BtDetailMapTwoMaterial") == 0;
-        const unsigned long Base = bTwo ? 0x41UL : 0x48UL;
+        const FlULong Base = bTwo ? 0x41UL : 0x48UL;
         *Out = Base | (bAlphablend ? 2UL : 0UL); // LAB_06eb5590 / LAB_06eb6150
     }
     else
@@ -2566,7 +2566,7 @@ GENRESULT DACOM_API FMaterial::GetRenderFlags(unsigned long* Out)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::GetParameterCount(unsigned long* OutCount)
+GENRESULT DACOM_API FMaterial::GetParameterCount(FlULong* OutCount)
 {
     // LAB_06eb1b50 RET 0x8: slot 27 (PUSH 0) → *OutCount.
     *OutCount = GetParameterTable(nullptr);
@@ -2576,7 +2576,7 @@ GENRESULT DACOM_API FMaterial::GetParameterCount(unsigned long* OutCount)
 static void CopyPropertyValue(FShadingPropertyValue* Destination, const FShadingPropertyValue* Source)
 {
     // FUN_06eb1d40: capture the tag, then release before reading the live source payload.
-    const unsigned long Type = Source->Type;
+    const FlULong Type = Source->Type;
     Destination->SetType(Type);
     switch (Type)
     {
@@ -2600,7 +2600,7 @@ static void CopyPropertyValue(FShadingPropertyValue* Destination, const FShading
         if (Text != nullptr)
         {
             char* Copy = (char*)(HeapAlloc(GetProcessHeap(), 0, std::strlen(Text) + 1));
-            Destination->Payload0 = (unsigned long)Copy;
+            Destination->Payload0 = (FlULong)Copy;
             std::strcpy(Copy, Text);
         }
         break;
@@ -2609,7 +2609,7 @@ static void CopyPropertyValue(FShadingPropertyValue* Destination, const FShading
     {
         IDAComponent* Component = (IDAComponent*)(Source->Payload0);
         IDAComponent* Previous = (IDAComponent*)(Destination->Payload0);
-        Destination->Payload0 = (unsigned long)Component;
+        Destination->Payload0 = (FlULong)Component;
         if (Component != nullptr)
             Component->AddRef();
         if (Previous != nullptr)
@@ -2619,12 +2619,12 @@ static void CopyPropertyValue(FShadingPropertyValue* Destination, const FShading
     }
 }
 
-GENRESULT DACOM_API FMaterial::GetParameterDescriptor(unsigned long Index, void* OutDesc)
+GENRESULT DACOM_API FMaterial::GetParameterDescriptor(FlULong Index, void* OutDesc)
 {
     // LAB_06eb1b70: index is checked before the mandatory schema/output is used.
     FShadingPropertyRecord* Destination = (FShadingPropertyRecord*)OutDesc;
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Index >= Count)
         return GR_GENERIC;
 
@@ -2639,16 +2639,16 @@ GENRESULT DACOM_API FMaterial::GetParameterDescriptor(unsigned long Index, void*
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::GetParameterValue(unsigned long Index, void* InOutDesc)
+GENRESULT DACOM_API FMaterial::GetParameterValue(FlULong Index, void* InOutDesc)
 {
     FShadingPropertyValue* Result = (FShadingPropertyValue*)InOutDesc;
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Index >= Count)
         return GR_GENERIC;
 
     FShadingPropertyRecord* EntryRecord = (FShadingPropertyRecord*)Base + Index;
-    const unsigned long Type = EntryRecord->Current.Type;
+    const FlULong Type = EntryRecord->Current.Type;
     if (Result->Type != Type)
         Result->ReleaseOwnedPayload();
     Result->Type = Type;
@@ -2664,15 +2664,15 @@ GENRESULT DACOM_API FMaterial::GetParameterValue(unsigned long Index, void* InOu
     case 8:
     case 9:
     case 10:
-        Result->Payload0 = *(unsigned long*)Target;
+        Result->Payload0 = *(FlULong*)Target;
         break;
     case 4:
-        Result->Payload3 = ((unsigned long*)Target)[3];
+        Result->Payload3 = ((FlULong*)Target)[3];
         [[fallthrough]];
     case 3:
-        Result->Payload2 = ((unsigned long*)Target)[2];
-        Result->Payload1 = ((unsigned long*)Target)[1];
-        Result->Payload0 = ((unsigned long*)Target)[0];
+        Result->Payload2 = ((FlULong*)Target)[2];
+        Result->Payload1 = ((FlULong*)Target)[1];
+        Result->Payload0 = ((FlULong*)Target)[0];
         break;
     case 5:
     case 7:
@@ -2687,7 +2687,7 @@ GENRESULT DACOM_API FMaterial::GetParameterValue(unsigned long Index, void* InOu
         {
             const size_t Size = std::strlen(Source) + 1;
             char* Copy = (char*)(HeapAlloc(GetProcessHeap(), 0, Size));
-            Result->Payload0 = (unsigned long)Copy;
+            Result->Payload0 = (FlULong)Copy;
             std::strcpy(Copy, Source);
         }
         break;
@@ -2696,7 +2696,7 @@ GENRESULT DACOM_API FMaterial::GetParameterValue(unsigned long Index, void* InOu
     {
         IDAComponent* Component = *(IDAComponent**)Target;
         IDAComponent* Previous = (IDAComponent*)(Result->Payload0);
-        Result->Payload0 = (unsigned long)Component;
+        Result->Payload0 = (FlULong)Component;
         if (Component != nullptr)
             Component->AddRef();
         if (Previous != nullptr)
@@ -2706,16 +2706,16 @@ GENRESULT DACOM_API FMaterial::GetParameterValue(unsigned long Index, void* InOu
     default:
         // Retail's default switch arm (caseD_a) still copies the first live
         // dword into the value payload for unknown/future property types.
-        Result->Payload0 = *(unsigned long*)Target;
+        Result->Payload0 = *(FlULong*)Target;
         break;
     }
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterial::SetParameterValue(unsigned long Index, void* Value)
+GENRESULT DACOM_API FMaterial::SetParameterValue(FlULong Index, void* Value)
 {
     void* Base;
-    const unsigned long Count = GetParameterTable(&Base);
+    const FlULong Count = GetParameterTable(&Base);
     if (Index >= Count)
         return GR_GENERIC;
 
@@ -2762,10 +2762,10 @@ GENRESULT __thiscall FMaterial::Setup()
     struct FTextureQuery
     {
         const char* Name;
-        unsigned long Crc;
+        FlULong Crc;
     };
     void* Record; // Retail output scratch is not pre-cleared before Slot12.
-    for (unsigned long Index = 0; Index < TexCount; ++Index)
+    for (FlULong Index = 0; Index < TexCount; ++Index)
     {
         FTexBlock* Block = &TexBlocks[Index];
         ITextureLibrary2* Library = TexLib;
@@ -2810,7 +2810,7 @@ GENRESULT __thiscall FMaterial::Setup()
     if (bAlphablend != 0)
         return GR_OK;
     int FormatIndex = 0; // FUN_06ed0b60(0), fixed DAT_06ed51d8 first entry.
-    const unsigned long Handle = TexBlocks[0].Handle;
+    const FlULong Handle = TexBlocks[0].Handle;
     if (Handle == 0)
         return GR_OK;
     if (Pipeline->GetTextureFormat((void*)Handle, &FormatIndex) < 0)
@@ -2822,11 +2822,11 @@ GENRESULT __thiscall FMaterial::Setup()
     return GR_OK;
 }
 
-static bool IsShadingPropertyValueWithinRange(unsigned long ValueBits, unsigned long MinimumBits,
-                                              unsigned long MaximumBits)
+static bool IsShadingPropertyValueWithinRange(FlULong ValueBits, FlULong MinimumBits,
+                                              FlULong MaximumBits)
 {
     // Compare widened bounds against the stored float without rounding the bounds.
-    static constexpr unsigned long kRangeEpsilonBits = 0x34000000;
+    static constexpr FlULong kRangeEpsilonBits = 0x34000000;
     const double Value = FloatFromBits(ValueBits);
     const double Epsilon = FloatFromBits(kRangeEpsilonBits);
     const double Upper = (double)(FloatFromBits(MaximumBits)) + Epsilon;
@@ -2836,7 +2836,7 @@ static bool IsShadingPropertyValueWithinRange(unsigned long ValueBits, unsigned 
     return !(Lower >= Value);
 }
 
-bool __thiscall FMaterial::ValueWithinDeclaredRange(unsigned long Index, void* Entry, void* Value)
+bool __thiscall FMaterial::ValueWithinDeclaredRange(FlULong Index, void* Entry, void* Value)
 {
     // Require matching value types before checking the declared range.
     const FShadingPropertyRecord* Record = (const FShadingPropertyRecord*)Entry;
@@ -2851,11 +2851,11 @@ bool __thiscall FMaterial::ValueWithinDeclaredRange(unsigned long Index, void* E
     }
     if (Typed->Type == 3 || Typed->Type == 4)
     {
-        const unsigned long ComponentCount = Typed->Type == 3 ? 3UL : 4UL;
-        const unsigned long* ValuePayload = &Typed->Payload0;
-        const unsigned long* MinimumPayload = &Record->Default.Payload0;
-        const unsigned long* MaximumPayload = &Record->Saved.Payload0;
-        for (unsigned long ComponentIndex = 0; ComponentIndex < ComponentCount; ++ComponentIndex)
+        const FlULong ComponentCount = Typed->Type == 3 ? 3UL : 4UL;
+        const FlULong* ValuePayload = &Typed->Payload0;
+        const FlULong* MinimumPayload = &Record->Default.Payload0;
+        const FlULong* MaximumPayload = &Record->Saved.Payload0;
+        for (FlULong ComponentIndex = 0; ComponentIndex < ComponentCount; ++ComponentIndex)
         {
             if (!IsShadingPropertyValueWithinRange(ValuePayload[ComponentIndex],
                                                    MinimumPayload[ComponentIndex],
@@ -2868,7 +2868,7 @@ bool __thiscall FMaterial::ValueWithinDeclaredRange(unsigned long Index, void* E
     return true;
 }
 
-GENRESULT __thiscall FMaterial::StoreParameterValue(unsigned long Index, void* Entry, void* Value)
+GENRESULT __thiscall FMaterial::StoreParameterValue(FlULong Index, void* Entry, void* Value)
 {
     // FUN_06eb23c0: the target guard covers typed copy only.
     const FShadingPropertyValue* Typed = (const FShadingPropertyValue*)Value;
@@ -2876,7 +2876,7 @@ GENRESULT __thiscall FMaterial::StoreParameterValue(unsigned long Index, void* E
     void* Target = GetParameterAddress(Index);
     if (Target != nullptr)
     {
-        unsigned long* Words = (unsigned long*)Target;
+        FlULong* Words = (FlULong*)Target;
         switch (Typed->Type)
         {
         case 4:
@@ -2943,7 +2943,7 @@ GENRESULT __thiscall FMaterial::StoreParameterValue(unsigned long Index, void* E
     return GR_OK;
 }
 
-unsigned long __thiscall FMaterial::GetParameterTable(void** OutBase)
+FlULong __thiscall FMaterial::GetParameterTable(void** OutBase)
 {
     if (BindKind == BindNebula)
     {
@@ -3030,7 +3030,7 @@ unsigned long __thiscall FMaterial::GetParameterTable(void** OutBase)
     return 0; // LAB_06eb3da0: NullMaterial has no properties.
 }
 
-void* __thiscall FMaterial::GetParameterAddress(unsigned long Index)
+void* __thiscall FMaterial::GetParameterAddress(FlULong Index)
 {
     // FUN_06eb1a00 is NullMaterial slot 28: always return null.
     if (BindKind == BindNull)
@@ -3246,7 +3246,7 @@ void FMaterial::ApplyOcFlag()
     bAlphatest = 0;
     if (bOpacityBlend)
         return;
-    const unsigned long Handle = TexBlocks[0].Handle;
+    const FlULong Handle = TexBlocks[0].Handle;
     if (Handle == 0)
         return;
     // FUN_06ed0b60(0) → index of DAT_06ed51d8 value 0 = 0. Pipeline +0xC8 overwrites.
@@ -3280,13 +3280,13 @@ GENRESULT DACOM_API FBatchedFace::QueryInterface(const char* Iid, void** Out)
     return Owner->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FBatchedFace::AddRef()
+FlULong DACOM_API FBatchedFace::AddRef()
 {
     FBatchedMaterial* Owner = OwnerFromThis();
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FBatchedFace::Release()
+FlULong DACOM_API FBatchedFace::Release()
 {
     FBatchedMaterial* Owner = OwnerFromThis();
     return Owner->Release();
@@ -3337,7 +3337,7 @@ GENRESULT DACOM_API FBatchedFace::CreateInnerMaterial(void* Name)
 GENRESULT DACOM_API FBatchedFace::SetBatchBin(void* Value)
 {
     FBatchedMaterial* Owner = OwnerFromThis();
-    Owner->Field8 = (unsigned long)Value;
+    Owner->Field8 = (FlULong)Value;
     return GR_OK;
 }
 
@@ -3364,9 +3364,9 @@ GENRESULT DACOM_API FBatchedFace::Teardown(void* Context)
     return Inner->Teardown(Context);
 }
 
-GENRESULT DACOM_API FBatchedFace::Submit(void* Context, unsigned long PrimType, unsigned long Start,
-                                        unsigned long Count, unsigned long Zero, unsigned long Field,
-                                        unsigned long Flags)
+GENRESULT DACOM_API FBatchedFace::Submit(void* Context, FlULong PrimType, FlULong Start,
+                                        FlULong Count, FlULong Zero, FlULong Field,
+                                        FlULong Flags)
 {
     IMaterial* Inner = OwnerFromThis()->InnerMaterial();
     if (Inner == nullptr)
@@ -3426,17 +3426,17 @@ GENRESULT DACOM_API FBatchedController::QueryInterface(const char* Iid, void** O
     return GR_OK;
 }
 
-unsigned long DACOM_API FBatchedController::AddRef()
+FlULong DACOM_API FBatchedController::AddRef()
 {
     return ++OwnerFromThis()->RefCount;
 }
 
-unsigned long DACOM_API FBatchedController::Release()
+FlULong DACOM_API FBatchedController::Release()
 {
     FBatchedMaterial* Owner = OwnerFromThis();
     if (Owner->RefCount != 0)
         --Owner->RefCount;
-    const unsigned long Remaining = Owner->RefCount;
+    const FlULong Remaining = Owner->RefCount;
     if (Remaining == 0)
     {
         Owner->RefCount = 1;
@@ -3469,12 +3469,12 @@ GENRESULT DACOM_API FBatchedMaterial::QueryInterface(const char* Iid, void** Out
     return Outer != nullptr ? Outer->QueryInterface(Iid, Out) : Controller.QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FBatchedMaterial::AddRef()
+FlULong DACOM_API FBatchedMaterial::AddRef()
 {
     return Outer != nullptr ? Outer->AddRef() : Controller.AddRef();
 }
 
-unsigned long DACOM_API FBatchedMaterial::Release()
+FlULong DACOM_API FBatchedMaterial::Release()
 {
     return Outer != nullptr ? Outer->Release() : Controller.Release();
 }
@@ -3483,11 +3483,11 @@ GENRESULT DACOM_API FBatchedMaterial::InnerQueryInterface(const char* Iid, void*
 {
     return Controller.QueryInterface(Iid, Out);
 }
-unsigned long DACOM_API FBatchedMaterial::InnerAddRef()
+FlULong DACOM_API FBatchedMaterial::InnerAddRef()
 {
     return Controller.AddRef();
 }
-unsigned long DACOM_API FBatchedMaterial::InnerRelease()
+FlULong DACOM_API FBatchedMaterial::InnerRelease()
 {
     return Controller.Release();
 }
@@ -3535,7 +3535,7 @@ GENRESULT DACOM_API FBatchedMaterial::ApplyVerify(void* Context, void* Extra)
     // successful verification.  Field8==-1 is the one-shot sentinel.
     if (Field8 == 0xFFFFFFFF && Result >= 0)
     {
-        unsigned long Flags = 0;
+        FlULong Flags = 0;
         Inner->GetRenderFlags(&Flags);
         Field8 = ((unsigned char)Flags >> 1) & 1;
     }
@@ -3563,7 +3563,7 @@ GENRESULT DACOM_API FBatchedMaterial::Teardown(void* Context)
     return Inner->Teardown(Context);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::Submit(void* Context, unsigned long PrimType, unsigned long Start, unsigned long Count, unsigned long Zero, unsigned long Field, unsigned long Flags)
+GENRESULT DACOM_API FBatchedMaterial::Submit(void* Context, FlULong PrimType, FlULong Start, FlULong Count, FlULong Zero, FlULong Field, FlULong Flags)
 {
     // LAB_06eb4180: only the inner material is optional; the batcher is initialized.
     if (Inner == nullptr)
@@ -3571,7 +3571,7 @@ GENRESULT DACOM_API FBatchedMaterial::Submit(void* Context, unsigned long PrimTy
 
     ((IMaterialBatcher2*)Batcher)->SelectBin(Field8);
 
-    unsigned long DepthBits = 0;
+    FlULong DepthBits = 0;
     if ((Flags & 0x40) != 0)
     {
         // Capture both pointers before the lazy factory callback, as at 41bd..41d0.
@@ -3600,14 +3600,14 @@ GENRESULT DACOM_API FBatchedMaterial::SetName(const char* Name)
     return Inner->SetName(Name);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::GetName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FBatchedMaterial::GetName(char* Out, FlULong Size)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
     return Inner->GetName(Out, Size);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::CopyClassName(char* Out, unsigned long Size)
+GENRESULT DACOM_API FBatchedMaterial::CopyClassName(char* Out, FlULong Size)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
@@ -3621,39 +3621,39 @@ GENRESULT DACOM_API FBatchedMaterial::GetPassCount(int* Out)
     return Inner->GetPassCount(Out);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::GetRenderFlags(unsigned long* Out)
+GENRESULT DACOM_API FBatchedMaterial::GetRenderFlags(FlULong* Out)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
-    unsigned long Value = 0;
+    FlULong Value = 0;
     if (Inner->GetRenderFlags(&Value) < GR_OK)
         return GR_GENERIC;
     *Out = Value | 0x10;
     return GR_OK;
 }
 
-GENRESULT DACOM_API FBatchedMaterial::GetParameterCount(unsigned long* OutCount)
+GENRESULT DACOM_API FBatchedMaterial::GetParameterCount(FlULong* OutCount)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
     return Inner->GetParameterCount(OutCount);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::GetParameterDescriptor(unsigned long Index, void* OutDesc)
+GENRESULT DACOM_API FBatchedMaterial::GetParameterDescriptor(FlULong Index, void* OutDesc)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
     return Inner->GetParameterDescriptor(Index, OutDesc);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::GetParameterValue(unsigned long Index, void* InOutDesc)
+GENRESULT DACOM_API FBatchedMaterial::GetParameterValue(FlULong Index, void* InOutDesc)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
     return Inner->GetParameterValue(Index, InOutDesc);
 }
 
-GENRESULT DACOM_API FBatchedMaterial::SetParameterValue(unsigned long Index, void* Value)
+GENRESULT DACOM_API FBatchedMaterial::SetParameterValue(FlULong Index, void* Value)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
@@ -3694,28 +3694,28 @@ GENRESULT __thiscall FBatchedMaterial::Setup()
     return Inner->Setup();
 }
 
-bool __thiscall FBatchedMaterial::ValueWithinDeclaredRange(unsigned long Index, void* Entry, void* Value)
+bool __thiscall FBatchedMaterial::ValueWithinDeclaredRange(FlULong Index, void* Entry, void* Value)
 {
     if (Inner == nullptr)
         return false;
     return Inner->ValueWithinDeclaredRange(Index, Entry, Value);
 }
 
-GENRESULT __thiscall FBatchedMaterial::StoreParameterValue(unsigned long Index, void* Entry, void* Value)
+GENRESULT __thiscall FBatchedMaterial::StoreParameterValue(FlULong Index, void* Entry, void* Value)
 {
     if (Inner == nullptr)
         return GR_GENERIC;
     return Inner->StoreParameterValue(Index, Entry, Value);
 }
 
-unsigned long __thiscall FBatchedMaterial::GetParameterTable(void** OutBase)
+FlULong __thiscall FBatchedMaterial::GetParameterTable(void** OutBase)
 {
     if (OutBase != nullptr)
         *OutBase = nullptr;
     return 0;
 }
 
-void* __thiscall FBatchedMaterial::GetParameterAddress(unsigned long Index)
+void* __thiscall FBatchedMaterial::GetParameterAddress(FlULong Index)
 {
     return nullptr;
 }

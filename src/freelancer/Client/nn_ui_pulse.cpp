@@ -10,17 +10,17 @@
 unsigned char G_HudChromeColorRgba[4] = {0x87u, 0xC3u, 0xE0u, 0xC0u};
 
 // LAB_00561c00 .. LAB_00561d80 (bytes R,G,B,A in memory = little-endian 0xAABBGGRR).
-unsigned long G_NnPaletteArgb_679bb0 = 0xFFE0C387u; // LAB_00561c00
-unsigned long G_NnPaletteArgb_679bac = 0xFF1DBF3Bu; // LAB_00561c20
-unsigned long G_NnPaletteArgb_679ba8 = 0xFF1D1DBFu; // LAB_00561c40
-unsigned long G_NnPaletteArgb_679ba4 = 0xFF52EAF5u; // LAB_00561c60
-unsigned long G_NnPaletteArgb_679b9c = 0xFFC20088u; // LAB_00561ca0
-unsigned long G_NnPaletteArgb_679b98 = 0xFFE04848u; // LAB_00561cc0
-unsigned long G_NnPaletteArgb_679b94 = 0xFF808080u; // LAB_00561ce0
-unsigned long G_NnPaletteArgb_679b90 = 0xFFC5FBA8u; // LAB_00561d00
-unsigned long G_NnPaletteArgb_679b88 = 0xFFFD7EFFu; // LAB_00561d40
-unsigned long G_NnPaletteArgb_679b84 = 0xFFFFFFFFu; // LAB_00561d60
-unsigned long G_NnPaletteArgb_679b80 = 0xFFFF5ACEu; // LAB_00561d80
+FlULong G_NnPaletteArgb_679bb0 = 0xFFE0C387u; // LAB_00561c00
+FlULong G_NnPaletteArgb_679bac = 0xFF1DBF3Bu; // LAB_00561c20
+FlULong G_NnPaletteArgb_679ba8 = 0xFF1D1DBFu; // LAB_00561c40
+FlULong G_NnPaletteArgb_679ba4 = 0xFF52EAF5u; // LAB_00561c60
+FlULong G_NnPaletteArgb_679b9c = 0xFFC20088u; // LAB_00561ca0
+FlULong G_NnPaletteArgb_679b98 = 0xFFE04848u; // LAB_00561cc0
+FlULong G_NnPaletteArgb_679b94 = 0xFF808080u; // LAB_00561ce0
+FlULong G_NnPaletteArgb_679b90 = 0xFFC5FBA8u; // LAB_00561d00
+FlULong G_NnPaletteArgb_679b88 = 0xFFFD7EFFu; // LAB_00561d40
+FlULong G_NnPaletteArgb_679b84 = 0xFFFFFFFFu; // LAB_00561d60
+FlULong G_NnPaletteArgb_679b80 = 0xFFFF5ACEu; // LAB_00561d80
 
 namespace
 {
@@ -32,7 +32,7 @@ namespace
     // the first call's latch stores 0xFFB9B9B9 (0x00561dcb..0x00561de0). Every access is inside
     // FUN_00561da0, after the latch.
     bool GPulseMidInited = false;
-    unsigned long GPulseMidArgb = 0; // DAT_00679b78 lazy init
+    FlULong GPulseMidArgb = 0; // DAT_00679b78 lazy init
 
     unsigned char BlendByte(unsigned char From, unsigned char To, float T)
     {
@@ -43,7 +43,7 @@ namespace
         return static_cast<unsigned char>(To + Delta);
     }
 
-    unsigned long BlendArgb(unsigned long From, unsigned long To, float T)
+    FlULong BlendArgb(FlULong From, FlULong To, float T)
     {
         unsigned char const Fr = static_cast<unsigned char>(From);
         unsigned char const Fg = static_cast<unsigned char>(From >> 8);
@@ -53,10 +53,10 @@ namespace
         unsigned char const Tg = static_cast<unsigned char>(To >> 8);
         unsigned char const Tb = static_cast<unsigned char>(To >> 16);
         unsigned char const Ta = static_cast<unsigned char>(To >> 24);
-        unsigned long const R = BlendByte(Fr, Tr, T);
-        unsigned long const G = BlendByte(Fg, Tg, T);
-        unsigned long const B = BlendByte(Fb, Tb, T);
-        unsigned long const A = BlendByte(Fa, Ta, T);
+        FlULong const R = BlendByte(Fr, Tr, T);
+        FlULong const G = BlendByte(Fg, Tg, T);
+        FlULong const B = BlendByte(Fb, Tb, T);
+        FlULong const A = BlendByte(Fa, Ta, T);
         return R | (G << 8) | (B << 16) | (A << 24);
     }
 }
@@ -91,7 +91,7 @@ void NnUiPulseAdvance(double DeltaSeconds)
     GPulseDir = Dir;
 }
 
-unsigned long NnUiPulseIdleArgb()
+FlULong NnUiPulseIdleArgb()
 {
     return G_NnPaletteArgb_679bb0;
 }
@@ -108,7 +108,7 @@ unsigned char NnUiPulseDirection()
     return GPulseDir;
 }
 
-void NnUiPulseBlendArgb(unsigned long* OutArgb)
+void NnUiPulseBlendArgb(FlULong* OutArgb)
 {
     // FUN_00561da0 — listing 00561da0..00561f06.
     if (!GPulseMidInited)
@@ -120,8 +120,8 @@ void NnUiPulseBlendArgb(unsigned long* OutArgb)
 
     // FUN_0059d570: phase / 0.3
     float const Norm = GPulsePhase / 0.3f;
-    unsigned long From = 0;
-    unsigned long To = 0;
+    FlULong From = 0;
+    FlULong To = 0;
     float T = 0.0f;
 
     if (GPulseDir == 0)
@@ -162,7 +162,7 @@ void NnUiPulseBlendArgb(unsigned long* OutArgb)
     *OutArgb = BlendArgb(From, To, T);
 }
 
-void NnUiPulseBlendFromArgb(unsigned long* OutArgb, unsigned long BaseArgb)
+void NnUiPulseBlendFromArgb(FlULong* OutArgb, FlULong BaseArgb)
 {
     // FUN_00561f20 — listing 00561f20..005620f5.
     // FUN_0059d570 phase / 0.3, stored to a float local (00561f29); FUN_0059d560 direction.
@@ -181,12 +181,12 @@ void NnUiPulseBlendFromArgb(unsigned long* OutArgb, unsigned long BaseArgb)
         int const Half = static_cast<int>(static_cast<double>(HotByte - BaseByte) * -0.5);
         MidSum += static_cast<unsigned char>(BaseByte - Half);
     }
-    unsigned long const Grey = static_cast<unsigned long>(MidSum / 3) & 0xffu;
-    unsigned long const DimArgb = Grey | (Grey << 8) | (Grey << 16) | 0xff000000u;
+    FlULong const Grey = static_cast<FlULong>(MidSum / 3) & 0xffu;
+    FlULong const DimArgb = Grey | (Grey << 8) | (Grey << 16) | 0xff000000u;
 
     // 00561fb3 FCOMP 0.5 (double DAT_005c75e8), TEST AH,5 / JP: the first case is Norm < 0.5.
-    unsigned long From = 0;
-    unsigned long To = 0;
+    FlULong From = 0;
+    FlULong To = 0;
     float T = 0.0f;
     if (Dir == 0)
     {
@@ -227,7 +227,7 @@ void NnUiPulseBlendFromArgb(unsigned long* OutArgb, unsigned long BaseArgb)
     *OutArgb = BlendArgb(From, To, T);
 }
 
-void NnReputationColorArgb(unsigned long* OutArgb, float Attitude)
+void NnReputationColorArgb(FlULong* OutArgb, float Attitude)
 {
     // FUN_0045a650. FCOMP DAT_005ce7ec (-0.6f), TEST AH,0x41 + JP: red unless greater (or
     // unordered).

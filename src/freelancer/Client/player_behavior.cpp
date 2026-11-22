@@ -26,7 +26,7 @@ namespace
 {
     // 0x0051eac1 and every other camera in the file use the same eight: a BaseWatcher stores a
     // Watchable*, which is the IObjRW plus eight.
-    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
+    const FlLong kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // .data:00673564. Retail keeps the clamped throttle here rather than on any object, and
     // FUN_004c7a00 both refreshes and returns it.

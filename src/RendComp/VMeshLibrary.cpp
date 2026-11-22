@@ -17,7 +17,7 @@
 // VMeshData.cpp / VMeshLibrary.cpp of retail rendcomp.dll (06c2d330..06c2f4d3).
 
 // Mesh data indexed by CRC.
-static std::map<unsigned long, FVmeshData*> G_VmeshDataMap;
+static std::map<FlULong, FVmeshData*> G_VmeshDataMap;
 
 // FUN_06c2e780: map[data->Crc] = data (an existing node keeps its key and gets the new value).
 static bool VMeshDataMapInsert(FVmeshData* Data)
@@ -38,7 +38,7 @@ static void VMeshDataMapErase(FVmeshData* Data)
 
 FVmeshData* VMeshDataFind(const FVmeshKey* Key)
 {
-    std::map<unsigned long, FVmeshData*>::iterator It = G_VmeshDataMap.find(Key->Crc);
+    std::map<FlULong, FVmeshData*>::iterator It = G_VmeshDataMap.find(Key->Crc);
     if (It == G_VmeshDataMap.end())
         return nullptr;
     return It->second;
@@ -64,7 +64,7 @@ static const FVmeshFvfChannel G_FvfChannelTable[] = {
 static const unsigned int G_FvfChannelCount =
     (unsigned int)(std::size(G_FvfChannelTable));
 
-bool VMeshChannelPresent(unsigned long Fvf, unsigned int ChannelId)
+bool VMeshChannelPresent(FlULong Fvf, unsigned int ChannelId)
 {
     bool bPresent = false;
     for (unsigned int Index = 0; Index < G_FvfChannelCount; ++Index)
@@ -86,7 +86,7 @@ bool VMeshChannelPresent(unsigned long Fvf, unsigned int ChannelId)
 
 // FUN_06c31280 / the offset loop of FUN_06c2e020: absent channel -> 0; otherwise the element
 // sizes of every present channel that precedes it in the table.
-int VMeshChannelByteOffset(unsigned long Fvf, unsigned int ChannelId)
+int VMeshChannelByteOffset(FlULong Fvf, unsigned int ChannelId)
 {
     int Offset = 0;
     if (!VMeshChannelPresent(Fvf, ChannelId))
@@ -104,7 +104,7 @@ int VMeshChannelByteOffset(unsigned long Fvf, unsigned int ChannelId)
 
 // FUN_06c2e290 (texture part) plus the position/normal/colour terms inlined in FUN_06c2e020 /
 // FUN_06c31500. Texture formats (jump table 06c2e2e0): 0 -> 8, 1 -> 0xC, 2 -> 0x10, 3 -> 4.
-unsigned int VMeshFvfStride(unsigned long Fvf)
+unsigned int VMeshFvfStride(FlULong Fvf)
 {
     unsigned int Position = 0;
     if ((Fvf & 0xC) == 0xC)
@@ -162,17 +162,17 @@ static int VMeshChannelElemBytes(unsigned int ChannelId)
 // FUN_06c2e020 / FUN_06c31500. Vertices start after the facegroups and the index array:
 // header + 0x10 + 12 * FaceGroups + 2 * Indices; the VMeshRef variant adds VertexStart*stride.
 // +0x0C of the record is never written.
-bool VMeshFillChannelRecord(const FVmeshDataHeader* Header, unsigned long VertexStart,
-                            unsigned long VertexCount, unsigned int ChannelId,
+bool VMeshFillChannelRecord(const FVmeshDataHeader* Header, FlULong VertexStart,
+                            FlULong VertexCount, unsigned int ChannelId,
                             FVmeshChannelRecord* Out)
 {
-    const unsigned long Fvf = Header->Fvf;
+    const FlULong Fvf = Header->Fvf;
     if (!VMeshChannelPresent(Fvf, ChannelId))
         return false;
     const unsigned int Stride = VMeshFvfStride(Fvf);
     const unsigned char* Vertices = (const unsigned char*)Header + 0x10 +
-                                    (unsigned long)Header->FaceGroups * 0xC +
-                                    (unsigned long)Header->Indices * 2;
+                                    (FlULong)Header->FaceGroups * 0xC +
+                                    (FlULong)Header->Indices * 2;
     Out->Pointer = (unsigned char*)(Vertices + VertexStart * Stride +
                                               VMeshChannelByteOffset(Fvf, ChannelId));
     Out->ElemBytes = VMeshChannelElemBytes(ChannelId);
@@ -183,8 +183,8 @@ bool VMeshFillChannelRecord(const FVmeshDataHeader* Header, unsigned long Vertex
 
 // FUN_06c2e510 / FUN_06c31730: zero 0x70 bytes, channel records 1 @+4, 8 @+0x18, 2 @+0x40,
 // 4 @+0x54, 0x10 @+0x2C, [0] = 2, +0x68 = FVF, +0x6C = vertex count.
-static void VMeshFillVertexStream(const FVmeshDataHeader* Header, unsigned long VertexStart,
-                                  unsigned long VertexCount, unsigned int ChannelId,
+static void VMeshFillVertexStream(const FVmeshDataHeader* Header, FlULong VertexStart,
+                                  FlULong VertexCount, unsigned int ChannelId,
                                   FRpVertexStream* Out)
 {
     FVmeshChannelRecord Record;
@@ -197,8 +197,8 @@ static void VMeshFillVertexStream(const FVmeshDataHeader* Header, unsigned long 
     }
 }
 
-void VMeshBuildVertexDesc(const FVmeshDataHeader* Header, unsigned long VertexStart,
-                          unsigned long VertexCount, FRpVertexSrcDesc* Out)
+void VMeshBuildVertexDesc(const FVmeshDataHeader* Header, FlULong VertexStart,
+                          FlULong VertexCount, FRpVertexSrcDesc* Out)
 {
     *Out = FRpVertexSrcDesc{};
     VMeshFillVertexStream(Header, VertexStart, VertexCount, 1, &Out->Position);
@@ -322,7 +322,7 @@ int VMeshGroupEnsureVb(FVmeshGroup* Group)
     void* LockBits = nullptr;
     if (G_VertexBuffer->LockVb(Group->VertexBuffer, &LockOffset, &LockBits, Group->VertexTotal) >= 0)
     {
-        unsigned long Base = 0;
+        FlULong Base = 0;
         FVmeshData* Data = nullptr;
         while (true)
         {
@@ -348,7 +348,7 @@ int VMeshGroupEnsureVb(FVmeshGroup* Group)
     return G_VertexBuffer->SelectVb(Group->VertexBuffer);
 }
 
-int VMeshGroupEnsureIb(FVmeshGroup* Group, unsigned long BaseVertex)
+int VMeshGroupEnsureIb(FVmeshGroup* Group, FlULong BaseVertex)
 {
     int Result = G_IndexBuffer->SelectIb(Group->IndexBuffer, BaseVertex, 0, 0);
     if (Result >= 0)
@@ -363,7 +363,7 @@ int VMeshGroupEnsureIb(FVmeshGroup* Group, unsigned long BaseVertex)
     if (G_IndexBuffer->LockIb(Group->IndexBuffer, &LockOffset, &LockBits, Group->IndexTotal) >= 0)
     {
         unsigned short* Dest = (unsigned short*)LockBits;
-        unsigned long Start = 0;
+        FlULong Start = 0;
         FVmeshData* Data = nullptr;
         while (true)
         {
@@ -413,7 +413,7 @@ int VMeshGroupEnsureIb(FVmeshGroup* Group, unsigned long BaseVertex)
 // FUN_06c2df60 (thiscall, RET 8): SizeKib = (int)Size * (double)1/1024 (DAT_06c36490) stored
 // as float; everything else zero, RefCount 1, Name duplicated and hashed, then the map entry
 // and the "Memory_VMeshData" event.
-static FVmeshData* VMeshDataConstruct(FVmeshData* This, const char* Name, unsigned long Size)
+static FVmeshData* VMeshDataConstruct(FVmeshData* This, const char* Name, FlULong Size)
 {
     This->SizeKib = (float)((double)((int)Size) * 0.0009765625);
     This->Crc = 0;
@@ -483,7 +483,7 @@ FVmeshData* VMeshDataLoad(IFileSystem* File, const char* Name)
         return Found;
     }
 
-    unsigned long Size = 0;
+    FlULong Size = 0;
     unsigned char* Bytes = nullptr;
     int bRead = 0;
     FFileSystemDesc Desc;
@@ -491,10 +491,10 @@ FVmeshData* VMeshDataLoad(IFileSystem* File, const char* Name)
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        const unsigned long LeafSize = File->GetSize((unsigned long)Handle, 0);
+        const FlULong LeafSize = File->GetSize((FlULong)Handle, 0);
         unsigned char* Buffer = new unsigned char[LeafSize];
-        unsigned long ReadCount = 0;
-        bRead = File->Read((unsigned long)Handle, Buffer, LeafSize, &ReadCount, 0);
+        FlULong ReadCount = 0;
+        bRead = File->Read((FlULong)Handle, Buffer, LeafSize, &ReadCount, 0);
         if (bRead != 0)
         {
             Size = LeafSize;
@@ -502,7 +502,7 @@ FVmeshData* VMeshDataLoad(IFileSystem* File, const char* Name)
         }
         else
             delete[] Buffer;
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     if (bRead == 0)
     {
@@ -548,12 +548,12 @@ public:
     // +0xC: non-delegating unknown (vtable PTR_LAB_06c364f8).
     struct FInner : public IDAComponent
     {
-        unsigned long RefCount; // +0x10
+        FlULong RefCount; // +0x10
         FVMeshLibrary* Owner;   // +0x14
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
     };
 
     IDAComponent* Outer;        // +0x08 AGGDESC+8, or &Inner when not aggregated
@@ -566,12 +566,12 @@ public:
         return Outer->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API AddRef() override
+    FlULong DACOM_API AddRef() override
     {
         return Outer->AddRef();
     }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         return Outer->Release();
     }
@@ -606,7 +606,7 @@ GENRESULT DACOM_API FVMeshLibrary::FInner::QueryInterface(const char* Iid, void*
 }
 
 // LAB_06c306b0.
-unsigned long DACOM_API FVMeshLibrary::FInner::AddRef()
+FlULong DACOM_API FVMeshLibrary::FInner::AddRef()
 {
     RefCount += 1;
     return RefCount;
@@ -614,7 +614,7 @@ unsigned long DACOM_API FVMeshLibrary::FInner::AddRef()
 
 // LAB_06c2f400: decrement when above 0; at 0 pin the count at 1 and free the owner (the
 // object has no destructor), return 0.
-unsigned long DACOM_API FVMeshLibrary::FInner::Release()
+FlULong DACOM_API FVMeshLibrary::FInner::Release()
 {
     if (RefCount > 0)
         RefCount -= 1;
@@ -652,7 +652,7 @@ void* DACOM_API FVMeshLibrary::Load(void* FileArg, int LodFilter)
             Desc.Flags = 0x8000080;
             Desc.Path = FindData.cFileName;
             Desc.Size = 0x34;
-            Desc.Field30 = (unsigned long)Find;
+            Desc.Field30 = (FlULong)Find;
             if (LodFilter >= 0)
             {
                 const char* Lod = std::strstr(FindData.cFileName, ".lod");
@@ -706,7 +706,7 @@ void* DACOM_API FVMeshLibrary::Load(void* FileArg, int LodFilter)
                 Child->Release();
                 Child = nullptr;
             }
-        } while (File->FindNext((unsigned long)Find, &FindData) != 0);
+        } while (File->FindNext((FlULong)Find, &FindData) != 0);
     }
 
     File->OpenNode(".."); // 06c2f12e: DAT_06c37250 = ".." (2E 2E 00)

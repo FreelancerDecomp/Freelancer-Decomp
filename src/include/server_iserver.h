@@ -185,7 +185,7 @@ struct IServer {
 
     // Slot 43 (+0x0ac) — RET 16
     // TODO: Arg0 semantics unproven; Arg1 is the mission id, Arg2 the accept flag.
-    virtual void MissionResponse(unsigned int Arg0, unsigned long MissionId, unsigned char bAccepted, unsigned int SessionId) = 0;
+    virtual void MissionResponse(unsigned int Arg0, FlULong MissionId, unsigned char bAccepted, unsigned int SessionId) = 0;
 
     // Slot 44 (+0x0b0) — RET 12. PBE => `unsigned char const *`.
     virtual void TradeResponse(const unsigned char* Data, int Size, unsigned int SessionId) = 0;
@@ -242,13 +242,13 @@ struct IServer {
 
     // Slot 59 (+0x0ec) — RET 8. rpclocal 0x06d8db70 serializes only Arg1, so the
     // session id is the FIRST argument.
-    virtual void MissionSaveB(unsigned int SessionId, unsigned long MissionId) = 0;
+    virtual void MissionSaveB(unsigned int SessionId, FlULong MissionId) = 0;
 
     // Slot 60 (+0x0f0) — RET 24
-    virtual void RequestEvent(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned int Arg3, unsigned long Arg4, unsigned int SessionId) = 0;
+    virtual void RequestEvent(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned int Arg3, FlULong Arg4, unsigned int SessionId) = 0;
 
     // Slot 61 (+0x0f4) — RET 20
-    virtual void RequestCancel(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned long Arg3, unsigned int SessionId) = 0;
+    virtual void RequestCancel(int EventType, unsigned int Arg1, unsigned int Arg2, FlULong Arg3, unsigned int SessionId) = 0;
 
     // Slot 62 (+0x0f8) — RET 24
     virtual void MineAsteroid(unsigned int SystemId, const Vector& Position, unsigned int LootId, unsigned int SecondaryLoot, unsigned int Quantity, unsigned int SessionId) = 0;
@@ -315,7 +315,7 @@ struct IServer {
     virtual void AcceptTrade(unsigned int SessionId, bool bAccepted) = 0;
 
     // Slot 82 (+0x148) — RET 8
-    virtual void SetTradeMoney(unsigned int SessionId, unsigned long Money) = 0;
+    virtual void SetTradeMoney(unsigned int SessionId, FlULong Money) = 0;
 
     // Slot 83 (+0x14c) — RET 8
     virtual void AddTradeEquip(unsigned int SessionId, const EquipDesc& Equip) = 0;
@@ -361,7 +361,7 @@ public:
     // RET 0x14). The `unsigned long` is the BYTE SIZE of Data, a BinaryRDL buffer
     // (SubmitChat hands both to BinaryRDLReader::extract_text_from_buffer), not a
     // message type. SystemId is -1 when the caller has none (rpclocal's CHATMSG).
-    virtual void SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId) = 0;
+    virtual void SubmitChat(CHAT_ID Sender, FlULong Size, const void* Data, CHAT_ID Target, int SystemId) = 0;
 };
 
 // Retail Server.dll exports ordinals 485-487, zero-initialised .data words

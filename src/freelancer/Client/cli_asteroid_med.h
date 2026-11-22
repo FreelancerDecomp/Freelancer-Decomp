@@ -82,19 +82,19 @@ struct FCliAsteroidCube
     void ApplyEvent(CmnAsteroid::asteroid_marker const* Event);
 
     CmnAsteroid::CAsteroidCube* Cube;   // +0x00  find_cube
-    unsigned long CubeId;               // +0x04  CAsteroidCube::get_id
+    FlULong CubeId;               // +0x04  CAsteroidCube::get_id
     Matrix Orient;                      // +0x08  the cube's +0x0c (9 dwords)
     Vector Pos;                         // +0x2c  the cube's +0x30
     int CubeSize;                       // +0x38  the field's +0x20
     // +0x3c: retail VC6 std::map<unsigned long, MedAsteroid*> (node 0x18: key +0x0c, value
     // +0x10). The port keeps a std::map of its own (no retail ABI).
-    std::map<unsigned long, FCliMedAsteroidGameobj*> Asteroids;
+    std::map<FlULong, FCliMedAsteroidGameobj*> Asteroids;
 };
 
 // FCliAsteroid +0x08 -- retail VC6 std::map<unsigned long (cube id), value 0x50>, head at
 // +0x0c, size at +0x18 (FUN_005274a0 builds it in FUN_005201e0, FUN_00520500 / FUN_00527310
 // destroy it in FUN_005205d0). The port constructs a std::map in the same 0x14 bytes.
-typedef std::map<unsigned long, FCliAsteroidCube> FCliAsteroidCubeMap;
+typedef std::map<FlULong, FCliAsteroidCube> FCliAsteroidCubeMap;
 
 // The map in FCliAsteroid::MapAt08.
 FCliAsteroidCubeMap& CliAsteroidCubeMap(FCliAsteroid* Field);

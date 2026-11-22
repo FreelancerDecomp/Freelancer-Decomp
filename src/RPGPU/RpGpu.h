@@ -34,10 +34,10 @@ class FRpGpuInner final : public IDAComponent
 {
 public:
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
-    unsigned long RefCount = 1;
+    FlULong RefCount = 1;
     FRpGpu* Owner = nullptr;
 };
 
@@ -45,11 +45,11 @@ class FRpGpuFactory final : public IComponentFactory
 {
 public:
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     GENRESULT DACOM_API CreateInstance(AGGDESC* Desc, void** Instance) override;
 
-    unsigned long RefCount = 1;
+    FlULong RefCount = 1;
 };
 
 class FRpGpu final : public IRenderPipeline,
@@ -68,8 +68,8 @@ public:
     GENRESULT QueryLocal(const char* Iid, void** Out);
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     GENRESULT DACOM_API Initialize() override;
 
     // IRenderPipeline
@@ -78,14 +78,14 @@ public:
     GENRESULT DACOM_API SetPipelineState(int Id, int Value) override;
     GENRESULT DACOM_API GetPipelineState(int Id, int* Out) override;
     GENRESULT DACOM_API GetDeviceInfo(void* Out520) override;
-    GENRESULT DACOM_API QueryDeviceAbility(unsigned int Index, unsigned long* Out) override;
+    GENRESULT DACOM_API QueryDeviceAbility(unsigned int Index, FlULong* Out) override;
     GENRESULT DACOM_API GetDisplayModeCount(unsigned int* Out) override;
     GENRESULT DACOM_API GetDisplayModeEnum(unsigned int Index, void* Out) override;
     GENRESULT DACOM_API SelectMode(int* Mode, unsigned int* OutIndex) override;
     GENRESULT DACOM_API CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode) override;
     GENRESULT DACOM_API GetModeBlob(void* OutAdapter, void* OutMode10Dwords) override;
     GENRESULT DACOM_API DestroyGpuResources() override;
-    GENRESULT DACOM_API ClearBuffers(unsigned long Flags, const void* Rects) override;
+    GENRESULT DACOM_API ClearBuffers(FlULong Flags, const void* Rects) override;
     GENRESULT DACOM_API SwapBuffers() override;
     GENRESULT DACOM_API LockBuffer(void* Out) override;
     GENRESULT DACOM_API UnlockBuffer() override;
@@ -139,10 +139,10 @@ public:
     GENRESULT DACOM_API SetTextureStageTexture(int Stage, void* Handle) override;
     GENRESULT DACOM_API GetTextureStageTexture(int Stage, void** OutHandle) override;
     GENRESULT DACOM_API VerifyState() override;
-    GENRESULT DACOM_API DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts, unsigned int Count, void* Unused) override;
-    GENRESULT DACOM_API DrawIndexedPrimitiveUp(unsigned long Prim, unsigned int Fvf, const void* Verts, unsigned int VertCount, const void* Indices, unsigned int IndexCount, unsigned long Unused) override;
-    GENRESULT DACOM_API DrawPrimitiveVb(unsigned long Prim, void* Vb, unsigned int StartVertex, unsigned int Count, void* Unused) override;
-    GENRESULT DACOM_API DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb, unsigned int BaseVertex, unsigned int NumVerts, const void* Indices, unsigned int IndexCount, unsigned long Unused) override;
+    GENRESULT DACOM_API DrawPrimitive(FlULong Prim, unsigned int Fvf, const void* Verts, unsigned int Count, void* Unused) override;
+    GENRESULT DACOM_API DrawIndexedPrimitiveUp(FlULong Prim, unsigned int Fvf, const void* Verts, unsigned int VertCount, const void* Indices, unsigned int IndexCount, FlULong Unused) override;
+    GENRESULT DACOM_API DrawPrimitiveVb(FlULong Prim, void* Vb, unsigned int StartVertex, unsigned int Count, void* Unused) override;
+    GENRESULT DACOM_API DrawIndexedPrimitiveVb(FlULong Prim, void* Vb, unsigned int BaseVertex, unsigned int NumVerts, const void* Indices, unsigned int IndexCount, FlULong Unused) override;
     GENRESULT DACOM_API AddLight(void* Handle) override;
     GENRESULT DACOM_API RemoveLight(void* Handle) override;
     GENRESULT DACOM_API UpdateLight(void* Handle) override;
@@ -155,7 +155,7 @@ public:
     GENRESULT DACOM_API UnsupportedManagerOperation() override;
     GENRESULT DACOM_API CopyVertexData(void* Dest, unsigned int Fvf, const FRpVertexSrcDesc* Source, unsigned int StartVertex, unsigned int Count) override;
     // IRPDraw
-    GENRESULT DACOM_API DrawIndexedPrimitive(unsigned long Prim, unsigned int MinIndex, unsigned int NumVertices, unsigned int StartIndex, unsigned int Count) override;
+    GENRESULT DACOM_API DrawIndexedPrimitive(FlULong Prim, unsigned int MinIndex, unsigned int NumVertices, unsigned int StartIndex, unsigned int Count) override;
     // IRPIndexBuffer
     GENRESULT DACOM_API CreateIb(unsigned int Count, unsigned int** Out, unsigned int Flags) override;
     GENRESULT DACOM_API DestroyIb(void** Handle) override;
@@ -212,7 +212,7 @@ private:
     FRpGpuBuffer* LiveIb(void* Handle) const;
     FRpGpuTexture* LiveTexture(void* Handle) const;
     FRpGpuImage* LockableImage(FRpGpuTexture* Texture, int Level) const;
-    GENRESULT MakeCubemap(const void* Data, unsigned long Size, void** OutHandle);
+    GENRESULT MakeCubemap(const void* Data, FlULong Size, void** OutHandle);
     static bool LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* OutStart);
 
     // The backend for the current setting (NULL_DEVICE), made on first use.
@@ -223,7 +223,7 @@ private:
     // Stride is bytes per vertex; Indices is null for a draw without indices.
     // StaticSource: the vertex buffer Verts lies in, when that buffer is not a ring, and SourceBase
     // the vertex Verts starts at in it; the draw then reads the buffer's GPU block.
-    void RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
+    void RecordDraw(FlULong Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
                     unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
                     FRpGpuBuffer* StaticSource = nullptr, unsigned int SourceBase = 0,
                     FRpGpuBuffer* IndexSource = nullptr, unsigned int IndexStart = 0);
@@ -294,7 +294,7 @@ private:
     int DefaultRenderStates_[256] = {};
     int DefaultStageStates_[32] = {}; // every stage
     // The ability keys found in the ini section (RP8's ability map), by QueryDeviceAbility index.
-    unsigned long AbilityOverrides_[0x15] = {};
+    FlULong AbilityOverrides_[0x15] = {};
     bool bAbilityOverridden_[0x15] = {};
     float Projection_[16] = {}; // D3D row-major
     float World_[16] = {}; // world matrix 0 (SetWorld, or SetWorldN(0))

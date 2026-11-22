@@ -119,7 +119,7 @@ public:
     // FUN_00579860 (RET 4)
     void SetDrawFrame(bool bDraw);
     // FUN_00579870 (RET 4)
-    void SetFrameColor(unsigned long const* Rgba);
+    void SetFrameColor(FlULong const* Rgba);
     // FUN_00579880 (RET 4)
     void SetNeverHit(bool bNever);
     // FUN_00579890 (RET 4)

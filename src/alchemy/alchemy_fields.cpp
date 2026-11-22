@@ -99,7 +99,7 @@ namespace AlchemyImpl
         struct FCollideRampCleanup
         {
             INestedSingleRamp** Slots[4];
-            unsigned long Remaining;
+            FlULong Remaining;
 
             ~FCollideRampCleanup() noexcept(false) { ReleaseRemaining(); }
 
@@ -308,7 +308,7 @@ namespace AlchemyImpl
 
     // Set getter LAB_06223310 (RET 0xc): 0xE02B8BD4 -> [+0x4c], AddRef, 0; else -8.
     GENRESULT DACOM_API FFxGravityFieldPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash != 0xE02B8BD4u)
             return GR_ALE_CREATE_FAIL;
@@ -404,7 +404,7 @@ namespace AlchemyImpl
 
     // Set getter LAB_06213fd0 (RET 0xc): 0x10423CEB (AirField_Approach) -> [+0x4c],
     // 0xE5E3524C (AirField_Magnitude) -> [+0x50]; AddRef, 0; else -8.
-    GENRESULT DACOM_API FFxAirFieldPropertySet::GetPropAnimatedSingleRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxAirFieldPropertySet::GetPropAnimatedSingleRamp(FlULong Hash,
                                                                           INestedSingleRamp** Out)
     {
         if (Hash == 0x10423CEBu)
@@ -502,7 +502,7 @@ namespace AlchemyImpl
     }
 
     // Set getter +0x3c LAB_06236250 (kind 0x200): 0x1A433168 -> [+0x58], AddRef, 0; else -8.
-    GENRESULT DACOM_API FFxRadialFieldPropertySet::GetPropSingleRampRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxRadialFieldPropertySet::GetPropSingleRampRamp(FlULong Hash,
                                                                          INestedSingleRamp** Out)
     {
         if (Hash != 0x1A433168u)
@@ -513,7 +513,7 @@ namespace AlchemyImpl
     // Set getter +0x40 LAB_06236200 (kind 0x202): 0xFF28F620 -> [+0x54], 0x0064B3B9 ->
     // [+0x4c], 0xF3CF5EA5 -> [+0x50]; AddRef, 0; else -8.
     GENRESULT DACOM_API FFxRadialFieldPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == 0xFF28F620u)
             return HandOutFieldRamp(RadiusRamp, Out);
@@ -661,7 +661,7 @@ namespace AlchemyImpl
     // Set getter LAB_0623d470 (RET 0xc): 0x1B970B9A (TurbulenceField_Approach) -> [+0x4c],
     // 0x1CEAC6D1 (TurbulenceField_Magnitude) -> [+0x50]; AddRef, 0; else -8.
     GENRESULT DACOM_API FFxTurbulenceFieldPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == 0x1B970B9Au)
             return HandOutFieldRamp(ApproachRamp, Out);
@@ -723,9 +723,9 @@ namespace AlchemyImpl
         const double R3 = (AlchemyRand01() - 0.5) * 2.0;
         const float LengthSq = static_cast<float>(R3 * R3 + static_cast<double>(R2) * R2 +
                                                   static_cast<double>(R1) * R1);
-        long Bits = 0;
+        FlLong Bits = 0;
         std::memcpy(&Bits, &LengthSq, sizeof(Bits));
-        const long GuessBits = 0x5f3759dfL - (Bits >> 1);
+        const FlLong GuessBits = 0x5f3759dfL - (Bits >> 1);
         float Guess = 0.0f;
         std::memcpy(&Guess, &GuessBits, sizeof(Guess));
         const double Scale =
@@ -749,7 +749,7 @@ namespace AlchemyImpl
         : FGenericFxObjectBase(PrimaryIid, FactoryName), CollidePropertySet_(nullptr),
           Reflect_(0.0f), UpdateDt_(0.0f)
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < 3; ++Index)
         {
             Normal_[Index] = 0.0f;
@@ -800,7 +800,7 @@ namespace AlchemyImpl
     // 0xF2468210 or 0xE462B789 -> [+0x4c]; 0x138BDB51 or 0x061AAF28 -> [+0x50];
     // 0x11336C98 or 0x16FF3474 -> [+0x54]; AddRef, 0; else -8.
     GENRESULT DACOM_API FFxCollideFieldPropertySet::GetPropAnimatedSingleRamp(
-        unsigned long Hash, INestedSingleRamp** Out)
+        FlULong Hash, INestedSingleRamp** Out)
     {
         if (Hash == 0xF2468210u || Hash == 0xE462B789u)
             return HandOutFieldRamp(ReflectRamp, Out);
@@ -984,7 +984,7 @@ namespace AlchemyImpl
         : FGenericFxObjectBase(PrimaryIid, FactoryName), DustPropertySet_(nullptr),
           Radius_(0.0f), RadiusSq_(0.0f), UpdateDt_(0.0f)
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < 12; ++Index)
             BeginXform_[Index] = 0.0f;
         BeginXform_[0] = BeginXform_[4] = BeginXform_[8] = 1.0f;
@@ -1015,7 +1015,7 @@ namespace AlchemyImpl
     }
 
     // LAB_06212930 (RET 0xc): hash 0x1874DE74 -> *out = [+0x4c], AddRef, 0; else -8.
-    GENRESULT DACOM_API FFxDustFieldPropertySet::GetPropAnimatedSingleRamp(unsigned long Hash,
+    GENRESULT DACOM_API FFxDustFieldPropertySet::GetPropAnimatedSingleRamp(FlULong Hash,
                                                                            INestedSingleRamp** Out)
     {
         if (Hash != 0x1874DE74u)
@@ -1087,7 +1087,7 @@ namespace AlchemyImpl
         StoreAlchemyFpuFloat(DistSq, DistSqExt);
         if (DistSqExt > RadiusSq_)
         {
-            const unsigned long KillBits = kDustKillAgeBits;
+            const FlULong KillBits = kDustKillAgeBits;
             std::memcpy(Age, &KillBits, 4);
             return;
         }

@@ -53,9 +53,9 @@ struct FRoomObject
     // 10..12: the hotspot events FUN_00555f00 sends to a hotspot's owner (gf_hotspot.h) with
     // the hotspot's cookie (+0x08) and the cursor point: 1 enter, 2 leave, 3 click. Only
     // Character (0x005cb930: 0x00445a90 / 0x00445be0 / 0x00445c10) overrides them.
-    virtual void Slot10(unsigned long Cookie, int const* Point); // 10 +0x28 no-op (RET 8)
-    virtual void Slot11(unsigned long Cookie, int const* Point); // 11 +0x2c no-op (RET 8)
-    virtual void Slot12(unsigned long Cookie, int const* Point); // 12 +0x30 no-op (RET 8)
+    virtual void Slot10(FlULong Cookie, int const* Point); // 10 +0x28 no-op (RET 8)
+    virtual void Slot11(FlULong Cookie, int const* Point); // 11 +0x2c no-op (RET 8)
+    virtual void Slot12(FlULong Cookie, int const* Point); // 12 +0x30 no-op (RET 8)
 
     // FUN_00559590 -- AmbientSource's +0x6c (three ints, 0..255 each), or null.
     int const* GetAmbientOverride() const;
@@ -88,7 +88,7 @@ void RoomControlDrawObject(FRoomRuntime* Room, FRoomObject* Object);
 
 // FUN_0044b370 (thiscall on the room, RET 0xc) -- the SHADOWS option and "shadow_glare" with
 // the room's shadow light on: appearance slot 12 (bFlag) or 11 with the camera and {A, B}.
-void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
+void RoomControlDrawShadow(FRoomRuntime* Room, FlULong A, FlULong B,
                            unsigned char bFlag);
 
 // FUN_00449260 + camera install from RoomData (FUN_00449796 / FUN_00556be0).

@@ -43,8 +43,8 @@ namespace
     {
         bool Slot00(unsigned A, unsigned Message, unsigned B, unsigned C) override;
         bool Slot01(unsigned A, unsigned B, unsigned C) override;
-        bool Slot02(unsigned A, unsigned B, unsigned long Packed) override;
-        bool Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed) override;
+        bool Slot02(unsigned A, unsigned B, FlULong Packed) override;
+        bool Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed) override;
         bool Slot04(unsigned A, unsigned B, unsigned C) override;
         void Slot05() override;
         void Slot06(unsigned A) override;
@@ -120,7 +120,7 @@ namespace
         return true;
     }
 
-    bool MissionBriefing::Slot02(unsigned A, unsigned B, unsigned long Packed)
+    bool MissionBriefing::Slot02(unsigned A, unsigned B, FlULong Packed)
     {
         (void)A;
         (void)B;
@@ -137,7 +137,7 @@ namespace
     }
 
     // Slot 3 (LAB_0043d150, MOV AL,1 / RET 0x10) -- true.
-    bool MissionBriefing::Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed)
+    bool MissionBriefing::Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed)
     {
         (void)A;
         (void)Message;

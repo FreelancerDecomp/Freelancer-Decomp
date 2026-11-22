@@ -721,7 +721,7 @@ void UpsertClientLocationBaseMissionOffer(MissionVendorProperties const& Offer)
         Entry->Runtime->MissionOffers.Upsert(Offer);
 }
 
-void EraseClientLocationBaseMissionOffer(unsigned BaseId, unsigned long Key)
+void EraseClientLocationBaseMissionOffer(unsigned BaseId, FlULong Key)
 {
     // FUN_0043a9f0 (RET 8) -- the base (FUN_00432240, same miss path); with a runtime, the
     // +0x00 bucket's element of that key erased (inlined MirrorDatabase.h 0xf6). Caller: IClient
@@ -740,7 +740,7 @@ void UpsertClientLocationBaseNews(NewsBroadcastProperties const& News)
         Entry->Runtime->News.Upsert(News);
 }
 
-void EraseClientLocationBaseNews(unsigned BaseId, unsigned long Key)
+void EraseClientLocationBaseNews(unsigned BaseId, FlULong Key)
 {
     // FUN_0043a750 (RET 8) -- as FUN_0043a9f0 on the +0x18 bucket. Caller: IClient slot 43
     // (LAB_00437a50).
@@ -808,7 +808,7 @@ void UpsertClientLocationRoomScriptBehavior(ScriptBehavior const& Behavior)
         State->ScriptBehaviors.Upsert(Behavior);
 }
 
-void EraseClientLocationRoomScriptBehavior(unsigned LocationId, unsigned long Key)
+void EraseClientLocationRoomScriptBehavior(unsigned LocationId, FlULong Key)
 {
     // FUN_0043ae70 (RET 8) -- with a state, the +0x18 bucket's element of that key erased
     // (inlined MirrorDatabase.h 0xf6).
@@ -834,7 +834,7 @@ void UpsertClientLocationRoomAmbientScript(AmbientScriptProperties const& Script
         State->AmbientScripts.Upsert(Script);
 }
 
-void EraseClientLocationRoomAmbientScript(unsigned LocationId, unsigned long Key)
+void EraseClientLocationRoomAmbientScript(unsigned LocationId, FlULong Key)
 {
     // FUN_0043b110 (RET 8) -- with a state, the +0x30 bucket's element of that key erased.
     FLocationRoomState* const State = FindClientLocationRoomState(LocationId);

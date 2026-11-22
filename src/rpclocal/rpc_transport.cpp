@@ -379,15 +379,15 @@ bool FRpcMarshalStream::PutGap(unsigned int Count) {
 // 06da398f..06da39ac: FLD the float, FMUL the scale, MSVCRT ftol, store one byte.
 // ftol truncates toward zero, so a plain cast to long is the same operation.
 bool FRpcMarshalStream::PutQuantized(float Value, double Scale) {
-    const long Scaled = static_cast<long>(static_cast<double>(Value) * Scale);
-    return PutByte(static_cast<unsigned char>(static_cast<unsigned long>(Scaled) & 0xffu));
+    const FlLong Scaled = static_cast<FlLong>(static_cast<double>(Value) * Scale);
+    return PutByte(static_cast<unsigned char>(static_cast<FlULong>(Scaled) & 0xffu));
 }
 
 // 06da5208..06da524d, the FIREWEAPON middle tier: the same truncating ftol, stored as a
 // word instead of a byte.
 bool FRpcMarshalStream::PutQuantizedWord(float Value, double Scale) {
-    const long Scaled = static_cast<long>(static_cast<double>(Value) * Scale);
-    return PutWord(static_cast<unsigned short>(static_cast<unsigned long>(Scaled) & 0xffffu));
+    const FlLong Scaled = static_cast<FlLong>(static_cast<double>(Value) * Scale);
+    return PutWord(static_cast<unsigned short>(static_cast<FlULong>(Scaled) & 0xffffu));
 }
 
 // 06dad26a..06dad27e, the SENDCOMM tier: FLD the float, FMUL the float 0.1f, FMUL the
@@ -395,8 +395,8 @@ bool FRpcMarshalStream::PutQuantizedWord(float Value, double Scale) {
 // see the note on the declaration.
 bool FRpcMarshalStream::PutQuantizedTwoStage(float Value, double Scale1, double Scale2) {
     const double Stage1 = static_cast<double>(Value) * Scale1;   // 06dad26d
-    const long Scaled = static_cast<long>(Stage1 * Scale2);      // 06dad278 + ftol
-    return PutByte(static_cast<unsigned char>(static_cast<unsigned long>(Scaled) & 0xffu));
+    const FlLong Scaled = static_cast<FlLong>(Stage1 * Scale2);      // 06dad278 + ftol
+    return PutByte(static_cast<unsigned char>(static_cast<FlULong>(Scaled) & 0xffu));
 }
 
 bool FRpcMarshalStream::GetDword(unsigned int& OutValue) {

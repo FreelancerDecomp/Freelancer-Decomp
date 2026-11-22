@@ -22,7 +22,7 @@ struct FImmedVertex
     float X;             // +0x00
     float Y;             // +0x04
     float Z;             // +0x08
-    unsigned long Color; // +0x0c
+    FlULong Color; // +0x0c
 };
 
 // The immediate line batchers DAT_0067dd90 (A, the wire controls' lines, drawn through the
@@ -53,7 +53,7 @@ extern FImmedBatcher G_ImmedBatchB; // DAT_0067dd68
 // vertices (A and B in Color, each also pushed Width to either side along the perpendicular in
 // EdgeColor) and twelve indices.
 void ImmedBatchAddLine(FImmedBatcher* Batch, float const* A, float const* B,
-                       unsigned long Color, unsigned long EdgeColor, float Width);
+                       FlULong Color, FlULong EdgeColor, float Width);
 
 // FUN_005a2970 -- FUN_005a2df0 on both batchers, then B's +0x25 = 1. Caller: FUN_0059d5a0.
 void Win3DImmedBatchCreateAll();
@@ -73,8 +73,8 @@ void Win3DImmedBatchFlushAll();
 // offset Width to either side along the perpendicular (atan2 of B - A plus DAT_005d3e88) in
 // EdgeColor -- and twelve indices. Callers: HUD_Targetable_Objects' bracket drawer
 // (0x004eb06a..0x004ebc8a) and lead-marker cross (FUN_004f2070).
-void Win3DImmedDrawLine(float const* A, float const* B, unsigned long Color,
-                        unsigned long EdgeColor, float Width);
+void Win3DImmedDrawLine(float const* A, float const* B, FlULong Color,
+                        FlULong EdgeColor, float Width);
 
 // FUN_00559c10 -- ButtonMontage.ini loaded once (FUN_00559db0).
 void ButtonMontageEnsure();

@@ -90,7 +90,7 @@ namespace
 
     // FUN_00468c20's colour copy (e.g. 0x00468d5b..0x00468d70): bytes 0..2 of a palette colour
     // into bytes 1..3 of the attributes; the flags byte stays.
-    void ChatStyleTakeColor(TextRenderAttributes& Attrs, unsigned long Rgba)
+    void ChatStyleTakeColor(TextRenderAttributes& Attrs, FlULong Rgba)
     {
         Attrs.Packed = (Attrs.Packed & 0xffu) | ((Rgba & 0x00ffffffu) << 8);
     }
@@ -125,9 +125,9 @@ void ChatRegisterTextStyles()
 
     // 0x00468d5b..0x00468e04: four styles take the HUD chrome colour (DAT_00679bb4), and one
     // more reuses the +0x66d95c record with the pulse amber (DAT_00679ba4).
-    unsigned long const Chrome = static_cast<unsigned long>(G_HudChromeColorRgba[0]) |
-                                 (static_cast<unsigned long>(G_HudChromeColorRgba[1]) << 8) |
-                                 (static_cast<unsigned long>(G_HudChromeColorRgba[2]) << 16);
+    FlULong const Chrome = static_cast<FlULong>(G_HudChromeColorRgba[0]) |
+                                 (static_cast<FlULong>(G_HudChromeColorRgba[1]) << 8) |
+                                 (static_cast<FlULong>(G_HudChromeColorRgba[2]) << 16);
     ChatStyleTakeColor(G_ChatStyle_66d95c, Chrome);
     StyleCollection::set_style(0x9ca4, G_ChatStyle_66d95c);
     StyleCollection::set_style(0x76ec, G_ChatStyle_66d95c);

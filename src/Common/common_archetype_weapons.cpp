@@ -657,7 +657,7 @@ namespace Archetype
         return false;
     }
 
-    long Munition::BEAM_ARCH_INDEX = -1;
+    FlLong Munition::BEAM_ARCH_INDEX = -1;
 
     // PORT(api): names for code retail inlines into its two callers (they need the protected
     // static): the LoadEquipment tail 062f930e..062f9347 and Archetype::Free 062fab7f..062fab98.
@@ -671,7 +671,7 @@ namespace Archetype
         FEngineArchetypeName Name;
         Name.Text = "BEAM_ARCH";
         Name.Crc = DACOM_CRC::GetCRC32("BEAM_ARCH");
-        BEAM_ARCH_INDEX = (long)DALib::Engine->CreateCompoundArchetype(&Name);
+        BEAM_ARCH_INDEX = (FlLong)DALib::Engine->CreateCompoundArchetype(&Name);
     }
 
     void Munition::FreeBeamArchIdx()

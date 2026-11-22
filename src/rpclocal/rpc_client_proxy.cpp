@@ -790,7 +790,7 @@ public:
     }
 
     // +0x128  0x06d8aca0  ch2 op 0x5b  FLPACKET_SERVER_MISSIONSAVEA
-    void SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId) override {
+    void SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId) override {
         const unsigned int Args[2] = { ClientId, static_cast<unsigned int>(MissionId) };
         SendPacket(2, 0x5b, Args, 2);
     }
@@ -984,7 +984,7 @@ public:
 
     // +0x1a0  0x06d8b9d0  ch1 op 0x12  FLPACKET_COMMON_PLAYER_TRADE, sub-type 0x04
     void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId,
-                                            unsigned long Money) override {
+                                            FlULong Money) override {
         const unsigned int Args[3] = { ClientId, ShipId, static_cast<unsigned int>(Money) };
         SendTradePacket(0x04, Args, 3);
     }
@@ -1139,7 +1139,7 @@ public:
     // (06d8c4d4..06d8c4e3); PushToClient gets TargetId's low word -- the client id inside
     // the CHAT_ID (06d8c4ed MOVZX EAX,AX). rpclocal's PushToClient never reads it.
     // -----------------------------------------------------------------------
-    void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, unsigned long Size,
+    void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, FlULong Size,
                            const void* Data) override {
         const unsigned int Args[4] = { TargetId.Id, SenderId.Id, static_cast<unsigned int>(Size),
                                        RpcArgPointer(Data) };

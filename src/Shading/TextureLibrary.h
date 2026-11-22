@@ -59,8 +59,8 @@ public:
     explicit FTextureLibraryController(FTextureLibrary* InOwner);
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
     FTextureLibrary* Owner;
 };
@@ -71,8 +71,8 @@ public:
     FTexLibAggregate();
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
     GENRESULT DACOM_API Initialize() override;
 
     FTextureLibrary* Owner;
@@ -87,36 +87,36 @@ public:
     GENRESULT InitializeFromDescriptor(const FAGGDESC14* Desc);
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-    unsigned long DACOM_API AddRef() override;
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API AddRef() override;
+    FlULong DACOM_API Release() override;
 
-    GENRESULT DACOM_API SetGenericSlot(int Index, unsigned long Value) override;
-    GENRESULT DACOM_API GetGenericSlot(int Index, unsigned long* Out) override;
+    GENRESULT DACOM_API SetGenericSlot(int Index, FlULong Value) override;
+    GENRESULT DACOM_API GetGenericSlot(int Index, FlULong* Out) override;
     GENRESULT DACOM_API LoadTextureGroup(void* FileSystem, int* OutGroupId) override;
     GENRESULT DACOM_API LoadTextureLibrary(void* FileSystem, const char* Name) override;
     GENRESULT DACOM_API GarbageCollect(int GroupId) override;
     GENRESULT DACOM_API TickAllPlayback(int Unused, float DeltaSeconds) override;
     GENRESULT DACOM_API SetGroupName(int Id, const char* Name) override;
-    GENRESULT DACOM_API GetGroupName(int Id, char* Buf, unsigned long Size) override;
+    GENRESULT DACOM_API GetGroupName(int Id, char* Buf, FlULong Size) override;
     GENRESULT DACOM_API FindOrCreateByName(const char* Name, void** OutTex) override;
     GENRESULT DACOM_API FindTextureByCrc(void* Query, void** OutTex) override;
     GENRESULT DACOM_API CreatePlaybackGroup(void* SourceRecord, int* OutId) override;
     GENRESULT DACOM_API ReleaseTextureRecord(void* Record) override;
     GENRESULT DACOM_API AddRefById(int Id) override;
     GENRESULT DACOM_API DecRefById(int Id) override;
-    GENRESULT DACOM_API CopyName(void* Node, char* Buf, unsigned long Size) override;
+    GENRESULT DACOM_API CopyName(void* Node, char* Buf, FlULong Size) override;
     GENRESULT DACOM_API SetRecordName(void* Record, const char* Name) override;
     GENRESULT DACOM_API SetSubTexture(void* Record, int Index, int TextureId) override;
-    GENRESULT DACOM_API SetFrameHandle(void* Record, int Index, unsigned long Handle) override;
+    GENRESULT DACOM_API SetFrameHandle(void* Record, int Index, FlULong Handle) override;
     GENRESULT DACOM_API SetFrameRect(void* Record, int Index, float U0, float V0, float U1,
                                      float V1) override;
-    GENRESULT DACOM_API GetTextureFrame(void* Tex, int Frame, unsigned long* Out) override;
+    GENRESULT DACOM_API GetTextureFrame(void* Tex, int Frame, FlULong* Out) override;
     GENRESULT DACOM_API GetGroupPixelFormat(void* Record, void* Unused, int* OutFormat) override;
     GENRESULT DACOM_API SetTileRate(void* Record, float Value) override;
     GENRESULT DACOM_API GetTileRate(void* Record, float* Out) override;
     GENRESULT DACOM_API GetFrameCount(void* Record, int* Out) override;
     GENRESULT DACOM_API ResolveTextureRecord(int Id, void** Out) override;
-    GENRESULT DACOM_API GetFrame(int Id, int Frame, unsigned long* Out) override;
+    GENRESULT DACOM_API GetFrame(int Id, int Frame, FlULong* Out) override;
     GENRESULT DACOM_API SetElapsedTime(int Id, float Seconds) override;
     GENRESULT DACOM_API GetElapsedTime(int Id, float* Out) override;
     GENRESULT DACOM_API SetFrameIndex(int Id, unsigned int Index) override;
@@ -126,42 +126,42 @@ public:
     GENRESULT DACOM_API SetWrapMode(int Id, int Mode) override;
     GENRESULT DACOM_API GetWrapMode(int Id, int* Out) override;
     GENRESULT DACOM_API AdvanceTime(int Id, float DeltaSeconds) override;
-    GENRESULT DACOM_API PeekNextGroupId(unsigned long* Out) override;
+    GENRESULT DACOM_API PeekNextGroupId(FlULong* Out) override;
     GENRESULT DACOM_API EnumGroup(int Index, int* OutId) override;
     GENRESULT DACOM_API GetSubCount(int Id, int* Out) override;
     GENRESULT DACOM_API EnumTexture(int Id, int Index, void** OutRecord) override;
     GENRESULT DACOM_API AddSubTexture(int GroupId, void* Record) override;
     GENRESULT DACOM_API RemoveSubTexture(int GroupId, void* Record) override;
-    GENRESULT DACOM_API PickGpuFormat(const unsigned long* Src, unsigned long* OutId) override;
+    GENRESULT DACOM_API PickGpuFormat(const FlULong* Src, FlULong* OutId) override;
     GENRESULT DACOM_API AllocateNewTextureId(int* OutId) override;
 
     FTexLibAggregate Aggregate; // +4
-    unsigned long RefCount;
+    FlULong RefCount;
     IDAComponent* AggregateOwner; // borrowed descriptor +8, retail object +0x0c
     IDAComponent* Outer; // retail controlling unknown at +0x94 (Outer or &Controller)
     FTextureLibraryController Controller; // retail non-delegating unknown @ +0x98
     IRenderPipeline* Pipeline;
     bool bCapabilitiesCached; // retail +0x2c
-    unsigned long bSquareTexturesOnly; // QueryDeviceAbility(5), retail +0x30
-    unsigned long MaxTextureWidth; // QueryDeviceAbility(6), retail +0x34
-    unsigned long MaxTextureHeight; // QueryDeviceAbility(7), retail +0x38
+    FlULong bSquareTexturesOnly; // QueryDeviceAbility(5), retail +0x30
+    FlULong MaxTextureWidth; // QueryDeviceAbility(6), retail +0x34
+    FlULong MaxTextureHeight; // QueryDeviceAbility(7), retail +0x38
     std::map<int, FTextureGroup> GroupRecords; // retail signed-key tree +0x3c
-    std::map<unsigned long, FTextureEntry*> CanonicalRecords; // retail name tree +0x54
+    std::map<FlULong, FTextureEntry*> CanonicalRecords; // retail name tree +0x54
     std::map<int, FTexturePlayback> PlaybackRecords;
     std::map<int, FTexturePlayback*> ActivePlayback;
     int NextPlaybackId; // retail +0x90, independent of group counter +0x50
     int NextId;
-    unsigned long GenericSlots[7]; // slots 3/4 — this+0x10 generic dword array
+    FlULong GenericSlots[7]; // slots 3/4 — this+0x10 generic dword array
 
     GENRESULT RefreshDeviceAbilities();
     FTexturePlayback* FindPlayback(int Id);
     int ReleasePlaybackReference(int Id);
     FTextureGroup* FindGroup(int Id);
-    FTextureEntry* FindEntryByCrc(unsigned long Crc);
+    FTextureEntry* FindEntryByCrc(FlULong Crc);
     void AddRefEntryRecursive(FTextureEntry* Entry);
-    unsigned long SelectTextureMipLevels(unsigned long* Width, unsigned long* Height);
-    GENRESULT SelectTextureDimensions(unsigned long Width, unsigned long Height,
-                                      unsigned long* OutWidth, unsigned long* OutHeight);
+    FlULong SelectTextureMipLevels(FlULong* Width, FlULong* Height);
+    GENRESULT SelectTextureDimensions(FlULong Width, FlULong Height,
+                                      FlULong* OutWidth, FlULong* OutHeight);
     GENRESULT LoadDdsTexture(IFileSystem* FileSystem, const char* Name, void** OutHandle);
     GENRESULT LoadTgaTexture(IFileSystem* FileSystem, const char* Name, void** OutHandle);
     GENRESULT ProbeTextureCubemap(IFileSystem* FileSystem, void** OutHandle);
@@ -171,6 +171,6 @@ public:
                                       const char* Name, FTextureEntry** Out, bool bRetain);
     void DestroyEntry(FTextureEntry* Entry);
     void StoreByNameCrc(FTextureEntry* Entry);
-    bool CreateTextureRecord(unsigned long GpuHandle, const char* Name, FTextureEntry** Out, bool bRetain);
+    bool CreateTextureRecord(FlULong GpuHandle, const char* Name, FTextureEntry** Out, bool bRetain);
     int ReleaseEntryReference(FTextureEntry* Entry, bool bCleanup = true);
 };

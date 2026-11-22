@@ -660,5 +660,5 @@ private:
 // DetachInstanceInPlace erases the PartMap entries below it and destroys the instance,
 // DetachInstance splits it off into a new object (FUN_0628a0c0, PhySys_SplitInstance).
 // Bodies: src/Common/common_physys_build.cpp (end of file).
-void __cdecl DetachInstanceInPlace(long InstanceId);
-CObject* __cdecl DetachInstance(long InstanceId, PhySys::DetachParms const& Parms);
+void __cdecl DetachInstanceInPlace(FlLong InstanceId);
+CObject* __cdecl DetachInstance(FlLong InstanceId, PhySys::DetachParms const& Parms);

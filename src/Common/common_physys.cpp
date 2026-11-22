@@ -138,7 +138,7 @@ namespace
     // FUN_062883c0 reads it. common_cattachment.cpp's file-local FRevoluteJoint is the same block.
     struct FPhySysJointBlock
     {
-        unsigned long Type;  // +0x00  0, 1 or 2 (anything else: the pose is left as the parent's)
+        FlULong Type;  // +0x00  0, 1 or 2 (anything else: the pose is left as the parent's)
         FVector ParentPoint; // +0x04
         FVector ChildPoint;  // +0x10
         FMatrix Orient;      // +0x1c
@@ -182,7 +182,7 @@ namespace CmnPhySys
     // whose user data is Object from the child's joint block and joint parameter, then recurse
     // into it. Every vector helper (FUN_062887a0 / 062887d0 / 06288800 / 06288830 /
     // 0628b030) is one x87 op per component with a FSTP float, i.e. plain float arithmetic.
-    void PhySys_UpdateJointedChildren(long Instance, CObject* Object)
+    void PhySys_UpdateJointedChildren(FlLong Instance, CObject* Object)
     {
         // .text:062883c8..062883d2
         if (Instance == -1)
@@ -196,7 +196,7 @@ namespace CmnPhySys
             (FTransform const*)Engine->GetInstanceTransform(PhySys_InstanceHandle(Instance));
 
         // .text:062883e9..06288787: children through IEngine +0xd8 (flags 1), -1 ends.
-        for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+        for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
              Child = PhySys_RelatedInstance(Instance, 1, Child))
         {
             // .text:06288410..06288429: only children that belong to Object.

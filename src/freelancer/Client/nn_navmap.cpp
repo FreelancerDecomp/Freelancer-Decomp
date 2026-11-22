@@ -873,7 +873,7 @@ bool NeuroNetNavMap::Create(Win3D* NewParent, void* Data)
 
     // 0049064c..004908a3: the legend labels, hidden, in the idle palette colour (one stack
     // copy of DAT_00679bb0 handed to all five).
-    unsigned long LegendColor = G_NnPaletteArgb_679bb0;
+    FlULong LegendColor = G_NnPaletteArgb_679bb0;
     static float const kLegendY[5] = {0.194f, 0.09f, 0.14f, -0.047f, -0.198f};
     static char const* const kLegendNames[5] = {"NavMapHostileLabel", "NavMapFriendlyLabel",
                                                 "NavMapNeutralLabel", "NavMapPlayerShipLabel",

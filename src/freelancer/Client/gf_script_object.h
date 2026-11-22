@@ -148,7 +148,7 @@ struct FGfScript
     FThornComponent* SpawnPsys(FThornEntitySnap const* Snap);                   // FUN_0044e340
     FThornComponent* SpawnPlayerEnginePsys(FThornEntitySnap const* Snap);       // FUN_0044e3c0
     // FUN_0044e430 (thiscall, RET 0x1c) -- what a COMPOUND entity drives.
-    void ResolveCompoundTarget(int Index, FRoomObject** OutObject, long* OutInstance,
+    void ResolveCompoundTarget(int Index, FRoomObject** OutObject, FlLong* OutInstance,
                                void** OutAnimScript, Csys* OutOffset, int* OutCategory,
                                unsigned char* bOutUseScene);
     // FUN_0044e870 (thiscall, RET 8) -- the character a DEFORMABLE entity drives.

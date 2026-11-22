@@ -24,11 +24,11 @@ class IChatClient;
 struct FClientStats
 {
     unsigned char Field_0x00[0x64];
-    unsigned long BytesSentGuaranteed;
-    unsigned long BytesReceivedGuaranteed;
-    unsigned long PacketsSentGuaranteed;
-    unsigned long PacketsReceivedGuaranteed;
-    unsigned long ThroughputBps;
+    FlULong BytesSentGuaranteed;
+    FlULong BytesReceivedGuaranteed;
+    FlULong PacketsSentGuaranteed;
+    FlULong PacketsReceivedGuaranteed;
+    FlULong ThroughputBps;
 };
 typedef FClientStats client_stats_t;
 
@@ -53,6 +53,6 @@ REMOTECLIENT_API int GetNumClients();
 REMOTECLIENT_API int GetClientStats(FClientStats* Stats, int* Count);
 REMOTECLIENT_API void SetRemoteClientSessionName(const wchar_t* Name);
 REMOTECLIENT_API void SetRemoteClientPassword(const wchar_t* Password);
-REMOTECLIENT_API void GetRemoteClientPort(std::vector<unsigned long>& Ports);
+REMOTECLIENT_API void GetRemoteClientPort(std::vector<FlULong>& Ports);
 REMOTECLIENT_API void ForceClientLogout(unsigned int ClientId);
 REMOTECLIENT_API void SetServerLogFunction(FRemoteClientLogFunction Function);

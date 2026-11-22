@@ -30,7 +30,7 @@ struct ICamera;
 // D3DLIGHT8 as the exe lays it out: 0x68 bytes at light +0x0C.
 struct FD3dLight8
 {
-    unsigned long Type;   // +0x00 (light +0x0C) 1 point, 2 spot, 3 directional
+    FlULong Type;   // +0x00 (light +0x0C) 1 point, 2 spot, 3 directional
     float Diffuse[4];     // +0x04
     float Specular[4];    // +0x14
     float Ambient[4];     // +0x24

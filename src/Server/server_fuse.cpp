@@ -870,7 +870,7 @@ void ImpulseAction::Trigger(unsigned SourceId, unsigned short SubObjId)
         {
             // .text:06cff2f6-06cff323: FindHardpoint_PS(owner get_index (slot 7), the Hardpoint
             // string, handle out preset to -1, info out); false bails.
-            long HpHandle = -1;
+            FlLong HpHandle = -1;
             HardpointInfo HpInfo;
             if (FindHardpoint_PS(Owner->get_index(), Hardpoint.Value, HpHandle, HpInfo))
             {

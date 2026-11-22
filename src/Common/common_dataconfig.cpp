@@ -21,7 +21,7 @@
 namespace
 {
     const char kDataConfigSource[] = "E:\\FL\\Scratch\\Source\\Common\\DataConfig.cpp";
-    const unsigned long kPathChars = 0x104;
+    const FlULong kPathChars = 0x104;
 
     // DAT_063fcee8 — DataConfig startup refcount. BSS 0 until first successful startup.
     int GDataConfigRefCount = 0;

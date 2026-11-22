@@ -21,14 +21,14 @@
 
 // Retail .data:0067ea50 -- the DirectPlay connect HRESULT HandleConnectError records; zeroed
 // and polled by WaitForServerResponse.
-long G_ConnectResult = 0;
+FlLong G_ConnectResult = 0;
 
 // Retail .data:0067ea54 -- 1 while WaitForServerResponse runs. Nothing in freelancer.exe
 // reads it (XREF: 005a89bb / 005a8b6a / 005a8b83 / 005a8bc8, all writes).
 bool G_bWaitingForServer = false;
 
 // Retail .text:005a8760 HandleConnectError.
-extern "C" __declspec(dllexport) void __cdecl HandleConnectError(long Result)
+extern "C" __declspec(dllexport) void __cdecl HandleConnectError(FlLong Result)
 {
     G_ConnectResult = Result;
 }
@@ -125,13 +125,13 @@ int WaitForServerResponse(unsigned char* bResponse, float MpTimeout, float SpTim
     if (G_ConnectResult != 0)
     {
         // .text:005a8b59-005a8b74: DPNERR 0x80158410 -> 6, 0x80158610 -> 4, else 5.
-        if (G_ConnectResult == static_cast<long>(0x80158410))
+        if (G_ConnectResult == static_cast<FlLong>(0x80158410))
         {
             Result = 6;
         }
         else
         {
-            Result = (G_ConnectResult != static_cast<long>(0x80158610)) ? 5 : 4;
+            Result = (G_ConnectResult != static_cast<FlLong>(0x80158610)) ? 5 : 4;
         }
         G_bWaitingForServer = false;
         return Result;

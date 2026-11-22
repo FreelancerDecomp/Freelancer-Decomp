@@ -18,10 +18,10 @@
 static const char* const G_NameScriptEngine = "IScriptEngine";
 static const char* const G_Name3DMathEngine = "3DMathEngine";
 
-static constexpr unsigned long G_ThornRegisterPriority = 0x40000000;
-static constexpr unsigned long G_FactoryIidCompareBytes = 0x17; // "1.11_IComponentFactory" + NUL
-static constexpr unsigned long G_AggDescSizeThorn = 0x14;
-static constexpr unsigned long G_AggDescSizeMath = 0xC;
+static constexpr FlULong G_ThornRegisterPriority = 0x40000000;
+static constexpr FlULong G_FactoryIidCompareBytes = 0x17; // "1.11_IComponentFactory" + NUL
+static constexpr FlULong G_AggDescSizeThorn = 0x14;
+static constexpr FlULong G_AggDescSizeMath = 0xC;
 
 // x86math.h's FVector, which Thorn and SoundManager each used to redeclare.
 typedef FVector FVec3;
@@ -73,9 +73,9 @@ public:
         return Query_(Owner_, Iid, Out);
     }
 
-    unsigned long DACOM_API AddRef() override { return ++RefCount_; }
+    FlULong DACOM_API AddRef() override { return ++RefCount_; }
 
-    unsigned long DACOM_API Release() override
+    FlULong DACOM_API Release() override
     {
         // LAB_06f37890: `if (count) --count; if (count) return count;`
         if (RefCount_ != 0)
@@ -92,10 +92,10 @@ public:
         return 0;
     }
 
-    unsigned long RefCount() const { return RefCount_; }
+    FlULong RefCount() const { return RefCount_; }
 
 private:
-    unsigned long RefCount_;
+    FlULong RefCount_;
     void* Owner_;
     FThornInnerQueryFn Query_;
     FThornInnerDestroyFn Destroy_;
@@ -144,8 +144,8 @@ struct ICRSpline : IDAComponent
     // Retail outer wrappers validate an index against the inner spline and
     // forward these two-argument operations (this, index, output).
     virtual GENRESULT DACOM_API Slot3(unsigned int Index, float* OutPoint) = 0;
-    virtual GENRESULT DACOM_API Slot4LoadPoints(const float* Pts, unsigned long Count) = 0;
-    virtual unsigned long DACOM_API Slot5() = 0;
+    virtual GENRESULT DACOM_API Slot4LoadPoints(const float* Pts, FlULong Count) = 0;
+    virtual FlULong DACOM_API Slot5() = 0;
     virtual GENRESULT DACOM_API Slot6(unsigned int Index, float* OutPoint) = 0;
     virtual GENRESULT DACOM_API Slot7(unsigned int Index, float* OutValue) = 0;
     virtual GENRESULT DACOM_API Slot8(unsigned char bClosed) = 0;

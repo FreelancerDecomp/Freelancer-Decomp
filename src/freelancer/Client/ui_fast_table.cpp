@@ -44,9 +44,9 @@ namespace
 
     // .data DAT_00615550 / DAT_00615554 / DAT_00615558, read only by the constructor
     // (0x0058c83e..0x0058c861), each copied as one dword.
-    unsigned long const kUiFastTableFrameRgba = 0xff00ff00ul;
-    unsigned long const kUiFastTableSelectedRgba = 0xa00000a0ul;
-    unsigned long const kUiFastTableHoveredRgba = 0x80808080ul;
+    FlULong const kUiFastTableFrameRgba = 0xff00ff00ul;
+    FlULong const kUiFastTableSelectedRgba = 0xa00000a0ul;
+    FlULong const kUiFastTableHoveredRgba = 0x80808080ul;
 
     // The seven render states both halves of Draw set (0x0058eb41..0x0058ebd3 and
     // 0x0058edf0..0x0058ee83): pipeline slot +0xf0.
@@ -616,7 +616,7 @@ bool UiFastTable::GetSelectedRow(unsigned* OutRow)
     return true;
 }
 
-void UiFastTable::SetFrameColor(unsigned long const* Rgba)
+void UiFastTable::SetFrameColor(FlULong const* Rgba)
 {
     // FUN_0058d560
     FrameRgba = *Rgba;
@@ -1111,7 +1111,7 @@ void UiFastTable::Update()
     MouseSetCursor("Arrow", false); // FUN_0041dde0("Arrow", 0)
 }
 
-void UiFastTable::DrawRowQuad(unsigned long const* Rgba, unsigned Row) const
+void UiFastTable::DrawRowQuad(FlULong const* Rgba, unsigned Row) const
 {
     Win3DColor4ubv(reinterpret_cast<unsigned char const*>(Rgba));
     Win3DBegin(kWin3DQuads);
@@ -1214,7 +1214,7 @@ void UiFastTable::Draw()
         while (!RowEdges.empty() && Last + 1 < RowEdges.size() && Rows[Last + 1].GroupId == Group)
             ++Last;
     }
-    unsigned long Color = 0;
+    FlULong Color = 0;
     NnUiPulseBlendFromArgb(&Color, G_NnPaletteArgb_679ba4);   // FUN_00561f20(&c, DAT_00679ba4)
     Win3DColor4ubv(reinterpret_cast<unsigned char const*>(&Color));
     Win3DBegin(kWin3DLineLoop);

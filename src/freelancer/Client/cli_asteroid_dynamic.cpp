@@ -63,17 +63,17 @@ namespace
 
     // DAT_005dc374: LIGHTING (0x89) on, SPECULARENABLE (0x1d) off, ALPHABLENDENABLE (0x1b) off
     // (the opaque draw state).
-    unsigned long const kRsDynOpaque[] = {0x89, 1, 0x1d, 0, 0x1b, 0, 0};
+    FlULong const kRsDynOpaque[] = {0x89, 1, 0x1d, 0, 0x1b, 0, 0};
     // DAT_005dc394: the same with ALPHABLENDENABLE on, SRCBLEND (0x13) SRCALPHA (5), DESTBLEND
     // (0x14) INVSRCALPHA (6).
-    unsigned long const kRsDynBlend[] = {0x89, 1, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
+    FlULong const kRsDynBlend[] = {0x89, 1, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
 
     // The render-state table loop FUN_005261b0 inlines three times (0x00526290, 0x00526500,
     // 0x00526545, 0x00526624): the first state is the table's first dword, then value / next
     // state pairs until a zero state.
-    void ApplyRsTable(IRenderPipeline* Pipe, unsigned long const* Table)
+    void ApplyRsTable(IRenderPipeline* Pipe, FlULong const* Table)
     {
-        unsigned long State = Table[0];
+        FlULong State = Table[0];
         do
         {
             Pipe->SetRenderState((D3DRENDERSTATETYPE)State, static_cast<int>(Table[1]));

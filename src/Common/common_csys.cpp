@@ -617,7 +617,7 @@ void __cdecl MatrixSetColumn2(Matrix& M, Vector const& Src)
     M.E[2][2] = Src.z;
 }
 
-Csys __cdecl DALib_Engine_get_csys(long Handle)
+Csys __cdecl DALib_Engine_get_csys(FlLong Handle)
 {
     // .text:06307900..06307954 (cdecl, hidden Csys* result). 06307903..06307914: DALib::Engine
     // (through the import, untested) slot 40 (+0xa0, GetInstanceTransform) on Handle;
@@ -705,7 +705,7 @@ Csys __cdecl Csys_interpolate(Csys A, Csys B, float T)
 // .text:06307960..063079ab: the Csys repacked as a Transform on the stack (the 3x3 at +0xc,
 // REP MOVSD 9, then Pos into +0x24) and handed to IEngine slot 39 (+0x9c, SetInstanceMatrix)
 // through the DALib::Engine import, which is not tested.
-void __cdecl DALib_Engine_set_csys(long Handle, Csys const& InCsys)
+void __cdecl DALib_Engine_set_csys(FlLong Handle, Csys const& InCsys)
 {
     Transform Xform = InCsys.get_transform();
     DALib::Engine->SetInstanceMatrix((void*)Handle, &Xform);

@@ -35,14 +35,14 @@ namespace IntroPageUtil
     // bit 2 = C & 1, bits 3..7 = D; the low 24 bits of the dword at +0x01 = Rgb (the struct's
     // fifth byte is kept). The port's attribute bundle is the first dword.
     TextRenderAttributes PackTextAttributes(unsigned char A, unsigned char B, unsigned char C,
-                                            unsigned char D, unsigned long Rgb);
+                                            unsigned char D, FlULong Rgb);
 
     // The inline `AND [obj+0x6c],0xfc` / `OR [obj+0x6c],3` pair.
     void HideWin3D(Win3D* Object);
     void ShowWin3D(Win3D* Object);
 
     // &DAT_00679bb4, the HUD chrome colour.
-    unsigned long const* ChromeColor();
+    FlULong const* ChromeColor();
 
     // FUN_005ad970 -- a VC6 vector<float>'s size ((last - first) >> 2, 0 for a null first).
     int EdgeCount(std::vector<float> const& Edges);

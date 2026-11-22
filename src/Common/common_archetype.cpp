@@ -413,7 +413,7 @@ namespace Archetype
         Companion->Inherit(Donor);
     }
 
-    unsigned long CliObjLoad(ICliObj* Companion, int LoadMode)
+    FlULong CliObjLoad(ICliObj* Companion, int LoadMode)
     {
         if (Companion == nullptr)
             return 0;
@@ -623,7 +623,7 @@ namespace Archetype
         return *this;
     }
 
-    bool __cdecl Load(IFileSystem* Filesys, long* EngineIndex, int* AnimIndex)
+    bool __cdecl Load(IFileSystem* Filesys, FlLong* EngineIndex, int* AnimIndex)
     {
         // Retail 0x062efd80. No test of Filesys or of DALib::Engine; DALib::Anim and both out
         // pointers are tested.
@@ -643,20 +643,20 @@ namespace Archetype
             FEngineArchetypeName Name;
             Name.Text = PathBuf;
             Name.Crc = DACOM_CRC::GetCRC32(PathBuf);
-            *EngineIndex = (long)DALib::Engine->FindArchetype(&Name);
+            *EngineIndex = (FlLong)DALib::Engine->FindArchetype(&Name);
             if (*EngineIndex == -1)
             {
                 // .text:062efe07..062efe31: the CRC taken again, slot 12 (+0x30)
                 // CreateArchetypeHandle(&name, Filesys).
                 Name.Text = PathBuf;
                 Name.Crc = DACOM_CRC::GetCRC32(PathBuf);
-                *EngineIndex = (long)DALib::Engine->CreateArchetypeHandle(&Name, Filesys);
+                *EngineIndex = (FlLong)DALib::Engine->CreateArchetypeHandle(&Name, Filesys);
             }
         }
         return true;
     }
 
-    bool __cdecl Load(char const* Path, long* EngineIndex, int* AnimIndex)
+    bool __cdecl Load(char const* Path, FlLong* EngineIndex, int* AnimIndex)
     {
         // Retail 0x062efe40. No test of Path.
         if (EngineIndex != nullptr && AnimIndex == nullptr)
@@ -666,7 +666,7 @@ namespace Archetype
             FEngineArchetypeName Name;
             Name.Text = Path;
             Name.Crc = DACOM_CRC::GetCRC32(Path);
-            *EngineIndex = (long)DALib::Engine->FindArchetype(&Name);
+            *EngineIndex = (FlLong)DALib::Engine->FindArchetype(&Name);
             if (*EngineIndex != -1)
                 return true;
         }
@@ -796,13 +796,13 @@ namespace Archetype
         return &It->second;
     }
 
-    long Root::create_instance(IEngineInstance* EngineInstance) const
+    FlLong Root::create_instance(IEngineInstance* EngineInstance) const
     {
         // 062f05d0. Loaded -> IEngine slot 23 (+0x5C, CreateInstance)(EngineIndex, instance),
         // its result returned as is; no engine or handle test.
         if (EngineIndex != -1)
         {
-            return (long)DALib::Engine->CreateInstance((void*)EngineIndex, EngineInstance);
+            return (FlLong)DALib::Engine->CreateInstance((void*)EngineIndex, EngineInstance);
         }
 
         // The CacheString always holds a pointer (clear() hands out the pool's empty string);

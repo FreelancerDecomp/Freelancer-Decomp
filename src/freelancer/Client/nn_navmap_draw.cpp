@@ -234,14 +234,14 @@ namespace
         float X;
         float Y;
         float Z;
-        unsigned long Diffuse;
+        FlULong Diffuse;
     };
     struct FNavMapTexVertex
     {
         float X;
         float Y;
         float Z;
-        unsigned long Diffuse;
+        FlULong Diffuse;
         float U;
         float V;
     };
@@ -510,7 +510,7 @@ namespace
 
     // The mesh draw every map piece goes through: IRenderer2 slot 7 (Camera, instance, 1.0f,
     // Flags, 0, 0) -- FUN_00421120's body, inlined at each retail site.
-    void DrawHolder(FMeshHolder* Holder, FSpaceCamera* Camera, unsigned long Flags)
+    void DrawHolder(FMeshHolder* Holder, FSpaceCamera* Camera, FlULong Flags)
     {
         ClientMeshHolderRender(Holder, Camera, Flags);
     }
@@ -1011,10 +1011,10 @@ void NeuroNetNavMap::Draw()
             WinControl* const SystemText = BaseSystemTexts[Index];
             if (SystemText == nullptr || !IsShown(SystemText))
                 continue;
-            unsigned long Colour = G_NnPaletteArgb_679bb0;
+            FlULong Colour = G_NnPaletteArgb_679bb0;
             if (BaseText->HitTest(Ray) || SystemText->HitTest(Ray))
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendArgb(&Pulsed); // FUN_00561da0
                 Colour = Pulsed;
             }
@@ -1033,14 +1033,14 @@ void NeuroNetNavMap::Draw()
         // 1: bases), the other pulsed under the ray.
         if (BaseTitleText != nullptr && IsShown(BaseTitleText))
         {
-            unsigned long Colour = G_NnPaletteArgb_679bb0;
+            FlULong Colour = G_NnPaletteArgb_679bb0;
             if (bBaseListByBase != 0)
             {
                 Colour = G_NnPaletteArgb_679ba4;
             }
             else if (BaseTitleText->HitTest(Ray))
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendArgb(&Pulsed);
                 Colour = Pulsed;
             }
@@ -1049,14 +1049,14 @@ void NeuroNetNavMap::Draw()
         }
         if (SystemTitleText != nullptr && IsShown(SystemTitleText))
         {
-            unsigned long Colour = G_NnPaletteArgb_679bb0;
+            FlULong Colour = G_NnPaletteArgb_679bb0;
             if (bBaseListByBase == 0)
             {
                 Colour = G_NnPaletteArgb_679ba4;
             }
             else if (SystemTitleText->HitTest(Ray))
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendArgb(&Pulsed);
                 Colour = Pulsed;
             }
@@ -1883,7 +1883,7 @@ bool NeuroNetNavMap::BuildZoneShading()
 
         // 0x0049ce2f..0x0049ce79: the colour by feeling (amber in mode 5), at half alpha outside
         // modes 1 / 2.
-        unsigned long ColourDword = 0;
+        FlULong ColourDword = 0;
         NnReputationColorArgb(&ColourDword, Feel); // FUN_0045a650
         if (Mode == 5)
             ColourDword = G_NnPaletteArgb_679ba4;
@@ -2006,10 +2006,10 @@ bool NeuroNetNavMap::BuildZoneShading()
             ProjectToFrame(this, Frame, Points[Index]);
 
         // 0x0049d963..0x0049d994: the ARGB dword; the 6000-vertex buffer ends the build.
-        unsigned long const Argb = (static_cast<unsigned long>(Rgba[3]) << 24) |
-                                   (static_cast<unsigned long>(Rgba[0]) << 16) |
-                                   (static_cast<unsigned long>(Rgba[1]) << 8) |
-                                   static_cast<unsigned long>(Rgba[2]);
+        FlULong const Argb = (static_cast<FlULong>(Rgba[3]) << 24) |
+                                   (static_cast<FlULong>(Rgba[0]) << 16) |
+                                   (static_cast<FlULong>(Rgba[1]) << 8) |
+                                   static_cast<FlULong>(Rgba[2]);
         if (ShadeVertexCount + PointCount >= 0x1770)
             return true;
         for (int Index = 0; Index < PointCount; ++Index)
@@ -2190,7 +2190,7 @@ bool NeuroNetNavMap::BuildTerrainPatches()
     for (int ZoneIndex = 0; ZoneIndex < ZoneCount; ++ZoneIndex)
     {
         Universe::IZone const* const Zone = MapZones[static_cast<size_t>(ZoneIndex)];
-        unsigned long const Properties = Zone->GetProperties();
+        FlULong const Properties = Zone->GetProperties();
         if ((Properties & 0x3ffc0) == 0)
             continue;
         if (Field_0x87e == 0 && !IsZoneVisited(Zone, 1))
@@ -2272,16 +2272,16 @@ bool NeuroNetNavMap::BuildTerrainPatches()
         }
 
         // 0x0049bbd4..0x0049bc35: white at that alpha, or texture 2's colour.
-        unsigned long Argb = (static_cast<unsigned long>(Alpha) << 24) | 0xffffffu;
+        FlULong Argb = (static_cast<FlULong>(Alpha) << 24) | 0xffffffu;
         if (Shape == 2)
         {
             int const Red = static_cast<int>(static_cast<double>(Colour[0]) * static_cast<double>(kNavMap255));
             int const Green = static_cast<int>(static_cast<double>(Colour[1]) * static_cast<double>(kNavMap255));
             int const Blue = static_cast<int>(static_cast<double>(Colour[2]) * static_cast<double>(kNavMap255));
-            unsigned long Packed = (static_cast<unsigned long>(Red) & 0xff) |
-                                   (static_cast<unsigned long>(Alpha) << 8);
-            Packed = (Packed << 8) | (static_cast<unsigned long>(Green) & 0xff);
-            Packed = (Packed << 8) | (static_cast<unsigned long>(Blue) & 0xff);
+            FlULong Packed = (static_cast<FlULong>(Red) & 0xff) |
+                                   (static_cast<FlULong>(Alpha) << 8);
+            Packed = (Packed << 8) | (static_cast<FlULong>(Green) & 0xff);
+            Packed = (Packed << 8) | (static_cast<FlULong>(Blue) & 0xff);
             Argb = Packed;
         }
 

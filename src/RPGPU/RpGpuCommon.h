@@ -36,7 +36,7 @@ namespace RpGpuDetail
 
     // RP8's PrimCountFromVerts: primitives from a vertex or index count, with RP8's signed
     // divisions, so a count too small stays <= 0.
-    inline int PrimCountFromVerts(unsigned long Prim, unsigned int Count)
+    inline int PrimCountFromVerts(FlULong Prim, unsigned int Count)
     {
         const int Signed = static_cast<int>(Count);
         switch (Prim)

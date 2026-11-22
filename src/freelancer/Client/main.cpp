@@ -489,7 +489,7 @@ namespace
             {
                 const int Port = MsvcrtAtoi(Token);
                 if (Port != 0)
-                    CDPClient::SetSourcePort(static_cast<unsigned long>(Port));
+                    CDPClient::SetSourcePort(static_cast<FlULong>(Port));
             }
             else if (Letter == 'S' || Letter == 's')
             {
