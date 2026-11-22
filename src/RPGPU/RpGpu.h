@@ -237,7 +237,7 @@ private:
         bool bEnabled = false;       // the enable state last committed to the "device"
         bool bWantEnabled = false;   // what SetLightEnable asked for
         bool bDataDirty = false;     // Data is resent at the next flush
-        long Generation = -1;        // the flush generation it was queued in
+        std::uint32_t Generation = 0xFFFFFFFFu; // the flush generation it was queued in
         int Index = -1;              // the light index from the pool
         const RpLight* Data = nullptr; // AddLight: the caller's own light, read at each flush
     };
@@ -298,7 +298,9 @@ private:
     // RP8's light manager: records by handle, the queue for the next flush, the index pool.
     std::map<void*, FLightRecord> LightRecords_;
     std::vector<FLightRecord*> DirtyLights_; // null where a queued record was removed
-    long LightGeneration_ = 0;
+    // RP8 counts flushes in a signed long and every draw flushes; unsigned here, so the count
+    // wraps where RP8's would overflow.
+    std::uint32_t LightGeneration_ = 0;
     std::vector<int> LightIndexPool_ = std::vector<int>(0x40, 0);
     unsigned int LightIndicesUsed_ = 0;
     unsigned int LightIndexNext_ = 0;

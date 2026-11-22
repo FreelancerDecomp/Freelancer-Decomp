@@ -173,13 +173,13 @@ FOutput main(FInput In)
         Out.Specular = float4(saturate(Specular), saturate(Ms.a));
     }
 
-    // Vertex fog on the camera-space depth, or the distance with RANGEFOGENABLE; otherwise the
-    // specular alpha is the fog value.
-    float FogValue = Out.Specular.a;
+    // Vertex fog on the camera-space depth (its magnitude), or the distance with
+    // RANGEFOGENABLE; otherwise the vertex's own specular alpha is the fog value, lit or not.
+    float FogValue = VertexSpecular.a;
     if (FogFlags.x != 0u)
     {
         const float3 ViewPosition = mul(float4(WorldPosition, 1.0), View).xyz;
-        const float Distance = FogFlags.y != 0u ? length(ViewPosition) : ViewPosition.z;
+        const float Distance = FogFlags.y != 0u ? length(ViewPosition) : abs(ViewPosition.z);
         FogValue = saturate(FogFactor(Fog.x, Distance, Fog.y, Fog.z, Fog.w));
     }
     Out.Fog = float2(FogValue, Clip.w);

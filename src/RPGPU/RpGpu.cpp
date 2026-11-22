@@ -316,8 +316,10 @@ GENRESULT DACOM_API FRpGpu::Startup(const char* SectionName)
     return GR_OK;
 }
 
+// RP8's shutdown ends the buffer session first (DestroyGpuResources), then releases the device.
 GENRESULT DACOM_API FRpGpu::ShutdownPipeline()
 {
+    DestroyGpuResources();
     if (Backend_ != nullptr)
         Backend_->Destroy();
     return GR_OK;

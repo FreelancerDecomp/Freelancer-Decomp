@@ -218,9 +218,9 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 **Fog** (`FOGENABLE`):
 - `FOGTABLEMODE` set: per pixel, on w when the projection is not affine and on the depth-buffer
   z when it is (Direct3D's rule). `FOGSTART` and `FOGEND` are in those units.
-- Otherwise `FOGVERTEXMODE`, per vertex, on camera-space z (or the distance with
-  `RANGEFOGENABLE`). With neither, and for pre-transformed vertices, the specular alpha is the
-  fog value.
+- Otherwise `FOGVERTEXMODE`, per vertex, on the camera-space depth (or the distance with
+  `RANGEFOGENABLE`). With neither, and for pre-transformed vertices, the vertex's specular
+  alpha is the fog value, lit or not.
 - Exponential, squared exponential and linear, blending the colour (not alpha) towards
   `FOGCOLOR`. `SPECULARENABLE` adds the specular colour before fog.
 
