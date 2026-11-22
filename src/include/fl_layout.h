@@ -30,6 +30,13 @@
 // mangling (the exports retail mods link against) stay as they were; elsewhere they are the
 // 32-bit integers Win32 meant. Code that hands a `long` to the C library or the OS uses the
 // real type.
+// FL_PTR64: pointers are 64 bits wide (x64 Windows, and the 64-bit macOS and Linux builds).
+// Code that keeps retail's 32-bit fields while pointers no longer fit in them (LowArena,
+// HandleValue, the x64 facet offsets) tests this, not _WIN64. MSVC never defines __LP64__, so on
+// Windows it is exactly _WIN64.
+#if defined(_WIN64) || defined(__LP64__)
+#define FL_PTR64 1
+#endif
 #if defined(__cplusplus)
 #if defined(_WIN32)
 using FlULong = unsigned long;
@@ -39,7 +46,7 @@ using FlULong = unsigned int;
 using FlLong = int;
 static_assert(sizeof(FlULong) == 4 && sizeof(FlLong) == 4, "FlULong and FlLong are Win32's 32-bit long");
 #endif
-#if defined(_WIN64) || !defined(_WIN32)
+#if defined(FL_PTR64) || !defined(_WIN32)
 #define FL_LAYOUT_ASSERT(...) static_assert(true, "")
 #define FL_LAYOUT_PAD(Bytes) 1
 #define FL_RETAIL_NEW_SIZE(Bytes, Type) (sizeof(Type) > (Bytes) ? sizeof(Type) : (Bytes))

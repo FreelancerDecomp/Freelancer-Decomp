@@ -412,7 +412,7 @@ namespace
     // probe (0x005b30bc). False (EBUEula returned 0) makes WinMain return 1.
     bool RunEulaGate()
     {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
         // PORT(x64): EBUEula.dll is a 32-bit code module a 64-bit process cannot load, so the
         // x64 client skips the EULA, as FLDedicated does (docs/x64.md, "EULA").
         return true;

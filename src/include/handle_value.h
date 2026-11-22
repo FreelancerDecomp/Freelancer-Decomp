@@ -20,14 +20,14 @@
 
 #include <cstdint>
 
-#if defined(_WIN64)
+#if defined(FL_PTR64)
 #include <mutex>
 #include <unordered_map>
 #endif
 
 namespace HandleValue
 {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     namespace Detail
     {
         struct FTable

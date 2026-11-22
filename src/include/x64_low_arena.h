@@ -26,6 +26,13 @@
 #include <cstdint>
 #include <new>
 
+#if defined(FL_PTR64) && !defined(_WIN64)
+// PORT(macOS): the backend below reserves address space below 2 GB with VirtualAlloc. A 64-bit
+// macOS process has no addresses below 4 GB at all, so these targets need another way to keep
+// handles in retail's 32-bit fields (x64-client-plan.md, phase 6, M2).
+#error "LowArena: no backend for this 64-bit platform yet"
+#endif
+
 #if defined(_WIN64)
 #include <windows.h>
 
@@ -155,7 +162,7 @@ namespace LowArena
 #endif
 }
 
-#if defined(_WIN64)
+#if defined(FL_PTR64)
 #define FL_LOW_ARENA_NEW                                                                           \
     static void* operator new(std::size_t Size)                                                    \
     {                                                                                              \
