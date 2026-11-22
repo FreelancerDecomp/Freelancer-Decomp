@@ -287,7 +287,10 @@ without the Windows API. Milestones:
   components from `dlopen` or registered statically). macOS then has x64 Windows' type model
   (32-bit `long`, 64-bit pointers), so the `_WIN64` paths that keep pointers out of 32-bit fields
   (LowArena, HandleValue) become a 64-bit test; LowArena needs another strategy on Apple Silicon,
-  where a 64-bit process gets no addresses below 4 GB.
+  where a 64-bit process gets no addresses below 4 GB. Clang reports the direct pointer-to-32-bit
+  casts as errors, but not the ones that narrow on purpose through `uintptr_t` / `intptr_t`
+  (`PointerToDword`, `PhySys_InstanceId` and the like), so those get an audit of their own. The
+  sites CodeRabbit listed on #108, #109 and #111 are the starting list.
 - **M3:** an SDL window to the main menu, drawn by RPGPU through Metal, without sound.
 - **M4:** audio, input and gameplay.
 
