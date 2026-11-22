@@ -84,7 +84,7 @@ namespace
     // lookups. Only the iteration order differs, and nothing but the exit teardown walks it.
     // Teardown order as in retail's XC table: G_AleLib (slot 0x0060f010, above in this file)
     // and the material cache (client_cliobj.cpp, slot 0x0060f0bc, linked before this file --
-    // see the note in freelancer.vcxproj) are built first, so both outlive this map, whose
+    // see the note in freelancer/CMakeLists.txt) are built first, so both outlive this map, whose
     // ~FVisEffectArch (FUN_0042edb0) releases through them.
     std::map<std::string, FVisEffectArch, FAleNameLess> G_VisEffects;
 

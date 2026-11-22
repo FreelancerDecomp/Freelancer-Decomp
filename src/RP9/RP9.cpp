@@ -2888,7 +2888,7 @@ GENRESULT DACOM_API FDirectX9::Startup(const char* SectionName)
     // 06d06af7..06d07091 (FUN_06d16930 inlined, default 0). The D3DCREATE_* bits are the same
     // in D3D9 (FPU_PRESERVE 2, MULTITHREADED 4, PUREDEVICE 0x10, SOFTWARE/HARDWARE/MIXED
     // _VERTEXPROCESSING 0x20/0x40/0x80). Without FPU_PRESERVE Direct3D 9 CreateDevice drops the
-    // thread's x87 precision to 24 bits exactly as Direct3D 8 does (Directory.Build.props).
+    // thread's x87 precision to 24 bits exactly as Direct3D 8 does (cmake/Freelancer.cmake).
     if (ReadProfileNumber(Dacom, Parser_, SectionName, "FPU_PRESERVE", 0, nullptr) != 0)
         CreateFlags_ |= 0x2;
     if (ReadProfileNumber(Dacom, Parser_, SectionName, "MULTITHREADED", 0, nullptr) != 0)

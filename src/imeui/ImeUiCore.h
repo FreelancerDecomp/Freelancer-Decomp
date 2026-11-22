@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <windows.h> // WIN32_LEAN_AND_MEAN comes from imeui.vcxproj
+#include <windows.h> // WIN32_LEAN_AND_MEAN comes from imeui/CMakeLists.txt
 #include <imm.h>
 
 #include "imeui.h" // _IMEUI_APPEARANCE (single declaration)

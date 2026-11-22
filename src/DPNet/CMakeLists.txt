@@ -2,7 +2,8 @@
 #
 # Plain portable C++20 with no Windows headers, so it builds on its own anywhere:
 #     cmake -S src/DPNet -B build/dpnet && cmake --build build/dpnet && ctest --test-dir build/dpnet
-# It is not part of Freelancer.sln yet; the IDirectPlay8 adapter that will use it comes next.
+# The root CMake build includes it on Linux and macOS (the portable modules); on Windows its
+# sources are compiled into DALib.dll for x64 (src/DALib/CMakeLists.txt).
 
 cmake_minimum_required(VERSION 3.20)
 project(DPNet LANGUAGES CXX)

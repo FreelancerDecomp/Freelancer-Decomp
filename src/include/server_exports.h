@@ -7,7 +7,7 @@
 #pragma once
 
 // Export when building Server.dll, import when another PE includes these headers.
-// Server.vcxproj defines SERVER_EXPORTS. Do not define it in freelancer / other DLLs.
+// Server/CMakeLists.txt defines SERVER_EXPORTS. Do not define it in freelancer / other DLLs.
 
 #ifdef SERVER_EXPORTS
 #define SERVER_API __declspec(dllexport)

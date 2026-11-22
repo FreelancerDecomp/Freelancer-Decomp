@@ -4,7 +4,7 @@
 // developed by Digital Anvil.
 // Author: Giperion.
 
-#include <windows.h> // WIN32_LEAN_AND_MEAN comes from imeui.vcxproj
+#include <windows.h> // WIN32_LEAN_AND_MEAN comes from imeui/CMakeLists.txt
 
 // Retail FUN_06716c80. The old CRT TLS flag is zero: imeui owns no TLS.
 BOOL WINAPI DllMain(HINSTANCE Instance, DWORD Reason, LPVOID Reserved)

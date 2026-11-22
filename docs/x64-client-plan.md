@@ -96,8 +96,7 @@ LOAD_LIBRARY_AS_IMAGE_RESOURCE)` on x64, unchanged `LoadLibraryA` on Win32. Use 
 ## Phase 2: the client builds for x64
 
 Compile and link only; nothing runs yet. Modules go in dependency order, one or a few per PR,
-each adding `Release|x64` / `Debug|x64` to the `.vcxproj` (and to `CMakeLists.txt` if #11 has
-merged by then).
+each adding the module to the x64 build (now: no Win32-only guard in its `CMakeLists.txt`).
 
 **2.1 Leaf modules** (done: #39, #45, #46, #47)**:** ximage, imeui, SoundStreamer, SoundManager,
 flmaterials, alchemy, Deformable2, luaprofile. Includes:
@@ -218,7 +217,7 @@ parallel with the rest of phase 2.
 **5.1 SDL3 dependency.** Done in #58 and #60. From vcpkg in manifest mode: one `src/vcpkg.json`
 with a feature per consumer (`rpgpu` today), `builtin-baseline` pinned to a vcpkg release, built
 from source for Win32 and x64, so a later SDL platform layer or audio decoder shares RPGPU's SDL3.
-`src/Vcpkg.props` wires it into port-only projects only, so no retail module sees SDL. RPGPU is an
+The root `CMakeLists.txt` wires it into port-only modules only (`fl_vcpkg_package`), so no retail module sees SDL. RPGPU is an
 explicit setting (`FreelancerRpGpu`, like `FreelancerRp9`; on by default on x64, off on Win32). A
 developer machine without vcpkg skips it with a warning; CI passes `FreelancerRequireVcpkg=true`,
 so there a missing vcpkg is an error. CI caches vcpkg's binary packages per triplet, runner image
@@ -273,8 +272,10 @@ smoke test passes on it, and then it becomes the default on x64. Win32's default
 
 ## Phase 6: other platforms (Linux, macOS, Windows ARM64)
 
-The hold was lifted on 2026-11-22, aiming at a local macOS run. It builds on the CMake build
-(#95). Milestones:
+The hold was lifted on 2026-11-22, aiming at a local macOS run. The CMake build that replaced the
+Visual Studio solution ([building.md](building.md)) already builds the portable modules (DPNet,
+TexConvert, qhull) on Linux and macOS, with CI; each further module joins them once it builds
+without the Windows API. Milestones:
 
 - **M1, 32-bit `long`.** Windows keeps `long` at 32 bits (LLP64); macOS and Linux make it 64
   (LP64), which would change every retail structure, file format and packet holding one. Code
@@ -283,7 +284,10 @@ The hold was lifted on 2026-11-22, aiming at a local macOS run. It builds on the
   layout checks (`FL_LAYOUT_ASSERT`) apply to the 32-bit Windows build only. Third-party code
   and the Windows-only modules keep `long`.
 - **M2:** every client module compiles and links on macOS (the platform layer below; DACOM's
-  components from `dlopen` or registered statically).
+  components from `dlopen` or registered statically). macOS then has x64 Windows' type model
+  (32-bit `long`, 64-bit pointers), so the `_WIN64` paths that keep pointers out of 32-bit fields
+  (LowArena, HandleValue) become a 64-bit test; LowArena needs another strategy on Apple Silicon,
+  where a 64-bit process gets no addresses below 4 GB.
 - **M3:** an SDL window to the main menu, drawn by RPGPU through Metal, without sound.
 - **M4:** audio, input and gameplay.
 

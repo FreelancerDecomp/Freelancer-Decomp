@@ -31,7 +31,7 @@
 //
 // Everything the shaders see is camera-relative (system coordinates reach +-200k, too far for
 // float precision); positions are subtracted in double here.
-// Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
+// Compiled only with FREELANCER_RP9 (FreelancerRp9, docs/building.md).
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
 

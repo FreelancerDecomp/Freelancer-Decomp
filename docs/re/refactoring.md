@@ -96,7 +96,7 @@ Code with no retail counterpart carries one tag, so that a single grep finds it:
 | `deviation` | A behaviour difference outside the features above, recorded in [deviations.md](deviations.md) |
 
 A new feature gets a tag here, a row in the deviations.md index and, if it can be switched off,
-a property in `src/Directory.Build.props`.
+a switch in `cmake/Freelancer.cmake` ([building.md](../building.md#switches)).
 
 Inside a retail function body, keep the retail code written once. Put the port-only part in one
 guarded call, or in a small helper that makes exactly the retail call when the feature is off,
