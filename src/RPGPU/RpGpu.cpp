@@ -480,8 +480,6 @@ GENRESULT DACOM_API FRpGpu::DestroyGpuResources()
 // depth over its pixels, with no depth test, blending or write mask. Stencil is not kept.
 GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
 {
-    if ((Flags & 1) != 0)
-        Backend().SetClearColor(static_cast<std::uint32_t>(PipelineState_[kPsClearColor]));
     if (!bBuffersActive_ || (Flags & 3) == 0)
         return GR_OK;
     const std::uint32_t Argb = static_cast<std::uint32_t>(PipelineState_[kPsClearColor]);
@@ -495,6 +493,10 @@ GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
                                 (Viewport_[3] <= 0 || Viewport_[1] + Viewport_[3] >= TargetH);
     if (Rects == nullptr && bWholeViewport)
     {
+        // Only a whole-target colour clear sets the colour a frame without a leading clear
+        // starts from; a partial clear must not reach the pixels outside its area.
+        if ((Flags & 1) != 0)
+            Backend().SetClearColor(Argb);
         FRpGpuCommand Clear;
         Clear.Kind = FRpGpuCommand::EKind::Clear;
         Clear.bClearColor = (Flags & 1) != 0;
