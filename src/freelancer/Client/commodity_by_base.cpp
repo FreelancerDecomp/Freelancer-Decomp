@@ -720,14 +720,14 @@ void NnCommodityByBase::Update()
         WinControl* const Title = Titles[Column];
         if (Title == nullptr || (Title->Flags & kWin3DVisible) == 0)
             continue;
-        unsigned long Color = G_NnPaletteArgb_679bb0;
+        FlULong Color = G_NnPaletteArgb_679bb0;
         if (SortColumn == Column)
         {
             Color = G_NnPaletteArgb_679ba4;
         }
         else if (Title->HitTest(Ray))
         {
-            unsigned long Pulse = 0;
+            FlULong Pulse = 0;
             NnUiPulseBlendArgb(&Pulse);
             Color = Pulse;
         }
@@ -741,11 +741,11 @@ void NnCommodityByBase::Update()
         FCommodityByBaseRowControls const& Controls = Rows[Line];
         if (Controls.Base == nullptr || (Controls.Base->Flags & kWin3DVisible) == 0)
             continue;
-        unsigned long Color = G_NnPaletteArgb_679bb0;
+        FlULong Color = G_NnPaletteArgb_679bb0;
         if (Controls.Base->HitTest(Ray) || Controls.BuySell->HitTest(Ray) ||
             Controls.Price->HitTest(Ray) || Controls.System->HitTest(Ray))
         {
-            unsigned long Pulse = 0;
+            FlULong Pulse = 0;
             NnUiPulseBlendArgb(&Pulse);
             Color = Pulse;
         }

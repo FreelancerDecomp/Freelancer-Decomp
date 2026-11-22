@@ -182,10 +182,10 @@ struct FRoomRuntime : public FRoomObject, public EventHandler
     // them from the prop whose RoomPropInfo +0x3f is set: its slot-6 engine instance and its
     // script table's +0x0c script.
     void* MainInstance;                 // +0x44 RoomData::fixup argument (0x004496fb)
-    unsigned long MainScript;           // +0x48 FUN_00555bf0 on +0x4c when not -1 (0x0044970c)
+    FlULong MainScript;           // +0x48 FUN_00555bf0 on +0x4c when not -1 (0x0044970c)
     FAnimScriptSet Scripts;             // +0x4C FUN_00555a40 (0x18) → +0x64
     // +0x64: the playback of each room animation (FUN_004498b0), -1 when it has none.
-    unsigned long Handles64[0x20];      // +0x64 STOSD 0xffffffff × 0x20
+    FlULong Handles64[0x20];      // +0x64 STOSD 0xffffffff × 0x20
     // +0xE4: one FUN_00556fd0 wrapper per RoomData+0x144 light (FUN_004496b0 0x00449719..).
     FGfLightWrapper* RoomLights[0x80];
     int RoomLightCount;                 // +0x2E4
@@ -409,17 +409,17 @@ void FRoomObject::DrawEffects(ICamera* /*Camera*/)
     // IDPMsgHandler::OnAddHost (0x0053e4a0): RET 4.
 }
 
-void FRoomObject::Slot10(unsigned long /*Cookie*/, int const* /*Point*/)
+void FRoomObject::Slot10(FlULong /*Cookie*/, int const* /*Point*/)
 {
     // IDPMsgHandler::OnReceive (0x0053aaa0): RET 8.
 }
 
-void FRoomObject::Slot11(unsigned long /*Cookie*/, int const* /*Point*/)
+void FRoomObject::Slot11(FlULong /*Cookie*/, int const* /*Point*/)
 {
     // IDPMsgHandler::OnReceive (0x0053aaa0): RET 8.
 }
 
-void FRoomObject::Slot12(unsigned long /*Cookie*/, int const* /*Point*/)
+void FRoomObject::Slot12(FlULong /*Cookie*/, int const* /*Point*/)
 {
     // IDPMsgHandler::OnReceive (0x0053aaa0): RET 8.
 }
@@ -747,7 +747,7 @@ static void RoomControlLoadProps(FRoomRuntime* Runtime)
     {
         RoomPropInfo const* Record = Runtime->Room->Props[Index];
         // 0x0044a087..0x0044a096.
-        if (!RtcSlider::is_enabled(static_cast<unsigned long>(Record->PriorityId)))
+        if (!RtcSlider::is_enabled(static_cast<FlULong>(Record->PriorityId)))
             continue;
 
         // 0x0044a09c..0x0044a19f: FUN_00445e20, then the description from the record.
@@ -1502,7 +1502,7 @@ static void RoomControlStartScenes(FRoomRuntime* Runtime)
          ++RecordIndex)
     {
         AmbientScriptInfo const& Record = *Room->AmbientScripts[RecordIndex];
-        if (!RtcSlider::is_enabled(static_cast<unsigned long>(Record.Priority)))
+        if (!RtcSlider::is_enabled(static_cast<FlULong>(Record.Priority)))
             continue;
         if (Record.Type == 1)
         {
@@ -1590,7 +1590,7 @@ static void RoomControlStartScenes(FRoomRuntime* Runtime)
         Runtime->Flags514[1] = 1;
 
     if (GfObjectShip() != nullptr && Room->GoodscartScript != nullptr &&
-        RtcSlider::is_enabled(static_cast<unsigned long>(Room->GoodscartPriorityId)))
+        RtcSlider::is_enabled(static_cast<FlULong>(Room->GoodscartPriorityId)))
     {
         FGfScriptSequence* const Sequence = G_GfScriptManager.CreateSequence(Runtime, 0);
         Csys Frame;
@@ -1954,11 +1954,11 @@ static void RoomControlStartAnimations(FRoomRuntime* Runtime)
             continue;
         }
         // 0x004498ec..0x004498f8: FUN_00555c70 on +0x44.
-        unsigned long const Playback = Runtime->Scripts.Play(Runtime->MainInstance, Script);
+        FlULong const Playback = Runtime->Scripts.Play(Runtime->MainInstance, Script);
         Runtime->Handles64[Index] = Playback;
         // 0x004498fa..0x00449930: Anim +0x2c (Playback, loop ? 2 : 0, -2.0, 1.0, 0, 1.0, 1.0,
         // 0).
-        unsigned long const Flags = Room->AnimationLoop[Index] ? 2u : 0u;
+        FlULong const Flags = Room->AnimationLoop[Index] ? 2u : 0u;
         DALib::Anim->EvalPlayback(Playback, Flags, -2.0f, 1.0f, AsOpaqueDword(0),
                                   AsOpaqueDword(1.0f), AsOpaqueDword(1.0f), AsOpaqueDword(0));
     }
@@ -2119,7 +2119,7 @@ FRoomRuntime* CreateRoomRuntime(RoomData* Room)
     Runtime->MainScript = 0xffffffffu;
     // 0x004496ef FUN_0044a030; 0x004496f4..0x004496fb RoomData::fixup(+0x44).
     RoomControlLoadProps(Runtime);
-    Room->fixup(static_cast<long>(reinterpret_cast<std::intptr_t>(Runtime->MainInstance)));
+    Room->fixup(static_cast<FlLong>(reinterpret_cast<std::intptr_t>(Runtime->MainInstance)));
     // 0x00449701..0x0044970c: FUN_00555bf0 on +0x4c with +0x48 unless -1.
     if (Runtime->MainScript != 0xffffffffu)
         Runtime->Scripts.Load(Runtime->MainScript);
@@ -2277,7 +2277,7 @@ namespace
     // relights its object (FUN_0044ae80) from the room and object stored with the record.
     struct FRoomBatcherSink final : public IMaterialBatcherEvents
     {
-        unsigned long RefCount; // +0x04 DAT_006166c0
+        FlULong RefCount; // +0x04 DAT_006166c0
 
         FRoomBatcherSink()
             : RefCount(1)
@@ -2298,14 +2298,14 @@ namespace
             return GR_INTERFACE_UNSUPPORTED;
         }
 
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             // LAB_0051e8e0.
             ++RefCount;
             return RefCount;
         }
 
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             // LAB_0041a800 (ICF-shared with FScriptCamSink::Release): decrement while above zero
             // (JBE); at zero reset the count to 1, free this (FUN_005b7e1d) and return 0. Retail
@@ -2584,7 +2584,7 @@ void RoomControlDrawObject(FRoomRuntime* Room, FRoomObject* Object)
         Appearance->Release();
 }
 
-void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
+void RoomControlDrawShadow(FRoomRuntime* Room, FlULong A, FlULong B,
                            unsigned char bFlag)
 {
     // FUN_0044b370. 0x0044b389..0x0044b3be: the SHADOWS option (0x2b), "shadow_glare" and the
@@ -2601,7 +2601,7 @@ void RoomControlDrawShadow(FRoomRuntime* Room, unsigned long A, unsigned long B,
     {
         // 0x0044b3eb..0x0044b41f: {A, B} on the stack; slot 12 (+0x30) with bFlag, else
         // slot 11 (+0x2c), both (camera, &pair, 1, -1).
-        unsigned long Pair[2] = {A, B};
+        FlULong Pair[2] = {A, B};
         if (bFlag != 0)
             Appearance->DrawFixedShadows(Room->Camera, Pair, reinterpret_cast<void*>(1),
                                reinterpret_cast<void*>(static_cast<intptr_t>(-1)));

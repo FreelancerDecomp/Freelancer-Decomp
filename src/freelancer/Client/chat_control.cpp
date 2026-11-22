@@ -303,7 +303,7 @@ bool ChatControl::Create(Win3D* NewParent, void* Data)
         HistoryDisplay->SetAutoScrollbar(true);
         HistoryDisplay->SnapshotGeneration = 0;
         HistoryDisplay->Snapshot = G_ChatAllMessages;           // DAT_0066da64
-        HistoryDisplay->SetFrameColor(reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba));
+        HistoryDisplay->SetFrameColor(reinterpret_cast<FlULong const*>(G_HudChromeColorRgba));
         HistoryDisplay->SetDrawFrame(false);
         HistoryDisplay->SetKeepScrolledToEnd(true);
         HistoryDisplay->GetToolTipHoverInfo()->IdsAlt = 0x1b7c;
@@ -333,7 +333,7 @@ bool ChatControl::Create(Win3D* NewParent, void* Data)
     {
         float const AttachOffset[3] = {G_ChatBroadcastX, 0.215f, 0.0f};   // DAT_0066d4b4 / DAT_005cef20
         BroadcastList->SetAttachOffset(AttachOffset);
-        BroadcastList->SetFrameColor(reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba));
+        BroadcastList->SetFrameColor(reinterpret_cast<FlULong const*>(G_HudChromeColorRgba));
         BroadcastList->SetResizable(false, false);
         BroadcastList->SetLayoutFlag(true);
         BroadcastList->SetBorders(false, false, false, true);
@@ -359,7 +359,7 @@ bool ChatControl::Create(Win3D* NewParent, void* Data)
     {
         float const AttachOffset[3] = {G_ChatPrivateX, G_ChatPrivateY, 0.0f};   // DAT_0066d4ac / DAT_0066d4a8
         PrivateList->SetAttachOffset(AttachOffset);
-        PrivateList->SetFrameColor(reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba));
+        PrivateList->SetFrameColor(reinterpret_cast<FlULong const*>(G_HudChromeColorRgba));
         PrivateList->SetResizable(false, false);
         PrivateList->SetLayoutFlag(true);
         PrivateList->SetDrawColumnLines(false);

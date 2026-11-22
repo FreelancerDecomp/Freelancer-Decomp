@@ -236,8 +236,8 @@
   all nine stage/state/value writes for both families. The Atmosphere property-schema entry is
   recorded as `partial`: its nine typed fields/count are native, while the contiguous retail
   metadata-table output remains absent.
-- Debug builds: `Shading.vcxproj`, dependent `flmaterials.vcxproj`, `DALib.vcxproj`, and
-  `freelancer.vcxproj`, zero errors (the full client retains unrelated existing warnings).
+- Debug builds: `Shading`, dependent `flmaterials`, `DALib`, and
+  `freelancer`, zero errors (the full client retains unrelated existing warnings).
 - Native aggregation contract test: `src/tests/shading_aggregation_tests.cpp` passes.
 - Current built candidate `src/bin/Shading.dll` SHA-256:
   `6DA61458F12CAEEF74AF6887586E93BAFE2DD3F23D9814A34FADA2150B3B88F4`.

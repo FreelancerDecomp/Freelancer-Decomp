@@ -47,13 +47,13 @@ namespace
             return GR_OK;
         }
 
-        unsigned long DACOM_API AddRef() override { return ++RefCount; }
+        FlULong DACOM_API AddRef() override { return ++RefCount; }
 
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             if (RefCount > 0)
                 --RefCount;
-            const unsigned long Next = RefCount;
+            const FlULong Next = RefCount;
             if (Next == 0)
             {
                 RefCount = 1;
@@ -255,7 +255,7 @@ namespace
 
         const char* Name() const { return Spec.Name; }
 
-        unsigned long RefCount;
+        FlULong RefCount;
         FComponentSpec Spec;
     };
 
@@ -321,21 +321,21 @@ namespace
     {
         // 06ecf446..f48c: bd20,83f0,6cf0,3dc0,d140,d280,d0a0,d1e0,
         // 5c20,d050,d190,d0f0,d230,8590,85e0.
-        static constexpr unsigned long First[] = {1, 2, 3, 4, 8, 12, 6, 10, 13, 5, 9, 7, 11, 14, 15};
-        for (unsigned long Index = 0; Index < std::size(First); ++Index)
+        static constexpr FlULong First[] = {1, 2, 3, 4, 8, 12, 6, 10, 13, 5, 9, 7, 11, 14, 15};
+        for (FlULong Index = 0; Index < std::size(First); ++Index)
             RegisterMaterialComponent(G_Specs[First[Index]]);
         ActivateMaterialGlobalRecord(2); // 06ecf491..f52b
         ActivateMaterialGlobalRecord(1); // 06ecf52d..f580
 
         // 06ecf582..f596: 1000,c210,c260,cdc0,a3b0.
-        static constexpr unsigned long Second[] = {16, 17, 18, 19, 20};
-        for (unsigned long Index = 0; Index < std::size(Second); ++Index)
+        static constexpr FlULong Second[] = {16, 17, 18, 19, 20};
+        for (FlULong Index = 0; Index < std::size(Second); ++Index)
             RegisterMaterialComponent(G_Specs[Second[Index]]);
         ActivateMaterialGlobalRecord(3); // 06ecf59b..f5f0
 
         // 06ecf5f2..f601: 7b40,6620,ac50,9210.
-        static constexpr unsigned long Third[] = {21, 22, 24, 23};
-        for (unsigned long Index = 0; Index < std::size(Third); ++Index)
+        static constexpr FlULong Third[] = {21, 22, 24, 23};
+        for (FlULong Index = 0; Index < std::size(Third); ++Index)
             RegisterMaterialComponent(G_Specs[Third[Index]]);
         ActivateMaterialGlobalRecord(0); // 06ecf606..f650
         RegisterMaterialComponent(G_Specs[25]); // 06ecf652 -> 47a0

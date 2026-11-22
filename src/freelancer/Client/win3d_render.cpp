@@ -33,7 +33,7 @@ void ClearWin3DBuffers(unsigned int Bits)
     // 0x004215e7 / 0x004215f1: retail tests AH, not the whole word -- `TEST AH,0x40` is bit
     // 0x4000 and `TEST AH,0x01` is bit 0x0100. Nothing outside those two bits can affect the
     // result, so the masks below are the whole of the translation.
-    unsigned long ClearFlags = (Bits & kWin3DClearColour) != 0 ? 1u : 0u;
+    FlULong ClearFlags = (Bits & kWin3DClearColour) != 0 ? 1u : 0u;
     if ((Bits & kWin3DClearDepth) != 0)
         ClearFlags |= 2u;
 

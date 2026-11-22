@@ -311,9 +311,9 @@ void EffectVertexBatchSetColor(FEffectVertexBatch* Batch, float R, float G, floa
 {
     // FUN_004fc950 (thiscall, RET 0xc): each argument * 255.0 (double 0x005c89c0) through
     // ftol, the low byte stored -- R to +0x30, G to +0x31, B to +0x32 -- and 0xff to +0x33.
-    Batch->ColorR = static_cast<unsigned char>(static_cast<long>(static_cast<double>(R) * 255.0));
-    Batch->ColorG = static_cast<unsigned char>(static_cast<long>(static_cast<double>(G) * 255.0));
-    Batch->ColorB = static_cast<unsigned char>(static_cast<long>(static_cast<double>(B) * 255.0));
+    Batch->ColorR = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(R) * 255.0));
+    Batch->ColorG = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(G) * 255.0));
+    Batch->ColorB = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(B) * 255.0));
     Batch->ColorA = 0xff;
 }
 

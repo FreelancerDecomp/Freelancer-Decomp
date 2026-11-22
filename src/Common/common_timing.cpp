@@ -70,11 +70,11 @@ namespace
         // difference -ftol - tick_delta and its CDQ/XOR/SUB abs wrap in 32 bits, and
         // the `CMP EAX,0x32; JLE` test is signed. More than 50 ms of disagreement
         // between QPC and GetTickCount falls back to the tick count (unsigned) * 0.001.
-        const unsigned long FtolNegMs = (unsigned long)(long long)(Self->Dt * -1000.0);
-        const unsigned long TickDelta = Self->StopTickCount - Self->StartTickCount;
+        const FlULong FtolNegMs = (FlULong)(long long)(Self->Dt * -1000.0);
+        const FlULong TickDelta = Self->StopTickCount - Self->StartTickCount;
         int AbsDiff = (int)(0UL - FtolNegMs - TickDelta);
         if (AbsDiff < 0)
-            AbsDiff = (int)(0UL - (unsigned long)AbsDiff);
+            AbsDiff = (int)(0UL - (FlULong)AbsDiff);
         if (AbsDiff > 50)
             Self->Dt = (double)TickDelta * 0.001;
 

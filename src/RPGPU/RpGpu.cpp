@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
 
 // RPGPU's DACOM side (docs/re/rpgpu.md): the factory and aggregation, the interface lookup, the
 // device and frame calls that go to the backend, the draw calls and DllMain. The state calls are
@@ -19,7 +20,7 @@ using namespace RpGpuDetail;
 
 namespace
 {
-    constexpr unsigned long kRegisterPriority = 0x40000000; // RP8's
+    constexpr FlULong kRegisterPriority = 0x40000000; // RP8's
     constexpr unsigned int kScratchIbIndices = 0x4000;
 
     FRpGpuFactory* G_Factory = nullptr;
@@ -28,7 +29,7 @@ namespace
     // the inner controller goes, and the ini section. Pointer fields, so it holds on x64 too.
     struct FAggDesc
     {
-        unsigned long Size;
+        FlULong Size;
         const char* Name;
         IDAComponent* Outer;
         IDAComponent** InnerOut;
@@ -101,12 +102,12 @@ GENRESULT DACOM_API FRpGpuInner::QueryInterface(const char* Iid, void** Out)
     return Owner->QueryLocal(Iid, Out);
 }
 
-unsigned long DACOM_API FRpGpuInner::AddRef()
+FlULong DACOM_API FRpGpuInner::AddRef()
 {
     return ++RefCount;
 }
 
-unsigned long DACOM_API FRpGpuInner::Release()
+FlULong DACOM_API FRpGpuInner::Release()
 {
     if (RefCount > 0)
         --RefCount;
@@ -130,16 +131,16 @@ GENRESULT DACOM_API FRpGpuFactory::QueryInterface(const char* Iid, void** Out)
     return GR_OK;
 }
 
-unsigned long DACOM_API FRpGpuFactory::AddRef()
+FlULong DACOM_API FRpGpuFactory::AddRef()
 {
     return ++RefCount;
 }
 
-unsigned long DACOM_API FRpGpuFactory::Release()
+FlULong DACOM_API FRpGpuFactory::Release()
 {
     if (RefCount > 0)
         --RefCount;
-    const unsigned long Left = RefCount;
+    const FlULong Left = RefCount;
     if (Left == 0)
     {
         if (G_Factory == this)
@@ -246,12 +247,12 @@ GENRESULT DACOM_API FRpGpu::QueryInterface(const char* Iid, void** Out)
     return QueryLocal(Iid, Out);
 }
 
-unsigned long DACOM_API FRpGpu::AddRef()
+FlULong DACOM_API FRpGpu::AddRef()
 {
     return Outer_ != nullptr ? Outer_->AddRef() : Inner_.AddRef();
 }
 
-unsigned long DACOM_API FRpGpu::Release()
+FlULong DACOM_API FRpGpu::Release()
 {
     return Outer_ != nullptr ? Outer_->Release() : Inner_.Release();
 }
@@ -336,13 +337,13 @@ GENRESULT DACOM_API FRpGpu::GetDeviceInfo(void* Out520)
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long* Out)
+GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, FlULong* Out)
 {
     if (!bStarted_)
         return GR_GENERIC;
     if (Index > 0x14 || Out == nullptr)
         return GR_INVALID_PARMS;
-    unsigned long Value = 0;
+    FlULong Value = 0;
     switch (Index)
     {
     case 3:
@@ -389,7 +390,7 @@ GENRESULT DACOM_API FRpGpu::GetDisplayModeEnum(unsigned int Index, void* Out)
     LoadModes();
     if (Out == nullptr || Index >= Modes_.size())
         return GR_GENERIC;
-    unsigned long* const Record = static_cast<unsigned long*>(Out);
+    FlULong* const Record = static_cast<FlULong*>(Out);
     const FMode& Mode = Modes_[Index];
     Record[0] = Index;
     Record[1] = Mode.Width;
@@ -479,7 +480,7 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
 GENRESULT DACOM_API FRpGpu::GetModeBlob(void* OutAdapter, void* OutMode10Dwords)
 {
     if (OutAdapter != nullptr)
-        *static_cast<unsigned long*>(OutAdapter) = 0;
+        *static_cast<FlULong*>(OutAdapter) = 0;
     if (OutMode10Dwords != nullptr)
         std::memset(OutMode10Dwords, 0, 0x28);
     return GR_OK;
@@ -498,7 +499,7 @@ GENRESULT DACOM_API FRpGpu::DestroyGpuResources()
 // (RP8 passes one D3DRECT: left, top, right, bottom) cut to the viewport. A clear of the whole
 // target is a render-pass clear; any other is drawn as a quad that writes the clear colour and
 // depth over its pixels, with no depth test, blending or write mask. Stencil is not kept.
-GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
+GENRESULT DACOM_API FRpGpu::ClearBuffers(FlULong Flags, const void* Rects)
 {
     if (!bBuffersActive_ || (Flags & 3) == 0)
         return GR_OK;
@@ -528,18 +529,18 @@ GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
     }
 
     // The area: the viewport (the target when it has no size yet), cut to the rectangle.
-    long Left = Viewport_[0];
-    long Top = Viewport_[1];
-    long Right = Viewport_[2] > 0 ? static_cast<long>(Viewport_[0]) + Viewport_[2] : TargetW;
-    long Bottom = Viewport_[3] > 0 ? static_cast<long>(Viewport_[1]) + Viewport_[3] : TargetH;
+    FlLong Left = Viewport_[0];
+    FlLong Top = Viewport_[1];
+    FlLong Right = Viewport_[2] > 0 ? static_cast<FlLong>(Viewport_[0]) + Viewport_[2] : TargetW;
+    FlLong Bottom = Viewport_[3] > 0 ? static_cast<FlLong>(Viewport_[1]) + Viewport_[3] : TargetH;
     if (Rects != nullptr)
     {
         std::int32_t Raw[4]; // D3DRECT: four LONGs, 32-bit on Win32 and x64 (LLP64)
         std::memcpy(Raw, Rects, sizeof(Raw));
-        Left = std::max<long>(Left, Raw[0]);
-        Top = std::max<long>(Top, Raw[1]);
-        Right = std::min<long>(Right, Raw[2]);
-        Bottom = std::min<long>(Bottom, Raw[3]);
+        Left = std::max<FlLong>(Left, Raw[0]);
+        Top = std::max<FlLong>(Top, Raw[1]);
+        Right = std::min<FlLong>(Right, Raw[2]);
+        Bottom = std::min<FlLong>(Bottom, Raw[3]);
     }
     if (Left >= Right || Top >= Bottom)
         return GR_OK; // nothing left to clear
@@ -671,7 +672,7 @@ GENRESULT DACOM_API FRpGpu::EndScene()
 // buffers, and IRPDraw::DrawIndexedPrimitive draws from it. Every draw that passes RP8's
 // primitive-count check runs RP8's FlushDrawState (a changed view is committed, queued lights
 // are sent), whether or not RPGPU can record it.
-GENRESULT DACOM_API FRpGpu::DrawPrimitive(unsigned long Prim, unsigned int Fvf, const void* Verts,
+GENRESULT DACOM_API FRpGpu::DrawPrimitive(FlULong Prim, unsigned int Fvf, const void* Verts,
                                           unsigned int Count, void* Unused)
 {
     (void)Unused;
@@ -683,9 +684,9 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitive(unsigned long Prim, unsigned int Fvf, 
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(unsigned long Prim, unsigned int Fvf, const void* Verts,
+GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(FlULong Prim, unsigned int Fvf, const void* Verts,
                                                    unsigned int VertCount, const void* Indices,
-                                                   unsigned int IndexCount, unsigned long Unused)
+                                                   unsigned int IndexCount, FlULong Unused)
 {
     (void)Unused;
     if (!bBuffersActive_ || PrimCountFromVerts(Prim, IndexCount) <= 0)
@@ -697,7 +698,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveUp(unsigned long Prim, unsigned 
     return GR_OK;
 }
 
-GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsigned int StartVertex,
+GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(FlULong Prim, void* Vb, unsigned int StartVertex,
                                             unsigned int Count, void* Unused)
 {
     (void)Unused;
@@ -715,9 +716,9 @@ GENRESULT DACOM_API FRpGpu::DrawPrimitiveVb(unsigned long Prim, void* Vb, unsign
 // RP8 copies the indices into its scratch index buffer and draws from there with BaseVertex as
 // the base vertex, which leaves the vertex buffer and the scratch buffer selected. NumVerts is
 // Direct3D's hint; the vertices the indices reach are what is drawn.
-GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb, unsigned int BaseVertex,
+GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(FlULong Prim, void* Vb, unsigned int BaseVertex,
                                                    unsigned int NumVerts, const void* Indices,
-                                                   unsigned int IndexCount, unsigned long Unused)
+                                                   unsigned int IndexCount, FlULong Unused)
 {
     (void)Unused;
     (void)NumVerts;
@@ -744,7 +745,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitiveVb(unsigned long Prim, void* Vb,
 
 // Direct3D 8's DrawIndexedPrimitive on the selected buffers: Count indices from StartIndex, each
 // counted from SelectIb's base vertex. MinIndex and NumVertices are Direct3D's hints.
-GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned int MinIndex, unsigned int NumVertices,
+GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(FlULong Prim, unsigned int MinIndex, unsigned int NumVertices,
                                                  unsigned int StartIndex, unsigned int Count)
 {
     (void)MinIndex;

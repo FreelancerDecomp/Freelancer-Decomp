@@ -1,3 +1,5 @@
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
+
 // RPGPU's draw recording (docs/re/rpgpu.md, "Drawing"): every draw call converts the game's
 // vertices into FRpGpuVertex and records one command with the render state and transforms of
 // the moment; SwapBuffers hands the frame to the backend. Pre-transformed vertices
@@ -384,7 +386,7 @@ std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signatu
     return Key;
 }
 
-void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
+void FRpGpu::RecordDraw(FlULong Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
                         unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
                         FRpGpuBuffer* StaticSource, unsigned int SourceBase, FRpGpuBuffer* IndexSource,
                         unsigned int IndexStart)

@@ -37,18 +37,18 @@ GENRESULT DACOM_API FMaterialLibraryController::QueryInterface(const char* Iid, 
     return GR_OK;
 }
 
-unsigned long DACOM_API FMaterialLibraryController::AddRef()
+FlULong DACOM_API FMaterialLibraryController::AddRef()
 {
     // Shared ICF FUN_06ecb930. Factory f06d always installs the owning library.
     return ++Owner->RefCount;
 }
 
-unsigned long DACOM_API FMaterialLibraryController::Release()
+FlULong DACOM_API FMaterialLibraryController::Release()
 {
     // LAB_06ecf1c0: zero never wraps, and destructor callbacks observe count one.
     if (Owner->RefCount > 0)
         --Owner->RefCount;
-    const unsigned long Result = Owner->RefCount;
+    const FlULong Result = Owner->RefCount;
     if (Result == 0)
     {
         Owner->RefCount = 1;
@@ -65,12 +65,12 @@ GENRESULT DACOM_API FLibraryAggregate::QueryInterface(const char* Iid, void** Ou
     return Owner->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FLibraryAggregate::AddRef()
+FlULong DACOM_API FLibraryAggregate::AddRef()
 {
     return Owner->AddRef();
 }
 
-unsigned long DACOM_API FLibraryAggregate::Release()
+FlULong DACOM_API FLibraryAggregate::Release()
 {
     return Owner->Release();
 }
@@ -139,13 +139,13 @@ GENRESULT DACOM_API FMaterialLibrary::QueryInterface(const char* Iid, void** Out
     return ControllingUnknown->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FMaterialLibrary::AddRef()
+FlULong DACOM_API FMaterialLibrary::AddRef()
 {
     // Dedicated +44 controller; embedded library points to its batcher face.
     return ControllingUnknown->AddRef();
 }
 
-unsigned long DACOM_API FMaterialLibrary::Release()
+FlULong DACOM_API FMaterialLibrary::Release()
 {
     // Dedicated +44 controller; embedded library points to its batcher face.
     return ControllingUnknown->Release();
@@ -212,13 +212,13 @@ GENRESULT DACOM_API FMaterialLibrary::RemoveMapRule(int Key, const char* Pattern
         const FMaterialMapRule& Rule = MapRules[Index];
         if (Rule.Key != Key || std::strcmp(Rule.Pattern.c_str(), Pattern) != 0)
             continue;
-        MapRules.erase(MapRules.begin() + (long)Index);
+        MapRules.erase(MapRules.begin() + (FlLong)Index);
         return GR_OK;
     }
     return GR_GENERIC;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::AllocateGroup(unsigned long* OutId)
+GENRESULT DACOM_API FMaterialLibrary::AllocateGroup(FlULong* OutId)
 {
     FMaterialGroup& Group = Groups[NextGroupId];
     Group.Id = NextGroupId;
@@ -232,7 +232,7 @@ GENRESULT DACOM_API FMaterialLibrary::AllocateGroup(unsigned long* OutId)
 
 GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void* Extra)
 {
-    unsigned long* OutGroupId = (unsigned long*)Extra;
+    FlULong* OutGroupId = (FlULong*)Extra;
     const char* SourceFile = "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\Shading\\Materials\\MaterialLibrary.cpp";
     if (FileSystem == nullptr)
     {
@@ -243,7 +243,7 @@ GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void*
     if (FileSystemOpenNode(FileSystem, "Material library") == 0)
     {
         if (OutGroupId != nullptr)
-            *OutGroupId = (unsigned long)-1;
+            *OutGroupId = (FlULong)-1;
         return (GENRESULT)-1;
     }
 
@@ -259,14 +259,14 @@ GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void*
     const int CountHandle = FileSystemOpenByDesc(FileSystem, &Desc);
     if (CountHandle != -1)
     {
-        unsigned long MaterialCount;
-        unsigned long BytesRead;
-        FileSystemRead(FileSystem, (unsigned long)CountHandle,
+        FlULong MaterialCount;
+        FlULong BytesRead;
+        FileSystemRead(FileSystem, (FlULong)CountHandle,
                        &MaterialCount, 4, &BytesRead);
-        FileSystemClose(FileSystem, (unsigned long)CountHandle);
+        FileSystemClose(FileSystem, (FlULong)CountHandle);
     }
 
-    std::vector<unsigned long> LoadedMembers;
+    std::vector<FlULong> LoadedMembers;
     WIN32_FIND_DATAA FindData;
     const int FindHandle = FileSystemFindFirst(FileSystem, "*.*", &FindData);
     if (FindHandle != -1)
@@ -277,7 +277,7 @@ GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void*
             if (ChildName[0] == '.' ||
                 (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
                 continue;
-            const unsigned long Crc = DACOM_CRC::GetCRC32(ChildName);
+            const FlULong Crc = DACOM_CRC::GetCRC32(ChildName);
             FMaterialLibraryRecord* Slot = FindByCrc(Crc);
             if (Slot != nullptr)
             {
@@ -298,19 +298,19 @@ GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void*
             bool bTypeRead = false;
             if (TypeHandle != -1)
             {
-                unsigned long Size = FileSystemGetSize(FileSystem,
-                    (unsigned long)TypeHandle);
+                FlULong Size = FileSystemGetSize(FileSystem,
+                    (FlULong)TypeHandle);
                 if (Size >= 0x103)
                     Size = 0x103;
-                unsigned long BytesRead;
+                FlULong BytesRead;
                 const int ReadResult = FileSystemRead(FileSystem,
-                    (unsigned long)TypeHandle, Type, Size, &BytesRead);
+                    (FlULong)TypeHandle, Type, Size, &BytesRead);
                 if (ReadResult != 0 && BytesRead == Size)
                 {
                     Type[BytesRead] = '\0';
                     bTypeRead = true;
                 }
-                FileSystemClose(FileSystem, (unsigned long)TypeHandle);
+                FileSystemClose(FileSystem, (FlULong)TypeHandle);
             }
             if (bTypeRead)
             {
@@ -334,8 +334,8 @@ GENRESULT DACOM_API FMaterialLibrary::LoadFromFileSystem(void* FileSystem, void*
                             "Unable to load material '%s' as type '%s'\n", ChildName, Type);
                         FDUMP(0x100003, "%s(%d) : NOTICE:General:%s",
                               SourceFile, 0x1C1, Message);
-                        unsigned long Record[2] = {
-                            (unsigned long)ChildName, Crc};
+                        FlULong Record[2] = {
+                            (FlULong)ChildName, Crc};
                         RemoveMaterial(0, Record);
                     }
                 }
@@ -370,7 +370,7 @@ GENRESULT DACOM_API FMaterialLibrary::DeleteGroup(int GroupId)
         return (GENRESULT)-1;
     if (GroupId == 0)
     {
-        std::map<unsigned long, FCrcSlot>::iterator It = CrcMap.begin();
+        std::map<FlULong, FCrcSlot>::iterator It = CrcMap.begin();
         while (It != CrcMap.end())
         {
             FCrcSlot& Slot = It->second;
@@ -388,7 +388,7 @@ GENRESULT DACOM_API FMaterialLibrary::DeleteGroup(int GroupId)
         }
         return GR_OK;
     }
-    FMaterialGroup* Group = FindGroup((unsigned long)GroupId);
+    FMaterialGroup* Group = FindGroup((FlULong)GroupId);
     if (Group == nullptr)
         return (GENRESULT)-1;
     for (size_t Index = 0; Index < Group->Members.size(); ++Index)
@@ -409,7 +409,7 @@ GENRESULT DACOM_API FMaterialLibrary::DeleteGroup(int GroupId)
             CrcMap.erase(Group->Members[Index]);
         }
     }
-    Groups.erase((unsigned long)GroupId);
+    Groups.erase((FlULong)GroupId);
     return GR_OK;
 }
 
@@ -419,7 +419,7 @@ GENRESULT DACOM_API FMaterialLibrary::ApplyVerifyGroup(int GroupId, void* Contex
         return (GENRESULT)-1;
     if (GroupId != 0)
     {
-        FMaterialGroup* Group = FindGroup((unsigned long)GroupId);
+        FMaterialGroup* Group = FindGroup((FlULong)GroupId);
         if (Group == nullptr)
             return GR_OK;
         for (size_t Index = 0; Index < Group->Members.size(); ++Index)
@@ -430,7 +430,7 @@ GENRESULT DACOM_API FMaterialLibrary::ApplyVerifyGroup(int GroupId, void* Contex
         }
         return GR_OK;
     }
-    for (std::map<unsigned long, FCrcSlot>::iterator It = CrcMap.begin();
+    for (std::map<FlULong, FCrcSlot>::iterator It = CrcMap.begin();
          It != CrcMap.end(); ++It)
     {
         It->second.Material->ApplyVerify(Context, Extra);
@@ -444,7 +444,7 @@ GENRESULT DACOM_API FMaterialLibrary::ResolveTexturesGroup(int GroupId, float De
         return (GENRESULT)-1;
     if (GroupId != 0)
     {
-        FMaterialGroup* Group = FindGroup((unsigned long)GroupId);
+        FMaterialGroup* Group = FindGroup((FlULong)GroupId);
         if (Group == nullptr)
             return GR_OK;
         for (size_t Index = 0; Index < Group->Members.size(); ++Index)
@@ -455,7 +455,7 @@ GENRESULT DACOM_API FMaterialLibrary::ResolveTexturesGroup(int GroupId, float De
         }
         return GR_OK;
     }
-    for (std::map<unsigned long, FCrcSlot>::iterator It = CrcMap.begin();
+    for (std::map<FlULong, FCrcSlot>::iterator It = CrcMap.begin();
          It != CrcMap.end(); ++It)
     {
         It->second.Material->ResolveTextures(Delta);
@@ -467,7 +467,7 @@ GENRESULT DACOM_API FMaterialLibrary::SetGroupName(int GroupId, const char* Name
 {
     if (GroupId == -1 || GroupId == 0)
         return (GENRESULT)-1;
-    FMaterialGroup* Group = FindGroup((unsigned long)GroupId);
+    FMaterialGroup* Group = FindGroup((FlULong)GroupId);
     if (Group == nullptr)
         return (GENRESULT)-1;
     Group->Name.clear();
@@ -480,11 +480,11 @@ GENRESULT DACOM_API FMaterialLibrary::SetGroupName(int GroupId, const char* Name
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::GetGroupName(int GroupId, char* Buffer, unsigned long Size)
+GENRESULT DACOM_API FMaterialLibrary::GetGroupName(int GroupId, char* Buffer, FlULong Size)
 {
     if (GroupId == -1 || GroupId == 0)
         return (GENRESULT)-1;
-    FMaterialGroup* Group = FindGroup((unsigned long)GroupId);
+    FMaterialGroup* Group = FindGroup((FlULong)GroupId);
     if (Group == nullptr)
         return (GENRESULT)-1;
     if (Group->bHasName)
@@ -499,13 +499,13 @@ GENRESULT DACOM_API FMaterialLibrary::GetGroupName(int GroupId, char* Buffer, un
     return GR_OK;
 }
 
-FCrcSlot* FMaterialLibrary::FindByCrc(unsigned long Crc)
+FCrcSlot* FMaterialLibrary::FindByCrc(FlULong Crc)
 {
-    const std::map<unsigned long, FCrcSlot>::iterator Found = CrcMap.find(Crc);
+    const std::map<FlULong, FCrcSlot>::iterator Found = CrcMap.find(Crc);
     return Found == CrcMap.end() ? nullptr : &Found->second;
 }
 
-void FMaterialLibrary::StoreCrc(unsigned long Crc, IMaterial* Material)
+void FMaterialLibrary::StoreCrc(FlULong Crc, IMaterial* Material)
 {
     // 06ecc42d..06ecc449: store the material, take its reference, set count=1.
     FCrcSlot& Slot = CrcMap[Crc];
@@ -516,9 +516,9 @@ void FMaterialLibrary::StoreCrc(unsigned long Crc, IMaterial* Material)
     Slot.RefCount = 1;
 }
 
-FMaterialGroup* FMaterialLibrary::FindGroup(unsigned long Id)
+FMaterialGroup* FMaterialLibrary::FindGroup(FlULong Id)
 {
-    const std::map<unsigned long, FMaterialGroup>::iterator It = Groups.find(Id);
+    const std::map<FlULong, FMaterialGroup>::iterator It = Groups.find(Id);
     return It == Groups.end() ? nullptr : &It->second;
 }
 
@@ -544,7 +544,7 @@ const char* FMaterialLibrary::ResolveType(const char* Name, const char* Type)
 GENRESULT DACOM_API FMaterialLibrary::FindOrCreate(const char* Name, const char* Type,
                                                   IDAComponent* AggregateOuter, IMaterial** Out)
 {
-    const unsigned long Crc = DACOM_CRC::GetCRC32(Name);
+    const FlULong Crc = DACOM_CRC::GetCRC32(Name);
     FMaterialLibraryRecord* Record = FindByCrc(Crc);
     if (Record == nullptr)
     {
@@ -561,7 +561,7 @@ GENRESULT DACOM_API FMaterialLibrary::FindOrCreate(const char* Name, const char*
 GENRESULT DACOM_API FMaterialLibrary::FindMaterialByCrc(void* Query, IMaterial** Out)
 {
     // LAB_06ecd5c0: a miss leaves the caller's output untouched.
-    const unsigned long Crc = static_cast<const FMaterialCrcQuery*>(Query)->Crc;
+    const FlULong Crc = static_cast<const FMaterialCrcQuery*>(Query)->Crc;
     FCrcSlot* Slot = FindByCrc(Crc);
     if (Slot == nullptr)
         return (GENRESULT)-1;
@@ -572,11 +572,11 @@ GENRESULT DACOM_API FMaterialLibrary::FindMaterialByCrc(void* Query, IMaterial**
 
 GENRESULT DACOM_API FMaterialLibrary::AddMaterial(int GroupId, void* Record, IMaterial* Material)
 {
-    const unsigned long Crc = ((unsigned long*)Record)[1];
+    const FlULong Crc = ((FlULong*)Record)[1];
     FMaterialGroup* Group = nullptr;
     if (GroupId != 0)
     {
-        Group = FindGroup((unsigned long)GroupId);
+        Group = FindGroup((FlULong)GroupId);
         if (Group == nullptr)
             return (GENRESULT)-1;
         // The retail group append precedes the master lookup and its error path.
@@ -601,9 +601,9 @@ GENRESULT DACOM_API FMaterialLibrary::AddMaterial(int GroupId, void* Record, IMa
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::RemoveMaterial(unsigned long GroupId, void* Record)
+GENRESULT DACOM_API FMaterialLibrary::RemoveMaterial(FlULong GroupId, void* Record)
 {
-    const unsigned long Crc = ((unsigned long*)Record)[1];
+    const FlULong Crc = ((FlULong*)Record)[1];
     FCrcSlot* Slot = FindByCrc(Crc);
     GENRESULT Result = GR_OK;
     if (GroupId != 0)
@@ -646,17 +646,17 @@ GENRESULT DACOM_API FMaterialLibrary::RemoveMaterial(unsigned long GroupId, void
     return Result;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::GetGroupCount(unsigned long* OutCount)
+GENRESULT DACOM_API FMaterialLibrary::GetGroupCount(FlULong* OutCount)
 {
     // LAB_06ecd830 reads the RB-tree node count at this+0x38 and includes the
     // reserved all-materials group at ordinal zero.
-    *OutCount = (unsigned long)Groups.size() + 1;
+    *OutCount = (FlULong)Groups.size() + 1;
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::EnumGroup(unsigned long Index, unsigned long* OutId)
+GENRESULT DACOM_API FMaterialLibrary::EnumGroup(FlULong Index, FlULong* OutId)
 {
-    const unsigned long Count = (unsigned long)Groups.size() + 1;
+    const FlULong Count = (FlULong)Groups.size() + 1;
     if (Index >= Count)
         return (GENRESULT)-1;
     if (Index == 0)
@@ -664,16 +664,16 @@ GENRESULT DACOM_API FMaterialLibrary::EnumGroup(unsigned long Index, unsigned lo
         *OutId = 0;
         return GR_OK;
     }
-    std::map<unsigned long, FMaterialGroup>::iterator It = Groups.begin();
-    for (unsigned long Ordinal = 1; Ordinal < Index; ++Ordinal)
+    std::map<FlULong, FMaterialGroup>::iterator It = Groups.begin();
+    for (FlULong Ordinal = 1; Ordinal < Index; ++Ordinal)
         ++It;
     *OutId = It->second.Id;
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::GetGroupMaterialCount(unsigned long GroupId, int* OutCount)
+GENRESULT DACOM_API FMaterialLibrary::GetGroupMaterialCount(FlULong GroupId, int* OutCount)
 {
-    if (GroupId == (unsigned long)-1)
+    if (GroupId == (FlULong)-1)
         return (GENRESULT)-1;
     if (GroupId == 0)
     {
@@ -687,17 +687,17 @@ GENRESULT DACOM_API FMaterialLibrary::GetGroupMaterialCount(unsigned long GroupI
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::EnumGroupMaterial(unsigned long GroupId, unsigned long Index,
+GENRESULT DACOM_API FMaterialLibrary::EnumGroupMaterial(FlULong GroupId, FlULong Index,
                                                          IMaterial** Out)
 {
-    if (GroupId == (unsigned long)-1)
+    if (GroupId == (FlULong)-1)
         return (GENRESULT)-1;
     if (GroupId == 0)
     {
         if (Index >= CrcMap.size())
             return (GENRESULT)-1;
-        std::map<unsigned long, FCrcSlot>::iterator It = CrcMap.begin();
-        for (unsigned long Ordinal = 0; Ordinal < Index; ++Ordinal)
+        std::map<FlULong, FCrcSlot>::iterator It = CrcMap.begin();
+        for (FlULong Ordinal = 0; Ordinal < Index; ++Ordinal)
             ++It;
         *Out = It->second.Material;
         It->second.Material->AddRef();
@@ -719,7 +719,7 @@ struct FGlobalMaterialRecord
 {
     unsigned char bActive;
     unsigned char Padding[3];
-    unsigned long Value;
+    FlULong Value;
 };
 
 FL_LAYOUT_ASSERT(sizeof(FGlobalMaterialRecord) == 8, "global material record stride");
@@ -729,20 +729,20 @@ FL_LAYOUT_ASSERT(sizeof(FGlobalMaterialRecord) == 8, "global material record str
 struct FGlobalMaterialRecordBuffer
 {
     unsigned char* Data;
-    unsigned long SizeBytes;
-    unsigned long CapacityBytes;
+    FlULong SizeBytes;
+    FlULong CapacityBytes;
 
-    unsigned long Size() const
+    FlULong Size() const
     {
-        return Data != nullptr ? (unsigned long)((long)SizeBytes >> 3) : 0;
+        return Data != nullptr ? (FlULong)((FlLong)SizeBytes >> 3) : 0;
     }
 
-    unsigned long Capacity() const
+    FlULong Capacity() const
     {
-        return Data != nullptr ? (unsigned long)((long)CapacityBytes >> 3) : 0;
+        return Data != nullptr ? (FlULong)((FlLong)CapacityBytes >> 3) : 0;
     }
 
-    FGlobalMaterialRecord* Record(unsigned long Index) const
+    FGlobalMaterialRecord* Record(FlULong Index) const
     {
         return (FGlobalMaterialRecord*)((uintptr_t)Data + Index * 8UL);
     }
@@ -772,9 +772,9 @@ static FGlobalMaterialRecordBuffer& GlobalMaterialRecords()
         GGlobalMaterialRecords.CapacityBytes = 0;
         FGlobalMaterialRecord Empty;
         Empty.bActive = 0;
-        Empty.Value = (unsigned long)-1;
+        Empty.Value = (FlULong)-1;
         unsigned char* Data = new unsigned char[5 * sizeof(FGlobalMaterialRecord)];
-        for (unsigned long Index = 0; Index < 5; ++Index)
+        for (FlULong Index = 0; Index < 5; ++Index)
         {
             unsigned char* Destination = (unsigned char*)((uintptr_t)Data + Index * 8UL);
             if (Destination != nullptr)
@@ -789,16 +789,16 @@ static FGlobalMaterialRecordBuffer& GlobalMaterialRecords()
     return GGlobalMaterialRecords;
 }
 
-static unsigned char* GlobalRecordAddress(unsigned char* Data, unsigned long Offset)
+static unsigned char* GlobalRecordAddress(unsigned char* Data, FlULong Offset)
 {
     return (unsigned char*)((uintptr_t)Data + Offset);
 }
 
 static void CopyGlobalRecordBytes(unsigned char* Destination, const unsigned char* Source,
-                                 unsigned long SizeBytes)
+                                 FlULong SizeBytes)
 {
     // 69f0/fa80: two DWORDs per record, including compiler padding.
-    for (unsigned long Offset = 0; Offset != SizeBytes; Offset += 8)
+    for (FlULong Offset = 0; Offset != SizeBytes; Offset += 8)
     {
         unsigned char* Target = GlobalRecordAddress(Destination, Offset);
         if (Target != nullptr)
@@ -806,10 +806,10 @@ static void CopyGlobalRecordBytes(unsigned char* Destination, const unsigned cha
     }
 }
 
-static void FillGlobalRecords(unsigned char* Destination, unsigned long Count,
+static void FillGlobalRecords(unsigned char* Destination, FlULong Count,
                               const FGlobalMaterialRecord& Value)
 {
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
         unsigned char* Target = GlobalRecordAddress(Destination, Index * 8UL);
         if (Target != nullptr)
@@ -817,10 +817,10 @@ static void FillGlobalRecords(unsigned char* Destination, unsigned long Count,
     }
 }
 
-static void ReserveGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned long Capacity)
+static void ReserveGlobalRecords(FGlobalMaterialRecordBuffer& Records, FlULong Capacity)
 {
     // daa0..db7e: signed allocation count, unsigned 32-bit byte multiplication.
-    const unsigned long AllocationCount = (long)Capacity < 0 ? 0 : Capacity;
+    const FlULong AllocationCount = (FlLong)Capacity < 0 ? 0 : Capacity;
     unsigned char* Data = new unsigned char[AllocationCount * 8UL];
     CopyGlobalRecordBytes(Data, Records.Data, Records.SizeBytes);
     delete[] Records.Data;
@@ -829,21 +829,21 @@ static void ReserveGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned 
     Records.Data = Data;
 }
 
-static void AppendGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned long Count,
+static void AppendGlobalRecords(FGlobalMaterialRecordBuffer& Records, FlULong Count,
                                 const FGlobalMaterialRecord& Value)
 {
     // df00 has only two retail callers (dbc6, f4f9), both insert at end.
-    const unsigned long Available = (unsigned long)((long)(Records.CapacityBytes - Records.SizeBytes) >> 3);
+    const FlULong Available = (FlULong)((FlLong)(Records.CapacityBytes - Records.SizeBytes) >> 3);
     if (Available >= Count)
     {
         FillGlobalRecords(GlobalRecordAddress(Records.Data, Records.SizeBytes), Count, Value);
         Records.SizeBytes += Count * 8UL;
         return;
     }
-    const unsigned long Size = Records.Size();
-    const unsigned long Growth = Size > Count ? Size : Count;
-    const unsigned long Capacity = Size + Growth;
-    const unsigned long AllocationCount = (long)Capacity < 0 ? 0 : Capacity;
+    const FlULong Size = Records.Size();
+    const FlULong Growth = Size > Count ? Size : Count;
+    const FlULong Capacity = Size + Growth;
+    const FlULong AllocationCount = (FlLong)Capacity < 0 ? 0 : Capacity;
     unsigned char* Data = new unsigned char[AllocationCount * 8UL];
     CopyGlobalRecordBytes(Data, Records.Data, Records.SizeBytes);
     FillGlobalRecords(GlobalRecordAddress(Data, Records.SizeBytes), Count, Value);
@@ -853,14 +853,14 @@ static void AppendGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned l
     Records.Data = Data;
 }
 
-static void ResizeGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned long Size)
+static void ResizeGlobalRecords(FGlobalMaterialRecordBuffer& Records, FlULong Size)
 {
-    const unsigned long OldSize = Records.Size();
+    const FlULong OldSize = Records.Size();
     if (OldSize < Size)
     {
         FGlobalMaterialRecord Empty;
         Empty.bActive = 0;
-        Empty.Value = (unsigned long)-1;
+        Empty.Value = (FlULong)-1;
         AppendGlobalRecords(Records, Size - OldSize, Empty);
     }
     else if (Records.Data != nullptr && Size < OldSize)
@@ -870,7 +870,7 @@ static void ResizeGlobalRecords(FGlobalMaterialRecordBuffer& Records, unsigned l
     }
 }
 
-void ActivateMaterialGlobalRecord(unsigned long Index)
+void ActivateMaterialGlobalRecord(FlULong Index)
 {
     // Each f440 activation reacquires the buffer after intervening registrations.
     FGlobalMaterialRecordBuffer& Records = GlobalMaterialRecords();
@@ -893,13 +893,13 @@ void InitializeMaterialGlobalRecords()
     ActivateMaterialGlobalRecord(0);
 }
 
-unsigned long GetMaterialGlobalRecordValue(unsigned long Index)
+FlULong GetMaterialGlobalRecordValue(FlULong Index)
 {
     return GlobalMaterialRecords().Record(Index)->Value;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecord(unsigned long Index,
-                                                       const unsigned long* Value)
+GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecord(FlULong Index,
+                                                       const FlULong* Value)
 {
     // Full daa0..dc05: no range/input guard, including wrapping resize/erase.
     FGlobalMaterialRecordBuffer& Records = GlobalMaterialRecords();
@@ -915,11 +915,11 @@ GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecord(unsigned long Index,
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecordValue(unsigned long Index,
-                                                            const unsigned long* Value)
+GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecordValue(FlULong Index,
+                                                            const FlULong* Value)
 {
     FGlobalMaterialRecordBuffer& Records = GlobalMaterialRecords();
-    unsigned long* RecordValue = (unsigned long*)((uintptr_t)Records.Data +
+    FlULong* RecordValue = (FlULong*)((uintptr_t)Records.Data +
         Index * sizeof(FGlobalMaterialRecord) + offsetof(FGlobalMaterialRecord, Value));
     // 06ecdc1c-06ecdc30: only the computed address is tested.
     if (RecordValue == nullptr)
@@ -928,11 +928,11 @@ GENRESULT DACOM_API FMaterialLibrary::SetGlobalRecordValue(unsigned long Index,
     return GR_OK;
 }
 
-GENRESULT DACOM_API FMaterialLibrary::GetGlobalRecordValue(unsigned long Index,
-                                                            unsigned long* OutValue)
+GENRESULT DACOM_API FMaterialLibrary::GetGlobalRecordValue(FlULong Index,
+                                                            FlULong* OutValue)
 {
     FGlobalMaterialRecordBuffer& Records = GlobalMaterialRecords();
-    const unsigned long* RecordValue = (const unsigned long*)((uintptr_t)Records.Data +
+    const FlULong* RecordValue = (const FlULong*)((uintptr_t)Records.Data +
         Index * sizeof(FGlobalMaterialRecord) + offsetof(FGlobalMaterialRecord, Value));
     // 06ecdc4c-06ecdc60: the caller's output is mandatory on success.
     if (RecordValue == nullptr)
@@ -946,7 +946,7 @@ FMaterialLibraryRecord* FMaterialLibrary::CreateGenericRecord(const char* Name, 
                                                                IDAComponent* AggregateOuter)
 {
     // 06ecc2d0: CRC is computed before truncating/lowercasing the name.
-    const unsigned long Crc = DACOM_CRC::GetCRC32(Name);
+    const FlULong Crc = DACOM_CRC::GetCRC32(Name);
     char NameCopy[0x40];
     std::strncpy(NameCopy, Name, sizeof(NameCopy));
     NameCopy[sizeof(NameCopy) - 1] = '\0';
@@ -1004,7 +1004,7 @@ FMaterialLibraryRecord* DACOM_API FMaterialLibrary::CreateAfterMap(const char* N
         return CreateGenericRecord(Name, Type, bRemap, AggregateOuter);
 
     // 06ec9aa0: override selects a wrapper after ordinary material remapping.
-    const unsigned long Crc = DACOM_CRC::GetCRC32(Name);
+    const FlULong Crc = DACOM_CRC::GetCRC32(Name);
     char NameCopy[0x40];
     std::strncpy(NameCopy, Name, sizeof(NameCopy));
     NameCopy[sizeof(NameCopy) - 1] = '\0';

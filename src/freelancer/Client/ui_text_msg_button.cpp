@@ -179,7 +179,7 @@ void UiTextMsgButton::Draw()
     // DAT_00679ba4, FUN_00561f20), idle (DAT_0067dbac) and non-interactive (DAT_0067dba4). Only
     // the colour bytes +0x4c1..+0x4c3 are compared; a change rebuilds the content.
     bool const bHovered = Win3DGetHover() == this;
-    unsigned long PulseArgb = 0;
+    FlULong PulseArgb = 0;
     NnUiPulseBlendFromArgb(&PulseArgb, G_NnPaletteArgb_679ba4);
     unsigned char* const Attrs = reinterpret_cast<unsigned char*>(&CaptionAttrs.Packed);
 

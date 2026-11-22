@@ -270,7 +270,7 @@ struct FChatCommandContext {
     CHAT_ID Sender;         // +0x00
     CHAT_ID Target;         // +0x04
     const void* Data;       // +0x08
-    unsigned long Size;     // +0x0C
+    FlULong Size;     // +0x0C
     bool bPassThrough;      // +0x10  set: continue with the rewritten message
 };
 
@@ -559,7 +559,7 @@ static bool __cdecl ChatCommand_Group(FChatCommandContext* Ctx, std::vector<std:
 // ---------------------------------------------------------------------------
 // IServerImpl::SubmitChat (0x06d191b0, 906 insns, `RET 0x14`).
 // ---------------------------------------------------------------------------
-void Server_SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId)
+void Server_SubmitChat(CHAT_ID Sender, FlULong Size, const void* Data, CHAT_ID Target, int SystemId)
 {
     // 1. .text:06d191be .. 06d19328 -- eight push_backs through FUN_06d1b2d0, once.
     if (!GChatCommandsBuilt) {

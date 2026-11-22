@@ -158,8 +158,8 @@ public:
     void put_U16(unsigned short Value);
     unsigned short get_U16();
 
-    void put_U32(unsigned long Value);
-    unsigned long get_U32();
+    void put_U32(FlULong Value);
+    FlULong get_U32();
 
     void put_int(int Value);
     int get_int();
@@ -186,8 +186,8 @@ public:
     void get_image(unsigned short* V);
     void put_image(const int& V);
     void get_image(int* V);
-    void put_image(const unsigned long& V);
-    void get_image(unsigned long* V);
+    void put_image(const FlULong& V);
+    void get_image(FlULong* V);
     void put_image(const float& V);
     void get_image(float* V);
 
@@ -590,7 +590,7 @@ public:
     static bool SetTextKey(char* Key);
     // 0x062a8920 ?SetAcctIndex@CPlayerAccount@@SAXK@Z: retail body is a bare RET (ICF-folded
     // with other empty functions); it does not store into g_dwAccountIndex.
-    static void SetAcctIndex(unsigned long Index);
+    static void SetAcctIndex(FlULong Index);
 
     // Account name accessors
     const char* GetAccountNameChar();
@@ -611,7 +611,7 @@ protected:
     MD5Hash* HashName;      // +0x04 (heap, sizeof 0xDC)
     MD5Hash* HashVerify;    // +0x08 (heap, sizeof 0xDC)
 
-    static unsigned long g_dwAccountIndex;
+    static FlULong g_dwAccountIndex;
 };
 
 FL_LAYOUT_ASSERT(sizeof(CPlayerAccount) == 0x0C, "CPlayerAccount size");

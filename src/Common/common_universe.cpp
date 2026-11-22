@@ -41,7 +41,7 @@ using CmnUniverse::SYSTEM;
 namespace
 {
     const char kSystemsSource[] = "E:\\FL\\Scratch\\Source\\Common\\Systems.cpp";
-    const unsigned long kPathChars = 0x104;
+    const FlULong kPathChars = 0x104;
     const unsigned kValidIdMask = 0x3fffffff;
 
     int GUniverseRefCount = 0;

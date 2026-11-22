@@ -83,7 +83,7 @@ int MiscUtilLoadMaterialLibrary(char const* File)
     // before the load. Implementation 0 lets Common pick the file system. None of the results
     // is checked.
     IFileSystem* FileSystem = nullptr;
-    unsigned long Group = 0xffffffffu;
+    FlULong Group = 0xffffffffu;
     DAEngine_create_filesystem(File, &FileSystem, nullptr);
     DALib::MaterialLib->LoadFromFileSystem(FileSystem, &Group);            // slot 8 (+0x20)
     DALib::MaterialLib->ApplyVerifyGroup(static_cast<int>(Group), nullptr, // slot 11 (+0x2c)
@@ -458,7 +458,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* /*Data*/, FAnimS
                                  Archetype::FCliVc6Vector<Archetype::FCliMaterialPathPair> const*
                                      MaterialPaths,
                                  std::vector<Archetype::FCliMaterialEntry*>* Entries,
-                                 long* OutHandle)
+                                 FlLong* OutHandle)
 {
     // FUN_0041c540. 0041c546..0041c572: Engine +0x44 on {File, CRC32(File)}.
     void* Instance = reinterpret_cast<void*>(static_cast<intptr_t>(-1));
@@ -471,7 +471,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* /*Data*/, FAnimS
     {
         // 0041c6fa..0041c722: already loaded -- *OutHandle, Engine +0x5c (Handle, 0), +0x3c.
         if (OutHandle != nullptr)
-            *OutHandle = static_cast<long>(reinterpret_cast<std::intptr_t>(Found));
+            *OutHandle = static_cast<FlLong>(reinterpret_cast<std::intptr_t>(Found));
         void* const Created = DALib::Engine->CreateInstance(Found, nullptr);
         DALib::Engine->ReleaseHandle(Found);
         // 0041c725..0041c763: the scripts through a fresh file system (retail parks it in the
@@ -480,7 +480,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* /*Data*/, FAnimS
         {
             IFileSystem* Filesys = nullptr;
             DAEngine_create_filesystem(File, &Filesys, nullptr);
-            Scripts->Load(static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(DALib::Anim->OpenScript(Filesys))));
+            Scripts->Load(static_cast<FlULong>(reinterpret_cast<std::uintptr_t>(DALib::Anim->OpenScript(Filesys))));
             DAEngine_release_filesystem(&Filesys);
         }
         return Created;
@@ -505,7 +505,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* /*Data*/, FAnimS
 
     // 0041c5bf..0041c5fe: the archetype; a failure leaves the file system and the entries as
     // they are.
-    long Handle = 0;
+    FlLong Handle = 0;
     if (!Archetype::Load(Filesys, &Handle, nullptr))
     {
         FDUMP(0x100002, "%s(%d) : *** WARNING: couldnt load archetype (%s) .", kMiscUtilCpp,
@@ -521,7 +521,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* /*Data*/, FAnimS
 
     // 0041c631..0041c64e: Anim +0xc on the file system into FUN_00555bf0.
     if (Scripts != nullptr)
-        Scripts->Load(static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(DALib::Anim->OpenScript(Filesys))));
+        Scripts->Load(static_cast<FlULong>(reinterpret_cast<std::uintptr_t>(DALib::Anim->OpenScript(Filesys))));
     // 0041c653..0041c658.
     DAEngine_release_filesystem(&Filesys);
 

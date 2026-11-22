@@ -601,8 +601,8 @@ void FontStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
             // 0x004130c0..0x00413110: FUN_00402e30(frame, 2, 0) for every page, before any
             // clipping. Retail writes only the frame's texture dword; the four rect dwords are
             // stack contents. The records carry their own UVs, so the port passes zeros there.
-            unsigned long Frame[5] = {
-                static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Col->Texture)), 0ul, 0ul,
+            FlULong Frame[5] = {
+                static_cast<FlULong>(reinterpret_cast<uintptr_t>(Col->Texture)), 0ul, 0ul,
                 0ul, 0ul};
             ScreenQuadBeginBatchFrame(Frame, 2, false);
             // 0x00413115..0x0041319e: the far corner, and the shadow quad offset by the scale
@@ -1809,7 +1809,7 @@ void NumberStringChild::Paint(void* Origin, void* DrawCtx, void* DrawArg)
     // 0041390c..00413925: FUN_00402e30(frame, 2, 1) with the page texture in the frame's first
     // dword. Retail leaves the frame's four rect dwords unwritten (stack contents); the records
     // below carry their own UVs, so the port passes zeros there.
-    unsigned long Frame[5] = {static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Page->Texture)),
+    FlULong Frame[5] = {static_cast<FlULong>(reinterpret_cast<uintptr_t>(Page->Texture)),
                               0ul, 0ul, 0ul, 0ul};
     ScreenQuadBeginBatchFrame(Frame, 2, true);
     // 0041392a..0041393d: FUN_00414070 on a stale face.

@@ -66,7 +66,7 @@ namespace
     // instance (IEngine+0xa0) copied to the stack, then 3DMathEngine+0x28 TransformXform
     // (GetBarrelPosWS 06299af7..06299b3b, ComputeProjectilePosAndVelocity_OneBarrel
     // 06299907..0629994d, GetAvgBarrelPosWS 06299cb5..06299cfa). No guards.
-    Vector BarrelPointWS(long Instance, Vector const& Local)
+    Vector BarrelPointWS(FlLong Instance, Vector const& Local)
     {
         Transform const Xform = *(Transform const*)DALib::Engine->GetInstanceTransform((void*)Instance);
         Vector Out;
@@ -78,7 +78,7 @@ namespace
     // The world firing direction of a barrel: the 9-dword engine orientation (IEngine+0x98) times
     // the hardpoint orientation (3DMathEngine+0x20 MulMatrix), negated third column
     // (GetBarrelDirWS 06299ba7..06299c13, GetAvgBarrelDirWS 06299e27..06299ecf). No guards.
-    Vector BarrelDirWS(long Instance, Matrix const& HpOrient)
+    Vector BarrelDirWS(FlLong Instance, Matrix const& HpOrient)
     {
         Matrix const Ori = *(Matrix const*)DALib::Engine->GetInstanceOrientation((void*)Instance);
         Matrix World;
@@ -207,7 +207,7 @@ bool CELauncher::Connect(char const* HpName)
     for (; Barrel < 8; ++Barrel)
     {
         GLauncherHpFireName[7] = (char)('1' + Barrel);
-        long Found = -1;   // retail reuses the HpName argument slot; read only after a hit
+        FlLong Found = -1;   // retail reuses the HpName argument slot; read only after a hit
         HardpointInfo Info;
         if (!FindHardpoint_OS(GetRootIndex(), GLauncherHpFireName, Found, Info))   // vt+0x84
         {

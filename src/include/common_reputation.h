@@ -119,14 +119,14 @@ struct COMMON_API bodypart
     void init(char const* Nickname, char const* InMesh, int InSex,
               std::list<std::string>* InPetalAnimations, DetailSwitchTable* InSwitch);
 
-    unsigned long get_name_crc() const;             // 0x06261d90  [+0x00]
+    FlULong get_name_crc() const;             // 0x06261d90  [+0x00]
     char const* get_name() const;                   // 0x062ff140  (shared with accessory)
     char const* get_mesh() const;                   // 0x062b68f0  [+0x04].c_str()
     int get_gender() const;                         // 0x06263bb0  [+0x14]
     DetailSwitchTable* get_switch_table() const;    // 0x062a0160  [+0x18]
     std::list<std::string>* get_petal_anims() const; // 0x062629e0 [+0x1c]
 
-    unsigned long Id;                               // +0x00
+    FlULong Id;                               // +0x00
     std::string Mesh;                               // +0x04
     int Sex;                                        // +0x14
     // Borrowed, non-owning pointer into CostumeDescriptions::DetailSwitchTables (node-stable
@@ -156,14 +156,14 @@ struct COMMON_API accessory
     void init(char const* Nickname, char const* InMesh, char const* InAccessoryHardpoint,
               char const* InCharacterHardpoint, std::list<std::string> const& InMaterials);
 
-    unsigned long get_name_crc() const;             // 0x06261d90  [+0x00]
+    FlULong get_name_crc() const;             // 0x06261d90  [+0x00]
     char const* get_name() const;                   // 0x062ff140  (shared with bodypart)
     char const* get_mesh() const;                   // 0x062b68f0  [+0x04].c_str()
     char const* get_accessory_hardpoint() const;    // 0x062b6900  [+0x14].c_str()
     char const* get_character_hardpoint() const;    // 0x062b6910  [+0x24].c_str()
     std::list<std::string> const& get_materials() const; // 0x06295a30 [+0x34]
 
-    unsigned long Id;                               // +0x00
+    FlULong Id;                               // +0x00
     std::string Mesh;                               // +0x04
     std::string AccessoryHardpoint;                 // +0x14
     std::string CharacterHardpoint;                 // +0x24
@@ -209,24 +209,24 @@ public:
     void load_bodyparts(char const* Path);
     void load_costumes(char const* Path);
 
-    bodypart const* find_bodypart(int TypeId, unsigned long NicknameId) const;
+    bodypart const* find_bodypart(int TypeId, FlULong NicknameId) const;
     bodypart const* find_bodypart(int TypeId, char const* Name) const;
-    accessory const* find_accessory(unsigned long NicknameId) const;
+    accessory const* find_accessory(FlULong NicknameId) const;
     accessory const* find_accessory(char const* Name) const;
-    costume const* find_costume(unsigned long NicknameId) const;
+    costume const* find_costume(FlULong NicknameId) const;
     costume const* find_costume(char const* Name) const;
-    unsigned long find_costume_id(char const* Name) const;
-    unsigned long find_accessory_id(char const* Name) const;
-    unsigned long find_part_id(int TypeId, char const* Name) const;
-    char const* get_part_name(int TypeId, unsigned long NicknameId) const;
-    char const* get_part_mesh(int TypeId, unsigned long NicknameId) const;
+    FlULong find_costume_id(char const* Name) const;
+    FlULong find_accessory_id(char const* Name) const;
+    FlULong find_part_id(int TypeId, char const* Name) const;
+    char const* get_part_name(int TypeId, FlULong NicknameId) const;
+    char const* get_part_mesh(int TypeId, FlULong NicknameId) const;
 
     void get_costume(char const* Name, Costume& Out) const;
     void get_costume(int NicknameId, Costume& Out) const;
     int get_costume_gender(Costume const& Cost) const;
     // Common.dll.txt:062b6ca0. Distinct retail overload: reads the stored Gender straight off
     // the costume record by id, instead of re-deriving it from the four bodypart maps.
-    int get_costume_gender(unsigned long NicknameId) const;
+    int get_costume_gender(FlULong NicknameId) const;
 
 private:
     // ?load_bodypart@CostumeDescriptions@@AAEXHHPAVDetailSwitchTable@@PAVINI_Reader@@@Z

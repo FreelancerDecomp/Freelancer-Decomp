@@ -92,7 +92,7 @@ FFontAtlasPage* CreateAtlasPage(unsigned NeedW, unsigned NeedH)
     memset(Page, 0, sizeof(*Page));
 
     // 0x00412d1f..0x00412d3c: FUN_005b7050 -- the id of a 16-bit 5/5/5/1 format.
-    unsigned long Format = 0;
+    FlULong Format = 0;
     PixelFormatFind(&Format, 0x10, 5, 5, 5, 1);
 
     // 0x00412d41..0x00412dcb: both sizes to a power of two (x > 0x40 ? 0x80 : 1, doubled until
@@ -461,7 +461,7 @@ unsigned char FontAtlasRasterize(FontStringChild* This, unsigned char bSkipSizeC
                 // 00412b4f..00412b72: DALib::Pipeline vt+0xc0 LockTexture(page +0, 0, &out);
                 // only out+0x10 is seeded, with FUN_005b7010(0). out+8 = pitch, out+0xc = bits.
                 FRpTextureLock LockOut;
-                LockOut.Format = static_cast<unsigned long>(PixelFormatFromD3D(0));
+                LockOut.Format = static_cast<FlULong>(PixelFormatFromD3D(0));
                 IRenderPipeline* const Pipeline =
                     DALib::Pipeline;
                 if (Pipeline->LockTexture(Page->Texture, 0, &LockOut) != GR_OK)
@@ -476,7 +476,7 @@ unsigned char FontAtlasRasterize(FontStringChild* This, unsigned char bSkipSizeC
                 {
                     // 00412b80..00412beb: every pixel of the tile with bit 15 set when non-zero;
                     // the source row advances by DAT_00616668 pixels, the destination by pitch.
-                    unsigned long const Pitch = LockOut.Pitch;
+                    FlULong const Pitch = LockOut.Pitch;
                     unsigned char* DestRow = static_cast<unsigned char*>(LockOut.Bits);
                     for (unsigned RowsLeft = TileH; RowsLeft != 0u; --RowsLeft)
                     {

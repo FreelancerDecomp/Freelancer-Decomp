@@ -20,7 +20,7 @@ namespace Platform
 
     // SHGetFolderPathA(0, Folder, 0, SHGFP_TYPE_CURRENT, Path). Path holds MAX_PATH chars.
     // Returns the HRESULT: 0 (S_OK) on success.
-    inline long UserFolder(int Folder, char* Path)
+    inline FlLong UserFolder(int Folder, char* Path)
     {
         return ::SHGetFolderPathA(nullptr, Folder, nullptr, SHGFP_TYPE_CURRENT, Path);
     }

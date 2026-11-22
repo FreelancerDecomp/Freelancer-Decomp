@@ -20,32 +20,32 @@
 // One colour channel of a descriptor.
 struct FPixelFormatChannel
 {
-    unsigned long Bits;  // +0x00
-    unsigned long Mask;  // +0x04
-    unsigned long Shift; // +0x08
-    unsigned long Loss;  // +0x0c -- 8 - Bits
+    FlULong Bits;  // +0x00
+    FlULong Mask;  // +0x04
+    FlULong Shift; // +0x08
+    FlULong Loss;  // +0x0c -- 8 - Bits
 };
 
 // DAT_00615ec8 entry.
 struct FPixelFormatDesc
 {
-    unsigned long Id;             // +0x00
-    unsigned long Bpp;            // +0x04
+    FlULong Id;             // +0x00
+    FlULong Bpp;            // +0x04
     FPixelFormatChannel Red;      // +0x08
     FPixelFormatChannel Green;    // +0x18
     FPixelFormatChannel Blue;     // +0x28
     FPixelFormatChannel Alpha;    // +0x38
-    unsigned long HasAlpha;       // +0x48 -- FUN_005b7050 reads its low byte
+    FlULong HasAlpha;       // +0x48 -- FUN_005b7050 reads its low byte
 };
 
 FL_LAYOUT_ASSERT(sizeof(FPixelFormatDesc) == 0x4c, "retail PixelFormat descriptor is 0x4c bytes");
 
 // FUN_005b7000 -- DAT_00615e70, the 0x16-entry D3DFORMAT array.
-unsigned long* PixelFormatGetD3DFormats();
+FlULong* PixelFormatGetD3DFormats();
 
 // FUN_005b7010 (cdecl) -- the id whose D3DFORMAT equals D3DFormat, or 0 when none does. Every
 // caller seeds a format id with FUN_005b7010(0), i.e. id 0.
-int PixelFormatFromD3D(unsigned long D3DFormat);
+int PixelFormatFromD3D(FlULong D3DFormat);
 
 // FUN_005b7030 (cdecl) -- the descriptor of Id; an Id above 14 (signed compare) gives entry 0.
 FPixelFormatDesc* PixelFormatGetDesc(int Id);
@@ -56,5 +56,5 @@ FPixelFormatDesc* PixelFormatGetDesc(int Id);
 //
 // Retail quirk kept: the blue width is compared against the descriptor's RED width
 // (.text:005b709c CMP EDX,ECX with ECX still [EAX+8]), not its blue width.
-bool PixelFormatFind(unsigned long* OutId, unsigned long Bpp, unsigned long RedBits,
-                     unsigned long GreenBits, unsigned long BlueBits, unsigned long AlphaBits);
+bool PixelFormatFind(FlULong* OutId, FlULong Bpp, FlULong RedBits,
+                     FlULong GreenBits, FlULong BlueBits, FlULong AlphaBits);

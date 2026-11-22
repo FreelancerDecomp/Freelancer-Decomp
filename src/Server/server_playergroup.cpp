@@ -458,7 +458,7 @@ void CPlayerGroup::SendChat(int Style, const wchar_t* Msg, ...) {
 // IServerImpl::SubmitChat's group branch (.text:06d19d79), pushes the encoded chat
 // buffer DAT_06d8e5a8 and its size. Retail has no null check on DAT_06d8fb18 --
 // it reloads it per member (0x06d5bf40) -- so neither does this.
-void CPlayerGroup::DeliverChat(unsigned long MsgType, const void* MsgData) {
+void CPlayerGroup::DeliverChat(FlULong MsgType, const void* MsgData) {
     std::set<unsigned int>::const_iterator It = m_Members.begin();
     for (; It != m_Members.end(); ++It) {
         g_pChatClientInterface->SendCommonChatMsg(CHAT_ID(MakeChatId(*It)), CHAT_ID(GDeliverChatSourceId),

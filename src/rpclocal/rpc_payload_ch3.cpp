@@ -723,7 +723,7 @@ static bool MarshalRequestEvent(FPacketBase* Packet, const unsigned int* Args, u
 static bool DeliverRequestEvent(const FPacketBase* Packet, IServer* Server, unsigned int SessionId) {
     const FPayloadClientRequestEvent Wire = RpcPayloadRead<FPayloadClientRequestEvent>(Packet, 0);
     Server->RequestEvent((int)Wire.EventType, Wire.Field_0x04, Wire.Field_0x08, Wire.Field_0x0c,
-                         (unsigned long)Wire.Field_0x10, SessionId);
+                         (FlULong)Wire.Field_0x10, SessionId);
     return true;
 }
 
@@ -745,7 +745,7 @@ static bool MarshalRequestCancel(FPacketBase* Packet, const unsigned int* Args, 
 static bool DeliverRequestCancel(const FPacketBase* Packet, IServer* Server, unsigned int SessionId) {
     const FPayloadClientRequestCancel Wire = RpcPayloadRead<FPayloadClientRequestCancel>(Packet, 0);
     Server->RequestCancel((int)Wire.EventType, Wire.Field_0x04, Wire.Field_0x08,
-                          (unsigned long)Wire.Field_0x0c, SessionId);
+                          (FlULong)Wire.Field_0x0c, SessionId);
     return true;
 }
 
@@ -974,7 +974,7 @@ static bool DeliverDbgRelocateShip(const FPacketBase*, IServer*, unsigned int) {
 //     only ever worked by accident; it is gone too.
 //
 // The justification -- "rpclocal links no Common.dll" -- was never true of retail and
-// has not been true of this port since rpclocal.vcxproj started linking Common.lib.
+// has not been true of this port since rpclocal started linking Common.lib.
 // Retail imports the EquipDesc ctor, all six setters, make_internal and is_internal BY
 // NAME (.rdata:06db3004, 06db3070..06db308c, 06db30d8), and decorates its list import
 // `std::list<struct EquipDesc,...>::_Buynode` (06db30ac). Both containers are now the

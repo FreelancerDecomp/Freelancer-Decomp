@@ -190,7 +190,7 @@ int PhySys::RaySolver_MaskedSurface::check_ray_against_compact_ledge_os(const IV
 
 // ?GetRoot@@YAJJ@Z (.text:0630e6a0), defined in common_hierarchy.cpp next to the CObject*
 // overload; no header declares it.
-COMMON_API long __cdecl GetRoot(long Inst);
+COMMON_API FlLong __cdecl GetRoot(FlLong Inst);
 
 namespace
 {
@@ -276,7 +276,7 @@ namespace
 
     // The part-map entry {part id, instance, not a shield part} BuildIVP_Real and its walk
     // append (FUN_0628f700 / the inlined insert at 06288c0b..06288dff).
-    void PhySys_AppendPart(CObject* Object, unsigned PartId, long Instance)
+    void PhySys_AppendPart(CObject* Object, unsigned PartId, FlLong Instance)
     {
         FPartMapEntry Entry;
         Entry.PartId = PartId;
@@ -288,7 +288,7 @@ namespace
     // FUN_06288b30 (.text:06288b30..06288e53, cdecl): one engine instance of BuildIVP_Real's
     // walk. A free ('!fxd') part becomes an object of its own; any other instance stays with
     // Owner. Then the instance's children, owned by whichever of the two it went to.
-    void PhySys_BuildInstanceIVP_Real(CObject* Owner, long Instance, PhySys::CreateParms const& Parms)
+    void PhySys_BuildInstanceIVP_Real(CObject* Owner, FlLong Instance, PhySys::CreateParms const& Parms)
     {
         IEngine* const Engine = DALib::Engine;
 
@@ -320,7 +320,7 @@ namespace
         }
 
         // .text:06288e09..06288e4a
-        for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+        for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
              Child = PhySys_RelatedInstance(Instance, 1, Child))
         {
             PhySys_BuildInstanceIVP_Real(RecursionOwner, Child, Parms);
@@ -335,7 +335,7 @@ namespace
 // .text:06288970..06288b21.
 void __cdecl PhySys::BuildIVP_Real(CObject* Object, CreateParms const& Parms)
 {
-    long const Instance = Object->EngineInstanceId;
+    FlLong const Instance = Object->EngineInstanceId;
 
     // .text:06288973..06288989
     PhySys_SetInstanceObject(Instance, Object);
@@ -382,7 +382,7 @@ void __cdecl PhySys::BuildIVP_Real(CObject* Object, CreateParms const& Parms)
     }
 
     // .text:06288a7b..06288abf
-    for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+    for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
          Child = PhySys_RelatedInstance(Instance, 1, Child))
     {
         PhySys_BuildInstanceIVP_Real(Object, Child, ChildParms);
@@ -526,14 +526,14 @@ namespace
     // FUN_06284ae0 (.text:06284ae0..06284bb2, cdecl): walk ObjId's children; an instance of
     // another object (not null, not PrevRef) is linked onto NewParent and becomes PrevRef for
     // its own subtree, any other instance is descended into with PrevRef unchanged.
-    void PhySys_ReparentSubtree(long ObjId, CObject* NewParent, CObject* PrevRef)
+    void PhySys_ReparentSubtree(FlLong ObjId, CObject* NewParent, CObject* PrevRef)
     {
         // .text:06284ae0..06284ae8
         if (ObjId == -1)
             return;
 
         // .text:06284aee..06284ba8
-        for (long ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
+        for (FlLong ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
              ChildId = PhySys_RelatedInstance(ObjId, 1, ChildId))
         {
             CObject* const ChildObject = PhySys_InstanceObject(ChildId);
@@ -556,12 +556,12 @@ namespace
     void PhySys_LinkAllDirectChildren(CObject* NewParent, CObject* Container)
     {
         // .text:06284bc1..06284bd0
-        long const ObjId = Container->EngineInstanceId;
+        FlLong const ObjId = Container->EngineInstanceId;
         if (ObjId == -1)
             return;
 
         // .text:06284bd6..06284c8c
-        for (long ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
+        for (FlLong ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
              ChildId = PhySys_RelatedInstance(ObjId, 1, ChildId))
         {
             CObject* const ChildObject = PhySys_InstanceObject(ChildId);
@@ -581,14 +581,14 @@ namespace
     // of another object (not null, not Ref) has its desired collision state saved, its
     // collisions switched off and its body detached with default parms, and becomes Ref for
     // its own subtree; any other instance is descended into with Ref unchanged.
-    void PhySys_DisableCollisionsAndDetachSubtree(long ObjId, CObject* Ref, FCollisionSaveList& SaveList)
+    void PhySys_DisableCollisionsAndDetachSubtree(FlLong ObjId, CObject* Ref, FCollisionSaveList& SaveList)
     {
         // .text:06284690..0628469b
         if (ObjId == -1)
             return;
 
         // .text:062846a1..062847c8
-        for (long ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
+        for (FlLong ChildId = PhySys_RelatedInstance(ObjId, 1, -1); ChildId != -1;
              ChildId = PhySys_RelatedInstance(ObjId, 1, ChildId))
         {
             CObject* const ChildObject = PhySys_InstanceObject(ChildId);
@@ -655,10 +655,10 @@ void __cdecl PhySys::Attach(CObject* Parent, CObject* Child)
     PhySys_LinkBodies(Parent, Child);
 
     // .text:06284d2f..06284db9
-    long const ChildId = Child->EngineInstanceId;
+    FlLong const ChildId = Child->EngineInstanceId;
     if (ChildId != -1)
     {
-        for (long BelowId = PhySys_RelatedInstance(ChildId, 1, -1); BelowId != -1;
+        for (FlLong BelowId = PhySys_RelatedInstance(ChildId, 1, -1); BelowId != -1;
              BelowId = PhySys_RelatedInstance(ChildId, 1, BelowId))
         {
             CObject* const BelowObject = PhySys_InstanceObject(BelowId);
@@ -694,10 +694,10 @@ void __cdecl PhySys::Detach(CObject* Object, DetachParms const& Parms)
         PhySys_DetachBody(Object, Parms);                                // FUN_062847e0
 
         // .text:06284970..062849ec
-        long const ObjId = Object->EngineInstanceId;
+        FlLong const ObjId = Object->EngineInstanceId;
         if (ObjId != -1)
         {
-            for (long BelowId = PhySys_RelatedInstance(ObjId, 1, -1); BelowId != -1;
+            for (FlLong BelowId = PhySys_RelatedInstance(ObjId, 1, -1); BelowId != -1;
                  BelowId = PhySys_RelatedInstance(ObjId, 1, BelowId))
             {
                 CObject* const BelowObject = PhySys_InstanceObject(BelowId);
@@ -821,9 +821,9 @@ void __cdecl PhySys::DeactivatePhysics(CObject* Object)
 // DeactivatePhysics body (.text:062854d9..0628552d, the same instructions as 06285350) and is
 // recursed into with its own instance (+0x04); a child that is Object itself is recursed into
 // with the raw child instance. Neither the engine nor the child object is tested.
-static void PhySys_DeactivatePhysicsSelfLoop(CObject* Object, long Instance)
+static void PhySys_DeactivatePhysicsSelfLoop(CObject* Object, FlLong Instance)
 {
-    for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+    for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
          Child = PhySys_RelatedInstance(Instance, 1, Child))
     {
         CObject* const ChildObject = PhySys_InstanceObject(Child);
@@ -847,8 +847,8 @@ void __cdecl PhySys::DeactivatePhysicsR(CObject* Object)
 {
     DeactivatePhysics(Object);
 
-    long const Instance = Object->EngineInstanceId;
-    for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+    FlLong const Instance = Object->EngineInstanceId;
+    for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
          Child = PhySys_RelatedInstance(Instance, 1, Child))
     {
         CObject* const ChildObject = PhySys_InstanceObject(Child);
@@ -865,7 +865,7 @@ void __cdecl PhySys::DeactivatePhysicsR(CObject* Object)
 
 namespace
 {
-    void PhySys_ReMakeInstance(CObject* Owner, long Instance, PhySys::CreateParms const& Parms);
+    void PhySys_ReMakeInstance(CObject* Owner, FlLong Instance, PhySys::CreateParms const& Parms);
 
     // FUN_0628a510 (.text:0628a510..0628a6fe, cdecl): a new body for an object that keeps its
     // surface manager (or a ball of Radius without one), in Parms' system, then the same for
@@ -906,8 +906,8 @@ namespace
         }
 
         // .text:0628a68a..0628a6d7
-        long const Instance = Object->EngineInstanceId;
-        for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+        FlLong const Instance = Object->EngineInstanceId;
+        for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
              Child = PhySys_RelatedInstance(Instance, 1, Child))
         {
             PhySys_ReMakeInstance(Object, Child, Parms);
@@ -918,7 +918,7 @@ namespace
     // FUN_0628a700 (.text:0628a700..0628a7cb, cdecl): an instance that belongs to another
     // object rebuilds that object (as a ball of radius 0 if it has no surface manager) and
     // re-attaches it to Owner's root; an instance of Owner (or of nobody) is descended into.
-    void PhySys_ReMakeInstance(CObject* Owner, long Instance, PhySys::CreateParms const& Parms)
+    void PhySys_ReMakeInstance(CObject* Owner, FlLong Instance, PhySys::CreateParms const& Parms)
     {
         // .text:0628a700..0628a725
         CObject* const Child = PhySys_InstanceObject(Instance);
@@ -935,7 +935,7 @@ namespace
         }
 
         // .text:0628a77f..0628a7c5
-        for (long Below = PhySys_RelatedInstance(Instance, 1, -1); Below != -1;
+        for (FlLong Below = PhySys_RelatedInstance(Instance, 1, -1); Below != -1;
              Below = PhySys_RelatedInstance(Instance, 1, Below))
         {
             PhySys_ReMakeInstance(Owner, Below, Parms);
@@ -959,14 +959,14 @@ void __cdecl PhySys::ReMakePhysicalR(CObject* Object, CreateParms const& Parms, 
 // own child loop below one level down; kept separate because retail keeps it as its own
 // function (mutually structured with UnMakePhysicalR, not a plain sub-loop).
 // .text:0628a8b0..0628a98a (cdecl Owner, Instance). Nothing is tested but the user data.
-static void PhySys_UnMakePhysicalWalk(CObject* Owner, long Instance)
+static void PhySys_UnMakePhysicalWalk(CObject* Owner, FlLong Instance)
 {
     // .text:0628a8c1..0628a8d7
     CObject* const Owning = PhySys_InstanceObject(Instance);
     if (Owning == nullptr || Owning == Owner)
     {
         // .text:0628a93d..0628a984: children of Instance, still under Owner.
-        for (long Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
+        for (FlLong Child = PhySys_RelatedInstance(Instance, 1, -1); Child != -1;
              Child = PhySys_RelatedInstance(Instance, 1, Child))
         {
             PhySys_UnMakePhysicalWalk(Owner, Child);
@@ -981,7 +981,7 @@ static void PhySys_UnMakePhysicalWalk(CObject* Owner, long Instance)
     // .text:0628a8e7..0628a936: its own instance (+0x04, re-read every step); -1 ends.
     if (Owning->EngineInstanceId == -1)
         return;
-    for (long Child = PhySys_RelatedInstance(Owning->EngineInstanceId, 1, -1); Child != -1;
+    for (FlLong Child = PhySys_RelatedInstance(Owning->EngineInstanceId, 1, -1); Child != -1;
          Child = PhySys_RelatedInstance(Owning->EngineInstanceId, 1, Child))
     {
         PhySys_UnMakePhysicalWalk(Owning, Child);
@@ -999,7 +999,7 @@ void __cdecl PhySys::UnMakePhysicalR(CObject* Object)
     // every step); -1 ends.
     if (Object->EngineInstanceId == -1)
         return;
-    for (long Child = PhySys_RelatedInstance(Object->EngineInstanceId, 1, -1); Child != -1;
+    for (FlLong Child = PhySys_RelatedInstance(Object->EngineInstanceId, 1, -1); Child != -1;
          Child = PhySys_RelatedInstance(Object->EngineInstanceId, 1, Child))
     {
         // .text:0628a820..0628a842: a child owned by another object -> FUN_0628a990 on it.
@@ -1012,7 +1012,7 @@ void __cdecl PhySys::UnMakePhysicalR(CObject* Object)
 
         // .text:0628a844..0628a885: otherwise each of the child's own children through
         // FUN_0628a8b0(Object, grandchild).
-        for (long Grandchild = PhySys_RelatedInstance(Child, 1, -1); Grandchild != -1;
+        for (FlLong Grandchild = PhySys_RelatedInstance(Child, 1, -1); Grandchild != -1;
              Grandchild = PhySys_RelatedInstance(Child, 1, Grandchild))
         {
             PhySys_UnMakePhysicalWalk(Object, Grandchild);
@@ -1023,7 +1023,7 @@ void __cdecl PhySys::UnMakePhysicalR(CObject* Object)
 // FUN_0628a0c0 (.text:0628a0c0..0628a407, cdecl): DetachInstance's sub-part branch. Instance
 // becomes a new object of Owner's archetype with a polygon body of its own part, takes along
 // every part-map entry and instance below it, and inherits Owner's velocity.
-static CObject* PhySys_SplitInstance(CObject* Owner, long Instance, PhySys::DetachParms const& Parms)
+static CObject* PhySys_SplitInstance(CObject* Owner, FlLong Instance, PhySys::DetachParms const& Parms)
 {
     IEngine* const Engine = DALib::Engine;
 
@@ -1069,7 +1069,7 @@ static CObject* PhySys_SplitInstance(CObject* Owner, long Instance, PhySys::Deta
 
     // .text:0628a2b1..0628a310: every instance below Instance (relation 0) that Owner owned
     // now belongs to New.
-    for (long Below = PhySys_RelatedInstance(Instance, 0, -1); Below != -1;
+    for (FlLong Below = PhySys_RelatedInstance(Instance, 0, -1); Below != -1;
          Below = PhySys_RelatedInstance(Instance, 0, Below))
     {
         if (PhySys_InstanceObject(Below) == Owner)
@@ -1111,9 +1111,9 @@ static CObject* PhySys_SplitInstance(CObject* Owner, long Instance, PhySys::Deta
 // 062a05d4). Retail has no null guards in either function.
 
 // Listing 0x0628a410..0x0628a4d3.
-void __cdecl DetachInstanceInPlace(long InstanceId)
+void __cdecl DetachInstanceInPlace(FlLong InstanceId)
 {
-    long const ParentId = PhySys_InstanceParent(InstanceId);     // +0xd4
+    FlLong const ParentId = PhySys_InstanceParent(InstanceId);     // +0xd4
     DALib::Engine->DestroyJoint(PhySys_InstanceHandle(ParentId), PhySys_InstanceHandle(InstanceId)); // +0xc0
     CObject* const Owner = PhySys_InstanceObject(InstanceId);    // +0x80
 
@@ -1138,9 +1138,9 @@ void __cdecl DetachInstanceInPlace(long InstanceId)
 }
 
 // Listing 0x0628a050..0x0628a0b6.
-CObject* __cdecl DetachInstance(long InstanceId, PhySys::DetachParms const& Parms)
+CObject* __cdecl DetachInstance(FlLong InstanceId, PhySys::DetachParms const& Parms)
 {
-    long const ParentId = PhySys_InstanceParent(InstanceId);     // +0xd4
+    FlLong const ParentId = PhySys_InstanceParent(InstanceId);     // +0xd4
     DALib::Engine->DestroyJoint(PhySys_InstanceHandle(ParentId), PhySys_InstanceHandle(InstanceId)); // +0xc0
     CObject* const Owner = PhySys_InstanceObject(InstanceId);    // +0x80
     if (Owner->EngineInstanceId == InstanceId)

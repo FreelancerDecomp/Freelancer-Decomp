@@ -257,7 +257,7 @@ void LoadingScreen::Update(float DeltaSeconds)
         if (Bar->Text != nullptr)
         {
             // 0x005790c8..0x005790ea: property 0x33 with a copy of DAT_00679bb0, then Draw.
-            unsigned long Color = NnUiPulseIdleArgb();
+            FlULong Color = NnUiPulseIdleArgb();
             Bar->Text->SetProperty(0x33, reinterpret_cast<uintptr_t>(&Color), 1);
             Bar->Text->Draw();
         }

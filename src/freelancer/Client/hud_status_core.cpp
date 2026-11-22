@@ -170,7 +170,7 @@ namespace
     // LAB_004d4af0 sets it to -1 and nothing else writes it (XREFs 004d4af0 W, 004d5673 R). -1
     // equals FUN_00403ea0's "current list" key DAT_0061648c, so the flush takes the container
     // of the current material key, the one the chips were just queued on.
-    unsigned long G_HudCoreListKey = 0xffffffffu;
+    FlULong G_HudCoreListKey = 0xffffffffu;
 }
 
 HUD_Core::HUD_Core(INI_Reader& /*Reader*/)
@@ -293,7 +293,7 @@ bool HUD_Core::OnEvent(unsigned MsgId)
     return true;
 }
 
-void HUD_Core::DrawBars(float DesignY, unsigned long Color, float Ratio)
+void HUD_Core::DrawBars(float DesignY, FlULong Color, float Ratio)
 {
     // FUN_004d5410. The surface size is DAT_00610850 / DAT_00610854 (FILD, signed).
     int const SurfaceWidth = static_cast<int>(G_RenderSurfaceWidth);
@@ -1051,7 +1051,7 @@ void HUD_Status::RefreshWeaponRows()
     }
     for (int Slot = 0;;)
     {
-        unsigned long Color = G_NnPaletteArgb_679bb0;
+        FlULong Color = G_NnPaletteArgb_679bb0;
         if (Weapons[Row].bActive != 0)
         {
             Color = G_NnPaletteArgb_679bac;
@@ -1061,7 +1061,7 @@ void HUD_Status::RefreshWeaponRows()
         {
             if (!HudIsMousePickBlocked())
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendFromArgb(&Pulsed, Color);
                 Color = Pulsed;
             }

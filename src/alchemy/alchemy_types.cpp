@@ -73,7 +73,7 @@ namespace AlchemyImpl
         Desc.Flags = kAleFileFlags;
         Desc.Field30 = 0xFFFFFFFF;
         const int Result = Filesys->OpenByDesc(&Desc);
-        Handle = static_cast<unsigned long>(Result);
+        Handle = static_cast<FlULong>(Result);
         if (Result == -1)
         {
             FDUMP(0x100001, "%s(%d) : ERROR:General:%s", "alchemy.cpp", 0x1E,
@@ -91,18 +91,18 @@ namespace AlchemyImpl
         Handle = 0xFFFFFFFF;
     }
 
-    int FAleChunk::ReadBytes(void* Buffer, unsigned long Size)
+    int FAleChunk::ReadBytes(void* Buffer, FlULong Size)
     {
-        unsigned long Bytes = 0xFFFFFFFF;
+        FlULong Bytes = 0xFFFFFFFF;
         const int Ok = Filesys->Read(Handle, Buffer, Size, &Bytes, 0);
         if (Ok == 0)
             return -1;
         return Bytes == Size ? 0 : -1;
     }
 
-    int FAleChunk::WriteBytes(const void* Buffer, unsigned long Size)
+    int FAleChunk::WriteBytes(const void* Buffer, FlULong Size)
     {
-        unsigned long Bytes = 0xFFFFFFFF;
+        FlULong Bytes = 0xFFFFFFFF;
         const int Ok = Filesys->Write(
             Handle, Buffer, Size, &Bytes, nullptr);
         if (Ok == 0)
@@ -111,7 +111,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06223070: uint16 length + bytes; odd length gets 1 pad byte. RET <0 fail.
-    int FAleChunk::ReadString(char* Buffer, unsigned long MaxChars)
+    int FAleChunk::ReadString(char* Buffer, FlULong MaxChars)
     {
         unsigned short Length = 0;
         if (ReadBytes(&Length, 2) < 0)
@@ -121,7 +121,7 @@ namespace AlchemyImpl
             Buffer[0] = '\0';
             return 0;
         }
-        if (static_cast<unsigned long>(Length) > MaxChars)
+        if (static_cast<FlULong>(Length) > MaxChars)
             return -1;
         int Result = ReadBytes(Buffer, Length);
         if ((Length & 1) != 0)
@@ -143,7 +143,7 @@ namespace AlchemyImpl
         int Result = WriteBytes(Text, Length);
         if ((Length & 1) != 0)
         {
-            const unsigned long Pad = 0;
+            const FlULong Pad = 0;
             Result = WriteBytes(&Pad, 1);
         }
         return Result;

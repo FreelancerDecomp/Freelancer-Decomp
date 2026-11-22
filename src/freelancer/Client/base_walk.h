@@ -27,7 +27,7 @@ void BaseWalkFocusLost();
 // Keep base chrome visible while it fades, without making the hidden cursor/UI pickable.
 bool BaseWalkShouldDrawInterface();
 float BaseWalkGetInterfaceDrawOpacity();
-unsigned long BaseWalkFadeInterfaceColor(unsigned long Argb, bool bAdditive = false);
+FlULong BaseWalkFadeInterfaceColor(FlULong Argb, bool bAdditive = false);
 
 // Limits opacity changes to Win3D's interface pass; world rendering and the cursor are excluded.
 struct FBaseWalkInterfaceDraw

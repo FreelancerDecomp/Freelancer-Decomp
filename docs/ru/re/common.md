@@ -22,7 +22,7 @@
 - Порт не воспроизводит VC6-раскладки STL и retail-кучу: контейнеры современные, смещения полей
   держатся там, где их читают другие модули (проверяются `static_assert`; смещения за контейнерами
   верны только при размере `std::` в Debug и `_ITERATOR_DEBUG_LEVEL=1` в Release — см.
-  `src/Directory.Build.targets`).
+  `cmake/Freelancer.cmake`).
 - DllMain ничего не инициализирует (`DisableThreadLibraryCalls`). Реальный старт — вызовы
   `Async::Startup`, `Timing::init`, `DataConfig::startup`, `PhySys::Startup` из exe/Server.
 

@@ -22,8 +22,8 @@ namespace AlchemyImpl
         explicit FFxRuntimeAggregate(FFxRuntime* Outer) : Outer_(Outer) {}
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
         GENRESULT DACOM_API Initialize() override
         {
             return GR_OK;
@@ -44,8 +44,8 @@ namespace AlchemyImpl
         FFxRuntimeAggregate* Aggregate() { return &Aggregate_; }
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
 
         void SetController(IDAComponent* OuterUnknown)
         {
@@ -70,11 +70,11 @@ namespace AlchemyImpl
             explicit FInnerUnknown(FFxRuntime* Owner) : RefCount_(1), Owner_(Owner) {}
 
             GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-            unsigned long DACOM_API AddRef() override;
-            unsigned long DACOM_API Release() override;
+            FlULong DACOM_API AddRef() override;
+            FlULong DACOM_API Release() override;
 
         private:
-            unsigned long RefCount_;
+            FlULong RefCount_;
             FFxRuntime* Owner_;
         };
 

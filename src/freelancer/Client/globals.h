@@ -182,7 +182,7 @@ double GetClientFrameTimeCapped();      // FUN_0042d680 — 0.0 while paused
 double GetClientFrameTimeRaw();         // FUN_0042d6a0 — 0.0 while paused
 double GetClientElapsedTime();          // FUN_0042d660 — not pause-gated
 unsigned GetClientFrameCount();         // FUN_0042d6e0
-unsigned long GetClientFrameTimestampMs(); // FUN_0042d670
+FlULong GetClientFrameTimestampMs(); // FUN_0042d670
 void PushClientTimingPause();           // FUN_0042d6c0
 void PopClientTimingPause();            // FUN_0042d6d0
 void SetClientServerTickPause(bool bPause); // FUN_0042d6f0 — DAT_00667d54

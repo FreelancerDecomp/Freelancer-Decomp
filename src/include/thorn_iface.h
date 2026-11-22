@@ -109,8 +109,8 @@ FL_LAYOUT_ASSERT(sizeof(FThornLightProps) == 0x90, "FUN_06f27fe0 lightprops is 0
 struct IPersistString : IDAComponent
 {
     virtual GENRESULT DACOM_API Slot3Load(const char* Text) = 0;                  // +0x0c RET 8
-    virtual GENRESULT DACOM_API Slot4Save(char* Buffer, unsigned long Size) = 0;   // +0x10 RET 12
-    virtual unsigned long DACOM_API Slot5EstimateSize() = 0;                    // +0x14 RET 4
+    virtual GENRESULT DACOM_API Slot4Save(char* Buffer, FlULong Size) = 0;   // +0x10 RET 12
+    virtual FlULong DACOM_API Slot5EstimateSize() = 0;                    // +0x14 RET 4
 };
 
 // The MOTION_PATH entity's descriptor tail (+0x44). Retail stores a VC6 string plus a
@@ -546,7 +546,7 @@ struct IScriptEngine : IDAComponent
     virtual GENRESULT DACOM_API Slot3(void* A, void* B) = 0;                      // 3  RET 0xC unused
     virtual GENRESULT DACOM_API Slot4Load(void* FileSystem) = 0;                   // 4  RET 0x8
     virtual GENRESULT DACOM_API Slot5Save(void* FileSystem) = 0;                   // 5  RET 0x8 save FUN_06f2aa10
-    virtual unsigned long DACOM_API Slot6EntityCount() = 0;                       // 6  RET 0x4
+    virtual FlULong DACOM_API Slot6EntityCount() = 0;                       // 6  RET 0x4
     virtual void* DACOM_API Slot7EntityHandle(int Index) = 0;                     // 7  RET 0x8
     virtual void* DACOM_API Slot8(int Index) = 0;                                 // 8  RET 0x8 inorder snapshot
     virtual void* DACOM_API Slot9Entity(int Index) = 0;                           // 9  RET 0x8
@@ -554,7 +554,7 @@ struct IScriptEngine : IDAComponent
     virtual GENRESULT DACOM_API Slot11GetOrient(int Index, float* OutMat9) = 0;   // 11 RET 0xC
     virtual GENRESULT DACOM_API Slot12Attach(int Index, void* EngineObj) = 0;     // 12 RET 0xC
     virtual GENRESULT DACOM_API Slot13Detach(int Index) = 0;                      // 13 RET 0x8
-    virtual unsigned long DACOM_API Slot14EventCount() = 0;                       // 14 RET 0x4
+    virtual FlULong DACOM_API Slot14EventCount() = 0;                       // 14 RET 0x4
     virtual void* DACOM_API Slot15EventByIndex(int Index) = 0;                    // 15 RET 0x8
     virtual void* DACOM_API Slot16EventById(int Id) = 0;                          // 16 RET 0x8
     virtual int DACOM_API Slot17GetDuration() = 0;                                // 17 RET 0x4
@@ -572,7 +572,7 @@ struct IScriptEngine : IDAComponent
     virtual GENRESULT DACOM_API Slot28(void* A, void* B) = 0;                     // 28 RET 0xC stub 0
     virtual GENRESULT DACOM_API Slot29(void* A, void* B, void* C) = 0;            // 29 RET 0x10 stub −1
     virtual GENRESULT DACOM_API Slot30(void* A, void* B, void* C) = 0;            // 30 RET 0x10 stub −1
-    virtual unsigned long DACOM_API Slot31(int Index) = 0;                        // 31 RET 0x8 userprop count
+    virtual FlULong DACOM_API Slot31(int Index) = 0;                        // 31 RET 0x8 userprop count
     virtual const char* DACOM_API Slot32(int Index, int N) = 0;                   // 32 RET 0xC N-th userprop key
     virtual GENRESULT DACOM_API Slot33UserProp(void* Handle, const char* Key,
                                                char** Out) = 0;                  // 33 RET 0x10

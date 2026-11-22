@@ -1,6 +1,6 @@
 # Поиск утечек памяти (`MemoryDiagnostics`)
 
-Проект `MemoryDiagnostics` в `src/Freelancer.sln` собирает небольшую Win32-утилиту
+Модуль `MemoryDiagnostics` (`src/MemoryDiagnostics`, Win32) собирает небольшую Win32-утилиту
 `MemoryDiagnostics.exe`, которая управляет UMDH (User-Mode Dump Heap) для поиска утечек в куче
 Windows игры. Код самой игры не инструментируется.
 

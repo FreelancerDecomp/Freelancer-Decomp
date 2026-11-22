@@ -25,8 +25,8 @@ namespace AlchemyImpl
         ~FFxEffectObject() noexcept(false);
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         // FUN_0621f610 (alchemy.dll.c:18966-19002, raw .txt:64408-6469f — read and
         // verified against retail bytes this wave, not just the decompiled C):
@@ -99,14 +99,14 @@ namespace AlchemyImpl
         // aborts (return 0) immediately; else each set bit in {1,2,4} calls
         // node+0x94/+0x98/+0x90(node, &outFlag) and aborts (return 0) if the
         // callee sets outFlag. Falling through the whole list returns 1.
-        GENRESULT WalkNodesFlagged(unsigned long Flags);
+        GENRESULT WalkNodesFlagged(FlULong Flags);
 
         // FUN_0621fba0, flags != 7: same +0x94/+0x98/+0x90 shape as
         // WalkNodesFlagged but never aborts; a set out-flag additionally
         // submits the node to IAlchemy::SubmitNode (+0x5C, DAT_06257a3c).
         // flags==7 submits the enabled root prefix, then destroys all node
         // records and sets vector end=begin without freeing its capacity.
-        GENRESULT DispatchFlagsToAlchemy(unsigned long Flags);
+        GENRESULT DispatchFlagsToAlchemy(FlULong Flags);
 
         // LAB_0621fb50: for each node build a {Id, Node} pair and invoke the
         // caller-supplied CDECL Callback(&pair, Context) until it returns
@@ -139,18 +139,18 @@ namespace AlchemyImpl
         // LAB_0621fb50 enumeration record built per node for Slot12's callback.
         struct FNodeIdPair
         {
-            unsigned long Id;
+            FlULong Id;
             IDAComponent* Node;
         };
 
-        void InsertNodeRecords(unsigned long InsertIndex, unsigned long InsertCount,
+        void InsertNodeRecords(FlULong InsertIndex, FlULong InsertCount,
                                const FFxEffectNodeRec& Record);
-        FFxEffectNodeRec* InsertSingleNodeRecord(unsigned long InsertIndex,
+        FFxEffectNodeRec* InsertSingleNodeRecord(FlULong InsertIndex,
                                                 const FFxEffectNodeRec& Record);
         FFxEffectNodeRec* NodeRecordsEnd() const;
         GENRESULT InstantiateNodesFromArchetype(IFxEffectArchetype* InitialArchetype,
                                                const FFxEffectCreateDesc* Desc);
-        IDAComponent* FindNodeById(unsigned long Id) const;
+        IDAComponent* FindNodeById(FlULong Id) const;
 
         // 0621f2ce: root parent comes from the descriptor; the captured end is
         // reused after the association phase for the duration walk.
@@ -181,13 +181,13 @@ namespace AlchemyImpl
         void ClearNodes();
         void DestroyNodeRecords();
 
-        unsigned long RefCount_;
+        FlULong RefCount_;
         IFxEffectArchetype* Archetype_;
         FFxEffectNodeRec* TransformExtra_;
         FFxEffectNodeRec* Nodes_;
-        unsigned long NodeCount_;
-        unsigned long NodeCapacity_;
-        long RootNodeCount_;
+        FlULong NodeCount_;
+        FlULong NodeCapacity_;
+        FlLong RootNodeCount_;
     };
 
 } // namespace AlchemyImpl

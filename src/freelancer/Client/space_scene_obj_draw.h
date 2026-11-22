@@ -75,7 +75,7 @@ unsigned* EquippedObjSubmitDrawRetail(FClientEquippedObj* Self, unsigned* OutLod
 // failed. Callers: the draw submits above and the Ship draw LAB_00546050 (0x0054614a /
 // 0x00546124).
 bool SetAppearanceInstanceValue(void* InstId, void* ArchPath);
-bool GetAppearanceOverrideMaterial(unsigned long Index, void** Out);
+bool GetAppearanceOverrideMaterial(FlULong Index, void** Out);
 
 // FUN_0051c200 (thiscall on the camera, RET 8) -- GameCamera slot 0x78, also called directly by
 // FUN_0051b250 and the first-person FUN_00518420. The player's jump arm (Ship +0x158 == 2|3)

@@ -121,7 +121,7 @@ namespace AlchemyImpl
                 float Dt = 0.0f;
                 std::memcpy(&Dt, &A, sizeof(float));
                 AsFxNode(Node)->Pad5(Dt);
-                unsigned long Flag = 0;
+                FlULong Flag = 0;
                 AsFxNode(Node)->GetNodeFlags(&Flag);
                 if ((Flag & 1) != 0)
                 {
@@ -232,16 +232,16 @@ namespace AlchemyImpl
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FAlchemy::FInnerUnknown::AddRef()
+    FlULong DACOM_API FAlchemy::FInnerUnknown::AddRef()
     {
         return ++RefCount_;
     }
 
-    unsigned long DACOM_API FAlchemy::FInnerUnknown::Release()
+    FlULong DACOM_API FAlchemy::FInnerUnknown::Release()
     {
         if (RefCount_ != 0)
             --RefCount_;
-        const unsigned long Next = RefCount_;
+        const FlULong Next = RefCount_;
         if (Next == 0)
         {
             RefCount_ = 1;
@@ -257,12 +257,12 @@ namespace AlchemyImpl
         return Controller_->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API FAlchemy::AddRef()
+    FlULong DACOM_API FAlchemy::AddRef()
     {
         return Controller_->AddRef();
     }
 
-    unsigned long DACOM_API FAlchemy::Release()
+    FlULong DACOM_API FAlchemy::Release()
     {
         return Controller_->Release();
     }
@@ -279,7 +279,7 @@ namespace AlchemyImpl
         Chunk.DeleteNode(kNodeLibName);
         Chunk.OpenNode(kNodeLibName);
         Chunk.OpenChunk(Filesys, kNodeLibName, 1);
-        const unsigned long VersionBits = kAleVersion11Bits;
+        const FlULong VersionBits = kAleVersion11Bits;
         Chunk.WriteBytes(&VersionBits, 4);
         Chunk.WriteBytes(NodeRegistry_.CountAddress(), 4);
         IDAComponent* Node = NodeRegistry_.First();
@@ -294,12 +294,12 @@ namespace AlchemyImpl
     }
 
     GENRESULT DACOM_API FAlchemy::NodeLibSlot6(const char* Name, IDAComponent* Node,
-                                                       unsigned long* OutHash)
+                                                       FlULong* OutHash)
     {
         return InsertNodeByName(Name, Node, OutHash);
     }
 
-    GENRESULT DACOM_API FAlchemy::NodeLibSlot7(unsigned long Hash)
+    GENRESULT DACOM_API FAlchemy::NodeLibSlot7(FlULong Hash)
     {
         return RemoveNodeByHash(Hash);
     }
@@ -351,7 +351,7 @@ namespace AlchemyImpl
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FAlchemy::NodeLibSlot11(unsigned long Hash, IDAComponent** Out)
+    GENRESULT DACOM_API FAlchemy::NodeLibSlot11(FlULong Hash, IDAComponent** Out)
     {
         IDAComponent* Prototype = FindNodeEntry(Hash);
         if (Prototype == nullptr)
@@ -359,7 +359,7 @@ namespace AlchemyImpl
         return InstantiateFromNodeLibPrototype(Prototype, Out);
     }
 
-    GENRESULT DACOM_API FAlchemy::NodeLibSlot12(unsigned long Hash, IDAComponent** Out)
+    GENRESULT DACOM_API FAlchemy::NodeLibSlot12(FlULong Hash, IDAComponent** Out)
     {
         return NodeRegistry_.FindWithRef(Hash, Out);
     }
@@ -439,7 +439,7 @@ namespace AlchemyImpl
         float Dt = 0.0f;
         std::memcpy(&Dt, &A, sizeof(float));
         AsFxNode(StartNode)->Pad5(Dt);
-        unsigned long Flag = 0;
+        FlULong Flag = 0;
         AsFxNode(StartNode)->GetNodeFlags(&Flag);
         if ((Flag & 1) != 0)
         {
@@ -513,7 +513,7 @@ namespace AlchemyImpl
         LinkNodeTree(Parent, Child);
         if (AttachCount_ == AttachCapacity_)
         {
-            const unsigned long Capacity = AttachCapacity_ == 0 ? 8 : AttachCapacity_ * 2;
+            const FlULong Capacity = AttachCapacity_ == 0 ? 8 : AttachCapacity_ * 2;
             FAlchemyAttach* Next = new (std::nothrow) FAlchemyAttach[Capacity];
             if (Next == nullptr)
                 return GR_OUT_OF_MEMORY;
@@ -537,7 +537,7 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FAlchemy::Slot21(void* A, void* B)
     {
         // LAB_06201ed0: filter the parent before attaching the child.
-        unsigned long FilterResult = 0;
+        FlULong FilterResult = 0;
         if (G_FilterCallback != nullptr)
             FilterResult = G_FilterCallback(A, B);
         return AttachNode((void*)FilterResult, B);
@@ -576,12 +576,12 @@ namespace AlchemyImpl
 
         // Remove only the port's private attachment bookkeeping; retail releases
         // the original node-reported parent, including directly linked roots.
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < AttachCount_; ++Index)
         {
             if (Attaches_[Index].Child != Child)
                 continue;
-            unsigned long Tail = Index;
+            FlULong Tail = Index;
             for (Tail = Index; Tail + 1 < AttachCount_; ++Tail)
                 Attaches_[Tail] = Attaches_[Tail + 1];
             AttachCount_ -= 1;
@@ -601,7 +601,7 @@ namespace AlchemyImpl
         // Retail always returns 0.
         IDAComponent* NodePtr = static_cast<IDAComponent*>(Node);
         SubmitChildNodes(NodePtr);
-        unsigned long Flag = 0;
+        FlULong Flag = 0;
         AsFxNode(NodePtr)->GetNodeFlags(&Flag);
         Flag |= 0x80000000u;
         AsFxNode(NodePtr)->SetNodeFlags(Flag);
@@ -650,9 +650,9 @@ namespace AlchemyImpl
 
         bool bFound = false;
         WalkNodePreOrder(Start, [&](IDAComponent* Node) {
-            unsigned long Key = 0;
+            FlULong Key = 0;
             AsFxNode(Node)->GetInstanceNameHash(&Key);
-            if (Key == static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(SearchKey)))
+            if (Key == static_cast<FlULong>(reinterpret_cast<std::uintptr_t>(SearchKey)))
             {
                 if (OutPtr != nullptr)
                     *OutPtr = Node;
@@ -720,7 +720,7 @@ namespace AlchemyImpl
         G_RenderPipeline->GetRenderState(D3DRS_SRCBLEND, &SavedRsSrcBlend_);
         G_RenderPipeline->GetRenderState(D3DRS_DESTBLEND, &SavedRsDestBlend_);
         ApplyParticleDrawRenderState();
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < 9; ++Index)
             G_DrawCounters[Index] = 0;
         return GR_OK;
@@ -748,8 +748,8 @@ namespace AlchemyImpl
 
     GENRESULT DACOM_API FAlchemy::EnqueueAppearance(void* ListIndexRaw, void* AppearanceRaw)
     {
-        const unsigned long ListIndex =
-            static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(ListIndexRaw));
+        const FlULong ListIndex =
+            static_cast<FlULong>(reinterpret_cast<std::uintptr_t>(ListIndexRaw));
         return EnqueueAppearanceToList(ListIndex, static_cast<IDAComponent*>(AppearanceRaw));
     }
 
@@ -764,9 +764,9 @@ namespace AlchemyImpl
     GENRESULT DACOM_API FAlchemy::CopyCounters(void* Out9Dwords)
     {
         unsigned char* const OutBytes = static_cast<unsigned char*>(Out9Dwords);
-        for (unsigned long Index = 0; Index < 9; ++Index)
+        for (FlULong Index = 0; Index < 9; ++Index)
         {
-            const unsigned long Word = G_DrawCounters[Index];
+            const FlULong Word = G_DrawCounters[Index];
             std::memcpy(OutBytes + Index * sizeof(Word), &Word, sizeof(Word));
         }
         return GR_OK;
@@ -888,19 +888,19 @@ namespace AlchemyImpl
         AsFxNode(InitNode_)->SetNextSibling(nullptr);
     }
 
-    IDAComponent* FAlchemy::FindNodeEntry(unsigned long Hash)
+    IDAComponent* FAlchemy::FindNodeEntry(FlULong Hash)
     {
         return NodeRegistry_.Find(Hash);
     }
 
     // Shared unsigned-key ownership map and borrowed prototype sibling list.
     GENRESULT FAlchemy::InsertNodeByName(const char* Name, IDAComponent* Node,
-                                             unsigned long* OutHash)
+                                             FlULong* OutHash)
     {
         return NodeRegistry_.Insert(this, Name, Node, OutHash);
     }
 
-    GENRESULT FAlchemy::RemoveNodeByHash(unsigned long Hash)
+    GENRESULT FAlchemy::RemoveNodeByHash(FlULong Hash)
     {
         return NodeRegistry_.Remove(Hash);
     }
@@ -931,7 +931,7 @@ namespace AlchemyImpl
             IDAComponent* Child = CallGetFirstChild(Node); // GetFirstChild
             if (Child != nullptr)
                 SubmitNodeChain(Child);
-            unsigned long Flag = 0;
+            FlULong Flag = 0;
             AsFxNode(Node)->GetNodeFlags(&Flag);
             Flag |= 0x80000000u;
             AsFxNode(Node)->SetNodeFlags(Flag);

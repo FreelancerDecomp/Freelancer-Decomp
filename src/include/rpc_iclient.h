@@ -144,7 +144,7 @@ struct FServerRepairObjectInfo;             // slot 84
 // declared dllexport in every module that compiled it.
 //
 // So RPC_ICLIENT_API is dllexport in exactly those three modules -- RPCLOCAL_EXPORTS,
-// SERVER_EXPORTS, FREELANCER_EXPORTS (each set by its own .vcxproj) -- and plain
+// SERVER_EXPORTS, FREELANCER_EXPORTS (each set by its own CMakeLists.txt) -- and plain
 // everywhere else (Common.dll reaches this header through server_sysdb.h /
 // server_basedb.h and exports no IClient). Never dllimport: each of the three defines its
 // own copies of the three special members (src/rpclocal/rpc_client_proxy.cpp,
@@ -438,7 +438,7 @@ public:
     // ClientId BY VALUE here. freelancer.exe's LAB_00437b30 tail-calls IServer::MissionSaveB
     // with both arguments in place, and retail decorates that one
     // ?MissionSaveB@IServerImpl@@UAEXIK@Z -- so MissionId is an unsigned long.
-    virtual void SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId) = 0;
+    virtual void SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId) = 0;
     // +0x12c  0x06d8ace0  ch2 op 0x46  FLPACKET_SERVER_MARKOBJ (size 0x28)  (was Slot75)
     // MarkType is pub::Player::MarkObj's int; the sender keeps its low byte (06d8ad08).
     virtual void SendServerMarkObj(const unsigned int& ClientId, unsigned int ObjectId, int MarkType) = 0;
@@ -539,7 +539,7 @@ public:
     // bAccepted: 06d8b963 MOV DL,byte ptr [ESP+0x14].
     virtual void SendCommonPlayerTradeAcceptTrade(unsigned int ClientId, unsigned int ShipId, bool bAccepted) = 0;
     // +0x1a0  0x06d8b9d0  sub-type 0x04 (?SetTradeMoney@IServerImpl@@UAEXIK@Z)  (was Slot104)
-    virtual void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, unsigned long Money) = 0;
+    virtual void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, FlULong Money) = 0;
     // +0x1a4  0x06d8ba20  sub-type 0x08 (?AddTradeEquip@IServerImpl@@UAEXIABUEquipDesc@@@Z)  (was Slot105)
     virtual void SendCommonPlayerTradeAddTradeEquip(unsigned int ClientId, unsigned int ShipId, const EquipDesc& Item) = 0;
     // +0x1a8  0x06d8baa0  sub-type 0x10 (?DelTradeEquip@IServerImpl@@UAEXIABUEquipDesc@@@Z)  (was Slot106)
@@ -635,7 +635,7 @@ public:
     // CHAT_ID. Data is copied only when it and Size are both non-zero (06d8c499 / 06d8c4a1).
     // The order is IChatServer::SubmitChat's (?SubmitChat@IServerImpl@@UAEXUCHAT_ID@@KPBX0H@Z):
     // CHAT_ID by value, the size an unsigned long, the data `const void*`.
-    virtual void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, unsigned long Size, const void* Data) = 0;
+    virtual void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, FlULong Size, const void* Data) = 0;
 };
 
 // ============================================================================

@@ -470,7 +470,7 @@ static bool MarshalSetAddItem(FPacketBase* Packet, const unsigned int* Args, uns
     // item carries a non-empty, interned cargo-bay name, which retail still omits from the
     // wire. The port used to substitute the string test and so would have sent the bay
     // name for every internal item.
-    // rpclocal.vcxproj already links Common.lib -- retail rpclocal.dll imports this exact
+    // rpclocal already links Common.lib -- retail rpclocal.dll imports this exact
     // symbol (IAT .rdata:0003826c), so this is retail's own dependency, not a new one.
     if (!Desc->is_internal()) {
         // 06d88636..06d8864c: strlen via REPNE SCASB, then FUN_06d97470(packet, str, len),
@@ -890,7 +890,7 @@ RPC_CH2_DELIVER_DWORD(DeliverGfCompleteAmbientScriptList, SendServerGFCompleteAm
 RPC_CH2_DELIVER_DWORD(DeliverGfCompleteMissionComputerList, SendServerGFCompleteMissionComputerList, unsigned int) // 0x10 -> +0x0a0
 RPC_CH2_DELIVER_DWORD(DeliverGfCompleteNewsBroadcastList, SendServerGFCompleteNewsBroadcastList, unsigned int)     // 0x0e -> +0x0b4
 RPC_CH2_DELIVER_DWORD(DeliverSendNnMessage, SendServerSendNNMessage, unsigned int)                 // 0x56 -> +0x114
-RPC_CH2_DELIVER_DWORD(DeliverMissionSaveA, SendServerMissionSaveA, unsigned long)                  // 0x5b -> +0x128
+RPC_CH2_DELIVER_DWORD(DeliverMissionSaveA, SendServerMissionSaveA, FlULong)                  // 0x5b -> +0x128
 RPC_CH2_DELIVER_DWORD(DeliverPlaySoundEffect, SendServerPlaySoundEffect, unsigned int)             // 0x59 -> +0x1f0
 
 RPC_CH2_DELIVER_DWORD_BYREF(DeliverSetCash, SendServerSetCash, int)                                // 0x30 -> +0x134

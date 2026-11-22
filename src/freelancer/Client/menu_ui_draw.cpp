@@ -18,9 +18,9 @@
 namespace
 {
     // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
-    static constexpr unsigned long kFvfScreen = 0x1C4u;
-    static constexpr unsigned long kPrimTriangleStrip = 5;
-    static constexpr unsigned long kPrimTriangleList = 4;
+    static constexpr FlULong kFvfScreen = 0x1C4u;
+    static constexpr FlULong kPrimTriangleStrip = 5;
+    static constexpr FlULong kPrimTriangleList = 4;
 
     struct FScreenVertex
     {
@@ -28,8 +28,8 @@ namespace
         float Y;
         float Z;
         float Rhw;
-        unsigned long Diffuse;
-        unsigned long Specular;
+        FlULong Diffuse;
+        FlULong Specular;
         float U;
         float V;
     };
@@ -41,7 +41,7 @@ namespace
         return DALib::Pipeline;
     }
 
-    void PipelineDrawPrimitive(unsigned long Prim, unsigned long Fvf, void* Verts,
+    void PipelineDrawPrimitive(FlULong Prim, FlULong Fvf, void* Verts,
                                unsigned int VertexCount)
     {
         IRenderPipeline* Pipe = GetPipeline();
@@ -51,7 +51,7 @@ namespace
         Pipe->DrawPrimitive(Prim, static_cast<unsigned int>(Fvf), Verts, VertexCount, nullptr);
     }
 
-    void PipelineDrawIndexed(unsigned long Prim, unsigned long Fvf, void* Verts,
+    void PipelineDrawIndexed(FlULong Prim, FlULong Fvf, void* Verts,
                              unsigned int VertexCount, unsigned short* Indices,
                              unsigned int IndexCount)
     {
@@ -65,7 +65,7 @@ namespace
                                      Indices, IndexCount, 0);
     }
 
-    void FillQuad(FScreenVertex* Out, float X0, float Y0, float X1, float Y1, unsigned long Color,
+    void FillQuad(FScreenVertex* Out, float X0, float Y0, float X1, float Y1, FlULong Color,
                   float U0, float V0, float U1, float V1)
     {
         Out[0].X = X0;
@@ -146,7 +146,7 @@ namespace
 
     void FillAnnulus(FScreenVertex* Verts, unsigned short* Indices, int Segs, float Cx, float Cy,
                      float OuterHalfW, float OuterHalfH, float InnerHalfW, float InnerHalfH,
-                     unsigned long Color)
+                     FlULong Color)
     {
         if (Segs < 3)
             Segs = 3;
@@ -195,7 +195,7 @@ namespace
     }
 
     void DrawAnnulus(float Cx, float Cy, float OuterHalfW, float OuterHalfH, float InnerHalfW,
-                     float InnerHalfH, unsigned long Color, int Segs)
+                     float InnerHalfH, FlULong Color, int Segs)
     {
         IRenderPipeline* Pipe = GetPipeline();
         if (Pipe == nullptr || Segs < 3)
@@ -215,7 +215,7 @@ namespace
                             Indices, static_cast<unsigned>(Segs * 6));
     }
 
-    void DrawScreenQuad(float X0, float Y0, float X1, float Y1, unsigned long Color, float U0,
+    void DrawScreenQuad(float X0, float Y0, float X1, float Y1, FlULong Color, float U0,
                         float V0, float U1, float V1, void* TextureHandle)
     {
         IRenderPipeline* Pipe = GetPipeline();
@@ -262,7 +262,7 @@ void MenuSetupAdditive2DRenderState()
     ScreenQuadSetRenderState(Pipe, 0x14, 2);
 }
 
-void MenuDrawSolidRect(int Left, int Top, int Right, int Bottom, unsigned long PackedArgb)
+void MenuDrawSolidRect(int Left, int Top, int Right, int Bottom, FlULong PackedArgb)
 {
     MenuSetup2DRenderState();
     IRenderPipeline* Pipe = GetPipeline();
@@ -279,7 +279,7 @@ void MenuDrawSolidRect(int Left, int Top, int Right, int Bottom, unsigned long P
 }
 
 void MenuDrawTexturedRect(int Left, int Top, int Right, int Bottom, void* TextureHandle,
-                          unsigned long PackedArgb, float U0, float V0, float U1, float V1)
+                          FlULong PackedArgb, float U0, float V0, float U1, float V1)
 {
     if (TextureHandle == nullptr)
     {
@@ -296,7 +296,7 @@ void MenuDrawTexturedRect(int Left, int Top, int Right, int Bottom, void* Textur
 }
 
 void MenuDrawAdditiveTexturedRect(int Left, int Top, int Right, int Bottom, void* TextureHandle,
-                                  unsigned long PackedArgb, float U0, float V0, float U1, float V1)
+                                  FlULong PackedArgb, float U0, float V0, float U1, float V1)
 {
     if (TextureHandle == nullptr)
         return;
@@ -311,9 +311,9 @@ void MenuDrawAdditiveTexturedRect(int Left, int Top, int Right, int Bottom, void
 
 void MenuDrawNeuroNetButtonOverlay(int Left, int Top, int Right, int Bottom, void* BodyHandle,
                                    float BodyU0, float BodyV0, float BodyU1, float BodyV1,
-                                   unsigned long BodyTint, void* LabelHandle, int LabelLeft,
+                                   FlULong BodyTint, void* LabelHandle, int LabelLeft,
                                    int LabelTop, int LabelRight, int LabelBottom,
-                                   unsigned long FrameArgb, unsigned long LabelArgb, float LabelU1,
+                                   FlULong FrameArgb, FlULong LabelArgb, float LabelU1,
                                    float LabelV1)
 {
     MenuSetup2DRenderState();
@@ -334,7 +334,7 @@ void MenuDrawNeuroNetButtonOverlay(int Left, int Top, int Right, int Bottom, voi
     if (HalfH < 4.f)
         HalfH = 4.f;
 
-    const unsigned long Dark = 0xE0101820u;
+    const FlULong Dark = 0xE0101820u;
     // front_button.cmp bezel: segs 19/18/10/6/16 → idx 114/108/60/36/96 (retail UI draws).
     DrawAnnulus(Cx, Cy, HalfW + 3.f, HalfH + 3.f, HalfW - 1.f, HalfH - 1.f, Dark, 19);
     DrawAnnulus(Cx, Cy, HalfW + 1.5f, HalfH + 1.5f, HalfW - 2.5f, HalfH - 2.5f, FrameArgb, 18);
@@ -377,7 +377,7 @@ void MenuDrawNeuroNetButtonOverlay(int Left, int Top, int Right, int Bottom, voi
         PipelineDrawIndexed(kPrimTriangleList, kFvfScreen, Vertices, 4, Indices, 6);
     }
 
-    const unsigned long Glow = (BodyTint == 0xFFFFFFFFu) ? 0x6687C3E0u : 0;
+    const FlULong Glow = (BodyTint == 0xFFFFFFFFu) ? 0x6687C3E0u : 0;
     if (Glow != 0)
     {
         MenuSetupAdditive2DRenderState();
@@ -405,7 +405,7 @@ void MenuDrawNeuroNetCursor(int X, int Y)
     unsigned short Indices[36] = {0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
                                   1, 7, 2, 3, 8, 4, 5, 9, 6, 7, 8, 2, 8, 3, 2,
                                   4, 8, 9, 4, 9, 5};
-    const unsigned long Color = 0xFFE8F8FFu;
+    const FlULong Color = 0xFFE8F8FFu;
     const float Tips[10][2] = {
         {0.f, 0.f},    {22.f, 6.f},   {8.f, 8.f},    {7.f, 22.f},  {4.f, 10.f},
         {12.f, 5.f},   {6.f, 4.f},    {16.f, 14.f},  {14.f, 18.f}, {10.f, 12.f},

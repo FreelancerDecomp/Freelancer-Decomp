@@ -24,7 +24,7 @@ namespace AlchemyImpl
             return;
         static_cast<ITextureLibrary2*>(G_TextureLibrary)->AdvanceTime(Handle, Dt);
         static_cast<ITextureLibrary2*>(G_TextureLibrary)->GetFrame(
-            Handle, -1, reinterpret_cast<unsigned long*>(Frame));
+            Handle, -1, reinterpret_cast<FlULong*>(Frame));
     }
 
     __declspec(noinline) double ForwardAppearanceSingleEval(
@@ -33,7 +33,7 @@ namespace AlchemyImpl
         return Ramp->Eval(OuterTime, InnerTime);
     }
 
-    __declspec(noinline) unsigned long ForwardAppearanceColorEval(
+    __declspec(noinline) FlULong ForwardAppearanceColorEval(
         IRampColorRamp* Ramp, const float& OuterTime, const float& InnerTime)
     {
         return Ramp->EvalPacked(OuterTime, InnerTime);
@@ -83,9 +83,9 @@ namespace AlchemyImpl
     __declspec(noinline) GENRESULT FFxEffectObject::WalkNodes(
         GENRESULT (DACOM_API IGenericFx::*Method)(float), float Value)
     {
-        const unsigned long Count = NodeCount_;
+        const FlULong Count = NodeCount_;
         FFxEffectNodeRec* Record = Nodes_;
-        for (unsigned long Index = 0; Index < Count; ++Index, ++Record)
+        for (FlULong Index = 0; Index < Count; ++Index, ++Record)
         {
             (static_cast<IGenericFx*>(Record->Node)->*Method)(Value);
         }

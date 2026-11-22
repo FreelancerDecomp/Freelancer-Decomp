@@ -21,12 +21,12 @@ public:
     // Retail FUN_065c1110: single-shot inflate(Z_FINISH) + inflateReset.
     bool Decompress(const void* Input, unsigned int InputSize, void* Output, unsigned int OutputCapacity);
 
-    unsigned long GetLastCompressedSize() const { return LastCompressedSize; }
-    unsigned long GetLastDecompressedSize() const { return LastDecompressedSize; }
+    FlULong GetLastCompressedSize() const { return LastCompressedSize; }
+    FlULong GetLastDecompressedSize() const { return LastDecompressedSize; }
 
 private:
     z_stream DeflateStream{};
     z_stream InflateStream{};
-    unsigned long LastCompressedSize = 0;
-    unsigned long LastDecompressedSize = 0;
+    FlULong LastCompressedSize = 0;
+    FlULong LastDecompressedSize = 0;
 };

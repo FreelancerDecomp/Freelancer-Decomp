@@ -63,7 +63,7 @@ struct TMirrorPropertyBucket
     // copy-assigned from Value (operator new(sizeof(T)), T(), operator=) and appended at the tail.
     void Upsert(T const& Value)
     {
-        unsigned long const Key = Value.get_key();
+        FlULong const Key = Value.get_key();
         MetaNode<T>* Found = nullptr;
         MetaNode<T>* Node = nullptr;
         while (List.traverse(Node, true))
@@ -88,7 +88,7 @@ struct TMirrorPropertyBucket
     // 0x0043aa53..0x0043aae6 for +0x00, FUN_0043a750 0x0043a7b3..0x0043a848 for +0x18): the
     // first node whose element's key (dword +0x00) equals Key -- its element destroyed and freed
     // when non-null, the node removed (FUN_0043cf80). No such node: a WARNING FDUMP.
-    void Erase(unsigned long Key)
+    void Erase(FlULong Key)
     {
         MetaNode<T>* Found = nullptr;
         MetaNode<T>* Node = nullptr;

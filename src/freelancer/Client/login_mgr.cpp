@@ -365,17 +365,17 @@ CLoginMgr::~CLoginMgr()
 // each entry becomes an FServerInfo, appended to Servers when no entry with the same Id and
 // +0x64 key is there yet, and copied into +0x160 when its key is non-empty and the Servers
 // entry it matches has +0x3e clear. Every path returns 0 (.text:005abc24).
-long __stdcall CLoginMgr::Read(Gun2::GUNQueueMessage* Message)
+FlLong __stdcall CLoginMgr::Read(Gun2::GUNQueueMessage* Message)
 {
     Gun2::GUNMessageBody* Body = Message->Body;                        // 005ab5a9
-    unsigned long const Type = Body->Type;                             // 005ab5ac
+    FlULong const Type = Body->Type;                             // 005ab5ac
     if ((Type & 0xf00) != 0x200 || (Type & 0xff000) != 0x7000 || Type != 0x7204)
     {
         return 0;                                                      // 005ab5c5 / 5d9 / 5e5
     }
 
     Gun2::GUNServerEntry** Entries = nullptr;                          // 005ab5f4
-    unsigned long EntryCount = 0;                                      // 005ab5f8
+    FlULong EntryCount = 0;                                      // 005ab5f8
     if (Body->bHasEntries != 0)                                        // 005ab5fc
     {
         EntryCount = Body->EntryCount;                                 // 005ab5fe
@@ -392,7 +392,7 @@ long __stdcall CLoginMgr::Read(Gun2::GUNQueueMessage* Message)
         Field_0x23c = 0;                                               // 005ab644
     }
 
-    for (unsigned long Index = 0; Index < EntryCount; ++Index)         // 005abc05..005abc14
+    for (FlULong Index = 0; Index < EntryCount; ++Index)         // 005abc05..005abc14
     {
         Gun2::GUNServerEntry* Entry = Entries[Index];                  // 005ab65e
 
@@ -1131,7 +1131,7 @@ void CLoginMgr::PingServers()
     while (Index < Servers.size())
     {
         FServerInfo& Entry = Servers[Index];
-        unsigned long const Age = Now - static_cast<unsigned long>(Entry.LastResponseTime);
+        FlULong const Age = Now - static_cast<FlULong>(Entry.LastResponseTime);
         if (Entry.Field_0x3e != 0 && Age > 5000)
         {
             bool const bDrop = Age > 30000;
@@ -1158,7 +1158,7 @@ void CLoginMgr::PingServers()
     {
         FServerInfo& Entry = Field_0x160[Index];
         if (Entry.Field_0x3d == 0 ||
-            Now - static_cast<unsigned long>(Entry.LastResponseTime) < 1000)
+            Now - static_cast<FlULong>(Entry.LastResponseTime) < 1000)
         {
             ++Index;
             continue;

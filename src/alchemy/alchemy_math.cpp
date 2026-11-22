@@ -34,7 +34,7 @@ namespace AlchemyImpl
     __declspec(noinline) double ComputeAlchemyFpuCosineAndClear(const double& Angle, float& ZeroOut)
     {
         const double Result = std::cos(Angle);
-        volatile unsigned long* const ZeroBits = reinterpret_cast<volatile unsigned long*>(&ZeroOut);
+        volatile FlULong* const ZeroBits = reinterpret_cast<volatile FlULong*>(&ZeroOut);
         *ZeroBits = 0;
         return Result;
     }

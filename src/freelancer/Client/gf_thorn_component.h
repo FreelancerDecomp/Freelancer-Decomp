@@ -58,9 +58,9 @@ struct FThornComponent : ICompoundControl,
     // (slot 1) and hands it out, 0; a miss writes null and answers -3.
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
     // LAB_00450180 -- ++RefCount.
-    unsigned long DACOM_API AddRef() override;
+    FlULong DACOM_API AddRef() override;
     // LAB_00450190 -- see the .cpp: the last release frees the memory WITHOUT the destructor.
-    unsigned long DACOM_API Release() override;
+    FlULong DACOM_API Release() override;
 
     // --- ICompoundControl defaults (Thorn_Component 0x005cc6e0..0x005cc704) ------------------
     GENRESULT DACOM_API StartMotion(void* Desc) override;                 // 3  LAB_00454190
@@ -182,7 +182,7 @@ struct FThornComponent : ICompoundControl,
     void DisconnectEntityHardpoints(int IndexA, char const* HpA, int IndexB, char const* HpB);
 
     int EntityIndex;          // +0x24 -1 (written by the spawn)
-    unsigned long RefCount;   // +0x28 1
+    FlULong RefCount;   // +0x28 1
     Csys Frame;               // +0x2c the owning script's frame (FGfScript +0x00)
     FGfScript* Owner;         // +0x5c
     int Type;                 // +0x60 kThornEntity* (FThornEntitySnap +0x00)

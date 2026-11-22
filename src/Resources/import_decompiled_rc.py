@@ -53,18 +53,6 @@ SKIP_DUMP = {
     "movie", "remoteclient", "remoteserver", "rpclocal", "server", "unicows",
 }
 
-RESOURCE_GUIDS = {
-    "resources": "{E1A10001-5E50-4A01-9C01-000000000007}",
-    "InfoCards": "{E1A10001-5E50-4A01-9C01-000000000001}",
-    "MiscText": "{E1A10001-5E50-4A01-9C01-000000000002}",
-    "NameResources": "{E1A10001-5E50-4A01-9C01-000000000003}",
-    "EquipResources": "{E1A10001-5E50-4A01-9C01-000000000004}",
-    "OfferBribeResources": "{E1A10001-5E50-4A01-9C01-000000000005}",
-    "MiscTextInfo2": "{E1A10001-5E50-4A01-9C01-000000000006}",
-    "serverresources": "{E1A10001-5E50-4A01-9C01-000000000008}",
-}
-
-
 def read_text(path):
     data = open(path, "rb").read()
     if data.startswith(b"\xff\xfe"):
@@ -260,7 +248,8 @@ def convert_rc(text, prefer_dll, is_exe=False, strip_version=False):
                 seen = True
             out_lines.append(line)
         body = "\n".join(out_lines)
-    # Code-bearing projects also consume this importer and do not import ResourceDll.props.
+    # The /c65001 of the resource-only DLLs (cmake/Freelancer.cmake) does not reach the code
+    # modules' scripts, which this importer writes too.
     return '#pragma code_page(65001)\n' + body.rstrip() + "\n"
 
 
@@ -276,75 +265,41 @@ def copy_sidecars(dump_dir, dest_dir, rc_name):
         shutil.copy2(src_path, os.path.join(dest_dir, name))
 
 
-def write_resource_vcxproj(project_dir, target_name, rc_filename, guid):
+def write_resource_cmakelists(project_dir, target_name, rc_filename):
+    """CMakeLists.txt of a resource-only DLL (also add its folder to FL_PROJECTS in the root
+    CMakeLists.txt)."""
     os.makedirs(project_dir, exist_ok=True)
-    path = os.path.join(project_dir, target_name + ".vcxproj")
-    xml = """<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>%s</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>%s</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />
-  <Import Project="$(ProjectDir)..\\ResourceDll.props" />
-  <PropertyGroup>
-    <TargetName>%s</TargetName>
-  </PropertyGroup>
-  <ItemGroup>
-    <ResourceCompile Include="%s" />
-  </ItemGroup>
-  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />
-</Project>
-""" % (guid, target_name, target_name, rc_filename)
-    open(path, "w", encoding="utf-8", newline="\r\n").write(xml)
+    path = os.path.join(project_dir, "CMakeLists.txt")
+    text = """# See cmake/Freelancer.cmake. The source list is the link order, and with it the order of
+# static initialisation.
+
+# Win32 only.
+if(NOT FL_WIN32)
+  return()
+endif()
+
+fl_add_module(%s RESOURCE_DLL RETAIL
+  SOURCES
+    %s
+)
+""" % (target_name, rc_filename)
+    open(path, "w", encoding="utf-8", newline="\n").write(text)
 
 
-def insert_resource_compile(vcxproj_path, rc_rel, as_none=False):
-    text = open(vcxproj_path, encoding="utf-8").read()
-    tag = "None" if as_none else "ResourceCompile"
-    needle = '<%s Include="%s"' % (tag, rc_rel.replace("/", "\\"))
-    alt = rc_rel.replace("\\", "/")
-    if needle in text or ('Include="%s"' % alt) in text and tag in text:
+def insert_resource_compile(cmakelists_path, rc_rel):
+    """Add rc_rel to the SOURCES of the module's fl_add_module() call, at the end."""
+    text = open(cmakelists_path, encoding="utf-8").read()
+    rc_rel = rc_rel.replace("\\", "/")
+    # The call ends at a line holding only ")": comments inside it may contain parentheses.
+    m = re.search(r"fl_add_module\(.*?\n\)(?=[ \t]*$)", text, re.S | re.M)
+    if not m:
+        raise RuntimeError("no fl_add_module(... SOURCES ...) in " + cmakelists_path)
+    block = m.group(0)
+    if re.search(r"^\s+%s\s*$" % re.escape(rc_rel), block, re.M):
         return
-    if not as_none:
-        text = re.sub(
-            r"\s*<ItemGroup>\s*<ResourceCompile Include=\"[^\"]+\"\s*/>\s*</ItemGroup>",
-            "",
-            text,
-            count=1,
-        )
-    snippet = '  <ItemGroup>\n    <%s Include="%s" />\n  </ItemGroup>\n' % (
-        tag,
-        rc_rel.replace("/", "\\"),
-    )
-    token = '  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />'
-    if token not in text:
-        raise RuntimeError("no Cpp.targets in " + vcxproj_path)
-    if snippet.strip() not in text:
-        text = text.replace(token, snippet + token)
-    open(vcxproj_path, "w", encoding="utf-8", newline="\r\n").write(text)
+    new_block = block[:-1] + "    %s\n)" % rc_rel
+    text = text[: m.start()] + new_block + text[m.end():]
+    open(cmakelists_path, "w", encoding="utf-8", newline="\n").write(text)
 
 
 def dump_folder_key(name):
@@ -376,11 +331,11 @@ def main():
             dest_sub, rc_name, kind = CODE_MAP[key]
             if kind == "exe":
                 rc_path = os.path.join(SRC, "freelancer", "resources", "freelancer.rc")
-                vcx = os.path.join(SRC, "freelancer", "freelancer.vcxproj")
-                rc_rel = "resources\\freelancer.rc"
+                cml = os.path.join(SRC, "freelancer", "CMakeLists.txt")
+                rc_rel = "resources/freelancer.rc"
             else:
                 rc_path = os.path.join(SRC, dest_sub, os.path.basename(str(rc_name).replace("\\", "/")))
-                vcx = os.path.join(SRC, dest_sub, dest_sub + ".vcxproj")
+                cml = os.path.join(SRC, dest_sub, "CMakeLists.txt")
                 rc_rel = os.path.basename(rc_path)
             os.makedirs(os.path.dirname(rc_path), exist_ok=True)
             prefer = dest_sub + ".dll"
@@ -392,7 +347,7 @@ def main():
             )
             open(rc_path, "w", encoding="utf-8", newline="\n").write(converted)
             copy_sidecars(dump_dir, os.path.dirname(rc_path), os.path.basename(rc_path))
-            insert_resource_compile(vcx, rc_rel)
+            insert_resource_compile(cml, rc_rel)
             imported.append("%s -> %s" % (folder, rc_path))
             continue
 
@@ -404,8 +359,7 @@ def main():
             converted = convert_rc(raw, target + ".dll", is_exe=False)
             open(rc_path, "w", encoding="utf-8", newline="\n").write(converted)
             copy_sidecars(dump_dir, dest_dir, rc_file)
-            guid = RESOURCE_GUIDS[target]
-            write_resource_vcxproj(dest_dir, target, rc_file, guid)
+            write_resource_cmakelists(dest_dir, target, rc_file)
             imported.append("%s -> %s" % (folder, rc_path))
             continue
 

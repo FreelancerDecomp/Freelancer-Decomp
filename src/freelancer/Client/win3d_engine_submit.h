@@ -36,13 +36,13 @@ FSpaceCamera* GetWin3DSceneCamera();
 
 // FUN_0059efa0 — thiscall shape: Holder provides Inst at +0x04.
 void SubmitWin3DEngineInstance(FClientMeshHolder* Holder, void* ArchAnchor, unsigned char bFrontCull,
-                               float Scale, unsigned long Flags);
+                               float Scale, FlULong Flags);
 
 // FUN_00434310 (cdecl, 7 args) — tinted submit (RGBA bytes, not pre-scaled floats). The +0xc
 // byte goes to IFLAppearance::GetOverrideMaterial (0x00434403), the +0x18 byte picks cull / lighting
 // (0x00434381); both callers (FUN_00434630, FUN_00434670) pass 1 for the first.
 void SubmitWin3DTintedEngineInstance(void* ArchAnchor, void* EngineInstance,
-                                     unsigned char MaterialSelector, unsigned long Flags,
+                                     unsigned char MaterialSelector, FlULong Flags,
                                      unsigned char const ColorRgba[4],
                                      unsigned char bCullLightingByte, float Scale);
 
@@ -51,7 +51,7 @@ void SubmitWin3DTintedEngineInstanceWrapped(void* ArchAnchor, void* EngineInstan
                                             unsigned char bFrontCull,
                                             unsigned char const ColorRgba[4],
                                             unsigned char bLightingEnable, float Scale,
-                                            unsigned long Flags);
+                                            FlULong Flags);
 
 // FUN_00433f40 (cdecl, 8 args) -- the material-parameter submit: nothing for instance -1
 // (returns 1); else the cull / lighting states saved (pipeline +0xf4) and set from
@@ -63,14 +63,14 @@ void SubmitWin3DTintedEngineInstanceWrapped(void* ArchAnchor, void* EngineInstan
 int SubmitWin3DMaterialEngineInstance(void* Camera, void* EngineInstance, unsigned char bFrontCull,
                                       unsigned char const ColorRgba[4],
                                       unsigned char bCullLightingByte, float Scale,
-                                      unsigned char bParam10, unsigned long Flags);
+                                      unsigned char bParam10, FlULong Flags);
 
 // FUN_00434670 (cdecl, 6 args) -- the outlined wire: FUN_00433f40 with black {0,0,0,0},
 // lighting byte 0 and parameter 0xa off, then FUN_00434310 with ColorRgba and
 // Flags | 0x8100 (| 0x2000 without bFrontCull). Caller: StaticControl::Draw (0x00588c77).
 void SubmitWin3DOutlinedEngineInstance(void* Camera, void* EngineInstance,
                                        unsigned char bFrontCull, unsigned char const ColorRgba[4],
-                                       float Scale, unsigned long Flags);
+                                       float Scale, FlULong Flags);
 
 // LAB_0055b660 / LAB_0040f520 — screen pixel → normalized world-space direction.
 // Matches: (sx-cx)/XScale*ZNear, (sy-cy)/YScale*ZNear, -ZNear; TransformMatrix(World); normalize.

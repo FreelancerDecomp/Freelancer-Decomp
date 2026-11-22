@@ -365,7 +365,7 @@ void IClientImpl::SendServerGFCompleteNewsBroadcastList(unsigned int /*ClientId*
 
 // LAB_00437b30: `MOV ECX,[DAT_0067ecd0]; MOV EAX,[ECX]; JMP [EAX+0xec]` -- a tail call into the
 // server interface's slot 59 (MissionSaveB) with this slot's own two arguments in place.
-void IClientImpl::SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId)
+void IClientImpl::SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId)
 {
     LocalServer()->MissionSaveB(ClientId, MissionId);
 }
@@ -580,7 +580,7 @@ void IClientImpl::SendCommonPlayerTradeAcceptTrade(unsigned int /*ClientId*/, un
 // character's own; either way both "accepted" texts drop back to red (FUN_004c2620(0),
 // FUN_004c2690(0)).
 void IClientImpl::SendCommonPlayerTradeSetTradeMoney(unsigned int /*ClientId*/, unsigned int ShipId,
-                                                     unsigned long Money)
+                                                     FlULong Money)
 {
     if (G_NnTrade == nullptr)
     {
@@ -699,7 +699,7 @@ void IClientImpl::SendServerPlayerListRemove(unsigned int /*ClientId*/, unsigned
 
 // IChatClient slot 0, LAB_005a6250 (RET 0x10) -- ch1 CHATMSG: FUN_0046a150(SenderId, Data,
 // Size), i.e. the channel key, the buffer and its size. TargetId is not read.
-void IClientImpl::SendCommonChatMsg(CHAT_ID /*TargetId*/, CHAT_ID SenderId, unsigned long Size,
+void IClientImpl::SendCommonChatMsg(CHAT_ID /*TargetId*/, CHAT_ID SenderId, FlULong Size,
                                     const void* Data)
 {
     ChatDispatchIncoming(SenderId, Data, static_cast<unsigned>(Size));

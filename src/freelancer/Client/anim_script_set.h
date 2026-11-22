@@ -19,8 +19,8 @@ struct FAnimScriptSet
     int Count;                 // +0x00
     char** Names;              // +0x04
     float* Durations;          // +0x08
-    unsigned long Script;      // +0x0c
-    unsigned long LoadScript;  // +0x10
+    FlULong Script;      // +0x0c
+    FlULong LoadScript;  // +0x10
     int FillCursor;            // +0x14
 
     // FUN_00555a40 (thiscall, no arguments) -- zero the table, both handles -1.
@@ -34,13 +34,13 @@ struct FAnimScriptSet
     // FUN_00555bf0 (thiscall, RET 4) -- take Script and, when it is not -1, count its names
     // (Anim +0x1c with FUN_00555b90), allocate both arrays and fill them (Anim +0x1c with
     // FUN_00555ba0). Returns +0x00.
-    int Load(unsigned long NewScript);
+    int Load(FlULong NewScript);
     // FUN_00555c70 (thiscall, RET 8) -- Anim +0x24 (PlayScript) on Script with Names[Index].
-    unsigned long Play(void* Root, int Index);
+    FlULong Play(void* Root, int Index);
 };
 
 FL_LAYOUT_ASSERT(sizeof(FAnimScriptSet) == 0x18, "AnimScriptSet sizeof 0x18");
 
 // FUN_00555ca0 (thiscall, RET 4; ECX is not read) -- stop the playback *Playback through
 // Anim +0x38, release it through Anim +0x28 and set it to -1. Nothing when it is already -1.
-void AnimScriptSetStopPlayback(unsigned long* Playback);
+void AnimScriptSetStopPlayback(FlULong* Playback);

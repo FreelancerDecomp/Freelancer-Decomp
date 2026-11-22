@@ -91,14 +91,14 @@ namespace
         return 0;
     }
 
-    void* HandleOf(long Instance)
+    void* HandleOf(FlLong Instance)
     {
         return reinterpret_cast<void*>(static_cast<intptr_t>(Instance));
     }
 
-    long InstanceOf(void* Handle)
+    FlLong InstanceOf(void* Handle)
     {
-        return static_cast<long>(reinterpret_cast<intptr_t>(Handle));
+        return static_cast<FlLong>(reinterpret_cast<intptr_t>(Handle));
     }
 
     IRenderPipeline* ShipViewPipeline()
@@ -881,7 +881,7 @@ void ShipViewControl::LoadEquipment(EquipDescList const* List)
     }
 }
 
-void ShipViewControl::SetInstance(long NewInstance, bool bFixedDistance)
+void ShipViewControl::SetInstance(FlLong NewInstance, bool bFixedDistance)
 {
     // FUN_00585380 (RET 8).
     if (NewInstance == -1)
@@ -1078,7 +1078,7 @@ bool ShipViewControl::LoadShip(ID_String const* NewShipId, bool bFixedDistance, 
     return true;
 }
 
-void ShipViewControl::SelectInstance(long NewSelection, bool bFlag, int Unused)
+void ShipViewControl::SelectInstance(FlLong NewSelection, bool bFlag, int Unused)
 {
     // FUN_00585bd0 (RET 0xc); the third argument's slot only serves as scratch.
     (void)Unused;
@@ -1151,7 +1151,7 @@ void ShipViewControl::SelectGood(unsigned GoodId, bool bFlag)
     SelInstance = -1;
 }
 
-char const* ShipViewControl::GetHardpointOfInstance(long ItemInstance) const
+char const* ShipViewControl::GetHardpointOfInstance(FlLong ItemInstance) const
 {
     // FUN_00585e20 (RET 4).
     if (ItemInstance == -1 || Visuals == nullptr)
@@ -1164,7 +1164,7 @@ char const* ShipViewControl::GetHardpointOfInstance(long ItemInstance) const
     return nullptr;
 }
 
-long ShipViewControl::GetInstanceOnHardpoint(char const* Name) const
+FlLong ShipViewControl::GetInstanceOnHardpoint(char const* Name) const
 {
     // FUN_00585e80 (RET 4).
     if (Visuals == nullptr)

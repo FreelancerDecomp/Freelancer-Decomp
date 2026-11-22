@@ -119,7 +119,7 @@ namespace
 
     // FUN_00558d80 (thiscall on an 8-byte point, RET 4): a packed mouse lParam into
     // {low word, high word}, both zero-extended.
-    void UnpackCursorPoint(int* Out, unsigned long Packed)
+    void UnpackCursorPoint(int* Out, FlULong Packed)
     {
         Out[0] = static_cast<int>(Packed & 0xffffu);
         Out[1] = static_cast<int>(Packed >> 16);
@@ -402,8 +402,8 @@ namespace
     {
         bool Slot00(unsigned A, unsigned Message, unsigned B, unsigned C) override;
         bool Slot01(unsigned A, unsigned B, unsigned C) override;
-        bool Slot02(unsigned A, unsigned B, unsigned long Packed) override;
-        bool Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed) override;
+        bool Slot02(unsigned A, unsigned B, FlULong Packed) override;
+        bool Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed) override;
         bool Slot04(unsigned A, unsigned B, unsigned C) override;
         void Slot05() override;
         void Slot06(unsigned A) override;
@@ -452,7 +452,7 @@ namespace
 
     // Slot 2 (+0x08, LAB_00437200, RET 0xc) -- a mouse move (A, B, Packed): the point unpacked
     // (FUN_00415850 zeroes it, FUN_00558d80 fills it), FUN_00558e00, and true whatever it said.
-    bool GF::Slot02(unsigned A, unsigned B, unsigned long Packed)
+    bool GF::Slot02(unsigned A, unsigned B, FlULong Packed)
     {
         (void)A;
         (void)B;
@@ -464,7 +464,7 @@ namespace
 
     // Slot 3 (+0x0c, LAB_00437230, RET 0x10) -- a mouse button (A, Message, B, Packed):
     // FUN_00558ed0(Message, point) is the answer.
-    bool GF::Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed)
+    bool GF::Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed)
     {
         (void)A;
         (void)B;

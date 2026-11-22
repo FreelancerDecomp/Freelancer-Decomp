@@ -59,10 +59,10 @@ struct COMMON_API option_spec
     option_spec& operator=(option_spec const&) = default;
 
     char const* Name;     // +0x00
-    unsigned long Value;  // +0x04
+    FlULong Value;  // +0x04
 };
 
-COMMON_API unsigned long __cdecl select_option_from_string(char* String, option_spec const* const Options, int Count, char const* DefaultName);
+COMMON_API FlULong __cdecl select_option_from_string(char* String, option_spec const* const Options, int Count, char const* DefaultName);
 
 // ?malloc_strcpy@@YAPBDPAPADPBD@Z  RVA 0xd4400
 COMMON_API char const* __cdecl malloc_strcpy(char** Dest, char const* Src);
@@ -98,7 +98,7 @@ COMMON_API void __cdecl GiveServerRunPermission();
 
 // ?SafeWaitForSingleObject@@YAKPAXK@Z  RVA 0x9d4c0. WaitForSingleObject that keeps pumping the
 // message queue. Returns WAIT_TIMEOUT (0x102) when WM_QUIT shows up.
-COMMON_API unsigned long __cdecl SafeWaitForSingleObject(HANDLE Handle, unsigned long Timeout);
+COMMON_API FlULong __cdecl SafeWaitForSingleObject(HANDLE Handle, FlULong Timeout);
 
 // ============================================================================
 // Hex <-> wide-string and GUID text parsing (Common.dll.txt 0x63032b0 / 0x6303260 / 0x631b980)
@@ -551,8 +551,8 @@ struct ICamera : IDAComponent
 
 // Common.dll 06304320: the intersection volume of two spheres whose centres are Dist apart.
 COMMON_API float __cdecl GetSphereIntersectVol(float Dist, float RadiusA, float RadiusB);
-COMMON_API long __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center, float Radius, float& Out1, float& Out2, float& Out3, float& Out4);
+COMMON_API FlLong __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center, float Radius, float& Out1, float& Out2, float& Out3, float& Out4);
 struct ViewRect;
-COMMON_API long __cdecl get_projected_bounding_box(ICamera* Camera, Vector const& Center, float Radius, ViewRect* Rect, float& OutZ);
-COMMON_API void __cdecl ComputeExplosiveImpulses(long EngineHandle, Vector& OutLinear, Vector& OutAngular1, Vector& OutAngular2);
+COMMON_API FlLong __cdecl get_projected_bounding_box(ICamera* Camera, Vector const& Center, float Radius, ViewRect* Rect, float& OutZ);
+COMMON_API void __cdecl ComputeExplosiveImpulses(FlLong EngineHandle, Vector& OutLinear, Vector& OutAngular1, Vector& OutAngular2);
 

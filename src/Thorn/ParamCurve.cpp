@@ -1048,7 +1048,7 @@ namespace
             return GR_OK;
         }
 
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
 
         // Retail likewise clones Release per curve factory's vtable
         // (confirmed identical bodies at LAB_06f33710, LAB_06f33800,
@@ -1056,7 +1056,7 @@ namespace
         // dword at +0x3c, and when it reaches zero, force it to 1 and call
         // vtable+0x38 (Slot14Dtor) with DeleteFlag=1 before returning 0. All
         // of those clones are covered by this one method + Slot14Dtor.
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             // 33717/33719 only decrement a positive count; zero still tears down.
             if (RefCount_ != 0)
@@ -1745,7 +1745,7 @@ namespace
             HermiteEvaluate(Begin, Count, T, Output);
         }
 
-        unsigned long RefCount_;
+        FlULong RefCount_;
         const FCurveSpec* Spec_;
         // Base2f090 destroys ID payloads/map before its evaluation list.
         // Declaration order also constructs the list before ID storage.

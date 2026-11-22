@@ -324,7 +324,7 @@ void Win3DImmedBatchFlushAll()
 }
 
 void ImmedBatchAddLine(FImmedBatcher* Batch, float const* A, float const* B,
-                       unsigned long Color, unsigned long EdgeColor, float Width)
+                       FlULong Color, FlULong EdgeColor, float Width)
 {
 #ifdef FREELANCER_WALK_MODE
     Color = BaseWalkFadeInterfaceColor(Color);
@@ -399,8 +399,8 @@ void Win3DImmedBatchDestroyAll()
     DestroyImmedBatch(&G_ImmedBatchB);
 }
 
-void Win3DImmedDrawLine(float const* A, float const* B, unsigned long Color,
-                        unsigned long EdgeColor, float Width)
+void Win3DImmedDrawLine(float const* A, float const* B, FlULong Color,
+                        FlULong EdgeColor, float Width)
 {
     // FUN_005a2940 (.text:005a2940-005a2963), cdecl: the five arguments passed on unchanged to
     // FUN_005a2a40 on DAT_0067dd68.

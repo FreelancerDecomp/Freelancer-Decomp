@@ -49,8 +49,8 @@ namespace Timing
         double Dt;                      // +0x00  last calc_dt / read_dt
         long long StartTicks;           // +0x08  QPC start
         long long StopTicks;            // +0x10  QPC stop
-        unsigned long StartTickCount;   // +0x18  GetTickCount start
-        unsigned long StopTickCount;    // +0x1c  GetTickCount stop
+        FlULong StartTickCount;   // +0x18  GetTickCount start
+        FlULong StopTickCount;    // +0x1c  GetTickCount stop
         bool bStarted;                  // +0x20
         bool bStopped;                  // +0x21
     };

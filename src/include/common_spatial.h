@@ -61,7 +61,7 @@ struct ISpatialPartition
     virtual int QueryFrustum(Geometry::Frustum const* Frustum, FSpatialQueryResult* Result) = 0; // +0x18
     virtual int QuerySphere(Geometry::Sphere const* Sphere, FSpatialQueryResult* Result) = 0;    // +0x1c
     virtual int QueryRay(FSpatialRay const* Ray, FSpatialQueryResult* Result) = 0;           // +0x20
-    virtual void Slot24(unsigned long Out[6]) = 0;                                           // +0x24 both: zero 6 dwords
+    virtual void Slot24(FlULong Out[6]) = 0;                                           // +0x24 both: zero 6 dwords
 };
 
 // Call helpers kept for the existing callers (SYSTEM zone tree, client object DB, HUD).

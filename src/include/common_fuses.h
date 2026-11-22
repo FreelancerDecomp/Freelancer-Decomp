@@ -251,7 +251,7 @@ public:
         std::vector<char const*> Extras;
     };
 
-    petal_record const* find_record(int Category, unsigned long NicknameId) const;
+    petal_record const* find_record(int Category, FlULong NicknameId) const;
 
 private:
     // ?add_record@PetalInterfaceDatabase@@AAEXHPBD0PAPADH@Z -- the fourth parameter is

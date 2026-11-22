@@ -60,8 +60,8 @@ namespace
     // From -> To with the ARGB colour and its alpha-less RGB to the batcher's vertex / index
     // arrays, flushing both batchers first when either is full (0x1800 indices / 0xc00
     // vertices) -- ImmedBatchAddLine (win3d_renderables.cpp).
-    void WireBatchAddLine(float const* From, float const* To, unsigned long Argb,
-                          unsigned long Rgb, float Width)
+    void WireBatchAddLine(float const* From, float const* To, FlULong Argb,
+                          FlULong Rgb, float Width)
     {
         ImmedBatchAddLine(&G_ImmedBatchA, From, To, Argb, Rgb, Width);
     }
@@ -298,9 +298,9 @@ void WireStaticControl::Draw()
     {
         // FUN_00561da0 twice: the first result is the colour, the second lands in a scratch
         // dword nobody reads.
-        unsigned long Pulse = 0;
+        FlULong Pulse = 0;
         NnUiPulseBlendArgb(&Pulse);
-        unsigned long Scratch = 0;
+        FlULong Scratch = 0;
         NnUiPulseBlendArgb(&Scratch);
         memcpy(Rgba, &Pulse, sizeof(Rgba));
     }
@@ -327,13 +327,13 @@ void WireStaticControl::Draw()
     WireCenter[2] = Center[2];
     float CornerA[3] = {-HalfExtents[0], -HalfExtents[1], -HalfExtents[2]};
     float CornerB[3] = {-CornerA[0], CornerA[1], CornerA[2]};
-    unsigned long const Argb = (static_cast<unsigned long>(Rgba[3]) << 24) |
-                               (static_cast<unsigned long>(Rgba[0]) << 16) |
-                               (static_cast<unsigned long>(Rgba[1]) << 8) |
-                               static_cast<unsigned long>(Rgba[2]);
-    unsigned long const Rgb = (static_cast<unsigned long>(Rgba[0]) << 16) |
-                              (static_cast<unsigned long>(Rgba[1]) << 8) |
-                              static_cast<unsigned long>(Rgba[2]);
+    FlULong const Argb = (static_cast<FlULong>(Rgba[3]) << 24) |
+                               (static_cast<FlULong>(Rgba[0]) << 16) |
+                               (static_cast<FlULong>(Rgba[1]) << 8) |
+                               static_cast<FlULong>(Rgba[2]);
+    FlULong const Rgb = (static_cast<FlULong>(Rgba[0]) << 16) |
+                              (static_cast<FlULong>(Rgba[1]) << 8) |
+                              static_cast<FlULong>(Rgba[2]);
 
     // 005a364c: mask bit 2, the bottom edge, (-hx, -hy) -> (hx, -hy).
     if ((EdgeMask & 0x4) != 0)

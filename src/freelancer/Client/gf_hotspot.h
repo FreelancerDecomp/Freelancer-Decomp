@@ -46,7 +46,7 @@ public:
     void SendEvent(int Event, int const* Point);
 
     FRoomObject* Owner;     // +0x04
-    unsigned long Cookie;   // +0x08 -1 from the ctor
+    FlULong Cookie;   // +0x08 -1 from the ctor
     unsigned char bEnabled; // +0x0c FindHotspotAt skips a hotspot while it is clear
     unsigned char bHovered; // +0x0d set / cleared by the mouse tracking
     unsigned char Pad0E[2];

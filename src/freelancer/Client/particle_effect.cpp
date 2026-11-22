@@ -195,7 +195,7 @@ unsigned char ParticleEffectCreateAlchemyNodes(FParticleEffect* This)
 
     // 0x004f83ea..0x004f8403: FxEffectLibrary vt+0x18 CreateEffect(FxNode, effect_crc,
     // &+0x6c) -- the out pointer is the member itself.
-    unsigned long const Key = This->Vis->EffectCrc;
+    FlULong const Key = This->Vis->EffectCrc;
     GENRESULT const Hr = DALib::FxEffectLibrary->CreateEffect(
         This->FxNode, reinterpret_cast<void*>(Key), &This->FxEffect);
     if (Hr != GR_OK)

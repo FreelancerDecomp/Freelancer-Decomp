@@ -465,11 +465,11 @@ void NnPlayerInfo::Draw()
         FactionNames[Row]->SetProperty(0x1e, Reputation::get_name(Faction.GroupId), 0);
 
         // 0x004a82c0..0x004a8300: its colour by attitude, pulsed for the player's own group.
-        unsigned long Colour = 0; // [ESP+0x14]
+        FlULong Colour = 0; // [ESP+0x14]
         NnReputationColorArgb(&Colour, Faction.Attitude); // FUN_0045a650
         if (Affiliation == Faction.GroupId)
         {
-            unsigned long Pulsed = 0; // [ESP+0x10]
+            FlULong Pulsed = 0; // [ESP+0x10]
             NnUiPulseBlendFromArgb(&Pulsed, Colour); // FUN_00561f20
             Colour = Pulsed;
         }

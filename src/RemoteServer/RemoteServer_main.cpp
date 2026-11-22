@@ -96,8 +96,8 @@ FRemoteServerImpl Server;
 class FRemoteServerClient final : public CDPClient
 {
 public:
-    void OnReceive(unsigned char* Data, unsigned long Size) override;
-    void OnConnect(long Result) override;
+    void OnReceive(unsigned char* Data, FlULong Size) override;
+    void OnConnect(FlLong Result) override;
     void OnDisconnect() override;
 };
 
@@ -167,7 +167,7 @@ void FRemoteServerImpl::PushToServer(CDAPacket* Packet)
 }
 
 // LAB_06bd98a0 only accepts a nonnull DirectPlay buffer.
-void FRemoteServerClient::OnReceive(unsigned char* Data, unsigned long Size)
+void FRemoteServerClient::OnReceive(unsigned char* Data, FlULong Size)
 {
     if (Data != nullptr) {
         extern void RpcDispatchMsgs(IServerImpl*, const unsigned char*, unsigned int);
@@ -183,10 +183,10 @@ void FRemoteServerClient::OnDisconnect()
 }
 
 // LAB_06bd98e0 reports only failed DirectPlay connections to freelancer.exe.
-void FRemoteServerClient::OnConnect(long Result)
+void FRemoteServerClient::OnConnect(FlLong Result)
 {
     if (Result != 0) {
-        typedef void (__cdecl* FHandleConnectError)(long);
+        typedef void (__cdecl* FHandleConnectError)(FlLong);
         FHandleConnectError Handler = reinterpret_cast<FHandleConnectError>(Platform::ModuleSymbol(Platform::ModuleFind(nullptr), "HandleConnectError"));
         Handler(Result);
     }
@@ -393,7 +393,7 @@ void HandlePacket(unsigned int ClientId, CDAPacket* Packet)
                         break;
                     case 0x04:
                         Client->SendCommonPlayerTradeSetTradeMoney(1, Wire->TargetPlayer,
-                            static_cast<unsigned long>(Wire->Money));
+                            static_cast<FlULong>(Wire->Money));
                         break;
                     case 0x08:
                     {

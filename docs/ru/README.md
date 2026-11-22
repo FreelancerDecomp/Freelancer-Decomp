@@ -35,13 +35,13 @@ Freelancer Decomp — это переписанный с нуля по исхо�
 | Игровые данные и логика | [common](re/common.md) · [common_archetype](re/common_archetype.md) · [common_physys](re/common_physys.md) · [content](re/content.md) · [формат миссионных скриптов](re/content_mission_script.md) · [опкоды миссий](re/content_mission_opcodes.md) |
 | Исполняемый файл клиента | [freelancer](re/freelancer.md) · [freelancer_cliobj](re/freelancer_cliobj.md) · [equip_fx_factory](re/equip_fx_factory.md) · [dealer_equip_stats](re/dealer_equip_stats.md) · [options_screen](re/options_screen.md) · [hd_edition](hd_edition.md) (широкоформатный экран) · [walk_mode](walk_mode.md) (ходьба по базам, только порт; `FreelancerWalkMode`) |
 | Сервер / сеть | [server](re/server.md) (Server.dll, FLServer, SP-подключение, удалённые DLL) · [rpclocal](re/rpclocal.md) (протокол локальных RPC-пакетов) |
-| Сборка и CRT | [crt_compat](re/crt_compat.md) (современные CRT/STL против среды выполнения retail на VC6) · [refactoring](re/refactoring.md) (правила кода) |
+| Сборка и CRT | [building](../building.md) (CMake, пресеты, переключатели, Linux и macOS; на английском) · [crt_compat](re/crt_compat.md) (современные CRT/STL против среды выполнения retail на VC6) · [refactoring](re/refactoring.md) (правила кода) |
 
 ## Локальная раскладка
 
 ```
 Freelancer\
-  src\        Visual Studio solution (Freelancer.sln) — all project source code
+  src\        all source code, a CMakeLists.txt per module
   bin\        Release output + the dev *.ini files (source of truth for the INI files)
   bin_debug\  Debug output       binasan\  DebugASan output
   EXE\        gundll.dll (in git, loaded); your retail binaries and Ghidra listings (not in git;
@@ -58,20 +58,23 @@ Freelancer\
 
 ## Сборка
 
-Требуются Visual Studio 2022 (MSVC v143, цель Win32) и заголовки DirectX 8 SDK (`dx8\`).
+[building.md](../building.md) (на английском): пресеты CMake для Win32 (`release`, `debug`,
+`debugasan`) и x64 (`release-x64`, `debug-x64`), переключатели сборки, vcpkg и переносимые модули,
+которые собираются и на Linux и macOS. Из x86 Developer Command Prompt:
 
 ```
-MSBuild.exe src\Freelancer.sln -t:Build -p:Configuration=Debug -v:minimal
+cmake --preset debug && cmake --build --preset debug
 ```
 
-| Конфигурация | Выходной каталог |
-|---------------|------------------|
-| Debug | `bin_debug\` |
-| Release | `bin\` |
-| DebugASan | `binasan\` (AddressSanitizer; копирует среду выполнения `clang_rt.asan_*` рядом с exe) |
+| Пресет | Выходной каталог |
+|--------|------------------|
+| `debug` | `bin_debug\` |
+| `release` | `bin\` |
+| `debugasan` | `binasan\` (AddressSanitizer; копирует среду выполнения `clang_rt.asan_*` рядом с exe) |
+| `release-x64` / `debug-x64` | `bin_x64\` / `bin_x64_debug\` |
 
 Запускайте `freelancer.exe` из каталога той конфигурации, которую вы собрали. Каждая сборка не в `bin\`
-(Debug, ASan и x64: `bin_x64\` / `bin_x64_debug\`) копирует dev-файлы `*.ini` из `bin\` с переписанными путями (`src/copy_dev_ini.py`) — правьте
+копирует dev-файлы `*.ini` из `bin\` с переписанными путями (`src/copy_dev_ini.py`) — правьте
 файлы в `bin\`, а не копии. Retail DLL в `EXE\` не инструментированы ASan.
 
 Поиск утечек памяти: [memory_diagnostics.md](memory_diagnostics.md).

@@ -29,7 +29,7 @@ From cheap to expensive; do not jump straight to the last steps.
   name is unknown, leave `SlotNN` and a `// +0xNN` comment; names are not invented.
 - **A type crosses a DLL boundary** — it is declared **once** in the flat
   `src/include/<module>.h` (models: `src/include/dacom.h`, `src/include/readfile.h`);
-  `src/include` is already on every project's include path via `Directory.Build.props`.
+  `src/include` is already on every module's include path via `cmake/Freelancer.cmake`.
   Do not create `src/<Mod>/include/`.
 - **Never declare a foreign interface with a body of your own** — only `#include` it. Two bodies of one
   interface mean a slot order that has drifted apart and a call into the wrong method.

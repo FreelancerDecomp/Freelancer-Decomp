@@ -90,7 +90,7 @@ namespace AlchemyImpl
     struct FFxTextureKey
     {
         const char* Name;
-        unsigned long Crc;
+        FlULong Crc;
     };
 
     // Retail ImpFxTexInfo (FDUMP path "...\Src\ALIL\ImpFxTexInfo.cpp"): the
@@ -101,7 +101,7 @@ namespace AlchemyImpl
     // (e.g. LAB_062328c0 on the perp descriptor).
     struct FFxTextureWrapper
     {
-        unsigned long TexCrc;     // +0x00
+        FlULong TexCrc;     // +0x00
         int Handle;               // +0x04 ITextureLibrary +0x34 id, -1 = none
         // +0x08..+0x18: ITextureLibrary +0x70 GetFrame output -- the frame's texture
         // dword, then its UV rect. The draw fills read [1..4] as floats and copy [0]
@@ -110,7 +110,7 @@ namespace AlchemyImpl
         int FrameCount;           // +0x1C ITextureLibrary +0x68
         // +0x20: zeroed by FUN_06244b20; no other access in alchemy.dll (every
         // `+ 0xd4]` operand on an appearance is a vtable call). TODO: meaning unknown.
-        unsigned long Field_0x20;
+        FlULong Field_0x20;
 
         FFxTextureWrapper();                        // FUN_06244b20
         void ReleaseHandle();                       // FUN_06244b50
@@ -125,8 +125,8 @@ namespace AlchemyImpl
     // (the beam's 0x03503B61 / 0xE2F60EEB / 0x0ABE0402 jump straight to `return 0`).
     struct FDescriptorFlagBit
     {
-        unsigned long Hash;
-        unsigned long Mask;
+        FlULong Hash;
+        FlULong Mask;
     };
 
     class FGenericFxObjectBase : public IGenericFx
@@ -150,8 +150,8 @@ namespace AlchemyImpl
         virtual ~FGenericFxObjectBase() noexcept(false);
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override { return ++RefCount_; }
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override { return ++RefCount_; }
+        FlULong DACOM_API Release() override;
 
         // Outer +0x0C, CloneNode: each leaf class overrides it with its retail clone.
         // FUN_062401a0, the shared node-base compose (node vtable slot 2). The mesh
@@ -170,12 +170,12 @@ namespace AlchemyImpl
             return static_cast<GENRESULT>(NodeFlags_ >> 31);
         }
         // Outer +0x20 / +0x24 (FxNode LAB_062026d0 / LAB_062026f0): the flags dword.
-        GENRESULT DACOM_API GetNodeFlags(unsigned long* Out) override
+        GENRESULT DACOM_API GetNodeFlags(FlULong* Out) override
         {
             *Out = NodeFlags_;
             return GR_OK;
         }
-        GENRESULT DACOM_API SetNodeFlags(unsigned long Flags) override
+        GENRESULT DACOM_API SetNodeFlags(FlULong Flags) override
         {
             NodeFlags_ = Flags;
             return GR_OK;
@@ -204,8 +204,8 @@ namespace AlchemyImpl
             return 0x190;
         }
         // FUN_062400f0 / FUN_062400b0 (node vtable slots 6 / 5).
-        GENRESULT DACOM_API SetNodeTransform(unsigned long Index, const float* Source12) override;
-        GENRESULT DACOM_API GetNodeTransform(unsigned long Index, float** OutSlot) override;
+        GENRESULT DACOM_API SetNodeTransform(FlULong Index, const float* Source12) override;
+        GENRESULT DACOM_API GetNodeTransform(FlULong Index, float** OutSlot) override;
         // wave89 (sonnet:alchemy-wave89-lane1, 2026-09-15): see
         // IGenericFx::TickLifetime's own doc comment (alchemy_types.h) for
         // the full byte trace this corrects (was a no-op `Pad17()` stub
@@ -260,7 +260,7 @@ namespace AlchemyImpl
         // FUN_06215f40 / FUN_0620e430 / FUN_0620be90. Declared at the end of IGenericFx
         // now: it used to occupy +0x68, which the retail call sites prove belongs to
         // GetSubtreeDuration.
-        GENRESULT DACOM_API EmitOne(const float* Six, unsigned long Extra,
+        GENRESULT DACOM_API EmitOne(const float* Six, FlULong Extra,
                                     float Duration) override;
         // Outer +0x68 (FxNode LAB_06202840): `*Out = [node+0x88]`. Reported 0 until
         // 2026-09-26.
@@ -282,7 +282,7 @@ namespace AlchemyImpl
         // Node_Name hash (+0x2c), buffer (+0x38) and assign (FUN_06209c50 and the
         // per-class copies FUN_06231900 / FUN_062318e0 / FUN_06231810, ...). The name
         // belongs to the shared set, so a clone renames its archetype too.
-        GENRESULT DACOM_API GetInstanceNameHash(unsigned long* Out) override
+        GENRESULT DACOM_API GetInstanceNameHash(FlULong* Out) override
         {
             return PropertySet_->GetInstanceNameHash(Out);
         }
@@ -348,8 +348,8 @@ namespace AlchemyImpl
         // `ADD [ESP+4],0xc; JMP`, e.g. dust 0x06212580 / 0x06212590): FUN_06244690
         // `XOR EAX,EAX; RET 0xC` and FUN_062446a0 `XOR EAX,EAX; RET 4` -- return 0, no
         // side effect. (FillBatchedGeometry's default above is the third one, FUN_062446b0.)
-        GENRESULT DACOM_API BeginBatchedDraw(unsigned long /*Verts*/,
-                                             unsigned long /*Indices*/) override
+        GENRESULT DACOM_API BeginBatchedDraw(FlULong /*Verts*/,
+                                             FlULong /*Indices*/) override
         {
             return GR_OK;
         }
@@ -396,11 +396,11 @@ namespace AlchemyImpl
             return GR_OK;
         }
 
-        GENRESULT DACOM_API GetLiveInstanceCount(unsigned long* Out) override;
-        GENRESULT DACOM_API GetQueuedVertCount(unsigned long* Out) override;
-        GENRESULT DACOM_API GetQueuedIndexCount(unsigned long* Out) override;
+        GENRESULT DACOM_API GetLiveInstanceCount(FlULong* Out) override;
+        GENRESULT DACOM_API GetQueuedVertCount(FlULong* Out) override;
+        GENRESULT DACOM_API GetQueuedIndexCount(FlULong* Out) override;
 
-        GENRESULT DACOM_API SetLiveInstanceCount(unsigned long Count) override
+        GENRESULT DACOM_API SetLiveInstanceCount(FlULong Count) override
         {
             LiveInstanceCount_ = Count;
             return GR_OK;
@@ -428,15 +428,15 @@ namespace AlchemyImpl
         GENRESULT DACOM_API AssociateField(IDAComponent* Field) override;
 
         IDAComponent* DACOM_API GetAssociatedField() override;
-        GENRESULT DACOM_API GetAssociatedFieldCount(unsigned long* Out) override
+        GENRESULT DACOM_API GetAssociatedFieldCount(FlULong* Out) override
         {
             *Out = FieldCount_;
             return GR_OK;
         }
-        GENRESULT DACOM_API GetAssociatedFieldAt(unsigned long Index, IDAComponent** Out) override;
+        GENRESULT DACOM_API GetAssociatedFieldAt(FlULong Index, IDAComponent** Out) override;
         // Internal field-update loops borrow a vector entry directly in retail.
-        unsigned long BorrowAssociatedFieldCount() const { return FieldCount_; }
-        IDAComponent* BorrowAssociatedFieldAt(unsigned long Index);
+        FlULong BorrowAssociatedFieldCount() const { return FieldCount_; }
+        IDAComponent* BorrowAssociatedFieldAt(FlULong Index);
         // wave104 (sonnet:alchemy-wave104-lane2, 2026-09-15): retail's own
         // field-array auto-compaction-on-expiry (FUN_06218780 else-branch,
         // decomp-tracker item 132871 -- confirmed via FUN_0620d690/FUN_0620bd70,
@@ -447,7 +447,7 @@ namespace AlchemyImpl
         // function ApplyFieldsToPool (alchemy_common.cpp) can call it when a
         // field's own +0x1C gate reports done/expired, instead of leaving the
         // expired field attached forever.
-        void RemoveAssociatedFieldAt(unsigned long Index);
+        void RemoveAssociatedFieldAt(FlULong Index);
         IDAComponent** EraseAssociatedField(IDAComponent** Position);
         // FUN_06244120 (the appearance archetype copy base, called by all eight
         // appearance clone ctors) after FUN_0623fc30: vector<ComPtr> operator= of the
@@ -727,13 +727,13 @@ namespace AlchemyImpl
         void ReleaseRectFields();
         void DetachRectList();
         void ReleaseRectPropertySet();
-        unsigned long ResolveLiveInstanceCount() const;
+        FlULong ResolveLiveInstanceCount() const;
 
         // (UpdateInstanceBoundsSphere / InstanceBoundsSphere_, wave71, were removed
         // 2026-09-26: FUN_062050c0 is FLBeamAppearance::GetBoundingSphere, reached through
         // the beam's outer +0x8C thunk FUN_0620e1b0.)
 
-        unsigned long RefCount_;
+        FlULong RefCount_;
 
         // Node-base +0x4 (FUN_0623fb80 zeroes it), the node flags:
         //   0x1 -- lifetime over (TickLifetime, LAB_06240150: Age_ > Duration_),
@@ -743,7 +743,7 @@ namespace AlchemyImpl
         //          0); the next compose clears it and keeps the value.
         // The sign bit means "dead" (IsNodeDead, outer +0x1C); the emitter body
         // FUN_06245bf0 tests it on itself with `TEST EAX,EAX; JS` (0x06245c3d).
-        unsigned long NodeFlags_;
+        FlULong NodeFlags_;
 
         const char* PrimaryIid_;
         const char* FactoryName_;
@@ -752,13 +752,13 @@ namespace AlchemyImpl
         FFxNodePropertySet* PropertySet_;
         IDAComponent* AssociatedAppearance_;
         IDAComponent** AssociatedFields_;
-        unsigned long FieldCount_;
-        unsigned long FieldCapacity_;
+        FlULong FieldCount_;
+        FlULong FieldCapacity_;
         IDAComponent* AttachParent_;
         IDAComponent* FirstChild_;
         IDAComponent* PrevSibling_;
         IDAComponent* NextSibling_;
-        unsigned long LiveInstanceCount_;
+        FlULong LiveInstanceCount_;
 
         // Node-base +0x1c: the raw (local) transform, identity from FUN_0623fb80. The
         // compose overwrites it with the evaluated Node_Transform while flag 0x4 is clear;
@@ -782,7 +782,7 @@ namespace AlchemyImpl
         // Appearance node+0xb0 (outer +0xbc): how many emitters feed this appearance
         // (AddEmitterRef / ReleaseEmitterRef). Zero-initialised like the rest of the
         // appearance block.
-        long EmitterRefCount_;
+        FlLong EmitterRefCount_;
 
         // wave23 (sonnet:alchemy-wave23-lane1, 2026-09-11): this instance's
         // OWN active-particle list — every FPooledParticle this instance has

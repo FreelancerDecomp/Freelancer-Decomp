@@ -25,13 +25,13 @@ namespace AlchemyImpl
         return Outer_->QueryInterface(Iid, Out);
     }
 
-    unsigned long DACOM_API FALBatchedMaterialFacet::AddRef()
+    FlULong DACOM_API FALBatchedMaterialFacet::AddRef()
     {
         // LAB_06203450: `this -= 4` then tail-jump into LAB_06203400.
         return Outer_->AddRef();
     }
 
-    unsigned long DACOM_API FALBatchedMaterialFacet::Release()
+    FlULong DACOM_API FALBatchedMaterialFacet::Release()
     {
         // LAB_06203460: `this -= 4` then tail-jump into LAB_06203410.
         return Outer_->Release();
@@ -49,7 +49,7 @@ namespace AlchemyImpl
         return -1;
     }
 
-    GENRESULT DACOM_API FALBatchedMaterialFacet::Slot5(unsigned long* Out)
+    GENRESULT DACOM_API FALBatchedMaterialFacet::Slot5(FlULong* Out)
     {
         // LAB_062032c0: MOV EAX,[ESP+8]; MOV dword ptr [EAX],1; XOR EAX,EAX; RET 8.
         *Out = 1;
@@ -103,7 +103,7 @@ namespace AlchemyImpl
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FALMaterial::Release()
+    FlULong DACOM_API FALMaterial::Release()
     {
         // LAB_06203410: guards the decrement against underflow, then on
         // hitting 0 re-arms the refcount to 1 (retail's re-entrancy guard,
@@ -111,7 +111,7 @@ namespace AlchemyImpl
         // before freeing via FUN_062460e0 (this port's `delete this`).
         if (RefCount_ != 0)
             --RefCount_;
-        const unsigned long Next = RefCount_;
+        const FlULong Next = RefCount_;
         if (Next == 0)
         {
             RefCount_ = 1;
@@ -188,21 +188,21 @@ namespace AlchemyImpl
         return -1;
     }
 
-    GENRESULT DACOM_API FALMaterial::Slot14(unsigned long* Out)
+    GENRESULT DACOM_API FALMaterial::Slot14(FlULong* Out)
     {
         // LAB_06203250: MOV EAX,[ESP+8]; MOV dword ptr [EAX],1; XOR EAX,EAX; RET 8.
         *Out = 1;
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FALMaterial::Slot15(unsigned long* Out)
+    GENRESULT DACOM_API FALMaterial::Slot15(FlULong* Out)
     {
         // LAB_062032d0: MOV EAX,[ESP+8]; MOV dword ptr [EAX],2; XOR EAX,EAX; RET 8.
         *Out = 2;
         return GR_OK;
     }
 
-    GENRESULT DACOM_API FALMaterial::Slot16(unsigned long* Out)
+    GENRESULT DACOM_API FALMaterial::Slot16(FlULong* Out)
     {
         // LAB_06203260: MOV EAX,[ESP+8]; MOV dword ptr [EAX],0; XOR EAX,EAX; RET 8.
         *Out = 0;

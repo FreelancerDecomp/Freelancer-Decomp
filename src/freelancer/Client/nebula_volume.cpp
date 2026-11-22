@@ -31,7 +31,7 @@
 //
 // Everything the shaders see is camera-relative (system coordinates reach +-200k, too far for
 // float precision); positions are subtracted in double here.
-// Compiled only with FREELANCER_RP9 (src/Directory.Build.props).
+// Compiled only with FREELANCER_RP9 (FreelancerRp9, docs/building.md).
 #ifdef FREELANCER_RP9
 #include "nebula_volume.h"
 
@@ -135,7 +135,7 @@ namespace
     // compiler does not check any slot limit -- the device refuses a shader above the driver's
     // limit (512 is only the Shader Model 3 minimum; an RTX 5080 reports 4096). The shader also
     // uses all 32 temp registers of ps_3_0 (see its header).
-    const unsigned long kRaymarchPsSlotsRequired = 1660;
+    const FlULong kRaymarchPsSlotsRequired = 1660;
 
     // Executed instructions of PSRaymarch, read off the fxc listing (dynamic loops count every
     // iteration): one march step inside a cloud in the outer shell (with the displacement
@@ -167,7 +167,7 @@ namespace
 
     // Noise volume: kNoiseSize^3 A8R8G8B8, tileable. R = Perlin-Worley (4 cells per tile),
     // G = Worley fBm (8 cells), B = Worley fBm (16 cells), A = Perlin (4 cells, colour).
-    const unsigned long kNoiseSize = 64;
+    const FlULong kNoiseSize = 64;
     const double kBaseCellsPerTile = 4.0;   // R: the cloud base shape
     const double kDetailCellsPerTile = 8.0; // G (B twice as fine): the edge erosion
     const double kPi = 3.14159265358979323846;
@@ -600,11 +600,11 @@ namespace
     bool GbFloat16Target = false;
     // Histogram of the noise volume's R bytes (the cloud base shape): turns coverage (a fraction
     // of space) into the threshold the shader cuts at.
-    unsigned long GBaseHistogram[256];
+    FlULong GBaseHistogram[256];
     bool GbBaseHistogramValid = false;
     // The noise volume's texels, kept after the upload: the lightning places its strikes in
     // the clouds by evaluating the shader's base shape on the CPU (WorldBaseCloud).
-    std::vector<unsigned long> GNoiseTexels;
+    std::vector<FlULong> GNoiseTexels;
 
     // MaxPixelShaderInstructionsExecuted of the device (QueryCaps); 65535 when it reports 0.
     float GExecutedLimit = 65535.0f;
@@ -927,7 +927,7 @@ namespace
 
     // Fills Texels (kNoiseSize^3 dwords, 0xAARRGGBB) and BaseHistogram (256 counts of the R
     // bytes). Deterministic. Each channel is stretched to the full 0..255 range.
-    void GenerateNoise(std::vector<unsigned long>* Texels, unsigned long* BaseHistogram)
+    void GenerateNoise(std::vector<FlULong>* Texels, FlULong* BaseHistogram)
     {
         const int Size = (int)(kNoiseSize);
         const size_t Count = (size_t)(Size) * Size * Size;
@@ -997,13 +997,13 @@ namespace
         Texels->resize(Count);
         for (size_t Index = 0; Index < Count; ++Index)
         {
-            unsigned long Bytes[4];
+            FlULong Bytes[4];
             for (int Channel = 0; Channel < 4; ++Channel)
             {
                 const float Range = Max[Channel] - Min[Channel];
                 const float Norm =
                     Range > 1.0e-6f ? (Channels[Index * 4 + Channel] - Min[Channel]) / Range : 0.5f;
-                Bytes[Channel] = (unsigned long)(std::clamp(Norm, 0.0f, 1.0f) * 255.0f + 0.5f);
+                Bytes[Channel] = (FlULong)(std::clamp(Norm, 0.0f, 1.0f) * 255.0f + 0.5f);
             }
             ++BaseHistogram[Bytes[0]];
             // A8R8G8B8: R channel 0, G 1, B 2, A 3.
@@ -1125,7 +1125,7 @@ namespace
                                           &GNoiseTexels[0], &GNoiseVolume);
             FDUMP(0x100003, "%s(%d) : NOTICE:General:nebula noise volume %lu^3 generated in %lu ms",
                   kNebulaVolumeSource, __LINE__, kNoiseSize,
-                  (unsigned long)(Platform::TickCountMs() - Start));
+                  (FlULong)(Platform::TickCountMs() - Start));
             if (VolumeResult != GR_OK || GNoiseVolume == nullptr)
             {
                 GbNoiseFailed = true;
@@ -1578,7 +1578,7 @@ namespace
             const size_t Index = ((size_t)(Wrap(Base[2] + Dz, Size)) * Size +
                                   (size_t)(Wrap(Base[1] + Dy, Size))) * Size +
                                  (size_t)(Wrap(Base[0] + Dx, Size));
-            const unsigned long Texel = GNoiseTexels[Index];
+            const FlULong Texel = GNoiseTexels[Index];
             // A8R8G8B8 (GenerateNoise): R bits 16, G 8, B 0, A 24.
             Sum[0] += Weight * (double)((Texel >> 16) & 0xffu);
             Sum[1] += Weight * (double)((Texel >> 8) & 0xffu);
@@ -1851,8 +1851,8 @@ namespace
     // composite's tonemap register. bIgnoreDepth: drawn before the opaque scene (the scene
     // depth is not looked at). Returns false when the nebula cannot be drawn.
     bool BuildRaymarchConstants(FVolumeEntry const& Entry, ICamera* Camera, float Near, float Far,
-                                unsigned long FullWidth, unsigned long FullHeight,
-                                unsigned long LowWidth, unsigned long LowHeight, bool bIgnoreDepth,
+                                FlULong FullWidth, FlULong FullHeight,
+                                FlULong LowWidth, FlULong LowHeight, bool bIgnoreDepth,
                                 float* OutUpsampleThreshold, float* OutTonemap)
     {
         FNebulaEffect* const Nebula = Entry.Nebula;
@@ -2420,10 +2420,10 @@ namespace
         if (Camera == nullptr || Ex == nullptr || DrawEx == nullptr || GbProgramFailed ||
             Ex->GetSceneDepth(&SceneDepth) != GR_OK)
             return false;
-        unsigned long FullWidth = 0;
-        unsigned long FullHeight = 0;
-        unsigned long LowWidth = 0;
-        unsigned long LowHeight = 0;
+        FlULong FullWidth = 0;
+        FlULong FullHeight = 0;
+        FlULong LowWidth = 0;
+        FlULong LowHeight = 0;
         if (Ex->GetExTextureSize(SceneDepth, &FullWidth, &FullHeight) != GR_OK ||
             Ex->GetExTextureSize(GVolumeTarget, &LowWidth, &LowHeight) != GR_OK)
             return false;
@@ -3363,7 +3363,7 @@ void NebulaVolume::Shutdown()
     GController = nullptr;
     GControllerMarchCap = 0.0f;
     GMaxAsteroidReach = 0.0f;
-    std::vector<unsigned long>().swap(GNoiseTexels);
+    std::vector<FlULong>().swap(GNoiseTexels);
 
     // Lightning: the strikes go; the own ship light is switched off and its references dropped
     // (the last one destroys it, removing its D3D light from the pipeline, which is still
@@ -3480,8 +3480,8 @@ namespace
 
         IRenderPipelineEx* const Ex = RenderEx::GetPipelineEx();
         FRPExTexture* SceneDepth = nullptr;
-        unsigned long Width = 0;
-        unsigned long Height = 0;
+        FlULong Width = 0;
+        FlULong Height = 0;
         // The render target follows the nearest nebula's resolution_scale. A render target lost
         // with the device (and not recreated) has no size.
         if (!QueryCaps() || Ex->GetSceneDepth(&SceneDepth) != GR_OK ||

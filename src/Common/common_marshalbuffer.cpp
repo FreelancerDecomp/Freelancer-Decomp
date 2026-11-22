@@ -186,14 +186,14 @@ unsigned short MarshalBuffer::get_U16()
     return V;
 }
 
-void MarshalBuffer::put_U32(unsigned long Value)
+void MarshalBuffer::put_U32(FlULong Value)
 {
     put_void(&Value, 4);
 }
 
-unsigned long MarshalBuffer::get_U32()
+FlULong MarshalBuffer::get_U32()
 {
-    unsigned long V = (unsigned long)(std::uintptr_t)this;
+    FlULong V = (FlULong)(std::uintptr_t)this;
     get_void(&V, 4);
     return V;
 }
@@ -217,7 +217,7 @@ void MarshalBuffer::put_float(float Value)
 
 float MarshalBuffer::get_float()
 {
-    unsigned long Bits = (unsigned long)(std::uintptr_t)this;
+    FlULong Bits = (FlULong)(std::uintptr_t)this;
     get_void(&Bits, 4);
     float V;
     memcpy(&V, &Bits, sizeof(V));
@@ -393,8 +393,8 @@ void MarshalBuffer::put_image(const unsigned short& V) { put_void(&V, 2); }
 void MarshalBuffer::get_image(unsigned short* V)       { get_void(V, 2); }
 void MarshalBuffer::put_image(const int& V)            { put_void(&V, 4); }
 void MarshalBuffer::get_image(int* V)                  { get_void(V, 4); }
-void MarshalBuffer::put_image(const unsigned long& V)  { put_void(&V, 4); }
-void MarshalBuffer::get_image(unsigned long* V)        { get_void(V, 4); }
+void MarshalBuffer::put_image(const FlULong& V)  { put_void(&V, 4); }
+void MarshalBuffer::get_image(FlULong* V)        { get_void(V, 4); }
 void MarshalBuffer::put_image(const float& V)          { put_void(&V, 4); }
 void MarshalBuffer::get_image(float* V)                { get_void(V, 4); }
 
@@ -508,7 +508,7 @@ void MarshalBuffer::put_EquipDescList(const EquipDescList& List)
         put_string(Item.Hardpoint);
         put_int(Item.Count);
         put_float(Item.Health);
-        put_U32((unsigned long)Item.Id);
+        put_U32((FlULong)Item.Id);
         put_U8(Item.bEquipped ? 1 : 0);
         put_U8(Item.bMission ? 1 : 0);
     }

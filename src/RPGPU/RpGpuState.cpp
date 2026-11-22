@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
 
 // RPGPU's state calls (docs/re/rpgpu.md): the [RenderPipeline] settings and RP8's defaults, the
 // pipeline, render and texture-stage state, the viewport, the transforms and the lights.
@@ -19,7 +20,7 @@ namespace
 {
     // RP8's FUN_06d16930: the key's text when GetString finds it, converted as RP8 does
     // (Rp8IniNumber).
-    bool ReadNumber(IProfileParser* Parser, void* Section, const char* Key, unsigned long* Out)
+    bool ReadNumber(IProfileParser* Parser, void* Section, const char* Key, FlULong* Out)
     {
         char Text[0x400] = {};
         if (Parser->GetString(Section, Key, Text, sizeof(Text)) == 0)
@@ -63,7 +64,7 @@ void FRpGpu::ReadSettings()
         void* const Section = Parser->OpenSection(Section_, 3);
         if (Section != nullptr)
         {
-            unsigned long Value = 0;
+            FlULong Value = 0;
             for (const FRp8StateKey& Row : kRp8PipelineProperties)
                 if (ReadNumber(Parser, Section, Row.Name, &Value))
                     PipelineState_[Row.Id] = static_cast<int>(Value);

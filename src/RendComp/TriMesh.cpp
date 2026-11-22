@@ -32,7 +32,7 @@ void TriMeshStreamFree(FRpVertexStream* Stream)
 
 // FUN_06c24c60 (cdecl; source, dest, index count): ByteSize / Stride / Count copied; the elements
 // (Count * Stride bytes) and the index array (IndexCount dwords) duplicated when present.
-void TriMeshStreamCopy(const FRpVertexStream* Source, FRpVertexStream* Dest, unsigned long IndexCount)
+void TriMeshStreamCopy(const FRpVertexStream* Source, FRpVertexStream* Dest, FlULong IndexCount)
 {
     Dest->ByteSize = Source->ByteSize;
     Dest->Stride = Source->Stride;
@@ -48,7 +48,7 @@ void TriMeshStreamCopy(const FRpVertexStream* Source, FRpVertexStream* Dest, uns
     if (Source->IndexArray != nullptr)
     {
         void* Indices = new unsigned char[IndexCount * 4];
-        Dest->IndexArray = (unsigned long*)Indices;
+        Dest->IndexArray = (FlULong*)Indices;
         std::memcpy(Indices, Source->IndexArray, IndexCount * 4);
     }
     else
@@ -142,7 +142,7 @@ void FTriMeshGroup::AllocateExtraStreams()
 {
     if (ExtraStreams != nullptr)
         return;
-    ExtraIndexCounts = new unsigned long[ExtraStreamCount]{};
+    ExtraIndexCounts = new FlULong[ExtraStreamCount]{};
     ExtraStreams = new FRpVertexStream[ExtraStreamCount]{};
 }
 
@@ -155,7 +155,7 @@ void FTriMeshGroup::FreeExtraStreams()
         return;
     delete[] ExtraIndexCounts;
     ExtraIndexCounts = nullptr;
-    for (unsigned long Index = 0; Index < ExtraStreamCount; ++Index)
+    for (FlULong Index = 0; Index < ExtraStreamCount; ++Index)
         TriMeshStreamFree(&ExtraStreams[Index]);
     delete[] ExtraStreams;
     ExtraStreams = nullptr;
@@ -164,7 +164,7 @@ void FTriMeshGroup::FreeExtraStreams()
 // FUN_06c27910 (thiscall, RET 0xC; count, indices, angles): both arrays deleted and cleared, the
 // count zeroed; a non-zero count copies Count ushorts and, with angles, Count / 2 floats.
 // formerly TriMeshGroupSetEdges
-void FTriMeshGroup::SetEdges(unsigned long Count, const unsigned short* Indices, const float* Angles)
+void FTriMeshGroup::SetEdges(FlULong Count, const unsigned short* Indices, const float* Angles)
 {
     delete[] (const unsigned char*)this->EdgeIndices;
     this->EdgeIndices = nullptr;
@@ -177,7 +177,7 @@ void FTriMeshGroup::SetEdges(unsigned long Count, const unsigned short* Indices,
     std::memcpy(this->EdgeIndices, Indices, Count * 2);
     if (Angles != nullptr)
     {
-        const unsigned long Bytes = (Count >> 1) * 4;
+        const FlULong Bytes = (Count >> 1) * 4;
         this->EdgeAngles = (float*)new unsigned char[Bytes];
         std::memcpy(this->EdgeAngles, Angles, Bytes);
     }
@@ -186,7 +186,7 @@ void FTriMeshGroup::SetEdges(unsigned long Count, const unsigned short* Indices,
 
 // FUN_06c278b0 (thiscall, RET 8; count, indices): the index array replaced by a copy, Min/Max 0.
 // formerly TriMeshGroupSetIndices
-void FTriMeshGroup::SetIndices(unsigned long Count, const unsigned short* Source)
+void FTriMeshGroup::SetIndices(FlULong Count, const unsigned short* Source)
 {
     delete[] (const unsigned char*)this->Indices;
     this->Indices = nullptr;
@@ -206,7 +206,7 @@ void FTriMeshGroup::Unrebase()
 {
     if (this->MinIndex == 0)
         return;
-    for (unsigned long Index = 0; Index < this->IndexCount; ++Index)
+    for (FlULong Index = 0; Index < this->IndexCount; ++Index)
         this->Indices[Index] = (unsigned short)(
             this->Indices[Index] + (unsigned short)this->MinIndex);
     this->MinIndex = 0;
@@ -219,20 +219,20 @@ void FTriMeshGroup::Rebase()
 {
     Unrebase();
     unsigned short* Indices = this->Indices;
-    const unsigned long Count = this->IndexCount;
+    const FlULong Count = this->IndexCount;
     const unsigned short First = Indices[0];
     const unsigned short Last = Indices[Count - 1];
     this->MinIndex = (First < Last) ? First : Last;
     this->MaxIndex = (First >= Last) ? First : Last;
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
     {
-        const unsigned long Value = Indices[Index];
+        const FlULong Value = Indices[Index];
         if (Value < this->MinIndex)
             this->MinIndex = Value;
         else if (Value > this->MaxIndex)
             this->MaxIndex = Value;
     }
-    for (unsigned long Index = 0; Index < Count; ++Index)
+    for (FlULong Index = 0; Index < Count; ++Index)
         Indices[Index] = (unsigned short)(Indices[Index] - (unsigned short)this->MinIndex);
 }
 
@@ -330,7 +330,7 @@ void FTriMeshGroup::CopyHeader(const FTriMeshGroup* Source)
 }
 
 // formerly TriMeshGroupHasChannels
-bool FTriMeshGroup::HasChannels(unsigned long Channels) const
+bool FTriMeshGroup::HasChannels(FlULong Channels) const
 {
     if ((Channels & 0x80) != 0 && this->EdgeIndices == nullptr)
         return false;
@@ -358,11 +358,11 @@ void FTriMeshGroup::ConvertStripToList()
 {
     if (this->Type != D3DPT_TRIANGLESTRIP)
         return;
-    const unsigned long TriangleSlots = this->IndexCount - 2;
+    const FlULong TriangleSlots = this->IndexCount - 2;
     unsigned short* List = (unsigned short*)new unsigned char[TriangleSlots * 3 * 2];
     const unsigned short* Strip = this->Indices;
-    unsigned long Written = 0;
-    for (unsigned long Index = 0; Index < TriangleSlots; ++Index)
+    FlULong Written = 0;
+    for (FlULong Index = 0; Index < TriangleSlots; ++Index)
     {
         const unsigned short A = Strip[Index];
         const unsigned short B = Strip[Index + 1];
@@ -396,7 +396,7 @@ static const GENRESULT kTriMeshReadFailed = (GENRESULT)0x80004005;
 
 // FUN_06c249d0 (file, name, buffer size, buffer): at most Size - 1 bytes; success needs the read
 // to report exactly that many, and then terminates the string.
-static GENRESULT TriMeshReadString(IFileSystem* File, const char* Name, unsigned long Size, char* Buffer)
+static GENRESULT TriMeshReadString(IFileSystem* File, const char* Name, FlULong Size, char* Buffer)
 {
     FFileSystemDesc Desc;
     FileDescInit(&Desc, Name, "FileSystem");
@@ -404,23 +404,23 @@ static GENRESULT TriMeshReadString(IFileSystem* File, const char* Name, unsigned
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        unsigned long Length = File->GetSize((unsigned long)Handle, 0);
+        FlULong Length = File->GetSize((FlULong)Handle, 0);
         if (Length >= Size - 1)
             Length = Size - 1;
-        unsigned long ReadCount = 0;
-        if (File->Read((unsigned long)Handle, Buffer, Length, &ReadCount, 0) != 0 &&
+        FlULong ReadCount = 0;
+        if (File->Read((FlULong)Handle, Buffer, Length, &ReadCount, 0) != 0 &&
             ReadCount == Length)
         {
             bOk = 1;
             Buffer[ReadCount] = '\0';
         }
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     return (bOk != 0) ? GR_OK : kTriMeshReadFailed;
 }
 
 // FUN_06c271f0 (file, name, out): four bytes; only an exact 4-byte read stores.
-static GENRESULT TriMeshReadInt(IFileSystem* File, const char* Name, unsigned long* Out)
+static GENRESULT TriMeshReadInt(IFileSystem* File, const char* Name, FlULong* Out)
 {
     FFileSystemDesc Desc;
     FileDescInit(&Desc, Name, "FileSystem");
@@ -428,14 +428,14 @@ static GENRESULT TriMeshReadInt(IFileSystem* File, const char* Name, unsigned lo
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        unsigned long Value = 0;
-        unsigned long ReadCount = 0;
-        if (File->Read((unsigned long)Handle, &Value, 4, &ReadCount, 0) != 0 && ReadCount == 4)
+        FlULong Value = 0;
+        FlULong ReadCount = 0;
+        if (File->Read((FlULong)Handle, &Value, 4, &ReadCount, 0) != 0 && ReadCount == 4)
         {
             bOk = 1;
             *Out = Value;
         }
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     return (bOk != 0) ? GR_OK : kTriMeshReadFailed;
 }
@@ -450,13 +450,13 @@ static GENRESULT TriMeshReadFloat(IFileSystem* File, const char* Name, float* Ou
     if (Handle != -1)
     {
         float Value = 0.0f;
-        unsigned long ReadCount = 0;
-        if (File->Read((unsigned long)Handle, &Value, 4, &ReadCount, 0) != 0 && ReadCount == 4)
+        FlULong ReadCount = 0;
+        if (File->Read((FlULong)Handle, &Value, 4, &ReadCount, 0) != 0 && ReadCount == 4)
         {
             *Out = Value;
             bOk = 1;
         }
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     return (bOk != 0) ? GR_OK : kTriMeshReadFailed;
 }
@@ -466,7 +466,7 @@ static GENRESULT TriMeshReadFloat(IFileSystem* File, const char* Name, float* Ou
 // count and the buffer (the read length is not checked); a zero result deletes the buffer.
 template<typename ElementType>
 static GENRESULT TriMeshReadArray(IFileSystem* File, const char* Name, unsigned int Shift,
-                                  unsigned long* OutCount, ElementType** OutData)
+                                  FlULong* OutCount, ElementType** OutData)
 {
     FFileSystemDesc Desc;
     FileDescInit(&Desc, Name, "FileSystem");
@@ -474,11 +474,11 @@ static GENRESULT TriMeshReadArray(IFileSystem* File, const char* Name, unsigned 
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle != -1)
     {
-        const unsigned long Size = File->GetSize((unsigned long)Handle, 0);
-        const unsigned long Count = Size >> Shift;
+        const FlULong Size = File->GetSize((FlULong)Handle, 0);
+        const FlULong Count = Size >> Shift;
         unsigned char* Buffer = new unsigned char[Count << Shift];
-        unsigned long ReadCount = 0;
-        Result = File->Read((unsigned long)Handle, Buffer, Size, &ReadCount, 0);
+        FlULong ReadCount = 0;
+        Result = File->Read((FlULong)Handle, Buffer, Size, &ReadCount, 0);
         if (Result != 0)
         {
             *OutCount = Count;
@@ -486,7 +486,7 @@ static GENRESULT TriMeshReadArray(IFileSystem* File, const char* Name, unsigned 
         }
         else
             delete[] Buffer;
-        File->CloseFile((unsigned long)Handle);
+        File->CloseFile((FlULong)Handle);
     }
     return (Result != 0) ? GR_OK : kTriMeshReadFailed;
 }
@@ -605,12 +605,12 @@ GENRESULT DACOM_API FTriMeshArch::QueryInterface(const char* Iid, void** Out)
 }
 
 // FUN_06c2b100 (06c3614c / 06c36150): MOV EAX,1. The archetype is not reference counted.
-unsigned long DACOM_API FTriMeshArch::AddRef()
+FlULong DACOM_API FTriMeshArch::AddRef()
 {
     return 1;
 }
 
-unsigned long DACOM_API FTriMeshArch::Release()
+FlULong DACOM_API FTriMeshArch::Release()
 {
     return 1;
 }
@@ -621,12 +621,12 @@ GENRESULT DACOM_API FTriMeshArch::FHookFacet::QueryInterface(const char* Iid, vo
     return Owner->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FTriMeshArch::FHookFacet::AddRef()
+FlULong DACOM_API FTriMeshArch::FHookFacet::AddRef()
 {
     return 1;
 }
 
-unsigned long DACOM_API FTriMeshArch::FHookFacet::Release()
+FlULong DACOM_API FTriMeshArch::FHookFacet::Release()
 {
     return 1;
 }
@@ -637,12 +637,12 @@ GENRESULT DACOM_API FTriMeshArch::FRenderableFacet::QueryInterface(const char* I
     return Owner->QueryInterface(Iid, Out);
 }
 
-unsigned long DACOM_API FTriMeshArch::FRenderableFacet::AddRef()
+FlULong DACOM_API FTriMeshArch::FRenderableFacet::AddRef()
 {
     return 1;
 }
 
-unsigned long DACOM_API FTriMeshArch::FRenderableFacet::Release()
+FlULong DACOM_API FTriMeshArch::FRenderableFacet::Release()
 {
     return 1;
 }
@@ -691,7 +691,7 @@ int DACOM_API FTriMeshArch::FHookFacet::HookUpMaterials()
         Group->Bucket = 4;
         if (Group->Material != nullptr)
         {
-            unsigned long RenderFlags = 0;
+            FlULong RenderFlags = 0;
             Group->Material->GetRenderFlags(&RenderFlags);
             const unsigned char Low = (unsigned char)RenderFlags;
             if ((Low & 0x1) != 0)
@@ -743,9 +743,9 @@ int DACOM_API FTriMeshArch::FRenderableFacet::GetIndexCount(int* Out)
 int DACOM_API FTriMeshArch::FRenderableFacet::CopyIndices(unsigned short** Dest, int Count)
 {
     FTriMeshGroup* First = Owner->Groups.data()[0];
-    if ((unsigned long)Count != First->IndexCount)
+    if ((FlULong)Count != First->IndexCount)
         return -1;
-    std::memcpy(*Dest, First->Indices, (unsigned long)Count * 2);
+    std::memcpy(*Dest, First->Indices, (FlULong)Count * 2);
     return 0;
 }
 
@@ -773,7 +773,7 @@ int DACOM_API FTriMeshArch::NoOp()
 // FUN_06c22620 (RET 8): the IMatHookUp facet's Slot3 (the hook-up, result dropped); flag bit 2
 // calls FUN_06c2e3e0, which is empty. 0.
 // formerly Slot5
-int DACOM_API FTriMeshArch::RefreshMaterials(unsigned long /*Flags*/)
+int DACOM_API FTriMeshArch::RefreshMaterials(FlULong /*Flags*/)
 {
     HookFacet.HookUpMaterials();
     return 0;
@@ -844,7 +844,7 @@ int DACOM_API FTriMeshArch::AddFaceGroup(void* A)
     if (!CursorAtEnd())
         return -1;
     FTriMeshGroup* Group = TriMeshGroupNew();
-    Group->Type = (unsigned long)((uintptr_t)A);
+    Group->Type = (FlULong)((uintptr_t)A);
     Groups.insert(Groups.end(), 1, Group);
     Cursor = Groups.size();
     return 0;
@@ -951,7 +951,7 @@ int DACOM_API FTriMeshArch::SetFaceGroupMaterialContext(void* A)
 // FUN_06c229c0 (RET 8): no edit -> -1; a channel the group lacks (FUN_06c28f50) -> 0xFFFFFFF8;
 // else the group made private in mode 2 (FUN_06c26610), 0.
 // formerly Slot18
-int DACOM_API FTriMeshArch::OpenFaceGroupChannels(unsigned long Flags)
+int DACOM_API FTriMeshArch::OpenFaceGroupChannels(FlULong Flags)
 {
     if (CursorAtEnd())
         return -1;
@@ -969,17 +969,17 @@ int DACOM_API FTriMeshArch::CloseFaceGroupChannels()
 }
 
 // formerly Slot20
-int DACOM_API FTriMeshArch::LockFaceGroupChannels(unsigned long Mask)
+int DACOM_API FTriMeshArch::LockFaceGroupChannels(FlULong Mask)
 {
     if (CursorAtEnd())
         return -1;
     if (!Groups[Cursor]->HasChannels(Mask))
         return (int)0xFFFFFFF8;
     PrivatizeCursorGroup();
-    const unsigned long Order[9] = { 0x1, 0x8, 0x2, 0x4, 0x10, 0x4000, 0x8000, 0x10000, 0x20000 };
+    const FlULong Order[9] = { 0x1, 0x8, 0x2, 0x4, 0x10, 0x4000, 0x8000, 0x10000, 0x20000 };
     for (int Index = 0; Index < 9; ++Index)
     {
-        const unsigned long Bit = Order[Index];
+        const FlULong Bit = Order[Index];
         if ((Mask & Bit) != 0 && (LockedMask & Bit) == 0)
         {
             if (LockChannel(Bit) < 0)
@@ -1005,7 +1005,7 @@ int DACOM_API FTriMeshArch::UnlockFaceGroupChannels()
         return -1;
     if (LockedMask == 0)
         return 0;
-    const unsigned long Order[9] = { 0x1, 0x8, 0x2, 0x4, 0x10, 0x4000, 0x8000, 0x10000, 0x20000 };
+    const FlULong Order[9] = { 0x1, 0x8, 0x2, 0x4, 0x10, 0x4000, 0x8000, 0x10000, 0x20000 };
     for (int Index = 0; Index < 9; ++Index)
     {
         if ((LockedMask & Order[Index]) != 0)
@@ -1023,7 +1023,7 @@ int DACOM_API FTriMeshArch::GetFaceGroupData(int Channel, void** A, void** B, vo
     if (CursorAtEnd())
         return -1;
     FTriMeshGroup* Group = Groups[Cursor];
-    const unsigned long Bits = (unsigned long)Channel;
+    const FlULong Bits = (FlULong)Channel;
     if (!Group->HasChannels(Bits))
         return -1;
     const FRpVertexStream* Stream = nullptr;
@@ -1088,10 +1088,10 @@ int DACOM_API FTriMeshArch::GetFaceGroupData(int Channel, void** A, void** B, vo
     return 0;
 }
 
-static void TriMeshStreamWrite(FRpVertexStream* Stream, const unsigned char* Src, unsigned long SrcStride,
-                               unsigned long Size, unsigned long Count)
+static void TriMeshStreamWrite(FRpVertexStream* Stream, const unsigned char* Src, FlULong SrcStride,
+                               FlULong Size, FlULong Count)
 {
-    const unsigned long Needed = Size * Count;
+    const FlULong Needed = Size * Count;
     if (Needed > Stream->Count * Stream->ByteSize)
     {
         delete[] Stream->Base;
@@ -1102,8 +1102,8 @@ static void TriMeshStreamWrite(FRpVertexStream* Stream, const unsigned char* Src
         std::memcpy(Dest, Src, SrcStride * Count);
     else
     {
-        unsigned long Offset = 0;
-        for (unsigned long Index = 0; Index < Count; ++Index)
+        FlULong Offset = 0;
+        for (FlULong Index = 0; Index < Count; ++Index)
         {
             std::memcpy(Dest + Offset, Src, Size);
             Src += SrcStride;
@@ -1124,10 +1124,10 @@ int DACOM_API FTriMeshArch::SetFaceGroupData(int Channel, void* A, void* B, void
         return -1;
     FTriMeshGroup* Group = Groups[Cursor];
     const unsigned char* Src = (const unsigned char*)A;
-    const unsigned long SrcStride = (unsigned long)((uintptr_t)B);
-    const unsigned long Size = (unsigned long)((uintptr_t)C);
-    const unsigned long Count = (unsigned long)((uintptr_t)D);
-    switch ((unsigned long)Channel)
+    const FlULong SrcStride = (FlULong)((uintptr_t)B);
+    const FlULong Size = (FlULong)((uintptr_t)C);
+    const FlULong Count = (FlULong)((uintptr_t)D);
+    switch ((FlULong)Channel)
     {
     case 0x1:
         if (Count != Group->Vertices->Position.Count)
@@ -1170,7 +1170,7 @@ int DACOM_API FTriMeshArch::SetFaceGroupData(int Channel, void* A, void* B, void
 
 // The locked-copy slot of a channel (+0x1F0 + 4 * n): 1 -> 0, 8 -> 1, 2 -> 2, 4 -> 3, 0x10 -> 4,
 // 0x100 -> 5, 0x4000 -> 6, 0x8000 -> 7, 0x10000 -> 8, 0x20000 -> 9.
-static int TriMeshLockedSlot(unsigned long Channel)
+static int TriMeshLockedSlot(FlULong Channel)
 {
     switch (Channel)
     {
@@ -1194,7 +1194,7 @@ int DACOM_API FTriMeshArch::GetFaceGroupIndices(int Channel, void** A, void** B)
     if (CursorAtEnd())
         return -1;
     FTriMeshGroup* Group = Groups[Cursor];
-    const unsigned long Bits = (unsigned long)Channel;
+    const FlULong Bits = (FlULong)Channel;
     if (Bits == 0x80)
     {
         *A = Group->EdgeIndices;
@@ -1219,18 +1219,18 @@ int DACOM_API FTriMeshArch::SetFaceGroupIndices(int Channel, void* Src, int Coun
         return -1;
     if (EditMode != 2)
         return -1;
-    const unsigned long Bits = (unsigned long)Channel;
+    const FlULong Bits = (FlULong)Channel;
     if ((LockedMask & Bits) == 0)
         return -1;
     FTriMeshGroup* Group = Groups[Cursor];
-    if ((unsigned long)Count != Group->IndexCount)
+    if ((FlULong)Count != Group->IndexCount)
         return -1;
     if (Bits == 0x80 || Bits == 0x100)
         return -1;
     const int Slot = TriMeshLockedSlot(Bits);
     if (Slot < 0)
         return -1;
-    std::memcpy(Locked[Slot], Src, (unsigned long)Count * 2);
+    std::memcpy(Locked[Slot], Src, (FlULong)Count * 2);
     return 0;
 }
 
@@ -1244,12 +1244,12 @@ int DACOM_API FTriMeshArch::GetFaceGroupIndexCount(int Selector, void** Out)
     FTriMeshGroup* Group = Groups[Cursor];
     if (Selector == 1)
     {
-        *(unsigned long*)Out = Group->IndexCount;
+        *(FlULong*)Out = Group->IndexCount;
         return 0;
     }
     if (Selector == 2)
     {
-        *(unsigned long*)Out = Group->EdgeCount;
+        *(FlULong*)Out = Group->EdgeCount;
         return 0;
     }
     return -1;
@@ -1269,17 +1269,17 @@ int DACOM_API FTriMeshArch::SetFaceGroupIndexCount(int Selector, int Count)
     PrivatizeCursorGroup();
     Groups[Cursor]->SetEdges(0, nullptr, nullptr);
     FTriMeshGroup* Group = Groups[Cursor];
-    if (Group->IndexCount != (unsigned long)Count)
+    if (Group->IndexCount != (FlULong)Count)
     {
         delete[] (const unsigned char*)Group->Indices;
-        Group->Indices = (unsigned short*)new unsigned char[(unsigned long)Count * 2];
-        Group->IndexCount = (unsigned long)Count;
+        Group->Indices = (unsigned short*)new unsigned char[(FlULong)Count * 2];
+        Group->IndexCount = (FlULong)Count;
     }
     return 0;
 }
 
 // formerly Slot28
-int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
+int DACOM_API FTriMeshArch::AddFaceGroupChannels(FlULong Flags)
 {
     if (CursorAtEnd())
         return -1;
@@ -1296,7 +1296,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         Result = 0;
         if (Desc->Position.IndexArray == nullptr)
         {
-            Desc->Position.IndexArray = (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+            Desc->Position.IndexArray = (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Desc->SrcFvf |= 0x2;
         }
     }
@@ -1305,7 +1305,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         Result = 0;
         if (Desc->Normal.IndexArray == nullptr)
         {
-            Desc->Normal.IndexArray = (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+            Desc->Normal.IndexArray = (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Desc->SrcFvf |= 0x10;
         }
     }
@@ -1314,7 +1314,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         Result = 0;
         if (Desc->Tex[0].IndexArray == nullptr)
         {
-            Desc->Tex[0].IndexArray = (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+            Desc->Tex[0].IndexArray = (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Desc->SrcFvf = (Desc->SrcFvf & 0xFFFFF1FF) | 0x100;
         }
     }
@@ -1323,7 +1323,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         Result = 0;
         if (Desc->Tex[1].IndexArray == nullptr)
         {
-            Desc->Tex[1].IndexArray = (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+            Desc->Tex[1].IndexArray = (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Desc->SrcFvf = (Desc->SrcFvf & 0xFFFFF2FF) | 0x200;
         }
     }
@@ -1332,11 +1332,11 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         Result = 0;
         if (Desc->Diffuse.IndexArray == nullptr)
         {
-            Desc->Diffuse.IndexArray = (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+            Desc->Diffuse.IndexArray = (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Desc->SrcFvf |= 0x40;
         }
     }
-    const unsigned long ExtraBits[4] = { 0x4000, 0x8000, 0x10000, 0x20000 };
+    const FlULong ExtraBits[4] = { 0x4000, 0x8000, 0x10000, 0x20000 };
     for (int Extra = 0; Extra < 4; ++Extra)
     {
         if ((Flags & ExtraBits[Extra]) == 0)
@@ -1347,7 +1347,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
         if (Group->ExtraStreams[Extra].IndexArray == nullptr)
         {
             Group->ExtraStreams[Extra].IndexArray =
-                (unsigned long*)new unsigned char[Desc->SrcCount * 4];
+                (FlULong*)new unsigned char[Desc->SrcCount * 4];
             Group->ExtraIndexCounts[Extra] = Desc->SrcCount;
         }
     }
@@ -1359,7 +1359,7 @@ int DACOM_API FTriMeshArch::AddFaceGroupChannels(unsigned long Flags)
 }
 
 // formerly Slot29
-int DACOM_API FTriMeshArch::RemoveFaceGroupChannels(unsigned long Flags)
+int DACOM_API FTriMeshArch::RemoveFaceGroupChannels(FlULong Flags)
 {
     if (CursorAtEnd())
         return -1;
@@ -1401,7 +1401,7 @@ int DACOM_API FTriMeshArch::RemoveFaceGroupChannels(unsigned long Flags)
         Desc->SrcFvf &= 0xFFFFFFBF;
         Result = 0;
     }
-    const unsigned long ExtraBits[4] = { 0x4000, 0x8000, 0x10000, 0x20000 };
+    const FlULong ExtraBits[4] = { 0x4000, 0x8000, 0x10000, 0x20000 };
     for (int Extra = 0; Extra < 4; ++Extra)
     {
         if ((Flags & ExtraBits[Extra]) != 0 && Group->ExtraStreams != nullptr)
@@ -1438,20 +1438,20 @@ int DACOM_API FTriMeshArch::RemoveFaceGroupChannels(unsigned long Flags)
 // ElementSize buffer, one read of the whole leaf. A non-zero read keeps the buffer (Pool) and
 // reports the count; a zero read deletes it. Returns false when the leaf is missing.
 template<typename ElementType>
-static bool TriMeshReadPool(IFileSystem* File, const char* Name, unsigned long ElementSize,
-                            ElementType** OutBuffer, unsigned long* OutCount, bool* bOutRead)
+static bool TriMeshReadPool(IFileSystem* File, const char* Name, FlULong ElementSize,
+                            ElementType** OutBuffer, FlULong* OutCount, bool* bOutRead)
 {
     FFileSystemDesc Desc;
     FileDescInit(&Desc, Name, "FileSystem");
     const int Handle = File->OpenByDesc(&Desc);
     if (Handle == -1)
         return false;
-    const unsigned long Size = File->GetSize((unsigned long)Handle, 0);
-    const unsigned long Count = Size / ElementSize;
+    const FlULong Size = File->GetSize((FlULong)Handle, 0);
+    const FlULong Count = Size / ElementSize;
     unsigned char* Buffer = new unsigned char[Count * ElementSize];
     *OutBuffer = (ElementType*)Buffer;
-    unsigned long ReadCount = 0;
-    if (File->Read((unsigned long)Handle, Buffer, Size, &ReadCount, 0) != 0)
+    FlULong ReadCount = 0;
+    if (File->Read((FlULong)Handle, Buffer, Size, &ReadCount, 0) != 0)
     {
         *OutCount = Count;
         *bOutRead = true;
@@ -1461,7 +1461,7 @@ static bool TriMeshReadPool(IFileSystem* File, const char* Name, unsigned long E
         delete[] Buffer;
         *bOutRead = false;
     }
-    File->CloseFile((unsigned long)Handle);
+    File->CloseFile((FlULong)Handle);
     return true;
 }
 
@@ -1470,8 +1470,8 @@ static bool TriMeshReadPool(IFileSystem* File, const char* Name, unsigned long E
 static void TriMeshReadCornerIndices(IFileSystem* File, const char* Name, FRpVertexSrcDesc* Desc,
                                      FRpVertexStream* Stream)
 {
-    unsigned long* Buffer = nullptr;
-    unsigned long Count = 0;
+    FlULong* Buffer = nullptr;
+    FlULong Count = 0;
     bool bRead = false;
     if (!TriMeshReadPool(File, Name, 4, &Buffer, &Count, &bRead))
         return;
@@ -1497,7 +1497,7 @@ int FTriMeshArch::Load(IFileSystem* File, IRenderPipeline* InPipeline, IVertexBu
         // [ESP+0x18]: the pool pointer handed from each pool read to its stream.
         unsigned char* PoolBase = nullptr;
         unsigned char* Buffer = nullptr;
-        unsigned long Count = 0;
+        FlULong Count = 0;
         bool bRead = false;
 
         if (TriMeshReadPool(File, "Points", 0xC, &Buffer, &Count, &bRead))
@@ -1576,13 +1576,13 @@ int FTriMeshArch::Load(IFileSystem* File, IRenderPipeline* InPipeline, IVertexBu
         if (UvAnim.LookupCount != 0)
         {
             TriMeshReadInt(File, "UV0_frame_count", &UvAnim.FrameCount);
-            unsigned long FrameEntries = 0;
+            FlULong FrameEntries = 0;
             TriMeshReadArray(File, "UV0_anim", 3, &FrameEntries, &UvAnim.Frames);
             TriMeshReadFloat(File, "UV0_fps", &UvAnim.Fps);
             TriMeshReadInt(File, "UV0_interpolate", &UvAnim.Interpolate);
             // FILD of the zero-extended FrameCount - 1 (an unsigned 32-bit value), FDIV, FSTP.
             UvAnim.Period = (float)(
-                (double)((unsigned long)(UvAnim.FrameCount - 1)) /
+                (double)((FlULong)(UvAnim.FrameCount - 1)) /
                 (double)UvAnim.Fps);
         }
         File->OpenNode("..");
@@ -1590,10 +1590,10 @@ int FTriMeshArch::Load(IFileSystem* File, IRenderPipeline* InPipeline, IVertexBu
 
     if (File->OpenNode("Face_groups") != 0)
     {
-        unsigned long GroupCount = 0;
+        FlULong GroupCount = 0;
         if (TriMeshReadInt(File, "Count", &GroupCount) >= 0)
         {
-            for (unsigned long Index = 0; Index < GroupCount; ++Index)
+            for (FlULong Index = 0; Index < GroupCount; ++Index)
             {
                 char GroupName[0x2000];
                 _snprintf(GroupName, sizeof(GroupName), "Group%d", (int)Index);
@@ -1624,7 +1624,7 @@ int FTriMeshArch::Load(IFileSystem* File, IRenderPipeline* InPipeline, IVertexBu
                 }
                 TriMeshReadArray(File, "Edge_indices", 1, &Group->EdgeCount,
                                  &Group->EdgeIndices);
-                unsigned long AngleCount = 0;
+                FlULong AngleCount = 0;
                 TriMeshReadArray(File, "Edge_angles", 2, &AngleCount, &Group->EdgeAngles);
                 Group->Rebase();
                 Group->Vertices = &Vertices;
@@ -1717,7 +1717,7 @@ int FTriMeshArch::Clone(FTriMeshArch** Out)
 
 // The per-vertex index array a channel locks (FUN_06c25e30 / FUN_06c26000): 1 position, 8 normal,
 // 2 tex0, 4 tex1, 0x10 diffuse; 0x4000..0x20000 extra stream 0..3. Null for anything else.
-static const unsigned long** TriMeshChannelIndexArray(FTriMeshGroup* Group, unsigned long Channel)
+static const FlULong** TriMeshChannelIndexArray(FTriMeshGroup* Group, FlULong Channel)
 {
     FRpVertexSrcDesc* Desc = Group->Vertices;
     switch (Channel)
@@ -1735,7 +1735,7 @@ static const unsigned long** TriMeshChannelIndexArray(FTriMeshGroup* Group, unsi
     }
 }
 
-int FTriMeshArch::LockChannel(unsigned long Channel)
+int FTriMeshArch::LockChannel(FlULong Channel)
 {
     FTriMeshGroup* Group = Groups[Cursor];
     if (Channel == 0x4000 || Channel == 0x8000 || Channel == 0x10000 || Channel == 0x20000)
@@ -1745,34 +1745,34 @@ int FTriMeshArch::LockChannel(unsigned long Channel)
     }
     // TriMeshChannelIndexArray is non-null exactly for the nine channels 06c25e3e..06c25f34
     // map, and for those TriMeshLockedSlot gives the slot the LEA EBX picks (never 5).
-    const unsigned long** IndexArray = TriMeshChannelIndexArray(Group, Channel);
+    const FlULong** IndexArray = TriMeshChannelIndexArray(Group, Channel);
     if (IndexArray == nullptr)
         return -1;
     const int Slot = TriMeshLockedSlot(Channel);
-    const unsigned long* Source = *IndexArray;
+    const FlULong* Source = *IndexArray;
     if (Source == nullptr)
         return -1;
     unsigned short* Copy = (unsigned short*)new unsigned char[Group->IndexCount * 2];
     Locked[Slot] = Copy;
-    const unsigned long* Base = Source + Group->MinIndex;
-    for (unsigned long Index = 0; Index < Group->IndexCount; ++Index)
+    const FlULong* Base = Source + Group->MinIndex;
+    for (FlULong Index = 0; Index < Group->IndexCount; ++Index)
         Copy[Index] = (unsigned short)(Base[Group->Indices[Index]]);
     return 0;
 }
 
-int FTriMeshArch::UnlockChannel(unsigned long Channel)
+int FTriMeshArch::UnlockChannel(FlULong Channel)
 {
     FTriMeshGroup* Group = Groups[Cursor];
-    unsigned long* Dest = nullptr;
+    FlULong* Dest = nullptr;
     unsigned short** Slot = nullptr;
     const bool bExtra = (Channel == 0x4000 || Channel == 0x8000 || Channel == 0x10000 || Channel == 0x20000);
     if (!bExtra || Group->ExtraStreams != nullptr)
     {
         // Non-null exactly for the nine mapped channels (see LockChannel).
-        const unsigned long** IndexArray = TriMeshChannelIndexArray(Group, Channel);
+        const FlULong** IndexArray = TriMeshChannelIndexArray(Group, Channel);
         if (IndexArray != nullptr)
         {
-            Dest = (unsigned long*)*IndexArray;
+            Dest = (FlULong*)*IndexArray;
             Slot = &Locked[TriMeshLockedSlot(Channel)];
         }
     }
@@ -1781,7 +1781,7 @@ int FTriMeshArch::UnlockChannel(unsigned long Channel)
         Group->MinIndex = 0;
         FTriMeshGroup* Edited = Groups[Cursor];
         const unsigned short* Written = *Slot;
-        for (unsigned long Index = 0; Index < Edited->IndexCount; ++Index)
+        for (FlULong Index = 0; Index < Edited->IndexCount; ++Index)
             Dest[Edited->Indices[Index]] = Written[Index];
         Groups[Cursor]->Rebase();
     }
@@ -1798,7 +1798,7 @@ int FTriMeshArch::LockEdgeAngles()
     if (Group->EdgeAngles == nullptr)
         return -1;
     const int Count = (int)(Group->EdgeCount >> 1);
-    Locked[5] = (unsigned short*)new unsigned char[(unsigned long)Count * 2];
+    Locked[5] = (unsigned short*)new unsigned char[(FlULong)Count * 2];
     for (int Index = 0; Index < Count; ++Index)
         Locked[5][Index] = (unsigned short)Index;
     return 0;
@@ -1819,7 +1819,7 @@ int FTriMeshArch::UnlockEdgeAngles()
 // FUN_06c26220: triangles over every group (a strip counts IndexCount - 2, a list IndexCount / 3).
 int FTriMeshArch::TriangleCount()
 {
-    unsigned long Total = 0;
+    FlULong Total = 0;
     for (size_t Index = 0; Index < Groups.size(); ++Index)
     {
         const FTriMeshGroup* Group = Groups[Index];
@@ -1836,7 +1836,7 @@ int FTriMeshArch::TriangleCount()
 int FTriMeshArch::VertexCount()
 {
     unsigned char bSharedCounted = 0;
-    unsigned long Total = 0;
+    FlULong Total = 0;
     for (size_t Index = 0; Index < Groups.size(); ++Index)
     {
         const FTriMeshGroup* Group = Groups[Index];
@@ -1866,7 +1866,7 @@ int FTriMeshArch::GetBox(float* Out)
     {
         for (int Index = 0; Index < 6; ++Index)
             Box[Index] = 0.0f;
-        const unsigned long Count = Vertices.Position.Count;
+        const FlULong Count = Vertices.Position.Count;
         if (Count != 0)
         {
             const float* Point = (const float*)Vertices.Position.Base;
@@ -1877,7 +1877,7 @@ int FTriMeshArch::GetBox(float* Out)
             Box[5] = Point[2];
             Box[4] = Point[2];
             Point += 3;
-            for (unsigned long Index = 1; Index < Count; ++Index)
+            for (FlULong Index = 1; Index < Count; ++Index)
             {
                 if (Point[0] > Box[0])
                     Box[0] = Point[0];
@@ -1915,11 +1915,11 @@ int FTriMeshArch::GetCenter(float* Out)
     Center[2] = 0.0f;
     Center[1] = 0.0f;
     Center[0] = 0.0f;
-    const unsigned long Count = Vertices.Position.Count;
+    const FlULong Count = Vertices.Position.Count;
     if (Count != 0)
     {
         const float* Point = (const float*)Vertices.Position.Base;
-        for (unsigned long Index = 0; Index < Count; ++Index)
+        for (FlULong Index = 0; Index < Count; ++Index)
         {
             Center[0] = Center[0] + Point[0];
             Center[1] = Point[1] + Center[1];
@@ -1954,17 +1954,17 @@ int FTriMeshArch::GetSphere(float* OutCenter, float* OutRadius)
     SphereCenter[1] = 0.0f;
     SphereCenter[0] = 0.0f;
     SphereRadius = 0.0f;
-    const unsigned long Count = Vertices.Position.Count;
+    const FlULong Count = Vertices.Position.Count;
     if (Count != 0)
     {
         const float* Points = (const float*)Vertices.Position.Base;
-        unsigned long MinX = 0;
-        unsigned long MaxX = 0;
-        unsigned long MinY = 0;
-        unsigned long MaxY = 0;
-        unsigned long MinZ = 0;
-        unsigned long MaxZ = 0;
-        for (unsigned long Index = 1; Index < Count; ++Index)
+        FlULong MinX = 0;
+        FlULong MaxX = 0;
+        FlULong MinY = 0;
+        FlULong MaxY = 0;
+        FlULong MinZ = 0;
+        FlULong MaxZ = 0;
+        for (FlULong Index = 1; Index < Count; ++Index)
         {
             const float* Point = Points + Index * 3;
             // 06c25997: TEST AH,0x5 / JP -- fall-through (strictly less) takes the new minimum.
@@ -2002,7 +2002,7 @@ int FTriMeshArch::GetSphere(float* OutCenter, float* OutRadius)
         const double Radius = (double)Largest * 0.5;
         SphereRadius = (float)Radius;
         float RadiusSquared = (float)(Radius * Radius);
-        for (unsigned long Index = 0; Index < Count; ++Index)
+        for (FlULong Index = 0; Index < Count; ++Index)
         {
             const float* Point = Points + Index * 3;
             // FUN_06c25ce0: Delta = Point - Centre, stored as float.
@@ -2052,10 +2052,10 @@ int FTriMeshArch::GetSphere(float* OutCenter, float* OutRadius)
 
 // FUN_06c26c40 (cdecl; map, count, sentinel): every entry equal to the sentinel is renumbered
 // 0, 1, 2, ... in order.
-static void TriMeshDenseMap(long* Map, long Count, long Sentinel)
+static void TriMeshDenseMap(FlLong* Map, FlLong Count, FlLong Sentinel)
 {
-    long Next = 0;
-    for (long Index = 0; Index < Count; ++Index)
+    FlLong Next = 0;
+    for (FlLong Index = 0; Index < Count; ++Index)
     {
         if (Map[Index] == Sentinel)
         {
@@ -2065,33 +2065,33 @@ static void TriMeshDenseMap(long* Map, long Count, long Sentinel)
     }
 }
 
-static long* TriMeshNewMap(unsigned long Count)
+static FlLong* TriMeshNewMap(FlULong Count)
 {
-    long* Map = (long*)new unsigned char[Count * 4];
+    FlLong* Map = (FlLong*)new unsigned char[Count * 4];
     std::memset(Map, 0xFF, Count * 4);
     return Map;
 }
 
-static void TriMeshCompactStream(const FRpVertexStream* Source, long SourceVertexCount, FRpVertexStream* Dest,
-                                 unsigned long DestVertexCount, unsigned long DestElementCount,
-                                 const long* VertexMap, const long* ElementMap)
+static void TriMeshCompactStream(const FRpVertexStream* Source, FlLong SourceVertexCount, FRpVertexStream* Dest,
+                                 FlULong DestVertexCount, FlULong DestElementCount,
+                                 const FlLong* VertexMap, const FlLong* ElementMap)
 {
     Dest->ByteSize = Source->ByteSize;
     Dest->Stride = Source->ByteSize;
-    Dest->IndexArray = (unsigned long*)new unsigned char[DestVertexCount * 4];
+    Dest->IndexArray = (FlULong*)new unsigned char[DestVertexCount * 4];
     Dest->Count = DestElementCount;
     Dest->Base = new unsigned char[Dest->Stride * DestElementCount];
-    const unsigned long* SourceIndices = Source->IndexArray;
-    unsigned long* DestIndices = (unsigned long*)Dest->IndexArray;
-    for (long Vertex = 0; Vertex < SourceVertexCount; ++Vertex)
+    const FlULong* SourceIndices = Source->IndexArray;
+    FlULong* DestIndices = (FlULong*)Dest->IndexArray;
+    for (FlLong Vertex = 0; Vertex < SourceVertexCount; ++Vertex)
     {
-        const long NewVertex = VertexMap[Vertex];
+        const FlLong NewVertex = VertexMap[Vertex];
         if (NewVertex >= 0)
-            DestIndices[NewVertex] = (unsigned long)(ElementMap[SourceIndices[Vertex]]);
+            DestIndices[NewVertex] = (FlULong)(ElementMap[SourceIndices[Vertex]]);
     }
-    for (unsigned long Element = 0; Element < Source->Count; ++Element)
+    for (FlULong Element = 0; Element < Source->Count; ++Element)
     {
-        const long NewElement = ElementMap[Element];
+        const FlLong NewElement = ElementMap[Element];
         if (NewElement >= 0)
             std::memcpy((unsigned char*)Dest->Base + Dest->Stride * NewElement,
                         Source->Base + Source->Stride * Element, Source->ByteSize);
@@ -2101,39 +2101,39 @@ static void TriMeshCompactStream(const FRpVertexStream* Source, long SourceVerte
 static int TriMeshCompactInto(FTriMeshGroup** List, int GroupCount, const FRpVertexSrcDesc* Source,
                               FRpVertexSrcDesc* Dest)
 {
-    long* VertexMap = TriMeshNewMap(Source->SrcCount);
-    long* PositionMap = nullptr;
+    FlLong* VertexMap = TriMeshNewMap(Source->SrcCount);
+    FlLong* PositionMap = nullptr;
     if (((unsigned char)Source->SrcFvf & 0x2) != 0)
         PositionMap = TriMeshNewMap(Source->Position.Count);
-    long* NormalMap = nullptr;
+    FlLong* NormalMap = nullptr;
     if (((unsigned char)Source->SrcFvf & 0x10) != 0)
         NormalMap = TriMeshNewMap(Source->Normal.Count);
-    long* Tex0Map = nullptr;
+    FlLong* Tex0Map = nullptr;
     if ((Source->SrcFvf & 0xF00) >= 0x100)
         Tex0Map = TriMeshNewMap(Source->Tex[0].Count);
-    long* Tex1Map = nullptr;
+    FlLong* Tex1Map = nullptr;
     if ((Source->SrcFvf & 0xF00) >= 0x200)
         Tex1Map = TriMeshNewMap(Source->Tex[1].Count);
-    long* ColorMap = nullptr;
+    FlLong* ColorMap = nullptr;
     if (((unsigned char)Source->SrcFvf & 0x40) != 0)
         ColorMap = TriMeshNewMap(Source->Diffuse.Count);
 
-    unsigned long VerticesUsed = 0;
-    unsigned long PositionsUsed = 0;
-    unsigned long NormalsUsed = 0;
-    unsigned long Tex0Used = 0;
-    unsigned long Tex1Used = 0;
-    unsigned long ColorsUsed = 0;
-    const unsigned long* PositionIndices = Source->Position.IndexArray;
-    const unsigned long* NormalIndices = Source->Normal.IndexArray;
-    const unsigned long* Tex0Indices = Source->Tex[0].IndexArray;
-    const unsigned long* Tex1Indices = Source->Tex[1].IndexArray;
-    const unsigned long* ColorIndices = Source->Diffuse.IndexArray;
+    FlULong VerticesUsed = 0;
+    FlULong PositionsUsed = 0;
+    FlULong NormalsUsed = 0;
+    FlULong Tex0Used = 0;
+    FlULong Tex1Used = 0;
+    FlULong ColorsUsed = 0;
+    const FlULong* PositionIndices = Source->Position.IndexArray;
+    const FlULong* NormalIndices = Source->Normal.IndexArray;
+    const FlULong* Tex0Indices = Source->Tex[0].IndexArray;
+    const FlULong* Tex1Indices = Source->Tex[1].IndexArray;
+    const FlULong* ColorIndices = Source->Diffuse.IndexArray;
     for (int GroupIndex = 0; GroupIndex < GroupCount; ++GroupIndex)
     {
         FTriMeshGroup* Group = List[GroupIndex];
         Group->Unrebase();
-        for (unsigned long Corner = 0; Corner < Group->IndexCount; ++Corner)
+        for (FlULong Corner = 0; Corner < Group->IndexCount; ++Corner)
         {
             const unsigned short Vertex = Group->Indices[Corner];
             if (VertexMap[Vertex] != -1)
@@ -2185,23 +2185,23 @@ static int TriMeshCompactInto(FTriMeshGroup** List, int GroupCount, const FRpVer
 
     Dest->Flags = Source->Flags;
     Dest->SrcFvf = Source->SrcFvf;
-    TriMeshDenseMap(VertexMap, (long)Source->SrcCount, -2);
-    TriMeshDenseMap(PositionMap, (long)(Source->Position.Count), -2);
-    TriMeshDenseMap(NormalMap, (long)(Source->Normal.Count), -2);
-    TriMeshDenseMap(Tex0Map, (long)(Source->Tex[0].Count), -2);
-    TriMeshDenseMap(Tex1Map, (long)(Source->Tex[1].Count), -2);
-    TriMeshDenseMap(ColorMap, (long)(Source->Diffuse.Count), -2);
+    TriMeshDenseMap(VertexMap, (FlLong)Source->SrcCount, -2);
+    TriMeshDenseMap(PositionMap, (FlLong)(Source->Position.Count), -2);
+    TriMeshDenseMap(NormalMap, (FlLong)(Source->Normal.Count), -2);
+    TriMeshDenseMap(Tex0Map, (FlLong)(Source->Tex[0].Count), -2);
+    TriMeshDenseMap(Tex1Map, (FlLong)(Source->Tex[1].Count), -2);
+    TriMeshDenseMap(ColorMap, (FlLong)(Source->Diffuse.Count), -2);
     for (int GroupIndex = 0; GroupIndex < GroupCount; ++GroupIndex)
     {
         FTriMeshGroup* Group = List[GroupIndex];
-        for (unsigned long Corner = 0; Corner < Group->IndexCount; ++Corner)
+        for (FlULong Corner = 0; Corner < Group->IndexCount; ++Corner)
             Group->Indices[Corner] = (unsigned short)(VertexMap[Group->Indices[Corner]]);
-        for (unsigned long Edge = 0; Edge < Group->EdgeCount; ++Edge)
+        for (FlULong Edge = 0; Edge < Group->EdgeCount; ++Edge)
             Group->EdgeIndices[Edge] = (unsigned short)(PositionMap[Group->EdgeIndices[Edge]]);
         Group->Rebase();
     }
     Dest->SrcCount = VerticesUsed;
-    const long SourceCount = (long)Source->SrcCount;
+    const FlLong SourceCount = (FlLong)Source->SrcCount;
     if (PositionMap != nullptr)
         TriMeshCompactStream(&Source->Position, SourceCount, &Dest->Position, VerticesUsed, PositionsUsed,
                              VertexMap, PositionMap);
@@ -2279,21 +2279,21 @@ int FTriMeshArch::ShareGroupVertices(bool bAll)
 
 // Copies Count elements of Bytes bytes from Source (at SourceStride) to Dest + (Offset + i) *
 // DestStride -- the element loops of FUN_06c25140.
-static void TriMeshAppendElements(unsigned char* Dest, unsigned long DestStride, unsigned long Offset,
-                                  const unsigned char* Source, unsigned long SourceStride, unsigned long Count,
-                                  unsigned long Bytes)
+static void TriMeshAppendElements(unsigned char* Dest, FlULong DestStride, FlULong Offset,
+                                  const unsigned char* Source, FlULong SourceStride, FlULong Count,
+                                  FlULong Bytes)
 {
-    for (unsigned long Element = 0; Element < Count; ++Element)
+    for (FlULong Element = 0; Element < Count; ++Element)
         std::memcpy(Dest + (Element + Offset) * DestStride, Source + SourceStride * Element, Bytes);
 }
 
 // The index loops of FUN_06c25140: Dest[VertexOffset + v] = Source[v] + ElementOffset.
-static void TriMeshAppendIndices(unsigned long* Dest, unsigned long VertexOffset, const unsigned long* Source,
-                                 unsigned long VertexCount, unsigned long ElementOffset)
+static void TriMeshAppendIndices(FlULong* Dest, FlULong VertexOffset, const FlULong* Source,
+                                 FlULong VertexCount, FlULong ElementOffset)
 {
-    unsigned long* Out = Dest + VertexOffset;
-    const unsigned long* In = Source;
-    for (unsigned long Vertex = 0; Vertex < VertexCount; ++Vertex)
+    FlULong* Out = Dest + VertexOffset;
+    const FlULong* In = Source;
+    for (FlULong Vertex = 0; Vertex < VertexCount; ++Vertex)
         Out[Vertex] = In[Vertex] + ElementOffset;
 }
 
@@ -2303,12 +2303,12 @@ int FTriMeshArch::CompactVertices()
     const size_t Count = Groups.size();
     FTriMeshGroup* First = Begin[0];
     unsigned char bSame = 1;
-    unsigned long SumVertices = 0;
-    unsigned long SumPositions = 0;
-    unsigned long SumNormals = 0;
-    unsigned long SumTex0 = 0;
-    unsigned long SumTex1 = 0;
-    unsigned long SumColors = 0;
+    FlULong SumVertices = 0;
+    FlULong SumPositions = 0;
+    FlULong SumNormals = 0;
+    FlULong SumTex0 = 0;
+    FlULong SumTex1 = 0;
+    FlULong SumColors = 0;
     for (size_t Index = 0; Index < Count; ++Index)
     {
         const FRpVertexSrcDesc* Desc = Begin[Index]->Vertices;
@@ -2316,7 +2316,7 @@ int FTriMeshArch::CompactVertices()
             return 0;
         if (First->Vertices->SrcFvf == Desc->SrcFvf && First->Vertices->Flags == Desc->Flags)
         {
-            const unsigned long Fvf = Desc->SrcFvf;
+            const FlULong Fvf = Desc->SrcFvf;
             SumVertices += Desc->SrcCount;
             if (((unsigned char)Fvf & 0x2) != 0)
                 SumPositions += Desc->Position.Count;
@@ -2350,14 +2350,14 @@ int FTriMeshArch::CompactVertices()
     Vertices.Position.Count = SumPositions;
     Vertices.Position.ByteSize = FirstDesc->Position.ByteSize;
     Vertices.Position.Stride = FirstDesc->Position.Stride;
-    Vertices.Position.IndexArray = (unsigned long*)new unsigned char[SumVertices * 4];
+    Vertices.Position.IndexArray = (FlULong*)new unsigned char[SumVertices * 4];
     Vertices.Position.Base = new unsigned char[FirstDesc->Position.Stride * SumPositions];
     if (SumNormals != 0)
     {
         Vertices.Normal.Count = SumNormals;
         Vertices.Normal.ByteSize = FirstDesc->Normal.ByteSize;
         Vertices.Normal.Stride = FirstDesc->Normal.Stride;
-        Vertices.Normal.IndexArray = (unsigned long*)new unsigned char[SumVertices * 4];
+        Vertices.Normal.IndexArray = (FlULong*)new unsigned char[SumVertices * 4];
         Vertices.Normal.Base = new unsigned char[FirstDesc->Normal.Stride * SumNormals];
     }
     if (SumTex0 != 0)
@@ -2365,7 +2365,7 @@ int FTriMeshArch::CompactVertices()
         Vertices.Tex[0].Count = SumTex0;
         Vertices.Tex[0].ByteSize = FirstDesc->Tex[0].ByteSize;
         Vertices.Tex[0].Stride = FirstDesc->Tex[0].Stride;
-        Vertices.Tex[0].IndexArray = (unsigned long*)new unsigned char[SumVertices * 4];
+        Vertices.Tex[0].IndexArray = (FlULong*)new unsigned char[SumVertices * 4];
         Vertices.Tex[0].Base = new unsigned char[FirstDesc->Tex[0].Stride * SumTex0];
     }
     if (SumTex1 != 0)
@@ -2373,7 +2373,7 @@ int FTriMeshArch::CompactVertices()
         Vertices.Tex[1].Count = SumTex1;
         Vertices.Tex[1].ByteSize = FirstDesc->Tex[1].ByteSize;
         Vertices.Tex[1].Stride = FirstDesc->Tex[1].Stride;
-        Vertices.Tex[1].IndexArray = (unsigned long*)new unsigned char[SumVertices * 4];
+        Vertices.Tex[1].IndexArray = (FlULong*)new unsigned char[SumVertices * 4];
         Vertices.Tex[1].Base = new unsigned char[FirstDesc->Tex[1].Stride * SumTex1];
     }
     if (SumColors != 0)
@@ -2381,38 +2381,38 @@ int FTriMeshArch::CompactVertices()
         Vertices.Diffuse.Count = SumColors;
         Vertices.Diffuse.ByteSize = FirstDesc->Diffuse.ByteSize;
         Vertices.Diffuse.Stride = FirstDesc->Diffuse.Stride;
-        Vertices.Diffuse.IndexArray = (unsigned long*)new unsigned char[SumVertices * 4];
+        Vertices.Diffuse.IndexArray = (FlULong*)new unsigned char[SumVertices * 4];
         Vertices.Diffuse.Base = new unsigned char[FirstDesc->Diffuse.Stride * SumColors];
     }
 
-    unsigned long DoneVertices = 0;
-    unsigned long DonePositions = 0;
-    unsigned long DoneNormals = 0;
-    unsigned long DoneTex0 = 0;
-    unsigned long DoneTex1 = 0;
-    unsigned long DoneColors = 0;
+    FlULong DoneVertices = 0;
+    FlULong DonePositions = 0;
+    FlULong DoneNormals = 0;
+    FlULong DoneTex0 = 0;
+    FlULong DoneTex1 = 0;
+    FlULong DoneColors = 0;
     for (size_t Index = 0; Index < Count; ++Index)
     {
         FTriMeshGroup* Group = Begin[Index];
         Group->Unrebase();
-        for (unsigned long Corner = 0; Corner < Group->IndexCount; ++Corner)
+        for (FlULong Corner = 0; Corner < Group->IndexCount; ++Corner)
             Group->Indices[Corner] = (unsigned short)(
                 Group->Indices[Corner] + (unsigned short)DoneVertices);
         FRpVertexSrcDesc* Desc = Group->Vertices;
-        unsigned long* PositionOut = (unsigned long*)Vertices.Position.IndexArray;
+        FlULong* PositionOut = (FlULong*)Vertices.Position.IndexArray;
         TriMeshAppendIndices(PositionOut, DoneVertices, Desc->Position.IndexArray, Desc->SrcCount, DonePositions);
         TriMeshAppendElements((unsigned char*)Vertices.Position.Base, Vertices.Position.Stride,
                               DonePositions, Desc->Position.Base, Desc->Position.Stride, Desc->Position.Count, 0xC);
         if (SumNormals != 0)
         {
-            TriMeshAppendIndices((unsigned long*)Vertices.Normal.IndexArray, DoneVertices,
+            TriMeshAppendIndices((FlULong*)Vertices.Normal.IndexArray, DoneVertices,
                                  Desc->Normal.IndexArray, Desc->SrcCount, DoneNormals);
             TriMeshAppendElements((unsigned char*)Vertices.Normal.Base, Vertices.Normal.Stride,
                                   DoneNormals, Desc->Normal.Base, Desc->Normal.Stride, Desc->Normal.Count, 0xC);
         }
         if (SumTex0 != 0)
         {
-            TriMeshAppendIndices((unsigned long*)Vertices.Tex[0].IndexArray, DoneVertices,
+            TriMeshAppendIndices((FlULong*)Vertices.Tex[0].IndexArray, DoneVertices,
                                  Desc->Tex[0].IndexArray, Desc->SrcCount, DoneTex0);
             TriMeshAppendElements((unsigned char*)(Vertices.Tex[0].Base), Vertices.Tex[0].Stride,
                                   DoneTex0, Desc->Tex[0].Base, Desc->Tex[0].Stride, Desc->Tex[0].Count,
@@ -2420,7 +2420,7 @@ int FTriMeshArch::CompactVertices()
         }
         if (SumTex1 != 0)
         {
-            TriMeshAppendIndices((unsigned long*)Vertices.Tex[1].IndexArray, DoneVertices,
+            TriMeshAppendIndices((FlULong*)Vertices.Tex[1].IndexArray, DoneVertices,
                                  Desc->Tex[1].IndexArray, Desc->SrcCount, DoneTex1);
             TriMeshAppendElements((unsigned char*)(Vertices.Tex[1].Base), Vertices.Tex[1].Stride,
                                   DoneTex1, Desc->Tex[1].Base, Desc->Tex[1].Stride, Desc->Tex[1].Count,
@@ -2428,7 +2428,7 @@ int FTriMeshArch::CompactVertices()
         }
         if (SumColors != 0)
         {
-            TriMeshAppendIndices((unsigned long*)Vertices.Diffuse.IndexArray, DoneVertices,
+            TriMeshAppendIndices((FlULong*)Vertices.Diffuse.IndexArray, DoneVertices,
                                  Desc->Diffuse.IndexArray, Desc->SrcCount, DoneColors);
             TriMeshAppendElements((unsigned char*)Vertices.Diffuse.Base, Vertices.Diffuse.Stride,
                                   DoneColors, Desc->Diffuse.Base, Desc->Diffuse.Stride, Desc->Diffuse.Count,
@@ -2453,11 +2453,11 @@ int FTriMeshArch::CompactVertices()
 // ---------------------------------------------------------------------------------------
 
 // formerly TriMeshClassifyTriangle
-unsigned long FTriMeshGroup::ClassifyTriangle(int Triangle, const float* Plane, float PlaneD) const
+FlULong FTriMeshGroup::ClassifyTriangle(int Triangle, const float* Plane, float PlaneD) const
 {
     const FRpVertexSrcDesc* Desc = this->Vertices;
-    const unsigned long* PositionIndices = Desc->Position.IndexArray;
-    const unsigned long Stride = Desc->Position.Stride;
+    const FlULong* PositionIndices = Desc->Position.IndexArray;
+    const FlULong Stride = Desc->Position.Stride;
     const unsigned char* Base = Desc->Position.Base;
     const unsigned short* Corner = this->Indices + Triangle * 3;
     const float* P0 = (const float*)(Base + PositionIndices[Corner[0]] * Stride);
@@ -2485,13 +2485,13 @@ unsigned long FTriMeshGroup::ClassifyTriangle(int Triangle, const float* Plane, 
 }
 
 // formerly TriMeshGroupTakeTriangles
-void FTriMeshGroup::CopyTriangles(const FTriMeshGroup* Source, const unsigned long* Classes, unsigned long Wanted, unsigned long Count)
+void FTriMeshGroup::CopyTriangles(const FTriMeshGroup* Source, const FlULong* Classes, FlULong Wanted, FlULong Count)
 {
     this->IndexCount = Count * 3;
     this->Indices = (unsigned short*)new unsigned char[this->IndexCount * 2];
-    unsigned long Written = 0;
-    const unsigned long Triangles = Source->IndexCount / 3;
-    for (unsigned long Triangle = 0; Triangle < Triangles; ++Triangle)
+    FlULong Written = 0;
+    const FlULong Triangles = Source->IndexCount / 3;
+    for (FlULong Triangle = 0; Triangle < Triangles; ++Triangle)
     {
         if (Classes[Triangle] != Wanted)
             continue;
@@ -2517,16 +2517,16 @@ int FTriMeshArch::SplitByPlane(const float* Plane, float PlaneD, unsigned char S
         int BackCount = 0;
         int StraddleCount = 0;
         unsigned short* StripIndices = nullptr;
-        unsigned long StripCount = 0;
+        FlULong StripCount = 0;
         if (bStrip != 0)
         {
             StripCount = Source->IndexCount;
             StripIndices = Source->Indices;
-            const unsigned long Slots = StripCount - 2;
+            const FlULong Slots = StripCount - 2;
             unsigned short* List = (unsigned short*)new unsigned char[Slots * 2];
             Source->Indices = List;
             Source->IndexCount = 0;
-            for (unsigned long Index = 0; Index < Slots; ++Index)
+            for (FlULong Index = 0; Index < Slots; ++Index)
             {
                 const unsigned short A = StripIndices[Index];
                 const unsigned short B = StripIndices[Index + 1];
@@ -2550,10 +2550,10 @@ int FTriMeshArch::SplitByPlane(const float* Plane, float PlaneD, unsigned char S
         }
 
         const int Triangles = (int)(Source->IndexCount / 3);
-        unsigned long* Classes = (unsigned long*)new unsigned char[(unsigned long)Triangles * 4];
+        FlULong* Classes = (FlULong*)new unsigned char[(FlULong)Triangles * 4];
         for (int Triangle = 0; Triangle < Triangles; ++Triangle)
         {
-            const unsigned long Class = Source->ClassifyTriangle(Triangle, Plane, PlaneD);
+            const FlULong Class = Source->ClassifyTriangle(Triangle, Plane, PlaneD);
             Classes[Triangle] = Class;
             if (Class == TriMeshTriangleAllFront)
                 FrontCount += 1;
@@ -2588,14 +2588,14 @@ int FTriMeshArch::SplitByPlane(const float* Plane, float PlaneD, unsigned char S
         {
             Front->Vertices = Source->Vertices;
             Front->SharedVertices = Front->Vertices;
-            Front->CopyTriangles(Source, Classes, TriMeshTriangleAllFront, (unsigned long)FrontCount);
+            Front->CopyTriangles(Source, Classes, TriMeshTriangleAllFront, (FlULong)FrontCount);
             Front->SharedVertices = &(*OutFront)->Vertices;
         }
         if (BackCount > 0)
         {
             Back->Vertices = Source->Vertices;
             Back->SharedVertices = Back->Vertices;
-            Back->CopyTriangles(Source, Classes, TriMeshTriangleAllBack, (unsigned long)BackCount);
+            Back->CopyTriangles(Source, Classes, TriMeshTriangleAllBack, (FlULong)BackCount);
             Back->SharedVertices = &(*OutBack)->Vertices;
         }
         if (StraddleCount > 0)
@@ -2655,13 +2655,13 @@ int FTriMeshArch::SplitByPlane(const float* Plane, float PlaneD, unsigned char S
 // FUN_06c28ed0 (cdecl; stream, old vertex count, new vertex count): the element buffer grows by
 // (New - Old) elements (Count elements copied over), the index array is reallocated to New dwords
 // (Old copied over). Count is not changed.
-static void TriMeshStreamGrow(FRpVertexStream* Stream, unsigned long OldCount, unsigned long NewCount)
+static void TriMeshStreamGrow(FRpVertexStream* Stream, FlULong OldCount, FlULong NewCount)
 {
     unsigned char* Elements = new unsigned char[(NewCount - OldCount + Stream->Count) * Stream->Stride];
     std::memcpy(Elements, Stream->Base, Stream->Stride * Stream->Count);
     delete[] Stream->Base;
     Stream->Base = Elements;
-    unsigned long* Indices = (unsigned long*)new unsigned char[NewCount * 4];
+    FlULong* Indices = (FlULong*)new unsigned char[NewCount * 4];
     std::memcpy(Indices, Stream->IndexArray, OldCount * 4);
     delete[] (const unsigned char*)Stream->IndexArray;
     Stream->IndexArray = Indices;
@@ -2669,17 +2669,17 @@ static void TriMeshStreamGrow(FRpVertexStream* Stream, unsigned long OldCount, u
 
 // One corner of FUN_06c27cc0's output: ByteSize bytes appended to the stream, the vertex's index
 // slot set to the element just written.
-static void TriMeshStreamAppend(FRpVertexStream* Stream, unsigned long Vertex, const unsigned char* Source)
+static void TriMeshStreamAppend(FRpVertexStream* Stream, FlULong Vertex, const unsigned char* Source)
 {
     std::memcpy((unsigned char*)Stream->Base + Stream->Stride * Stream->Count, Source, Stream->ByteSize);
-    ((unsigned long*)Stream->IndexArray)[Vertex] = Stream->Count;
+    ((FlULong*)Stream->IndexArray)[Vertex] = Stream->Count;
     Stream->Count += 1;
 }
 
 // The element a vertex names in a stream (base + index[vertex] * stride).
 static const unsigned char* TriMeshStreamElement(const FRpVertexStream* Stream, unsigned short Vertex)
 {
-    const unsigned long* Indices = Stream->IndexArray;
+    const FlULong* Indices = Stream->IndexArray;
     return Stream->Base + Indices[Vertex] * Stream->Stride;
 }
 
@@ -2740,11 +2740,11 @@ static float TriMeshHalfSumStored(float A, float B)
 }
 
 // formerly TriMeshClipStraddling
-void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, const unsigned long* Classes, int StraddleCount) const
+void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, const FlULong* Classes, int StraddleCount) const
 {
     if (StraddleCount < 1)
         return;
-    const unsigned long Added = (unsigned long)StraddleCount * 3;
+    const FlULong Added = (FlULong)StraddleCount * 3;
     unsigned short* FrontIndices = (unsigned short*)new unsigned char[(Front->IndexCount + Added) * 2];
     std::memcpy(FrontIndices, Front->Indices, Front->IndexCount * 2);
     delete[] (const unsigned char*)Front->Indices;
@@ -2760,7 +2760,7 @@ void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, co
 
     FRpVertexSrcDesc* FrontDesc = Front->Vertices;
     FRpVertexSrcDesc* BackDesc = Back->Vertices;
-    const unsigned long Fvf = SourceDesc->SrcFvf;
+    const FlULong Fvf = SourceDesc->SrcFvf;
     const bool bNormal = ((Fvf >> 4) & 1) != 0;
     const bool bTex0 = (Fvf & 0xF00) >= 0x100;
     const bool bTex1 = (Fvf & 0xF00) >= 0x200;
@@ -2804,16 +2804,16 @@ void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, co
     float MidPosition[3] = { 0.0f, 0.0f, 0.0f };
     float MidTex0[2] = { 0.0f, 0.0f };
     float MidTex1[2] = { 0.0f, 0.0f };
-    unsigned long MidColor = 0;
+    FlULong MidColor = 0;
     const unsigned char* Mid = (const unsigned char*)MidPosition;
     const unsigned char* MidT0 = (const unsigned char*)MidTex0;
     const unsigned char* MidT1 = (const unsigned char*)MidTex1;
     const unsigned char* MidC = (const unsigned char*)(&MidColor);
 
-    const unsigned long Triangles = this->IndexCount / 3;
-    for (unsigned long Triangle = 0; Triangle < Triangles; ++Triangle)
+    const FlULong Triangles = this->IndexCount / 3;
+    for (FlULong Triangle = 0; Triangle < Triangles; ++Triangle)
     {
-        const unsigned long Class = Classes[Triangle];
+        const FlULong Class = Classes[Triangle];
         if ((Class & 0x8) == 0)
             continue;
         const unsigned short* Corner = this->Indices + Triangle * 3;
@@ -2832,7 +2832,7 @@ void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, co
         int B2 = 0;
         int EdgeLeft = 0;
         int EdgeRight = 0;
-        unsigned long SideShift = 0;
+        FlULong SideShift = 0;
         if (Cut == 0)
         {
             A0 = 1; A1 = 2; B1 = 0; B2 = 1; EdgeLeft = 0; EdgeRight = 2; SideShift = 6;
@@ -2922,8 +2922,8 @@ void FTriMeshGroup::ClipStraddling(FTriMeshGroup* Front, FTriMeshGroup* Back, co
             const unsigned char* C[3];
             for (int Index = 0; Index < 3; ++Index)
                 C[Index] = TriMeshStreamElement(&SourceDesc->Diffuse, Corner[Index]);
-            MidColor = (*(const unsigned long*)C[EdgeLeft] +
-                        *(const unsigned long*)C[EdgeRight]) >> 1;
+            MidColor = (*(const FlULong*)C[EdgeLeft] +
+                        *(const FlULong*)C[EdgeRight]) >> 1;
             if (Cut == 2)
             {
                 ColorA[0] = C[0]; ColorA[1] = MidC; ColorA[2] = C[2];

@@ -149,43 +149,43 @@ namespace CmnPhySys
     // they carry retail's engine instance id -- a long, -1 for "none". The physics code
     // keeps ids in a long and converts only at the IEngine call; each helper below is
     // exactly one IEngine slot call, nothing more.
-    inline void* PhySys_InstanceHandle(long Instance)
+    inline void* PhySys_InstanceHandle(FlLong Instance)
     {
         return (void*)(intptr_t)Instance;
     }
 
-    inline long PhySys_InstanceId(void* Handle)
+    inline FlLong PhySys_InstanceId(void* Handle)
     {
-        return (long)(intptr_t)Handle;
+        return (FlLong)(intptr_t)Handle;
     }
 
     // IEngine +0xd8 GetRelatedInstance(From, Flags, Cursor): Cursor -1 starts a walk, -1 ends it.
-    inline long PhySys_RelatedInstance(long From, unsigned long Flags, long Cursor)
+    inline FlLong PhySys_RelatedInstance(FlLong From, FlULong Flags, FlLong Cursor)
     {
         return PhySys_InstanceId(
             DALib::Engine->GetRelatedInstance(PhySys_InstanceHandle(From), Flags, PhySys_InstanceHandle(Cursor)));
     }
 
     // IEngine +0x80 GetInstanceUserData: the CObject PhySys stored on the instance, or null.
-    inline CObject* PhySys_InstanceObject(long Instance)
+    inline CObject* PhySys_InstanceObject(FlLong Instance)
     {
         return (CObject*)DALib::Engine->GetInstanceUserData(PhySys_InstanceHandle(Instance));
     }
 
     // IEngine +0x7c SetInstanceUserData.
-    inline void PhySys_SetInstanceObject(long Instance, CObject* Object)
+    inline void PhySys_SetInstanceObject(FlLong Instance, CObject* Object)
     {
         DALib::Engine->SetInstanceUserData(PhySys_InstanceHandle(Instance), Object);
     }
 
     // IEngine +0xd4 GetInstanceParent.
-    inline long PhySys_InstanceParent(long Instance)
+    inline FlLong PhySys_InstanceParent(FlLong Instance)
     {
         return PhySys_InstanceId(DALib::Engine->GetInstanceParent(PhySys_InstanceHandle(Instance)));
     }
 
     // FUN_062883c0: re-pose Object's jointed child instances (common_physys.cpp).
-    void PhySys_UpdateJointedChildren(long Instance, CObject* Object);
+    void PhySys_UpdateJointedChildren(FlLong Instance, CObject* Object);
     // The MatrixToQuaternion pose conversion of FUN_0628c7b0 / FUN_0628c860 and the
     // CreatePhantom bodies (common_physicalsystem.cpp).
     void PhySys_OrientationToIvpQuat(Matrix const& Orientation, IVP_U_Quat& Out);

@@ -234,7 +234,7 @@ bool NnGroupControl::Create(Win3D* NewParent, void* Data)
         RequestDisplay->SetNormSize(0.46f, 0.15f);             // DAT_005cef28 / DAT_005cef2c
         RequestDisplay->SetAutoScrollbar(true);
         RequestDisplay->SetFrameColor(
-            reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba));
+            reinterpret_cast<FlULong const*>(G_HudChromeColorRgba));
         RequestDisplay->SetAlignMode(2);
         RequestDisplay->GetToolTipHoverInfo()->IdsAlt = 0x1b83;
         RequestDisplay->SetToolTipEnabled(true);

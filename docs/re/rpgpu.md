@@ -25,20 +25,22 @@ client's next `CreateBuffers` brings the new one up.
 
 ## Build
 
-- `FreelancerRpGpu` (`src/Directory.Build.props`) turns RPGPU on: `1` by default on x64, whose
-  client has no other renderer, `0` on Win32, where RP8 is the renderer. Off, the project is an
-  empty Utility build. Build it on Win32 with `-p:FreelancerRpGpu=1`.
+- `FreelancerRpGpu` turns RPGPU on: `1` by default on x64, whose client has no other renderer,
+  `0` on Win32, where RP8 is the renderer. Off, `RPGPU.dll` is not built. Build it on Win32 with
+  `-DFreelancerRpGpu=1`.
 - SDL3 comes from vcpkg in manifest mode. All port-only modules share one manifest,
   `src/vcpkg.json`, with one `builtin-baseline` pinned to a vcpkg release; each module is a
   feature of it (`rpgpu`), installed only when the module is on.
-- `src/Vcpkg.props` and `src/Vcpkg.targets` hold the vcpkg wiring. Only port-only projects
-  import them, so no retail module sees SDL. vcpkg installs into `src/vcpkg_installed/<triplet>/`
-  (`x86-windows`, `x64-windows`), one copy for every consumer, and copies `SDL3.dll` next to the
-  game.
+- The root `CMakeLists.txt` holds the vcpkg wiring: it turns on the manifest features of the
+  modules that are on and installs them while it configures, into the build tree's
+  `vcpkg_installed/<triplet>/` (`x86-windows`, `x64-windows`). Only port-only modules link
+  packages (`fl_vcpkg_package`, which refuses a retail module), so no retail module sees SDL.
+  `SDL3.dll` is copied next to `RPGPU.dll`.
 - vcpkg is found through `VCPKG_ROOT` (Visual Studio's developer prompt),
   `VCPKG_INSTALLATION_ROOT` (GitHub's Windows runners) or Visual Studio's own copy
-  (override: `-p:FlVcpkgRoot=...`). When RPGPU is on and vcpkg is missing, the build skips it
-  with a warning; with `-p:FreelancerRequireVcpkg=true` it fails instead.
+  (override: `-DCMAKE_TOOLCHAIN_FILE=<vcpkg>/scripts/buildsystems/vcpkg.cmake`). When RPGPU is on
+  and vcpkg is missing, the build skips it with a warning; with `-DFreelancerRequireVcpkg=ON` it
+  fails instead.
 - `RP_PORT_TYPES` makes `render/IRenderPipeline.h` carry the port's own types
   (`render/rp_types.h`: light, material, render-state id, window handle and image info, with
   the D3D layouts) instead of the D3D ones, so RPGPU includes no Direct3D header. Every other

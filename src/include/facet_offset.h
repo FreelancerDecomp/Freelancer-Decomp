@@ -14,11 +14,11 @@
 #include <cstdint>
 
 template <class Derived, class Base>
-inline long FlFacetOffset()
+inline FlLong FlFacetOffset()
 {
     // Any non-null address works: static_cast only adds the base's fixed offset.
     Derived* const Probe = reinterpret_cast<Derived*>(static_cast<std::uintptr_t>(0x1000));
-    return static_cast<long>(reinterpret_cast<const char*>(static_cast<Base*>(Probe)) -
+    return static_cast<FlLong>(reinterpret_cast<const char*>(static_cast<Base*>(Probe)) -
                              reinterpret_cast<const char*>(Probe));
 }
 

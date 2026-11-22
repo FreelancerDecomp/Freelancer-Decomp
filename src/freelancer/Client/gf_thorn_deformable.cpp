@@ -25,7 +25,7 @@ namespace
     void* const kDeformNoScript = reinterpret_cast<void*>(static_cast<intptr_t>(-1));
     void* const kDeformNoInstance = reinterpret_cast<void*>(static_cast<intptr_t>(-1));
 
-    void* InstancePointer(long Instance)
+    void* InstancePointer(FlLong Instance)
     {
         return reinterpret_cast<void*>(static_cast<intptr_t>(Instance));
     }
@@ -122,11 +122,11 @@ GENRESULT DACOM_API FThornDeformable::StartMotion(void* DescArg)
 
     if (LockedBone == nullptr)
         return PlayResult;
-    long const Part = Character->FindPart(LockedBone);
+    FlLong const Part = Character->FindPart(LockedBone);
     if (Part == -1)
         return PlayResult;
-    unsigned long const BlockResult =
-        DALib::Anim->RegisterHandle(static_cast<unsigned long>(Part));
+    FlULong const BlockResult =
+        DALib::Anim->RegisterHandle(static_cast<FlULong>(Part));
     if (BlockResult != 0)
     {
         FDUMP(0x100002,
@@ -158,9 +158,9 @@ GENRESULT DACOM_API FThornDeformable::StopMotion(void* DescArg)
 
     if (Desc->LockedBone != nullptr)
     {
-        long const Part = Character->FindPart(Desc->LockedBone);
+        FlLong const Part = Character->FindPart(Desc->LockedBone);
         if (Part != -1)
-            DALib::Anim->HasAnyHandle(static_cast<unsigned long>(Part));
+            DALib::Anim->HasAnyHandle(static_cast<FlULong>(Part));
     }
 
     FMotionSlot& Motion = Motions[Slot];
@@ -247,7 +247,7 @@ GENRESULT DACOM_API FThornDeformable::GetHardpointXform(int TargetType, char con
     }
     else if (TargetType == 2)
     {
-        long const Part = Character->FindPart(Name);
+        FlLong const Part = Character->FindPart(Name);
         if (Part == -1)
         {
             FDUMP(0x100002,
@@ -269,7 +269,7 @@ GENRESULT DACOM_API FThornDeformable::GetHardpointXform(int TargetType, char con
                   GScriptDeformableFile, 0x265, Name);
             return GR_GENERIC;
         }
-        long const HpInstance = Hardpoints.get_instance(Index);
+        FlLong const HpInstance = Hardpoints.get_instance(Index);
         Vector const HpPos = Hardpoints.get_info(Index).Position;
         Matrix const HpOrient = Hardpoints.get_info(Index).Orient;
         Csys InstanceFrame;
@@ -327,7 +327,7 @@ GENRESULT DACOM_API FThornDeformable::GetTransform(float* OutTransform12)
 GENRESULT DACOM_API FThornDeformable::StartIk(void* DescArg, float* Position, float* Orientation)
 {
     FThornStartIkDesc const* Desc = static_cast<FThornStartIkDesc const*>(DescArg);
-    long const EndPart = Character->FindPart(Desc->EndEffector);
+    FlLong const EndPart = Character->FindPart(Desc->EndEffector);
     void* const Root = GfEngineInstanceAncestor(InstancePointer(EndPart), Desc->CountToRoot);
     if (EndPart == -1 || Root == kDeformNoInstance)
         return GR_GENERIC;
@@ -355,10 +355,10 @@ GENRESULT DACOM_API FThornDeformable::StartIk(void* DescArg, float* Position, fl
     Aim.bActive = 1;
     Aim.Target.Orient = TargetOrient;
 
-    unsigned long const EventFlags = static_cast<unsigned long>(Desc->Common.EventFlags);
+    FlULong const EventFlags = static_cast<FlULong>(Desc->Common.EventFlags);
     FDeformAimDesc AimDesc;
     AimDesc.Name = "";
-    AimDesc.RootPart = static_cast<long>(reinterpret_cast<intptr_t>(Root));
+    AimDesc.RootPart = static_cast<FlLong>(reinterpret_cast<intptr_t>(Root));
     AimDesc.EndPart = EndPart;
     AimDesc.Flags = EventFlags;
     AimDesc.TargetPos = &Aim.Target.Pos.x;

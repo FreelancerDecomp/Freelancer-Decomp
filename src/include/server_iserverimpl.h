@@ -93,7 +93,7 @@ public:
     void LocationInfoRequest(unsigned int LocationId, unsigned int SessionId, bool bFull) override;
     void GFObjSelect(unsigned int ObjectId, unsigned int SessionId) override;
     void GFGoodVaporized(const SGFGoodVaporizedInfo& Info, unsigned int SessionId) override;
-    void MissionResponse(unsigned int Arg0, unsigned long MissionId, unsigned char bAccepted, unsigned int SessionId) override;
+    void MissionResponse(unsigned int Arg0, FlULong MissionId, unsigned char bAccepted, unsigned int SessionId) override;
     void TradeResponse(const unsigned char* Data, int Size, unsigned int SessionId) override;
     void GFGoodBuy(const SGFGoodBuyInfo& Info, unsigned int SessionId) override;
     void GFGoodSell(const SGFGoodSellInfo& Info, unsigned int SessionId) override;
@@ -109,9 +109,9 @@ public:
     void SPRequestUseItem(const SSPUseItem& Info, unsigned int SessionId) override;
     void SPRequestInvincibility(unsigned int ShipId, unsigned char bInvincible, InvincibilityReason Reason, unsigned int SessionId) override;
     void SaveGame(const CHARACTER_ID& CharId, const wchar_t* Description, unsigned int SessionId) override;
-    void MissionSaveB(unsigned int SessionId, unsigned long MissionId) override;
-    void RequestEvent(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned int Arg3, unsigned long Arg4, unsigned int SessionId) override;
-    void RequestCancel(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned long Arg3, unsigned int SessionId) override;
+    void MissionSaveB(unsigned int SessionId, FlULong MissionId) override;
+    void RequestEvent(int EventType, unsigned int Arg1, unsigned int Arg2, unsigned int Arg3, FlULong Arg4, unsigned int SessionId) override;
+    void RequestCancel(int EventType, unsigned int Arg1, unsigned int Arg2, FlULong Arg3, unsigned int SessionId) override;
     void MineAsteroid(unsigned int SystemId, const Vector& Position, unsigned int LootId, unsigned int SecondaryLoot, unsigned int Quantity, unsigned int SessionId) override;
     void CommComplete(unsigned int Arg0, unsigned int Arg1, unsigned int Arg2, CommResult Result) override;
     void RequestCreateShip(unsigned int SessionId) override;
@@ -132,7 +132,7 @@ public:
     void InitiateTrade(unsigned int SessionId, unsigned int TargetSessionId) override;
     void TerminateTrade(unsigned int SessionId, int Reason) override;
     void AcceptTrade(unsigned int SessionId, bool bAccepted) override;
-    void SetTradeMoney(unsigned int SessionId, unsigned long Money) override;
+    void SetTradeMoney(unsigned int SessionId, FlULong Money) override;
     void AddTradeEquip(unsigned int SessionId, const EquipDesc& Equip) override;
     void DelTradeEquip(unsigned int SessionId, const EquipDesc& Equip) override;
     void RequestTrade(unsigned int SessionId, unsigned int TargetSessionId) override;
@@ -147,7 +147,7 @@ public:
     virtual void PushToServer(CDAPacket* Packet);
 
     // --- IChatServer --- ?SubmitChat@IServerImpl@@UAEXUCHAT_ID@@KPBX0H@Z (0x06d191b0, RET 0x14)
-    void SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId) override;
+    void SubmitChat(CHAT_ID Sender, FlULong Size, const void* Data, CHAT_ID Target, int SystemId) override;
 
     // ?GetServerStats@IServerImpl@@QAEXAAUServerStats@@@Z -- public NON-virtual
     // (.text:06d45af0..06d45b36).

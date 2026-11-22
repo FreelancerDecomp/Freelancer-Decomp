@@ -45,7 +45,7 @@ namespace
     const char kCockpitCpp[] = "E:\\FL\\Scratch\\Source\\Client\\space\\Cockpit.cpp";
 
     // A BaseWatcher holds the Watchable eight bytes into the client object.
-    const long kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
+    const FlLong kWatchableOffset = FL_OBJRW_WATCHABLE_OFFSET;
 
     // FUN_00518f20's constants, every one read out of the exe.
     const float  kMinDeltaTime = 9.999999747378752e-06f;   // .rdata 0x005d7e84
@@ -413,7 +413,7 @@ void ThirdPersonCameraAttach(FThirdPersonCamera* Cam, void* Object)
 
         // 0x00518c6c..0x00518d33: the "HpCockpit" hardpoint of the object's instance (slot 0x1c)
         // in parent space; the fallback is (0, 0, -4) and identity.
-        long HardpointHandle = 0;
+        FlLong HardpointHandle = 0;
         HardpointInfo Info;
         if (FindHardpoint_PS(WatchedObject(Cam)->get_index(), "HpCockpit", HardpointHandle, Info))
         {

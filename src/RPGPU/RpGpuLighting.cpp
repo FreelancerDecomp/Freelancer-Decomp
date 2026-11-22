@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
 
 // RPGPU's lights, material and fog (docs/re/rpgpu.md, "Lighting and fog"). The light calls keep
 // RP8's light manager (FRp8LightManager in RP8.cpp): records by handle, a queue sent at the next

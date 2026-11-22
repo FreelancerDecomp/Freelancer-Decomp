@@ -308,7 +308,7 @@ FL_LAYOUT_ASSERT(sizeof(VisualSize) == 0x10, "VisualSize must be 0x10");
 // ============================================================================
 struct TextRenderAttributes
 {
-    unsigned long Packed;   // +0x00  packed attributes (font/style/color)
+    FlULong Packed;   // +0x00  packed attributes (font/style/color)
 };
 
 // LineParser32 and TextFile32 (INI infrastructure) are declared in common_ini.h and
@@ -332,8 +332,8 @@ public:
     // helper FUN_0632d510 copies every dword except +0x04, which nothing ever writes or reads.
     struct State
     {
-        unsigned long Attributes;   // +0x00  CurrentAttrs (TRC+0x1C)
-        unsigned long Unused04;     // +0x04  formerly Field04: never written or read by retail
+        FlULong Attributes;   // +0x00  CurrentAttrs (TRC+0x1C)
+        FlULong Unused04;     // +0x04  formerly Field04: never written or read by retail
         int PosV;                   // +0x08  TRC+0x2C
         int PosH;                   // +0x0C  TRC+0x30
         RECT ClipRect;              // +0x10  get_clip_rect / set_clip_rect
@@ -345,7 +345,7 @@ public:
     struct FontDesc
     {
         char const* Name;       // +0x00
-        unsigned long Size;     // +0x04 — scaled by the RichText screen factor before use
+        FlULong Size;     // +0x04 — scaled by the RichText screen factor before use
         unsigned char bBold;    // +0x08
         unsigned char bItalic;  // +0x09
         unsigned char bUnderline; // +0x0A
@@ -442,10 +442,10 @@ public:
     std::list<State> StateStack;                // +0x04
     std::list<TextRenderAttributes> AttrStack;  // +0x10
     TextRenderAttributes CurrentAttrs; // +0x1C  current attributes
-    unsigned long Unused20;     // +0x20  formerly Field20: never written or read by any TRC
+    FlULong Unused20;     // +0x20  formerly Field20: never written or read by any TRC
                                 //        function in retail (not by the ctors, copies or dtor)
     TextRenderAttributes DefaultAttrs; // +0x24  default attributes
-    unsigned long Unused28;     // +0x28  formerly Field28: never written or read in retail
+    FlULong Unused28;     // +0x28  formerly Field28: never written or read in retail
     int PosV;                   // +0x2C  get_pos_v (0xc7580) / set_pos_v (0xc7590)
     int PosH;                   // +0x30  get_pos_h (0xc75a0) / set_pos_h (0xc75b0)
     int OriginV;                 // +0x34  get_origin_v (0xc75c0) / set_origin_v (0xc75d0)

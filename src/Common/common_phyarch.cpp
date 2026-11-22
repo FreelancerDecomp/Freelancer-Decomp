@@ -43,7 +43,7 @@ namespace
     }
 
     // IFileSystem slot +0x14 with handle 0 and no position: Read(0, Buffer, Size, &Got, 0).
-    int PhyArch_Read(IFileSystem* Filesys, void* Buffer, unsigned long Size, unsigned long* Got)
+    int PhyArch_Read(IFileSystem* Filesys, void* Buffer, FlULong Size, FlULong* Got)
     {
         return Filesys->Read(0, Buffer, Size, Got, 0);
     }
@@ -166,7 +166,7 @@ bool __cdecl PhyArch::LoadSurfaces(char const* SurPath, std::map<unsigned int, P
 
     // .text:0627fd30..0627fd60: the first tag; a failed or short read fails silently. The
     // version is preset to 1.0f (.text:0627fd46) and read only after a "vers" tag.
-    unsigned long Got = 0;
+    FlULong Got = 0;
     char Tag[5];
     float Version = 1.0f;
     int ReadResult = PhyArch_Read(Filesys, Tag, 4, &Got);
@@ -247,7 +247,7 @@ bool __cdecl PhyArch::LoadSurfaces(char const* SurPath, std::map<unsigned int, P
                 // .text:0627fff6..06280034: byte count, a 16-byte aligned block of that size,
                 // the surface read into it, stored at +0x04 (a previous surface is not freed).
                 // Both reads use their own out-count slot [ESP+0x50], never tested.
-                unsigned long SurfGot = 0;
+                FlULong SurfGot = 0;
                 PhyArch_Read(Filesys, &SurfaceSize, 4, &SurfGot);
                 IVP_Compact_Surface* const SurfaceBlock =
                     (IVP_Compact_Surface*)ivp_malloc_aligned(SurfaceSize, 0x10); // FUN_06343fc0

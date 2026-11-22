@@ -173,12 +173,12 @@ void ScriptBehavior::destroy()
     DescFmtStr.destroy();                                               // .text:0632df83 (tail JMP)
 }
 
-unsigned long ScriptBehavior::get_key() const
+FlULong ScriptBehavior::get_key() const
 {
     // .text:06261d90 (export 2848, ICF-folded with Rect::leftmost, BaseData::get_base_id and
     // a dozen other getters): `MOV EAX,dword ptr [this]; RET` -- the dword at +0x00, which is
     // BehaviorId. The previous body returned Field04 (+0x04).
-    return static_cast<unsigned long>(BehaviorId);
+    return static_cast<FlULong>(BehaviorId);
 }
 
 // .text:0632e530. Starts with destroy() inlined (.text:0632e535-0632e590: free StringArray[i]

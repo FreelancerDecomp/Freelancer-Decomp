@@ -86,7 +86,7 @@ CETractor::CETractor(CShip* OwnerObj, unsigned short EquipId, Archetype::Tractor
     if (OwnerObj != nullptr && ((unsigned)OwnerObj->ObjectClass & 0x503) == 0x503)
     {
         Archetype::Ship const* ShipArch = (Archetype::Ship const*)OwnerObj->Archetype;
-        long DiscardHandle = 0;
+        FlLong DiscardHandle = 0;
         HardpointInfo Info;
         if (FindHardpoint_PS(OwnerObj->EngineInstanceId, ShipArch->HpTractorSource.Value,
                              DiscardHandle, Info))

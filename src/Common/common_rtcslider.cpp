@@ -142,7 +142,7 @@ bool __cdecl RtcSlider::is_enabled(char const* Name)
     return SettingIsEnabled(*Setting);
 }
 
-bool __cdecl RtcSlider::is_enabled(unsigned long NameCrc)
+bool __cdecl RtcSlider::is_enabled(FlULong NameCrc)
 {
     // Retail 0x0627a660: crc 0 is enabled without a lookup; an absent crc is reported with the
     // crc (line 0xd4) and is enabled.

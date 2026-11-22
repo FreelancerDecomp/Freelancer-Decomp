@@ -459,7 +459,7 @@ namespace
     }
 }
 
-unsigned long CAsteroidField::create_cube_id(Vector const& Pos)
+FlULong CAsteroidField::create_cube_id(Vector const& Pos)
 {
     // Common.dll.c 0x43270. HalfSize = trunc((CubeSize+1)*0.5) (ftol truncates toward
     // zero; CubeSize is always positive here so this is just CubeSize/2 rounded down for
@@ -496,7 +496,7 @@ void CAsteroidField::update(float Dt)
     // the timer is above 3.0f (DAT_0639dfd4), CubeStateNear otherwise: FCOMP + TEST AH,0x41 +
     // JNZ takes the Near store (2) for less, equal and unordered; only greater falls through
     // to the Far store (3).
-    for (std::map<unsigned long, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end(); ++It)
+    for (std::map<FlULong, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end(); ++It)
     {
         CAsteroidCube& Cube = It->second;
         if (Cube.State == CubeStateUnknown)
@@ -627,7 +627,7 @@ void CAsteroidField::flush_changes()
     // (its ~CAsteroidCube releases the asteroids); every other cube has its State set to 0
     // (.text:062a5668). Then the cached marker list (+0x2c) is deleted -- the recursive
     // scalar-deleting dtor FUN_062a56e0 frees the whole chain -- and +0x2c is cleared.
-    for (std::map<unsigned long, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end();)
+    for (std::map<FlULong, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end();)
     {
         if (It->second.State == CubeStateFar)
         {
@@ -654,7 +654,7 @@ asteroid_marker* CAsteroidField::get_changes()
         return Changes;
 
     asteroid_marker* Tail = nullptr;
-    for (std::map<unsigned long, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end(); ++It)
+    for (std::map<FlULong, CAsteroidCube>::iterator It = Cubes.begin(); It != Cubes.end(); ++It)
     {
         asteroid_marker* CubeChanges = It->second.get_changes();
         if (CubeChanges == nullptr)
@@ -674,11 +674,11 @@ asteroid_marker* CAsteroidField::get_changes()
     return Changes;
 }
 
-CAsteroidCube* CAsteroidField::find_cube(unsigned long CubeIdValue)
+CAsteroidCube* CAsteroidField::find_cube(FlULong CubeIdValue)
 {
     // Common.dll.c 0x46100. Retail walks its hand-rolled RB-tree by CubeId and returns
     // the embedded cube (node+0x10) or nullptr; equivalent std::map lookup here.
-    std::map<unsigned long, CAsteroidCube>::iterator It = Cubes.find(CubeIdValue);
+    std::map<FlULong, CAsteroidCube>::iterator It = Cubes.find(CubeIdValue);
     if (It == Cubes.end())
         return nullptr;
     return &It->second;
@@ -712,7 +712,7 @@ void CAsteroidField::populate_asteroids_internal(Vector const& Pos, Vector const
     }
 
     // .text:062a5b20-062a5b37: the cube id is computed before either bail-out is tested.
-    unsigned long const CubeIdValue = compute_cube_id(Candidate);
+    FlULong const CubeIdValue = compute_cube_id(Candidate);
     if (CubeIdValue == 0)
         return;
     if (!bNotExcluded)

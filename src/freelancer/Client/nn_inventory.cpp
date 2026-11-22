@@ -2493,7 +2493,7 @@ intptr_t NnInventory::SetProperty(int Msg, uintptr_t A, uintptr_t B)
     case 0x15:
         // 0047a314: the ship view picked an instance -- select the row of its hardpoint and
         // clear the dealer's selection.
-        SelectHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<long>(A))); // FUN_00585e20
+        SelectHardpoint(Ship.ShipView->GetHardpointOfInstance(static_cast<FlLong>(A))); // FUN_00585e20
         if (Dealer != nullptr)
             Dealer->ClearSelection();
         break;

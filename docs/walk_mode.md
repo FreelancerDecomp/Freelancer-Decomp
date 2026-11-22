@@ -3,8 +3,8 @@
 A new gameplay feature from the `WalkModeTest` branch: controlling Trent in base rooms.
 It is a client extension, not a restoration of the original game's behaviour.
 
-Build: the `FreelancerWalkMode` property (`src/Directory.Build.props`,
-`src/Freelancer.Diagnostics.props`, VS property page "Features"), `1` by default. All of the code
+Build: the `FreelancerWalkMode` switch (`-DFreelancerWalkMode=0|1`,
+[building.md](building.md#switches)), `1` by default. All of the code
 (`base_walk.cpp` and the hooks in `gameflow`, `gf_character_object`, `input_manager`, `menu_keymap`,
 `nav_bar`, `nn_main_button`, `room_control`, `screen_quad_state`, `win3d*`) sits under
 `#ifdef FREELANCER_WALK_MODE`; with `0` the client is identical to master.

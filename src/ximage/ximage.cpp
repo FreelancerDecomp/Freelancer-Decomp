@@ -25,7 +25,7 @@
 namespace
 {
     void* const kRegisterPriority = (void*)0x40000000;
-    const unsigned long kBigImageDescSize = 0x2C;
+    const FlULong kBigImageDescSize = 0x2C;
     const unsigned int kFormatScratchSize = 0x2000; // FUN_06f81a40 _vsnprintf cap
     const char kBigImageCpp[] =
         "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\ximage\\bigimage.cpp"; // 06f84060
@@ -35,7 +35,7 @@ namespace
     const char kAllocateFailed[] = "Failed to allocate %d by %d, %d bpp texture."; // 06f840a4
 
     // DAT_06f84150 (22 PixelFormat ids, returned by FUN_06f828f0).
-    const unsigned long kFormatIds[22] = {
+    const FlULong kFormatIds[22] = {
         0,
         0x29,
         0x14,
@@ -60,10 +60,10 @@ namespace
         0x38414144};
 
     // DAT_06f841a8: 15 records of 0x4C bytes; ximage only reads record+4 (bits per pixel).
-    const unsigned long kFormatBits[15] = {0, 8, 24, 16, 16, 16, 16, 32, 32, 0, 0, 0, 0, 0, 0};
+    const FlULong kFormatBits[15] = {0, 8, 24, 16, 16, 16, 16, 32, 32, 0, 0, 0, 0, 0, 0};
 
     // FUN_06f82900: index of Id in DAT_06f84150, 0 when absent.
-    int FormatIdToIndex(unsigned long Id)
+    int FormatIdToIndex(FlULong Id)
     {
         int Index = 0;
         while (Index < 22)
@@ -76,22 +76,22 @@ namespace
     }
 
     // FUN_06f82920 + record+4: CMP 0xE / JLE -> record[Value]; else record 0 (bpp 0).
-    unsigned long FormatBits(unsigned long Value)
+    FlULong FormatBits(FlULong Value)
     {
-        unsigned long Index = 0;
+        FlULong Index = 0;
         if (Value <= 14)
             Index = Value;
         return kFormatBits[Index];
     }
 
     // Every caller turns the bit count into bytes the same way: (bits + 7) >> 3.
-    unsigned long FormatBytes(const unsigned long* Format)
+    FlULong FormatBytes(const FlULong* Format)
     {
         return (FormatBits(*Format) + 7u) >> 3;
     }
 
     // FUN_06f81a70 thiscall RET 4: *this = *param (one dword). Used to pass a PixelFormat by value.
-    void CopyDword(unsigned long* Dest, const unsigned long* Src)
+    void CopyDword(FlULong* Dest, const FlULong* Src)
     {
         *Dest = *Src;
     }
@@ -108,7 +108,7 @@ namespace
 
     // FUN_06f81180 allocation-failure FDUMP: the message carries the WHOLE image size and a
     // literal 0x10 bpp (PUSH 0x10), not the tile that failed.
-    void DumpAllocateFail(int Line, unsigned long Width, unsigned long Height)
+    void DumpAllocateFail(int Line, FlULong Width, FlULong Height)
     {
         char Message[kFormatScratchSize];
         FDUMP(0x100002, kWarningFormat, kBigImageCpp, Line,
@@ -126,10 +126,10 @@ namespace
     }
 
     // FUN_06f81a10: round up to a power of two (POT input stays, 0 -> 0). SAR, not SHR.
-    long RoundUpPot(unsigned long Value)
+    FlLong RoundUpPot(FlULong Value)
     {
-        long Work = (long)(Value);
-        long Out = 1;
+        FlLong Work = (FlLong)(Value);
+        FlLong Out = 1;
         if ((Work & (Work - 1)) == 0)
         {
             if (Work == 0)
@@ -154,21 +154,21 @@ namespace
     // FUN_06f822d0: 0 for an empty rect; otherwise swap inverted edges and return 1.
     int NormalizeRect(RECT* Rect)
     {
-        const long Width = Rect->right - Rect->left;
+        const FlLong Width = Rect->right - Rect->left;
         if (Width == 0)
             return 0;
-        const long Height = Rect->bottom - Rect->top;
+        const FlLong Height = Rect->bottom - Rect->top;
         if (Height == 0)
             return 0;
         if (Width < 0)
         {
-            const long Left = Rect->left;
+            const FlLong Left = Rect->left;
             Rect->left = Rect->right;
             Rect->right = Left;
         }
         if (Height <= 0)
         {
-            const long Top = Rect->top;
+            const FlLong Top = Rect->top;
             Rect->top = Rect->bottom;
             Rect->bottom = Top;
         }
@@ -186,7 +186,7 @@ namespace
         }
     }
 
-    GENRESULT CreateTexture(IRenderPipeline* Pipeline, long Width, long Height, unsigned long* Format,
+    GENRESULT CreateTexture(IRenderPipeline* Pipeline, FlLong Width, FlLong Height, FlULong* Format,
                             void** OutHandle)
     {
         // OutHandle receives a pointer to RP8's 8-byte wrapper, not IDirect3DTexture8*.
@@ -201,8 +201,8 @@ namespace
         return Pipeline->DestroyTexture(Handle);
     }
 
-    GENRESULT SetTextureLevelData(IRenderPipeline* Pipeline, void* Handle, unsigned long SrcW,
-                                  unsigned long SrcH, unsigned long Pitch, unsigned long* Format,
+    GENRESULT SetTextureLevelData(IRenderPipeline* Pipeline, void* Handle, FlULong SrcW,
+                                  FlULong SrcH, FlULong Pitch, FlULong* Format,
                                   const void* Pixels)
     {
         // Every retail call: level 0, trailing two arguments 0.
@@ -231,7 +231,7 @@ namespace
             , Pad0_(0)
             , Pad1_(0)
             , Pad2_(0)
-            , FormatId_((unsigned long)(FormatIdToIndex(0)))
+            , FormatId_((FlULong)(FormatIdToIndex(0)))
             , DrawTile_(nullptr)
             , AbilitySquareOnly_(0)
             , AbilityMaxWidth_(0)
@@ -244,8 +244,8 @@ namespace
         {
             if (Handles_ != nullptr)
             {
-                long Index = 0;
-                while (Index < (long)(TileCount_))
+                FlLong Index = 0;
+                while (Index < (FlLong)(TileCount_))
                 {
                     if (Handles_[Index] != nullptr)
                         DestroyTexture(Pipeline_, Handles_[Index]);
@@ -265,7 +265,7 @@ namespace
             struct FQiEntry
             {
                 const char* Iid;
-                unsigned long ByteOffset;
+                FlULong ByteOffset;
             };
             static const FQiEntry Table[] = {
                 {Iids::BigImage2, 0}, // 06f830e4 / 06f830e8
@@ -279,7 +279,7 @@ namespace
                 if (std::strcmp(Table[Index].Iid, Iid) == 0)
                 {
                     unsigned char* Base = (unsigned char*)(this);
-                    const unsigned long Offset = Table[Index].ByteOffset;
+                    const FlULong Offset = Table[Index].ByteOffset;
                     IDAComponent* Face = nullptr;
                     if ((Offset & 0x80000000u) != 0)
                         Face = *(IDAComponent**)(Base + (Offset & 0x7FFFFFFFu));
@@ -296,14 +296,14 @@ namespace
         }
 
         // LAB_06f82810.
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             RefCount_ = RefCount_ + 1;
             return RefCount_;
         }
 
         // FUN_06f82820: JBE skips DEC; on zero, store 1, run the destructor, operator_delete.
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             if (RefCount_ != 0)
                 RefCount_ = RefCount_ - 1;
@@ -332,26 +332,26 @@ namespace
                 Rect = *Src;
                 if (NormalizeRect(&Rect) == 0)
                 {
-                    Rect.right = (long)(Width_);
-                    Rect.bottom = (long)(Height_);
+                    Rect.right = (FlLong)(Width_);
+                    Rect.bottom = (FlLong)(Height_);
                     Rect.top = 0;
                     Rect.left = 0;
                 }
             }
             else
             {
-                Rect.right = (long)(Width_);
-                Rect.bottom = (long)(Height_);
+                Rect.right = (FlLong)(Width_);
+                Rect.bottom = (FlLong)(Height_);
                 Rect.top = 0;
                 Rect.left = 0;
             }
 
             RebuildUv(&Rect);
 
-            const long SrcW = Rect.right - Rect.left;
+            const FlLong SrcW = Rect.right - Rect.left;
             if (SrcW == 0)
                 return 0;
-            const long SrcH = Rect.bottom - Rect.top;
+            const FlLong SrcH = Rect.bottom - Rect.top;
             if (SrcH == 0)
                 return 0;
 
@@ -362,21 +362,21 @@ namespace
             const float ScaleY = (float)((double)(Dest->bottom - Dest->top) /
                                                     (double)(SrcH));
 
-            const long TilesX = (long)(TilesX_);
+            const FlLong TilesX = (FlLong)(TilesX_);
             if (TilesX <= 0)
                 return (GENRESULT)(TilesX);
 
-            long Col = 0;
-            while (Col < (long)(TilesX_))
+            FlLong Col = 0;
+            while (Col < (FlLong)(TilesX_))
             {
                 float DestY = (float)(Dest->top);
                 // Column U span is read from the row-0 tile of this column (06f8215a).
                 const float* ColUv = Uvs_ + Col * 8;
                 const float USpan = ColUv[2] - ColUv[0];
-                unsigned long PixW = AbilityMaxWidth_;
-                if (Col == (long)(TilesX_) - 1)
+                FlULong PixW = AbilityMaxWidth_;
+                if (Col == (FlLong)(TilesX_) - 1)
                 {
-                    const unsigned long Rem = Width_ % AbilityMaxWidth_;
+                    const FlULong Rem = Width_ % AbilityMaxWidth_;
                     if (Rem != 0)
                         PixW = Rem;
                 }
@@ -384,18 +384,18 @@ namespace
                                                       (double)(ScaleX) *
                                                       (double)(USpan));
 
-                long Row = 0;
-                while (Row < (long)(TilesY_))
+                FlLong Row = 0;
+                while (Row < (FlLong)(TilesY_))
                 {
-                    const unsigned long Index = TilesX_ * (unsigned long)(Row) +
-                                                (unsigned long)(Col);
+                    const FlULong Index = TilesX_ * (FlULong)(Row) +
+                                                (FlULong)(Col);
                     float* Uv = Uvs_ + Index * 8;
                     // V span stays on the FPU stack (06f821b9..06f821f6).
                     const double VSpan = (double)(Uv[5]) - (double)(Uv[1]);
-                    unsigned long PixH = AbilityMaxHeight_;
-                    if (Row == (long)(TilesY_) - 1)
+                    FlULong PixH = AbilityMaxHeight_;
+                    if (Row == (FlLong)(TilesY_) - 1)
                     {
-                        const unsigned long Rem = Height_ % AbilityMaxHeight_;
+                        const FlULong Rem = Height_ % AbilityMaxHeight_;
                         if (Rem != 0)
                             PixH = Rem;
                     }
@@ -415,8 +415,8 @@ namespace
                             DestXy[2] = (float)((double)(ColW) +
                                                            (double)(DestX) - 0.5);
                             DestXy[3] = (float)((double)(DestY) - 0.5);
-                            const unsigned long Color =
-                                ((unsigned long)(Alpha_) << 24) | PackedRgb_;
+                            const FlULong Color =
+                                ((FlULong)(Alpha_) << 24) | PackedRgb_;
                             DrawTile_(Handles_[Index], Color, DestXy, Uv);
                         }
                         DestY = (float)((double)(RowH) +
@@ -431,7 +431,7 @@ namespace
         }
 
         // LAB_06f82650: RET 0xC with EAX = Height.
-        GENRESULT DACOM_API GetSize(unsigned long* Width, unsigned long* Height) override
+        GENRESULT DACOM_API GetSize(FlULong* Width, FlULong* Height) override
         {
             *Width = Width_;
             *Height = Height_;
@@ -441,7 +441,7 @@ namespace
         // LAB_06f82670: FMUL 255.0f (DAT_06f830e0), _ftol, low byte -> +0x2c; EAX = _ftol result.
         GENRESULT DACOM_API SetAlpha(float Alpha) override
         {
-            const long Value = MsvcrtFtol((double)(Alpha) * 255.0);
+            const FlLong Value = MsvcrtFtol((double)(Alpha) * 255.0);
             Alpha_ = (unsigned char)(Value & 0xFF);
             return (GENRESULT)(Value);
         }
@@ -450,20 +450,20 @@ namespace
         // RET 8 with EAX = this.
         GENRESULT DACOM_API SetColor(const float* Rgb) override
         {
-            unsigned long Packed = (unsigned long)(MsvcrtFtol((double)(Rgb[1]) * 255.0)) & 0xFFu;
-            unsigned long Red = (unsigned long)(MsvcrtFtol((double)(Rgb[0]) * 255.0));
+            FlULong Packed = (FlULong)(MsvcrtFtol((double)(Rgb[1]) * 255.0)) & 0xFFu;
+            FlULong Red = (FlULong)(MsvcrtFtol((double)(Rgb[0]) * 255.0));
             Red = Red | 0xFFFFFF00u;
             Red = Red << 8;
             Packed = Packed | Red;
             Packed = Packed << 8;
-            const unsigned long Blue = (unsigned long)(MsvcrtFtol((double)(Rgb[2]) * 255.0)) & 0xFFu;
+            const FlULong Blue = (FlULong)(MsvcrtFtol((double)(Rgb[2]) * 255.0)) & 0xFFu;
             Packed = Packed | Blue;
             PackedRgb_ = Packed;
             return (GENRESULT)((intptr_t)((IBigImage2*)(this)));
         }
 
         // LAB_06f826f0.
-        unsigned long DACOM_API GetTileCount() override
+        FlULong DACOM_API GetTileCount() override
         {
             return TileCount_;
         }
@@ -471,7 +471,7 @@ namespace
         // LAB_06f82700: signed range check against TileCount, then handle + SetRect(0,0,W,H).
         GENRESULT DACOM_API GetTile(int Index, void** OutHandle, RECT* OutRect) override
         {
-            if (Index < 0 || Index >= (long)(TileCount_))
+            if (Index < 0 || Index >= (FlLong)(TileCount_))
                 return GR_GENERIC;
             *OutHandle = Handles_[Index];
             SetRect(OutRect, 0, 0, (int)(Width_), (int)(Height_));
@@ -479,25 +479,25 @@ namespace
         }
 
         // LAB_06f81a80: re-upload pixels into the existing tiles (same order as FUN_06f81180).
-        GENRESULT DACOM_API SetFromBuffer(const void* Pixels, unsigned long* Format,
-                                          unsigned long Width, unsigned long Height,
-                                          unsigned long Pitch) override
+        GENRESULT DACOM_API SetFromBuffer(const void* Pixels, FlULong* Format,
+                                          FlULong Width, FlULong Height,
+                                          FlULong Pitch) override
         {
             if (Width != Width_ || Height != Height_ || Pixels == nullptr || Format == nullptr)
                 return GR_INVALID_PARMS;
 
-            const unsigned long TileW = AbilityMaxWidth_;
-            const unsigned long TileH = AbilityMaxHeight_;
-            const long FullX = (long)(Width / TileW);
-            const long FullY = (long)(Height / TileH);
-            const unsigned long Bpp = FormatBytes(Format);
+            const FlULong TileW = AbilityMaxWidth_;
+            const FlULong TileH = AbilityMaxHeight_;
+            const FlLong FullX = (FlLong)(Width / TileW);
+            const FlLong FullY = (FlLong)(Height / TileH);
+            const FlULong Bpp = FormatBytes(Format);
             if (TileCount_ == 0)
                 return GR_OK;
 
             const unsigned char* Base = (const unsigned char*)(Pixels);
-            long Index = 0;
-            long Row = 0;
-            long Col = 0;
+            FlLong Index = 0;
+            FlLong Row = 0;
+            FlLong Col = 0;
             while (Row < FullY)
             {
                 Col = 0;
@@ -513,7 +513,7 @@ namespace
                     Index = Index + 1;
                     Col = Col + 1;
                 }
-                const unsigned long RemX = Width % TileW;
+                const FlULong RemX = Width % TileW;
                 if (RemX != 0)
                 {
                     const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
@@ -528,7 +528,7 @@ namespace
                 Row = Row + 1;
             }
 
-            const unsigned long RemY = Height % TileH;
+            const FlULong RemY = Height % TileH;
             if (RemY == 0)
                 return GR_OK;
             Col = 0;
@@ -544,7 +544,7 @@ namespace
                 Index = Index + 1;
                 Col = Col + 1;
             }
-            const unsigned long RemX = Width % TileW;
+            const FlULong RemX = Width % TileW;
             if (RemX == 0)
                 return GR_OK;
             const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
@@ -604,23 +604,23 @@ namespace
         }
 
     private:
-        int LoadFromImageSource(IBigImageSource* ImageSource, unsigned long* SrcFormat)
+        int LoadFromImageSource(IBigImageSource* ImageSource, FlULong* SrcFormat)
         {
-            unsigned long SourceFormat = (unsigned long)(FormatIdToIndex(0));
+            FlULong SourceFormat = (FlULong)(FormatIdToIndex(0));
             if (ImageSource->GetFormat(&SourceFormat) != GR_OK)
                 return 0;
 
-            unsigned long Width = 0;
-            unsigned long Height = 0;
+            FlULong Width = 0;
+            FlULong Height = 0;
             if (ImageSource->GetSize(&Width, &Height) != GR_OK)
                 return 0;
 
-            const unsigned long SrcBpp = FormatBytes(SrcFormat);
-            const unsigned long AltBpp = FormatBytes(&SourceFormat);
+            const FlULong SrcBpp = FormatBytes(SrcFormat);
+            const FlULong AltBpp = FormatBytes(&SourceFormat);
 
             // Preserve wrapped byte sizing and the existing C-runtime allocation pair.
             void* Buffer = std::malloc(SrcBpp * Width * Height);
-            unsigned long CopiedFormat = 0;
+            FlULong CopiedFormat = 0;
             CopyDword(&CopiedFormat, SrcFormat);
             int bResult = 0;
             if (ImageSource->CopyPixels(CopiedFormat, Buffer, SrcBpp * Width, 0) == GR_OK)
@@ -644,22 +644,22 @@ namespace
             return bResult;
         }
 
-        int CreateTiles(unsigned long* SrcFormat, unsigned long* DstFormat, const void* Pixels,
-                        unsigned long Width, unsigned long Height, unsigned long Pitch)
+        int CreateTiles(FlULong* SrcFormat, FlULong* DstFormat, const void* Pixels,
+                        FlULong Width, FlULong Height, FlULong Pitch)
         {
             if (TextureLibrary_->PickGpuFormat(SrcFormat, &FormatId_) < 0)
                 return 0;
 
-            const unsigned long TileW = AbilityMaxWidth_;
-            const unsigned long TileH = AbilityMaxHeight_;
-            const long FullX = (long)(Width / TileW);
-            const unsigned long CountX = (unsigned long)(FullX) + ((Width % TileW != 0) ? 1u : 0u);
+            const FlULong TileW = AbilityMaxWidth_;
+            const FlULong TileH = AbilityMaxHeight_;
+            const FlLong FullX = (FlLong)(Width / TileW);
+            const FlULong CountX = (FlULong)(FullX) + ((Width % TileW != 0) ? 1u : 0u);
             Width_ = Width;
-            const long FullY = (long)(Height / TileH);
-            const unsigned long CountY = (unsigned long)(FullY) + ((Height % TileH != 0) ? 1u : 0u);
+            const FlLong FullY = (FlLong)(Height / TileH);
+            const FlULong CountY = (FlULong)(FullY) + ((Height % TileH != 0) ? 1u : 0u);
             TileCount_ = CountY * CountX;
             Height_ = Height;
-            const unsigned long Bpp = FormatBytes(DstFormat);
+            const FlULong Bpp = FormatBytes(DstFormat);
             if (TileCount_ == 0)
                 return 1;
 
@@ -670,16 +670,16 @@ namespace
             std::memset(Handles_, 0, TileCount_ * sizeof(void*));
 
             const unsigned char* Base = (const unsigned char*)(Pixels);
-            long Index = 0;
-            long Row = 0;
-            long Col = 0;
+            FlLong Index = 0;
+            FlLong Row = 0;
+            FlLong Col = 0;
             while (Row < FullY)
             {
                 Col = 0;
                 while (Col < FullX)
                 {
                     const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
-                    if (CreateTexture(Pipeline_, (long)(TileW), (long)(TileH),
+                    if (CreateTexture(Pipeline_, (FlLong)(TileW), (FlLong)(TileH),
                                       &FormatId_, &Handles_[Index]) != GR_OK)
                     {
                         DumpAllocateFail(0x179, Width, Height);
@@ -697,20 +697,20 @@ namespace
                     Col = Col + 1;
                 }
 
-                const unsigned long RemX = Width % TileW;
+                const FlULong RemX = Width % TileW;
                 if (RemX != 0)
                 {
                     const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
                     if (AbilitySquareOnly_ != 0)
                     {
-                        if (CreateTexture(Pipeline_, (long)(TileW), (long)(TileH),
+                        if (CreateTexture(Pipeline_, (FlLong)(TileW), (FlLong)(TileH),
                                           &FormatId_, &Handles_[Index]) != GR_OK)
                         {
                             DumpAllocateFail(0x18f, Width, Height);
                             return 0;
                         }
                     }
-                    else if (CreateTexture(Pipeline_, RoundUpPot(RemX), (long)(TileH),
+                    else if (CreateTexture(Pipeline_, RoundUpPot(RemX), (FlLong)(TileH),
                                            &FormatId_, &Handles_[Index]) != GR_OK)
                     {
                         DumpAllocateFail(0x197, Width, Height);
@@ -729,24 +729,24 @@ namespace
                 Row = Row + 1;
             }
 
-            const unsigned long RemY = Height % TileH;
+            const FlULong RemY = Height % TileH;
             if (RemY != 0)
             {
-                const long PotY = RoundUpPot(RemY);
+                const FlLong PotY = RoundUpPot(RemY);
                 Col = 0;
                 while (Col < FullX)
                 {
                     const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
                     if (AbilitySquareOnly_ != 0)
                     {
-                        if (CreateTexture(Pipeline_, (long)(TileW), (long)(TileH),
+                        if (CreateTexture(Pipeline_, (FlLong)(TileW), (FlLong)(TileH),
                                           &FormatId_, &Handles_[Index]) != GR_OK)
                         {
                             DumpAllocateFail(0x1b6, Width, Height);
                             return 0;
                         }
                     }
-                    else if (CreateTexture(Pipeline_, (long)(TileW), PotY, &FormatId_,
+                    else if (CreateTexture(Pipeline_, (FlLong)(TileW), PotY, &FormatId_,
                                            &Handles_[Index]) != GR_OK)
                     {
                         DumpAllocateFail(0x1be, Width, Height);
@@ -764,14 +764,14 @@ namespace
                     Col = Col + 1;
                 }
 
-                const unsigned long RemX = Width % TileW;
+                const FlULong RemX = Width % TileW;
                 if (RemX != 0)
                 {
                     const unsigned char* TilePixels = Base + TileW * Bpp * Col + TileH * Row * Pitch;
                     if (AbilitySquareOnly_ != 0)
                     {
                         // 06f8173b..06f81760: square side = max(POT(RemX), POT(RemY)), signed JLE.
-                        long Side = RoundUpPot(RemX);
+                        FlLong Side = RoundUpPot(RemX);
                         if (Side <= PotY)
                             Side = PotY;
                         else
@@ -799,24 +799,24 @@ namespace
                 }
             }
 
-            TilesX_ = (unsigned long)(Col) + ((Width % TileW != 0) ? 1u : 0u);
-            TilesY_ = (unsigned long)(Row) + ((Height % TileH != 0) ? 1u : 0u);
+            TilesX_ = (FlULong)(Col) + ((Width % TileW != 0) ? 1u : 0u);
+            TilesY_ = (FlULong)(Row) + ((Height % TileH != 0) ? 1u : 0u);
             return 1;
         }
 
         void RebuildUv(const RECT* Src)
         {
-            unsigned long Col = 0;
+            FlULong Col = 0;
             while (Col < TilesX_)
             {
-                unsigned long SpanW = AbilityMaxWidth_;
-                const unsigned long LeftTile = (unsigned long)(Src->left) / SpanW;
-                const unsigned long LeftRem = (unsigned long)(Src->left) % SpanW;
-                const unsigned long RightTile = (unsigned long)(Src->right) / SpanW;
-                const unsigned long RightRem = (unsigned long)(Src->right) % SpanW;
+                FlULong SpanW = AbilityMaxWidth_;
+                const FlULong LeftTile = (FlULong)(Src->left) / SpanW;
+                const FlULong LeftRem = (FlULong)(Src->left) % SpanW;
+                const FlULong RightTile = (FlULong)(Src->right) / SpanW;
+                const FlULong RightRem = (FlULong)(Src->right) % SpanW;
                 if (LeftTile > Col || RightTile < Col)
                 {
-                    unsigned long RowClear = 0;
+                    FlULong RowClear = 0;
                     while (RowClear < TilesY_)
                     {
                         int Corner = 0;
@@ -835,27 +835,27 @@ namespace
 
                 if (Col >= TilesX_ - 1)
                 {
-                    const unsigned long Rem = Width_ % SpanW;
+                    const FlULong Rem = Width_ % SpanW;
                     if (Rem != 0)
                         SpanW = Rem;
                 }
                 // FILD qword (unsigned remainder) / FIDIV dword (span): kept on the FPU stack.
                 const double U0 = (LeftTile == Col)
-                                      ? (double)(LeftRem) / (double)((long)(SpanW))
+                                      ? (double)(LeftRem) / (double)((FlLong)(SpanW))
                                       : 0.0;
                 const double U1 = (RightTile == Col)
-                                      ? (double)(RightRem) / (double)((long)(SpanW))
+                                      ? (double)(RightRem) / (double)((FlLong)(SpanW))
                                       : 1.0;
 
-                unsigned long Row = 0;
+                FlULong Row = 0;
                 while (Row < TilesY_)
                 {
                     float* Uv = Uvs_ + (TilesX_ * Row + Col) * 8;
-                    unsigned long SpanH = AbilityMaxHeight_;
-                    const unsigned long TopTile = (unsigned long)(Src->top) / SpanH;
-                    const unsigned long TopRem = (unsigned long)(Src->top) % SpanH;
-                    const unsigned long BotTile = (unsigned long)(Src->bottom) / SpanH;
-                    const unsigned long BotRem = (unsigned long)(Src->bottom) % SpanH;
+                    FlULong SpanH = AbilityMaxHeight_;
+                    const FlULong TopTile = (FlULong)(Src->top) / SpanH;
+                    const FlULong TopRem = (FlULong)(Src->top) % SpanH;
+                    const FlULong BotTile = (FlULong)(Src->bottom) / SpanH;
+                    const FlULong BotRem = (FlULong)(Src->bottom) % SpanH;
                     if (TopTile > Row || BotTile < Row)
                     {
                         Uv[0] = (float)(U0);
@@ -871,15 +871,15 @@ namespace
                     {
                         if (Row >= TilesY_ - 1)
                         {
-                            const unsigned long Rem = Height_ % SpanH;
+                            const FlULong Rem = Height_ % SpanH;
                             if (Rem != 0)
                                 SpanH = Rem;
                         }
                         const double V0 = (TopTile == Row)
-                                              ? (double)(TopRem) / (double)((long)(SpanH))
+                                              ? (double)(TopRem) / (double)((FlLong)(SpanH))
                                               : 0.0;
                         const double V1 = (BotTile == Row)
-                                              ? (double)(BotRem) / (double)((long)(SpanH))
+                                              ? (double)(BotRem) / (double)((FlLong)(SpanH))
                                               : 1.0;
                         Uv[0] = (float)(U0);
                         Uv[1] = (float)(V0);
@@ -900,22 +900,22 @@ namespace
         ITextureLibrary2* TextureLibrary_; // +0x08
         void** Handles_;                  // +0x0C
         float* Uvs_;                      // +0x10 8 floats per tile
-        unsigned long TileCount_;         // +0x14
-        unsigned long TilesX_;            // +0x18
-        unsigned long TilesY_;            // +0x1C
-        unsigned long Width_;             // +0x20
-        unsigned long Height_;            // +0x24
-        unsigned long PackedRgb_;         // +0x28
+        FlULong TileCount_;         // +0x14
+        FlULong TilesX_;            // +0x18
+        FlULong TilesY_;            // +0x1C
+        FlULong Width_;             // +0x20
+        FlULong Height_;            // +0x24
+        FlULong PackedRgb_;         // +0x28
         unsigned char Alpha_;             // +0x2C
         unsigned char Pad0_;
         unsigned char Pad1_;
         unsigned char Pad2_;
-        unsigned long FormatId_;          // +0x30
+        FlULong FormatId_;          // +0x30
         FBigImageDrawTile DrawTile_;      // +0x34
-        unsigned long AbilitySquareOnly_; // +0x38
-        unsigned long AbilityMaxWidth_;   // +0x3C
-        unsigned long AbilityMaxHeight_;  // +0x40
-        unsigned long RefCount_;          // +0x44
+        FlULong AbilitySquareOnly_; // +0x38
+        FlULong AbilityMaxWidth_;   // +0x3C
+        FlULong AbilityMaxHeight_;  // +0x40
+        FlULong RefCount_;          // +0x44
     };
 
     FL_LAYOUT_ASSERT(sizeof(FBigImage) == 0x48, "operator_new(0x48) @06f82445");
@@ -938,14 +938,14 @@ namespace
         }
 
         // LAB_06f823b0.
-        unsigned long DACOM_API AddRef() override
+        FlULong DACOM_API AddRef() override
         {
             RefCount_ = RefCount_ + 1;
             return RefCount_;
         }
 
         // FUN_06f823c0.
-        unsigned long DACOM_API Release() override
+        FlULong DACOM_API Release() override
         {
             if (RefCount_ != 0)
                 RefCount_ = RefCount_ - 1;
@@ -984,7 +984,7 @@ namespace
         }
 
     private:
-        unsigned long RefCount_; // +0x04
+        FlULong RefCount_; // +0x04
         const char* Name_;       // +0x08 s_BigImage_06f840f0
     };
 

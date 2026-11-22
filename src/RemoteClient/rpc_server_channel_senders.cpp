@@ -1083,7 +1083,7 @@ void CClientImpl::SendServerSetMissionMessage(const unsigned int& ClientId, cons
 }
 
 // RC 06b36760, 0x5b MISSIONSAVEA, by value.
-void CClientImpl::SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId) {
+void CClientImpl::SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId) {
     FPacketBase* Packet = nullptr;
     if (Serializer->Allocate(2, 0x5b, &Packet) == 0) {
         static_cast<FRpcServerMissionSaveAPacket*>(Packet)->Value = MissionId;

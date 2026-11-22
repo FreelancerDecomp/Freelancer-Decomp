@@ -23,7 +23,7 @@
 // LAB_005598e0 (0x0060fdc0).
 std::vector<FButtonMontageTile> G_ButtonMontageTiles; // DAT_00679a44
 FShapeDB G_ButtonShapeDB;                             // DAT_00679a2c
-unsigned long G_ButtonsMaterialKey = DACOM_CRC::GetCRC32("buttons"); // DAT_00679a28
+FlULong G_ButtonsMaterialKey = DACOM_CRC::GetCRC32("buttons"); // DAT_00679a28
 bool G_bButtonMontageLoaded = false;                  // DAT_00679af0
 
 namespace
@@ -179,7 +179,7 @@ bool NnMontageDrawTileAt(FButtonMontageTile const* Tile, float const* Position,
         return false;
 
     // 0x00559921..0x0055994e: frame 0 of the shape's texture record (handle, u0, v0, u1, v1).
-    unsigned long Frame[5];
+    FlULong Frame[5];
     DALib::TextureLib->GetTextureFrame(Tile->Shape->Texture, 0, Frame);
 
     // 0x00559952..0x00559a20: the tile's square, inset by 1/256, mirrored per Mode.
@@ -229,10 +229,10 @@ bool NnMontageDrawTileAt(FButtonMontageTile const* Tile, float const* Position,
     // D3DCOLOR A:R:G:B).
     ScreenQuadSetMaterialKey(G_ButtonsMaterialKey);   // FUN_00402d30(DAT_00679a28)
     ScreenQuadBeginBatchFrame(Frame, 2, true);        // FUN_00402e30(&frame, 2, 1)
-    unsigned long const Argb = (static_cast<unsigned long>(Rgba[3]) << 24) |
-                               (static_cast<unsigned long>(Rgba[0]) << 16) |
-                               (static_cast<unsigned long>(Rgba[1]) << 8) |
-                               static_cast<unsigned long>(Rgba[2]);
+    FlULong const Argb = (static_cast<FlULong>(Rgba[3]) << 24) |
+                               (static_cast<FlULong>(Rgba[0]) << 16) |
+                               (static_cast<FlULong>(Rgba[1]) << 8) |
+                               static_cast<FlULong>(Rgba[2]);
     ScreenQuadEnqueueIcon(AsCamera(Win3DGetCamera()), Position, Argb, Size, Angle, 0);
     return true;
 }

@@ -214,14 +214,14 @@ GENRESULT DACOM_API FRoomCamera::QueryInterface(char const* Iid, void** Out)
     return GR_INTERFACE_UNSUPPORTED;
 }
 
-unsigned long DACOM_API FRoomCamera::AddRef()
+FlULong DACOM_API FRoomCamera::AddRef()
 {
     // LAB_005586b0.
     RefCount += 1;
     return RefCount;
 }
 
-unsigned long DACOM_API FRoomCamera::Release()
+FlULong DACOM_API FRoomCamera::Release()
 {
     // LAB_005586c0: unsigned decrement that stops at zero; at zero the count is set back to 1
     // and slot 17 runs with 1 (FUN_005585e0 -> FUN_00556bd0 + free), returning 0.

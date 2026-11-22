@@ -27,7 +27,7 @@ CDPClientProxy::~CDPClientProxy()
 
 // Retail DALib.dll.c CDPClientProxy::Send @ 0x3a00 -- queue a copy of Data for later coalesced
 // transmission by SendMsgs.
-bool CDPClientProxy::Send(void* Data, unsigned long Size)
+bool CDPClientProxy::Send(void* Data, FlULong Size)
 {
     CDPMessage* const Message = new CDPMessage();
     Message->SenderId = PlayerId;
@@ -73,7 +73,7 @@ bool CDPClientProxy::SendMsgs()
         if (BatchSize == 0)
             return true;
         const void* SendData = Batch;
-        unsigned long SendSize = BatchSize;
+        FlULong SendSize = BatchSize;
         if (Codec.Compress(Batch, BatchSize, Compressed, sizeof(Compressed)) &&
             Codec.GetLastCompressedSize() <= BatchSize)
         {
@@ -108,7 +108,7 @@ bool CDPClientProxy::SendMsgs()
             }
             else
             {
-                unsigned long const Capacity = (unsigned long)(Msg->Size) * 101 / 100 + 13;
+                FlULong const Capacity = (FlULong)(Msg->Size) * 101 / 100 + 13;
                 unsigned char* const Big = (unsigned char*)malloc(Capacity);
 
                 // the empty batch first
@@ -180,7 +180,7 @@ double CDPClientProxy::GetLinkSaturation()
 
 // Retail .text:065c3af0: RET 4 -- an empty body (ICF-shared with IDPMsgHandler::OnConnect /
 // OnAddHost). Called for DPN_MSGID_SEND_COMPLETE by CDPServer::HandleDPServerMsg.
-void CDPClientProxy::OnMsgSent(unsigned long SendTime)
+void CDPClientProxy::OnMsgSent(FlULong SendTime)
 {
     (void)SendTime;
 }
@@ -202,7 +202,7 @@ void CDPClientProxy::UpdateQueueHistory()
     QueueHistory[1] = QueueHistory[0];
     QueueHistory[0] = CurrentBytes;
 
-    const unsigned long Sum = QueueHistory[0] + QueueHistory[1] + QueueHistory[2];
+    const FlULong Sum = QueueHistory[0] + QueueHistory[1] + QueueHistory[2];
     LinkSaturation = (double)(Sum / 3) * 0.0005;
 }
 

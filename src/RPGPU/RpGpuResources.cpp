@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
 
 // RPGPU's textures and buffers (docs/re/rpgpu.md): the handle tables, the texture images, the
 // vertex and index buffers with RP8's lock and offset conventions, the pool and scratch rings,
@@ -821,7 +822,7 @@ GENRESULT DACOM_API FRpGpu::LoadCubemap(IFileSystem* FileSystem, const char* Fil
 {
     if (!DeviceLive())
         return GR_GENERIC;
-    unsigned long Ability = 0;
+    FlULong Ability = 0;
     if (QueryDeviceAbility(8, &Ability) != GR_OK || Ability == 0)
         return kUnsupported;
     if (FileSystem == nullptr || OutHandle == nullptr)
@@ -839,27 +840,27 @@ GENRESULT DACOM_API FRpGpu::LoadCubemap(IFileSystem* FileSystem, const char* Fil
     const int File = FileSystem->OpenByDesc(&Desc);
     if (File == -1)
         return (GENRESULT)-8;
-    const unsigned long Size = FileSystem->GetSize(static_cast<unsigned long>(File), nullptr);
-    const int Mapping = FileSystem->CreateMapping(static_cast<unsigned long>(File), 0, 2, 0, 0, 0);
+    const FlULong Size = FileSystem->GetSize(static_cast<FlULong>(File), nullptr);
+    const int Mapping = FileSystem->CreateMapping(static_cast<FlULong>(File), 0, 2, 0, 0, 0);
     GENRESULT Result = (GENRESULT)-6;
     if (Mapping != -1)
     {
-        const std::intptr_t View = FileSystem->MapFileView(static_cast<unsigned long>(Mapping), 4, 0, 0, 0);
+        const std::intptr_t View = FileSystem->MapFileView(static_cast<FlULong>(Mapping), 4, 0, 0, 0);
         Result = GR_GENERIC;
         if (View != 0)
         {
             Result = MakeCubemap(reinterpret_cast<const void*>(View), Size, OutHandle);
-            FileSystem->UnmapFileView(static_cast<unsigned long>(View));
+            FileSystem->UnmapFileView(static_cast<FlULong>(View));
         }
-        FileSystem->CloseFile(static_cast<unsigned long>(Mapping));
+        FileSystem->CloseFile(static_cast<FlULong>(Mapping));
     }
-    FileSystem->CloseFile(static_cast<unsigned long>(File));
+    FileSystem->CloseFile(static_cast<FlULong>(File));
     return Result;
 }
 
 // The cube texture of a DDS cube map in memory (LoadCubemap). D3DXERR_INVALIDDATA for a file
 // D3DX would not load as a cube.
-GENRESULT FRpGpu::MakeCubemap(const void* Data, unsigned long Size, void** OutHandle)
+GENRESULT FRpGpu::MakeCubemap(const void* Data, FlULong Size, void** OutHandle)
 {
     constexpr GENRESULT kInvalidData = (GENRESULT)0x88760B59;
     FDdsCube Cube;

@@ -7239,14 +7239,14 @@ FThornEvent* FThornScene::AddEvent(int DescriptorStorageType)
     return Event;
 }
 
-unsigned long FThornScene::EntityCount() const
+FlULong FThornScene::EntityCount() const
 {
-    return static_cast<unsigned long>(EntityCount_);
+    return static_cast<FlULong>(EntityCount_);
 }
 
-unsigned long FThornScene::LiveEntityCount() const
+FlULong FThornScene::LiveEntityCount() const
 {
-    return static_cast<unsigned long>(Entities_.size());
+    return static_cast<FlULong>(Entities_.size());
 }
 
 bool FThornScene::EntityExists(int Index) const
@@ -7441,12 +7441,12 @@ FThornEntitySnap* FThornScene::EntitySnapInorder(int Index)
     return nullptr;
 }
 
-unsigned long FThornScene::UserPropCount(int Index) const
+FlULong FThornScene::UserPropCount(int Index) const
 {
     // LAB_06f38ca0: lookup by key; *(inner+0x80). Miss РІвЂ вЂ™ 0.
     if (!EntityExists(Index))
         return 0;
-    return static_cast<unsigned long>(EntityAt(Index)->UserProps->size());
+    return static_cast<FlULong>(EntityAt(Index)->UserProps->size());
 }
 
 const char* FThornScene::UserPropKey(int Index, int N) const
@@ -8451,10 +8451,10 @@ namespace
         // discards the entire pending buffer, and is never retried.
         if (Buf->Len == 0)
             return 0;
-        unsigned long Written = 0;
-        Buf->FileSystemOwner.FileSystem->Write(0, Buf->Data, static_cast<unsigned long>(Buf->Len),
+        FlULong Written = 0;
+        Buf->FileSystemOwner.FileSystem->Write(0, Buf->Data, static_cast<FlULong>(Buf->Len),
                                &Written, nullptr);
-        const int Result = Written == static_cast<unsigned long>(Buf->Len) ? 0 : -1;
+        const int Result = Written == static_cast<FlULong>(Buf->Len) ? 0 : -1;
         Buf->Len = 0;
         return Result;
     }
@@ -9244,7 +9244,7 @@ GENRESULT FThornScene::SaveToFileSystem(void* FileSystem, IThornComContext* ComC
             IPersistString* Persist = Entity->MotionPath.MotionPath;
             if (Persist != nullptr)
             {
-                const unsigned long Size = Persist->Slot5EstimateSize();
+                const FlULong Size = Persist->Slot5EstimateSize();
                 if (Size != 0)
                 {
                     char* Data = new char[Size + 1u];
@@ -9264,11 +9264,11 @@ GENRESULT FThornScene::SaveToFileSystem(void* FileSystem, IThornComContext* ComC
             SaveBufAppendLiteral(&Buf, "\t\t}");
         }
 
-        const unsigned long PropCount = UserPropCount(Index);
+        const FlULong PropCount = UserPropCount(Index);
         if (PropCount > 0)
         {
             SaveBufAppendLiteral(&Buf, ",\r\n\t\tuserprops =\r\n\t\t{\r\n");
-            for (unsigned long Prop = 0; Prop < PropCount; ++Prop)
+            for (FlULong Prop = 0; Prop < PropCount; ++Prop)
             {
                 char* Value = nullptr;
                 const char* Key = UserPropKey(Index, static_cast<int>(Prop));

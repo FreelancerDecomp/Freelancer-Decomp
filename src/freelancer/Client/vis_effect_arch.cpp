@@ -84,7 +84,7 @@ namespace
     // lookups. Only the iteration order differs, and nothing but the exit teardown walks it.
     // Teardown order as in retail's XC table: G_AleLib (slot 0x0060f010, above in this file)
     // and the material cache (client_cliobj.cpp, slot 0x0060f0bc, linked before this file --
-    // see the note in freelancer.vcxproj) are built first, so both outlive this map, whose
+    // see the note in freelancer/CMakeLists.txt) are built first, so both outlive this map, whose
     // ~FVisEffectArch (FUN_0042edb0) releases through them.
     std::map<std::string, FVisEffectArch, FAleNameLess> G_VisEffects;
 
@@ -533,9 +533,9 @@ namespace
         // 0x0040e678..0x0040e6b6: three ftol'd floats into the bytes +0x4c..+0x4e.
         if (Reader->is_value("lgt_color"))
         {
-            Effect->LgtColorR = static_cast<unsigned char>(static_cast<long>(Reader->get_value_float(0)));
-            Effect->LgtColorG = static_cast<unsigned char>(static_cast<long>(Reader->get_value_float(1)));
-            Effect->LgtColorB = static_cast<unsigned char>(static_cast<long>(Reader->get_value_float(2)));
+            Effect->LgtColorR = static_cast<unsigned char>(static_cast<FlLong>(Reader->get_value_float(0)));
+            Effect->LgtColorG = static_cast<unsigned char>(static_cast<FlLong>(Reader->get_value_float(1)));
+            Effect->LgtColorB = static_cast<unsigned char>(static_cast<FlLong>(Reader->get_value_float(2)));
             return true;
         }
         return false;
@@ -750,7 +750,7 @@ namespace
                 if (Reader->is_value("effect_crc"))
                 {
                     // 0x0042de51: get_value_int(0) into +0x04.
-                    Entry->EffectCrc = static_cast<unsigned long>(Reader->get_value_int(0));
+                    Entry->EffectCrc = static_cast<FlULong>(Reader->get_value_int(0));
                 }
                 else if (Reader->is_value("has_alpha"))
                 {

@@ -82,7 +82,7 @@ void FlashLightSetInfo::unfixup()
     Cursor = 0;
 }
 
-void FlashLightSetInfo::fixup(long Instance, HardpointSummary const* HpSum, RoomData const* Room)
+void FlashLightSetInfo::fixup(FlLong Instance, HardpointSummary const* HpSum, RoomData const* Room)
 {
     // 0x06273db0. Instance (param_1) is never read.
     (void)Instance;
@@ -90,7 +90,7 @@ void FlashLightSetInfo::fixup(long Instance, HardpointSummary const* HpSum, Room
 
     // .text:06273dc6: Cursor = 0; .text:06273dd0: nothing to resolve when NumLights <= 0.
     Cursor = 0;
-    for (long Index = 0; Index < NumLights; ++Index)
+    for (FlLong Index = 0; Index < NumLights; ++Index)
     {
         // .text:06273df0: an empty hardpoint slot is skipped.
         char const* const HardpointName = HardpointNames[Index];
@@ -102,7 +102,7 @@ void FlashLightSetInfo::fixup(long Instance, HardpointSummary const* HpSum, Room
             if (Info != nullptr)
             {
                 // .text:06273e18: the instance the hardpoint sits on.
-                long const HpInstance = HpSum->find_name_instance(HardpointName);
+                FlLong const HpInstance = HpSum->find_name_instance(HardpointName);
                 // .text:06273e1d..06273e45: the hardpoint's local transform -- the 3x3 from
                 // Info+0x10, the position from Info+0x04.
                 Transform Local;
@@ -164,7 +164,7 @@ void FlashLightSetInfo::fixup(long Instance, HardpointSummary const* HpSum, Room
     if (Mode == 1)
     {
         // .text:06273fd7..06274025: every resolved frame appended in order.
-        for (long Index = 0; Index < NumLights; ++Index)
+        for (FlLong Index = 0; Index < NumLights; ++Index)
         {
             FinalFrames[Cursor] = LightFrames[Index];
             ++Cursor;
@@ -175,7 +175,7 @@ void FlashLightSetInfo::fixup(long Instance, HardpointSummary const* HpSum, Room
         // .text:06274050..062740e4: NumLightsAlt frames interpolated from LightFrames[0] to
         // LightFrames[1], T = Step / (NumLightsAlt - 1) (FILD / FIDIV on the FPU stack, one
         // FSTP dword at .text:06274083 -- so the quotient is formed in double, rounded once).
-        for (long Step = 0; Step < NumLightsAlt; ++Step)
+        for (FlLong Step = 0; Step < NumLightsAlt; ++Step)
         {
             float const T = (float)((double)Step / (NumLightsAlt - 1));
             FinalFrames[Cursor] = Csys_interpolate(LightFrames[0], LightFrames[1], T);

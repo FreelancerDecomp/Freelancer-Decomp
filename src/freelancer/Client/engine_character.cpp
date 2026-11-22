@@ -93,7 +93,7 @@ FEngineCharacterBodyDesc::FEngineCharacterBodyDesc(Costume const& Source)
     Entries = &Entry[0];
 
     // 0x004c9f4d..0x004c9f97: PartIds[1] as type 0, in front of whatever is there.
-    unsigned long const Id1 = Source.PartIds[1];
+    FlULong const Id1 = Source.PartIds[1];
     CostumeDescriptions const* Descs = GetCostumeDescriptions();
     if (Id1 != 0)
     {
@@ -116,7 +116,7 @@ FEngineCharacterBodyDesc::FEngineCharacterBodyDesc(Costume const& Source)
     }
 
     // 0x004c9f9c..0x004c9fde: PartIds[0] as type 1, appended.
-    unsigned long const Id0 = Source.PartIds[0];
+    FlULong const Id0 = Source.PartIds[0];
     Descs = GetCostumeDescriptions();
     if (Id0 != 0)
     {
@@ -133,7 +133,7 @@ FEngineCharacterBodyDesc::FEngineCharacterBodyDesc(Costume const& Source)
     }
 
     // 0x004c9fe3..0x004ca019: PartIds[2] as type 2 through AddPart.
-    unsigned long const Id2 = Source.PartIds[2];
+    FlULong const Id2 = Source.PartIds[2];
     Descs = GetCostumeDescriptions();
     if (Id2 != 0)
     {
@@ -145,7 +145,7 @@ FEngineCharacterBodyDesc::FEngineCharacterBodyDesc(Costume const& Source)
     }
 
     // 0x004ca01e..0x004ca061: PartIds[3] as type 3, appended.
-    unsigned long const Id3 = Source.PartIds[3];
+    FlULong const Id3 = Source.PartIds[3];
     Descs = GetCostumeDescriptions();
     if (Id3 != 0)
     {
@@ -269,12 +269,12 @@ FEngineCharacterAccessoryLink::~FEngineCharacterAccessoryLink()
     MaterialPaths.Capacity = nullptr;
 }
 
-void* FEngineCharacterAccessoryLink::Connect(long Bone)
+void* FEngineCharacterAccessoryLink::Connect(FlLong Bone)
 {
     // FUN_004c9e20.
     void* const Instance = MiscUtilLoadEngineInstance(Mesh.Data, DALib::Data, nullptr, nullptr,
                                                       &MaterialPaths, nullptr, nullptr);
-    long Hardpoint = -1;
+    FlLong Hardpoint = -1;
     bool bFailed = true;
     if (FindHardpoint(Bone, CharacterHardpoint.Data, Hardpoint))
     {
@@ -359,7 +359,7 @@ void FEngineCharacterBody::Reset()
     }
 }
 
-long FEngineCharacterBody::GetRootBone() const
+FlLong FEngineCharacterBody::GetRootBone() const
 {
     // FUN_004ca480.
     int Bone = -1;
@@ -388,7 +388,7 @@ void FEngineCharacterBody::Advance(float Dt)
 
     int Bone = -1;
     DALib::Deform->GetFirstBone(Deformable, &Bone);
-    DALib::Anim->MixerWalk(static_cast<unsigned long>(Bone), Scaled);
+    DALib::Anim->MixerWalk(static_cast<FlULong>(Bone), Scaled);
 
     // 0x004cbaaf..0x004cbadf: the bone read again (the same test on +0 as FUN_004ca480), then
     // IEngine slot 27 with the scaled time as its third argument.

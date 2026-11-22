@@ -287,7 +287,7 @@ void CClientImpl::SendCommonPlayerTradeAcceptTrade(unsigned int ClientId, unsign
     }
 }
 
-void CClientImpl::SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, unsigned long Money) {
+void CClientImpl::SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, FlULong Money) {
     FPacketBase* Packet = nullptr;
     if (Serializer->Allocate(1, 0x12, &Packet) == 0)
     {
@@ -365,7 +365,7 @@ void CClientImpl::DumpPacketStats(const char* Name) {
     RpcGetRemotePacketSerializer()->DumpStats(Name);
 }
 
-void CClientImpl::SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, unsigned long Size, const void* Data) {
+void CClientImpl::SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, FlULong Size, const void* Data) {
     FPacketBase* Packet = nullptr;
     if (Serializer->Allocate(1, 5, &Packet) == 0)
     {

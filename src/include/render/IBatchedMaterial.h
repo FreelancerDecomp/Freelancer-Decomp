@@ -24,8 +24,8 @@ struct IBatchedMaterial : IDAComponent
     virtual GENRESULT DACOM_API GetBatchBin(void** Out) = 0;  // +0x14 *out=[this+4]
     virtual GENRESULT DACOM_API Bind(void* Context) = 0; // +0x18: JMP inner slot 8 (bind)
     virtual GENRESULT DACOM_API Teardown(void* Context) = 0; // +0x1C: JMP inner slot 9 (teardown)
-    virtual GENRESULT DACOM_API Submit(void* Context, unsigned long PrimType,
-                                      unsigned long Start, unsigned long Count,
-                                      unsigned long IbStart, unsigned long IndexSpan,
-                                      unsigned long Flags) = 0; // +0x20: JMP inner slot 10 (submit)
+    virtual GENRESULT DACOM_API Submit(void* Context, FlULong PrimType,
+                                      FlULong Start, FlULong Count,
+                                      FlULong IbStart, FlULong IndexSpan,
+                                      FlULong Flags) = 0; // +0x20: JMP inner slot 10 (submit)
 };

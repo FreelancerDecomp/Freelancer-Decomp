@@ -51,25 +51,25 @@ namespace AlchemyImpl
     const char kFxNodeFactory[] = "FxNode";
     const char kColideTypo[] = "FxColideField";
     const char kCollideFixed[] = "FxCollideField";
-    const unsigned long kNodeParentRoot = 0x8000;
+    const FlULong kNodeParentRoot = 0x8000;
     const char kAleLeaveNode[] = "..";
     const char kAleFileSystemName[] = "FileSystem";
-    const unsigned long kAleDescSize = 0x34;
-    const unsigned long kAleAccessRead = 0x80000000;
-    const unsigned long kAleAccessWrite = 0xC0000000;
-    const unsigned long kAleShareRead = 1;
-    const unsigned long kAleOpenExisting = 3;
-    const unsigned long kAleCreateAlways = 2;
-    const unsigned long kAleFileFlags = 0x08000080;
-    const unsigned long kAleVersion10Bits = 0x3F800000; // 1.0f DAT_0624bac4
-    const unsigned long kAleVersion11Bits = 0x3F8CCCCD; // 1.1f
+    const FlULong kAleDescSize = 0x34;
+    const FlULong kAleAccessRead = 0x80000000;
+    const FlULong kAleAccessWrite = 0xC0000000;
+    const FlULong kAleShareRead = 1;
+    const FlULong kAleOpenExisting = 3;
+    const FlULong kAleCreateAlways = 2;
+    const FlULong kAleFileFlags = 0x08000080;
+    const FlULong kAleVersion10Bits = 0x3F800000; // 1.0f DAT_0624bac4
+    const FlULong kAleVersion11Bits = 0x3F8CCCCD; // 1.1f
     // kAleNameMax is now a constexpr in alchemy_common.h (used as an array
     // bound from other translation units).
     // FUN_0623ef70 / IAlchemy+0x14 / DAT_06256d68: same 256-dword table as
     // dacom.dll DAT_065b8530 (NOT IEEE poly 0xEDB88320). Case-preserving —
     // unlike DACOM_CRC::GetCRC32 which lowercases. VisEffect effect_crc and
     // InsertArchetype keys are this hash of the ALE effect name.
-    static constexpr unsigned long kAlchemyCrc32Table[256] = {
+    static constexpr FlULong kAlchemyCrc32Table[256] = {
         0x00000000u, 0x09073096u, 0x120E612Cu, 0x1B0951BAu, 0xFF6DC419u, 0xF66AF48Fu, 0xED63A535u, 0xE46495A3u,
         0xFEDB8832u, 0xF7DCB8A4u, 0xECD5E91Eu, 0xE5D2D988u, 0x01B64C2Bu, 0x08B17CBDu, 0x13B82D07u, 0x1ABF1D91u,
         0xFDB71064u, 0xF4B020F2u, 0xEFB97148u, 0xE6BE41DEu, 0x02DAD47Du, 0x0BDDE4EBu, 0x10D4B551u, 0x19D385C7u,
@@ -105,7 +105,7 @@ namespace AlchemyImpl
     };
 
     // Kept for any reader of G_Crc32Table / G_bCrc32Ready (alchemy_common.h).
-    unsigned long G_Crc32Table[256];
+    FlULong G_Crc32Table[256];
     unsigned char G_bCrc32Ready = 0;
     char G_ResolvedName[0x100];
     char G_NodeLibraryResolvedName[0x100];
@@ -115,22 +115,22 @@ namespace AlchemyImpl
     {
         if (G_bCrc32Ready != 0)
             return;
-        for (unsigned long Index = 0; Index < 256; ++Index)
+        for (FlULong Index = 0; Index < 256; ++Index)
             G_Crc32Table[Index] = kAlchemyCrc32Table[Index];
         G_bCrc32Ready = 1;
     }
 
-    unsigned long HashNameCrc(const char* Name)
+    FlULong HashNameCrc(const char* Name)
     {
         // FUN_0623ef70: init 0xFFFFFFFF, table DAT_06256d68, final ~Crc. No lowercase.
         if (Name == nullptr)
             return 0;
         EnsureCrc32Table();
-        unsigned long Crc = 0xFFFFFFFF;
+        FlULong Crc = 0xFFFFFFFF;
         const unsigned char* Bytes = reinterpret_cast<const unsigned char*>(Name);
         while (*Bytes != 0)
         {
-            const unsigned long Mix = static_cast<unsigned long>(*Bytes) ^ (Crc & 0xFF);
+            const FlULong Mix = static_cast<FlULong>(*Bytes) ^ (Crc & 0xFF);
             Crc = (Crc >> 8) ^ G_Crc32Table[Mix];
             Bytes += 1;
         }
@@ -143,14 +143,14 @@ namespace AlchemyImpl
     // pose pair (+0x0C/+0x10) belongs to a mesh object whose interface has not been recovered.
     // TODO: each needs its owner to publish, in the sense of docs/re/cross_dll_protocol.md.
 
-    void CopyCString(char* Dest, unsigned long DestChars, const char* Src)
+    void CopyCString(char* Dest, FlULong DestChars, const char* Src)
     {
         if (Dest == nullptr || DestChars == 0)
             return;
         Dest[0] = 0;
         if (Src == nullptr)
             return;
-        unsigned long Index = 0;
+        FlULong Index = 0;
         while (Index + 1 < DestChars && Src[Index] != 0)
         {
             Dest[Index] = Src[Index];
@@ -164,7 +164,7 @@ namespace AlchemyImpl
         if (Name == nullptr)
             return;
         const char* Typo = kColideTypo;
-        unsigned long Index = 0;
+        FlULong Index = 0;
         while (Typo[Index] != 0)
         {
             if (Name[Index] != Typo[Index])
@@ -195,9 +195,9 @@ namespace AlchemyImpl
     const char kMsgEndWithoutBegin[] =
         "You must call begin_draw method before call end_draw method.\n";
     const unsigned int kAlchemyVbFvf = 0x142; // D3DFVF_XYZ|DIFFUSE|TEX1
-    const unsigned long kAlchemyVertexStride = 0x18; // FUN_06208aa0 pointer += 0x18
-    const unsigned long kInitNodeBoundBits = 0x7F7FFFFF;
-    const unsigned long kBatchListCount = 4; // DAT_062578b4 .. DAT_062578e4 stride 0xC
+    const FlULong kAlchemyVertexStride = 0x18; // FUN_06208aa0 pointer += 0x18
+    const FlULong kInitNodeBoundBits = 0x7F7FFFFF;
+    const FlULong kBatchListCount = 4; // DAT_062578b4 .. DAT_062578e4 stride 0xC
     const char kDrawContextCpp[] =
         "C:\\work\\builds\\dalibs\\dalibs-build\\build\\Src\\ALIL\\ImpFxDrawContext.cpp";
     const char kMsgEndBeforeBegin[] = "End() called before Begin()\n";
@@ -214,22 +214,22 @@ namespace AlchemyImpl
         "Max Indices exceeded\n  (%d) vertices requested from DynamicVB of size %d\n";
     const char kMsgEndBeforeDraw[] =
         "ALDrawContext::End() must be called before ALDrawContext::Draw()";
-    const unsigned long kAssocEmitterAppearance = 1;
-    const unsigned long kAssocAppearanceField = 2;
+    const FlULong kAssocEmitterAppearance = 1;
+    const FlULong kAssocAppearanceField = 2;
 
     // FUN_06203c20 / FUN_06203480 defaults when the key or parser is missing.
-    const unsigned long kDefaultPoolSize = 1000;
-    const unsigned long kDefaultUseMaterialBatcher = 1;
+    const FlULong kDefaultPoolSize = 1000;
+    const FlULong kDefaultUseMaterialBatcher = 1;
 
     // FUN_0623ebc0 element sizes (third arg) per appearance pool.
-    const unsigned long kStrideBasic = 0x30;
-    const unsigned long kStrideParticle = 0x74;
-    const unsigned long kStrideRect = 0x30;
-    const unsigned long kStridePerp = 0x3C;
-    const unsigned long kStrideMesh = 0x34;
-    const unsigned long kStrideOriented = 0x30;
-    const unsigned long kStrideDust = 0x3C;
-    const unsigned long kStrideBeam = 0x34;
+    const FlULong kStrideBasic = 0x30;
+    const FlULong kStrideParticle = 0x74;
+    const FlULong kStrideRect = 0x30;
+    const FlULong kStridePerp = 0x3C;
+    const FlULong kStrideMesh = 0x34;
+    const FlULong kStrideOriented = 0x30;
+    const FlULong kStrideDust = 0x3C;
+    const FlULong kStrideBeam = 0x34;
 
     const char kCharsetValue[] = "0123456789truefalsynoxTRUEFALSYNOX+-";
     const char kCharsetDigits[] = "0123456789+-";
@@ -313,10 +313,10 @@ namespace AlchemyImpl
     FAppearancePool G_PoolDust = {};
     FAppearancePool G_PoolBeam = {};
 
-    unsigned long G_MaxVertices = 4096; // FUN_06202260 / DAT_06255064
-    unsigned long G_MaxIndices = 8192;  // FUN_06202270 / DAT_06255068
-    unsigned long G_DrawMaxVertices = 0; // DAT_06257bd8
-    unsigned long G_DrawMaxIndices = 0;  // DAT_06257bdc
+    FlULong G_MaxVertices = 4096; // FUN_06202260 / DAT_06255064
+    FlULong G_MaxIndices = 8192;  // FUN_06202270 / DAT_06255068
+    FlULong G_DrawMaxVertices = 0; // DAT_06257bd8
+    FlULong G_DrawMaxIndices = 0;  // DAT_06257bdc
 
     bool G_bInDraw = false;              // DAT_06257918
     IAlchemy* G_EffectAlchemy = nullptr;             // DAT_06257a3c
@@ -358,11 +358,11 @@ namespace AlchemyImpl
     // camera-facing axis). Recovering this needs no change to
     // FAlchemy::DrawNodes, its signature, or any file outside this one: the
     // pointer already round-trips through this unsigned long bit-for-bit on
-    // this project's Win32 target (alchemy.vcxproj) — it was only ever
+    // this module's Win32 build (alchemy) — it was only ever
     // stored as a plain integer because nothing previously dereferenced it.
     // Pointer-sized (unsigned int on Win32, as retail's dword), so the camera survives on x64.
     std::uintptr_t G_DrawCookie = 0;           // DAT_06257908
-    unsigned long G_DrawCounters[9] = {};      // DAT_062578e4
+    FlULong G_DrawCounters[9] = {};      // DAT_062578e4
     unsigned char G_DrawFlagA = 1;             // DAT_06255060
     unsigned char G_DrawFlagB = 1;             // DAT_06255061
 
@@ -431,10 +431,10 @@ namespace AlchemyImpl
     // inline by FLDustAppearance::DrawOrEnqueue (alchemy_appearances.cpp) as FloatFromBits
     // locals; the old shared copies here fed only the deleted FillDustAppearanceQuad /
     // ComputeDustCameraFadeAlpha lookalikes (removed 2026-09-26, ALC-2).
-    const unsigned long kDustKillAgeBits = 0x7F7FFFFF;
+    const FlULong kDustKillAgeBits = 0x7F7FFFFF;
     // FUN_0623f1f0's state (DAT_06257bac) and call counter (DAT_06257bb0).
-    unsigned long G_AlchemyRandState = 0;
-    unsigned long G_AlchemyRandCounter = 0;
+    FlULong G_AlchemyRandState = 0;
+    FlULong G_AlchemyRandCounter = 0;
     // DAT_0624bc98 (0x3b808081 = 1/255).
     const float kAlchemyRandScale = 0.003921568859368563f;
 
@@ -544,7 +544,7 @@ namespace AlchemyImpl
         ResetAppearancePoolLists(Pool);
     }
 
-    unsigned long PoolUsedCount(const FAppearancePool* Pool)
+    FlULong PoolUsedCount(const FAppearancePool* Pool)
     {
         if (Pool == nullptr || Pool->Capacity <= Pool->FreeCount)
             return 0;
@@ -594,8 +594,8 @@ namespace AlchemyImpl
     // (out of this wave's assigned cluster) and may carry the same gap; left
     // as an open TODO for whichever wave next touches their own copies of
     // these two vtable slots.
-    void AppearanceDrawUnits(const char* Factory, unsigned long* VertsPer,
-                             unsigned long* IndicesPer)
+    void AppearanceDrawUnits(const char* Factory, FlULong* VertsPer,
+                             FlULong* IndicesPer)
     {
         if (VertsPer != nullptr)
             *VertsPer = 0;
@@ -656,7 +656,7 @@ namespace AlchemyImpl
         if (Pool == nullptr || Link == nullptr || Pool->Items == nullptr ||
             Pool->FreeNodes == nullptr || Pool->Stride < 0x30)
             return nullptr;
-        const unsigned long Index = static_cast<unsigned long>(Link - Pool->FreeNodes);
+        const FlULong Index = static_cast<FlULong>(Link - Pool->FreeNodes);
         if (Index >= Pool->Capacity)
             return nullptr;
         return reinterpret_cast<FPooledParticle*>(static_cast<unsigned char*>(Pool->Items) +
@@ -792,15 +792,15 @@ namespace AlchemyImpl
     // double.
     double AlchemyRand01()
     {
-        const unsigned long State = G_AlchemyRandState;
-        unsigned long Mixed = ((State & 0xFFu) << 8) ^ (State & 0xFF00u);
+        const FlULong State = G_AlchemyRandState;
+        FlULong Mixed = ((State & 0xFFu) << 8) ^ (State & 0xFF00u);
         Mixed |= (G_AlchemyRandCounter ^ State) & 0xFFu;
-        const unsigned long Bit = ((State >> 14) & 1u) ^ (State & 1u);
+        const FlULong Bit = ((State >> 14) & 1u) ^ (State & 1u);
         G_AlchemyRandCounter = G_AlchemyRandCounter + 1;
-        const unsigned long Next = Bit + Mixed * 2;
+        const FlULong Next = Bit + Mixed * 2;
         G_AlchemyRandState = Next;
-        const unsigned long Byte = (Next & 0xFFu) ^ ((Next >> 8) & 0xFFu);
-        return static_cast<double>(static_cast<long>(Byte)) *
+        const FlULong Byte = (Next & 0xFFu) ^ ((Next >> 8) & 0xFFu);
+        return static_cast<double>(static_cast<FlLong>(Byte)) *
                static_cast<double>(kAlchemyRandScale);
     }
 
@@ -1024,20 +1024,20 @@ namespace AlchemyImpl
         Pool->FreeCount -= 1;
         UnlinkPoolNode(&Pool->FreeHead, &Pool->FreeTail, Node);
         AppendPoolNode(&Pool->UsedHead, &Pool->UsedTail, Node);
-        const unsigned long LinkOffset = static_cast<unsigned long>(
+        const FlULong LinkOffset = static_cast<FlULong>(
             reinterpret_cast<std::uintptr_t>(Node) -
             reinterpret_cast<std::uintptr_t>(Pool->FreeNodes));
-        const unsigned long ItemOffset = (LinkOffset >> 3) * Pool->Stride;
+        const FlULong ItemOffset = (LinkOffset >> 3) * Pool->Stride;
         return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(Pool->Items) +
                                        ItemOffset);
     }
 
     void FreePoolItem(FAppearancePool* Pool, void* Item)
     {
-        const unsigned long Offset = static_cast<unsigned long>(
+        const FlULong Offset = static_cast<FlULong>(
             reinterpret_cast<std::uintptr_t>(Item) -
             reinterpret_cast<std::uintptr_t>(Pool->Items));
-        const unsigned long Index = Offset / Pool->Stride;
+        const FlULong Index = Offset / Pool->Stride;
         FPoolLink* const Node = &Pool->FreeNodes[Index];
         UnlinkPoolNode(&Pool->UsedHead, &Pool->UsedTail, Node);
         AppendPoolNode(&Pool->FreeHead, &Pool->FreeTail, Node);
@@ -1104,7 +1104,7 @@ namespace AlchemyImpl
     // FUN_0623ec90 and left on the pool's used chain -- see
     // FGenericFxObjectBase::SpawnListParticle.
 
-    void AllocateAppearancePool(FAppearancePool* Pool, unsigned long Count, unsigned long Stride)
+    void AllocateAppearancePool(FAppearancePool* Pool, FlULong Count, FlULong Stride)
     {
         while (Pool->UsedHead != nullptr)
         {
@@ -1133,11 +1133,11 @@ namespace AlchemyImpl
         Pool->Stride = Stride;
         Pool->Capacity = Count;
         Pool->FreeCount = Count;
-        const unsigned long ItemBytes = Count * Stride;
+        const FlULong ItemBytes = Count * Stride;
         Pool->Items = ::operator new(ItemBytes);
-        const unsigned long LinkBytes = Count * sizeof(FPoolLink);
+        const FlULong LinkBytes = Count * sizeof(FPoolLink);
         Pool->FreeNodes = static_cast<FPoolLink*>(::operator new(LinkBytes));
-        unsigned long Index = 0;
+        FlULong Index = 0;
         for (Index = 0; Index < Pool->Capacity; ++Index)
             AppendPoolNode(&Pool->FreeHead, &Pool->FreeTail, &Pool->FreeNodes[Index]);
     }
@@ -1154,20 +1154,20 @@ namespace AlchemyImpl
         FreeAppearancePool(&G_PoolBeam);
     }
 
-    static unsigned long MaxSignedDword(unsigned long Left, unsigned long Right)
+    static FlULong MaxSignedDword(FlULong Left, FlULong Right)
     {
-        return static_cast<long>(Left) > static_cast<long>(Right) ? Left : Right;
+        return static_cast<FlLong>(Left) > static_cast<FlLong>(Right) ? Left : Right;
     }
 
     // FUN_06202260: the VB hint and draw-context limit have distinct initial values.
-    static void SetAlchemyMaxVertices(unsigned long Value)
+    static void SetAlchemyMaxVertices(FlULong Value)
     {
         G_MaxVertices = Value;
         G_DrawMaxVertices = Value;
     }
 
     // FUN_06202270: the IB hint and draw-context limit have distinct initial values.
-    static void SetAlchemyMaxIndices(unsigned long Value)
+    static void SetAlchemyMaxIndices(FlULong Value)
     {
         G_MaxIndices = Value;
         G_DrawMaxIndices = Value;
@@ -1177,8 +1177,8 @@ namespace AlchemyImpl
     // Basic/Rect/Perp/Oriented/Dust use *4/*6; Beam uses *5/*0x18.
     void ComputeDrawBufferHints()
     {
-        unsigned long Vertices = G_Defaults.BasicPoolSize * 4;
-        unsigned long Indices = G_Defaults.BasicPoolSize * 6;
+        FlULong Vertices = G_Defaults.BasicPoolSize * 4;
+        FlULong Indices = G_Defaults.BasicPoolSize * 6;
         Vertices = MaxSignedDword(Vertices, G_Defaults.RectPoolSize * 4);
         Indices = MaxSignedDword(Indices, G_Defaults.RectPoolSize * 6);
         Vertices = MaxSignedDword(Vertices, G_Defaults.PerpPoolSize * 4);
@@ -1323,7 +1323,7 @@ namespace AlchemyImpl
         return static_cast<IRPIndexBuffer*>(Ib)->SelectIb(Handle, BaseVertexIndex, 0, 0);
     }
 
-    GENRESULT CallDrawIndexed(IDAComponent* Draw, unsigned long Prim, unsigned int MinIndex,
+    GENRESULT CallDrawIndexed(IDAComponent* Draw, FlULong Prim, unsigned int MinIndex,
                               unsigned int NumVerts, unsigned int StartIndex, unsigned int Count)
     {
         if (Draw == nullptr)
@@ -1355,10 +1355,10 @@ namespace AlchemyImpl
     //   written; else the 6 dwords go to [+0x10], [+0x10] += 0x18, [+4] += 1, return the count
     //   before the increment. No null test on the write pointer.
     unsigned short AlSubmitVertex(FAlDrawContext& Context, float X, float Y, float Z,
-                                  unsigned long Diffuse, float U, float V)
+                                  FlULong Diffuse, float U, float V)
     {
-        const long Count = Context.VertCount;
-        if (Count > static_cast<long>(Context.RequestedVerts))
+        const FlLong Count = Context.VertCount;
+        if (Count > static_cast<FlLong>(Context.RequestedVerts))
             return static_cast<unsigned short>(Context.RequestedVerts);
         FAlchemyVertex* const Vert = static_cast<FAlchemyVertex*>(Context.LockedVerts);
         Vert->X = X;
@@ -1378,7 +1378,7 @@ namespace AlchemyImpl
     void AlSubmitQuadIndices(FAlDrawContext& Context, unsigned short I0, unsigned short I1,
                              unsigned short I2, unsigned short I3)
     {
-        if (static_cast<long>(Context.IndexCount) + 5 > static_cast<long>(Context.RequestedIndices))
+        if (static_cast<FlLong>(Context.IndexCount) + 5 > static_cast<FlLong>(Context.RequestedIndices))
             return;
         unsigned short* const Index = static_cast<unsigned short*>(Context.LockedIndices);
         Index[0] = I0;
@@ -1398,7 +1398,7 @@ namespace AlchemyImpl
     void AlSubmitTriangleIndices(FAlDrawContext& Context, unsigned short I0, unsigned short I1,
                                  unsigned short I2)
     {
-        if (static_cast<long>(Context.IndexCount) + 2 > static_cast<long>(Context.RequestedIndices))
+        if (static_cast<FlLong>(Context.IndexCount) + 2 > static_cast<FlLong>(Context.RequestedIndices))
             return;
         unsigned short* const Index = static_cast<unsigned short*>(Context.LockedIndices);
         Index[0] = I0;
@@ -1413,9 +1413,9 @@ namespace AlchemyImpl
     // precision and CVTTSS2SI's indefinite result, without C++ conversion UB.
     static void ComputeSinCosSse(float AngleRadians, float* Out)
     {
-        unsigned long AngleBits;
+        FlULong AngleBits;
         std::memcpy(&AngleBits, &AngleRadians, sizeof(AngleBits));
-        const unsigned long AbsBits = AngleBits & 0x7FFFFFFFu;
+        const FlULong AbsBits = AngleBits & 0x7FFFFFFFu;
         float AbsAngle;
         std::memcpy(&AbsAngle, &AbsBits, sizeof(AbsAngle));
         __m128 CosValue = _mm_load_ss(&AbsAngle);
@@ -1424,10 +1424,10 @@ namespace AlchemyImpl
         CosValue = _mm_add_ss(CosValue, _mm_set_ss(1.0f));
         const int CosQuadrant = _mm_cvtt_ss2si(CosValue);
         const int SinQuadrant = _mm_cvtt_ss2si(SinValue);
-        const unsigned long CosSign =
-            (static_cast<unsigned long>(CosQuadrant) << 30) & 0x80000000u;
-        const unsigned long SinSign = (AngleBits & 0x80000000u) ^
-            ((static_cast<unsigned long>(SinQuadrant) << 30) & 0x80000000u);
+        const FlULong CosSign =
+            (static_cast<FlULong>(CosQuadrant) << 30) & 0x80000000u;
+        const FlULong SinSign = (AngleBits & 0x80000000u) ^
+            ((static_cast<FlULong>(SinQuadrant) << 30) & 0x80000000u);
         const __m128 CosQuadrantFloat = _mm_cvtsi32_ss(_mm_setzero_ps(), CosQuadrant);
         const __m128 SinQuadrantFloat = _mm_cvtsi32_ss(_mm_setzero_ps(), SinQuadrant);
         CosValue = _mm_sub_ss(CosValue, CosQuadrantFloat);
@@ -1525,12 +1525,12 @@ namespace AlchemyImpl
     //   IB vt+0x1c Lock(-1, &[+0x24], &[+0x14], indices) -- both always called;
     //   true (AL = 1) only when both results are >= 0, else false.
     // Both overflow returns leave the counters and the locked pointers as they were.
-    bool AlDrawContextBegin(FAlDrawContext& Context, unsigned long Prim, unsigned long VertCount,
-                            unsigned long IndexCount)
+    bool AlDrawContextBegin(FAlDrawContext& Context, FlULong Prim, FlULong VertCount,
+                            FlULong IndexCount)
     {
         Context.RequestedVerts = VertCount;
         Context.RequestedIndices = IndexCount;
-        if (static_cast<long>(G_DrawMaxVertices) < static_cast<long>(VertCount))
+        if (static_cast<FlLong>(G_DrawMaxVertices) < static_cast<FlLong>(VertCount))
         {
             char Message[256];
             _snprintf(Message, sizeof(Message), kMsgMaxVerticesExceeded, VertCount,
@@ -1539,7 +1539,7 @@ namespace AlchemyImpl
             FdumpDrawContextError(0x76, Message);
             return false;
         }
-        if (static_cast<long>(G_DrawMaxIndices) < static_cast<long>(IndexCount))
+        if (static_cast<FlLong>(G_DrawMaxIndices) < static_cast<FlLong>(IndexCount))
         {
             char Message[256];
             _snprintf(Message, sizeof(Message), kMsgMaxIndicesExceeded, IndexCount,
@@ -1571,7 +1571,7 @@ namespace AlchemyImpl
     //   requested verts < [+4] -> FDUMP 0xa9, [+6] = 0;
     //   requested indices < [+6] -> FDUMP 0xb1, [+6] = 0 (signed JGE both);
     //   [+8] = 0; return [+6].
-    unsigned long AlDrawContextEnd(FAlDrawContext& Context)
+    FlULong AlDrawContextEnd(FAlDrawContext& Context)
     {
         if (Context.bInBegin == 0)
         {
@@ -1580,12 +1580,12 @@ namespace AlchemyImpl
         }
         CallUnlockVb(G_RpVertexBuffer, G_DrawVbHandle);
         CallUnlockIb(G_RpIndexBuffer, reinterpret_cast<void*>(static_cast<unsigned int>(-1)));
-        if (static_cast<long>(Context.RequestedVerts) < static_cast<long>(Context.VertCount))
+        if (static_cast<FlLong>(Context.RequestedVerts) < static_cast<FlLong>(Context.VertCount))
         {
             FdumpDrawContextError(0xA9, kMsgMoreVerts);
             Context.IndexCount = 0;
         }
-        if (static_cast<long>(Context.RequestedIndices) < static_cast<long>(Context.IndexCount))
+        if (static_cast<FlLong>(Context.RequestedIndices) < static_cast<FlLong>(Context.IndexCount))
         {
             FdumpDrawContextError(0xB1, kMsgMoreIndices);
             Context.IndexCount = 0;
@@ -1621,7 +1621,7 @@ namespace AlchemyImpl
     // holds no references (FUN_06201c70 does not AddRef), so there is nothing to release.
     void ClearBatchLists()
     {
-        unsigned long List = 0;
+        FlULong List = 0;
         for (List = 0; List < kBatchListCount; ++List)
         {
             G_BatchLists[List].Head = nullptr;
@@ -1645,7 +1645,7 @@ namespace AlchemyImpl
     //   else: oldTail.next = A, A.next = 0, A.prev = oldTail;
     //   ++list.Count; return 0.
     // No bounds check, no null check, no AddRef.
-    GENRESULT EnqueueAppearanceToList(unsigned long ListIndex, IDAComponent* Appearance)
+    GENRESULT EnqueueAppearanceToList(FlULong ListIndex, IDAComponent* Appearance)
     {
         FBatchList& List = G_BatchLists[ListIndex];
         IGenericFx* Node = AsFxNode(Appearance);
@@ -1671,19 +1671,19 @@ namespace AlchemyImpl
     // The lists are not cleared here; BeginDraw clears them.
     void FlushAppearanceBatches()
     {
-        unsigned long List = 0;
+        FlULong List = 0;
         for (List = 0; List < kBatchListCount; ++List)
         {
             IGenericFx* Head = G_BatchLists[List].Head;
             if (Head == nullptr)
                 continue;
-            unsigned long TotalVerts = 0;
-            unsigned long TotalIndices = 0;
+            FlULong TotalVerts = 0;
+            FlULong TotalIndices = 0;
             IGenericFx* Member = Head;
             while (Member != nullptr)
             {
-                unsigned long Verts = 0;
-                unsigned long Indices = 0;
+                FlULong Verts = 0;
+                FlULong Indices = 0;
                 Member->GetQueuedVertCount(&Verts);
                 Member->GetQueuedIndexCount(&Indices);
                 TotalVerts += Verts;
@@ -1702,7 +1702,7 @@ namespace AlchemyImpl
     }
 
     // FUN_06203c20 value parse: strspn charset, then "true"/"yes"/"false"/"no", else atoi/strtoul.
-    unsigned long ParseAlchemyIniValue(char* Buffer, unsigned long /*Default*/)
+    FlULong ParseAlchemyIniValue(char* Buffer, FlULong /*Default*/)
     {
         const size_t Span = strspn(Buffer, kCharsetValue);
         if (Span != 0)
@@ -1717,7 +1717,7 @@ namespace AlchemyImpl
             return strtoul(Buffer, nullptr, 16);
 
         strspn(Buffer, kCharsetDigits);
-        return static_cast<unsigned long>(MsvcrtAtoi(Buffer));
+        return static_cast<FlULong>(MsvcrtAtoi(Buffer));
     }
 
     // FUN_06203c20 owns only the parser across exceptions; an open section is
@@ -1735,12 +1735,12 @@ namespace AlchemyImpl
         }
     };
 
-    unsigned long ReadAlchemyIniValue(ICOManager* Manager, IProfileParser* Parser,
+    FlULong ReadAlchemyIniValue(ICOManager* Manager, IProfileParser* Parser,
                                      const char* SectionName, const char* Key,
-                                     unsigned long Default, unsigned long* Out)
+                                     FlULong Default, FlULong* Out)
     {
-        unsigned long LocalResult =
-            static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Parser));
+        FlULong LocalResult =
+            static_cast<FlULong>(reinterpret_cast<uintptr_t>(Parser));
         if (Out == nullptr)
             Out = &LocalResult;
 
@@ -1773,8 +1773,8 @@ namespace AlchemyImpl
     {
         // The two inline retail reads seed their defaults only after parser QI.
         // A QI failure leaves these stack words untouched; there is no fallback.
-        unsigned long BasicPoolSize;
-        unsigned long ParticlePoolSize;
+        FlULong BasicPoolSize;
+        FlULong ParticlePoolSize;
         ReadAlchemyIniValue(Manager, nullptr, kAlchemySection, "FxBasicAppearance.poolSize",
                             kDefaultPoolSize, &BasicPoolSize);
         ReadAlchemyIniValue(Manager, nullptr, kAlchemySection, "FxParticleAppearance.poolSize",
@@ -1977,7 +1977,7 @@ namespace AlchemyImpl
 
     // FUN_06227c70: the temporary child exists before its time is read.
     int ReadAnimatedSingleRamp(FAleChunk* Chunk, INestedSingleRamp* Outer,
-                               unsigned long VersionBits)
+                               FlULong VersionBits)
     {
         if (Outer == nullptr)
             return -1;
@@ -2020,7 +2020,7 @@ namespace AlchemyImpl
 
     // FUN_062280a0: packed modes and, under the header sign gate, nine channels.
     int ReadAnimatedTransform(FAleChunk* Chunk, IAnimatedTransform* Anim,
-                              unsigned long VersionBits)
+                              FlULong VersionBits)
     {
         if (Anim == nullptr)
             return -1;
@@ -2028,12 +2028,12 @@ namespace AlchemyImpl
         int Result = Chunk->ReadBytes(Header, 4);
         if (Result < 0)
             return -6;
-        Anim->SetPackedModes(static_cast<unsigned long>(static_cast<long>(Header[0])),
-                             static_cast<unsigned long>(static_cast<long>(Header[1])),
-                             static_cast<unsigned long>(static_cast<long>(Header[2])));
+        Anim->SetPackedModes(static_cast<FlULong>(static_cast<FlLong>(Header[0])),
+                             static_cast<FlULong>(static_cast<FlLong>(Header[1])),
+                             static_cast<FlULong>(static_cast<FlLong>(Header[2])));
         if (Header[3] >= 0)
             return Result;
-        for (unsigned long Channel = 0; Channel < 9; ++Channel)
+        for (FlULong Channel = 0; Channel < 9; ++Channel)
         {
             FAlchemyReaderRef<IDAComponent> Child;
             Anim->GetChild(Channel, &Child.Pointer);
@@ -2050,7 +2050,7 @@ namespace AlchemyImpl
     // FUN_062291a0 case 0x200. Empty children receive a zero key only after
     // the version-specific read completed; every getter reloads the live key count.
     static void ReadNestedSingleRamp(FAleChunk* Chunk, INestedSingleRamp* Ramp,
-                                      unsigned long VersionBits)
+                                      FlULong VersionBits)
     {
         Ramp->Reset();
         if (VersionBits == kAleVersion10Bits)
@@ -2100,7 +2100,7 @@ namespace AlchemyImpl
 
     // FUN_062291a0 case 0x201, with the retail grey default for empty colour tracks.
     static void ReadNestedColorRamp(FAleChunk* Chunk, IRampColorRamp* Ramp,
-                                     unsigned long VersionBits)
+                                     FlULong VersionBits)
     {
         Ramp->Reset();
         if (VersionBits == kAleVersion10Bits)
@@ -2281,7 +2281,7 @@ namespace AlchemyImpl
     }
 
     // LAB_06228d74: DAT_062563a8 pairs until key==0.
-    unsigned long RemapNodeLibHash(unsigned long Hash)
+    FlULong RemapNodeLibHash(FlULong Hash)
     {
         if (Hash == 0xEE1429BA)
             return 0xFE077E05;
@@ -2291,7 +2291,7 @@ namespace AlchemyImpl
     }
 
     // LAB_06228da0: version==1.0 remaps 0x100/101/102 → 0x200/201/202 (DAT_06256390).
-    unsigned long RemapNodeLibKind(unsigned long Kind, unsigned long VersionBits)
+    FlULong RemapNodeLibKind(FlULong Kind, FlULong VersionBits)
     {
         if (VersionBits != kAleVersion10Bits)
             return Kind;
@@ -2309,17 +2309,17 @@ namespace AlchemyImpl
 
     // FUN_062291a0: one property; its caller ignores EAX and continues the stream.
     static void ReadNodeLibProperty(FAleChunk* Chunk, IFxNodePropertySet* Set,
-                                    unsigned long Hash, unsigned long Type,
-                                    unsigned long VersionBits)
+                                    FlULong Hash, FlULong Type,
+                                    FlULong VersionBits)
     {
-        const unsigned long Kind = Type & 0x7FFF;
+        const FlULong Kind = Type & 0x7FFF;
         if (Kind == 1)
         {
             Set->SetPropBool(Hash, (Type & 0x8000) == 0x8000 ? 1 : 0);
         }
         else if (Kind == 2 || Kind == 3)
         {
-            unsigned long Value;
+            FlULong Value;
             if (Chunk->ReadBytes(&Value, 4) < 0)
                 return;
             if (Kind == 2)
@@ -2342,7 +2342,7 @@ namespace AlchemyImpl
         }
         else if (Kind == 0x104)
         {
-            unsigned long Pair[2];
+            FlULong Pair[2];
             if (Chunk->ReadBytes(Pair, 8) < 0)
                 return;
             Set->SetPropPair(Hash, Pair);
@@ -2416,7 +2416,7 @@ namespace AlchemyImpl
     // it), the hash remap table 0x062563a8, for a 1.0 file the type remap 0x06256390 on
     // the whole 16-bit type, FUN_062291a0}. Nothing a property does ends the loop.
     // Returns 0 when a zero type ended it, -1 on a short read.
-    int ReadNodeLibProperties(FAleChunk* Chunk, IFxNodePropertySet* Set, unsigned long VersionBits)
+    int ReadNodeLibProperties(FAleChunk* Chunk, IFxNodePropertySet* Set, FlULong VersionBits)
     {
         int Result = 0;
         for (;;)
@@ -2429,15 +2429,15 @@ namespace AlchemyImpl
             }
             if (Type == 0)
                 break;
-            unsigned long Hash = 0;
+            FlULong Hash = 0;
             if (Chunk->ReadBytes(&Hash, 4) < 0)
             {
                 Result = -1;
                 break;
             }
             Hash = RemapNodeLibHash(Hash);
-            const unsigned long RemappedType =
-                RemapNodeLibKind(static_cast<unsigned long>(Type), VersionBits);
+            const FlULong RemappedType =
+                RemapNodeLibKind(static_cast<FlULong>(Type), VersionBits);
             ReadNodeLibProperty(Chunk, Set, Hash, RemappedType, VersionBits);
         }
         return Result;
@@ -2499,8 +2499,8 @@ namespace AlchemyImpl
         {
             float Weight = 0.0f;
             Single->GetWeight(&Weight);
-            const unsigned long KeyCount = static_cast<unsigned long>(Single->GetKeyCount());
-            unsigned long LoopType = 0;
+            const FlULong KeyCount = static_cast<FlULong>(Single->GetKeyCount());
+            FlULong LoopType = 0;
             Single->GetLoopType(&LoopType);
             Chunk->WriteBytes(&Weight, 4);
             Chunk->WriteBytes(&LoopType, 2);
@@ -2587,20 +2587,20 @@ namespace AlchemyImpl
         // animated-single ramp, released.
         void WriteAnimatedTransformBlock(FAleChunk* Chunk, IAnimatedTransform* Anim)
         {
-            unsigned long Modes[3] = {0, 0, 0};
+            FlULong Modes[3] = {0, 0, 0};
             Anim->GetPackedModes(&Modes[0], &Modes[1], &Modes[2]);
             unsigned char Header[4];
             Header[0] = static_cast<unsigned char>(Modes[0]);
             Header[1] = static_cast<unsigned char>(Modes[1]);
             Header[2] = static_cast<unsigned char>(Modes[2]);
             Anim->UpdateChannelFlags();
-            unsigned long Flags = 0;
+            FlULong Flags = 0;
             Anim->GetChannelFlags(&Flags);
             Header[3] = Flags == 0x1FF ? 0 : 0x80;
             Chunk->WriteBytes(Header, 4);
             if (Flags == 0x1FF)
                 return;
-            for (unsigned long Channel = 0; Channel < 9; ++Channel)
+            for (FlULong Channel = 0; Channel < 9; ++Channel)
             {
                 IDAComponent* ChildObject = nullptr;
                 Anim->GetChild(Channel, &ChildObject);
@@ -2624,8 +2624,8 @@ namespace AlchemyImpl
             FNodeWriteContext* const Context = static_cast<FNodeWriteContext*>(ContextRaw);
             FAleChunk* const Chunk = Context->Chunk;
             IFxNodePropertySet* const Set = Context->Set;
-            const unsigned long Hash = Row->Hash;
-            const unsigned long Kind = Row->Kind;
+            const FlULong Hash = Row->Hash;
+            const FlULong Kind = Row->Kind;
 
             unsigned short Type = static_cast<unsigned short>(Kind);
             if (Kind == 1)
@@ -2643,7 +2643,7 @@ namespace AlchemyImpl
             }
             else if (Kind == 2)
             {
-                unsigned long Value = 0;
+                FlULong Value = 0;
                 Set->GetPropInt(Hash, &Value);
                 Chunk->WriteBytes(&Value, 4);
             }
@@ -2683,7 +2683,7 @@ namespace AlchemyImpl
             }
             else if (Kind == 0x104)
             {
-                unsigned long Pair[2];
+                FlULong Pair[2];
                 Set->GetPropPair(Hash, Pair);
                 Chunk->WriteBytes(Pair, 8);
             }

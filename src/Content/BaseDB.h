@@ -332,14 +332,14 @@ struct FBarCharacter
     // FUN_06ea7d20 (thiscall, RET 4): pub::GF::CharacterCreate from Desc.
     void Create(FBarCharacterDesc const* Desc);
     // FUN_06ea7ce0 (thiscall, RET 4): destroy the old behavior, attach the new one.
-    void SetBehavior(unsigned long NewBehavior);
+    void SetBehavior(FlULong NewBehavior);
     // FUN_06ea7ef0 (thiscall, RET 4): Offer = NewOffer.
     void SetOffer(FBarOffer const* NewOffer);
     // FUN_06ea7ee0: INC [ECX+0x50] (caller BaseSupport msg 0x1b 06eb4c4d).
     void CountTalk() { ++TalkCount; }
 
     int UseCount;                  // +0x00 1; one per player visit holding it
-    unsigned long Behavior;         // +0x04 -1, pub::GF::CharacterBehaviorCreate handle
+    FlULong Behavior;         // +0x04 -1, pub::GF::CharacterBehaviorCreate handle
     int Field_0x08;                 // +0x08 not written by the ctor or Create.
                                     // TODO: find its writer/readers.
     unsigned int CharacterId;       // +0x0c 0, pub::GF::CharacterCreate

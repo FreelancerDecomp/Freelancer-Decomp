@@ -44,12 +44,12 @@ public:
     virtual ~CPlayerTradeOffer();
 
     unsigned int GetTargetPlayerID();
-    unsigned long GetMoneyOffered();
+    FlULong GetMoneyOffered();
 
     // Common.dll.c 0xbd950 -- shared retail thunk (`*(ulong*)(this+0x1c) = param_1`), the
     // same ICF-folded code backing CEquip::ConnectClientEquip and EquipDesc::set_owner.
     // Same offset as GetMoneyOffered above.
-    void SetMoneyOffered(unsigned long Money);
+    void SetMoneyOffered(FlULong Money);
 
     // Common.dll.txt 0xbd620 -- plain byte-flag getter (`return *(byte*)(this+0x20)`), the
     // trivial companion to SetAccepted below.
@@ -89,6 +89,6 @@ private:
     unsigned int TargetPlayerId;        // +0x08
     CPlayerTradeOffer* TargetOffer;     // +0x0c
     EquipDescList List;                 // +0x10 -- see class comment
-    unsigned long MoneyOffered;         // +0x1c
+    FlULong MoneyOffered;         // +0x1c
     bool Accepted;                      // +0x20
 };
