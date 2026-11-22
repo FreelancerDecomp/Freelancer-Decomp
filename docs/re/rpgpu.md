@@ -195,7 +195,10 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - Light indices come from RP8's pool (freed indices first). What the flushes leave at each index
   is Direct3D's light table; `GetLight` reads it with the handle as the index, as RP8 passes it
   to Direct3D. `CreateBuffers` empties the table and queues every light again (RP8's
-  `Reset`).
+  `Reset`), with RP8's exception: the flush count restarts at 0 and the records keep their
+  queue markers, so a light last queued in generation 0 is not queued again until it changes.
+- The flush count is unsigned and wraps after 2^32 draws, where RP8's signed one overflows. A
+  record whose marker happens to equal the count after a wrap is skipped once, as on RP8.
 - A draw is lit by the enabled entries in index order, at most 8. Enabling an index that has
   no light installs Direct3D's default one (white, directional, along +z).
 - Every light call needs RP8's device lifetime (from `CreateBuffers` to shutdown) and fails
