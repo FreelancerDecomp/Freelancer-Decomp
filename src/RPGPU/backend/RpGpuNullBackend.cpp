@@ -78,8 +78,14 @@ namespace
             (void)Vertices;
             return true;
         }
-        void ForgetVertexBlock(std::uint64_t Key) override { (void)Key; }
-        bool IsVertexBlockLost(std::uint64_t Key) const override
+        bool UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices) override
+        {
+            (void)Key;
+            (void)Indices;
+            return true;
+        }
+        void ForgetBlock(std::uint64_t Key) override { (void)Key; }
+        bool IsBlockLost(std::uint64_t Key) const override
         {
             (void)Key;
             return false;

@@ -262,8 +262,9 @@ MSL, and keep the bytecode in the repository. In parts, each its own PR:
 **5.4 Buffers and textures.** Vertex and index buffers that stay on the GPU (static, dynamic,
 and the lock/discard pattern), render targets, and screenshots. Done or under way: buffers in CPU
 memory with RP8's lock semantics (#58), textures through TexConvert (#59), mip chains and DXT
-uploads (5.3, part 4), screenshots (#101), cube maps (#104) and static vertex buffers kept on
-the GPU. Still copied each frame: index buffers, the ring pools and user-pointer draws. Render
+uploads (5.3, part 4), screenshots (#101), cube maps (#104), and static vertex (#105) and index
+buffers kept on the GPU. Still copied each frame: the ring pools (the per-frame dynamic data)
+and user-pointer draws. Render
 targets need nothing: RP8 answers `SetRenderTarget` with "unsupported", and the game does not
 call it.
 

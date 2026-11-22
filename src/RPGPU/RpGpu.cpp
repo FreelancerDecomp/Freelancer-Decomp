@@ -464,12 +464,14 @@ GENRESULT DACOM_API FRpGpu::CreateBuffers(RpWindow Hwnd, int* Mode, int* OutMode
         Texture->GpuVersion = 0;
     }
     for (FRpGpuBuffer* Buffer : VertexBuffers_)
-        RetireVertexBlocks(Buffer);
+        RetireBlocks(Buffer);
+    for (FRpGpuBuffer* Buffer : IndexBuffers_)
+        RetireBlocks(Buffer);
     for (std::uint64_t Version : RetiredVersions_)
         Backend().ForgetTexture(Version);
     RetiredVersions_.clear();
     for (std::uint64_t Block : RetiredBlocks_)
-        Backend().ForgetVertexBlock(Block);
+        Backend().ForgetBlock(Block);
     RetiredBlocks_.clear();
     return GR_OK;
 }
@@ -592,7 +594,7 @@ GENRESULT DACOM_API FRpGpu::SwapBuffers()
         Backend().ForgetTexture(Version);
     RetiredVersions_.clear();
     for (std::uint64_t Block : RetiredBlocks_)
-        Backend().ForgetVertexBlock(Block);
+        Backend().ForgetBlock(Block);
     RetiredBlocks_.clear();
     if (!bPresented)
     {
@@ -753,7 +755,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned in
         return kFail;
     FlushDrawState();
     FRpGpuBuffer* const Vertices = LiveVb(SelectedVb_);
-    const FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
+    FRpGpuBuffer* const IndexBuffer = SelectedIb_ == kMinusOne ? &ScratchIb_ : LiveIb(SelectedIb_);
     if (Vertices == nullptr || IndexBuffer == nullptr || IbBaseVertex_ >= Vertices->Count ||
         StartIndex > IndexBuffer->Count || Count > IndexBuffer->Count - StartIndex)
         return kFail;
@@ -761,7 +763,7 @@ GENRESULT DACOM_API FRpGpu::DrawIndexedPrimitive(unsigned long Prim, unsigned in
                Vertices->Data.data() + static_cast<std::size_t>(IbBaseVertex_) * Vertices->Stride, Vertices->Stride,
                Vertices->Count - IbBaseVertex_,
                reinterpret_cast<const std::uint16_t*>(IndexBuffer->Data.data()) + StartIndex, Count, Vertices,
-               IbBaseVertex_);
+               IbBaseVertex_, SelectedIb_ == kMinusOne ? nullptr : IndexBuffer, StartIndex);
     return GR_OK;
 }
 

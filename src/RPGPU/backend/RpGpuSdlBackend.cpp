@@ -226,9 +226,9 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
     for (auto& Entry : Textures_)
         SDL_ReleaseGPUTexture(Device_, Entry.second.Texture);
     Textures_.clear();
-    for (auto& Entry : VertexBlocks_)
+    for (auto& Entry : Blocks_)
         SDL_ReleaseGPUBuffer(Device_, Entry.second);
-    VertexBlocks_.clear();
+    Blocks_.clear();
     PendingBlocks_.clear(); // the next device gets them again: RPGPU re-uploads after CreateBuffers
     LostBlocks_.clear();
     if (VertexShader_ != nullptr)
@@ -595,7 +595,7 @@ bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVe
         return false;
     try
     {
-        PendingBlocks_.push_back({Key, std::move(Vertices), false});
+        PendingBlocks_.push_back({Key, std::move(Vertices), {}, false});
     }
     catch (const std::bad_alloc&)
     {
@@ -604,18 +604,33 @@ bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVe
     return true;
 }
 
-void FRpGpuSdlBackend::ForgetVertexBlock(std::uint64_t Key)
+bool FRpGpuSdlBackend::UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices)
+{
+    if (Key == 0 || Indices.empty())
+        return false;
+    try
+    {
+        PendingBlocks_.push_back({Key, {}, std::move(Indices), false});
+    }
+    catch (const std::bad_alloc&)
+    {
+        return false;
+    }
+    return true;
+}
+
+void FRpGpuSdlBackend::ForgetBlock(std::uint64_t Key)
 {
     LostBlocks_.erase(Key);
     PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
                                         [Key](const FPendingBlock& Pending) { return Pending.Key == Key; }),
                          PendingBlocks_.end());
-    auto Found = VertexBlocks_.find(Key);
-    if (Found == VertexBlocks_.end())
+    auto Found = Blocks_.find(Key);
+    if (Found == Blocks_.end())
         return;
     if (Device_ != nullptr)
         SDL_ReleaseGPUBuffer(Device_, Found->second);
-    VertexBlocks_.erase(Found);
+    Blocks_.erase(Found);
 }
 
 // One copy pass: pending textures (and the white stand-ins), pending vertex blocks, then the
@@ -697,12 +712,12 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     {
         FPendingBlock& Pending = PendingBlocks_[Index];
         Pending.bDeferred = false;
-        const std::uint64_t Bytes64 = static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex);
+        const std::uint64_t Bytes64 = Pending.Bytes();
         SDL_GPUBuffer* Made = nullptr;
         if (Bytes64 <= 0xFFFFFFFFull)
         {
             SDL_GPUBufferCreateInfo Info = {};
-            Info.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+            Info.usage = Pending.Indices.empty() ? SDL_GPU_BUFFERUSAGE_VERTEX : SDL_GPU_BUFFERUSAGE_INDEX;
             Info.size = static_cast<Uint32>(Bytes64);
             Made = SDL_CreateGPUBuffer(Device_, &Info);
         }
@@ -722,10 +737,10 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             PendingBlocks_.erase(PendingBlocks_.begin() + static_cast<std::ptrdiff_t>(Index));
             continue;
         }
-        auto Existing = VertexBlocks_.find(Pending.Key);
-        if (Existing != VertexBlocks_.end())
+        auto Existing = Blocks_.find(Pending.Key);
+        if (Existing != Blocks_.end())
             SDL_ReleaseGPUBuffer(Device_, Existing->second);
-        VertexBlocks_[Pending.Key] = Made;
+        Blocks_[Pending.Key] = Made;
         ++Index;
     }
     if (!Dropped.empty())
@@ -754,7 +769,7 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     for (const FPendingBlock& Pending : PendingBlocks_)
     {
         if (!Pending.bDeferred)
-            TextureBytes64 += Align16(static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex));
+            TextureBytes64 += Align16(Pending.Bytes());
     }
     const std::uint64_t Total64 = TextureBytes64 + VertexBytes64 + IndexBytes64;
     if (Total64 == 0)
@@ -810,8 +825,8 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         BlockOffsets.push_back(Offset); // a deferred block keeps a slot but uploads nothing
         if (Pending.bDeferred)
             continue;
-        const std::size_t Bytes = Pending.Vertices.size() * sizeof(FRpGpuVertex);
-        std::memcpy(Mapped + Offset, Pending.Vertices.data(), Bytes);
+        const std::size_t Bytes = Pending.Bytes();
+        std::memcpy(Mapped + Offset, Pending.Data(), Bytes);
         Offset += static_cast<std::uint32_t>(Align16(Bytes));
     }
     const std::uint32_t VertexOffset = Offset;
@@ -879,8 +894,8 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         const FPendingBlock& Pending = PendingBlocks_[Index];
         if (Pending.bDeferred)
             continue;
-        UploadBuffer(VertexBlocks_[Pending.Key], BlockOffsets[Index],
-                     static_cast<std::uint32_t>(Pending.Vertices.size() * sizeof(FRpGpuVertex)));
+        UploadBuffer(Blocks_[Pending.Key], BlockOffsets[Index],
+                     static_cast<std::uint32_t>(Pending.Bytes()));
     }
     // The uploaded blocks are done; deferred ones wait for the next frame.
     PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
@@ -1005,8 +1020,8 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
             Vertices.offset = 0;
             if (Command.VertexBlock != 0)
             {
-                auto Block = VertexBlocks_.find(Command.VertexBlock);
-                if (Block == VertexBlocks_.end())
+                auto Block = Blocks_.find(Command.VertexBlock);
+                if (Block == Blocks_.end())
                     continue; // its buffer could not be made: not drawn
                 Vertices.buffer = Block->second;
             }
@@ -1072,9 +1087,17 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
 
             if (Command.IndexCount != 0)
             {
+                // The draw's static index block, or the frame's indices.
                 SDL_GPUBufferBinding Indices = {};
                 Indices.buffer = IndexBuffer_;
                 Indices.offset = 0;
+                if (Command.IndexBlock != 0)
+                {
+                    auto Block = Blocks_.find(Command.IndexBlock);
+                    if (Block == Blocks_.end())
+                        continue; // its buffer is not made (yet): not drawn
+                    Indices.buffer = Block->second;
+                }
                 SDL_BindGPUIndexBuffer(Pass, &Indices, SDL_GPU_INDEXELEMENTSIZE_16BIT);
                 SDL_DrawGPUIndexedPrimitives(Pass, Command.IndexCount, 1, Command.FirstIndex,
                                              static_cast<Sint32>(Command.FirstVertex), 0);

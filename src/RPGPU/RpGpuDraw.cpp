@@ -281,7 +281,7 @@ void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
     Texture->bGpuStale = false;
 }
 
-void FRpGpu::RetireVertexBlocks(FRpGpuBuffer* Buffer)
+void FRpGpu::RetireBlocks(FRpGpuBuffer* Buffer)
 {
     if (Buffer == nullptr)
         return;
@@ -295,10 +295,51 @@ void FRpGpu::RetireVertexBlocks(FRpGpuBuffer* Buffer)
         {
             // No room to wait for the frame's end: let it go now (a draw recorded with it this
             // frame is then skipped).
-            Backend().ForgetVertexBlock(Block.Key);
+            Backend().ForgetBlock(Block.Key);
         }
     }
     Buffer->GpuBlocks.clear();
+}
+
+// A buffer that has stayed as it is: not a ring, not locked, not written in this frame
+// (FRpGpuBuffer::LastWriteFrame). Only such buffers get GPU blocks.
+bool FRpGpu::IsSettled(const FRpGpuBuffer* Buffer) const
+{
+    return Buffer != nullptr && !Buffer->bRing && !Buffer->bLocked && Buffer->LastWriteFrame != FrameNumber_;
+}
+
+// The whole index buffer, handed to the backend to keep until a write; lost blocks as for
+// vertex blocks (VertexBlockFor).
+std::uint64_t FRpGpu::IndexBlockFor(FRpGpuBuffer* Buffer)
+{
+    if (!Buffer->GpuBlocks.empty())
+    {
+        const std::uint64_t Key = Buffer->GpuBlocks.front().Key;
+        if (!Backend().IsBlockLost(Key))
+            return Key;
+        Backend().ForgetBlock(Key);
+        Buffer->GpuBlocks.clear();
+        Buffer->LastWriteFrame = FrameNumber_;
+        return 0;
+    }
+    if (Buffer->Count == 0 || Buffer->Data.size() < static_cast<std::size_t>(Buffer->Count) * 2)
+        return 0;
+    std::vector<std::uint16_t> Indices;
+    try
+    {
+        Indices.resize(Buffer->Count);
+        std::memcpy(Indices.data(), Buffer->Data.data(), static_cast<std::size_t>(Buffer->Count) * 2);
+        Buffer->GpuBlocks.reserve(1);
+    }
+    catch (const std::bad_alloc&)
+    {
+        return 0;
+    }
+    const std::uint64_t Key = NextTextureVersion_++;
+    if (!Backend().UploadIndexBlock(Key, std::move(Indices)))
+        return 0;
+    Buffer->GpuBlocks.push_back({0, Key});
+    return Key;
 }
 
 // The whole buffer, converted once for this texture-coordinate signature and handed to the
@@ -311,11 +352,11 @@ std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signatu
         const FRpGpuBuffer::FGpuBlock Block = Buffer->GpuBlocks[Index];
         if (Block.Signature != Signature)
             continue;
-        if (!Backend().IsVertexBlockLost(Block.Key))
+        if (!Backend().IsBlockLost(Block.Key))
             return Block.Key;
         // The device could not make its buffer: forget it, draw from the frame this time, and
         // make the block again in a later frame.
-        Backend().ForgetVertexBlock(Block.Key);
+        Backend().ForgetBlock(Block.Key);
         Buffer->GpuBlocks.erase(Buffer->GpuBlocks.begin() + static_cast<std::ptrdiff_t>(Index));
         Buffer->LastWriteFrame = FrameNumber_;
         return 0;
@@ -345,7 +386,8 @@ std::uint64_t FRpGpu::VertexBlockFor(FRpGpuBuffer* Buffer, std::uint32_t Signatu
 
 void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned char* Verts, unsigned int Stride,
                         unsigned int VertCount, const std::uint16_t* Indices, unsigned int IndexCount,
-                        FRpGpuBuffer* StaticSource, unsigned int SourceBase)
+                        FRpGpuBuffer* StaticSource, unsigned int SourceBase, FRpGpuBuffer* IndexSource,
+                        unsigned int IndexStart)
 {
     if (!bBuffersActive_ || Verts == nullptr || Stride == 0 || VertCount == 0)
         return;
@@ -413,9 +455,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     // the draw starts at SourceBase in it. Everything else is copied into the frame: with
     // indices, only the range they reach, the indices rebased onto it.
     // Not while it is locked or in a frame it was written in (FRpGpuBuffer::LastWriteFrame).
-    const bool bSettled = StaticSource != nullptr && !StaticSource->bRing && !StaticSource->bLocked &&
-                          StaticSource->LastWriteFrame != FrameNumber_;
-    const std::uint64_t Block = bSettled ? VertexBlockFor(StaticSource, Signature, TexOffset, TexFloats) : 0;
+    const std::uint64_t Block = IsSettled(StaticSource) ? VertexBlockFor(StaticSource, Signature, TexOffset, TexFloats) : 0;
     unsigned int First = 0;
     unsigned int Span = Used;
     std::uint32_t FirstVertex = 0;
@@ -437,9 +477,18 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
                 ConvertVertex(Verts + static_cast<std::size_t>(First + Index) * Stride, Layout, TexOffset, TexFloats));
     }
 
-    // Indices when the draw has them, or when a fan becomes a list (SDL_GPU has no fans).
-    const std::uint32_t FirstIndex = static_cast<std::uint32_t>(Frame_.Indices.size());
+    // Indices when the draw has them, or when a fan becomes a list (SDL_GPU has no fans). With
+    // its vertices in a block, a draw from a settled index buffer reads that buffer's block too:
+    // the indices are unchanged, so they are drawn where they are.
+    std::uint32_t FirstIndex = static_cast<std::uint32_t>(Frame_.Indices.size());
     std::uint32_t IndexTotal = 0;
+    const std::uint64_t IndexBlock =
+        Block != 0 && !bFan && Indices != nullptr && IsSettled(IndexSource) ? IndexBlockFor(IndexSource) : 0;
+    if (IndexBlock != 0)
+    {
+        FirstIndex = IndexStart;
+        IndexTotal = Used;
+    }
     auto Source = [&](unsigned int At) -> std::uint16_t {
         return static_cast<std::uint16_t>(Indices != nullptr ? Indices[At] - First : At);
     };
@@ -453,7 +502,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         }
         IndexTotal = static_cast<std::uint32_t>(Primitives) * 3;
     }
-    else if (Indices != nullptr)
+    else if (Indices != nullptr && IndexBlock == 0)
     {
         for (unsigned int Index = 0; Index < Used; ++Index)
             Frame_.Indices.push_back(Source(Index));
@@ -525,6 +574,7 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
     }
     ColourOf(static_cast<std::uint32_t>(RenderStates_[kRsTextureFactor]), Command.Stage.TextureFactor);
     Command.VertexBlock = Block;
+    Command.IndexBlock = IndexBlock;
     Command.FirstVertex = FirstVertex;
     Command.VertexCount = Span;
     Command.FirstIndex = FirstIndex;

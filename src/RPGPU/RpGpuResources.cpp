@@ -485,6 +485,7 @@ GENRESULT DACOM_API FRpGpu::DestroyIb(void** Handle)
     if (Buffer != nullptr)
     {
         IndexBuffers_.erase(Buffer);
+        RetireBlocks(Buffer);
         if (SelectedIb_ == Buffer)
             SelectedIb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
@@ -498,7 +499,11 @@ GENRESULT DACOM_API FRpGpu::ResizeIb(void* Handle, unsigned int Count)
     FRpGpuBuffer* const Buffer = LiveIb(Handle);
     if (Buffer == nullptr)
         return kFail;
-    return ResizeStorage(Buffer, std::max(1u, Count), 2) ? GR_OK : GR_OUT_OF_MEMORY;
+    if (!ResizeStorage(Buffer, std::max(1u, Count), 2))
+        return GR_OUT_OF_MEMORY;
+    RetireBlocks(Buffer);
+    Buffer->LastWriteFrame = FrameNumber_;
+    return GR_OK;
 }
 
 GENRESULT DACOM_API FRpGpu::CopyIndices(void* Handle, unsigned int* OutOffset, const unsigned short* SrcData,
@@ -533,6 +538,8 @@ GENRESULT DACOM_API FRpGpu::LockIb(void* Handle, unsigned int* Offset, void** Ou
     if (Offset != nullptr)
         *Offset = Start;
     Buffer->bLocked = true;
+    RetireBlocks(Buffer); // the caller may write any index it locked
+    Buffer->LastWriteFrame = FrameNumber_;
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * 2;
     return GR_OK;
 }
@@ -543,6 +550,7 @@ GENRESULT DACOM_API FRpGpu::UnlockIb(void* Handle)
     if (Buffer == nullptr)
         return kFail;
     Buffer->bLocked = false;
+    Buffer->LastWriteFrame = FrameNumber_;
     return GR_OK;
 }
 
@@ -630,7 +638,7 @@ GENRESULT DACOM_API FRpGpu::DestroyVb(void** Handle)
     if (VertexBuffers_.count(Buffer) != 0)
     {
         VertexBuffers_.erase(Buffer);
-        RetireVertexBlocks(Buffer);
+        RetireBlocks(Buffer);
         if (SelectedVb_ == Buffer)
             SelectedVb_ = nullptr; // a later buffer at the same address is not selected
         delete Buffer;
@@ -647,7 +655,7 @@ GENRESULT DACOM_API FRpGpu::ResizeVb(void* Handle, unsigned int Fvf, unsigned in
         if (!ResizeStorage(Buffer, std::max(1u, Count), std::max(1u, Rp8FvfStride(Fvf))))
             return GR_OUT_OF_MEMORY;
         Buffer->Fvf = Fvf;
-        RetireVertexBlocks(Buffer);
+        RetireBlocks(Buffer);
         Buffer->LastWriteFrame = FrameNumber_;
     }
     return GR_OK;
@@ -706,7 +714,7 @@ GENRESULT DACOM_API FRpGpu::LockVb(void* Handle, unsigned int* Offset, void** Ou
     if (Offset != nullptr)
         *Offset = Start;
     Buffer->bLocked = true;
-    RetireVertexBlocks(Buffer); // the caller may write any vertex it locked
+    RetireBlocks(Buffer); // the caller may write any vertex it locked
     Buffer->LastWriteFrame = FrameNumber_;
     *Out = Buffer->Data.data() + static_cast<std::size_t>(Start) * Buffer->Stride;
     return GR_OK;

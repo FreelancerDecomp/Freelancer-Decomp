@@ -289,6 +289,9 @@ struct FRpGpuCommand
     // A vertex block kept on the GPU (UploadVertexBlock) the draw reads instead of the frame's
     // vertices; FirstVertex then counts from its start. 0: the frame's vertices.
     std::uint64_t VertexBlock = 0;
+    // An index block kept on the GPU (UploadIndexBlock) the draw reads instead of the frame's
+    // indices; FirstIndex then counts from its start. Only with a VertexBlock. 0: none.
+    std::uint64_t IndexBlock = 0;
 };
 
 struct FRpGpuFrameRecording
@@ -341,15 +344,18 @@ public:
     virtual void ForgetTexture(std::uint64_t Key) = 0;
 
     // A static vertex buffer's converted vertices, kept on the GPU under Key (never 0, never
-    // reused) until ForgetVertexBlock, uploaded before the next frame's draws. Draws name it in
-    // FRpGpuCommand::VertexBlock. ForgetVertexBlock comes only after the frame that last used
+    // reused) until ForgetBlock, uploaded before the next frame's draws. Draws name it in
+    // FRpGpuCommand::VertexBlock. ForgetBlock comes only after the frame that last used
     // the block has been presented. False when the block could not be queued (memory): RPGPU
     // then draws from the frame's vertices instead. No exception leaves either call.
     virtual bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) = 0;
-    virtual void ForgetVertexBlock(std::uint64_t Key) = 0;
+    // A static index buffer's indices, kept the same way; draws name it in
+    // FRpGpuCommand::IndexBlock. ForgetBlock and IsBlockLost take either kind of key.
+    virtual bool UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices) = 0;
+    virtual void ForgetBlock(std::uint64_t Key) = 0;
     // True when Key's block was dropped because the device could not make its buffer: RPGPU
     // forgets it and makes it again later.
-    virtual bool IsVertexBlockLost(std::uint64_t Key) const = 0;
+    virtual bool IsBlockLost(std::uint64_t Key) const = 0;
 
     virtual RpWindowHandle Hwnd() const = 0;
     virtual std::uint32_t Width() const = 0;

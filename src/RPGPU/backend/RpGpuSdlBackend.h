@@ -56,8 +56,9 @@ public:
     bool SupportsBlockCompression() const override { return bBlockCompression_; }
     void ForgetTexture(std::uint64_t Key) override;
     bool UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVertex>&& Vertices) override;
-    void ForgetVertexBlock(std::uint64_t Key) override;
-    bool IsVertexBlockLost(std::uint64_t Key) const override { return LostBlocks_.count(Key) != 0; }
+    bool UploadIndexBlock(std::uint64_t Key, std::vector<std::uint16_t>&& Indices) override;
+    void ForgetBlock(std::uint64_t Key) override;
+    bool IsBlockLost(std::uint64_t Key) const override { return LostBlocks_.count(Key) != 0; }
 
     RpWindowHandle Hwnd() const override { return Hwnd_; }
     std::uint32_t Width() const override { return Width_; }
@@ -92,7 +93,10 @@ private:
     struct FPendingBlock
     {
         std::uint64_t Key;
-        std::vector<FRpGpuVertex> Vertices;
+        std::vector<FRpGpuVertex> Vertices; // a vertex block, or
+        std::vector<std::uint16_t> Indices; // an index block
+        const void* Data() const { return Indices.empty() ? static_cast<const void*>(Vertices.data()) : Indices.data(); }
+        std::size_t Bytes() const { return Vertices.size() * sizeof(FRpGpuVertex) + Indices.size() * 2; }
         // Its buffer could not be made and the loss could not be recorded (no memory): it stays
         // pending, out of this frame's upload, and the next frame tries again.
         bool bDeferred = false;
@@ -131,8 +135,9 @@ private:
     std::map<std::pair<std::uint64_t, std::uint32_t>, SDL_GPUSampler*> Samplers_;
     std::unordered_map<std::uint64_t, FTexture> Textures_;
     std::vector<FPendingUpload> PendingUploads_;
-    // Static vertex buffers kept on the GPU (UploadVertexBlock), one GPU buffer each.
-    std::unordered_map<std::uint64_t, SDL_GPUBuffer*> VertexBlocks_;
+    // Static vertex and index buffers kept on the GPU (UploadVertexBlock, UploadIndexBlock), one
+    // GPU buffer each.
+    std::unordered_map<std::uint64_t, SDL_GPUBuffer*> Blocks_;
     std::vector<FPendingBlock> PendingBlocks_;
     std::unordered_set<std::uint64_t> LostBlocks_; // blocks whose buffer could not be made
     SDL_GPUTexture* White_ = nullptr;     // bound when a draw has no texture
