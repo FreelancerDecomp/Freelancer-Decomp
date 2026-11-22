@@ -1,6 +1,6 @@
 # Memory leak hunting (`MemoryDiagnostics`)
 
-The `MemoryDiagnostics` project in `src/Freelancer.sln` builds a small Win32 utility,
+The `MemoryDiagnostics` module (`src/MemoryDiagnostics`, Win32) builds a small Win32 utility,
 `MemoryDiagnostics.exe`, that drives UMDH (User-Mode Dump Heap) to find leaks in the game's
 Windows heap. The game code itself is not instrumented.
 

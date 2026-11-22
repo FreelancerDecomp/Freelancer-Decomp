@@ -1,6 +1,6 @@
 # PE resources (string / HTML / VERSIONINFO)
 
-Client texts (IDS, infocard HTML, versions) are stored in code-free resource DLLs that we rebuild from retail dumps. This document explains where the sources come from, how the encoding is handled and what counts as a resource project in the solution. The implementation is in `src/Resources/` (`import_decompiled_rc.py`, `ResourceDll.props`).
+Client texts (IDS, infocard HTML, versions) are stored in code-free resource DLLs that we rebuild from retail dumps. This document explains where the sources come from, how the encoding is handled and what counts as a resource module in the build. The implementation is in `src/Resources/` (`import_decompiled_rc.py`) and `cmake/Freelancer.cmake` (`RESOURCE_DLL`).
 
 Client IDS live in separate code-free DLLs: `LoadLibrary("resources.dll")` from WinMain, then `[Resources]` in `freelancer.ini` (`LoadResourcesFromIni`). Lookup: `FindResourceExA(RT_STRING / RT_HTML)`.
 
@@ -13,9 +13,9 @@ Import into `src/`: `src/Resources/import_decompiled_rc.py` converts Resource Ha
 ## Encoding
 
 The importer reads the exported `.rc` honouring the BOM and writes our script in
-UTF-8. `ResourceDll.props` sets `rc.exe /c65001` for all resource DLLs and all
+UTF-8. `cmake/Freelancer.cmake` passes `rc.exe /c65001` for all resource DLLs and all
 configurations. The generated scripts also contain `#pragma code_page(65001)`,
-because the code projects do not include this property sheet.
+because the code modules' scripts are compiled without it.
 
 Non-ASCII Resource Hacker escape sequences denote character values:
 for example, `\xFC` in the name Saarbrücken is U+00FC. The importer writes such
@@ -31,11 +31,9 @@ The exported data also contain differences in wording, XML markup and language i
 from the retail PE files: a match with the sources verifies that the encoding is preserved,
 not that the data is fully equivalent to retail.
 
-## Solution
+## Modules
 
-The solution is flat (folders in VS are created manually; do not name a folder `Resources` — VS confuses it with the `resources` project).
-
-- **Resource DLLs** (`src/Resources/`, `/NOENTRY`) → `bin\`: `resources`, `InfoCards`, `MiscText`, `NameResources`, `EquipResources`, `OfferBribeResources`, `MiscTextInfo2`, `serverresources`.
+- **Resource DLLs** (`src/Resources/<name>/CMakeLists.txt`, `fl_add_module(... RESOURCE_DLL RETAIL)`, `/NOENTRY`, Win32 only) → `bin\`: `resources`, `InfoCards`, `MiscText`, `NameResources`, `EquipResources`, `OfferBribeResources`, `MiscTextInfo2`, `serverresources`.
 - **Code:** DLLs + `Common.lib` + the exe. Code modules that had a dump have their own `.rc` (VERSIONINFO; Common also has a debug MENU/DIALOGEX, its VERSIONINFO is removed to avoid duplicating the exe's).
 - **freelancer** — the client exe; `resources/freelancer.rc` (ICON 103 + VERSIONINFO).
 
@@ -44,7 +42,7 @@ The solution is flat (folders in VS are created manually; do not name a folder `
 `serverresources`: the binary `RT_TOOLBAR` (type 241 + `.bin`) is not accepted by rc.exe as a TOOLBAR script — the resource is skipped, the rest is in the DLL.
 
 The set of imported modules is defined by `CODE_MAP`, `RESOURCE_ONLY` and `SKIP_DUMP` in
-the importer; the presence of a project in the solution does not by itself mean resources are imported.
+the importer; the presence of a module in the build does not by itself mean resources are imported.
 
 ## Responsibility boundary
 

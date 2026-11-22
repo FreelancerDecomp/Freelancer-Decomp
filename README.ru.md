@@ -1,7 +1,7 @@
 # Freelancer Decomp
 
 Восстановленная реверс-инжинирингом реализация игрового клиента **Freelancer** (2003) и его
-движковых DLL, собираемая из исходников современной Visual Studio. Каждый модуль, который
+движковых DLL, собираемая из исходников современной Visual Studio и CMake. Каждый модуль, который
 загружает игра, собирается из `src/`; retail-бинарники игры не загружаются, кроме двух сторонних
 DLL, перечисленных ниже.
 
@@ -18,12 +18,14 @@ English: [README.md](README.md). Документация: [docs/ru/README.md](d
    [DirectX 8.1 SDK (Final)](https://archive.org/details/dx81sdk_full), установить или распаковать
    его и скопировать папки `include` и `lib` в папку `dx8` в корне репозитория (должны существовать
    `dx8\include\d3d8.h` и `dx8\lib\d3d8.lib`). Используются только заголовки и библиотеки; другое
-   место можно указать через `/p:Dx8SdkDir=<путь>`.
-4. **Собрать конфигурацию Release** решения `src\Freelancer.sln` (`Release|Win32`) в Visual Studio
-   или из Developer Command Prompt:
+   место можно указать через `-DDx8SdkDir=<путь>`.
+4. **Собрать конфигурацию Release** (`Release|Win32`): открыть папку репозитория в Visual Studio
+   (*File > Open > Folder*) и выбрать пресет `release`, или из x86 Developer Command Prompt
+   (`vcvarsall.bat x86`) в корне репозитория:
 
    ```
-   msbuild src\Freelancer.sln -t:Build -p:Configuration=Release -p:Platform=Win32
+   cmake --preset release
+   cmake --build --preset release
    ```
 
 Результат попадает в `bin\`, где уже лежат файлы конфигурации (`DACOM.INI`, `freelancer.ini`,
@@ -33,18 +35,22 @@ English: [README.md](README.md). Документация: [docs/ru/README.md](d
 ### Требования
 
 - Visual Studio 2022 (platform toolset v143) с нагрузкой *Разработка классических приложений на
-  C++*, компонентом *C++ MFC для последних средств сборки v143 (x86 и x64)* (нужен `FLServer`) и
-  Windows 10/11 SDK. Всё собирается 32-битным (`Win32`).
+  C++*, компонентами *C++ MFC для последних средств сборки v143 (x86 и x64)* (нужен `FLServer`) и
+  *Средства CMake C++ для Windows* (CMake 3.27 или новее и Ninja) и Windows 10/11 SDK. Игра
+  собирается 32-битной (`Win32`); рядом собирается x64 ([docs/x64.md](docs/x64.md)).
 - Для Debug-сборок (`bin_debug\`) нужен ещё Python 3 в `PATH`: шаг после сборки копирует
   конфигурацию из `bin\`.
 
+Все пресеты, сборка x64 и подробности: [docs/building.md](docs/building.md). На Linux и macOS та же
+сборка CMake собирает модули, не использующие Windows API (`cmake --preset portable`); сама игра
+пока только для Windows.
+
 ### Необязательные возможности
 
-Возможности, которых нет в оригинале, включаются свойствами сборки в
-`src/Freelancer.Diagnostics.props` (они же — на странице свойств VS *Freelancer diagnostics*) или
-`/p:<Имя>=0|1` в командной строке MSBuild:
+Возможности, которых нет в оригинале, включаются переключателями сборки, `-D<Имя>=0|1` при
+конфигурации (например, `cmake --preset release -DFreelancerRp9=1`):
 
-| Свойство | По умолчанию | Что делает |
+| Переключатель | По умолчанию | Что делает |
 |---|---|---|
 | `FreelancerWidescreenSupport` | 1 | Широкоформатные режимы экрана (Hor+) и раскладка HUD |
 | `FreelancerWalkMode` | 1 | Ходьба Трентом по помещениям баз ([docs/ru/walk_mode.md](docs/ru/walk_mode.md)) |
@@ -55,7 +61,7 @@ English: [README.md](README.md). Документация: [docs/ru/README.md](d
 ## Структура репозитория
 
 ```
-src\          решение Visual Studio (Freelancer.sln) — весь исходный код
+src\          весь исходный код, CMakeLists.txt в каждом модуле (CMakeLists.txt и cmake\ в корне)
 bin\          результат Release-сборки + файлы конфигурации
 DATA_EXTRA\   собственные данные порта (шейдеры RP9, volumetric.ini) рядом с DATA игры
 EBUEula.dll   retail-диалог лицензии, грузится как ..\EBUEula.dll вместе с ..\EULA.rtf (как в оригинале)

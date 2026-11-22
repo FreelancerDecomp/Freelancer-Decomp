@@ -19,7 +19,7 @@
 
 // ============================================================================
 // The CRC-32 table (retail DAT_063edcdc), filled by a dynamic initializer.
-// This TU takes common_stubs.cpp's place at the top of Common.vcxproj, so the
+// This TU takes common_stubs.cpp's place at the top of Common's SOURCES, so the
 // initializer keeps its former relative order (no load-time reader exists).
 // ============================================================================
 

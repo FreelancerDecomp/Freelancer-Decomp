@@ -143,7 +143,7 @@ The method for a new entry (a CRT/STL function imported by a retail module):
 
 1. Find the imports in the PE (`dumpbin -imports EXE\<mod>.dll`) and the calls in the listing `EXE\Disasm\<mod>.txt`;
    a missing `XREF` in the listing does not prove the call is absent — scan the raw bytes for the IAT slot and thunk.
-2. Write a separate Win32 exe (a real MSBuild, not `cl /Zs`) that loads the system
+2. Write a separate Win32 exe (a real build, not `cl /Zs`) that loads the system
    MSVCRT/MSVCP60 only as a reference and compares it with the modern side on vectors: boundary values,
    `errno`, `endptr`, state. Do not pass objects of one side to the other and do not mix their `FILE`/heap.
 3. Analyse the specific consumer in the retail listing (the CALL address, what happens to the result).

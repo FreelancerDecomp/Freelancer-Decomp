@@ -144,7 +144,7 @@ struct FServerRepairObjectInfo;             // slot 84
 // declared dllexport in every module that compiled it.
 //
 // So RPC_ICLIENT_API is dllexport in exactly those three modules -- RPCLOCAL_EXPORTS,
-// SERVER_EXPORTS, FREELANCER_EXPORTS (each set by its own .vcxproj) -- and plain
+// SERVER_EXPORTS, FREELANCER_EXPORTS (each set by its own CMakeLists.txt) -- and plain
 // everywhere else (Common.dll reaches this header through server_sysdb.h /
 // server_basedb.h and exports no IClient). Never dllimport: each of the three defines its
 // own copies of the three special members (src/rpclocal/rpc_client_proxy.cpp,

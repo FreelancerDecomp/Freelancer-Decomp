@@ -12,7 +12,7 @@
 // initialised data; the port fills it once at load time from a dynamic
 // initializer in ivp_vhash.cpp (g_Crc32Table_063edcdc_init). Nothing reads it
 // during static initialisation, so its load-time order is irrelevant; the
-// TU still sits where common_stubs.cpp used to (first in Common.vcxproj).
+// TU still sits where common_stubs.cpp used to (first in Common's SOURCES).
 //
 // Users: IVP_VHash_Store and IVP_VHash_HashPointer (ivp_vhash.cpp), IVP_Hash
 // (ivp_hash.cpp), IVP_U_Active_Value_Hash::GetHashIndex (ivp_active_value.cpp).
