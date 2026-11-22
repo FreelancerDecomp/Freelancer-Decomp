@@ -283,7 +283,9 @@ private:
     unsigned long AbilityOverrides_[0x15] = {};
     bool bAbilityOverridden_[0x15] = {};
     float Projection_[16] = {}; // D3D row-major
-    float World_[16] = {};
+    float World_[16] = {}; // world matrix 0 (SetWorld, or SetWorldN(0))
+    // SetWorldN's world matrices 1..255 for vertex blending, as Direct3D holds them; [0] unused.
+    float WorldN_[kRpGpuWorldMatrices][16] = {};
     float View_[16] = {};
     // RP8's view store flags: bViewCommitted_ is cleared by every store and set by the next
     // draw; bViewMarker_ is set when SetModelview or SetLookat put in their identity view, and

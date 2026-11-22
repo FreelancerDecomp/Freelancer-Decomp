@@ -344,7 +344,7 @@ bool FRpGpuSdlBackend::CreateShaders()
     };
     // The vertex shader takes FTransform and FLighting; the fragment shader FStages and a
     // texture and sampler per stage.
-    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 2);
+    VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 3); // FTransform, FLighting, FBlend
     FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, kRpGpuStages, 1);
     return VertexShader_ != nullptr && FragmentShader_ != nullptr;
 }
@@ -362,7 +362,7 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Buffer.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
     // FRpGpuVertex: position, diffuse, normal, specular, then each stage's coordinates
     // (rpgpu_fixed.vert's TEXCOORD0..7).
-    SDL_GPUVertexAttribute Attributes[4 + kRpGpuStages] = {};
+    SDL_GPUVertexAttribute Attributes[6 + kRpGpuStages] = {};
     Attributes[0].location = 0;
     Attributes[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
     Attributes[0].offset = offsetof(FRpGpuVertex, X);
@@ -381,6 +381,13 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
         Attributes[4 + Stage].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
         Attributes[4 + Stage].offset = static_cast<Uint32>(offsetof(FRpGpuVertex, Tex) + Stage * 2 * sizeof(float));
     }
+    // TEXCOORD8, 9: the blend weights and matrix indices.
+    Attributes[4 + kRpGpuStages].location = static_cast<Uint32>(4 + kRpGpuStages);
+    Attributes[4 + kRpGpuStages].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    Attributes[4 + kRpGpuStages].offset = offsetof(FRpGpuVertex, Weights);
+    Attributes[5 + kRpGpuStages].location = static_cast<Uint32>(5 + kRpGpuStages);
+    Attributes[5 + kRpGpuStages].format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4;
+    Attributes[5 + kRpGpuStages].offset = offsetof(FRpGpuVertex, Indices);
 
     SDL_GPUColorTargetDescription Color = {};
     Color.format = kTargetFormat;
@@ -404,7 +411,7 @@ SDL_GPUGraphicsPipeline* FRpGpuSdlBackend::Pipeline(const FRpGpuPipelineKey& Key
     Info.vertex_input_state.vertex_buffer_descriptions = &Buffer;
     Info.vertex_input_state.num_vertex_buffers = 1;
     Info.vertex_input_state.vertex_attributes = Attributes;
-    Info.vertex_input_state.num_vertex_attributes = 4 + kRpGpuStages;
+    Info.vertex_input_state.num_vertex_attributes = 6 + kRpGpuStages;
     Info.primitive_type = PrimitiveType(Key.Topology);
     // Points (FILLMODE 1) are drawn solid: SDL_GPU has no point fill.
     Info.rasterizer_state.fill_mode = Key.FillMode == 2 ? SDL_GPU_FILLMODE_LINE : SDL_GPU_FILLMODE_FILL;
@@ -817,6 +824,8 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
         SDL_GPURenderPass* Pass = BeginPass(Commands, Target_, Lead, true);
         bool bLightingPushed = false;
         std::int32_t PushedLighting = -1;
+        bool bBlendPushed = false;
+        std::int32_t PushedBlend = -1;
         for (std::size_t Index = First; Pass != nullptr && Index < Frame.Commands.size(); ++Index)
         {
             const FRpGpuCommand& Command = Frame.Commands[Index];
@@ -847,6 +856,17 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
 
             // Every stage's texture and sampler; a stage without a GPU copy samples white with
             // its texture flag off.
+            // The blend block likewise (a draw that does not blend does not read it).
+            const std::int32_t Blend =
+                Command.Blend >= 0 && static_cast<std::size_t>(Command.Blend) < Frame.Blend.size() ? Command.Blend : -1;
+            if (!bBlendPushed || (Blend >= 0 && Blend != PushedBlend))
+            {
+                static const FRpGpuBlendUniforms kNoBlend = {};
+                const FRpGpuBlendUniforms& Block = Blend >= 0 ? Frame.Blend[static_cast<std::size_t>(Blend)] : kNoBlend;
+                SDL_PushGPUVertexUniformData(Commands, 2, &Block, sizeof(Block));
+                PushedBlend = Blend;
+                bBlendPushed = true;
+            }
             FRpGpuStageUniforms Stage = Command.Stage;
             SDL_GPUTextureSamplerBinding Bindings[kRpGpuStages] = {};
             for (int Index = 0; Index < kRpGpuStages; ++Index)

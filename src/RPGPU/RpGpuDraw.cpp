@@ -37,6 +37,8 @@ namespace
         kRsColorWriteEnable = 0xA8,
 
         kRsTextureFactor = 60,
+        kRsVertexBlend = 151,
+        kRsIndexedVertexBlendEnable = 167,
 
         kTssColorOp = 1,
         kTssColorArg1 = 2,
@@ -65,6 +67,7 @@ namespace
     constexpr unsigned int kFvfPSize = 0x20;
     constexpr unsigned int kFvfDiffuse = 0x40;
     constexpr unsigned int kFvfSpecular = 0x80;
+    constexpr unsigned int kFvfLastBetaUByte4 = 0x1000;
 
     float ReadFloat(const unsigned char* P)
     {
@@ -84,6 +87,8 @@ namespace
     struct FLayout
     {
         bool bPretransformed = false;
+        int Weights = 0;  // blend weights after the position (XYZB1..XYZB5)
+        int Indices = -1; // the last beta as four matrix-index bytes (D3DFVF_LASTBETA_UBYTE4)
         int Normal = -1;
         int Diffuse = -1;
         int Specular = -1;
@@ -109,6 +114,18 @@ namespace
         case 0xC: Offset = 28; break;
         case 0xE: Offset = 32; break;
         default: break;
+        }
+        // XYZB1..XYZB5 carry 1..5 betas after x, y, z; with LASTBETA_UBYTE4 the last is indices.
+        const unsigned int Position = Fvf & kFvfPositionMask;
+        if (Position >= 0x6)
+        {
+            const int Betas = static_cast<int>((Position - 0x6) / 2 + 1);
+            Layout.Weights = Betas;
+            if ((Fvf & kFvfLastBetaUByte4) != 0)
+            {
+                Layout.Weights = Betas - 1;
+                Layout.Indices = 12 + (Betas - 1) * 4;
+            }
         }
         if ((Fvf & kFvfNormal) != 0)
         {
@@ -315,6 +332,9 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         Vertex.Z = ReadFloat(P + 8);
         Vertex.W = Layout.bPretransformed ? ReadFloat(P + 12) : 1.0f;
         Vertex.Diffuse = Layout.Diffuse >= 0 ? ReadU32(P + Layout.Diffuse) : 0xFFFFFFFFu;
+        for (int Weight = 0; Weight < 3; ++Weight)
+            Vertex.Weights[Weight] = Weight < Layout.Weights ? ReadFloat(P + 12 + Weight * 4) : 0.0f;
+        Vertex.Indices = Layout.Indices >= 0 ? ReadU32(P + Layout.Indices) : 0x03020100u;
         for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
         {
             Vertex.Tex[Stage][0] = TexFloats[Stage] >= 1 ? ReadFloat(P + TexOffset[Stage]) : 0.0f;
@@ -434,6 +454,28 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         float* const Wvp = Command.Transform.WorldViewProjection;
         Multiply(Wvp, World_, View_);
         Multiply(Wvp, Wvp, Projection_);
+        Multiply(Command.Transform.ViewProjection, View_, Projection_);
+        // Vertex blending (VERTEXBLEND 1..3 weights): the world matrices go up as a block,
+        // shared with the draws before when they are the same. Tweening (255) is not drawn.
+        const int BlendWeights = RenderStates_[kRsVertexBlend];
+        if (BlendWeights >= 1 && BlendWeights <= 3)
+        {
+            Command.Transform.Blend[0] = static_cast<std::uint32_t>(BlendWeights);
+            Command.Transform.Blend[1] = RenderStates_[kRsIndexedVertexBlendEnable] != 0 ? 1u : 0u;
+            FRpGpuBlendUniforms Block;
+            for (int Matrix = 0; Matrix < kRpGpuWorldMatrices; ++Matrix)
+            {
+                const float* const M = Matrix == 0 ? World_ : WorldN_[Matrix];
+                for (int Col = 0; Col < 3; ++Col)
+                {
+                    for (int Row = 0; Row < 4; ++Row)
+                        Block.Columns[Matrix][Col][Row] = M[Row * 4 + Col];
+                }
+            }
+            if (Frame_.Blend.empty() || std::memcmp(&Frame_.Blend.back(), &Block, sizeof(Block)) != 0)
+                Frame_.Blend.push_back(Block);
+            Command.Blend = static_cast<std::int32_t>(Frame_.Blend.size() - 1);
+        }
     }
     FillLightingAndFog(&Command, Layout.bPretransformed,
                        (Layout.Normal >= 0 ? 1u : 0u) | (Layout.Diffuse >= 0 ? 2u : 0u) |

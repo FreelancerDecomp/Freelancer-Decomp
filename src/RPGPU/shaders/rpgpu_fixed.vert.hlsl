@@ -32,6 +32,15 @@ cbuffer FTransform : register(b0, space1)
     uint4 TexGen;
     uint4 TexTransform; // per stage: TEXTURETRANSFORMFLAGS' count, 0 for none
     row_major float4x4 TexMatrix[4];
+    row_major float4x4 ViewProjection; // for blended vertices
+    uint4 Blend; // x: VERTEXBLEND's weight count (0 off, 1..3); y: INDEXEDVERTEXBLENDENABLE
+};
+
+// The world matrices for vertex blending: matrix i is Palette[i * 3 + c], the column c of its
+// 4x3 part, so a row vector's coordinate c is dot(float4(p, 1), column).
+cbuffer FBlend : register(b2, space1)
+{
+    float4 Palette[768];
 };
 
 struct FLight
@@ -68,6 +77,8 @@ struct FInput
     float2 Tex1 : TEXCOORD5;
     float2 Tex2 : TEXCOORD6;
     float2 Tex3 : TEXCOORD7;
+    float3 Weights : TEXCOORD8; // the first three blend weights
+    uint4 Indices : TEXCOORD9;  // four world-matrix indices
 };
 
 struct FOutput
@@ -153,13 +164,45 @@ FOutput main(FInput In)
         return Out;
     }
 
+    float3 WorldPosition;
+    float3 N = float3(0.0, 0.0, 0.0);
+    float4 Clip;
+    if (Blend.x != 0u)
+    {
+        // Direct3D's vertex blending: the weights given, the last one 1 minus their sum, each
+        // on its world matrix (indexed, or 0, 1, 2, 3). Normals go through the matrices' 3x3
+        // parts, as for rigid bones.
+        const uint4 Index = Blend.y != 0u ? min(In.Indices, uint4(255u, 255u, 255u, 255u)) : uint4(0u, 1u, 2u, 3u);
+        const float Weight[4] = {In.Weights.x, In.Weights.y, In.Weights.z, 0.0};
+        const float4 P = float4(In.Position.xyz, 1.0);
+        const float4 Nrm = float4(In.Normal, 0.0);
+        float Remaining = 1.0;
+        WorldPosition = float3(0.0, 0.0, 0.0);
+        [unroll]
+        for (uint Which = 0u; Which < 4u; ++Which)
+        {
+            if (Which > Blend.x)
+                break;
+            const float W = Which == Blend.x ? Remaining : Weight[Which];
+            Remaining -= W;
+            const uint Base = Index[Which] * 3u;
+            WorldPosition += W * float3(dot(P, Palette[Base]), dot(P, Palette[Base + 1u]), dot(P, Palette[Base + 2u]));
+            if ((Flags.y & 1u) != 0u)
+                N += W * float3(dot(Nrm, Palette[Base]), dot(Nrm, Palette[Base + 1u]), dot(Nrm, Palette[Base + 2u]));
+        }
+        Clip = mul(float4(WorldPosition, 1.0), ViewProjection);
+    }
+    else
+    {
+        Clip = mul(float4(In.Position.xyz, 1.0), WorldViewProjection);
+        WorldPosition = mul(float4(In.Position.xyz, 1.0), World).xyz;
+        if ((Flags.y & 1u) != 0u)
+            N = mul(In.Normal, (float3x3)NormalMatrix);
+    }
     // Direct3D's clip space is SDL_GPU's (x, y -1..1 with y up, z 0..1); only the pixel centres
     // differ, by half a pixel, which is Scale.xy * Mode.x in normalized units.
-    const float4 Clip = mul(float4(In.Position.xyz, 1.0), WorldViewProjection);
     Out.Position = float4(Clip.xy + Scale.xy * Mode.x * Clip.w, Clip.zw);
 
-    const float3 WorldPosition = mul(float4(In.Position.xyz, 1.0), World).xyz;
-    float3 N = (Flags.y & 1u) != 0u ? mul(In.Normal, (float3x3)NormalMatrix) : float3(0.0, 0.0, 0.0);
     if (Flags.z != 0u && dot(N, N) > 0.0)
         N = normalize(N);
     const float3 ViewPosition = mul(float4(WorldPosition, 1.0), View).xyz;

@@ -596,9 +596,13 @@ GENRESULT DACOM_API FRpGpu::VerifyState()
     return GR_OK;
 }
 
+// RP8's set_world_n sends the matrix straight to Direct3D as D3DTS_WORLDMATRIX(index), past its
+// transform cache. Index 0 is D3DTS_WORLD itself, so it replaces SetWorld's matrix until the
+// next SetWorld. Direct3D refuses an index past 255.
 GENRESULT DACOM_API FRpGpu::SetWorldN(int WorldIndex, const float* M12)
 {
-    (void)WorldIndex;
-    (void)M12;
+    if (M12 == nullptr || WorldIndex < 0 || WorldIndex >= kRpGpuWorldMatrices)
+        return (GENRESULT)0x8876086C; // D3DERR_INVALIDCALL
+    StoreAffine(WorldIndex == 0 ? World_ : WorldN_[WorldIndex], M12);
     return GR_OK;
 }

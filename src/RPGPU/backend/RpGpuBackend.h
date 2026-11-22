@@ -59,8 +59,15 @@ struct FRpGpuVertex
     float Nz;
     std::uint32_t Specular;
     float Tex[kRpGpuStages][2];
+    // Vertex blending: the format's first three blend weights, and its four matrix indices
+    // (D3DFVF_LASTBETA_UBYTE4's bytes; 0, 1, 2, 3 without them).
+    float Weights[3];
+    std::uint32_t Indices;
 };
-static_assert(sizeof(FRpGpuVertex) == 68, "the vertex layout the shaders read");
+static_assert(sizeof(FRpGpuVertex) == 84, "the vertex layout the shaders read");
+
+// The world matrices vertex blending can index (Direct3D's D3DTS_WORLDMATRIX(0..255)).
+inline constexpr int kRpGpuWorldMatrices = 256;
 
 // The shaders' uniform blocks (rpgpu_fixed.vert, rpgpu_stages.frag), laid out as HLSL packs
 // them: only 16-byte vectors and 4x4 matrices, so the C++ and HLSL layouts are the same.
@@ -89,8 +96,20 @@ struct FRpGpuTransformUniforms
     // Per stage: TEXTURETRANSFORMFLAGS' count (0: no transform).
     std::uint32_t TexTransform[4];
     float TexMatrix[kRpGpuStages][16]; // SetTextureStageTransform's, Direct3D's layout
+    float ViewProjection[16];          // for blended vertices, which are in world space
+    // x: VERTEXBLEND's weight count (0 off, 1..3); y: INDEXEDVERTEXBLENDENABLE.
+    std::uint32_t Blend[4];
 };
-static_assert(sizeof(FRpGpuTransformUniforms) == 400 + 64 * kRpGpuStages, "rpgpu_fixed.vert's FTransform");
+static_assert(sizeof(FRpGpuTransformUniforms) == 480 + 64 * kRpGpuStages, "rpgpu_fixed.vert's FTransform");
+
+// rpgpu_fixed.vert's FBlend: the world matrices for vertex blending, each as the three columns
+// of its 4x3 part (a row vector times a column gives one coordinate). Shared by the draws that
+// use the same matrices (FRpGpuFrameRecording::Blend).
+struct FRpGpuBlendUniforms
+{
+    float Columns[kRpGpuWorldMatrices][3][4];
+};
+static_assert(sizeof(FRpGpuBlendUniforms) == 48 * kRpGpuWorldMatrices, "rpgpu_fixed.vert's FBlend");
 
 // One Direct3D 8 light, in world space. Position.w: D3DLIGHTTYPE (1 point, 2 spot, 3
 // directional); Direction.w: range; Attenuation: 0, 1, 2 and falloff; Spot: cos(theta / 2),
@@ -262,6 +281,7 @@ struct FRpGpuCommand
     FRpGpuTransformUniforms Transform = {};
     FRpGpuStageUniforms Stage = {};
     std::int32_t Lighting = -1;
+    std::int32_t Blend = -1; // the frame's blend block, -1 when the draw does not blend
 };
 
 struct FRpGpuFrameRecording
@@ -270,6 +290,7 @@ struct FRpGpuFrameRecording
     std::vector<std::uint16_t> Indices;
     std::vector<FRpGpuCommand> Commands;
     std::vector<FRpGpuLightingUniforms> Lighting;
+    std::vector<FRpGpuBlendUniforms> Blend;
 
     void Clear()
     {
@@ -277,6 +298,7 @@ struct FRpGpuFrameRecording
         Indices.clear();
         Commands.clear();
         Lighting.clear();
+        Blend.clear();
     }
 };
 

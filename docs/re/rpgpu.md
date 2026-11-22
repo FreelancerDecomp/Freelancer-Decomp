@@ -181,7 +181,14 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - `CreateBuffers` resets all three to RP8's identity transforms.
 - RP8 multiplies through the 3DMathEngine; RPGPU does the same products itself, with the same
   double sums, so `GetModelview` can differ from RP8's in the last bit.
-- `SetWorldN` (the vertex-blend matrices) and the texture transforms are not kept yet.
+- `SetWorldN` keeps world matrices 0..255 for vertex blending. RP8 sends it straight to
+  Direct3D, past its transform cache, so index 0 replaces `SetWorld`'s matrix until the next
+  `SetWorld`; Direct3D refuses an index past 255.
+- **Vertex blending** (`VERTEXBLEND` 1..3 weights, `INDEXEDVERTEXBLENDENABLE`), which
+  Deformable2's skinned meshes use: the vertex's first weights from its XYZB position, the last
+  one 1 minus their sum, each on a world matrix (the `D3DFVF_LASTBETA_UBYTE4` indices, or 0..3).
+  Normals go through the matrices' 3x3 parts, as for rigid bones. The matrices go up as one
+  block per set of values in a frame. Tweening (`VERTEXBLEND` 255) is not drawn.
 
 ## Lighting and fog
 
@@ -317,7 +324,7 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 **Known gaps:**
 - stages past the fourth, the bump-mapping ops, three- and four-component texture sets and
   cube maps;
-- vertex blending (`SetWorldN`, `VERTEXBLEND`: Deformable2's skinned meshes draw unblended);
+- tweening (`VERTEXBLEND` 255);
 - every draw's vertices are copied into the frame; vertex and index buffers that stay on the
   GPU are plan step 5.4;
 - the Direct3D blend factors SDL_GPU lacks (none of the 2D draws use them);
