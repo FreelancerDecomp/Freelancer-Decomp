@@ -67,9 +67,9 @@ client's next `CreateBuffers` brings the new one up.
     clears and presents, and reads the last frame back.
   - `RpGpuSdlBackend.*` is the SDL backend and the only code that includes SDL. It wraps the
     client's window in an SDL window (`SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER`), creates the
-    SDL_GPU device, claims the window, and clears and presents. SDL picks the GPU API: Direct3D
-    12, Vulkan or Metal. It cannot read frames back yet: the swap-chain image is not readable,
-    and that changes once RPGPU draws into its own target (plan step 5.3).
+    SDL_GPU device, claims the window, draws each frame into its own colour target, blits that
+    to the swap-chain image and presents. SDL picks the GPU API: Direct3D 12, Vulkan or Metal.
+    It reads frames back by downloading the colour target ("Drawing").
   - `RpGpuNullBackend.cpp` is the Null backend (`NULL_DEVICE`). Its frame is the clear colour
     at the size `CreateBuffers` asked for, and it reads that back.
 
