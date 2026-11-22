@@ -84,14 +84,14 @@ Code with no retail counterpart carries one tag, so that a single grep finds it:
 | `walk` | Walk mode in base rooms (`FREELANCER_WALK_MODE`) |
 | `widescreen` | Widescreen resolutions and Hor+ cameras (`FREELANCER_WIDESCREEN_SUPPORT`) |
 | `rp9` | RP9.dll and the client's Direct3D 9 hooks, including the volumetric nebula (`FREELANCER_RP9`) |
-| `rpgpu` | RPGPU.dll, the SDL3 + SDL_GPU pipeline (`src/RPGPU`) |
+| `rpgpu` | RPGPU.dll, the SDL3 + SDL_GPU pipeline (`src/RPGPU`), and TexConvert (`src/TexConvert`). The HLSL shaders are not tagged: CI compares their compiled bytecode with the committed copy. |
 | `diag` | The owner's diagnostics: Beta label, tick profiler, FDUMP debugger echo |
 | `perf-index` | Side indexes that answer a retail walk without changing its result (docs/scaling.md) |
 | `x64` | The x64 build (`_WIN64` / not `_M_IX86`) |
 | `dpnet` | DPNet, the port's DirectPlay 8 (`FREELANCER_DPNET`), and DPNetCheck |
 | `flregress` | FLRegress.exe and its hooks |
 | `dedicated` | FLDedicated.exe |
-| `tools` | Other port-only programs (RpcCodecTest, MemoryDiagnostics) |
+| `tools` | Other port-only programs (RpcCodecTest, MemoryDiagnostics, TexConvertTest) |
 | `api` | A name, accessor, interface slot or helper retail has no counterpart for, with no behaviour of its own |
 | `deviation` | A behaviour difference outside the features above, recorded in [deviations.md](deviations.md) |
 

@@ -84,14 +84,14 @@ flmaterials и др.), не меняя поведения.
 | `walk` | Режим ходьбы на базах (`FREELANCER_WALK_MODE`) |
 | `widescreen` | Широкоформатные разрешения и камеры Hor+ (`FREELANCER_WIDESCREEN_SUPPORT`) |
 | `rp9` | RP9.dll и хуки клиента под Direct3D 9, включая объёмную туманность (`FREELANCER_RP9`) |
-| `rpgpu` | RPGPU.dll, конвейер SDL3 + SDL_GPU (`src/RPGPU`) |
+| `rpgpu` | RPGPU.dll, конвейер SDL3 + SDL_GPU (`src/RPGPU`), и TexConvert (`src/TexConvert`). HLSL-шейдеры без метки: CI сравнивает их скомпилированный байткод с закоммиченным. |
 | `diag` | Диагностика владельца: метка Beta, профайлер тика, эхо FDUMP в отладчик |
 | `perf-index` | Побочные индексы, которые отвечают за обход retail, не меняя его результата (docs/scaling.md) |
 | `x64` | Сборка x64 (`_WIN64` / не `_M_IX86`) |
 | `dpnet` | DPNet, собственный DirectPlay 8 порта (`FREELANCER_DPNET`), и DPNetCheck |
 | `flregress` | FLRegress.exe и его хуки |
 | `dedicated` | FLDedicated.exe |
-| `tools` | Прочие программы порта (RpcCodecTest, MemoryDiagnostics) |
+| `tools` | Прочие программы порта (RpcCodecTest, MemoryDiagnostics, TexConvertTest) |
 | `api` | Имя, аксессор, слот интерфейса или помощник без аналога в retail и без собственного поведения |
 | `deviation` | Отличие поведения вне перечисленных функций, записанное в [deviations.md](deviations.md) |
 

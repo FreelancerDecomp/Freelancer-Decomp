@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): TexConvert, RPGPU's texture conversion without D3DX; no retail counterpart.
 
 #pragma once
 

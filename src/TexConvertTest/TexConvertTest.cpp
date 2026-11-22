@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(tools): TexConvertTest, which compares TexConvert with D3DX 8.1; no retail counterpart.
 
 // TexConvertTest.exe (Win32, port only): checks TexConvert's exact path against D3DX 8.1's
 // D3DXLoadSurfaceFromMemory, which RP8's SetTextureLevelData uses (docs/re/texconvert.md).

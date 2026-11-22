@@ -1,3 +1,4 @@
+# RPGPU.dll -- PORT(rpgpu), the SDL3 + SDL_GPU render pipeline; not part of retail.
 # See cmake/Freelancer.cmake. The source list is the link order, and with it the order of
 # static initialisation.
 

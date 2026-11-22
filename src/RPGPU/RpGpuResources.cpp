@@ -1,5 +1,6 @@
 // Freelancer Decomp: a reimplementation of the Freelancer (2003) game client and engine,
 // faithful to the behaviour of the original game.
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
 
 // RPGPU's textures and buffers (docs/re/rpgpu.md): the handle tables, the texture images, the
 // vertex and index buffers with RP8's lock and offset conventions, the pool and scratch rings,
