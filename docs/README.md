@@ -1,7 +1,5 @@
 # Freelancer Decomp — documentation
 
-**English** · [Русский](ru/README.md)
-
 Freelancer Decomp is a from-source reimplementation of the **Freelancer** game client
 (Digital Anvil / Microsoft, 2003). Every module of the original client is rebuilt as C++ source
 that is checked against the retail disassembly. The goal is a working client whose behaviour

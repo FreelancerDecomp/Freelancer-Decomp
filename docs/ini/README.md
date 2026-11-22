@@ -1,7 +1,5 @@
 # INI reference
 
-**English** · [Русский](../ru/ini/README.md)
-
 Freelancer is configured almost entirely through INI-style files: the engine (`DACOM.INI`), the
 master game file (`freelancer.ini`) and several thousand data tables that `freelancer.ini` and
 other data files point at. This folder documents, for every place where the code reads such a file,
