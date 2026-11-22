@@ -20,7 +20,7 @@
 // STATE (cmn-ivp2d, 2026-10-08): every member below has a body in
 // ivp_mindist_minimize.cpp, ported from the listing. This header is in the
 // build (ivp_compact_ledge_solver.cpp includes it for IVP_Cache_Ledge_Point);
-// the .cpp joins Common.vcxproj together with the switch-over of 06352cf0 /
+// the .cpp joins Common's SOURCES together with the switch-over of 06352cf0 /
 // 06352b90 (exclusive slot).
 
 #include <cstdint>

@@ -358,7 +358,7 @@ namespace AlchemyImpl
     // camera-facing axis). Recovering this needs no change to
     // FAlchemy::DrawNodes, its signature, or any file outside this one: the
     // pointer already round-trips through this unsigned long bit-for-bit on
-    // this project's Win32 target (alchemy.vcxproj) — it was only ever
+    // this module's Win32 build (alchemy) — it was only ever
     // stored as a plain integer because nothing previously dereferenced it.
     // Pointer-sized (unsigned int on Win32, as retail's dword), so the camera survives on x64.
     std::uintptr_t G_DrawCookie = 0;           // DAT_06257908

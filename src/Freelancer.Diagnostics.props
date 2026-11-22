@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Shared by Common, freelancer, RP9 and RPGPU; edit this sheet through VS Property Manager.
-       The defaults live in Directory.Build.props; a value saved here overrides one for these
-       projects. -->
-  <PropertyGroup Label="UserMacros" />
-</Project>

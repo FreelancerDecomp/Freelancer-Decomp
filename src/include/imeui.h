@@ -20,7 +20,7 @@
 // Base sizeof = 0x18; client wrapper sizeof = 0x1c.
 
 // No WIN32_LEAN_AND_MEAN here: defined in a public header it trimmed <windows.h> for every client
-// file that happened to include this header first. imeui.vcxproj defines it for imeui's own build.
+// file that happened to include this header first. imeui/CMakeLists.txt defines it for imeui's own build.
 #include <windows.h>
 
 #if defined(IMEUI_EXPORTS)

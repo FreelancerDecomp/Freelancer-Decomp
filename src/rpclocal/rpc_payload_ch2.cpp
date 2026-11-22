@@ -470,7 +470,7 @@ static bool MarshalSetAddItem(FPacketBase* Packet, const unsigned int* Args, uns
     // item carries a non-empty, interned cargo-bay name, which retail still omits from the
     // wire. The port used to substitute the string test and so would have sent the bay
     // name for every internal item.
-    // rpclocal.vcxproj already links Common.lib -- retail rpclocal.dll imports this exact
+    // rpclocal already links Common.lib -- retail rpclocal.dll imports this exact
     // symbol (IAT .rdata:0003826c), so this is retail's own dependency, not a new one.
     if (!Desc->is_internal()) {
         // 06d88636..06d8864c: strlen via REPNE SCASB, then FUN_06d97470(packet, str, len),

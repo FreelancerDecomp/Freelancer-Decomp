@@ -22,7 +22,7 @@ the `IBehaviorManager`/`IObjInspect` interfaces are declared in `src/include/com
 - The port does not reproduce VC6 STL layouts or the retail heap: containers are modern, and field offsets
   are kept wherever other modules read them (checked with `static_assert`; offsets past containers are
   correct only with the `std::` size in Debug and `_ITERATOR_DEBUG_LEVEL=1` in Release — see
-  `src/Directory.Build.targets`).
+  `cmake/Freelancer.cmake`).
 - DllMain initialises nothing (`DisableThreadLibraryCalls`). The real startup is the calls
   `Async::Startup`, `Timing::init`, `DataConfig::startup`, `PhySys::Startup` from the exe/Server.
 

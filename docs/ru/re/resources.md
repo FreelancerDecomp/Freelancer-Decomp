@@ -13,9 +13,9 @@ Ghidra dump: `EXE/Disasm/DecompiledResources/<module>/<module>.rc` (+ sidecar HT
 ## Кодировка
 
 Импортёр читает экспортированный `.rc` с учётом BOM и записывает наш скрипт в
-UTF-8. `ResourceDll.props` задаёт `rc.exe /c65001` для всех ресурсных DLL и всех
+UTF-8. `cmake/Freelancer.cmake` передаёт `rc.exe /c65001` для всех ресурсных DLL и всех
 конфигураций. Генерируемые скрипты также содержат `#pragma code_page(65001)`,
-поскольку кодные проекты не подключают эту property sheet.
+поскольку скрипты кодных модулей компилируются без этого ключа.
 
 Не-ASCII escape-последовательности Resource Hacker обозначают значения символов:
 например, `\xFC` в названии Saarbrücken — U+00FC. Импортёр записывает такие
@@ -31,11 +31,9 @@ UTF-8. `ResourceDll.props` задаёт `rc.exe /c65001` для всех рес�
 идентификаторов от retail-PE: совпадение с исходниками проверяет сохранность кодировки,
 а не полную эквивалентность этих данных retail.
 
-## Solution
+## Модули
 
-Solution плоский (папки в VS создаются вручную; не называть папку `Resources` — VS путает её с проектом `resources`).
-
-- **Ресурсные DLL** (`src/Resources/`, `/NOENTRY`) → `bin\`: `resources`, `InfoCards`, `MiscText`, `NameResources`, `EquipResources`, `OfferBribeResources`, `MiscTextInfo2`, `serverresources`.
+- **Ресурсные DLL** (`src/Resources/<имя>/CMakeLists.txt`, `fl_add_module(... RESOURCE_DLL RETAIL)`, `/NOENTRY`, только Win32) → `bin\`: `resources`, `InfoCards`, `MiscText`, `NameResources`, `EquipResources`, `OfferBribeResources`, `MiscTextInfo2`, `serverresources`.
 - **Код:** DLL + `Common.lib` + exe. У кодных модулей, где был dump, свой `.rc` (VERSIONINFO; у Common ещё debug MENU/DIALOGEX, VERSIONINFO снят чтобы не дублировать exe).
 - **freelancer** — клиентский exe; `resources/freelancer.rc` (ICON 103 + VERSIONINFO).
 
@@ -44,7 +42,7 @@ Solution плоский (папки в VS создаются вручную; н�
 `serverresources`: бинарный `RT_TOOLBAR` (type 241 + `.bin`) rc.exe не ест как скрипт TOOLBAR — ресурс пропущен, остальное в DLL.
 
 Набор импортируемых модулей задан `CODE_MAP`, `RESOURCE_ONLY` и `SKIP_DUMP` в
-импортёре; наличие проекта в solution само по себе не означает импорт ресурсов.
+импортёре; наличие модуля в сборке само по себе не означает импорт ресурсов.
 
 ## Граница ответственности
 

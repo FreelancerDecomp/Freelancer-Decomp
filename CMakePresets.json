@@ -1,0 +1,168 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 27,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "win32",
+      "hidden": true,
+      "inherits": "windows",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "toolset": {
+        "value": "host=x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "FL_EXPECTED_PLATFORM": "Win32"
+      }
+    },
+    {
+      "name": "x64",
+      "hidden": true,
+      "inherits": "windows",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "toolset": {
+        "value": "host=x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "FL_EXPECTED_PLATFORM": "x64"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release|Win32 (bin\\)",
+      "inherits": "win32",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug|Win32 (bin_debug\\)",
+      "inherits": "win32",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "debugasan",
+      "displayName": "DebugASan|Win32 (binasan\\)",
+      "inherits": "win32",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "DebugASan"
+      }
+    },
+    {
+      "name": "release-x64",
+      "displayName": "Release|x64 (bin_x64\\)",
+      "inherits": "x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "debug-x64",
+      "displayName": "Debug|x64 (bin_x64_debug\\)",
+      "inherits": "x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "portable",
+      "displayName": "Portable modules (Linux, macOS)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "portable-asan",
+      "displayName": "Portable modules, Debug with ASan + UBSan (Linux, macOS)",
+      "inherits": "portable",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "FL_SANITIZE": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "debugasan",
+      "configurePreset": "debugasan"
+    },
+    {
+      "name": "release-x64",
+      "configurePreset": "release-x64"
+    },
+    {
+      "name": "debug-x64",
+      "configurePreset": "debug-x64"
+    },
+    {
+      "name": "portable",
+      "configurePreset": "portable"
+    },
+    {
+      "name": "portable-asan",
+      "configurePreset": "portable-asan"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "portable",
+      "configurePreset": "portable",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "portable-asan",
+      "configurePreset": "portable-asan",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

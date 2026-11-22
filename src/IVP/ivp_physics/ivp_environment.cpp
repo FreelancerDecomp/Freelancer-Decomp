@@ -740,7 +740,7 @@ void IVP_Environment_Simulate_Psi(IVP_Environment* env, IVP_Time /*current_sim_t
 // sub-managers at +0x24 / +0x20. Declared (with the full evidence trail, every
 // field and every vtable slot cited to Common.dll.txt) in
 // ivp_anomaly_manager.h; implemented here rather than in a new translation
-// unit because src\Common\Common.vcxproj enumerates its sources explicitly and
+// unit because src\Common\CMakeLists.txt enumerates its sources explicitly and
 // this lane does not own that file.
 //
 // decomp-tracker items: 3416 (FUN_06360e30, IVP_Anomaly_Limits ctor) and 3420
