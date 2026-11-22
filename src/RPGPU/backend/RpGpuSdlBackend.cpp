@@ -595,7 +595,7 @@ bool FRpGpuSdlBackend::UploadVertexBlock(std::uint64_t Key, std::vector<FRpGpuVe
         return false;
     try
     {
-        PendingBlocks_.push_back({Key, std::move(Vertices)});
+        PendingBlocks_.push_back({Key, std::move(Vertices), false});
     }
     catch (const std::bad_alloc&)
     {
@@ -695,7 +695,8 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     // draws are skipped.
     for (std::size_t Index = 0; Index < PendingBlocks_.size();)
     {
-        const FPendingBlock& Pending = PendingBlocks_[Index];
+        FPendingBlock& Pending = PendingBlocks_[Index];
+        Pending.bDeferred = false;
         const std::uint64_t Bytes64 = static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex);
         SDL_GPUBuffer* Made = nullptr;
         if (Bytes64 <= 0xFFFFFFFFull)
@@ -713,6 +714,10 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             }
             catch (const std::bad_alloc&)
             {
+                // The loss cannot be recorded: keep the block pending and try again next frame.
+                Pending.bDeferred = true;
+                ++Index;
+                continue;
             }
             PendingBlocks_.erase(PendingBlocks_.begin() + static_cast<std::ptrdiff_t>(Index));
             continue;
@@ -747,7 +752,10 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             TextureBytes64 += Align16(Level.size());
     }
     for (const FPendingBlock& Pending : PendingBlocks_)
-        TextureBytes64 += Align16(static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex));
+    {
+        if (!Pending.bDeferred)
+            TextureBytes64 += Align16(static_cast<std::uint64_t>(Pending.Vertices.size()) * sizeof(FRpGpuVertex));
+    }
     const std::uint64_t Total64 = TextureBytes64 + VertexBytes64 + IndexBytes64;
     if (Total64 == 0)
         return true;
@@ -796,10 +804,13 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         }
     }
     std::vector<std::uint32_t> BlockOffsets; // every pending vertex block, in order
+    BlockOffsets.reserve(PendingBlocks_.size());
     for (const FPendingBlock& Pending : PendingBlocks_)
     {
+        BlockOffsets.push_back(Offset); // a deferred block keeps a slot but uploads nothing
+        if (Pending.bDeferred)
+            continue;
         const std::size_t Bytes = Pending.Vertices.size() * sizeof(FRpGpuVertex);
-        BlockOffsets.push_back(Offset);
         std::memcpy(Mapped + Offset, Pending.Vertices.data(), Bytes);
         Offset += static_cast<std::uint32_t>(Align16(Bytes));
     }
@@ -866,10 +877,15 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     for (std::size_t Index = 0; Index < PendingBlocks_.size(); ++Index)
     {
         const FPendingBlock& Pending = PendingBlocks_[Index];
+        if (Pending.bDeferred)
+            continue;
         UploadBuffer(VertexBlocks_[Pending.Key], BlockOffsets[Index],
                      static_cast<std::uint32_t>(Pending.Vertices.size() * sizeof(FRpGpuVertex)));
     }
-    PendingBlocks_.clear();
+    // The uploaded blocks are done; deferred ones wait for the next frame.
+    PendingBlocks_.erase(std::remove_if(PendingBlocks_.begin(), PendingBlocks_.end(),
+                                        [](const FPendingBlock& Pending) { return !Pending.bDeferred; }),
+                         PendingBlocks_.end());
     if (VertexBytes != 0)
         UploadBuffer(VertexBuffer_, VertexOffset, VertexBytes);
     if (IndexBytes != 0)

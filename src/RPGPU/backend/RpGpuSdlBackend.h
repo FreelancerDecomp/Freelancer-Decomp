@@ -93,6 +93,9 @@ private:
     {
         std::uint64_t Key;
         std::vector<FRpGpuVertex> Vertices;
+        // Its buffer could not be made and the loss could not be recorded (no memory): it stays
+        // pending, out of this frame's upload, and the next frame tries again.
+        bool bDeferred = false;
     };
 
     bool CreateShaders();
