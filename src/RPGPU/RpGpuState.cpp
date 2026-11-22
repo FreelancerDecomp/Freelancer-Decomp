@@ -109,7 +109,13 @@ void FRpGpu::ResetDeviceState()
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
     Material_ = RpMaterial{}; // a new device's material is all zeros
-    // RP8's ApplyDefaultTextureStages: no textures bound, identity texture transforms.
+    ResetTextureStages();
+}
+
+// RP8's ApplyDefaultTextureStages (CreateBuffers and ResetRenderStatesToDefaults): no textures
+// bound, identity texture transforms. The stage states themselves are ResetStateToDefaults'.
+void FRpGpu::ResetTextureStages()
+{
     for (int Stage = 0; Stage < 8; ++Stage)
     {
         StageTextures_[Stage] = nullptr;
@@ -496,9 +502,12 @@ GENRESULT DACOM_API FRpGpu::SetPerspective(float FovDeg, float Aspect, float Nea
     return GR_OK;
 }
 
+// RP8's reset_render_states_to_defaults: the default render and stage states, then
+// ApplyDefaultTextureStages, which also unbinds the textures and resets the texture transforms.
 GENRESULT DACOM_API FRpGpu::ResetRenderStatesToDefaults()
 {
     ResetStateToDefaults();
+    ResetTextureStages();
     return GR_OK;
 }
 

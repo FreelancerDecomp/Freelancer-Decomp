@@ -256,8 +256,8 @@ MSL, and keep the bytecode in the repository. In parts, each its own PR:
    draw unlit. In #98.
 5. Lighting (RP8's light manager, Direct3D 8's per-vertex model) and fog (vertex, table, W).
    In #99.
-6. Four texture stages (every op but bump mapping), texture transforms and texture-coordinate
-   generation.
+6. Four texture stages (every op but bump mapping and `PREMODULATE`, which pass the current
+   colour through), texture transforms and texture-coordinate generation.
 
 **5.4 Buffers and textures.** Vertex and index buffers that stay on the GPU (static, dynamic,
 and the lock/discard pattern), render targets, and screenshots. Already in place: buffers in CPU

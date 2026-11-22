@@ -115,7 +115,12 @@ float4 StageCoordinates(uint Stage, float2 Vertex, float3 CameraNormal, float3 C
     else if (Source == 2u)
         Coord = float4(CameraPosition, 1.0);
     else if (Source == 3u)
-        Coord = float4(reflect(normalize(CameraPosition), CameraNormal), 1.0);
+    {
+        // The camera-to-vertex direction, or camera space's +z for a non-local viewer
+        // (LOCALVIEWER off), reflected about the normal.
+        const float3 Incident = Flags.w != 0u ? normalize(CameraPosition) : float3(0.0, 0.0, 1.0);
+        Coord = float4(reflect(Incident, CameraNormal), 1.0);
+    }
     else
         Coord = ((TexGen[Stage] >> 4) & 15u) == 1u ? float4(Vertex.x, 1.0, 0.0, 0.0) : float4(Vertex, 1.0, 0.0);
     if (TexTransform[Stage] != 0u)

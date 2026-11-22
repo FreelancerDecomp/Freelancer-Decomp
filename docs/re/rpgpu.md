@@ -249,8 +249,11 @@ the game adapts to.
   becomes (u, v, 1, 0)); `PROJECTED` divides by the last transformed component.
   Pre-transformed vertices take neither generation nor transforms.
 - `SetTextureStageTexture` is ignored, and `GetTextureStageTexture` answers null, while
-  pipeline state `TEXTURE` is 0, as in RP8. `CreateBuffers` unbinds every stage and resets the
-  transforms to the identity (RP8's `ApplyDefaultTextureStages`).
+  pipeline state `TEXTURE` is 0, as in RP8. `CreateBuffers` and `ResetRenderStatesToDefaults`
+  unbind every stage and reset the transforms to the identity (RP8's
+  `ApplyDefaultTextureStages`).
+- Reflection coordinates reflect the camera-to-vertex direction, or camera-space +z when
+  `LOCALVIEWER` is off.
 
 ## Drawing
 

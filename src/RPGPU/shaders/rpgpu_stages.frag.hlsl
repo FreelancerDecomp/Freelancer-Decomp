@@ -175,7 +175,11 @@ float4 main(FInput In) : SV_Target0
             const float4 A1 = Argument(Alpha[Stage].y, In.Diffuse, Current, Texel, In.Specular, Temp);
             const float4 A2 = Argument(Alpha[Stage].z, In.Diffuse, Current, Texel, In.Specular, Temp);
             const float4 A0 = Argument(Alpha[Stage].w, In.Diffuse, Current, Texel, In.Specular, Temp);
-            Result.a = Operation(Alpha[Stage].x, A1.aaaa, A2.aaaa, A0.aaaa, In.Diffuse, Current, Texel).a;
+            // Alpha operations work on the arguments' alphas, except DOTPRODUCT3, which takes
+            // the dot product of their colours.
+            Result.a = Alpha[Stage].x == 24u
+                           ? Operation(24u, A1, A2, A0, In.Diffuse, Current, Texel).a
+                           : Operation(Alpha[Stage].x, A1.aaaa, A2.aaaa, A0.aaaa, In.Diffuse, Current, Texel).a;
         }
         Result = saturate(Result);
         if (Misc[Stage].x == 5u)

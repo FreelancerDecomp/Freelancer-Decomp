@@ -229,6 +229,7 @@ private:
     void ApplyIdentityTransforms(); // CreateBuffers: RP8's FUN_06d03c94
     void FlushDrawState();        // every draw: RP8's FlushDrawState (the view, the lights)
     void ResetStreams();            // RP8's FRp8StreamCache::Reset
+    void ResetTextureStages();      // RP8's ApplyDefaultTextureStages, for the stage bindings
 
     // RpGpuLighting.cpp: RP8's light manager (FRp8LightManager) and the uniform blocks a draw's
     // lighting and fog need.
