@@ -887,7 +887,7 @@ void NnLoadSave::RefreshSaveList()
         if (wcsncmp(Name, SaveNamePrefix.c_str(), static_cast<size_t>(SaveNamePrefixLength)) != 0)
             continue;
         wchar_t* End = nullptr;
-        FlLong const Value = wcstol(Name + SaveNamePrefixLength, &End, 10);
+        long const Value = wcstol(Name + SaveNamePrefixLength, &End, 10); // checked before narrowing
         if (End == nullptr || *End != 0)
             continue;
         if (Value > 1000000000)
