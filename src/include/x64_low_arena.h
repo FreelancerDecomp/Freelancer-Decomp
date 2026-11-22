@@ -217,6 +217,8 @@ namespace LowArena
 #if defined(FL_PTR64) && !defined(_WIN64)
         if (Object == nullptr)
             return 0;
+        if (Object == (const void*)(std::intptr_t)(-1))
+            return -1;
         return (FlLong)((const char*)Object - Detail::Reservation().Base);
 #else
         return (FlLong)(std::intptr_t)(Object);

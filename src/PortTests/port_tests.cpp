@@ -30,6 +30,7 @@ namespace
         }
     }
 
+#if defined(FL_PTR64)
     struct FHandle
     {
         FL_LOW_ARENA_NEW
@@ -57,6 +58,7 @@ namespace
         Check(LowArena::Encode(nullptr) == 0, "null encodes to 0");
         Check(LowArena::Decode<FHandle>(0) == nullptr, "0 decodes to null");
         Check(LowArena::Decode<FHandle>(-1) == (FHandle*)(std::intptr_t)(-1), "-1 stays the invalid handle");
+        Check(LowArena::Encode((const void*)(std::intptr_t)(-1)) == -1, "the invalid handle encodes to -1");
         for (FHandle* Handle : Handles)
             delete Handle;
     }
@@ -81,6 +83,7 @@ namespace
         Check(LowArena::Decode<char>(LowArena::Encode(Block)) == Block, "a large block round-trips");
         LowArena::Free(Block, Size);
     }
+#endif
 
     // A scratch directory under the temp folder, removed again by the test that made it.
     std::string ScratchDirectory()
