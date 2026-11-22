@@ -474,23 +474,87 @@ GENRESULT DACOM_API FRpGpu::DestroyGpuResources()
 }
 
 // Flags: 1 colour (pipeline state 8), 2 depth (9, a float's bits), 4 stencil (10). Recorded in
-// the frame, in order with the draws; the rectangles (Rects) are not honoured yet: the whole
-// target is cleared.
+// the frame, in order with the draws. As Direct3D 8's Clear, it covers the viewport, or Rects
+// (RP8 passes one D3DRECT: left, top, right, bottom) cut to the viewport. A clear of the whole
+// target is a render-pass clear; any other is drawn as a quad that writes the clear colour and
+// depth over its pixels, with no depth test, blending or write mask. Stencil is not kept.
 GENRESULT DACOM_API FRpGpu::ClearBuffers(unsigned long Flags, const void* Rects)
 {
-    (void)Rects;
     if ((Flags & 1) != 0)
         Backend().SetClearColor(static_cast<std::uint32_t>(PipelineState_[kPsClearColor]));
-    if (bBuffersActive_ && (Flags & 3) != 0)
+    if (!bBuffersActive_ || (Flags & 3) == 0)
+        return GR_OK;
+    const std::uint32_t Argb = static_cast<std::uint32_t>(PipelineState_[kPsClearColor]);
+    float Depth = 1.0f;
+    std::memcpy(&Depth, &PipelineState_[kPsClearZDepth], sizeof(float));
+
+    const int TargetW = static_cast<int>(Backend().Width());
+    const int TargetH = static_cast<int>(Backend().Height());
+    const bool bWholeViewport = Viewport_[0] <= 0 && Viewport_[1] <= 0 &&
+                                (Viewport_[2] <= 0 || Viewport_[0] + Viewport_[2] >= TargetW) &&
+                                (Viewport_[3] <= 0 || Viewport_[1] + Viewport_[3] >= TargetH);
+    if (Rects == nullptr && bWholeViewport)
     {
         FRpGpuCommand Clear;
         Clear.Kind = FRpGpuCommand::EKind::Clear;
         Clear.bClearColor = (Flags & 1) != 0;
         Clear.bClearDepth = (Flags & 2) != 0;
-        Clear.ClearArgb = static_cast<std::uint32_t>(PipelineState_[kPsClearColor]);
-        std::memcpy(&Clear.ClearDepth, &PipelineState_[kPsClearZDepth], sizeof(float));
+        Clear.ClearArgb = Argb;
+        Clear.ClearDepth = Depth;
         Frame_.Commands.push_back(Clear);
+        return GR_OK;
     }
+
+    // The area: the viewport (the target when it has no size yet), cut to the rectangle.
+    long Left = Viewport_[0];
+    long Top = Viewport_[1];
+    long Right = Viewport_[2] > 0 ? static_cast<long>(Viewport_[0]) + Viewport_[2] : TargetW;
+    long Bottom = Viewport_[3] > 0 ? static_cast<long>(Viewport_[1]) + Viewport_[3] : TargetH;
+    if (Rects != nullptr)
+    {
+        std::int32_t Raw[4]; // D3DRECT: four LONGs, 32-bit on Win32 and x64 (LLP64)
+        std::memcpy(Raw, Rects, sizeof(Raw));
+        Left = std::max<long>(Left, Raw[0]);
+        Top = std::max<long>(Top, Raw[1]);
+        Right = std::min<long>(Right, Raw[2]);
+        Bottom = std::min<long>(Bottom, Raw[3]);
+    }
+    if (Left >= Right || Top >= Bottom)
+        return GR_OK; // nothing left to clear
+
+    const std::uint32_t FirstVertex = static_cast<std::uint32_t>(Frame_.Vertices.size());
+    const float X[2] = {static_cast<float>(Left), static_cast<float>(Right)};
+    const float Y[2] = {static_cast<float>(Top), static_cast<float>(Bottom)};
+    for (int Corner = 0; Corner < 4; ++Corner)
+    {
+        FRpGpuVertex Vertex = {};
+        Vertex.X = X[Corner & 1];
+        Vertex.Y = Y[Corner >> 1];
+        Vertex.Z = Depth;
+        Vertex.W = 1.0f;
+        Vertex.Diffuse = Argb;
+        Frame_.Vertices.push_back(Vertex);
+    }
+    FRpGpuCommand Quad;
+    Quad.Kind = FRpGpuCommand::EKind::Draw;
+    Quad.Pipeline.Topology = ERpGpuTopology::TriangleStrip;
+    Quad.Pipeline.bZEnable = 1;
+    Quad.Pipeline.bZWrite = (Flags & 2) != 0 ? 1 : 0;
+    Quad.Pipeline.ZFunc = 8; // ALWAYS
+    Quad.Pipeline.bBlend = 0;
+    Quad.Pipeline.ColorWriteMask = (Flags & 1) != 0 ? 0xF : 0;
+    Quad.Pipeline.CullMode = 1;
+    Quad.Pipeline.FillMode = 3;
+    Quad.FirstVertex = FirstVertex;
+    Quad.VertexCount = 4;
+    std::memcpy(Quad.Viewport, Viewport_, sizeof(Quad.Viewport));
+    Quad.MinZ = 0.0f;
+    Quad.MaxZ = 1.0f;
+    Quad.Transform.Mode[1] = 1.0f; // pre-transformed: pixels, z as given
+    Quad.Transform.Flags[1] = 2;   // the diffuse colour is the vertex's
+    for (int Stage = 0; Stage < kRpGpuStages; ++Stage)
+        Quad.Stage.Color[Stage][0] = 1; // every stage off: the diffuse colour passes through
+    Frame_.Commands.push_back(Quad);
     return GR_OK;
 }
 

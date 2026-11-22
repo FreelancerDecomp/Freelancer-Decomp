@@ -278,7 +278,10 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
 - **Indexed draws** copy only the vertices their indices reach, and rebase the indices onto
   them. `MinIndex` and `NumVertices` are Direct3D's hints and not used; an index past the
   vertices given (or past the vertex buffer) drops the draw.
-- **Clears:** `ClearBuffers` records a clear in order with the draws.
+- **Clears:** `ClearBuffers` records a clear in order with the draws. As Direct3D 8's `Clear`,
+  it covers the viewport, or the one rectangle RP8 passes, cut to the viewport. A clear of the
+  whole target is the render pass's clear; any other is a quad that writes the clear colour
+  and depth (no depth test, blending or write mask). Stencil is not kept.
 - **Triangle fans** become indexed triangle lists, since SDL_GPU has none.
 - **Not drawn yet:** points.
 - **Textures:** a texture with a changed level (`SetTextureLevelData`, `UnlockTexture`) goes to
@@ -312,7 +315,6 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
    off.
 
 **Known gaps:**
-- clear rectangles (the whole target is cleared);
 - stages past the fourth, the bump-mapping ops, three- and four-component texture sets and
   cube maps;
 - vertex blending (`SetWorldN`, `VERTEXBLEND`: Deformable2's skinned meshes draw unblended);
