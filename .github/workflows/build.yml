@@ -173,31 +173,32 @@ jobs:
           New-Item -ItemType Directory -Force $cache | Out-Null
           "VCPKG_DEFAULT_BINARY_CACHE=$cache" >> $env:GITHUB_ENV
 
-      - uses: microsoft/setup-msbuild@v2
-
-      # MultiToolTask runs each source file as its own compiler process, and
-      # EnforceProcessCountAcrossBuilds caps those processes across all projects at the core
-      # count. Idle cores then pick up files from any project, so the projects on the critical
-      # path (Common, freelancer) are not stuck behind small single-threaded libraries.
-      # Neither changes the compiler or linker options.
       # The PR side builds RPGPU on both platforms (FreelancerRpGpu is off by default on Win32)
       # and fails if vcpkg is missing rather than skipping it. The base side only feeds the
       # Win32 FLRegress and RpcCodecTest comparisons, which RPGPU is not part of.
       - name: Build
+        if: hashFiles('CMakeLists.txt') != ''
+        shell: cmd
+        env:
+          ARCH: ${{ matrix.platform == 'x64' && 'x64' || 'x86' }}
+          PRESET: ${{ matrix.platform == 'x64' && 'release-x64' || 'release' }}
+          OPTIONS: ${{ matrix.side == 'pr' && '-DFreelancerRpGpu=1 -DFreelancerRequireVcpkg=ON' || '' }}
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VSDIR=%%i"
+          call "%VSDIR%\VC\Auxiliary\Build\vcvarsall.bat" %ARCH% || exit /b 1
+          cmake --preset %PRESET% %OPTIONS% || exit /b 1
+          cmake --build --preset %PRESET% || exit /b 1
+
+      # A base commit from before the CMake build (src\Freelancer.sln) is built with MSBuild.
+      - uses: microsoft/setup-msbuild@v2
+        if: hashFiles('CMakeLists.txt') == ''
+
+      - name: Build (MSBuild)
+        if: hashFiles('CMakeLists.txt') == ''
         run: >-
           msbuild src\Freelancer.sln -t:Build -m -nologo -v:minimal
           -p:Configuration=Release -p:Platform=${{ matrix.platform }}
-          ${{ matrix.side == 'pr' && '-p:FreelancerRpGpu=1 -p:FreelancerRequireVcpkg=true' || '' }}
           -p:UseMultiToolTask=true -p:EnforceProcessCountAcrossBuilds=true
-          -clp:PerformanceSummary -bl:msbuild.binlog
-
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.side == 'base' && 'msbuild-binlog-base' || (matrix.platform == 'x64' && 'msbuild-binlog-x64' || 'msbuild-binlog') }}
-          path: msbuild.binlog
-          retention-days: 7
 
       - name: Upload x64 binaries
         if: matrix.platform == 'x64'
@@ -613,8 +614,62 @@ jobs:
           python .github/scripts/check_def_twins.py --undname $undname src
           if ($LASTEXITCODE -ne 0) { throw 'An x64 .def file is out of step with its Win32 twin' }
 
-  # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md): portable C++
-  # with its own tests, built on Linux (GCC, with sanitizers) and Windows (MSVC, 32 and 64 bit).
+  # The portable modules (cmake/Freelancer.cmake: the ones that use no Windows API, DPNet and
+  # its tests among them), built with the root CMake build on Linux and macOS. Debug with
+  # AddressSanitizer and UndefinedBehaviorSanitizer, and Release.
+  portable:
+    name: Portable modules (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux GCC
+            os: ubuntu-24.04
+            cc: gcc
+            cxx: g++
+          - name: Linux Clang
+            os: ubuntu-24.04
+            cc: clang
+            cxx: clang++
+          - name: macOS Clang
+            os: macos-latest
+            cc: clang
+            cxx: clang++
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ninja-build
+          else
+            brew install ninja
+          fi
+
+      - name: Debug, ASan + UBSan
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake --preset portable-asan
+          cmake --build --preset portable-asan
+          ctest --preset portable-asan
+
+      - name: Release
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake --preset portable
+          cmake --build --preset portable
+          ctest --preset portable
+
+  # DPNet, the port's own DirectPlay 8 protocol implementation (docs/dpnet.md), on its own with
+  # its tests on Windows (MSVC, 32 and 64 bit). Linux and macOS build it in the portable job.
   dpnet:
     name: DirectPlay protocol (DPNet, ${{ matrix.name }})
     runs-on: ${{ matrix.os }}
@@ -623,9 +678,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux GCC
-            os: ubuntu-latest
-            configure: -DCMAKE_BUILD_TYPE=Debug -DDPNET_SANITIZE=ON
           - name: Windows Win32
             os: windows-2022
             configure: -A Win32

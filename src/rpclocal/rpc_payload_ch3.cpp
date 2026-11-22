@@ -974,7 +974,7 @@ static bool DeliverDbgRelocateShip(const FPacketBase*, IServer*, unsigned int) {
 //     only ever worked by accident; it is gone too.
 //
 // The justification -- "rpclocal links no Common.dll" -- was never true of retail and
-// has not been true of this port since rpclocal.vcxproj started linking Common.lib.
+// has not been true of this port since rpclocal started linking Common.lib.
 // Retail imports the EquipDesc ctor, all six setters, make_internal and is_internal BY
 // NAME (.rdata:06db3004, 06db3070..06db308c, 06db30d8), and decorates its list import
 // `std::list<struct EquipDesc,...>::_Buynode` (06db30ac). Both containers are now the

@@ -10,7 +10,7 @@
 //
 // Static-initialisation order: GStringCacheOwner must be constructed (its atexit destructor
 // registered) before the CacheString globals of the goods TUs (EquipDesc::CARGO_BAY_HP_NAME),
-// so this TU keeps common_ini.cpp's slot in Common.vcxproj, first among its siblings.
+// so this TU keeps common_ini.cpp's slot in Common's SOURCES, first among its siblings.
 
 #include "common_ini.h"
 #include "common_archetype.h" // CacheString (clear lives with the StringCache pool)

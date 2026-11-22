@@ -15,7 +15,7 @@
 // everything else (state numbers, device blobs) itself. See docs/re/rp9.md.
 //
 // <d3d9.h> must resolve to the Windows SDK header: the DirectX SDK (June 2010) include
-// directory, which also ships an older d3d9.h, is appended after the Windows SDK in RP9.vcxproj.
+// directory, which also ships an older d3d9.h, is appended after the Windows SDK in RP9/CMakeLists.txt.
 // Include this header before any d3dx9*.h -- d3dx9.h pulls "d3d9.h" by quoted path, and the
 // shared include guard (_D3D9_H_) then keeps the SDK copy.
 

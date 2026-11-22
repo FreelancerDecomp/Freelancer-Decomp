@@ -9,12 +9,13 @@
 (`kRp9ComponentName`, приоритет `0x40000000`). Потребители (exe, Shading, flmaterials, alchemy,
 Deformable2, RendComp, ximage) не меняются: они ищут интерфейсы по IID.
 
-Сборка — свойство `FreelancerRp9` (`src/Directory.Build.props`, `src/Freelancer.Diagnostics.props`,
-страница свойств VS «Features»), по умолчанию `0`. При `0` `RP9.vcxproj` превращается в пустой
-Utility-проект (нет `RP9.dll`, DirectX SDK June 2010 не нужен), а клиентские хуки Ex
+Сборка — переключатель `FreelancerRp9` (`-DFreelancerRp9=1`, [building.md](../../building.md#switches)),
+по умолчанию `0`. `RP9.dll` только для Win32: на x64 переключатель всё равно компилирует клиентские
+хуки Ex (`FREELANCER_RP9`), но `RP9.dll` не собирается. При `0` `src/RP9/CMakeLists.txt` не определяет модуль
+(нет `RP9.dll`, DirectX SDK June 2010 не нужен), а клиентские хуки Ex
 (`render_ex.*`, `nebula_volume.*` и их вызовы в `cli_asteroid`, `cli_nebula`, `client_gameobj`,
 `engine_init`, `main`, `space_scene_obj_draw`, `star_sphere`, `star_sys`) стоят под
-`#ifdef FREELANCER_RP9` — клиент совпадает с master. При `1` собираются оба.
+`#ifdef FREELANCER_RP9` — клиент совпадает с master. При `1` на Win32 собираются оба, на x64 — только хуки.
 
 Включение в рантайме — `bin/DACOM.INI`: `RP9.dll` в `[Libraries]` (по умолчанию закомментирован),
 в `[System]` активна одна строка — `DirectX8` (по умолчанию) или `DirectX9`.

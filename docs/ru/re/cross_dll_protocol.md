@@ -29,7 +29,7 @@
   неизвестно — оставь `SlotNN` и комментарий `// +0xNN`; имена не выдумываются.
 - **Тип пересекает границу DLL** — он объявляется **один раз** в плоском
   `src/include/<module>.h` (образцы: `src/include/dacom.h`, `src/include/readfile.h`);
-  `src/include` уже на include path всех проектов через `Directory.Build.props`.
+  `src/include` уже на include path всех проектов через `cmake/Freelancer.cmake`.
   Не создавай `src/<Mod>/include/`.
 - **Никогда не объявляй чужой интерфейс телом у себя** — только `#include`. Два тела одного
   интерфейса означают разъехавшийся порядок слотов и вызов не в тот метод.
