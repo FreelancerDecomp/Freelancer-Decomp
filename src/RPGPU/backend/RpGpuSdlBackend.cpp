@@ -609,7 +609,10 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             return false;
         bWhiteUploaded_ = false; // the cube's faces go up with the white texel
     }
-    // (Re)create the GPU textures of the pending uploads.
+    // (Re)create the GPU textures of the pending uploads. One the device cannot make (too large,
+    // say) is dropped with its upload: its draws sample white, and later frames are not held
+    // back by an upload that can never succeed.
+    std::vector<std::uint64_t> Dropped;
     for (const FPendingUpload& Upload : PendingUploads_)
     {
         const FRpGpuTextureImage& Image = Upload.Image;
@@ -642,9 +645,18 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
             if (Entry.Texture == nullptr)
             {
                 Textures_.erase(Upload.Key);
-                return false;
+                Dropped.push_back(Upload.Key);
             }
         }
+    }
+    if (!Dropped.empty())
+    {
+        PendingUploads_.erase(std::remove_if(PendingUploads_.begin(), PendingUploads_.end(),
+                                             [&Dropped](const FPendingUpload& Upload) {
+                                                 return std::find(Dropped.begin(), Dropped.end(), Upload.Key) !=
+                                                        Dropped.end();
+                                             }),
+                              PendingUploads_.end());
     }
 
     // Sizes in 64 bits first: SDL_GPU's buffers and offsets are 32-bit, so a frame whose uploads
