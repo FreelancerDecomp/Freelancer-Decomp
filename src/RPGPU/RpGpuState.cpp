@@ -109,6 +109,9 @@ void FRpGpu::ResetDeviceState()
     DepthRange_[0] = 0.0f;
     DepthRange_[1] = 1.0f;
     Material_ = RpMaterial{}; // a new device's material is all zeros
+    // A new device's world matrices are the identity (matrix 0 is ApplyIdentityTransforms').
+    for (int Matrix = 1; Matrix < kRpGpuWorldMatrices; ++Matrix)
+        Identity(WorldN_[Matrix]);
     ResetTextureStages();
 }
 
@@ -297,6 +300,7 @@ void FRpGpu::ApplyIdentityTransforms()
     else
         std::memcpy(World12, kIdentity12, sizeof(World12));
     StoreAffine(World_, World12);
+    bWorldOverridden_ = false;
     Identity(Projection_);
     bViewCommitted_ = true;
     bViewMarker_ = true;
@@ -327,6 +331,7 @@ GENRESULT DACOM_API FRpGpu::SetWorld(const float* M12)
     if (M12 == nullptr)
         return GR_INVALID_PARMS;
     StoreAffine(World_, M12);
+    bWorldOverridden_ = false;
     return GR_OK;
 }
 
@@ -334,7 +339,7 @@ GENRESULT DACOM_API FRpGpu::GetWorld(float* Out12)
 {
     if (Out12 == nullptr)
         return GR_INVALID_PARMS;
-    LoadAffine(World_, Out12);
+    LoadAffine(bWorldOverridden_ ? WorldCache_ : World_, Out12);
     return GR_OK;
 }
 
@@ -373,6 +378,7 @@ GENRESULT DACOM_API FRpGpu::SetModelview(const float* M12)
     else
         std::memcpy(World12, M12, sizeof(World12));
     StoreAffine(World_, World12);
+    bWorldOverridden_ = false;
     if (!bViewMarker_)
     {
         StoreViewIdentity(bViewspaceLightsOff);
@@ -388,7 +394,7 @@ GENRESULT DACOM_API FRpGpu::GetModelview(float* Out12)
         return GR_INVALID_PARMS;
     const bool bViewspaceLightsOff = PipelineState_[kPsViewspaceLights] == 0;
     float World12[12];
-    LoadAffine(World_, World12);
+    LoadAffine(bWorldOverridden_ ? WorldCache_ : World_, World12);
     if (!bViewspaceLightsOff)
         ZFlip12(World12, World12);
     float View12[12];
@@ -455,6 +461,7 @@ GENRESULT DACOM_API FRpGpu::SetLookat(float EyeX, float EyeY, float EyeZ, float 
     if (PipelineState_[kPsViewspaceLights] != 0)
     {
         StoreAffine(World_, Flipped);
+        bWorldOverridden_ = false;
         if (!bViewMarker_)
         {
             StoreViewIdentity(false);
@@ -603,6 +610,13 @@ GENRESULT DACOM_API FRpGpu::SetWorldN(int WorldIndex, const float* M12)
 {
     if (M12 == nullptr || WorldIndex < 0 || WorldIndex >= kRpGpuWorldMatrices)
         return (GENRESULT)0x8876086C; // D3DERR_INVALIDCALL
+    if (WorldIndex == 0)
+    {
+        // RP8's cache keeps SetWorld's matrix, which GetWorld and GetModelview go on reading.
+        if (!bWorldOverridden_)
+            std::memcpy(WorldCache_, World_, sizeof(WorldCache_));
+        bWorldOverridden_ = true;
+    }
     StoreAffine(WorldIndex == 0 ? World_ : WorldN_[WorldIndex], M12);
     return GR_OK;
 }

@@ -193,6 +193,8 @@ FRpGpu::FRpGpu()
     Identity(Projection_);
     Identity(World_);
     Identity(View_);
+    for (float (&Matrix)[16] : WorldN_)
+        Identity(Matrix);
 }
 
 FRpGpu::~FRpGpu()

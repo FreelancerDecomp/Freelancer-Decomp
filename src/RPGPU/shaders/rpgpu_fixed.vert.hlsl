@@ -33,7 +33,9 @@ cbuffer FTransform : register(b0, space1)
     uint4 TexTransform; // per stage: TEXTURETRANSFORMFLAGS' count, 0 for none
     row_major float4x4 TexMatrix[4];
     row_major float4x4 ViewProjection; // for blended vertices
-    uint4 Blend; // x: VERTEXBLEND's weight count (0 off, 1..3); y: INDEXEDVERTEXBLENDENABLE
+    // x: VERTEXBLEND's weight count (1..3); y: INDEXEDVERTEXBLENDENABLE; z: 0WEIGHTS (each vertex
+    // on its first indexed matrix, at full weight). x and z both 0: no blending.
+    uint4 Blend;
 };
 
 // The world matrices for vertex blending: matrix i is Palette[i * 3 + c], the column c of its
@@ -167,7 +169,7 @@ FOutput main(FInput In)
     float3 WorldPosition;
     float3 N = float3(0.0, 0.0, 0.0);
     float4 Clip;
-    if (Blend.x != 0u)
+    if (Blend.x != 0u || Blend.z != 0u)
     {
         // Direct3D's vertex blending: the weights given, the last one 1 minus their sum, each
         // on its world matrix (indexed, or 0, 1, 2, 3). Normals go through the matrices' 3x3

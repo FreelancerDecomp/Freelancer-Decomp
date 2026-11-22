@@ -455,13 +455,17 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         Multiply(Wvp, World_, View_);
         Multiply(Wvp, Wvp, Projection_);
         Multiply(Command.Transform.ViewProjection, View_, Projection_);
-        // Vertex blending (VERTEXBLEND 1..3 weights): the world matrices go up as a block,
-        // shared with the draws before when they are the same. Tweening (255) is not drawn.
+        // Vertex blending (VERTEXBLEND 1..3 weights, or 256, 0WEIGHTS: each vertex on its first
+        // indexed matrix): the world matrices go up as a block, shared with the draws before when
+        // they are the same. Tweening (255) is not drawn.
         const int BlendWeights = RenderStates_[kRsVertexBlend];
-        if (BlendWeights >= 1 && BlendWeights <= 3)
+        const bool bIndexed = RenderStates_[kRsIndexedVertexBlendEnable] != 0;
+        const bool bZeroWeights = BlendWeights == 256 && bIndexed;
+        if ((BlendWeights >= 1 && BlendWeights <= 3) || bZeroWeights)
         {
-            Command.Transform.Blend[0] = static_cast<std::uint32_t>(BlendWeights);
-            Command.Transform.Blend[1] = RenderStates_[kRsIndexedVertexBlendEnable] != 0 ? 1u : 0u;
+            Command.Transform.Blend[0] = bZeroWeights ? 0u : static_cast<std::uint32_t>(BlendWeights);
+            Command.Transform.Blend[1] = bIndexed ? 1u : 0u;
+            Command.Transform.Blend[2] = bZeroWeights ? 1u : 0u;
             FRpGpuBlendUniforms Block;
             for (int Matrix = 0; Matrix < kRpGpuWorldMatrices; ++Matrix)
             {

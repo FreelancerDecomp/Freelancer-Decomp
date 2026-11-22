@@ -97,7 +97,8 @@ struct FRpGpuTransformUniforms
     std::uint32_t TexTransform[4];
     float TexMatrix[kRpGpuStages][16]; // SetTextureStageTransform's, Direct3D's layout
     float ViewProjection[16];          // for blended vertices, which are in world space
-    // x: VERTEXBLEND's weight count (0 off, 1..3); y: INDEXEDVERTEXBLENDENABLE.
+    // x: VERTEXBLEND's weight count (1..3); y: INDEXEDVERTEXBLENDENABLE; z: 1 for 0WEIGHTS (each
+    // vertex on its first indexed matrix). x and z both 0: no blending.
     std::uint32_t Blend[4];
 };
 static_assert(sizeof(FRpGpuTransformUniforms) == 480 + 64 * kRpGpuStages, "rpgpu_fixed.vert's FTransform");

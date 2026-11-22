@@ -286,6 +286,11 @@ private:
     float World_[16] = {}; // world matrix 0 (SetWorld, or SetWorldN(0))
     // SetWorldN's world matrices 1..255 for vertex blending, as Direct3D holds them; [0] unused.
     float WorldN_[kRpGpuWorldMatrices][16] = {};
+    // SetWorldN(0) replaces the matrix drawn with, as Direct3D's WORLDMATRIX(0) is D3DTS_WORLD,
+    // but RP8's transform cache, which GetWorld reads, keeps SetWorld's: WorldCache_, while
+    // bWorldOverridden_. The next store into the world ends it.
+    float WorldCache_[16] = {};
+    bool bWorldOverridden_ = false;
     float View_[16] = {};
     // RP8's view store flags: bViewCommitted_ is cleared by every store and set by the next
     // draw; bViewMarker_ is set when SetModelview or SetLookat put in their identity view, and

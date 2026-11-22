@@ -181,13 +181,16 @@ RPGPU keeps the transforms as RP8 does (`RpGpuState.cpp`, after `RP8.cpp`'s `Set
 - `CreateBuffers` resets all three to RP8's identity transforms.
 - RP8 multiplies through the 3DMathEngine; RPGPU does the same products itself, with the same
   double sums, so `GetModelview` can differ from RP8's in the last bit.
-- `SetWorldN` keeps world matrices 0..255 for vertex blending. RP8 sends it straight to
-  Direct3D, past its transform cache, so index 0 replaces `SetWorld`'s matrix until the next
-  `SetWorld`; Direct3D refuses an index past 255.
-- **Vertex blending** (`VERTEXBLEND` 1..3 weights, `INDEXEDVERTEXBLENDENABLE`), which
+- `SetWorldN` keeps world matrices 0..255 for vertex blending; a new device starts them as the
+  identity. RP8 sends it straight to Direct3D, past its transform cache, so index 0 replaces the
+  matrix drawn with until the next store into the world, while `GetWorld` and `GetModelview`
+  go on reading `SetWorld`'s, as RP8's cache does. Direct3D refuses an index past 255.
+- **Vertex blending** (`VERTEXBLEND` 1..3 weights, or 256, `0WEIGHTS`: each vertex on its
+  first indexed matrix; `INDEXEDVERTEXBLENDENABLE`), which
   Deformable2's skinned meshes use: the vertex's first weights from its XYZB position, the last
   one 1 minus their sum, each on a world matrix (the `D3DFVF_LASTBETA_UBYTE4` indices, or 0..3).
-  Normals go through the matrices' 3x3 parts, as for rigid bones. The matrices go up as one
+  Normals go through the matrices' 3x3 parts, as for rigid bones; Direct3D uses their inverse
+  transposes, which differ only for bones scaled unevenly. The matrices go up as one
   block per set of values in a frame. Tweening (`VERTEXBLEND` 255) is not drawn.
 
 ## Lighting and fog
