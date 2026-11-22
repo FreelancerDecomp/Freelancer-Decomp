@@ -140,6 +140,30 @@ bool ReadDdsCube(FDdsCube* Out, unsigned int SrcSize, const void* SrcData)
     case 26: Format = 5; break;           // A4R4G4B4
     default: return false;                // P8 and the rest: not as a cube
     }
+    // An uncompressed file's masks must be that format's: an A8B8G8R8 file (D3DX 8.1 has no such
+    // format) has the size of an A8R8G8B8 one but not its byte order.
+    const unsigned char* const Data = static_cast<const unsigned char*>(SrcData);
+    const std::uint32_t RMask = ReadU32(Data, 92);
+    const std::uint32_t GMask = ReadU32(Data, 96);
+    const std::uint32_t BMask = ReadU32(Data, 100);
+    const std::uint32_t AMask = ReadU32(Data, 104);
+    struct FMasks
+    {
+        unsigned int Format;
+        std::uint32_t R, G, B, A;
+    };
+    static constexpr FMasks kMasks[] = {
+        {2, 0xFF0000, 0xFF00, 0xFF, 0},         {7, 0xFF0000, 0xFF00, 0xFF, 0xFF000000},
+        {8, 0xFF0000, 0xFF00, 0xFF, 0},         {3, 0xF800, 0x07E0, 0x001F, 0},
+        {4, 0x7C00, 0x03E0, 0x001F, 0},         {6, 0x7C00, 0x03E0, 0x001F, 0x8000},
+        {5, 0x0F00, 0x00F0, 0x000F, 0xF000},
+    };
+    for (const FMasks& Masks : kMasks)
+    {
+        if (Masks.Format == Format &&
+            (RMask != Masks.R || GMask != Masks.G || BMask != Masks.B || (Masks.A != 0 && AMask != Masks.A)))
+            return false;
+    }
     const bool bBlock = Format >= 10;
     const unsigned int BlockBytes = Format == 10 ? 8u : 16u;
     const unsigned int PixelBytes = Format == 7 || Format == 8 ? 4u : Format == 2 ? 3u : 2u;

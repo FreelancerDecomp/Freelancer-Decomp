@@ -907,7 +907,15 @@ GENRESULT FRpGpu::MakeCubemap(const void* Data, unsigned long Size, void** OutHa
         delete Texture;
         return GR_OUT_OF_MEMORY;
     }
-    Textures_.insert(Texture);
+    try
+    {
+        Textures_.insert(Texture);
+    }
+    catch (const std::bad_alloc&)
+    {
+        delete Texture;
+        return GR_OUT_OF_MEMORY;
+    }
     *OutHandle = Texture;
     return GR_OK;
 }
