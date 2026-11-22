@@ -418,7 +418,7 @@ bool CEShield::Connect(char const* HpName)
     // (vtable+8); its vtable+0x64 radius is stored as float (FSTP 0629c519); the math engine
     // comes from the lazily filled per-TU cache DAT_063fc204 (FUN_06391cf0 =
     // Acquire3DMathEngine).
-    long const Root = Attachment->GetRootIndex();
+    FlLong const Root = Attachment->GetRootIndex();
     CObject* RadiusOwner = Attachment->GetPhysicsOwner();
     Vector WorldCenter;
     float const Radius = RadiusOwner->get_physical_radius_r(WorldCenter);

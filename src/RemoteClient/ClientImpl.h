@@ -104,7 +104,7 @@ public:
                                                 const FServerSetMissionObjectivesInfo& Info) override;
     virtual void SendServerSetMissionObjectiveState(const unsigned int& ClientId,
                                                     const FServerMissionObjectiveStateInfo& Info) override;
-    virtual void SendServerMissionSaveA(unsigned int ClientId, unsigned long MissionId) override;
+    virtual void SendServerMissionSaveA(unsigned int ClientId, FlULong MissionId) override;
     virtual void SendServerMarkObj(const unsigned int& ClientId, unsigned int ObjectId, int MarkType) override;
     virtual void SendServerCfgInterfaceNotification(const unsigned int& ClientId,
                                                     const FPayloadServerCfgInterfaceNotification& Info) override;
@@ -139,7 +139,7 @@ public:
     virtual void SendCommonPlayerTradeInitiateTrade(unsigned int ClientId, unsigned int ShipId) override;
     virtual void SendCommonPlayerTradeTerminateTrade(unsigned int ClientId, int Reason) override;
     virtual void SendCommonPlayerTradeAcceptTrade(unsigned int ClientId, unsigned int ShipId, bool bAccepted) override;
-    virtual void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, unsigned long Money) override;
+    virtual void SendCommonPlayerTradeSetTradeMoney(unsigned int ClientId, unsigned int ShipId, FlULong Money) override;
     virtual void SendCommonPlayerTradeAddTradeEquip(unsigned int ClientId, unsigned int ShipId, const EquipDesc& Item) override;
     virtual void SendCommonPlayerTradeDelTradeEquip(unsigned int ClientId, unsigned int ShipId, const EquipDesc& Item) override;
     virtual void SendCommonPlayerTradeRequestTrade(unsigned int ClientId, unsigned int ShipId) override;
@@ -165,7 +165,7 @@ public:
     virtual void SendServerCancelMusic(unsigned int ClientId) override;
     virtual void SendServerPlaySoundEffect(unsigned int ClientId, unsigned int SoundId) override;
     virtual void DumpPacketStats(const char* Name) override;
-    virtual void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, unsigned long Size, const void* Data) override;
+    virtual void SendCommonChatMsg(CHAT_ID TargetId, CHAT_ID SenderId, FlULong Size, const void* Data) override;
 };
 
 extern "C" __declspec(dllexport) CClientImpl Client;

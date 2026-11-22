@@ -41,7 +41,7 @@ int CallDacomStricmp(const char* Left, const char* Right);  // common_dacom_stri
 // .text:06303840..063038a0. strtok(String, ",;/ ") (DAT_063a2710) only cuts the first token in
 // place; every compare then uses String itself through the DACOM.DLL stricmp import
 // (06303877, IAT 0639902c). DefaultName is never read.
-COMMON_API unsigned long __cdecl select_option_from_string(char* String, option_spec const* const Options, int Count, char const* DefaultName)
+COMMON_API FlULong __cdecl select_option_from_string(char* String, option_spec const* const Options, int Count, char const* DefaultName)
 {
     char* Token = strtok(String, ",;/ ");
     if (Token != nullptr && Count > 0)
@@ -124,8 +124,8 @@ namespace
     HANDLE GRunPermissionServerEvent =                       // DAT_0640180c
         Platform::EventCreate(true, true, "MicrosoftFreelancerServerCanRunEvent");
 
-    unsigned long const kClientRunTimeoutMs = 0x1388;   // 5000, 0631d9c2
-    unsigned long const kServerRunTimeoutMs = 0x1f4;    // 500,  0631da02
+    FlULong const kClientRunTimeoutMs = 0x1388;   // 5000, 0631d9c2
+    FlULong const kServerRunTimeoutMs = 0x1f4;    // 500,  0631da02
 }
 
 void __cdecl WaitForClientRunPermission()
@@ -157,7 +157,7 @@ void __cdecl GiveServerRunPermission()
     Platform::EventSet(GRunPermissionServerEvent);
 }
 
-unsigned long __cdecl SafeWaitForSingleObject(HANDLE Handle, unsigned long Timeout)
+FlULong __cdecl SafeWaitForSingleObject(HANDLE Handle, FlULong Timeout)
 {
     // 062fd4c0. Wait on one object but keep the message queue moving, so a modal wait does not
     // freeze the window. WM_QUIT stops the wait and reports a timeout rather than being
@@ -175,7 +175,7 @@ unsigned long __cdecl SafeWaitForSingleObject(HANDLE Handle, unsigned long Timeo
         // Retail passes 0xff literally (062fd514). That was QS_ALLINPUT when this shipped;
         // on Vista and later QS_ALLINPUT gained QS_RAWINPUT and became 0x4ff, so the constant
         // is spelled out here to keep the wake mask retail's.
-        unsigned long const kRetailWakeMask = 0xff;
+        FlULong const kRetailWakeMask = 0xff;
         DWORD const Result =
             MsgWaitForMultipleObjects(1, &Handle, FALSE, Timeout, kRetailWakeMask);
         if (Result != 1)
@@ -209,7 +209,7 @@ namespace
     }
 
     // The two-character group ParseGUID builds on the stack at 0631baaf and friends.
-    unsigned long ReadGuidByte(char const* Pair)
+    FlULong ReadGuidByte(char const* Pair)
     {
         char Buf[3];
         Buf[0] = Pair[0];
@@ -336,17 +336,17 @@ _GUID* __cdecl ParseGUID(char const* Text, _GUID* Out)
 
     char const* Field = Cursor;
     Cursor = SkipGuidField(Cursor);
-    unsigned long const Data1 = strtoul(Field, nullptr, 16);
+    FlULong const Data1 = strtoul(Field, nullptr, 16);
     Cursor += 1;                                  // past the '-'
 
     Field = Cursor;
     Cursor = SkipGuidField(Cursor);
-    unsigned long const Data2 = strtoul(Field, nullptr, 16);
+    FlULong const Data2 = strtoul(Field, nullptr, 16);
     Cursor += 1;
 
     Field = Cursor;
     Cursor = SkipGuidField(Cursor);
-    unsigned long const Data3 = strtoul(Field, nullptr, 16);
+    FlULong const Data3 = strtoul(Field, nullptr, 16);
     Cursor += 1;
 
     // The fourth group is two bytes, then the '-' (0631bae4 folds the skip into ADD ESI,2).
@@ -860,7 +860,7 @@ void __cdecl DebugPrint(char const* Format, ...)
 namespace
 {
     const char kCmnMiscSource[] = "E:\\FL\\Scratch\\Source\\Common\\CmnMisc.cpp";
-    const unsigned long kPathChars = 0x104;
+    const FlULong kPathChars = 0x104;
 
     // DAT_063fccf8 — static MAX_PATH returned by GetFullFilename.
     char GFullFilename[kPathChars];
@@ -870,7 +870,7 @@ namespace
 
     // Desc layout is asserted once, in readfile.h (DOS/UTF prefix 0x34, MEM tail to 0x40).
 
-    void CallIfsGetRootPath(IFileSystem* Filesys, char* Out, unsigned long MaxChars)
+    void CallIfsGetRootPath(IFileSystem* Filesys, char* Out, FlULong MaxChars)
     {
         Filesys->GetFileSysPath(Out, MaxChars); // +0x84
     }
@@ -1136,7 +1136,7 @@ float __cdecl GetSphereIntersectVol(float Dist, float RadiusA, float RadiusB)
 // double (project /arch:IA32 convention); every FSTP float is a float here.
 //   Out1 / Out2: the sphere centre on screen; Out3: its projected radius; Out4: its depth.
 //   Returns 1 when the projected disc reaches into the viewport, 0 otherwise.
-long __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center, float Radius, float& Out1, float& Out2, float& Out3, float& Out4)
+FlLong __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center, float Radius, float& Out1, float& Out2, float& Out3, float& Out4)
 {
     // 0x063044d8..0x06304502: ICamera slot 4 (+0x10) -- the camera's world transform (the 3x3 at
     // camera +0x04 followed by the position at +0x28, 12 floats) -- and the 3DMathEngine
@@ -1228,7 +1228,7 @@ long __cdecl get_projected_bounding_sphere(ICamera* Camera, Vector const& Center
 // calls get_projected_bounding_sphere for the screen-space center (Out1/Out2), half-extent
 // (Out3) and depth (Out4, written directly into the caller's OutZ), then turns center+extent
 // into edges (ftol of the unrounded x87 sum/difference).
-long __cdecl get_projected_bounding_box(ICamera* Camera, Vector const& Center, float Radius, ViewRect* Rect, float& OutZ)
+FlLong __cdecl get_projected_bounding_box(ICamera* Camera, Vector const& Center, float Radius, ViewRect* Rect, float& OutZ)
 {
     float ScreenX, ScreenY, HalfExtent;
     if (!get_projected_bounding_sphere(Camera, Center, Radius, ScreenX, ScreenY, HalfExtent, OutZ))
@@ -1237,10 +1237,10 @@ long __cdecl get_projected_bounding_box(ICamera* Camera, Vector const& Center, f
     }
     // 0x063046ff..0x06304740: FLD / FSUB (or FADD) float, then ftol -- the unrounded x87 sum is
     // truncated, so the sums are formed in double here.
-    Rect->Left   = (long)((double)ScreenX - (double)HalfExtent);
-    Rect->Top    = (long)((double)ScreenY - (double)HalfExtent);
-    Rect->Right  = (long)((double)ScreenX + (double)HalfExtent);
-    Rect->Bottom = (long)((double)ScreenY + (double)HalfExtent);
+    Rect->Left   = (FlLong)((double)ScreenX - (double)HalfExtent);
+    Rect->Top    = (FlLong)((double)ScreenY - (double)HalfExtent);
+    Rect->Right  = (FlLong)((double)ScreenX + (double)HalfExtent);
+    Rect->Bottom = (FlLong)((double)ScreenY + (double)HalfExtent);
     return 1;
 }
 
@@ -1274,12 +1274,12 @@ namespace
     }
 }
 
-void __cdecl ComputeExplosiveImpulses(long EngineHandle, Vector& OutLinear, Vector& OutAngular1, Vector& OutAngular2)
+void __cdecl ComputeExplosiveImpulses(FlLong EngineHandle, Vector& OutLinear, Vector& OutAngular1, Vector& OutAngular2)
 {
     void* const Instance = (void*)EngineHandle;
     // 062aa680..062aa6b6: parent first (EBP), then the relative block (EBX).
     void* const Parent = DALib::Engine->GetInstanceParent(Instance);
-    unsigned long* const Relative = DALib::Engine->GetInstanceRelative(Instance);
+    FlULong* const Relative = DALib::Engine->GetInstanceRelative(Instance);
     int const Count = (int)Relative[0];
     FVector const* const Items = (FVector const*)(Relative + 1);
 

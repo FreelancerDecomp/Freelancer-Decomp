@@ -578,7 +578,7 @@ void RemoveMissionRtc(FMissionScript* Script, TString<0x80> const* Path)
                 if (Room->FindCharacter(GetFirstRtcRole(It->Field_0x90), Script->PlayerId,
                                         &Character))
                 {
-                    Character->SetBehavior(static_cast<unsigned long>(-1));
+                    Character->SetBehavior(static_cast<FlULong>(-1));
                 }
             }
         }
@@ -684,7 +684,7 @@ FMissionScript::~FMissionScript()
     {
         if (SceneIt->Handle != -1)
         {
-            unsigned long Handle = static_cast<unsigned long>(SceneIt->Handle);
+            FlULong Handle = static_cast<FlULong>(SceneIt->Handle);
             pub::GF::AmbientScriptDestroy(&Handle);
             SceneIt->Handle = -1;
         }
@@ -1358,7 +1358,7 @@ void FMissionScript::OnBaseExit(void const* MessageParms)
     {
         if (SceneIt->Handle != -1)
         {
-            unsigned long Handle = static_cast<unsigned long>(SceneIt->Handle);
+            FlULong Handle = static_cast<FlULong>(SceneIt->Handle);
             pub::GF::AmbientScriptDestroy(&Handle);
             SceneIt->Handle = -1;
         }
@@ -1393,7 +1393,7 @@ void FMissionScript::OnCharacterSelect(void const* MessageParms)
             continue;
         if (Character->CharacterId != *static_cast<unsigned int const*>(MessageParms))
             continue;
-        Character->SetBehavior(static_cast<unsigned long>(-1));
+        Character->SetBehavior(static_cast<FlULong>(-1));
         It->Field_0x94 = 1;
     }
     EMessage EventId = EMessage::GFObjSelect;

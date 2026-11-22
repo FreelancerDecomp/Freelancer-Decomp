@@ -125,7 +125,7 @@ namespace
                 // 06276fce-06276fda: float read, then ftol into +0xe24. Line blocks only --
                 // read_FlashLightSet_block's chain ends at "setpoint" (06276dc8).
                 // ftol on the unrounded x87 value (value_num = get_value_float, no rounding).
-                Set.NumLightsAlt = static_cast<long>(Reader.value_num(0));
+                Set.NumLightsAlt = static_cast<FlLong>(Reader.value_num(0));
             }
             // The final else in retail (06276bd9 / 06276dc8 / 06276fe2) calls
             // INI_Reader::get_file_name and throws the result away -- the remains of a
@@ -168,13 +168,13 @@ bool __cdecl ThornGetUserFloat(IScriptEngine* Engine, int Index, char const* Key
     return true;
 }
 
-unsigned long __cdecl ThornGetRenderType(ThornEntity const* Entity, char const* Unused)
+FlULong __cdecl ThornGetRenderType(ThornEntity const* Entity, char const* Unused)
 {
     // 0627bd60. Retail ignores the second argument entirely and reads one flag byte at +0x42
     // (UsrFlg) with no null test: bit 0 gives 1, bit 1 gives 2, and bit 1 wins when both are set.
     (void)Unused;
     unsigned char const Flags = Entity->UsrFlg;
-    unsigned long Result = (Flags & 1u) != 0 ? 1ul : 0ul;
+    FlULong Result = (Flags & 1u) != 0 ? 1ul : 0ul;
     if (((Flags >> 1) & 1u) != 0)
         Result = 2ul;
     return Result;
@@ -432,7 +432,7 @@ void RoomData::read_set_script(char const* RelPath)
         signed char const Layer = static_cast<signed char>(Entity->SrtGrp);
         int const Type = Entity->Type;
         unsigned const Flags = static_cast<unsigned>(Entity->Flags);
-        unsigned long const RenderType = ThornGetRenderType(Entity, RelPath);
+        FlULong const RenderType = ThornGetRenderType(Entity, RelPath);
         // 06274bfd..06274c1a: flag bits 2 (lit) and 1 (visible), and the "category" user
         // property, for every entity before the type test.
         bool const bLit = ((Flags >> 2) & 1u) != 0;
@@ -467,7 +467,7 @@ void RoomData::read_set_script(char const* RelPath)
                 Loadout = "";
             // 06274ce7..06274d1f: RtcSlider::validate_setting(priority, RelPath) (0x0627a710,
             // labelled AttachedEquipment::is_attached by ICF), then CreateID; 0 without one.
-            unsigned long PriorityId = 0;
+            FlULong PriorityId = 0;
             char const* const PriorityText = ThornGetUserString(Engine, Index, "priority");
             if (PriorityText != nullptr)
             {
@@ -954,7 +954,7 @@ void RoomData::warn(INI_Reader* Reader, bool bError)
 
 // 06277c70 ?fixup@RoomData@@QAEXJ@Z: setup_Camera, a HardpointSummary of the instance (none
 // for -1), fixup_FlashLight_list's loop inlined, the summary destroyed (destroy + dtor).
-void RoomData::fixup(long Instance)
+void RoomData::fixup(FlLong Instance)
 {
     setup_Camera();
     HardpointSummary HpSum;
@@ -973,7 +973,7 @@ void RoomData::unfixup()
 
 // 06277000: FlashLightSetInfo::fixup(Instance, HpSum, this) on every set of +0x1a4, the size
 // re-read each pass, no null test.
-void RoomData::fixup_FlashLight_list(long Instance, HardpointSummary const* HpSum)
+void RoomData::fixup_FlashLight_list(FlLong Instance, HardpointSummary const* HpSum)
 {
     size_t SetIndex = 0;
     for (SetIndex = 0; SetIndex < FlashLightSets.size(); ++SetIndex)
@@ -1485,7 +1485,7 @@ void RoomData::read_FlashLightLine_block(INI_Reader* Reader)
 // RoomLightInfo on +0x144 (FUN_06278640): the frame, the blob's +0x0c direction into +0x30,
 // the 0x1a dwords from the blob's +0x28 (the D3DLIGHT8) into +0x3c, Type into +0xa4. The
 // first parameter is never read (06275960..062759ad).
-void RoomData::add_set_script_light(unsigned long Id, Csys const& Frame,
+void RoomData::add_set_script_light(FlULong Id, Csys const& Frame,
                                     ThornLightProperties const* Props, unsigned char Type)
 {
     (void)Id;
@@ -1504,8 +1504,8 @@ void RoomData::add_set_script_light(unsigned long Id, Csys const& Frame,
 void RoomData::add_set_script_Prop(char const* Template, char const* Name, int Category,
                                    Csys const& Frame, bool bVisible, bool bLit, bool bFog,
                                    bool bRoomMain, unsigned char LightGroup, signed char Layer,
-                                   unsigned long RenderType, char const* Loadout,
-                                   unsigned long PriorityId, bool bRunningLights)
+                                   FlULong RenderType, char const* Loadout,
+                                   FlULong PriorityId, bool bRunningLights)
 {
     RoomPropInfo* const Prop = AppendRoomRecord(Props);
     malloc_strcpy(const_cast<char**>(&Prop->Template), Template);
@@ -1527,7 +1527,7 @@ void RoomData::add_set_script_Prop(char const* Template, char const* Name, int C
 // 06275a50 ?add_set_script_Camera@RoomData@@AAEXKABVCsys@@PBDPBUThornCameraProperties@@@Z. A new
 // RoomCameraInfo on +0x134 (FUN_062783e0): the name, the frame, and the camera properties'
 // first three dwords (fov, near, far) into +0x34..+0x3c. No null test on the properties.
-void RoomData::add_set_script_Camera(unsigned long Id, Csys const& Frame, char const* Name,
+void RoomData::add_set_script_Camera(FlULong Id, Csys const& Frame, char const* Name,
                                      ThornCameraProperties const* CamProps)
 {
     (void)Id;
@@ -1542,7 +1542,7 @@ void RoomData::add_set_script_Camera(unsigned long Id, Csys const& Frame, char c
 // 06276180 ?add_set_script_Setpoint@RoomData@@AAEXKABVCsys@@PBDPBUThornEntity@@@Z. A new
 // SetpointInfo on +0x164 (FUN_06278b30): the name, the frame, SetpointProperties::
 // extract_from_name(name). The id and the entity are not read.
-void RoomData::add_set_script_Setpoint(unsigned long Id, Csys const& Frame, char const* Name,
+void RoomData::add_set_script_Setpoint(FlULong Id, Csys const& Frame, char const* Name,
                                        ThornEntity const* Entity)
 {
     (void)Id;

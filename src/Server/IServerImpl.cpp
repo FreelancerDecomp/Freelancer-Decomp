@@ -59,7 +59,7 @@ extern "C" int __cdecl Server_ControllerSetHeartbeat(unsigned int Flid, float In
 extern "C" int __cdecl Server_ControllerSetTimer(unsigned int Flid, unsigned int Param1,
                                                  unsigned int Param2, float Timeout);
 // IServerImpl::SubmitChat's body (retail FLChatServer.cpp), src/Server/server_chat.cpp.
-void Server_SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId);
+void Server_SubmitChat(CHAT_ID Sender, FlULong Size, const void* Data, CHAT_ID Target, int SystemId);
 
 // IClient is the real 126-slot RPC client interface (src/include/rpc_iclient.h).
 // A fabricated 125-slot copy used to live here, with invented method names and a
@@ -1082,11 +1082,11 @@ void IServerImpl::GFGoodVaporized(const SGFGoodVaporizedInfo& info, unsigned int
         Server_ControllerDispatch(0, pub::Controller::EMessage::GFGoodVaporized, msg_data);
     }
 // Retail 06d45770..06d457a4 writes a BYTE at +8; bytes +9..+b stay unwritten.
-void IServerImpl::MissionResponse(unsigned int Arg0, unsigned long MissionId,
+void IServerImpl::MissionResponse(unsigned int Arg0, FlULong MissionId,
                                  unsigned char bAccepted, unsigned int SessionId) {
     struct FMissionResponseMessage {
         unsigned int Field_0x00; // TODO: forwarded first argument's meaning.
-        unsigned long MissionId;
+        FlULong MissionId;
         unsigned char bAccepted;
         unsigned char Padding[3];
         unsigned int SessionId;
@@ -1765,7 +1765,7 @@ void IServerImpl::SaveGame(const CHARACTER_ID& char_id, const wchar_t* descripti
     // MissionSaveB -- retail 0x65a30 (.text:06d45a30 .. .text:06d45a7f): SP
     // only, a live session, then FUN_06d4c600(slot, mission_id) -- the mission
     // id IS the save's descrip_strid.
-void IServerImpl::MissionSaveB(unsigned int session_id, unsigned long mission_id) {
+void IServerImpl::MissionSaveB(unsigned int session_id, FlULong mission_id) {
         if (!SinglePlayer()) return;
         unsigned int max_players = PlayerDB_GetMaxPlayers();
         if (session_id == 0 || (session_id - 1) >= max_players) return;
@@ -1782,7 +1782,7 @@ void IServerImpl::MissionSaveB(unsigned int session_id, unsigned long mission_id
     //   06cf0921  IObjAffect +0x5c (event_type, &p2, &p3, p4, PUSH 0 -- no
     //             RequestCB)
     // p5 is never read. No controller message: the port's id 0x21 was invented.
-void IServerImpl::RequestEvent(int event_type, unsigned int p1, unsigned int p2, unsigned int p3, unsigned long p4, unsigned int p5) {
+void IServerImpl::RequestEvent(int event_type, unsigned int p1, unsigned int p2, unsigned int p3, FlULong p4, unsigned int p5) {
         (void)p5;
         GameObject* const Obj = Server_LookupGameObject(p1);
         if (Obj == nullptr)
@@ -1796,7 +1796,7 @@ void IServerImpl::RequestEvent(int event_type, unsigned int p1, unsigned int p2,
     //   06cf0954  obj == 0 -> out
     //   06cf096a  IObjAffect +0x60 (event_type, &p2, p3)
     // p4 is never read. No controller message: the port's id 0x22 was invented.
-void IServerImpl::RequestCancel(int event_type, unsigned int p1, unsigned int p2, unsigned long p3, unsigned int p4) {
+void IServerImpl::RequestCancel(int event_type, unsigned int p1, unsigned int p2, FlULong p3, unsigned int p4) {
         (void)p4;
         GameObject* const Obj = Server_LookupGameObject(p1);
         if (Obj == nullptr)
@@ -2377,11 +2377,11 @@ void IServerImpl::AcceptTrade(unsigned int session_id, bool b_accepted) {
         if (!PartnerOffer->GetAccepted()) return;                                 // .text:06cf1b00
         if (!Offer->GetAccepted()) return;                                        // .text:06cf1b0a
 
-        if (Offer->GetMoneyOffered() > static_cast<unsigned long>(PlayerData_GetCash(Own))) {
+        if (Offer->GetMoneyOffered() > static_cast<FlULong>(PlayerData_GetCash(Own))) {
             TerminateTrade(session_id, 3);                                        // .text:06cf1b22
             return;
         }
-        if (PartnerOffer->GetMoneyOffered() > static_cast<unsigned long>(PlayerData_GetCash(Partner))) {
+        if (PartnerOffer->GetMoneyOffered() > static_cast<FlULong>(PlayerData_GetCash(Partner))) {
             TerminateTrade(session_id, 3);                                        // .text:06cf1b34
             return;
         }
@@ -2491,7 +2491,7 @@ void IServerImpl::AcceptTrade(unsigned int session_id, bool b_accepted) {
     //   06cf2072  SetMoneyOffered(money); 06cf207c SetAccepted(false)
     //   06cf2097  IClient +0x1a0 (SendCommonPlayerTradeSetTradeMoney)(session, own ship_object_id, money)
     //   06cf20b5  SendCommonPlayerTradeSetTradeMoney(offer+8, own ship_object_id, money)
-void IServerImpl::SetTradeMoney(unsigned int session_id, unsigned long money) {
+void IServerImpl::SetTradeMoney(unsigned int session_id, FlULong money) {
         PlayerSlot* const p = GetPlayerBySession(session_id);
         if (!p) return;
         CPlayerTradeOffer* const Offer = p->trade_offer;
@@ -2734,7 +2734,7 @@ void IServerImpl::PushToServer(CDAPacket* /*packet*/) {}
     // member only because it is reached through the IChatServer vtable; it
     // touches no member of IServerImpl, so the forward loses nothing.
     // =================================================================
-void IServerImpl::SubmitChat(CHAT_ID Sender, unsigned long Size, const void* Data, CHAT_ID Target, int SystemId) {
+void IServerImpl::SubmitChat(CHAT_ID Sender, FlULong Size, const void* Data, CHAT_ID Target, int SystemId) {
         Server_SubmitChat(Sender, Size, Data, Target, SystemId);
     }
 
@@ -3655,7 +3655,7 @@ static void StarSystem_ResolveCollisionSide(StarSystem* Sys, CObject* Part, unsi
     // .text:06ce3424 .. 06ce3455 -- CObject::part_to_inst inlined on the PART,
     // with -1 (no map entry, or an entry of -1) falling back to its own engine
     // instance (+0x04).
-    long Inst = Part->part_to_inst(PartId);
+    FlLong Inst = Part->part_to_inst(PartId);
     if (Inst == -1)
         Inst = Part->EngineInstanceId;
 

@@ -34,11 +34,11 @@ struct ZONE : Universe::IZone
     Vector const& GetPos() const override;
     Matrix const& GetOrientation() const override;
     unsigned GetShape() const override;
-    unsigned long GetProperties() const override;
+    FlULong GetProperties() const override;
     bool Slot20() const override;
     Vector const& GetFogColor() const override;
     Vector GetSize() const override;
-    long GetMeshHandle() const override;
+    FlLong GetMeshHandle() const override;
     float GetRadius() const override;
     bool InZone(Vector const& Point, float Margin) const override;
     bool InZoneXZ(Vector const& Point, float Margin) const override;

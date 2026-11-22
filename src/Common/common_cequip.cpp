@@ -533,13 +533,13 @@ bool CExternalEquip::IsConnected() const
     return GetParentConnector(false) != kInvalidEngineInstance;
 }
 
-long CExternalEquip::GetParentConnector(bool bSearch) const
+FlLong CExternalEquip::GetParentConnector(bool bSearch) const
 {
     // Listing 0x0629eed0..0x0629ef53. false -> +0x24. true -> exported FindHardpoint(owner
     // instance, +0x20 name, &Hit) with Hit preset to -1; a miss warns and returns Hit as left.
     if (!bSearch)
         return ConnectionIndex;
-    long HitInst = -1;
+    FlLong HitInst = -1;
     if (!FindHardpoint(Owner->EngineInstanceId, HardpointName.Value, HitInst))
     {
         FDUMP(0x100002,
@@ -569,7 +569,7 @@ bool CExternalEquip::GetHardPointInfo(HardpointInfo& Info) const
     FHardpointKey Key;
     Key.Name = HardpointName.Value;
     Key.Crc = DACOM_CRC::GetCRC32(HardpointName.Value);
-    unsigned long Hit = DALib::Hardpoint->GetHardpoint(Handle, &Key, &Info);
+    FlULong Hit = DALib::Hardpoint->GetHardpoint(Handle, &Key, &Info);
 
     DALib::Engine->ReleaseHandle(Handle);
 
@@ -653,7 +653,7 @@ bool CExternalEquip::GetCenterOfMass(Vector& Out) const
     // .text:0629f05b..0629f07d: DALib::Engine used with no null test.
     if (IsConnected())
     {
-        long const ConnIdx = GetParentConnector(false);
+        FlLong const ConnIdx = GetParentConnector(false);
         float const* Pos = DALib::Engine->GetInstancePosition((void*)(ConnIdx));
         Out.x = Pos[0];
         Out.y = Pos[1];
@@ -1099,7 +1099,7 @@ CEquip const* CEquipManager::FindByID(unsigned short EquipId) const
     return const_cast<CEquipManager*>(this)->FindByID(EquipId);
 }
 
-unsigned short CEquipManager::InstToSubObjID(long Instance) const
+unsigned short CEquipManager::InstToSubObjID(FlLong Instance) const
 {
     // .text:0629b3a0..0629b428: -1 -> SUBOBJ_ID_NONE; otherwise a {0x1fe0, false} traversal
     // (CAttachedEquip types only) asking each equip vtbl+0x80 = CAttachedEquip::IsInstOnEquip

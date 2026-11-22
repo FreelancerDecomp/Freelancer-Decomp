@@ -413,11 +413,11 @@ void MedMine::deleted(CObject* Obj)
 struct FSrvAsteroidCube {
     CmnAsteroid::CAsteroidCube* Cube;              // +0x00
     unsigned int SystemId;                         // +0x04 (FUN_06d04ab0 reads it for SysMap)
-    unsigned long CubeId;                          // +0x08
+    FlULong CubeId;                          // +0x08
     int CubeSize;                                  // +0x0c
     // +0x10..+0x20: asteroid_marker::AsteroidId -> the server object (node+0x10).
     // Size at +0x20 is what FUN_06d04480's prune pass tests (node+0x30).
-    std::map<unsigned long, GameObject*> Objects;
+    std::map<FlULong, GameObject*> Objects;
 
     FSrvAsteroidCube()
         : Cube(nullptr)
@@ -430,7 +430,7 @@ struct FSrvAsteroidCube {
     // every object's vtable +0x15c -- GameObject::destroy_notify -- in map
     // order (.text:06d04579 in the inlined copy), then the tree is freed.
     ~FSrvAsteroidCube() {
-        for (std::map<unsigned long, GameObject*>::iterator It = Objects.begin(); It != Objects.end(); ++It)
+        for (std::map<FlULong, GameObject*>::iterator It = Objects.begin(); It != Objects.end(); ++It)
             It->second->destroy_notify();
     }
 
@@ -456,7 +456,7 @@ struct FSrvAsteroidCube {
 //       .text:06d04b27  MOV ECX,[EDI] -- SystemId (+0x04) is the second argument
 //     .text:06d04b55  Objects.insert({AsteroidId, object})
 void FSrvAsteroidCube::apply_marker(CmnAsteroid::asteroid_marker const* Marker) {
-    std::map<unsigned long, GameObject*>::iterator It = Objects.find(Marker->AsteroidId);
+    std::map<FlULong, GameObject*>::iterator It = Objects.find(Marker->AsteroidId);
     if (!Marker->bCubeActive) {
         if (It != Objects.end()) {
             It->second->destroy_notify();
@@ -476,7 +476,7 @@ void FSrvAsteroidCube::apply_marker(CmnAsteroid::asteroid_marker const* Marker) 
         } else {
             Obj = System.create_med_asteroid(Marker->ObjId);
         }
-        Objects.insert(std::map<unsigned long, GameObject*>::value_type(Marker->AsteroidId, Obj));
+        Objects.insert(std::map<FlULong, GameObject*>::value_type(Marker->AsteroidId, Obj));
         return;
     }
     It->second->get_position();
@@ -489,7 +489,7 @@ void FSrvAsteroidCube::apply_marker(CmnAsteroid::asteroid_marker const* Marker) 
 // ---------------------------------------------------------------------------
 struct FSrvAsteroidField {
     CmnAsteroid::CAsteroidField* Field;                   // +0x00
-    std::map<unsigned long, FSrvAsteroidCube> Cubes;      // +0x04..+0x14, keyed by CubeId
+    std::map<FlULong, FSrvAsteroidCube> Cubes;      // +0x04..+0x14, keyed by CubeId
     int CubeSize;                                         // +0x18
     unsigned int SystemId;                                // +0x1c
 
@@ -580,7 +580,7 @@ void FSrvAsteroidField::update() {
     CmnAsteroid::asteroid_marker* Marker = Field->get_changes();
     while (Marker != nullptr) {
         FSrvAsteroidCube* Record;
-        std::map<unsigned long, FSrvAsteroidCube>::iterator It = Cubes.find(Marker->CubeId);
+        std::map<FlULong, FSrvAsteroidCube>::iterator It = Cubes.find(Marker->CubeId);
         if (It == Cubes.end()) {
             It = Cubes.insert(std::make_pair(Marker->CubeId, FSrvAsteroidCube())).first;
             Record = &It->second;
@@ -598,7 +598,7 @@ void FSrvAsteroidField::update() {
         Marker = Marker->Next;
     }
 
-    std::map<unsigned long, FSrvAsteroidCube>::iterator It = Cubes.begin();
+    std::map<FlULong, FSrvAsteroidCube>::iterator It = Cubes.begin();
     while (It != Cubes.end()) {
         if (It->second.Objects.size() == 0)
             It = Cubes.erase(It);

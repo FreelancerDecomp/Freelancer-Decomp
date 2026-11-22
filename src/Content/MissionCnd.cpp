@@ -1420,7 +1420,7 @@ bool CndInZone::Matches(pub::Controller::EMessage /*EventId*/, void const* /*Eve
     bool bMatched = false;
     for (unsigned int Index = 0; Index < ZoneCount; ++Index)
     {
-        unsigned long Properties;
+        FlULong Properties;
         pub::Zone::GetProperties(Zones[Index], Properties);
         if ((ZoneFlags & Properties) != 0)
             bMatched = true;

@@ -737,7 +737,7 @@ void IServerImpl::GFGoodVaporized(const SGFGoodVaporizedInfo& info, unsigned int
     const unsigned int Args[2] = { reinterpret_cast<unsigned int>(&info), session_id };
     RpcSendToServer(this, 3u, 0x3cu, Args, 2u);
 }
-void IServerImpl::MissionResponse(unsigned int Arg0, unsigned long MissionId, unsigned char bAccepted, unsigned int SessionId) {
+void IServerImpl::MissionResponse(unsigned int Arg0, FlULong MissionId, unsigned char bAccepted, unsigned int SessionId) {
     // retail 0x06d8da80: ch3 op 0x14
     const unsigned int Args[4] = {
         Arg0, static_cast<unsigned int>(MissionId), bAccepted, SessionId
@@ -834,7 +834,7 @@ void IServerImpl::SaveGame(const CHARACTER_ID& char_id, const wchar_t* descripti
     };
     RpcSendToServer(this, 3u, 0x1eu, Args, 3u);
 }
-void IServerImpl::MissionSaveB(unsigned int session_id, unsigned long mission_id) {
+void IServerImpl::MissionSaveB(unsigned int session_id, FlULong mission_id) {
     // retail 0x06d8db70: ch3 op 0x45, serializes mission_id only
     const unsigned int Args[2] = { session_id, (unsigned int)mission_id };
     RpcSendToServer(this, 3u, 0x45u, Args, 2u);
@@ -842,14 +842,14 @@ void IServerImpl::MissionSaveB(unsigned int session_id, unsigned long mission_id
 
 // === Slots 60-63: events and mining ===
 void IServerImpl::RequestEvent(int event_type, unsigned int arg1, unsigned int arg2, unsigned int arg3,
-                  unsigned long arg4, unsigned int session_id) {
+                  FlULong arg4, unsigned int session_id) {
     // retail 0x06d8eaf0: ch3 op 0x31
     const unsigned int Args[6] = {
         (unsigned int)event_type, arg1, arg2, arg3, (unsigned int)arg4, session_id
     };
     RpcSendToServer(this, 3u, 0x31u, Args, 6u);
 }
-void IServerImpl::RequestCancel(int event_type, unsigned int arg1, unsigned int arg2, unsigned long arg3,
+void IServerImpl::RequestCancel(int event_type, unsigned int arg1, unsigned int arg2, FlULong arg3,
                    unsigned int session_id) {
     // retail 0x06d8eb60: ch3 op 0x32
     const unsigned int Args[5] = {
@@ -1000,7 +1000,7 @@ void IServerImpl::AcceptTrade(unsigned int session_id, bool b_accepted) {
     (void)session_id;
     RpcSendTradeToServer(this, 0x40u, 0u, b_accepted ? 1u : 0u);
 }
-void IServerImpl::SetTradeMoney(unsigned int session_id, unsigned long money) {
+void IServerImpl::SetTradeMoney(unsigned int session_id, FlULong money) {
     // retail 0x06d8e4b0: subtype 0x04, money at packet+0x2c, nothing at +0x28.
     (void)session_id;
     RpcSendTradeToServer(this, 0x04u, 0u, (unsigned int)money);
@@ -1076,7 +1076,7 @@ void IServerImpl::PushToServer(CDAPacket* packet) {
 // through the serializer it reaches as [EBP+4], EBP being this sub-object at
 // IServerImpl+0x04; that is IServerImpl+0x08, the same serializer every IServer slot
 // uses. The push goes through [EBP-4]'s vtable +0x170, i.e. this very PushToServer.
-void IServerImpl::SubmitChat(CHAT_ID sender_id, unsigned long msg_type, const void* msg_data, CHAT_ID target_id, int system_id) {
+void IServerImpl::SubmitChat(CHAT_ID sender_id, FlULong msg_type, const void* msg_data, CHAT_ID target_id, int system_id) {
     // NOTE on the second parameter's NAME: retail uses it as the operator_new() size
     // and the REP MOVS length for msg_data (06d8ecfb..06d8ed25), so it is a byte
     // count, not a message type. Renaming it is a server_pub.h change and belongs

@@ -120,7 +120,7 @@ Archetype::Asteroid const* CAsteroid::asteroidarch() const
     return (Archetype::Asteroid const*)Archetype;
 }
 
-unsigned long CAsteroid::get_asteroid_id()
+FlULong CAsteroid::get_asteroid_id()
 {
     // Common.dll.c 0x422b0.
     return AsteroidId;

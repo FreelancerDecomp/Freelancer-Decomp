@@ -153,7 +153,7 @@ void PetalInterfaceDatabase::add_record(int Category, char const* Nickname, char
 // 0631cb40: lower_bound in Categories[Category] (no range test of Category), exact key ->
 // the record at node+0x10, else 0.
 PetalInterfaceDatabase::petal_record const* PetalInterfaceDatabase::find_record(
-    int Category, unsigned long NicknameId) const
+    int Category, FlULong NicknameId) const
 {
     std::map<unsigned, petal_record>::const_iterator It =
         Categories[Category].find(NicknameId);

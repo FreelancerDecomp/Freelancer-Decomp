@@ -1050,9 +1050,9 @@ namespace
 
         double const V = Value;
         if (V < -Epsilon)
-            return (float)((double)(long)((V - HalfStep) * Step) / Step - Epsilon);
+            return (float)((double)(FlLong)((V - HalfStep) * Step) / Step - Epsilon);
         if (V > Epsilon)
-            return (float)((double)(long)((V + HalfStep) * Step) / Step + Epsilon);
+            return (float)((double)(FlLong)((V + HalfStep) * Step) / Step + Epsilon);
         return 0.0f;
     }
 

@@ -180,7 +180,7 @@ unsigned int FRpcMissionResponsePacket::Decode(const unsigned char* Buffer,
     unsigned int First;
     if (!Stream.Get(&First, 4u)) return MarshalError;
     Field_0x00 = First;
-    unsigned long Second;
+    FlULong Second;
     if (!Stream.Get(&Second, 4u)) return MarshalError;
     MissionId = Second;
     if (!Stream.Get(&bAccepted, 1u)) return MarshalError;

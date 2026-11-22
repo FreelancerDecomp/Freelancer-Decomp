@@ -890,7 +890,7 @@ RPC_CH2_DELIVER_DWORD(DeliverGfCompleteAmbientScriptList, SendServerGFCompleteAm
 RPC_CH2_DELIVER_DWORD(DeliverGfCompleteMissionComputerList, SendServerGFCompleteMissionComputerList, unsigned int) // 0x10 -> +0x0a0
 RPC_CH2_DELIVER_DWORD(DeliverGfCompleteNewsBroadcastList, SendServerGFCompleteNewsBroadcastList, unsigned int)     // 0x0e -> +0x0b4
 RPC_CH2_DELIVER_DWORD(DeliverSendNnMessage, SendServerSendNNMessage, unsigned int)                 // 0x56 -> +0x114
-RPC_CH2_DELIVER_DWORD(DeliverMissionSaveA, SendServerMissionSaveA, unsigned long)                  // 0x5b -> +0x128
+RPC_CH2_DELIVER_DWORD(DeliverMissionSaveA, SendServerMissionSaveA, FlULong)                  // 0x5b -> +0x128
 RPC_CH2_DELIVER_DWORD(DeliverPlaySoundEffect, SendServerPlaySoundEffect, unsigned int)             // 0x59 -> +0x1f0
 
 RPC_CH2_DELIVER_DWORD_BYREF(DeliverSetCash, SendServerSetCash, int)                                // 0x30 -> +0x134

@@ -58,12 +58,12 @@ CPlayerTradeOffer::~CPlayerTradeOffer()
     // else here owns any resources.
 }
 
-unsigned long CPlayerTradeOffer::GetMoneyOffered()
+FlULong CPlayerTradeOffer::GetMoneyOffered()
 {
     return MoneyOffered;
 }
 
-void CPlayerTradeOffer::SetMoneyOffered(unsigned long Money)
+void CPlayerTradeOffer::SetMoneyOffered(FlULong Money)
 {
     MoneyOffered = Money;
 }

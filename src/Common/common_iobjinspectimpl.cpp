@@ -173,7 +173,7 @@ Matrix const& IObjInspectImpl::get_orientation() const
     return Object->Orientation;
 }
 
-long IObjInspectImpl::get_index() const
+FlLong IObjInspectImpl::get_index() const
 {
     // .text:062bf200-062bf206: `MOV EAX,[this+0x10]; MOV EAX,[EAX+4]; RET` -- no null test.
     return Object->EngineInstanceId;
@@ -709,7 +709,7 @@ int IObjInspectImpl::get_dock_target(uint& OutDock) const
     return -3;
 }
 
-int IObjInspectImpl::get_zone_props(unsigned long& OutProps) const
+int IObjInspectImpl::get_zone_props(FlULong& OutProps) const
 {
     // Common.dll.c 0x5fdb0
     CSimple* S = InspectSimple(Object);

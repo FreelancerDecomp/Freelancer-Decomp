@@ -128,11 +128,11 @@ bool __cdecl LayoutRichText(TextRenderContext& Ctx, RenderDisplayList const& Rdl
     Ctx.get_state(SavedState);
     Ctx.StateStack.push_front(SavedState);
     {
-        const unsigned long Current = Ctx.CurrentAttrs.Packed;
-        const unsigned long Default = Ctx.get_default_attributes().Packed;
-        const unsigned long DefMask = EllipsisAttrNode.get_default_mask();
-        const unsigned long Mask = EllipsisAttrNode.get_mask();
-        const unsigned long Attrs = EllipsisAttrNode.get_attributes().Packed;
+        const FlULong Current = Ctx.CurrentAttrs.Packed;
+        const FlULong Default = Ctx.get_default_attributes().Packed;
+        const FlULong DefMask = EllipsisAttrNode.get_default_mask();
+        const FlULong Mask = EllipsisAttrNode.get_mask();
+        const FlULong Attrs = EllipsisAttrNode.get_attributes().Packed;
         Ctx.CurrentAttrs.Packed = ((((~DefMask) & Attrs) | (DefMask & Default)) & Mask) | ((~Mask) & Current);
     }
     VisualSize EllipsisSize;              // [S+0xc4]

@@ -109,7 +109,7 @@ void CArchGroup::AttachDamageObjs(CObject* Target, Archetype::DamageObjInfoList 
         Archetype::DamageObjInfo const& Info = *It;
         CacheString const& HpName = Info.Hardpoint;
 
-        long Handle = -1;
+        FlLong Handle = -1;
         HardpointInfo HpInfo;
         if (!FindHardpoint_PS(Target->EngineInstanceId, Info.Hardpoint.Value, Handle, HpInfo))
             continue;
@@ -292,7 +292,7 @@ unsigned short CArchGroup::GetID() const
     return Arch->Id;
 }
 
-long CArchGroup::GetRootIndex() const
+FlLong CArchGroup::GetRootIndex() const
 {
     // Common.dll.c 0x402a0
     if (State == 3)
@@ -300,7 +300,7 @@ long CArchGroup::GetRootIndex() const
     return RootIndex;
 }
 
-bool CArchGroup::IsInstInGroup(long InstIndex) const
+bool CArchGroup::IsInstInGroup(FlLong InstIndex) const
 {
     // Common.dll.c 0x402b0
     if (State == 3)
@@ -349,7 +349,7 @@ void CArchGroup::GetBoundingSphere(float& OutRadius, Vector& OutCenter) const
     // DAT_0639c13c = 0x3F000000 = 0.5f.
 
     // 062a07bf-062a07cf: a destroyed group enumerates from the invalid handle.
-    long const RootInst = (State == 3) ? -1 : RootIndex;
+    FlLong const RootInst = (State == 3) ? -1 : RootIndex;
 
     // 062a07d8-062a07e6: IEngine GetInstanceExtent(RootInst, 1, &Extent, &Center). Retail does
     // not pre-set the outputs; every IInstanceTransform::GetExtra (and the invalid-instance
@@ -382,10 +382,10 @@ void CArchGroup::GetBoundingSphere(float& OutRadius, Vector& OutCenter) const
 
     // 062a08b1 / 062a0a33: IEngine GetRelatedInstance(RootInst, 0, Cursor), seeded with the
     // invalid handle and ended by it.
-    for (long Child = (long)DALib::Engine->GetRelatedInstance((void*)RootInst, 0,
+    for (FlLong Child = (FlLong)DALib::Engine->GetRelatedInstance((void*)RootInst, 0,
                                                               G_InvalidEngineHandle);
          Child != -1;
-         Child = (long)DALib::Engine->GetRelatedInstance((void*)RootInst, 0, (void*)Child))
+         Child = (FlLong)DALib::Engine->GetRelatedInstance((void*)RootInst, 0, (void*)Child))
     {
         // 062a08d0-062a08e3: only instances the owner maps to this group (CEqObj vtable +0xf4
         // inst_to_subobj_id, a 16-bit compare with Arch->Id).
@@ -543,7 +543,7 @@ bool CArchGroup::GetRadius(float& Out) const
     return true;
 }
 
-int CArchGroup::InstDepthInGroup(long InstIndex) const
+int CArchGroup::InstDepthInGroup(FlLong InstIndex) const
 {
     // Common.dll.c 0x40690
     if (State == 3)
@@ -910,7 +910,7 @@ void CArchGroupManager::DestroyLowerGroups(CArchGroup const& DeadGroup)
                       "%s(%d) : *** WARNING: DestroyLowerGroups(%s): Deleting UnDead lower group[%s].",
                       kCArchGroupSource, 0x146, DeadName, EntryName);
                 unsigned const EntryId = Entry->GetID();
-                long const EntryRoot = Entry->GetRootIndex();
+                FlLong const EntryRoot = Entry->GetRootIndex();
                 FDUMP(0x100002, "%s(%d) : *** WARNING: Dead DUMP: Inst:%d\t ID:%d",
                       kCArchGroupSource, 0x148, EntryRoot, EntryId);
 
@@ -1050,7 +1050,7 @@ CArchGroup const* CArchGroupManager::Traverse(CArchGrpTraverser& Traverser) cons
     return const_cast<CArchGroupManager*>(this)->Traverse(Traverser);
 }
 
-unsigned short CArchGroupManager::InstToSubObjID(long InstIndex) const
+unsigned short CArchGroupManager::InstToSubObjID(FlLong InstIndex) const
 {
     // .text:062a1600..062a166f. Result starts as SUBOBJ_ID_NONE (062a160a); InstIndex == -1
     // returns it. Otherwise the in-order walk runs while the node is not the head AND the best

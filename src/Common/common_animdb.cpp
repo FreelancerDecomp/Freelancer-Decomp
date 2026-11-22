@@ -436,7 +436,7 @@ COMMON_API void __cdecl Add(int PlaybackId)
     // (+0x8c) EnumObjects(LAB_0627d700, PlaybackId, &vector); the callback push_backs every
     // typed channel and answers 1. The slot's own result is ignored.
     std::vector<void*> Channels;
-    DALib::Anim->EnumObjects((void*)&CollectChannel, (unsigned long)PlaybackId, &Channels);
+    DALib::Anim->EnumObjects((void*)&CollectChannel, (FlULong)PlaybackId, &Channels);
 
     // 0627d9b2..0627da45. LastInstance (frame -0x64) starts at 0 (0627d9ba) and is written
     // with every GetInstanceUserData result at 0627d9ff -- BEFORE the EngineInstanceId
@@ -445,8 +445,8 @@ COMMON_API void __cdecl Add(int PlaybackId)
     for (std::vector<void*>::const_iterator ChanIt = Channels.begin(); ChanIt != Channels.end(); ++ChanIt)
     {
         // 0627d9c8..0627d9db: IChannel slot 16 (+0x40) GetHeader(&Header, channel).
-        unsigned long Header[4];
-        DALib::Channel->GetHeader(Header, (unsigned long)*ChanIt);
+        FlULong Header[4];
+        DALib::Channel->GetHeader(Header, (FlULong)*ChanIt);
         // 0627d9de..0627d9e4: Header[0] != 0 -> next channel.
         if (Header[0] != 0)
             continue;
@@ -539,10 +539,10 @@ static std::pair<typename std::vector<T>::iterator, bool> InsertUnique(std::vect
 // 0627e468); user data = Engine+0x80 (0627e3ec); insert via the inline find + vector
 // insert (0627e3fe..0627e43f, result unused); recursion at 0627e449; next sibling =
 // GetRelatedInstance(InstanceId, 1, Child) (0627e460). No null checks.
-static void CollectInstanceChildren(CObject* Obj, long InstanceId, std::vector<CObject*>& Objs)
+static void CollectInstanceChildren(CObject* Obj, FlLong InstanceId, std::vector<CObject*>& Objs)
 {
     // IEngine carries the instance id in a void* (engine/engbase.h).
-    long Child = (long)(intptr_t)DALib::Engine->GetRelatedInstance((void*)(intptr_t)InstanceId, 1,
+    FlLong Child = (FlLong)(intptr_t)DALib::Engine->GetRelatedInstance((void*)(intptr_t)InstanceId, 1,
                                                                    G_InvalidEngineHandle);
     while (Child != -1)
     {
@@ -556,7 +556,7 @@ static void CollectInstanceChildren(CObject* Obj, long InstanceId, std::vector<C
         {
             CollectInstanceChildren(Obj, Child, Objs);
         }
-        Child = (long)(intptr_t)DALib::Engine->GetRelatedInstance((void*)(intptr_t)InstanceId, 1,
+        Child = (FlLong)(intptr_t)DALib::Engine->GetRelatedInstance((void*)(intptr_t)InstanceId, 1,
                                                                   (void*)(intptr_t)Child);
     }
 }
@@ -626,7 +626,7 @@ void __cdecl Update(float Dt)
             // spells the first parameter "PlaybackId", but retail loads it from
             // `(*(Root)) + 4` (58710-58712), i.e. the engine instance id of the
             // entry's root object -- not the map key.
-            DALib::Anim->MixerWalk((unsigned long)InstanceId, Dt);
+            DALib::Anim->MixerWalk((FlULong)InstanceId, Dt);
         }
         if (Sub.Root->BodyPtr != nullptr)
             Subs.push_back(&Sub);

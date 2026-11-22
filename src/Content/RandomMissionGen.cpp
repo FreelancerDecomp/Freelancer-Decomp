@@ -2394,7 +2394,7 @@ bool FRmDestroySolarsFilter::FillSolarSpawns(FRmOfferQuery const* Query,
     if (Formation == nullptr)
         return false;
 
-    unsigned long NestedProps = 0;
+    FlULong NestedProps = 0;
     pub::System::GetNestedProperties(Query->DestSys, Query->ObjectivePos, NestedProps);
 
     std::vector<std::pair<FRmKillableSolar*, float>> Entries;
@@ -2946,7 +2946,7 @@ bool FRmAssassinateFilter::FillDefensiveSolars(FRmOfferQuery const* Query,
     if (Formation == nullptr)
         return false;
 
-    unsigned long NestedProps = 0;
+    FlULong NestedProps = 0;
     pub::System::GetNestedProperties(Query->DestSys, Query->ObjectivePos, NestedProps);
 
     std::vector<std::pair<FRmKillableSolar*, float>> Entries;

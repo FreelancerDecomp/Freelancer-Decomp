@@ -110,7 +110,7 @@ namespace
             Dir = StoredRel;
         }
 
-        long const Connector = Gun.GetParentConnector(false);
+        FlLong const Connector = Gun.GetParentConnector(false);
         float const* const Ori = DALib::Engine->GetInstanceOrientation(
             (void*)(Connector));
         Matrix ConnectorOri(Ori[0], Ori[1], Ori[2], Ori[3], Ori[4], Ori[5], Ori[6], Ori[7], Ori[8]);
@@ -153,7 +153,7 @@ CEGun::JointChannel::JointChannel()
 }
 
 // FUN_06299080 (__thiscall, RET 8), .text:06299080..0629911e.
-void CEGun::JointChannel::Bind(CEGun* NewOwner, long Instance)
+void CEGun::JointChannel::Bind(CEGun* NewOwner, FlLong Instance)
 {
     Owner = NewOwner;                                             // 0629908b
     EngineIndex = (int)(Instance);                     // 0629908e
@@ -598,19 +598,19 @@ bool CEGun::Update(float Dt, unsigned Flags)
 // then every child from IEngine+0xd8 GetRelatedInstance(Root, 1, prev) (starting at -1, until
 // -1) whose Relative block is non-null with type 2 binds the pitch joint (+0x210) -- the last
 // such child wins.
-static void BindTurretJoints(CEGun& Gun, long Root)
+static void BindTurretJoints(CEGun& Gun, FlLong Root)
 {
     void* const RootInst = (void*)(Root);
     if (InstanceRelative(Root)->Type == kJointTypeRev)
         Gun.Yaw.Bind(&Gun, Root);
 
-    long Child = (long)(DALib::Engine->GetRelatedInstance(RootInst, 1, G_InvalidEngineHandle));
+    FlLong Child = (FlLong)(DALib::Engine->GetRelatedInstance(RootInst, 1, G_InvalidEngineHandle));
     while (Child != kInvalidEngineInstance)
     {
         FJointRelative const* const ChildRel = InstanceRelative(Child);
         if (ChildRel != nullptr && ChildRel->Type == kJointTypeRev)
             Gun.Pitch.Bind(&Gun, Child);
-        Child = (long)(
+        Child = (FlLong)(
             DALib::Engine->GetRelatedInstance(RootInst, 1, (void*)(Child)));
     }
 }
@@ -681,8 +681,8 @@ void CEGun::ComputeTurretFrame()
     // 9-float store). This re-expresses the world-space turret basis in the connector's local
     // frame -- i.e. TurretFrame is relative orientation, not a world matrix.
     // .text:06297c70..06297fb6. No null tests anywhere (engine, relative blocks, math engine).
-    long const Root = GetRootIndex();                                             // vt+0x84
-    long const Conn = GetParentConnector(false);                                  // vt+0x64
+    FlLong const Root = GetRootIndex();                                             // vt+0x84
+    FlLong const Conn = GetParentConnector(false);                                  // vt+0x64
     Matrix const ConnOri = *(Matrix const*)DALib::Engine->GetInstanceOrientation((void*)Conn); // +0x98
 
     // 06297ca3..06297d84: the yaw axis is always ConnOri times a local axis. Bound yaw: the
@@ -712,7 +712,7 @@ void CEGun::ComputeTurretFrame()
     Vector PitchAxisWS;
     if (Pitch.EngineIndex != kInvalidEngineInstance)
     {
-        void* const Parent = DALib::Engine->GetInstanceParent((void*)(long)Pitch.EngineIndex);
+        void* const Parent = DALib::Engine->GetInstanceParent((void*)(FlLong)Pitch.EngineIndex);
         Matrix const ParentOri = *(Matrix const*)DALib::Engine->GetInstanceOrientation(Parent);
         FJointRelative const* const Rel = InstanceRelative(Pitch.EngineIndex);
         Acquire3DMathEngine()->TransformMatrix((FVector&)PitchAxisWS, (FMatrix const&)ParentOri,
@@ -762,7 +762,7 @@ void CEGun::DecomposeJointMotion(Vector const& Dir, float& OutYaw, float& OutPit
     // (slot 0x2c). Yaw: FLD x, FLD z, FCHS, FPATAN -> atan2(x, -z). Pitch: y / FSQRT(z*z + x*x)
     // (FDIVP ST1/ST0), FLD1, FPATAN -> atan2(y / hypot, 1). No null test of the engine, the
     // orientation pointer or the math engine in retail.
-    long Conn = GetParentConnector(false);
+    FlLong Conn = GetParentConnector(false);
     float const* Ori = DALib::Engine->GetInstanceOrientation((void*)(Conn));
     Matrix ConnOri(Ori[0], Ori[1], Ori[2], Ori[3], Ori[4], Ori[5], Ori[6], Ori[7], Ori[8]);
 
@@ -805,7 +805,7 @@ Vector CEGun::GetTurretOrigin() const
         // 06297b3c..06297bed: the pitch joint's world position (IEngine+0x90) minus its
         // orientation (+0x98, 9-dword copy) applied to the relative child position (+0xc4 block
         // +0x10) by 3DMathEngine+0x2c; each difference FSTP'd to float.
-        void* const PitchInst = (void*)(long)Pitch.EngineIndex;
+        void* const PitchInst = (void*)(FlLong)Pitch.EngineIndex;
         Matrix const PitchOri = *(Matrix const*)DALib::Engine->GetInstanceOrientation(PitchInst);
         Vector const PitchPos = *(Vector const*)DALib::Engine->GetInstancePosition(PitchInst);
         FJointRelative const* const Rel = InstanceRelative(Pitch.EngineIndex);
@@ -820,7 +820,7 @@ Vector CEGun::GetTurretOrigin() const
     }
     // 06297bf3..06297c29: the yaw joint's position, else the root instance's (vt+0x84).
     if (Yaw.EngineIndex != kInvalidEngineInstance)
-        return *(Vector const*)DALib::Engine->GetInstancePosition((void*)(long)Yaw.EngineIndex);
+        return *(Vector const*)DALib::Engine->GetInstancePosition((void*)(FlLong)Yaw.EngineIndex);
     return *(Vector const*)DALib::Engine->GetInstancePosition((void*)GetRootIndex());
 }
 
@@ -1083,7 +1083,7 @@ bool CEGun::ComputeTgtLeadPosition(Vector& Out) const
     // its vtable +0x54 get_velocity(); null (06298d1f): the owner's (+0x4) WorldPosition and
     // get_velocity(). Each difference is rounded to float (FSTP).
     CObject* Shooter = (CObject*)(DALib::Engine->GetInstanceUserData(
-        (void*)((long)(Barrels[0].EngineIndex))));
+        (void*)((FlLong)(Barrels[0].EngineIndex))));
     if (Shooter == nullptr)
         Shooter = Owner;
     Vector RelPos;

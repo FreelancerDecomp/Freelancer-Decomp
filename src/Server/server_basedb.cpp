@@ -645,7 +645,7 @@ unsigned int FBaseEntry::create_mission_vendor(MissionVendorProperties const& Pr
 // local MissionVendorAcceptance {Key = handle, TargetId = this base's id,
 // bAccepted, Reason}, marshalled into the default buffer and sent through
 // IClient +0xa4 (sid, buffer base, NumWritten).
-void FBaseEntry::mission_vendor_acceptance(unsigned long Handle, bool bAccepted, FmtStr const& Reason,
+void FBaseEntry::mission_vendor_acceptance(FlULong Handle, bool bAccepted, FmtStr const& Reason,
                                            unsigned int SessionId)
 {
     MissionVendorAcceptance Acceptance;
@@ -1138,7 +1138,7 @@ void BaseDB::destroy_character(unsigned int Handle)
 // 0x720, return; null room -> return; the first character record matching
 // the handle (null when none -- retail writes through it regardless):
 // Props.BehaviorId = behaviour, bDirty = 1.
-void BaseDB::set_character_behavior(unsigned int Handle, unsigned long Behavior)
+void BaseDB::set_character_behavior(unsigned int Handle, FlULong Behavior)
 {
     std::map<unsigned int, FRoomEntry*>::iterator It = CharacterMap.find(Handle);
     if (It == CharacterMap.end())
@@ -1180,7 +1180,7 @@ unsigned int BaseDB::create_behavior(ScriptBehavior const& Props, unsigned int R
 
 // FUN_06d14cc0: FUN_06d149c0 for behaviours -- "Could not find behavior %u"
 // (0x774 / 0x78d), FUN_06d16500 (Behaviors.remove), pool bit = the handle.
-void BaseDB::destroy_behavior(unsigned long Handle)
+void BaseDB::destroy_behavior(FlULong Handle)
 {
     unsigned int const Key = (unsigned int)Handle;
     std::map<unsigned int, FRoomEntry*>::iterator It = BehaviorMap.find(Key);
@@ -1219,7 +1219,7 @@ unsigned int BaseDB::create_mission_vendor(MissionVendorProperties const& Props,
 
 // FUN_06d14f10: "Could not find mission vendor offer %u" (0x7b2 / 0x7cb),
 // FUN_06d16a30 (MissionVendors.remove), pool DAT_06d8dd10 bit = the handle.
-void BaseDB::destroy_mission_vendor(unsigned long Handle)
+void BaseDB::destroy_mission_vendor(FlULong Handle)
 {
     unsigned int const Key = (unsigned int)Handle;
     std::map<unsigned int, FBaseEntry*>::iterator It = MissionVendorMap.find(Key);
@@ -1265,7 +1265,7 @@ int BaseDB::count_mission_vendors(unsigned int Id, unsigned int SessionFilter)
 
 // FUN_06d150a0 (handle, accepted, reason, sid; RET 0x10): find the handle in
 // MissionVendorMap; a non-null base -> FUN_06d13270; a miss -> FDUMP 0x7b2.
-void BaseDB::mission_vendor_acceptance(unsigned long Handle, bool bAccepted, FmtStr const& Reason,
+void BaseDB::mission_vendor_acceptance(FlULong Handle, bool bAccepted, FmtStr const& Reason,
                                        unsigned int SessionId)
 {
     std::map<unsigned int, FBaseEntry*>::iterator It = MissionVendorMap.find((unsigned int)Handle);
@@ -1296,7 +1296,7 @@ unsigned int BaseDB::create_news_broadcast(NewsBroadcastProperties const& Props,
 
 // FUN_06d15290: "Could not find news broadcast %u" (0x809 / 0x822),
 // FUN_06d16c60 (NewsBroadcasts.remove), pool DAT_06d8db08 bit = the handle.
-void BaseDB::destroy_news_broadcast(unsigned long Handle)
+void BaseDB::destroy_news_broadcast(FlULong Handle)
 {
     unsigned int const Key = (unsigned int)Handle;
     std::map<unsigned int, FBaseEntry*>::iterator It = NewsMap.find(Key);
@@ -1340,7 +1340,7 @@ unsigned int BaseDB::create_ambient_script(AmbientScriptProperties const& Props,
 
 // FUN_06d15510: "Could not find ambient script %u" (0x84a / 0x863),
 // FUN_06d16800 (AmbientScripts.remove), pool DAT_06d8df18 bit = the handle.
-void BaseDB::destroy_ambient_script(unsigned long Handle)
+void BaseDB::destroy_ambient_script(FlULong Handle)
 {
     unsigned int const Key = (unsigned int)Handle;
     std::map<unsigned int, FRoomEntry*>::iterator It = AmbientScriptMap.find(Key);

@@ -65,7 +65,7 @@ struct FMissionOfferAcceptMsg
 // accepted offer (BaseSupport msg 0x2c).
 struct FBaseVendorOffer
 {
-    unsigned long VendorHandle;             // +0x00 MissionVendorOfferCreate
+    FlULong VendorHandle;             // +0x00 MissionVendorOfferCreate
     unsigned int OfferId;                   // +0x04 the description's id after Create;
                                             // matched with BaseSupport msg 0x2c +0
     FBarMissionOfferData Data;              // +0x08 loader, mission, type
@@ -75,7 +75,7 @@ struct FBaseVendorOffer
 // BaseSupport msg 1, dropped by msg 2.
 struct FBaseVisit
 {
-    std::vector<unsigned long> NewsHandles;         // +0x00 pub::GF::NewsBroadcastCreate
+    std::vector<FlULong> NewsHandles;         // +0x00 pub::GF::NewsBroadcastCreate
     std::list<FBaseVendorOffer> VendorOffers;       // +0x10
 };
 

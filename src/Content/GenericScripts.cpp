@@ -571,7 +571,7 @@ namespace
     }
 
     // FUN_06f015e0 (06f015e0-06f015fb, cdecl; the character argument is not read).
-    unsigned long CreateBarBehavior(FBarCharacter const* Unused,
+    FlULong CreateBarBehavior(FBarCharacter const* Unused,
                                     CharacterBehaviorDescription const* Behavior)
     {
         (void)Unused;
@@ -590,7 +590,7 @@ namespace
     // scripts by role, then the vnpc and offer scripts -- created through
     // pub::GF::CharacterBehaviorCreate; -1 when no script was added. The description local
     // ([ESP+0x2c], ctor FUN_06eac990, dtor FUN_06eacae0) is EH state 1.
-    unsigned long BuildBarBehavior(FBarCharacter const* Character)
+    FlULong BuildBarBehavior(FBarCharacter const* Character)
     {
         CharacterBehaviorDescription Behavior;
         // 06f00be8-06f00c28.
@@ -611,7 +611,7 @@ namespace
 
         FContentPlayerState* State = FindContentPlayerState(Character->PlayerId);
         // [ESP+0x14]: retail leaves it unset when the query fails.
-        unsigned long PostureValue = 0;
+        FlULong PostureValue = 0;
         pub::GF::GetCharacterPlacementPosture(Character->RoomId, Character->Placement,
                                               PostureValue);
         int const Posture = static_cast<int>(PostureValue);

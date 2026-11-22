@@ -723,7 +723,7 @@ void FBarCharacter::Create(FBarCharacterDesc const* Desc)
     {
         // 06ea7ddc-06ea7e02: the posture goes to the stack slot of the Desc argument and
         // the call's result is ignored -- a failed lookup leaves the pointer bits.
-        unsigned long Posture = static_cast<unsigned long>(reinterpret_cast<uintptr_t>(Desc));
+        FlULong Posture = static_cast<FlULong>(reinterpret_cast<uintptr_t>(Desc));
         pub::GF::GetCharacterPlacementPosture(Desc->RoomId, Desc->Placement, Posture);
         Character.Script = PickFidgetScript(Gender, static_cast<int>(Posture));
     }
@@ -752,7 +752,7 @@ void FBarCharacter::Create(FBarCharacterDesc const* Desc)
 }
 
 // FUN_06ea7ce0 (06ea7ce0-06ea7d11).
-void FBarCharacter::SetBehavior(unsigned long NewBehavior)
+void FBarCharacter::SetBehavior(FlULong NewBehavior)
 {
     if (Behavior != 0xffffffff)
         pub::GF::CharacterBehaviorDestroy(&Behavior);
@@ -1120,7 +1120,7 @@ int FContentBase::CreateBarScene(FCharacterEncounter const* Script, unsigned int
         {
             // 06ea9c23-06ea9c97: the scene's behavior goes to the first role's character,
             // whose offer is dropped (FUN_06ea8cd0 from a kind-0 temporary).
-            unsigned long const Handle = pub::GF::CharacterBehaviorCreate(Behavior);
+            FlULong const Handle = pub::GF::CharacterBehaviorCreate(Behavior);
             Character->Offer = FBarOffer();
             Character->SetBehavior(Handle);                                 // FUN_06ea7ce0 inlined
         }

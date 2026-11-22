@@ -143,7 +143,7 @@ bool CAttachedEquip::Connect(char const* HpName)
     if (!CExternalEquip::Connect(HpName))                                    // 062932a9
         return false;
 
-    unsigned long const HpCrc = DACOM_CRC::GetCRC32(HpName);                 // 062932b7
+    FlULong const HpCrc = DACOM_CRC::GetCRC32(HpName);                 // 062932b7
     CObject* const Parent = (CObject*)(
         DALib::Engine->GetInstanceUserData((void*)(ConnectionIndex)));   // 062932d0
     // 062932d6..062932f6: a parent part (+0x58) whose hardpoint id list (std::find over the
@@ -209,7 +209,7 @@ void CAttachedEquip::Disconnect()
     CExternalEquip::Disconnect();
 }
 
-long CAttachedEquip::GetRootIndex() const
+FlLong CAttachedEquip::GetRootIndex() const
 {
     if (!IsConnected())
         return -1;
@@ -237,7 +237,7 @@ void CAttachedEquip::ComputeBoundingSphere(float& OutRadius, Vector& OutCenter) 
     // Listing 0x06293740..0x0629376f: IEngine::GetInstanceExtent (+0x88) of the root instance.
     // The three arguments (0, &OutRadius, &OutCenter) are pushed before the 0-arg
     // GetRootIndex() vcall (+0x84) and stay on the stack for the engine call.
-    long Root = GetRootIndex();
+    FlLong Root = GetRootIndex();
     DALib::Engine->GetInstanceExtent((void*)(Root), 0, &OutRadius,
                                      &OutCenter.x);
 }
@@ -260,7 +260,7 @@ bool CAttachedEquip::GetCenterOfMass(Vector& Out) const
         bBoundsValid = 1;
         ComputeBoundingSphere(BoundRadius, BoundCenter);
     }
-    long Root = Attachment->GetRootIndex();
+    FlLong Root = Attachment->GetRootIndex();
     float* Xform = DALib::Engine->GetInstanceTransform((void*)(Root));
     Acquire3DMathEngine()->TransformXform((FVector&)(World),
                                           *(FTransform const*)Xform,
@@ -293,7 +293,7 @@ CObject* CAttachedEquip::GetPhysicsOwner() const
     return Attachment->GetPhysicsOwner();
 }
 
-bool CAttachedEquip::IsInstOnEquip(long InstIndex) const
+bool CAttachedEquip::IsInstOnEquip(FlLong InstIndex) const
 {
     // Common.dll.c 0x336a0. See header comment: retail calls a 0-arg self-virtual twice at the
     // same vtable slot returning a long, compared/used exactly like GetRootIndex() would be.

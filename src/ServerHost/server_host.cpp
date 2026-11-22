@@ -116,7 +116,7 @@ DWORD RunServerThread(const FServerThreadHooks& Hooks)
         // period <= Elapsed; the fall-through (period > Elapsed) sleeps the remainder.
         if ((double)GServerFramePeriod > Elapsed)
         {
-            SleepEx((DWORD)(long)(((double)GServerFramePeriod - Elapsed) * 1000.0), FALSE);
+            SleepEx((DWORD)(FlLong)(((double)GServerFramePeriod - Elapsed) * 1000.0), FALSE);
         }
         DWORD FrameStart = timeGetTime();
         WaitForServerRunPermission();

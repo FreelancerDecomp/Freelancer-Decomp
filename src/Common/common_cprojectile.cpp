@@ -30,7 +30,7 @@ namespace
 
     // CBeam::init_physics .text:062ad190..062ad1a2: IEngine +0x7c SetInstanceUserData(
     // instance, this) -- no test on the instance or on DALib::Engine.
-    void SetInstanceUserData(long Instance, CBeam* Beam)
+    void SetInstanceUserData(FlLong Instance, CBeam* Beam)
     {
         // IEngine takes the instance handle as a pointer-sized value.
         DALib::Engine->SetInstanceUserData((void*)Instance, Beam);

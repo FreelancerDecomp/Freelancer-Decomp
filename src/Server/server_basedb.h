@@ -397,7 +397,7 @@ public:
     // FUN_06d13070.
     unsigned int create_mission_vendor(MissionVendorProperties const& Props, unsigned int RecordFilter);
     // FUN_06d13270.
-    void mission_vendor_acceptance(unsigned long Handle, bool bAccepted, FmtStr const& Reason,
+    void mission_vendor_acceptance(FlULong Handle, bool bAccepted, FmtStr const& Reason,
                                    unsigned int SessionId);
     // FUN_06d13350.
     unsigned int create_news_broadcast(NewsBroadcastProperties const& Props, unsigned int RecordFilter);
@@ -450,22 +450,22 @@ public:
     // FUN_06d14870 / FUN_06d149c0 / FUN_06d14ac0.
     int create_character(CharacterProperties const& Props, unsigned int RecordFilter);
     void destroy_character(unsigned int Handle);
-    void set_character_behavior(unsigned int Handle, unsigned long Behavior);
+    void set_character_behavior(unsigned int Handle, FlULong Behavior);
     // FUN_06d14b70 / FUN_06d14cc0.
     unsigned int create_behavior(ScriptBehavior const& Props, unsigned int RecordFilter);
-    void destroy_behavior(unsigned long Handle);
+    void destroy_behavior(FlULong Handle);
     // FUN_06d14dc0 / FUN_06d14f10 / FUN_06d15010 / FUN_06d150a0.
     unsigned int create_mission_vendor(MissionVendorProperties const& Props, unsigned int RecordFilter);
-    void destroy_mission_vendor(unsigned long Handle);
+    void destroy_mission_vendor(FlULong Handle);
     int count_mission_vendors(unsigned int Id, unsigned int SessionFilter);
-    void mission_vendor_acceptance(unsigned long Handle, bool bAccepted, FmtStr const& Reason,
+    void mission_vendor_acceptance(FlULong Handle, bool bAccepted, FmtStr const& Reason,
                                    unsigned int SessionId);
     // FUN_06d15140 / FUN_06d15290.
     unsigned int create_news_broadcast(NewsBroadcastProperties const& Props, unsigned int RecordFilter);
-    void destroy_news_broadcast(unsigned long Handle);
+    void destroy_news_broadcast(FlULong Handle);
     // FUN_06d15390 / FUN_06d15510.
     unsigned int create_ambient_script(AmbientScriptProperties const& Props, unsigned int RecordFilter);
-    void destroy_ambient_script(unsigned long Handle);
+    void destroy_ambient_script(FlULong Handle);
 
     FBaseEntry* Bases;                                    // +0x00  new[] with a count prefix
     int NumBases;                                         // +0x04

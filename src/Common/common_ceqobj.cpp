@@ -882,7 +882,7 @@ bool CEqObj::get_sub_obj_relative_health(unsigned short SubObjId, float& Out) co
     return false;
 }
 
-long CEqObj::sub_obj_id_to_inst(unsigned short SubObjId) const
+FlLong CEqObj::sub_obj_id_to_inst(unsigned short SubObjId) const
 {
     // Common.dll.c 0x4b990 (79252-79291). See class-comment on this override's declaration
     // re: reusing CAttachedEquip::GetRootIndex() for the retail vtable+0x84 slot.
@@ -1091,9 +1091,9 @@ void CEqObj::compute_explosion_dmg_bounding_sphere(float& OutRadius, Vector& Out
     // min only when min < value, TEST AH,0x41 / JZ keeps a max only when max > value, NaN
     // replaces.
     std::vector<FChildSphere> Children;
-    for (long Child = (long)DALib::Engine->GetRelatedInstance(Instance, 0, G_InvalidEngineHandle);
+    for (FlLong Child = (FlLong)DALib::Engine->GetRelatedInstance(Instance, 0, G_InvalidEngineHandle);
          Child != -1;
-         Child = (long)DALib::Engine->GetRelatedInstance(Instance, 0, (void*)Child))
+         Child = (FlLong)DALib::Engine->GetRelatedInstance(Instance, 0, (void*)Child))
     {
         if (inst_to_subobj_id(Child) != SUBOBJ_ID_ROOT)
             continue;
@@ -1388,7 +1388,7 @@ bool CEqObj::set_sub_obj_hit_pts(unsigned short SubObjId, float HitPts)
     return false;
 }
 
-unsigned short CEqObj::inst_to_subobj_id(long Instance) const
+unsigned short CEqObj::inst_to_subobj_id(FlLong Instance) const
 {
     // Common.dll.c 0x4b940: the root engine instance always maps to SubObjId 1; otherwise
     // try the equip manager's then the arch-group manager's own InstToSubObjID, falling
