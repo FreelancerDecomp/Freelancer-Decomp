@@ -1,3 +1,5 @@
+// PORT(rpgpu): RPGPU.dll, the SDL3 + SDL_GPU render pipeline; no retail counterpart.
+
 // RPGPU's draw recording (docs/re/rpgpu.md, "Drawing"): every draw call converts the game's
 // vertices into FRpGpuVertex and records one command with the render state and transforms of
 // the moment; SwapBuffers hands the frame to the backend. Pre-transformed vertices
