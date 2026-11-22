@@ -10,7 +10,7 @@
 // x64 build (PORT(x64), docs/x64.md) has 8-byte vtable pointers, so the facets sit at other
 // offsets; there the offset is taken from the class layout itself.
 
-#if defined(_WIN64)
+#if defined(FL_PTR64)
 #include <cstdint>
 
 template <class Derived, class Base>

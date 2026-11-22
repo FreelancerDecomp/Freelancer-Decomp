@@ -522,7 +522,7 @@ static FlULong DACOM_API AnimationRelease(FAnimationObject* This)
 
 static FAnimationObject* AnimationFromNested(void* Nested, FlULong Offset)
 {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     // Offset names a retail facet; x64 has the facets at other offsets (facet_offset.h).
     switch (Offset)
     {
@@ -2948,7 +2948,7 @@ static FlULong DACOM_API HardpointRelease(FHardpointObject* This)
 
 static FHardpointObject* HardpointFromNested(void* Nested, FlULong Offset)
 {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     // 4 is the retail IEngineComponent facet; x64 has it at another offset (facet_offset.h).
     if (Offset == 4)
         Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);
@@ -3059,7 +3059,7 @@ static void* FreeListAlloc(FEngBaseFreeList* List)
         List->FreeCount -= 1;
         return Element;
     }
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     // PORT(x64): handles stay below 2 GB, where retail's 32-bit fields keep them (x64_low_arena.h).
     return LowArena::Allocate(List->ElementSize);
 #else
@@ -3070,7 +3070,7 @@ static void* FreeListAlloc(FEngBaseFreeList* List)
 // The free() that FreeListFree and FreeListDrain end with; on x64 the block goes back to LowArena.
 static void FreeListRelease(FEngBaseFreeList* List, void* Element)
 {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     LowArena::Free(Element, List->ElementSize);
 #else
     (void)(List);
@@ -7559,7 +7559,7 @@ GENRESULT DACOM_API ChannelArchetypeFactoryCreateInstance(FDacomFactory* This, A
 // Only FHardpointObject uses it, with 4: its retail IEngineComponent facet.
 static void* NestedThis(void* Object, FlULong Offset)
 {
-#if defined(_WIN64)
+#if defined(FL_PTR64)
     // x64 has the facet at another offset (facet_offset.h).
     if (Offset == 4)
         Offset = FL_FACET_OFFSET(4, FHardpointObject, IEngineComponent);

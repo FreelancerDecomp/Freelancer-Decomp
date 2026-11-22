@@ -92,8 +92,9 @@ if(FL_WINDOWS)
     FLServer FLDedicated
     FLRegress RpcCodecTest TexConvertTest DPNetCheck MemoryDiagnostics)
 else()
-  # The modules that use no Windows API (fl_add_module's PORTABLE), and DPNet with its tests.
-  set(FL_PROJECTS qhull TexConvert DPNet)
+  # The modules that use no Windows API (fl_add_module's PORTABLE), DPNet with its tests, and
+  # PortTests, the checks of the port's platform headers (LowArena, HandleValue).
+  set(FL_PROJECTS qhull TexConvert DPNet PortTests)
   enable_testing()
 endif()
 foreach(_project IN LISTS FL_PROJECTS)
