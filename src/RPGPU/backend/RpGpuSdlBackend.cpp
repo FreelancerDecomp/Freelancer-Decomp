@@ -232,6 +232,9 @@ void FRpGpuSdlBackend::ReleaseDeviceObjects()
         SDL_ReleaseGPUShader(Device_, FragmentShader_);
     if (White_ != nullptr)
         SDL_ReleaseGPUTexture(Device_, White_);
+    if (WhiteCube_ != nullptr)
+        SDL_ReleaseGPUTexture(Device_, WhiteCube_);
+    WhiteCube_ = nullptr;
     if (Depth_ != nullptr)
         SDL_ReleaseGPUTexture(Device_, Depth_);
     if (VertexBuffer_ != nullptr)
@@ -342,10 +345,10 @@ bool FRpGpuSdlBackend::CreateShaders()
         Info.num_uniform_buffers = UniformBuffers;
         return SDL_CreateGPUShader(Device_, &Info);
     };
-    // The vertex shader takes FTransform and FLighting; the fragment shader FStages and a
-    // texture and sampler per stage.
+    // The vertex shader takes FTransform and FLighting; the fragment shader FStages and, per
+    // stage, a 2D texture and a cube texture with their samplers.
     VertexShader_ = Make(Vert, SDL_GPU_SHADERSTAGE_VERTEX, 0, 3); // FTransform, FLighting, FBlend
-    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, kRpGpuStages, 1);
+    FragmentShader_ = Make(Frag, SDL_GPU_SHADERSTAGE_FRAGMENT, 2 * kRpGpuStages, 1);
     return VertexShader_ != nullptr && FragmentShader_ != nullptr;
 }
 
@@ -533,12 +536,16 @@ void FRpGpuSdlBackend::UploadTexture(std::uint64_t Key, FRpGpuTextureImage&& Ima
         return;
     if (Image.Format != ERpGpuTextureFormat::Bgra8 && !bBlockCompression_)
         return;
-    // Every level must hold exactly its tightly packed size.
-    for (std::size_t Level = 0; Level < Image.Levels.size(); ++Level)
+    // Every level must hold exactly its tightly packed size; a cube map has six square faces.
+    if (Image.bCube && (Image.Levels.size() % 6 != 0 || Image.Width != Image.Height))
+        return;
+    const std::size_t PerFace = Image.bCube ? Image.Levels.size() / 6 : Image.Levels.size();
+    for (std::size_t Index = 0; Index < Image.Levels.size(); ++Index)
     {
+        const std::size_t Level = Index % PerFace;
         const std::uint32_t W = std::max<std::uint32_t>(1u, Image.Width >> Level);
         const std::uint32_t H = std::max<std::uint32_t>(1u, Image.Height >> Level);
-        if (Image.Levels[Level].size() != LevelBytes(Image.Format, W, H))
+        if (Image.Levels[Index].size() != LevelBytes(Image.Format, W, H))
             return;
     }
     FPendingUpload Upload;
@@ -587,14 +594,31 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         if (White_ == nullptr)
             return false;
     }
+    if (WhiteCube_ == nullptr)
+    {
+        SDL_GPUTextureCreateInfo Info = {};
+        Info.type = SDL_GPU_TEXTURETYPE_CUBE;
+        Info.format = SDL_GPU_TEXTUREFORMAT_B8G8R8A8_UNORM;
+        Info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+        Info.width = 1;
+        Info.height = 1;
+        Info.layer_count_or_depth = 6;
+        Info.num_levels = 1;
+        WhiteCube_ = SDL_CreateGPUTexture(Device_, &Info);
+        if (WhiteCube_ == nullptr)
+            return false;
+        bWhiteUploaded_ = false; // the cube's faces go up with the white texel
+    }
     // (Re)create the GPU textures of the pending uploads.
     for (const FPendingUpload& Upload : PendingUploads_)
     {
         const FRpGpuTextureImage& Image = Upload.Image;
-        const std::uint32_t Levels = static_cast<std::uint32_t>(Image.Levels.size());
+        const std::uint32_t Levels =
+            static_cast<std::uint32_t>(Image.bCube ? Image.Levels.size() / 6 : Image.Levels.size());
         FTexture& Entry = Textures_[Upload.Key];
         if (Entry.Texture != nullptr && (Entry.Format != Image.Format || Entry.Width != Image.Width ||
-                                         Entry.Height != Image.Height || Entry.Levels != Levels))
+                                         Entry.Height != Image.Height || Entry.Levels != Levels ||
+                                         Entry.bCube != Image.bCube))
         {
             SDL_ReleaseGPUTexture(Device_, Entry.Texture);
             Entry.Texture = nullptr;
@@ -602,14 +626,15 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         if (Entry.Texture == nullptr)
         {
             SDL_GPUTextureCreateInfo Info = {};
-            Info.type = SDL_GPU_TEXTURETYPE_2D;
+            Info.type = Image.bCube ? SDL_GPU_TEXTURETYPE_CUBE : SDL_GPU_TEXTURETYPE_2D;
             Info.format = TextureFormat(Image.Format);
             Info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
             Info.width = Image.Width;
             Info.height = Image.Height;
-            Info.layer_count_or_depth = 1;
+            Info.layer_count_or_depth = Image.bCube ? 6u : 1u;
             Info.num_levels = Levels;
             Entry.Texture = SDL_CreateGPUTexture(Device_, &Info);
+            Entry.bCube = Image.bCube;
             Entry.Format = Image.Format;
             Entry.Width = Image.Width;
             Entry.Height = Image.Height;
@@ -629,7 +654,7 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     const std::uint64_t VertexBytes64 = static_cast<std::uint64_t>(Frame.Vertices.size()) * sizeof(FRpGpuVertex);
     const std::uint64_t IndexBytes64 = static_cast<std::uint64_t>(Frame.Indices.size()) * sizeof(std::uint16_t);
     auto Align16 = [](std::uint64_t Value) { return (Value + 15u) & ~static_cast<std::uint64_t>(15u); };
-    std::uint64_t TextureBytes64 = bWhiteUploaded_ ? 0u : 16u;
+    std::uint64_t TextureBytes64 = bWhiteUploaded_ ? 0u : 16u; // the white texel, for both stand-ins
     for (const FPendingUpload& Upload : PendingUploads_)
     {
         for (const std::vector<std::uint8_t>& Level : Upload.Image.Levels)
@@ -696,7 +721,7 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         return false;
     // Tightly packed: 0 for pixels_per_row and rows_per_layer means the region's own size.
     auto UploadImage = [&](SDL_GPUTexture* Texture, std::uint32_t Level, std::uint32_t From, std::uint32_t W,
-                           std::uint32_t H) {
+                           std::uint32_t H, std::uint32_t Layer) {
         SDL_GPUTextureTransferInfo Source = {};
         Source.transfer_buffer = Transfer_;
         Source.offset = From;
@@ -705,6 +730,7 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
         SDL_GPUTextureRegion Target = {};
         Target.texture = Texture;
         Target.mip_level = Level;
+        Target.layer = Layer; // a cube map's face
         Target.w = W;
         Target.h = H;
         Target.d = 1;
@@ -712,17 +738,22 @@ bool FRpGpuSdlBackend::UploadFrame(SDL_GPUCommandBuffer* Commands, const FRpGpuF
     };
     if (!bWhiteUploaded_)
     {
-        UploadImage(White_, 0, WhiteOffset, 1, 1);
+        UploadImage(White_, 0, WhiteOffset, 1, 1, 0);
+        for (std::uint32_t Face = 0; Face < 6; ++Face)
+            UploadImage(WhiteCube_, 0, WhiteOffset, 1, 1, Face);
         bWhiteUploaded_ = true;
     }
     std::size_t NextLevel = 0;
     for (const FPendingUpload& Upload : PendingUploads_)
     {
         SDL_GPUTexture* const Texture = Textures_[Upload.Key].Texture;
-        for (std::uint32_t Level = 0; Level < Upload.Image.Levels.size(); ++Level)
+        const std::uint32_t Count = static_cast<std::uint32_t>(Upload.Image.Levels.size());
+        const std::uint32_t PerFace = Upload.Image.bCube ? Count / 6 : Count;
+        for (std::uint32_t Index = 0; Index < Count; ++Index)
         {
+            const std::uint32_t Level = Index % PerFace;
             UploadImage(Texture, Level, LevelOffsets[NextLevel++], std::max<std::uint32_t>(1u, Upload.Image.Width >> Level),
-                        std::max<std::uint32_t>(1u, Upload.Image.Height >> Level));
+                        std::max<std::uint32_t>(1u, Upload.Image.Height >> Level), Index / PerFace);
         }
     }
     PendingUploads_.clear();
@@ -868,16 +899,24 @@ bool FRpGpuSdlBackend::Present(const FRpGpuFrameRecording& Frame)
                 bBlendPushed = true;
             }
             FRpGpuStageUniforms Stage = Command.Stage;
-            SDL_GPUTextureSamplerBinding Bindings[kRpGpuStages] = {};
+            // Slots 0..3 take the stages' 2D textures, 4..7 their cube maps; the other kind
+            // gets the white stand-in.
+            SDL_GPUTextureSamplerBinding Bindings[2 * kRpGpuStages] = {};
             for (int Index = 0; Index < kRpGpuStages; ++Index)
             {
                 auto Found = Textures_.find(Command.Texture[Index]);
-                Bindings[Index].texture = Found != Textures_.end() ? Found->second.Texture : White_;
-                Bindings[Index].sampler = Sampler(Command.Sampler[Index]);
-                if (Found == Textures_.end())
+                const bool bFound = Found != Textures_.end();
+                const bool bCube = bFound && Found->second.bCube;
+                SDL_GPUSampler* const Sampling = Sampler(Command.Sampler[Index]);
+                Bindings[Index].texture = bFound && !bCube ? Found->second.Texture : White_;
+                Bindings[Index].sampler = Sampling;
+                Bindings[kRpGpuStages + Index].texture = bCube ? Found->second.Texture : WhiteCube_;
+                Bindings[kRpGpuStages + Index].sampler = Sampling;
+                if (!bFound)
                     Stage.Misc[Index][1] = 0;
+                Stage.Misc[Index][3] = bCube ? 1u : 0u;
             }
-            SDL_BindGPUFragmentSamplers(Pass, 0, Bindings, kRpGpuStages);
+            SDL_BindGPUFragmentSamplers(Pass, 0, Bindings, 2 * kRpGpuStages);
 
             FRpGpuTransformUniforms Transform = Command.Transform;
             Transform.Scale[0] = 2.0f / Viewport.w;

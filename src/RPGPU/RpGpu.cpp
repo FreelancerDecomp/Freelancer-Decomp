@@ -354,6 +354,7 @@ GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long
     case 11:
     case 12: // vertex / table / range fog
     case 13: // W fog
+    case 8:  // cube maps (LoadCubemap)
     case 16: // trilinear filtering
         Value = 1;
         break;
@@ -362,8 +363,8 @@ GENRESULT DACOM_API FRpGpu::QueryDeviceAbility(unsigned int Index, unsigned long
         Value = 4096; // texture width / height limit
         break;
     default:
-        // 1 / 2 gamma (SDL has no gamma ramp), 5 square-only textures, 8 cube maps (not loaded
-        // yet), 14 antialiased edges, 15 low-machine warnings, 17 / 18 device quirks.
+        // 1 / 2 gamma (SDL has no gamma ramp), 5 square-only textures, 14 antialiased edges,
+        // 15 low-machine warnings, 17 / 18 device quirks.
         Value = 0;
         break;
     }

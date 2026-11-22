@@ -14,12 +14,22 @@ Texture2D<float4> Texture2 : register(t2, space2);
 SamplerState Sampler2 : register(s2, space2);
 Texture2D<float4> Texture3 : register(t3, space2);
 SamplerState Sampler3 : register(s3, space2);
+// Each stage's cube map (bound when its texture is one), sampled with the stage's sampler.
+TextureCube<float4> Cube0 : register(t4, space2);
+SamplerState CubeSampler0 : register(s4, space2);
+TextureCube<float4> Cube1 : register(t5, space2);
+SamplerState CubeSampler1 : register(s5, space2);
+TextureCube<float4> Cube2 : register(t6, space2);
+SamplerState CubeSampler2 : register(s6, space2);
+TextureCube<float4> Cube3 : register(t7, space2);
+SamplerState CubeSampler3 : register(s7, space2);
 
 cbuffer FStages : register(b0, space3)
 {
     uint4 Color[4]; // per stage: COLOROP, COLORARG1, COLORARG2, COLORARG0
     uint4 Alpha[4]; // per stage: ALPHAOP, ALPHAARG1, ALPHAARG2, ALPHAARG0
-    // Per stage: RESULTARG; 1 when a texture is bound; the projected divide's component (0 none).
+    // Per stage: RESULTARG; 1 when a texture is bound; the projected divide's component (0 none);
+    // 1 when the texture is a cube map.
     uint4 Misc[4];
     float4 TextureFactor;
     uint4 AlphaTest; // x: on; y: ALPHAFUNC (D3DCMPFUNC 1..8); z: ALPHAREF 0..255
@@ -98,6 +108,17 @@ float4 Operation(uint Op, float4 A1, float4 A2, float4 A0, float4 Diffuse, float
 
 float4 Sample(uint Stage, float4 Coord)
 {
+    // A cube map takes the stage's first three coordinates as the direction.
+    if (Misc[Stage].w != 0u)
+    {
+        if (Stage == 0u)
+            return Cube0.Sample(CubeSampler0, Coord.xyz);
+        if (Stage == 1u)
+            return Cube1.Sample(CubeSampler1, Coord.xyz);
+        if (Stage == 2u)
+            return Cube2.Sample(CubeSampler2, Coord.xyz);
+        return Cube3.Sample(CubeSampler3, Coord.xyz);
+    }
     // PROJECTED divides by the last component the transform produced.
     const uint Divide = Misc[Stage].z;
     float2 Uv = Coord.xy;

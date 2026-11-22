@@ -113,3 +113,52 @@ bool ReadDdsImageInfo(FRpImageInfo* Info, unsigned int SrcSize, const void* SrcD
     Info->ImageFileFormat = 4; // D3DXIFF_DDS
     return true;
 }
+
+// The cube map's layout, after ReadDdsImageInfo has checked the header and the file's size.
+bool ReadDdsCube(FDdsCube* Out, unsigned int SrcSize, const void* SrcData)
+{
+    FRpImageInfo Info = {};
+    if (Out == nullptr || !ReadDdsImageInfo(&Info, SrcSize, SrcData))
+        return false;
+    if (Info.ResourceType != 5 || Info.Width != Info.Height || Info.MipLevels > 16)
+        return false;
+    // D3DFORMAT to RP8's pfenum.
+    unsigned int Format = 0;
+    switch (Info.Format)
+    {
+    case 0x31545844u: Format = 10; break; // DXT1
+    case 0x32545844u: Format = 11; break; // DXT2
+    case 0x33545844u: Format = 12; break; // DXT3
+    case 0x34545844u: Format = 13; break; // DXT4
+    case 0x35545844u: Format = 14; break; // DXT5
+    case 20: Format = 2; break;           // R8G8B8
+    case 21: Format = 7; break;           // A8R8G8B8
+    case 22: Format = 8; break;           // X8R8G8B8
+    case 23: Format = 3; break;           // R5G6B5
+    case 24: Format = 4; break;           // X1R5G5B5
+    case 25: Format = 6; break;           // A1R5G5B5
+    case 26: Format = 5; break;           // A4R4G4B4
+    default: return false;                // P8 and the rest: not as a cube
+    }
+    const bool bBlock = Format >= 10;
+    const unsigned int BlockBytes = Format == 10 ? 8u : 16u;
+    const unsigned int PixelBytes = Format == 7 || Format == 8 ? 4u : Format == 2 ? 3u : 2u;
+    Out->Edge = Info.Width;
+    Out->Levels = Info.MipLevels;
+    Out->Format = Format;
+    for (unsigned int Level = 0; Level < Out->Levels; ++Level)
+    {
+        const unsigned int Size = std::max(1u, Out->Edge >> Level);
+        Out->Bytes[Level] = bBlock ? ((Size + 3) / 4) * ((Size + 3) / 4) * BlockBytes : Size * Size * PixelBytes;
+    }
+    unsigned int Offset = 128;
+    for (int Face = 0; Face < 6; ++Face)
+    {
+        for (unsigned int Level = 0; Level < Out->Levels; ++Level)
+        {
+            Out->Offset[Face][Level] = Offset;
+            Offset += Out->Bytes[Level];
+        }
+    }
+    return Offset <= SrcSize; // ReadDdsImageInfo checked this already
+}

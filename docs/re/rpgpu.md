@@ -112,8 +112,15 @@ and the alpha test; see "Drawing", "Lighting and fog" and "Texture stages".
     compress into DXT, even at the same size. TexConvertTest measures only part of this; see
     the test scope in [texconvert.md](texconvert.md).
 - **The draw calls** record the frame and draw it at `SwapBuffers` ("Drawing").
-- **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none) and no cube
-  maps until `LoadCubemap` loads them.
+- **Abilities** describe a modern GPU, but report no gamma ramp (SDL3 has none).
+- **`LoadCubemap`** follows RP8's: -1 outside the device's lifetime, -7 with the cube-map
+  ability (8) off, before the file system is touched; then the file is mapped through the
+  `IFileSystem` as RP8 maps it (-8 when it cannot be opened, -6 when it cannot be mapped) and
+  loaded as D3DX's `D3DXCreateCubeTextureFromFileInMemory` loads a DDS cube map: in the file's
+  format, with the full mip chain, the levels the file lacks made from the ones above
+  (TexConvert's box filter, within a tolerance of D3DX's). A file that is not a square DDS cube
+  map in a format RPGPU keeps (P8 is not) fails with `D3DXERR_INVALIDDATA`. As in RP8, a lock
+  or level upload on a cube names a face, and `GetTextureDim` reports 6 levels.
 - **`PrintScreen`** answers RP8's argument checks and writes a 24-bit BMP (`.BMP`, `.DIB`) of
   the backend's last frame. RP8 saves through D3DX in seven formats; RPGPU fails the other
   five. The SDL backend downloads the frame from its colour target (and waits for the GPU to
@@ -306,7 +313,9 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
     colours, as hardware did; TexConvert's decode divides by alpha instead (texconvert.md).
   - Levels the game never filled (`TEXTURE_LOD` off) stay zero, as RP8's managed textures
     start; with `MIPFILTER` none only level 0 is sampled.
-  - A cube map goes up as its first face, one level, until cube maps are drawn.
+  - A cube map goes up as a cube texture, all six faces with their chains. The stage samples it
+    with its first three coordinates (a reflection vector or a transformed one), from the
+    cube slot the fragment shader has beside each stage's 2D slot.
 
 **The SDL backend's `Present`:**
 1. One copy pass uploads the pending textures and the frame's vertices and indices, through
@@ -325,8 +334,8 @@ RPGPU records each frame and draws it at `SwapBuffers`, which is plan step 5.3.
    off.
 
 **Known gaps:**
-- stages past the fourth, the bump-mapping ops, three- and four-component texture sets and
-  cube maps;
+- stages past the fourth, the bump-mapping ops, three- and four-component texture sets (so a
+  cube map read with a vertex's own three-component coordinates gets only two of them);
 - tweening (`VERTEXBLEND` 255);
 - every draw's vertices are copied into the frame; vertex and index buffers that stay on the
   GPU are plan step 5.4;

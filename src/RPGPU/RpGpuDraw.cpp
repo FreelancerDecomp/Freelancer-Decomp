@@ -195,18 +195,18 @@ namespace
     }
 }
 
-// The whole texture, every level, as the backend takes it: DXT blocks as they are when the
-// backend samples them and level 0 is a whole number of blocks (Direct3D 12 requires that),
-// everything else converted to B, G, R, A bytes by TexConvert. A cube map goes up as its first
-// face only, until cube maps are drawn.
+// The whole texture, every level (of every face, for a cube map), as the backend takes it: DXT
+// blocks as they are when the backend samples them and level 0 is a whole number of blocks
+// (Direct3D 12 requires that), everything else converted to B, G, R, A bytes by TexConvert.
 void FRpGpu::RefreshTexture(FRpGpuTexture* Texture)
 {
     if (Texture == nullptr || !Texture->bGpuStale || Texture->Images.empty())
         return;
-    const std::size_t Levels = Texture->bCube ? 1u : Texture->Images.size();
+    const std::size_t Levels = Texture->Images.size();
     FRpGpuTextureImage Image;
     Image.Width = Texture->Images[0].Width;
     Image.Height = Texture->Images[0].Height;
+    Image.bCube = Texture->bCube;
     try
     {
         Image.Levels.resize(Levels);
@@ -414,9 +414,8 @@ void FRpGpu::RecordDraw(unsigned long Prim, unsigned int Fvf, const unsigned cha
         RefreshTexture(Texture);
         Command.Texture[Stage] = Texture != nullptr ? Texture->GpuVersion : 0;
         Command.Stage.Misc[Stage][1] = Texture != nullptr ? 1u : 0u;
-        // MAXMIPLEVEL past the texture's last level samples that last level, as in Direct3D. A
-        // cube map has one level on the GPU so far (RefreshTexture).
-        const int LastLevel = Texture != nullptr && !Texture->bCube ? static_cast<int>(Texture->Levels) - 1 : 0;
+        // MAXMIPLEVEL past the texture's last level samples that last level, as in Direct3D.
+        const int LastLevel = Texture != nullptr ? static_cast<int>(Texture->Levels) - 1 : 0;
         Sampler.MaxMipLevel = static_cast<std::uint8_t>(std::clamp(States[kTssMaxMipLevel], 0, std::max(0, LastLevel)));
 
         // TEXTURETRANSFORMFLAGS: the count (1..4) of transformed components, 0x100 PROJECTED.

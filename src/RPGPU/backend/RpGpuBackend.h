@@ -155,7 +155,8 @@ struct FRpGpuStageUniforms
     // Per stage: ALPHAOP, ALPHAARG1, ALPHAARG2, ALPHAARG0.
     std::uint32_t Alpha[kRpGpuStages][4];
     // Per stage: RESULTARG (1 current, 5 temp); 1 when a texture is bound; the projected
-    // divide's component (TEXTURETRANSFORMFLAGS' count with PROJECTED, else 0); unused.
+    // divide's component (TEXTURETRANSFORMFLAGS' count with PROJECTED, else 0); 1 when the
+    // texture is a cube map (set by the backend).
     std::uint32_t Misc[kRpGpuStages][4];
     float TextureFactor[4];   // TEXTUREFACTOR, rgba 0..1
     // x: alpha test on; y: ALPHAFUNC (D3DCMPFUNC); z: ALPHAREF 0..255.
@@ -247,6 +248,8 @@ struct FRpGpuTextureImage
     ERpGpuTextureFormat Format = ERpGpuTextureFormat::Bgra8;
     std::uint32_t Width = 0; // level 0
     std::uint32_t Height = 0;
+    // A cube map: Levels holds six faces (+X, -X, +Y, -Y, +Z, -Z), each with its whole chain.
+    bool bCube = false;
     std::vector<std::vector<std::uint8_t>> Levels;
 };
 

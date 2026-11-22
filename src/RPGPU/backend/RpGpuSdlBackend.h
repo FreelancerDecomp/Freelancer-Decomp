@@ -77,7 +77,8 @@ private:
         ERpGpuTextureFormat Format = ERpGpuTextureFormat::Bgra8;
         std::uint32_t Width = 0;
         std::uint32_t Height = 0;
-        std::uint32_t Levels = 0;
+        std::uint32_t Levels = 0; // per face
+        bool bCube = false;
     };
     struct FPendingUpload
     {
@@ -118,7 +119,8 @@ private:
     std::map<std::pair<std::uint64_t, std::uint32_t>, SDL_GPUSampler*> Samplers_;
     std::unordered_map<std::uint64_t, FTexture> Textures_;
     std::vector<FPendingUpload> PendingUploads_;
-    SDL_GPUTexture* White_ = nullptr; // bound when a draw has no texture
+    SDL_GPUTexture* White_ = nullptr;     // bound when a draw has no texture
+    SDL_GPUTexture* WhiteCube_ = nullptr; // bound to the cube slots when a stage has no cube map
     bool bWhiteUploaded_ = false;
     // The frame is drawn here, then copied to the swap-chain image, so it can be read back.
     SDL_GPUTexture* Target_ = nullptr;

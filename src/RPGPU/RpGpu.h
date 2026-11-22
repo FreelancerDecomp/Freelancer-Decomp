@@ -211,6 +211,8 @@ private:
     FRpGpuBuffer* LiveVb(void* Handle) const;
     FRpGpuBuffer* LiveIb(void* Handle) const;
     FRpGpuTexture* LiveTexture(void* Handle) const;
+    FRpGpuImage* LockableImage(FRpGpuTexture* Texture, int Level) const;
+    GENRESULT MakeCubemap(const void* Data, unsigned long Size, void** OutHandle);
     static bool LockRing(FRpGpuBuffer* Buffer, unsigned int Count, unsigned int* OutStart);
 
     // The backend for the current setting (NULL_DEVICE), made on first use.
