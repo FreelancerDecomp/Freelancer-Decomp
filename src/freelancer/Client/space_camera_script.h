@@ -52,8 +52,8 @@ struct FScriptCamSink : IGeoTransformControl
     FScriptCamSink() : RefCount(1) {}
 
     GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out);
-    unsigned long DACOM_API AddRef();
-    unsigned long DACOM_API Release();
+    FlULong DACOM_API AddRef();
+    FlULong DACOM_API Release();
 };
 
 struct FScriptCamTransform : FScriptCamSink

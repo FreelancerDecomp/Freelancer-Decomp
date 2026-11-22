@@ -74,7 +74,7 @@ void* MiscUtilLoadEngineInstance(char const* File, IFileSystem* Data, FAnimScrip
                                  Archetype::FCliVc6Vector<Archetype::FCliMaterialPathPair> const*
                                      MaterialPaths,
                                  std::vector<Archetype::FCliMaterialEntry*>* Entries,
-                                 long* OutHandle);
+                                 FlLong* OutHandle);
 
 struct ICamera;
 

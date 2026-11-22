@@ -304,7 +304,7 @@ public:
     // FUN_0058d540 (RET 4)
     bool GetSelectedRow(unsigned* OutRow);
     // FUN_0058d560 (RET 4) -- +0x4f0.
-    void SetFrameColor(unsigned long const* Rgba);
+    void SetFrameColor(FlULong const* Rgba);
     // FUN_0058d570 (RET 4) -- only while the current distance is not negative.
     void SetGrabDistance(float Distance);
     // FUN_0058d590 (RET 8) -- +0x501 = bRows, +0x500 = bColumns.
@@ -332,9 +332,9 @@ public:
     unsigned HoverRow;                      // +0x4e4
     unsigned char bHovered;                 // +0x4e8
     unsigned HoveredRow;                    // +0x4ec
-    unsigned long FrameRgba;                // +0x4f0
-    unsigned long SelectedRgba;             // +0x4f4
-    unsigned long HoveredRgba;              // +0x4f8
+    FlULong FrameRgba;                // +0x4f0
+    FlULong SelectedRgba;             // +0x4f4
+    FlULong HoveredRgba;              // +0x4f8
     float GrabDistance;                     // +0x4fc
     unsigned char bColumnsResizable;        // +0x500
     unsigned char bRowsResizable;           // +0x501
@@ -364,7 +364,7 @@ protected:
     // (0x0058e5d1..0x0058e61e, 0x0058e69f..0x0058e6ec, 0x0058f3ec..0x0058f448).
     FVector RayToLocal(float const* Ray) const;
     // Draw's row highlight quad (0x0058ebf5..0x0058ecdf / 0x0058ecf2..0x0058eddc).
-    void DrawRowQuad(unsigned long const* Rgba, unsigned Row) const;
+    void DrawRowQuad(FlULong const* Rgba, unsigned Row) const;
 
 private:
     UiFastTable(UiFastTable const&) = delete;

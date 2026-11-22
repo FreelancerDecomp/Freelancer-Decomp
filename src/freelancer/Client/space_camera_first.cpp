@@ -105,7 +105,7 @@ namespace
     // (IEngine slot 0x68, GetInstanceName, into a stack FEngineName), treats a null name as ""
     // (.rdata 0x005c865c), and records the part in the context when the name contains "cam"
     // (.rdata 0x005db934). No early out: a later match overwrites an earlier one.
-    void __cdecl FindCockpitCameraPart(long Instance, void* Context)
+    void __cdecl FindCockpitCameraPart(FlLong Instance, void* Context)
     {
         FEngineName Name;
         const char* Text =
@@ -113,7 +113,7 @@ namespace
         if (Text == nullptr)
             Text = "";
         if (strstr(Text, "cam") != nullptr)
-            *static_cast<long*>(Context) = Instance;
+            *static_cast<FlLong*>(Context) = Instance;
     }
 
     void SetIdentity(float* M)
@@ -206,7 +206,7 @@ void FirstPersonCameraAttach(FFirstPersonCamera* Cam, void* Object)
         memcpy(Space->World, &ObjectXform, 12 * sizeof(float));
 
         // 0x00517954: FindHardpoint_PS(get_index(), "HpCockpit", handle, info).
-        long Handle = 0;
+        FlLong Handle = 0;
         HardpointInfo Info;
         if (FindHardpoint_PS(Inspect->get_index(), "HpCockpit", Handle, Info))
         {
@@ -682,8 +682,8 @@ void FirstPersonCameraLoad(FFirstPersonCamera* Cam, const char* CockpitIniPath)
     // 0x0051762f: the compound is walked with FUN_00517130 to find the part whose name
     // contains "cam"; only when one was found does the head transform come out of the engine
     // -- nine floats from IEngine slot 0x98 into +0x13c and three from slot 0x90 into +0x130.
-    long CameraPart = -1;
-    CompoundInstanceAnalyze(static_cast<long>(reinterpret_cast<std::intptr_t>(Cam->Mesh.EngineInstance)),
+    FlLong CameraPart = -1;
+    CompoundInstanceAnalyze(static_cast<FlLong>(reinterpret_cast<std::intptr_t>(Cam->Mesh.EngineInstance)),
                             &FindCockpitCameraPart, &CameraPart);
     if (CameraPart != -1)
     {

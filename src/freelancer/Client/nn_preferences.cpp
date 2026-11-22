@@ -761,9 +761,9 @@ intptr_t NnPreferences::SetProperty(int Msg, uintptr_t A, uintptr_t B)
             if (CurPage == 1)
             {
                 // 0x004ace5c: the default video mode from the device caps.
-                unsigned long Ability4 = 0;
+                FlULong Ability4 = 0;
                 DALib::Pipeline->QueryDeviceAbility(4, &Ability4);
-                unsigned long VideoMemory = 0;
+                FlULong VideoMemory = 0;
                 DALib::Pipeline->QueryDeviceAbility(3, &VideoMemory);
                 VideoMemory >>= 20;
                 RefreshRows(-1);
@@ -2147,7 +2147,7 @@ void NnPreferences::SetSliderOption(int Id, int Value, int Row)
     {
         // 0x004b146b: gamma (ability 1) and environment maps (ability 8) need the device; without
         // it the call ends here -- no dirty update.
-        unsigned long Ability = 0;
+        FlULong Ability = 0;
         DALib::Pipeline->QueryDeviceAbility(Id == 0x534 ? 1u : 8u, &Ability);
         if (Ability == 0)
             return;
@@ -2376,7 +2376,7 @@ void NnPreferences::SetToggleOption(int Id, int Value, int Row)
     // FUN_004b1d20 (RET 0xc)
     if (Id == 0x534 || Id == 0x657)
     {
-        unsigned long Ability = 0;
+        FlULong Ability = 0;
         DALib::Pipeline->QueryDeviceAbility(Id == 0x534 ? 1u : 8u, &Ability);
         if (Ability == 0)
             return;
@@ -2533,7 +2533,7 @@ void NnPreferences::ProbeModes(int)
     memcpy(&Mode, &g_display, 0x28);
     Mode.width = 0;
     Mode.height = 0;
-    unsigned long VideoMemory = 0;
+    FlULong VideoMemory = 0;
     DALib::Pipeline->QueryDeviceAbility(3, &VideoMemory);
     VideoMemory >>= 20;
     bBigVram = static_cast<unsigned char>(VideoMemory >= 0x11);
@@ -2634,7 +2634,7 @@ namespace
     // The colour / state block RefreshRows writes per row (0x004b0bae greyed, 0x004b0c58 live).
     void SetOptionRowGreyed(NnPreferences* Self, int Index, bool bGreyed)
     {
-        unsigned long const Colour = bGreyed ? G_NnPaletteArgb_679b94 : G_NnPaletteArgb_679bb0;
+        FlULong const Colour = bGreyed ? G_NnPaletteArgb_679b94 : G_NnPaletteArgb_679bb0;
         Self->OptText[Index]->TextColour = Colour;
         Self->SmallButtonText[Index]->TextColour = Colour;
         WireButtonControl* const Small = Self->SmallButton[Index];
@@ -2703,7 +2703,7 @@ void NnPreferences::RefreshRows(int Id)
                 Row = OptionsB[Index];
             if (Row.Id == 0x534 || Row.Id == 0x657)
             {
-                unsigned long Ability = 0;
+                FlULong Ability = 0;
                 DALib::Pipeline->QueryDeviceAbility(Row.Id == 0x534 ? 1u : 8u, &Ability);
                 bDisabled = Ability == 0;
             }

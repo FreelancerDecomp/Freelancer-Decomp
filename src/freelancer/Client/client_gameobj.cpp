@@ -1974,7 +1974,7 @@ float FClientSolarGameobj::Slot178(Vector& Center)
     if ((Simple->TypeBits & 7u) != 0)
     {
         float Radius = 0.0f;
-        long const Inst = get_index();
+        FlLong const Inst = get_index();
         DALib::Engine->GetInstanceExtent(reinterpret_cast<void*>(static_cast<intptr_t>(Inst)), 0u,
                                          &Radius, &Center.x);
         FTransform const& Xform = reinterpret_cast<FTransform const&>(get_orientation());
@@ -2084,7 +2084,7 @@ unsigned* FClientSolarGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned 
     // 0x00548358..0x005483d8: the colour is the palette entry DAT_00679b80 and the size 1.0;
     // with a player ship, a distance above 2500 (DAT_005db7d8; FCOM / TEST AH,0x41 / JNZ)
     // gives size = distance * 0.0005 (DAT_005e04d8), capped at 99 (DAT_005e04d4 -> 0x42c60000).
-    unsigned long Color = G_NnPaletteArgb_679b80;
+    FlULong Color = G_NnPaletteArgb_679b80;
     float Size = 1.0f;
     IObjRW* const Player = static_cast<IObjRW*>(GetPlayerObjRW());
     if (Player != nullptr)
@@ -2110,8 +2110,8 @@ unsigned* FClientSolarGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned 
     unsigned char ColorBytes[4];
     std::memcpy(ColorBytes, &Color, sizeof(ColorBytes));
     ColorBytes[3] = static_cast<unsigned char>(
-        static_cast<long>(static_cast<double>(ColorBytes[3]) * Fade));
-    long const Inst = get_index();
+        static_cast<FlLong>(static_cast<double>(ColorBytes[3]) * Fade));
+    FlLong const Inst = get_index();
     int const Answer = SubmitWin3DMaterialEngineInstance(
         Camera, reinterpret_cast<void*>(static_cast<intptr_t>(Inst)), 1, ColorBytes, 0, Size, 0,
         0u);
@@ -2132,8 +2132,8 @@ unsigned* FClientSolarGameobj::Slot188(unsigned* OutLod, void* Camera, unsigned 
     Outline[0] = 0xff;
     Outline[1] = 0x80;
     Outline[2] = 0xff;
-    Outline[3] = static_cast<unsigned char>(static_cast<long>(static_cast<double>(Fade) * 255.0f));
-    long const OutlineInst = get_index();
+    Outline[3] = static_cast<unsigned char>(static_cast<FlLong>(static_cast<double>(Fade) * 255.0f));
+    FlLong const OutlineInst = get_index();
     SubmitWin3DTintedEngineInstanceWrapped(
         Camera, reinterpret_cast<void*>(static_cast<intptr_t>(OutlineInst)), 1, Outline, 0, Size,
         0u);
@@ -2480,7 +2480,7 @@ namespace
     // into Go's effect list (FUN_004fcea0) -- slot 0 there keeps the address of the caller's
     // stack archetype, exactly as retail's does. The local companion is cleared
     // (FUN_00502d90) either way.
-    void CreateEffectOnGameobj(FClientGameobj* Go, FEffectArch* Arch, long EngineIndex,
+    void CreateEffectOnGameobj(FClientGameobj* Go, FEffectArch* Arch, FlLong EngineIndex,
                                float const* Pose)
     {
         if (GetGameOption(kGameOptEffectsGroup) == 0)
@@ -2527,7 +2527,7 @@ namespace
         // 0x005456de..0x005457ab: the hardpoint in the object's own frame; an empty name or a
         // miss leaves position zero and orientation identity (the CRC word is not written).
         HardpointInfo Hp;
-        long HpHandle = 0;
+        FlLong HpHandle = 0;
         char const* const HpName = ShipArch->HpBaySurface.Value;
         if (HpName[0] == '\0' || !FindHardpoint_PS(Go->get_index(), HpName, HpHandle, Hp))
         {
@@ -2566,7 +2566,7 @@ namespace
         Pose[9] = Hp.Position.x;
         Pose[10] = Hp.Position.y;
         Pose[11] = Hp.Position.z;
-        long const EngineIndex = Go->get_index();
+        FlLong const EngineIndex = Go->get_index();
 
         // 0x00545883..0x005459a3; FUN_0040e2a0 (0x005459b5) is Scoped's destructor.
         CreateEffectOnGameobj(Go, &Arch, EngineIndex, Pose);
@@ -2592,7 +2592,7 @@ void FClientShipGameobj::PlayCargoJettisonSound()
             : nullptr;
     Archetype::Ship const* const ShipArch = static_cast<Archetype::Ship const*>(Ship->Archetype);
     HardpointInfo Hp;
-    long HpHandle = 0;
+    FlLong HpHandle = 0;
     char const* const HpName = ShipArch->HpBaySurface.Value;
     if (HpName[0] == '\0' || !FindHardpoint_PS(get_index(), HpName, HpHandle, Hp))
     {
@@ -2623,7 +2623,7 @@ void FClientShipGameobj::PlayCargoJettisonSound()
     Pose[10] = Hp.Position.y;
     Pose[11] = Hp.Position.z;
     // 0x005440e3: get_index.
-    long const EngineIndex = get_index();
+    FlLong const EngineIndex = get_index();
 
     // 0x005440e6..0x005441fa: the createeffect.h sequence (EFFECTS gate, factory, attach,
     // FUN_00544230, FUN_004fcea0, FUN_00502d90); 0x00544211: FUN_0040e2a0.
@@ -2711,7 +2711,7 @@ namespace
         Arch.SndEffect = LookupClientSoundArch(SoundId);
 
         float Pose[12] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f};
-        long const EngineIndex = Go->get_index();
+        FlLong const EngineIndex = Go->get_index();
         CreateEffectOnGameobj(Go, &Arch, EngineIndex, Pose);
     }
 }
@@ -2840,7 +2840,7 @@ void FClientShipGameobj::AttachPilotMesh(ID_String const* PilotMesh)
 
     // 0x005443a2..0x005443c6: "HpPilot" on the ship's own instance (vt+0x1c get_index); no
     // hardpoint, nothing.
-    long Handle = 0;
+    FlLong Handle = 0;
     HardpointInfo PilotInfo;
     if (!FindHardpoint_PS(get_index(), "HpPilot", Handle, PilotInfo))
         return;
@@ -2854,7 +2854,7 @@ void FClientShipGameobj::AttachPilotMesh(ID_String const* PilotMesh)
     Field_0x104->Companion->Load(0);
     // 0x005443fd..0x00544420: an engine instance of it (no parent); -1 stops here, anything
     // else goes to +0x10c (the mesh holder's instance).
-    long const Instance = Field_0x104->create_instance(nullptr);
+    FlLong const Instance = Field_0x104->create_instance(nullptr);
     if (Instance == -1)
         return;
     Field_0x108.EngineInstance = reinterpret_cast<void*>(static_cast<intptr_t>(Instance));
@@ -3878,7 +3878,7 @@ int FClientShipGameobj::slot_5c(int RequestType, unsigned const* TargetId,
     unsigned const Target = *TargetId;
     unsigned const SelfId = get_id();
     LocalServer()->RequestEvent(RequestType, SelfId, Target, Second,
-                                static_cast<unsigned long>(bFlag), GetPlayerConnectionId());
+                                static_cast<FlULong>(bFlag), GetPlayerConnectionId());
     return 0;
 }
 
@@ -3889,7 +3889,7 @@ int FClientShipGameobj::slot_60(int RequestType, unsigned const* TargetId, int A
     Field_0xec = nullptr;
     unsigned const Target = *TargetId;
     unsigned const SelfId = get_id();
-    LocalServer()->RequestCancel(RequestType, SelfId, Target, static_cast<unsigned long>(Arg3),
+    LocalServer()->RequestCancel(RequestType, SelfId, Target, static_cast<FlULong>(Arg3),
                                  GetPlayerConnectionId());
     return 0;
 }
@@ -4487,7 +4487,7 @@ namespace
     // FUN_00503070 on this gameobj at Xform, into OneShotCompanion (+0xb0). The id is tested
     // for emptiness first, as both slots do right before the call.
     void ProjectileStartConstEffect(FClientProjectileGameobj* Self, ID_String const* Effect,
-                                    long EngineIndex, Transform const& Xform)
+                                    FlLong EngineIndex, Transform const& Xform)
     {
         if (Effect->IsEmpty())
             return;
@@ -4517,7 +4517,7 @@ void FClientProjectileGameobj::Slot170()
     // 0x00542729..0x0054276a: Slot1c0(&Xform), get_index, start.
     Transform Xform;
     Slot1c0(&Xform);
-    long const EngineIndex = get_index();
+    FlLong const EngineIndex = get_index();
     ProjectileStartConstEffect(this, Effect, EngineIndex, Xform);
 }
 
@@ -4540,7 +4540,7 @@ void FClientProjectileGameobj::update(float Dt)
     // 0x00542801..0x00542825: the class & 7 object's archetype companion (no null test), then
     // get_index.
     Archetype::ICliObj* const Companion = NarrowObject(this, 0x7u)->Archetype->Companion;
-    long const EngineIndex = get_index();
+    FlLong const EngineIndex = get_index();
     ProjectileStartConstEffect(this, Archetype::CliProjConstEffect(Companion), EngineIndex,
                                Xform);
 }
@@ -5030,7 +5030,7 @@ void FClientGuidedGameobj::Slot1c0(Transform* Out)
     if (TrailParent[0] != '\0')
     {
         // 0x0053f08f..0x0053f0d2: FindHardpoint_PS(get_index(), name, &Handle (-1), &Info).
-        long Handle = -1;
+        FlLong Handle = -1;
         HardpointInfo Hp;
         if (FindHardpoint_PS(get_index(), TrailParent, Handle, Hp))
         {

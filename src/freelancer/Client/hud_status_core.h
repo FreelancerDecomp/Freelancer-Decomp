@@ -83,7 +83,7 @@ public:
 
     // FUN_004d5410 (thiscall, RET 0xc; `this` is not read) -- one row of up to 16 chips at
     // design height DesignY, filled to Ratio.
-    void DrawBars(float DesignY, unsigned long Color, float Ratio);
+    void DrawBars(float DesignY, FlULong Color, float Ratio);
 
     WinControl* HealthBar;     // +0x368 (WinControl +0x330) "HealthBar"
     WinControl* ShieldBar;     // +0x36c (+0x334) "ShieldBar"

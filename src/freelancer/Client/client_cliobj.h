@@ -90,7 +90,7 @@ namespace Archetype
     // A solar archetype's companion (CliSolar) +0x60: its shape_name text. Companion must be a
     // CliSolar (retail reads the offset without a type test).
     char const* CliSolarShapeName(ICliObj* Companion);
-    void CliObjRecomputeLodPickExplicit(ICliObj* Companion, long EngineIndex,
+    void CliObjRecomputeLodPickExplicit(ICliObj* Companion, FlLong EngineIndex,
                                         float const* BlendSource, bool bSolarOrShip);
     // FUN_00406c50 -- recompute the companion's LodPick from its bound archetype (kept as is
     // while that archetype is not loaded). Thiscall on the companion in retail.
@@ -169,5 +169,5 @@ namespace Archetype
     // FUN_00425480 (cdecl) -- hook up the materials (IMatHookUp slot 3) of an engine instance
     // and of every instance IEngine::GetRelatedInstance(Instance, 1, ...) walks to. Callers:
     // FUN_0054b520 (0x0054b7fe) and eight Gameobj/equipment paths.
-    void HookUpInstanceTreeMaterials(long EngineIndex);
+    void HookUpInstanceTreeMaterials(FlLong EngineIndex);
 }

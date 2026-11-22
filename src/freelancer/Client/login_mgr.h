@@ -126,7 +126,7 @@ public:
     // Gun2::IGUNQueueRead slot 0 (.text:005ab590, RET 8): the list server's reply 0x7204
     // into Servers / +0x160, the next page requested through the browser. Reached through
     // the CGunWrapper at +0x234 (CreateGun .text:005ab4c0).
-    virtual long __stdcall Read(Gun2::GUNQueueMessage* Message) override;
+    virtual FlLong __stdcall Read(Gun2::GUNQueueMessage* Message) override;
 
     // IDPMsgHandler slot 3 on the CDPClient base (.text:005accd0, RET 4): one DirectPlay
     // enum-hosts reply. Builds an FServerInfo from the session desc, the sender's
@@ -281,7 +281,7 @@ extern bool G_bServerConnected;      // DAT_0067ecbf
 extern bool G_bCommandLineG;         // DAT_0067ecc0 ("+G", main.cpp)
 extern IServer* G_Server;            // DAT_0067ecd0
 extern void* G_ChatServer;           // DAT_0067ecd4
-extern long G_ConnectResult;         // DAT_0067ea50 (HandleConnectError)
+extern FlLong G_ConnectResult;         // DAT_0067ea50 (HandleConnectError)
 extern bool G_bWaitingForServer;     // DAT_0067ea54
 extern char G_LocalServerDll[32];    // .data:00615aec "Server.dll", [Freelancer] local_server
 

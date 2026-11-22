@@ -127,7 +127,7 @@ namespace
         float BlinkBrightness;              // +0x7c
         unsigned char bPlayerOwned;         // +0x80 FUN_004fd9d0's argument
         unsigned char Pad81[3];
-        unsigned long TexFrame[5];          // +0x84 TextureLib slot +0x58 frame of "shine"
+        FlULong TexFrame[5];          // +0x84 TextureLib slot +0x58 frame of "shine"
         FCliEquipGameLight* EngineLight;    // +0x98 the real light (player-owned only)
     };
     FL_LAYOUT_ASSERT(sizeof(FCliEquipLight) == 0x9c, "CliEquipLight 0x9c");
@@ -281,7 +281,7 @@ namespace
     unsigned char LightColorByte(float Component)
     {
         double const Scaled = static_cast<double>(Component) * 255.0 + 0.5;
-        return static_cast<unsigned char>(static_cast<long>(floor(Scaled)));
+        return static_cast<unsigned char>(static_cast<FlLong>(floor(Scaled)));
     }
 
     // FUN_004fd920 -- the destructor body.
@@ -721,7 +721,7 @@ namespace
         Local.Translation.X = Hardpoint.Position.x;
         Local.Translation.Y = Hardpoint.Position.y;
         Local.Translation.Z = Hardpoint.Position.z;
-        long const Part = External->GetParentConnector(false);
+        FlLong const Part = External->GetParentConnector(false);
         EffectAttach(Light, Host, static_cast<int>(Part), &Local);
 
         // 0x00531d95..0x00531da9: the arch's +4 (Companion, the CliEQLight), null without an
@@ -871,7 +871,7 @@ namespace
         // FUN_00531f30: the host's index (vtable +0x1c, no test of the host), then the body of
         // FUN_00532170 inlined -- IFLAppearance from DALib::Engine, slot 5 with the index when
         // the query succeeded, released either way. The base destructor follows.
-        long const Index = Host->get_index();
+        FlLong const Index = Host->get_index();
         RemoveAppearanceInstanceValue(static_cast<int>(Index));
     }
 
@@ -890,7 +890,7 @@ namespace
             Identity.Rotation.D[0][0] = 1.0f;
             Identity.Rotation.D[1][1] = 1.0f;
             Identity.Rotation.D[2][2] = 1.0f;
-            long const Root = static_cast<CAttachedEquip*>(Device)->GetRootIndex();
+            FlLong const Root = static_cast<CAttachedEquip*>(Device)->GetRootIndex();
             FClientGameobj* const Owner = Host;
             ID_String const* const FxId = reinterpret_cast<ID_String const*>(
                 &static_cast<CECloakingDevice*>(Device)->CloakArch()->CloakOutFx);
@@ -1051,7 +1051,7 @@ namespace
     float const* CliShieldWorldFrame(CEquip* Equip)
     {
         CEShield* const Shield = CEShield::cast(Equip);
-        long const Root = Shield->GetRootIndex();
+        FlLong const Root = Shield->GetRootIndex();
         return DALib::Engine->GetInstanceTransform(
             reinterpret_cast<void*>(static_cast<intptr_t>(Root)));
     }
@@ -1893,14 +1893,14 @@ namespace
     void CliTradeLaneAttachLaneEffects(FCliTradeLaneEquipFx* Wrapper)
     {
         FClientGameobj* const Host = Wrapper->Host;
-        long const Root = Host->get_index();
+        FlLong const Root = Host->get_index();
         unsigned char* const Comp =
             reinterpret_cast<unsigned char*>(Wrapper->Equip->EquipArch()->Companion);
 
         FEffectArch* const LaneFx = FindEffectArch(reinterpret_cast<unsigned const*>(Comp + 0x84));
         if (LaneFx != nullptr)
         {
-            long HpHandle = 0;
+            FlLong HpHandle = 0;
             HardpointInfo HpInfo;
             FTransform Xform;
             if (FindHardpoint_PS(Root, "HpRightLane", HpHandle, HpInfo))
@@ -1925,7 +1925,7 @@ namespace
             FindEffectArch(reinterpret_cast<unsigned const*>(Comp + 0x80));
         if (ShieldFx != nullptr)
         {
-            long HpHandle = 0;
+            FlLong HpHandle = 0;
             HardpointInfo HpInfo;
             if (FindHardpoint_PS(Root, "HpShield01", HpHandle, HpInfo))
             {
@@ -2036,7 +2036,7 @@ namespace
             Identity.Rotation.D[2][2] = 1.0f;
             unsigned char const* const Comp = reinterpret_cast<unsigned char const*>(
                 Equip != nullptr ? Equip->Arch->Companion : nullptr);
-            long const Index = Host->get_index();
+            FlLong const Index = Host->get_index();
             FClientGameobj* const Owner = Host;
             ID_String const* const FxId = reinterpret_cast<ID_String const*>(Comp + 0x54);
             if (!FxId->IsEmpty())
@@ -2238,7 +2238,7 @@ namespace
                 Identity.Rotation.D[0][0] = 1.0f;
                 Identity.Rotation.D[1][1] = 1.0f;
                 Identity.Rotation.D[2][2] = 1.0f;
-                long const Index = Host->get_index();
+                FlLong const Index = Host->get_index();
                 CliCreateEffectOneShot(OperatingEffect, Host, static_cast<int>(Index), &Identity,
                                        OperatingCompanion);
             }
@@ -2326,8 +2326,8 @@ namespace
             return Wrapper;
         // 0x0052ecce..0x0052ecf4: the equipment's vtable +0x84 (CAttachedEquip::GetRootIndex,
         // no cast check), FindHardpoint_PS(root, name, &handle, &info).
-        long const Root = static_cast<CAttachedEquip*>(Equip)->GetRootIndex();
-        long HpHandle;
+        FlLong const Root = static_cast<CAttachedEquip*>(Equip)->GetRootIndex();
+        FlLong HpHandle;
         HardpointInfo HpInfo;
         if (!FindHardpoint_PS(Root, HpName, HpHandle, HpInfo))
         {
@@ -2450,7 +2450,7 @@ namespace
         // 0x00532328..0x00532355: the companion again, vtable +0x64 (GetParentConnector(false)),
         // and a second IsEmpty on the same "particles".
         Archetype::ICliObj* const Comp2 = (Equip != nullptr) ? Equip->Arch->Companion : nullptr;
-        long const Part = External->GetParentConnector(false);
+        FlLong const Part = External->GetParentConnector(false);
         FCliEQAttachedFXView const* const View = CompanionAsAttachedFX(Comp2);
         if (View->Particles.IsEmpty())
             return;

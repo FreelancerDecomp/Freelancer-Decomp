@@ -83,7 +83,7 @@ struct FClientMeshHolder : FMeshHolder
     FClientMeshHolder(FClientMeshHolder const&) = delete;
     FClientMeshHolder& operator=(FClientMeshHolder const&) = delete;
 
-    long AnimOrArchIndex = -1;                            // +0x10
+    FlLong AnimOrArchIndex = -1;                            // +0x10
     float UserFloats[5] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f}; // +0x14..+0x24 (FUN_00492250)
 };
 
@@ -147,7 +147,7 @@ void ClientMeshHolderSetMatrix(FMeshHolder* Holder, void* Transform);
 
 // FUN_00421120 (thiscall on the holder, RET 8) - IRenderer2 slot 7
 // (Camera, Holder+0x04, 1.0f, Flags, 0, 0).
-void ClientMeshHolderRender(FMeshHolder* Holder, void* Camera, unsigned long Flags);
+void ClientMeshHolderRender(FMeshHolder* Holder, void* Camera, FlULong Flags);
 
 // FUN_00420fd0 (thiscall on the holder, RET 4) - DALib::Engine vt+0x8c
 // SetInstancePosition(Holder+0x04, Position).

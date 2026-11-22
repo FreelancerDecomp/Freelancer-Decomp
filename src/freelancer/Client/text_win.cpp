@@ -96,9 +96,9 @@ void TextWin::Draw()
     // 0x005a1d8d: under the mouse the pulse built around +0xd0 is used; otherwise the idle
     // colour, or the inactive colour when +0xe6 is clear.
     bool const bHover = Win3DGetHover() == this;
-    unsigned long Pulsed = 0;
+    FlULong Pulsed = 0;
     NnUiPulseBlendFromArgb(&Pulsed, ColorPulse);
-    unsigned long const* Color = &ColorInactive;
+    FlULong const* Color = &ColorInactive;
     if (bUsePalette != 0)
         Color = bHover ? &Pulsed : &ColorIdle;
     FontAtlasSetDrawColor(static_cast<unsigned>(*Color)); // FUN_00417780

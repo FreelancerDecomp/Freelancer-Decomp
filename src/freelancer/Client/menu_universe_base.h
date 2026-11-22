@@ -39,9 +39,9 @@ class NewsBroadcastProperties;
 TMirrorPropertyBucket<NewsBroadcastProperties>* GetClientLocationBaseNews(unsigned BaseId);
 void SetClientLocationBaseStartLocation(unsigned BaseId, unsigned LocationId); // FUN_0043a5a0
 void UpsertClientLocationBaseMissionOffer(MissionVendorProperties const& Offer); // FUN_0043a960
-void EraseClientLocationBaseMissionOffer(unsigned BaseId, unsigned long Key);   // FUN_0043a9f0
+void EraseClientLocationBaseMissionOffer(unsigned BaseId, FlULong Key);   // FUN_0043a9f0
 void UpsertClientLocationBaseNews(NewsBroadcastProperties const& News);         // FUN_0043a6c0
-void EraseClientLocationBaseNews(unsigned BaseId, unsigned long Key);           // FUN_0043a750
+void EraseClientLocationBaseNews(unsigned BaseId, FlULong Key);           // FUN_0043a750
 void SetClientLocationBaseMissionListComplete(unsigned BaseId); // FUN_0043aaf0 (+0x14)
 void SetClientLocationBaseNewsListComplete(unsigned BaseId);    // FUN_0043a860 (+0x2c)
 void* GetClientLocationRoomState(unsigned LocationId);        // FUN_0043ab60
@@ -53,10 +53,10 @@ class AmbientScriptProperties;
 void UpsertClientLocationRoomCharacter(CharacterProperties const& Character);          // FUN_0043abf0
 void SetClientLocationRoomCharactersComplete(unsigned LocationId);                     // FUN_0043ace0
 void UpsertClientLocationRoomScriptBehavior(ScriptBehavior const& Behavior);           // FUN_0043ade0
-void EraseClientLocationRoomScriptBehavior(unsigned LocationId, unsigned long Key);    // FUN_0043ae70
+void EraseClientLocationRoomScriptBehavior(unsigned LocationId, FlULong Key);    // FUN_0043ae70
 void SetClientLocationRoomScriptBehaviorsComplete(unsigned LocationId);                // FUN_0043af80
 void UpsertClientLocationRoomAmbientScript(AmbientScriptProperties const& Script);     // FUN_0043b080
-void EraseClientLocationRoomAmbientScript(unsigned LocationId, unsigned long Key);     // FUN_0043b110
+void EraseClientLocationRoomAmbientScript(unsigned LocationId, FlULong Key);     // FUN_0043b110
 void SetClientLocationRoomAmbientScriptsComplete(unsigned LocationId);                 // FUN_0043b220
 // FUN_0043ab60 (typed) / FUN_0043ad50 -- the room state's +0x00 / +0x18 buckets. Caller:
 // RoomControl FUN_00449f40.

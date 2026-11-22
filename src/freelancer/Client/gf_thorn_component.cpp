@@ -26,7 +26,7 @@ namespace
     struct FThornFacetEntry
     {
         char const* Iid;
-        unsigned long Offset;
+        FlULong Offset;
     };
 
     // The offsets are retail's on Win32 and the class layout's on x64 (facet_offset.h).
@@ -43,12 +43,12 @@ namespace
         {nullptr, 0},
     };
 
-    long InstanceHandle(void* Instance)
+    FlLong InstanceHandle(void* Instance)
     {
-        return static_cast<long>(reinterpret_cast<intptr_t>(Instance));
+        return static_cast<FlLong>(reinterpret_cast<intptr_t>(Instance));
     }
 
-    void* InstancePointer(long Instance)
+    void* InstancePointer(FlLong Instance)
     {
         return reinterpret_cast<void*>(static_cast<intptr_t>(Instance));
     }
@@ -85,7 +85,7 @@ GENRESULT DACOM_API FThornComponent::QueryInterface(const char* Iid, void** Out)
         if (std::strcmp(G_ThornFacetTable[Index].Iid, Iid) != 0)
             continue;
 
-        unsigned long const Offset = G_ThornFacetTable[Index].Offset;
+        FlULong const Offset = G_ThornFacetTable[Index].Offset;
         IDAComponent* Facet = nullptr;
         if ((Offset & 0x80000000u) != 0)
             Facet = *reinterpret_cast<IDAComponent**>(Base + (Offset & 0x7fffffffu));
@@ -100,7 +100,7 @@ GENRESULT DACOM_API FThornComponent::QueryInterface(const char* Iid, void** Out)
 }
 
 // LAB_00450180.
-unsigned long DACOM_API FThornComponent::AddRef()
+FlULong DACOM_API FThornComponent::AddRef()
 {
     ++RefCount;
     return RefCount;
@@ -110,7 +110,7 @@ unsigned long DACOM_API FThornComponent::AddRef()
 // count goes back to 1 and FUN_005b7e1d (operator delete) frees the block: the destructor does
 // NOT run, so the name copy (and a derived class's resources) is never released on this path.
 // The scalar deleting destructor (slot 13) is the path that does run it.
-unsigned long DACOM_API FThornComponent::Release()
+FlULong DACOM_API FThornComponent::Release()
 {
     if (RefCount > 0)
         --RefCount;
@@ -256,8 +256,8 @@ void FThornComponent::ConnectEntityHardpoints(int IndexA, char const* HpA, int I
     KeyB.Name = HpB;
     KeyB.Crc = DACOM_CRC::GetCRC32(HpB);
 
-    long const InstanceA = SummaryA.find_name_instance(HpA);
-    long const InstanceB = SummaryB.find_name_instance(HpB);
+    FlLong const InstanceA = SummaryA.find_name_instance(HpA);
+    FlLong const InstanceB = SummaryB.find_name_instance(HpB);
     if (DALib::Hardpoint->ConnectHardpoints(InstancePointer(InstanceB), &KeyB,
                                             InstancePointer(InstanceA), &KeyA) != 0)
     {
@@ -286,8 +286,8 @@ void FThornComponent::DisconnectEntityHardpoints(int IndexA, char const* HpA, in
     SummaryA.analyze_instance(InstanceHandle(EntityA->GetEngineInstance()));
     SummaryB.analyze_instance(InstanceHandle(EntityB->GetEngineInstance()));
 
-    long const InstanceA = SummaryA.find_name_instance(HpA);
-    long const InstanceB = SummaryB.find_name_instance(HpB);
+    FlLong const InstanceA = SummaryA.find_name_instance(HpA);
+    FlLong const InstanceB = SummaryB.find_name_instance(HpB);
     if (DALib::Engine->DestroyJoint(InstancePointer(InstanceB), InstancePointer(InstanceA)) != 1)
     {
         FDUMP(0x100001,

@@ -211,10 +211,10 @@ extern float GWin3DModelview[12];
 // offline; nothing in the port's own code path calls them.
 int Win3DGetVertexCount();
 int Win3DGetIndexCount();
-unsigned long Win3DGetCurrentColour();
+FlULong Win3DGetCurrentColour();
 
 // Reads back one accumulated vertex. Returns false for an index outside what has been written.
-bool Win3DGetVertex(int Index, float* OutXyz3, unsigned long* OutColour);
+bool Win3DGetVertex(int Index, float* OutXyz3, FlULong* OutColour);
 
 // FUN_00422fe0. A small GLU-style sphere helper living in the same retail source file as the
 // rest of this emulator (OpenGL.cpp), adjacent in the binary to Win3DBegin/Vertex/End. Fills

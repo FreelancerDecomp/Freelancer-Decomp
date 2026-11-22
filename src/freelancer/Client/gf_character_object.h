@@ -101,9 +101,9 @@ struct FCharacterObject : FRoomObject
     void Update(double DeltaSeconds) override;      // 5  LAB_004449d0
     void* GetEngineInstance() override;             // 6  LAB_00444970
     void DrawOpaque(ICamera* Camera) override;      // 7  LAB_00445150
-    void Slot10(unsigned long Cookie, int const* Point) override; // 10 FUN_00445a90 (enter)
-    void Slot11(unsigned long Cookie, int const* Point) override; // 11 FUN_00445be0 (leave)
-    void Slot12(unsigned long Cookie, int const* Point) override; // 12 FUN_00445c10 (click)
+    void Slot10(FlULong Cookie, int const* Point) override; // 10 FUN_00445a90 (enter)
+    void Slot11(FlULong Cookie, int const* Point) override; // 11 FUN_00445be0 (leave)
+    void Slot12(FlULong Cookie, int const* Point) override; // 12 FUN_00445c10 (click)
 
     // FUN_00445280 (thiscall) -- restart the own script: a live sequence is restarted (or
     // played when it never was), else the idle script (+0x1ac) is created and played.
@@ -131,7 +131,7 @@ struct FCharacterObject : FRoomObject
     // FUN_00445620 (thiscall, RET 4) -- the part named Name: a cached hit from Parts, else
     // CompoundInstanceFindFirstName on the engine instance, cached in the first unused entry
     // (entry 0 when all five are used). -1 when there is none.
-    long FindPart(char const* PartName);
+    FlLong FindPart(char const* PartName);
     // FUN_004456e0 / FUN_004456f0 (thiscall, RET 4) -- ++ / -- ActiveMotions unless Handle is -1.
     void AddMotionHandle(int Handle);
     void RemoveMotionHandle(int Handle);
@@ -153,7 +153,7 @@ struct FCharacterObject : FRoomObject
         ~FPartCacheEntry();
 
         char* Name;          // +0x00 _strdup'd, freed with free()
-        long Part;           // +0x04 -1 = not resolved
+        FlLong Part;           // +0x04 -1 = not resolved
         unsigned char bUsed; // +0x08
     };
 
@@ -165,7 +165,7 @@ struct FCharacterObject : FRoomObject
     CharPlaceInfo* Placement;          // +0x1b8
     int PlacementIndex;                // +0x1bc -1 = not on a room placement
     int LodIds[4];                     // +0x1c0 FUN_00444f90's pick per part, -1 = none
-    long AccessoryInstances[kMaxAccessories];      // +0x1d0 -1 = none
+    FlLong AccessoryInstances[kMaxAccessories];      // +0x1d0 -1 = none
     HardpointSummary AccessoryHardpoints[kMaxAccessories]; // +0x1f0
     int AccessoryCount;                // +0x2f0
     FCharacterHotspot* Hotspot;        // +0x2f4

@@ -182,7 +182,7 @@ void FServerFilterDialogRow::Build(WinControl* Dialog, FServerFilterRowDesc cons
         Data->SetMaxLength(4);                                // FUN_0057bdb0(4)
         Data->SetDrawFrame(true);                             // FUN_00579860(1)
         Data->SetFrameColor(
-            reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba)); // FUN_00579870
+            reinterpret_cast<FlULong const*>(G_HudChromeColorRgba)); // FUN_00579870
         Data->SetAlignMode(2);                                // FUN_00579a60(2)
     }
 

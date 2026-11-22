@@ -425,7 +425,7 @@ bool GfFogIsActive()
         return true;
     // 0x00454732..0x00454754: Pipeline slot 8 (+0x20) ability 0xd into a zeroed dword; the
     // call's result is not looked at.
-    unsigned long Ability = 0;
+    FlULong Ability = 0;
     DALib::Pipeline->QueryDeviceAbility(0xd, &Ability);
     return Ability != 0;
 }

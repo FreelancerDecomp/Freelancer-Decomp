@@ -107,11 +107,11 @@ namespace
 
     // FUN_004a1ad0 (thiscall, RET 0x10) -- four bytes in argument order; the trade window stores
     // the result as the TextControl's +0x348 dword.
-    unsigned long TradeColour(unsigned char B0, unsigned char B1, unsigned char B2,
+    FlULong TradeColour(unsigned char B0, unsigned char B1, unsigned char B2,
                               unsigned char B3)
     {
-        return static_cast<unsigned long>(B0) | (static_cast<unsigned long>(B1) << 8) |
-               (static_cast<unsigned long>(B2) << 16) | (static_cast<unsigned long>(B3) << 24);
+        return static_cast<FlULong>(B0) | (static_cast<FlULong>(B1) << 8) |
+               (static_cast<FlULong>(B2) << 16) | (static_cast<FlULong>(B3) << 24);
     }
 
     NnTextControl* AsText(WinControl* Control)
@@ -1405,13 +1405,13 @@ intptr_t NnTrade::SetProperty(int Msg, uintptr_t A, uintptr_t B)
                         Unmark = nullptr;
                     PlayerList->SetMoney(PlayerList->CreditsTemplate.Count + Back);
                     G_Server->SetTradeMoney(
-                        Session, static_cast<unsigned long>(CenterList->CreditsTemplate.Count));
+                        Session, static_cast<FlULong>(CenterList->CreditsTemplate.Count));
                 }
             }
             else if (QuantityBar->Value != 0)
             {
                 // 0x004c2fa8..0x004c3006.
-                G_Server->SetTradeMoney(Session, static_cast<unsigned long>(
+                G_Server->SetTradeMoney(Session, static_cast<FlULong>(
                                                      CenterList->CreditsTemplate.Count +
                                                      QuantityBar->Value));
                 CenterList->SetMoney(CenterList->CreditsTemplate.Count + QuantityBar->Value);

@@ -27,21 +27,21 @@ void NnUiPulseReset();
 void NnUiPulseAdvance(double DeltaSeconds);
 
 // FUN_00561da0 — write blended ARGB into *OutArgb.
-void NnUiPulseBlendArgb(unsigned long* OutArgb);
+void NnUiPulseBlendArgb(FlULong* OutArgb);
 
 // FUN_00561f20 (cdecl) — the same pulse around a caller colour: BaseArgb takes the idle
 // colour's place and a grey made from the Base/amber midpoint takes the mid grey's place.
 // 14 retail callers (UIScroll arrows 005961a3 / 00596323, draw 005965d7, HUD, ...).
-void NnUiPulseBlendFromArgb(unsigned long* OutArgb, unsigned long BaseArgb);
+void NnUiPulseBlendFromArgb(FlULong* OutArgb, FlULong BaseArgb);
 
 // FUN_0045a650 (cdecl) -- the palette colour of a reputation Attitude: at or below -0.6 red
 // (DAT_00679ba8), at or below -0.2 white (DAT_00679b84), at or above 0.6 green
 // (DAT_00679bac), otherwise white (two branches, both DAT_00679b84). Callers: the nav map's
 // zone shading (0x0049ce39) and 0x004a82c9.
-void NnReputationColorArgb(unsigned long* OutArgb, float Attitude);
+void NnReputationColorArgb(FlULong* OutArgb, float Attitude);
 
 // Idle palette colour DAT_00679bb0 (LAB_00561c00).
-unsigned long NnUiPulseIdleArgb();
+FlULong NnUiPulseIdleArgb();
 
 // FUN_0059d570 -- the pulse phase over its period, DAT_0067dce8 / 0.3f (DAT_005e5dc4).
 float NnUiPulsePhaseNorm();
@@ -59,14 +59,14 @@ extern unsigned char G_HudChromeColorRgba[4];
 // 0xAABBGGRR -- which is how most retail readers load them (MOV r32). None of them has a
 // writer in the PE besides its initializer. LAB_00561c80 and LAB_00561d20 seed two more
 // slots that nothing reads; they are not declared.
-extern unsigned long G_NnPaletteArgb_679bb0; // LAB_00561c00  87,C3,E0,FF  idle cyan
-extern unsigned long G_NnPaletteArgb_679bac; // LAB_00561c20  3B,BF,1D,FF
-extern unsigned long G_NnPaletteArgb_679ba8; // LAB_00561c40  BF,1D,1D,FF
-extern unsigned long G_NnPaletteArgb_679ba4; // LAB_00561c60  F5,EA,52,FF  pulse amber
-extern unsigned long G_NnPaletteArgb_679b9c; // LAB_00561ca0  88,00,C2,FF
-extern unsigned long G_NnPaletteArgb_679b98; // LAB_00561cc0  48,48,E0,FF
-extern unsigned long G_NnPaletteArgb_679b94; // LAB_00561ce0  80,80,80,FF  grey
-extern unsigned long G_NnPaletteArgb_679b90; // LAB_00561d00  A8,FB,C5,FF
-extern unsigned long G_NnPaletteArgb_679b88; // LAB_00561d40  FF,7E,FD,FF
-extern unsigned long G_NnPaletteArgb_679b84; // LAB_00561d60  FF,FF,FF,FF  white
-extern unsigned long G_NnPaletteArgb_679b80; // LAB_00561d80  CE,5A,FF,FF
+extern FlULong G_NnPaletteArgb_679bb0; // LAB_00561c00  87,C3,E0,FF  idle cyan
+extern FlULong G_NnPaletteArgb_679bac; // LAB_00561c20  3B,BF,1D,FF
+extern FlULong G_NnPaletteArgb_679ba8; // LAB_00561c40  BF,1D,1D,FF
+extern FlULong G_NnPaletteArgb_679ba4; // LAB_00561c60  F5,EA,52,FF  pulse amber
+extern FlULong G_NnPaletteArgb_679b9c; // LAB_00561ca0  88,00,C2,FF
+extern FlULong G_NnPaletteArgb_679b98; // LAB_00561cc0  48,48,E0,FF
+extern FlULong G_NnPaletteArgb_679b94; // LAB_00561ce0  80,80,80,FF  grey
+extern FlULong G_NnPaletteArgb_679b90; // LAB_00561d00  A8,FB,C5,FF
+extern FlULong G_NnPaletteArgb_679b88; // LAB_00561d40  FF,7E,FD,FF
+extern FlULong G_NnPaletteArgb_679b84; // LAB_00561d60  FF,FF,FF,FF  white
+extern FlULong G_NnPaletteArgb_679b80; // LAB_00561d80  CE,5A,FF,FF

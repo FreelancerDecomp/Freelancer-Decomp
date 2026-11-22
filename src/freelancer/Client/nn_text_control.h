@@ -126,7 +126,7 @@ public:
     int Field33c;                   // +0x33c -- ctor -1; property 0x22 (B)
     int Field340;                   // +0x340 -- ctor 0; property 0x21 returns it
     int Dword344;                   // +0x344 -- Init's 9th argument
-    unsigned long TextColour;       // +0x348 -- ctor DAT_00679bb0 with the top byte forced 0xff
+    FlULong TextColour;       // +0x348 -- ctor DAT_00679bb0 with the top byte forced 0xff
     int Field34c;                   // +0x34c -- property 0x23 (A)
     int Field350;                   // +0x350 -- property 0x23 (B)
     unsigned char Byte354;          // +0x354 -- property 0xc (A != 0)

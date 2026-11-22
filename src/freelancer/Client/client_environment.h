@@ -53,10 +53,10 @@ struct IInputEvent
     virtual bool Slot01(unsigned A, unsigned B, unsigned C) = 0;
     // +0x08, RET 0xc -- a mouse move (A, B, packed lParam). GF LAB_00437200, SpaceApp
     // LAB_0054a210, IntroFocus 0x004b50e0, MissionBriefing LAB_0043d160.
-    virtual bool Slot02(unsigned A, unsigned B, unsigned long Packed) = 0;
+    virtual bool Slot02(unsigned A, unsigned B, FlULong Packed) = 0;
     // +0x0c, RET 0x10 -- a mouse button (A, Message, B, packed lParam). GF LAB_00437230,
     // SpaceApp LAB_0054a2e0, IntroFocus 0x0043d8f0, MissionBriefing LAB_0043d150.
-    virtual bool Slot03(unsigned A, unsigned Message, unsigned B, unsigned long Packed) = 0;
+    virtual bool Slot03(unsigned A, unsigned Message, unsigned B, FlULong Packed) = 0;
     // +0x10, RET 0xc. GF / MissionBriefing LAB_0043d160, SpaceApp LAB_0054a450, IntroFocus
     // 0x004b50e0.
     virtual bool Slot04(unsigned A, unsigned B, unsigned C) = 0;

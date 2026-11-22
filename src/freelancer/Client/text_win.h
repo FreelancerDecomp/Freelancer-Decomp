@@ -68,11 +68,11 @@ public:
     float Width;                    // +0x0b4
     float Height;                   // +0x0b8
     float Bounds[4];                // +0x0bc
-    unsigned long ColorIdle;        // +0x0cc
-    unsigned long ColorPulse;       // +0x0d0
-    unsigned long ColorD4;          // +0x0d4
-    unsigned long ColorD8;          // +0x0d8
-    unsigned long ColorInactive;    // +0x0dc
+    FlULong ColorIdle;        // +0x0cc
+    FlULong ColorPulse;       // +0x0d0
+    FlULong ColorD4;          // +0x0d4
+    FlULong ColorD8;          // +0x0d8
+    FlULong ColorInactive;    // +0x0dc
     unsigned char FlagE0;           // +0x0e0
     unsigned char FlagE1;           // +0x0e1
     unsigned char FlagE2;           // +0x0e2

@@ -897,8 +897,8 @@ void PageServerSelect::FillRow(unsigned Row, FServerInfo const* Server)
     // behind a TRANode (colour 0x1d1dbf, mask 0xffffff00) when it is not the client's.
     {
         std::wstringstream Stream;
-        Stream << static_cast<unsigned long>((Server->Version >> 24) & 0xffu) << L"."
-               << static_cast<unsigned long>((Server->Version >> 16) & 0xffu) << std::ends;
+        Stream << static_cast<FlULong>((Server->Version >> 24) & 0xffu) << L"."
+               << static_cast<FlULong>((Server->Version >> 16) & 0xffu) << std::ends;
         RenderDisplayList Text;
         if (Server->Version != static_cast<unsigned>(g_client.packed_version))
         {

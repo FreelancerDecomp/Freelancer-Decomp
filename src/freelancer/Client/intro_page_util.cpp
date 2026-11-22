@@ -44,12 +44,12 @@ namespace IntroPageUtil
     }
 
     TextRenderAttributes PackTextAttributes(unsigned char A, unsigned char B, unsigned char C,
-                                            unsigned char D, unsigned long Rgb)
+                                            unsigned char D, FlULong Rgb)
     {
         unsigned char const Flags = static_cast<unsigned char>(
             (A & 1u) | ((B & 1u) << 1) | ((C & 1u) << 2) | ((D << 3) & 0xf8u));
         TextRenderAttributes Attrs;
-        Attrs.Packed = static_cast<unsigned long>(Flags) | ((Rgb & 0xffffffu) << 8);
+        Attrs.Packed = static_cast<FlULong>(Flags) | ((Rgb & 0xffffffu) << 8);
         return Attrs;
     }
 
@@ -63,9 +63,9 @@ namespace IntroPageUtil
         Object->Flags = static_cast<unsigned char>(Object->Flags | 3);
     }
 
-    unsigned long const* ChromeColor()
+    FlULong const* ChromeColor()
     {
-        return reinterpret_cast<unsigned long const*>(G_HudChromeColorRgba);
+        return reinterpret_cast<FlULong const*>(G_HudChromeColorRgba);
     }
 
     int EdgeCount(std::vector<float> const& Edges)

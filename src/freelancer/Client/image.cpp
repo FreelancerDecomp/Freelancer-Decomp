@@ -106,7 +106,7 @@ namespace
 
         // FUN_005658d0 (thiscall, RET 8): 0 when the file is mapped; -8 open failed, -6 mapping
         // failed, -1 view failed.
-        int Open(char const* Path, unsigned long Field30)
+        int Open(char const* Path, FlULong Field30)
         {
             FFileSystemDesc Desc;
             memset(&Desc, 0, 0x34);
@@ -118,11 +118,11 @@ namespace
             Desc.Creation = 3;
             Desc.Flags = 0x8000080u;
             Desc.Field30 = Field30;
-            Handle = static_cast<unsigned long>(Fs->OpenByDesc(&Desc)); // slot 31 (+0x7c)
+            Handle = static_cast<FlULong>(Fs->OpenByDesc(&Desc)); // slot 31 (+0x7c)
             if (Handle == 0xffffffffu)
                 return -8;
             Size = Fs->GetSize(Handle, 0); // +0x28
-            Mapping = static_cast<unsigned long>(Fs->CreateMapping(Handle, 0, 2, 0, 0, 0));
+            Mapping = static_cast<FlULong>(Fs->CreateMapping(Handle, 0, 2, 0, 0, 0));
             if (Mapping == 0xffffffffu)
                 return -6;
             View = static_cast<std::uintptr_t>(Fs->MapFileView(Mapping, 4, 0, 0, 0));
@@ -140,7 +140,7 @@ namespace
                 {
                     if (View != 0)
                     {
-                        Fs->UnmapFileView(static_cast<unsigned long>(View)); // +0x44
+                        Fs->UnmapFileView(static_cast<FlULong>(View)); // +0x44
                         View = 0;
                     }
                     Fs->CloseFile(Mapping); // +0x10
@@ -155,9 +155,9 @@ namespace
             }
         }
 
-        unsigned long Handle;  // +0x00
-        unsigned long Size;    // +0x04
-        unsigned long Mapping; // +0x08
+        FlULong Handle;  // +0x00
+        FlULong Size;    // +0x04
+        FlULong Mapping; // +0x08
         std::uintptr_t View;   // +0x0c
         IFileSystem* Fs;       // +0x10
 
@@ -201,9 +201,9 @@ namespace
     }
 
     // The 32-iteration bit count 0x005652c0..0x00565301 over one DIB colour mask.
-    unsigned long CountMaskBits(unsigned long Mask)
+    FlULong CountMaskBits(FlULong Mask)
     {
-        unsigned long Count = 0;
+        FlULong Count = 0;
         for (int Bit = 0; Bit < 0x20; ++Bit)
         {
             if ((Mask & 1u) != 0)
@@ -285,14 +285,14 @@ bool Image::LoadBmp(char const* Path)
     memset(&Dib, 0, sizeof(Dib));
     if (GetObjectA(Bitmap, 0x54, &Dib) == 0x54)
     {
-        unsigned long const Compression = Dib.dsBmih.biCompression;
+        FlULong const Compression = Dib.dsBmih.biCompression;
         unsigned short const BitCount = Dib.dsBmih.biBitCount; // word at +0x26
         if ((Compression == 0 || Compression == 3) &&
             (BitCount == 0x10 || BitCount == 0x18 || BitCount == 0x20))
         {
-            unsigned long RedBits = 8;
-            unsigned long GreenBits = 8;
-            unsigned long BlueBits = 8;
+            FlULong RedBits = 8;
+            FlULong GreenBits = 8;
+            FlULong BlueBits = 8;
             if (Compression != 0)
             {
                 // BI_BITFIELDS: the widths are the masks' bit counts.
@@ -300,9 +300,9 @@ bool Image::LoadBmp(char const* Path)
                 GreenBits = CountMaskBits(Dib.dsBitfields[1]);
                 BlueBits = CountMaskBits(Dib.dsBitfields[2]);
             }
-            unsigned long ImageFormat = 0;
+            FlULong ImageFormat = 0;
             PixelFormatFind(&ImageFormat, BitCount, RedBits, GreenBits, BlueBits, 0);
-            unsigned long TargetFormat = 0;
+            FlULong TargetFormat = 0;
             PixelFormatFind(&TargetFormat, 0x20, 8, 8, 8, 0);
 
             // Descriptor +0x10 is the 32-bit target format, +0x14 the DIB's own (the header
@@ -316,9 +316,9 @@ bool Image::LoadBmp(char const* Path)
             Desc.SrcFormat = &TargetFormat;
             Desc.DstFormat = &ImageFormat;
             Desc.Pixels = Dib.dsBm.bmBits;
-            Desc.Width = static_cast<unsigned long>(Dib.dsBm.bmWidth);
-            Desc.Height = static_cast<unsigned long>(Dib.dsBm.bmHeight);
-            Desc.Pitch = static_cast<unsigned long>(Dib.dsBm.bmWidthBytes);
+            Desc.Width = static_cast<FlULong>(Dib.dsBm.bmWidth);
+            Desc.Height = static_cast<FlULong>(Dib.dsBm.bmHeight);
+            Desc.Pitch = static_cast<FlULong>(Dib.dsBm.bmWidthBytes);
             Desc.DrawTile = &ScreenQuadDrawBigImageTile;
 
             Release(); // 0x00565392..0x0056539a
@@ -378,7 +378,7 @@ bool Image::LoadTga(char const* Path)
                 reinterpret_cast<unsigned char const*>(static_cast<uintptr_t>(Mapped.View));
 
             // 0x0056558b..0x005655ef: the header's format, seeded with FUN_005b7010(0).
-            unsigned long ImageFormat = static_cast<unsigned long>(PixelFormatFromD3D(0));
+            FlULong ImageFormat = static_cast<FlULong>(PixelFormatFromD3D(0));
             unsigned char const Type = static_cast<unsigned char>(Header[2] & 7);
             if (Type == 1 && Header[1] == 1)
                 PixelFormatFind(&ImageFormat, 8, 0, 0, 0, 0);
@@ -392,15 +392,15 @@ bool Image::LoadTga(char const* Path)
                 PixelFormatFind(&ImageFormat, 0x18, 8, 8, 8, 0);
 
             // 0x005655f4..0x00565607: CMP bpp,0x20 / JNC -- anything under 32 bits fails.
-            unsigned long const Bpp = PixelFormatGetDesc(static_cast<int>(ImageFormat))->Bpp;
+            FlULong const Bpp = PixelFormatGetDesc(static_cast<int>(ImageFormat))->Bpp;
             if (Bpp >= 0x20)
             {
                 // 0x00565641..0x00565663: pitch = ((bpp + 7) >> 3) * (short)width (IMUL).
-                long const Width = static_cast<long>(TgaShort(Header + 0xc));
-                long const Height = static_cast<long>(TgaShort(Header + 0xe));
-                unsigned long const Pitch =
-                    ((Bpp + 7) >> 3) * static_cast<unsigned long>(Width);
-                unsigned long TargetFormat = 0;
+                FlLong const Width = static_cast<FlLong>(TgaShort(Header + 0xc));
+                FlLong const Height = static_cast<FlLong>(TgaShort(Header + 0xe));
+                FlULong const Pitch =
+                    ((Bpp + 7) >> 3) * static_cast<FlULong>(Width);
+                FlULong TargetFormat = 0;
                 PixelFormatFind(&TargetFormat, 0x20, 8, 8, 8, 8);
 
                 // 0x00565671..0x00565696: the pixels follow the 0x12-byte header, the id field
@@ -419,8 +419,8 @@ bool Image::LoadTga(char const* Path)
                 ImageDesc.SrcFormat = &TargetFormat; // +0x10 (see LoadBmp)
                 ImageDesc.DstFormat = &ImageFormat;  // +0x14
                 ImageDesc.Pixels = Pixels;
-                ImageDesc.Width = static_cast<unsigned long>(Width);
-                ImageDesc.Height = static_cast<unsigned long>(Height);
+                ImageDesc.Width = static_cast<FlULong>(Width);
+                ImageDesc.Height = static_cast<FlULong>(Height);
                 ImageDesc.Pitch = Pitch;
                 ImageDesc.DrawTile = &ScreenQuadDrawBigImageTile;
 

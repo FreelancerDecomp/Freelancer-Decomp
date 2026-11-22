@@ -170,14 +170,14 @@ void ListBox::Draw()
     {
         // 0x005a2415: the selected row in DAT_00679ba4, the +0x80 row in the UI pulse
         // (FUN_00561da0), every other row in the HUD chrome colour DAT_00679bb4.
-        unsigned long Color = 0;
+        FlULong Color = 0;
         if (SelectedIndex == Index)
         {
             Color = G_NnPaletteArgb_679ba4; // DAT_00679ba4
         }
         else if (Field80 == Index)
         {
-            unsigned long Pulsed = 0;
+            FlULong Pulsed = 0;
             NnUiPulseBlendArgb(&Pulsed);
             Color = Pulsed;
         }

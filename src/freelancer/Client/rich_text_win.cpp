@@ -383,11 +383,11 @@ void BaseRichTextWin::Draw()
         {
             // 0x0057ad9a..0x0057adb6: FUN_005b7010(0) seeds the id, FUN_005b7050 (thiscall on it)
             // looks up 16 bpp, 5:5:5 colour, 1-bit alpha (A1R5G5B5); the result is not tested.
-            unsigned long Format = static_cast<unsigned long>(PixelFormatFromD3D(0));
+            FlULong Format = static_cast<FlULong>(PixelFormatFromD3D(0));
             PixelFormatFind(&Format, 0x10, 5, 5, 5, 1);
             GENRESULT const Result = Image->SetFromBuffer(
-                Buffer, &Format, static_cast<unsigned long>(Surface.Width),
-                static_cast<unsigned long>(Surface.Height), static_cast<unsigned long>(Pitch));
+                Buffer, &Format, static_cast<FlULong>(Surface.Width),
+                static_cast<FlULong>(Surface.Height), static_cast<FlULong>(Pitch));
             if (Result == 0)
                 bSurfaceDirty = 0;
             else
@@ -507,7 +507,7 @@ void BaseRichTextWin::SetDrawFrame(bool bDraw)
     bDrawFrame = bDraw ? 1 : 0;
 }
 
-void BaseRichTextWin::SetFrameColor(unsigned long const* Rgba)
+void BaseRichTextWin::SetFrameColor(FlULong const* Rgba)
 {
     memcpy(FrameColor, Rgba, 4);
 }
@@ -850,8 +850,8 @@ void BaseRichTextWin::EnsureSurface()
 
         // 0x0057a415..0x0057a44f: both ids seeded with FUN_005b7010(0), then FUN_005b7050 (thiscall
         // on each) with 16 bpp, 5:5:5 colour, 1-bit alpha (A1R5G5B5); results not tested.
-        unsigned long DstFormat = static_cast<unsigned long>(PixelFormatFromD3D(0)); // [esp+0x34]
-        unsigned long SrcFormat = static_cast<unsigned long>(PixelFormatFromD3D(0)); // [esp+0x38]
+        FlULong DstFormat = static_cast<FlULong>(PixelFormatFromD3D(0)); // [esp+0x34]
+        FlULong SrcFormat = static_cast<FlULong>(PixelFormatFromD3D(0)); // [esp+0x38]
         PixelFormatFind(&DstFormat, 0x10, 5, 5, 5, 1);
         PixelFormatFind(&SrcFormat, 0x10, 5, 5, 5, 1);
         FBigImageDesc Desc;
@@ -862,9 +862,9 @@ void BaseRichTextWin::EnsureSurface()
         Desc.SrcFormat = &SrcFormat;
         Desc.DstFormat = &DstFormat;
         Desc.Pixels = Buffer;
-        Desc.Width = static_cast<unsigned long>(Surface.Width);
-        Desc.Height = static_cast<unsigned long>(Surface.Height);
-        Desc.Pitch = static_cast<unsigned long>(Pitch);
+        Desc.Width = static_cast<FlULong>(Surface.Width);
+        Desc.Height = static_cast<FlULong>(Surface.Height);
+        Desc.Pitch = static_cast<FlULong>(Pitch);
         Desc.DrawTile = &ScreenQuadDrawBigImageTile;
 
         void* Instance = nullptr;

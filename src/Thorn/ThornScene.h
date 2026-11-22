@@ -653,12 +653,12 @@ public:
     FThornEntity* EntityAt(int Index);
     const FThornEntity* EntityAt(int Index) const;
 
-    unsigned long EntityCount() const;
-    unsigned long LiveEntityCount() const;
+    FlULong EntityCount() const;
+    FlULong LiveEntityCount() const;
     void* EntityHandle(int Index);
     FThornEntitySnap* EntitySnap(int Index);
     FThornEntitySnap* EntitySnapInorder(int Index);
-    unsigned long UserPropCount(int Index) const;
+    FlULong UserPropCount(int Index) const;
     const char* UserPropKey(int Index, int N) const;
     GENRESULT GetEntityPos(int Index, float* OutVec3);
     GENRESULT GetEntityOrient(int Index, float* OutMat9);
@@ -675,7 +675,7 @@ public:
     GENRESULT SaveToFileSystem(void* FileSystem, IThornComContext* ComContext,
                                unsigned int SavedDurationMs);
 
-    unsigned long EventCount() const { return static_cast<unsigned long>(MasterCount_); }
+    FlULong EventCount() const { return static_cast<FlULong>(MasterCount_); }
     void* EventDescByIndex(int Index);
     void* EventDescById(int Id);
     bool HasEventType(int Type) const;

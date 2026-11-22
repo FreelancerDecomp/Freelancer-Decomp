@@ -1866,7 +1866,7 @@ void CliAsteroidUpdate(FCliAsteroid* This, FSpaceCamera* Cam, float Dt)
             {
                 // 0x0052219a..0x00522273: a default value inserted under the cube id
                 // (FUN_00526a40 / FUN_00526d20), the temporaries destroyed.
-                It = Cubes.insert(std::pair<unsigned long const, FCliAsteroidCube>(
+                It = Cubes.insert(std::pair<FlULong const, FCliAsteroidCube>(
                                       Event->CubeId, FCliAsteroidCube()))
                          .first;
                 FCliAsteroidCube& Value = It->second;
@@ -2031,7 +2031,7 @@ void CliAsteroidDrawFarPiece(FCliAsteroid* Field, FSpaceCamera* Cam, int PieceIn
     Cam->ZFar = 250000.0f;
 
     // DAT_00613850: .data 1, read here only (XREF[1] 0x0052291a), no writer.
-    static unsigned long s_BandDrawEnable = 1;
+    static FlULong s_BandDrawEnable = 1;
     if (s_BandDrawEnable != 0)
     {
         // 0x00522927..0x00522960: FUN_00421ed0 disables, FUN_00421dd0 enables.
@@ -2466,14 +2466,14 @@ namespace
     unsigned G_AsteroidCubesDrawn = 0;
 
     // DAT_005dc3c4 / DAT_005dc394 / DAT_005dc374 -- {state, value} tables, copied from the PE.
-    unsigned long const kRsAsteroidCull[] = {0x8d, 0, 0};
-    unsigned long const kRsAsteroidBlend[] = {0x89, 1, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
-    unsigned long const kRsAsteroidOpaque[] = {0x89, 1, 0x1d, 0, 0x1b, 0, 0};
+    FlULong const kRsAsteroidCull[] = {0x8d, 0, 0};
+    FlULong const kRsAsteroidBlend[] = {0x89, 1, 0x1d, 0, 0x1b, 1, 0x13, 5, 0x14, 6, 0};
+    FlULong const kRsAsteroidOpaque[] = {0x89, 1, 0x1d, 0, 0x1b, 0, 0};
 
     // The inline {state, value} walk (first state loaded as a constant, next state tested for 0).
-    void AsteroidApplyRs(IRenderPipeline* Pipe, unsigned long const* Table)
+    void AsteroidApplyRs(IRenderPipeline* Pipe, FlULong const* Table)
     {
-        for (unsigned long const* Pair = Table; Pair[0] != 0; Pair += 2)
+        for (FlULong const* Pair = Table; Pair[0] != 0; Pair += 2)
             Pipe->SetRenderState((D3DRENDERSTATETYPE)Pair[0], static_cast<int>(Pair[1]));
     }
 
@@ -2850,7 +2850,7 @@ namespace
 
         // 0x00523977..0x0052399a: the camera's own cube id (from the camera position, not the
         // cached eye); the seen byte cleared; the first-draw byte set.
-        unsigned long const PlayerCubeId =
+        FlULong const PlayerCubeId =
             CmnAsteroid::compute_cube_id(Cmn->closest_cube_pos(CamPos));
         unsigned char bPlayerCubeSeen = 0;
         unsigned char bFirst = 1;
@@ -2935,7 +2935,7 @@ namespace
 
                     // 0x00523d44..0x00523d6b: compute_cube_id; id 0 or excluded -> next cube; the
                     // camera's own id marks it seen.
-                    unsigned long const CubeId = CmnAsteroid::compute_cube_id(CubePos);
+                    FlULong const CubeId = CmnAsteroid::compute_cube_id(CubePos);
                     if (CubeId == 0)
                         continue;
                     if (bNotExcluded == 0)

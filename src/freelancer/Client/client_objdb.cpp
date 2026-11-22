@@ -913,7 +913,7 @@ namespace
         // (+0x5c == 0) its own engine instance (+0x04); else the first {PartId, Inst, ...}
         // entry (stride 0xc) of [+0x68, +0x6c) keyed by PartId. No entry, or an entry of -1,
         // falls back to +0x04.
-        long Inst = Part->EngineInstanceId;
+        FlLong Inst = Part->EngineInstanceId;
         if (Part->SurfaceManager != nullptr)
         {
             for (std::vector<FPartMapEntry>::const_iterator Entry = Part->PartMap.begin();

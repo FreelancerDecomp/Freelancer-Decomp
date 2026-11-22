@@ -173,7 +173,7 @@ UiScroll::UiScroll()
         G_ScrollMidShape = ScrollShapeFind("HUD_slidertexmid");
     }
 
-    unsigned long const IdleColor = G_NnPaletteArgb_679bb0;                // DAT_00679bb0
+    FlULong const IdleColor = G_NnPaletteArgb_679bb0;                // DAT_00679bb0
     ArrowIdleColor_ = IdleColor;
     ArrowHotColor_ = IdleColor;
     BarIdleColor_ = IdleColor;
@@ -437,14 +437,14 @@ void UiScroll::SetSize(float Width, float Height)
     Relayout();
 }
 
-void UiScroll::SetArrowColors(unsigned long const* Idle, unsigned long const* Hot)
+void UiScroll::SetArrowColors(FlULong const* Idle, FlULong const* Hot)
 {
     // FUN_00595f30.
     ArrowIdleColor_ = *Idle;
     ArrowHotColor_ = *Hot;
 }
 
-void UiScroll::SetBarColors(unsigned long const* Idle, unsigned long const* Hot)
+void UiScroll::SetBarColors(FlULong const* Idle, FlULong const* Hot)
 {
     // FUN_00595f50.
     BarIdleColor_ = *Idle;
@@ -573,7 +573,7 @@ void UiScroll::DrawArrowVertical(FScrollHitRect const* Rect, bool bDraw, bool bU
         if (Rect->bHot)
         {
             // +0x418 pulsed through FUN_00561f20.
-            unsigned long Pulse = BarHotColor_;
+            FlULong Pulse = BarHotColor_;
             NnUiPulseBlendFromArgb(&Pulse, Pulse);
             Win3DColor4ubv(reinterpret_cast<unsigned char const*>(&Pulse));
         }
@@ -615,7 +615,7 @@ void UiScroll::DrawArrowHorizontal(FScrollHitRect const* Rect, bool bDraw, bool 
     {
         if (Rect->bHot)
         {
-            unsigned long Pulse = BarHotColor_;
+            FlULong Pulse = BarHotColor_;
             NnUiPulseBlendFromArgb(&Pulse, Pulse);
             Win3DColor4ubv(reinterpret_cast<unsigned char const*>(&Pulse));
         }
@@ -659,7 +659,7 @@ void UiScroll::Draw()
     // times, as retail does).
     if (bCustomColor_)
     {
-        unsigned long Custom = 0;
+        FlULong Custom = 0;
         memcpy(&Custom, CustomColor_, sizeof(Custom));
         ArrowIdleColor_ = Custom;
         ArrowHotColor_ = Custom;
@@ -699,7 +699,7 @@ void UiScroll::Draw()
     // The thumb: +0x418 pulsed while hot and active, else +0x410.
     if (Thumb_.bHot && bActive_)
     {
-        unsigned long Pulse = BarHotColor_;
+        FlULong Pulse = BarHotColor_;
         NnUiPulseBlendFromArgb(&Pulse, Pulse);
         Win3DColor4ubv(reinterpret_cast<unsigned char const*>(&Pulse));
     }

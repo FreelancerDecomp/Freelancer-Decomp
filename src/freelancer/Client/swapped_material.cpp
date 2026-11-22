@@ -24,8 +24,8 @@ namespace
     // the stack held (0x0042ce9e / 0x0042d5ae / 0x0042d5ea); it is zero here.
     struct FTextureQuery
     {
-        unsigned long Field_0x00; // TODO: never written by these callers
-        unsigned long Crc;        // +0x04
+        FlULong Field_0x00; // TODO: never written by these callers
+        FlULong Crc;        // +0x04
     };
 
     // Slot 12 writes straight into the member (retail passes its address), so a miss leaves the
@@ -54,7 +54,7 @@ namespace
     {
         int Count = 0;
         DALib::MaterialLib->GetGroupMaterialCount(0, &Count);
-        for (unsigned long Index = 0; Index < static_cast<unsigned long>(Count); ++Index)
+        for (FlULong Index = 0; Index < static_cast<FlULong>(Count); ++Index)
         {
             IMaterial* Material = nullptr;
             DALib::MaterialLib->EnumGroupMaterial(0, Index, &Material);
@@ -141,10 +141,10 @@ bool FSwappedMaterial::CaptureOriginal()
         return false; // 0x0042cda9
 
     // 0x0042cdc4..0x0042cf7e: every parameter; the string Dt_name is kept.
-    unsigned long ParameterCount = 0;
+    FlULong ParameterCount = 0;
     Material->GetParameterCount(&ParameterCount); // slot 16 (+0x40)
     bool bFound = false;
-    for (unsigned long Parameter = 0; Parameter < ParameterCount; ++Parameter)
+    for (FlULong Parameter = 0; Parameter < ParameterCount; ++Parameter)
     {
         FShadingPropertyRecord Descriptor = {};
         Material->GetParameterDescriptor(Parameter, &Descriptor); // slot 17 (+0x44)
@@ -183,10 +183,10 @@ void FSwappedMaterial::SetDtName(char const* TextureName)
 
     // 0x0042d2be..0x0042d472: every string Dt_name parameter becomes a ProcessHeap copy of
     // TextureName (none when TextureName is null) and is written back through slot 19.
-    unsigned long ParameterCount = 0;
+    FlULong ParameterCount = 0;
     Material->GetParameterCount(&ParameterCount);
     bool bFound = false;
-    for (unsigned long Parameter = 0; Parameter < ParameterCount; ++Parameter)
+    for (FlULong Parameter = 0; Parameter < ParameterCount; ++Parameter)
     {
         FShadingPropertyRecord Descriptor = {};
         Material->GetParameterDescriptor(Parameter, &Descriptor);
@@ -209,7 +209,7 @@ void FSwappedMaterial::SetDtName(char const* TextureName)
                     memcpy(Copy, TextureName, Size);
                     // PORT(x64): the 32-bit cell keeps only the low half of the address; the
                     // material parameter cells get their own fix (docs/x64-client-plan.md).
-                    Value.Payload0 = static_cast<unsigned long>(reinterpret_cast<std::uintptr_t>(Copy));
+                    Value.Payload0 = static_cast<FlULong>(reinterpret_cast<std::uintptr_t>(Copy));
                 }
                 Material->SetParameterValue(Parameter, &Value); // slot 19 (+0x4c)
                 bFound = true;

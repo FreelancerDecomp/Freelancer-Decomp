@@ -2233,28 +2233,28 @@ namespace
         lua_endblock();
     }
 
-    unsigned long IfsAddRef(void* FileSystem)
+    FlULong IfsAddRef(void* FileSystem)
     {
         if (FileSystem == nullptr)
             return 0;
         return static_cast<IFileSystem*>(FileSystem)->AddRef();
     }
 
-    unsigned long IfsRelease(void* FileSystem)
+    FlULong IfsRelease(void* FileSystem)
     {
         if (FileSystem == nullptr)
             return 0;
         return static_cast<IFileSystem*>(FileSystem)->Release();
     }
 
-    unsigned long IfsGetSize(void* FileSystem)
+    FlULong IfsGetSize(void* FileSystem)
     {
         if (FileSystem == nullptr)
             return 0;
         return static_cast<IFileSystem*>(FileSystem)->GetSize(0, 0); // +0x28
     }
 
-    int IfsRead(void* FileSystem, void* Buffer, unsigned long Size, unsigned long* BytesRead)
+    int IfsRead(void* FileSystem, void* Buffer, FlULong Size, FlULong* BytesRead)
     {
         if (BytesRead != nullptr)
             *BytesRead = 0;
@@ -2263,7 +2263,7 @@ namespace
         return static_cast<IFileSystem*>(FileSystem)->Read(0, Buffer, Size, BytesRead, 0); // +0x14
     }
 
-    void IfsGetFileSysPath(void* FileSystem, char* Out, unsigned long MaxChars)
+    void IfsGetFileSysPath(void* FileSystem, char* Out, FlULong MaxChars)
     {
         if (Out == nullptr || MaxChars == 0)
             return;
@@ -2350,14 +2350,14 @@ namespace
             return GR_OK;
         FileSystem->AddRef();
         std::unique_ptr<IFileSystem, FParserFileSystemRelease> Reference(FileSystem);
-        const unsigned long Size = FileSystem->GetSize(0, 0);
+        const FlULong Size = FileSystem->GetSize(0, 0);
         if (Size < 1)
         {
             FdumpLuaError(0x481, "LUA unable to read file \n");
             return static_cast<GENRESULT>(-1);
         }
         char* Buffer = new char[Size + 1];
-        unsigned long BytesRead = 0;
+        FlULong BytesRead = 0;
         FileSystem->Read(0, Buffer, Size, &BytesRead, 0);
         if (BytesRead != Size)
         {

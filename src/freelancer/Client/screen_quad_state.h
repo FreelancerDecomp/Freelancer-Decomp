@@ -75,7 +75,7 @@ void ApplyScreenQuadRenderStates(IRenderPipeline* Pipe);
 
 // FUN_00402d30 — DAT_00616474 material-list key. On change only DAT_00616498 is nulled; the
 // previous key's container stays in the map with its queued nodes.
-void ScreenQuadSetMaterialKey(unsigned long Key);
+void ScreenQuadSetMaterialKey(FlULong Key);
 
 // FUN_00402d50 — clear the whole container map (every node destroyed) + restore the default
 // key, nulling DAT_00616498 only when the key changes.
@@ -84,7 +84,7 @@ void ScreenQuadResetDrawBatchCache();
 // DAT_006101d8 -- the default texture frame {no texture, u0 0, v0 0, u1 1.0f, v1 1.0f} (.data,
 // never written): a new container's key (FUN_00402f40 / FUN_00403ea0) and the frame the core
 // bars (0x004d54a2) and the IME background (0x00563f91) hand to FUN_00402e30.
-extern unsigned long const G_ScreenQuadDefaultFrame[5];
+extern FlULong const G_ScreenQuadDefaultFrame[5];
 
 // FUN_004038f0 (cdecl) -- a light's flare at Position through Cam: 0 when it is not in front of
 // the near plane (depth z * 0.999) or both horizontal radii (size * near * x-scale-over-near /
@@ -102,7 +102,7 @@ unsigned char ScreenQuadEnqueueFlare(ICamera* Cam, float const* Position, float 
 // list with the texture, BlendMode and empty buffers. BlendMode as FUN_004042c0 reads it:
 // 0 opaque, 1 SRC/DEST 2/2 (ONE/ONE), 2 SRC/DEST 5/6 (SRCALPHA/INVSRCALPHA). The records go in
 // through ScreenQuadAppendRecord (retail's inline append into the returned node).
-void ScreenQuadBeginBatchFrame(unsigned long const* Frame, int BlendMode, bool bFind);
+void ScreenQuadBeginBatchFrame(FlULong const* Frame, int BlendMode, bool bFind);
 
 // The record append retail inlines into the callers of FUN_00402e30 (NumberString paint
 // LAB_004137a0 00413bb7..00413c6a / 00413cfe..00413dc1, FUN_004034a0 0x004035e6..0x004036a8):
@@ -117,7 +117,7 @@ void ScreenQuadAppendRecord(FScreenQuadRecord const& Record);
 // rotated vertices, dropped whole when any falls outside the viewport. Argb is a D3DCOLOR. The
 // sixth argument is never read. Sole caller: FUN_00559900 (Cam = &DAT_0067dbf8).
 struct ICamera;
-void ScreenQuadEnqueueIcon(ICamera* Cam, float const* Position, unsigned long Argb, float Size,
+void ScreenQuadEnqueueIcon(ICamera* Cam, float const* Position, FlULong Argb, float Size,
                            float Angle, int Unused);
 
 // FUN_00403350 (cdecl) -- Position through the camera's view transform (slot 16, the
@@ -134,14 +134,14 @@ unsigned char ScreenQuadProjectObjectExtent(ICamera* Cam, float const* Position,
 // (the PE image holds 0). FUN_00403ea0 compares its key argument against it; FUN_00404720 and
 // callers whose own key global is -1 (DAT_00674980 core bars, DAT_00674f3c effects) end up on
 // the list of the current material key.
-extern unsigned long G_ScreenQuadCurrentListKey;
+extern FlULong G_ScreenQuadCurrentListKey;
 
 // FUN_00403ea0 (cdecl: pipeline, list key). Render states forced for 2D screen quads (three
 // saved-and-restored states, then the DAT_005c7520 / 005c7540 / 005c7568 / 005c75a0 tables),
 // then the nodes of ONE container drawn through FUN_004042c0 and moved to its free list: the
 // current container (created on demand) when Key is G_ScreenQuadCurrentListKey, otherwise the
 // map entry for Key when there is one. Then the material key goes back to the default.
-void ScreenQuadFlush(IRenderPipeline* Pipe, unsigned long Key);
+void ScreenQuadFlush(IRenderPipeline* Pipe, FlULong Key);
 
 // DAT_006101ec -- .data byte 1, never written: FUN_00404720 forces point filtering when set.
 extern unsigned char G_BigImageTilePointFilter;
@@ -152,5 +152,5 @@ extern unsigned char G_BigImageTilePointFilter;
 // DAT_006101ec is set), the tile queued on the "image" material list (blend 2) with the frame
 // {TextureHandle, UvQuad[0], UvQuad[7], UvQuad[6], UvQuad[1]}, clipped to the surface, and when
 // anything is left flushed at once through FUN_00403ea0. Nothing is null-checked.
-void __cdecl ScreenQuadDrawBigImageTile(void* TextureHandle, unsigned long PackedColor,
+void __cdecl ScreenQuadDrawBigImageTile(void* TextureHandle, FlULong PackedColor,
                                         float* DestXy, float* UvQuad);

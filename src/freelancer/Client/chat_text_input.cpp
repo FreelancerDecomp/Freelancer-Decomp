@@ -205,7 +205,7 @@ bool FChatBackground::Draw(float const* Orientation, float Width, float Height)
 
     // 0x0045e5d6..0x0045e602: TextureLib slot 22 (texture, frame 0, 5-dword out); on success
     // the handle (out[0]) goes to stage 0 (Pipeline slot 66).
-    unsigned long Frame[5];
+    FlULong Frame[5];
     if (DALib::TextureLib->GetTextureFrame(TextureId, 0, Frame) == 0)
         DALib::Pipeline->SetTextureStageTexture(0, reinterpret_cast<void*>(Frame[0]));
 
@@ -383,7 +383,7 @@ void ChatTextInputDisplay::SetTarget(CHAT_ID const& Id)
     }
 
     // 0x0045ebf7..0x0045ec00: FUN_00579870(colour), +0x568 = *Id.
-    unsigned long ColorWord = 0;
+    FlULong ColorWord = 0;
     memcpy(&ColorWord, Color, 4);
     SetFrameColor(&ColorWord);
     Target = Id;
@@ -580,7 +580,7 @@ void ChatTextInputDisplay::Draw()
             struct FTextureQuery
             {
                 char const* Name;
-                unsigned long Crc;
+                FlULong Crc;
             } Query;
             Query.Name = Background.Name.c_str();
             Query.Crc = DACOM_CRC::GetCRC32(Query.Name);

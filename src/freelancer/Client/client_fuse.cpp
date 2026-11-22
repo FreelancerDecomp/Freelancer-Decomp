@@ -251,9 +251,9 @@ void StartExplosionAction::Trigger(unsigned SourceId, unsigned short SubObjId)
         {
             // 0x0052b185..0x0052b1a7: the host's hardpoint in object space (FindHardpoint_OS
             // on its engine index, vt+0x1c).
-            long HpHandle = 0;
+            FlLong HpHandle = 0;
             HardpointInfo Info;
-            if (FindHardpoint_OS(static_cast<long>(Host->get_index()), Hardpoint.Value, HpHandle,
+            if (FindHardpoint_OS(static_cast<FlLong>(Host->get_index()), Hardpoint.Value, HpHandle,
                                  Info))
             {
                 // 0x0052b1ad..0x0052b1b7: into world space on the handle it came back with.
@@ -529,7 +529,7 @@ void StartEffectAction::Trigger(unsigned SourceId, unsigned short SubObjId)
     {
         // 0x0052bb1a..0x0052bb42: engine index -1, the local transform identity (FUN_004215b0)
         // with a zero position, nothing found yet (BL).
-        long EngineIndex = -1;
+        FlLong EngineIndex = -1;
         FTransform Local;
         reinterpret_cast<Matrix&>(Local.Rotation) =
             Matrix(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -745,7 +745,7 @@ void ClientImpulseAction::Trigger(unsigned SourceId, unsigned short SubObjId)
     {
         // 0x0052c0d4..0x0052c0fe: FindHardpoint_PS (import 0x005c65e8, not _OS) on the host's
         // index, the out handle starting at -1; not found goes to the tail.
-        long HpHandle = -1;
+        FlLong HpHandle = -1;
         HardpointInfo Info;
         if (FindHardpoint_PS(Host->get_index(), Hardpoint.Value, HpHandle, Info))
         {

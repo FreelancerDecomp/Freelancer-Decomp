@@ -104,9 +104,9 @@ public:
     // FUN_00595e30 (RET 8) — +0x334 / +0x338, arrow size = min * 0.2, relayout.
     void SetSize(float Width, float Height);
     // FUN_00595f30 (RET 8) — +0x40c / +0x410.
-    void SetArrowColors(unsigned long const* Idle, unsigned long const* Hot);
+    void SetArrowColors(FlULong const* Idle, FlULong const* Hot);
     // FUN_00595f50 (RET 8) — +0x414 / +0x418.
-    void SetBarColors(unsigned long const* Idle, unsigned long const* Hot);
+    void SetBarColors(FlULong const* Idle, FlULong const* Hot);
     // FUN_005972d0 (RET 4) — move by the change of the scroll offset (+0x41c).
     void SetScrollOffset(float const Offset[3]);
 
@@ -171,10 +171,10 @@ protected:
     float DragOffset_;                 // +0x3d8 — ctor 0; slot 14
     float InverseLayout_[12];          // +0x3dc — FUN_004215b0 identity, zero translation;
                                        //          slot 5 GeneralInverse of +0x3c
-    unsigned long ArrowIdleColor_;     // +0x40c — DAT_00679bb0
-    unsigned long ArrowHotColor_;      // +0x410 — DAT_00679bb0
-    unsigned long BarIdleColor_;       // +0x414 — DAT_00679bb0
-    unsigned long BarHotColor_;        // +0x418 — DAT_00679bb0
+    FlULong ArrowIdleColor_;     // +0x40c — DAT_00679bb0
+    FlULong ArrowHotColor_;      // +0x410 — DAT_00679bb0
+    FlULong BarIdleColor_;       // +0x414 — DAT_00679bb0
+    FlULong BarHotColor_;        // +0x418 — DAT_00679bb0
     float ScrollOffset_[3];            // +0x41c
     float DefaultPage_;                // +0x428 — ctor +0x3cc (0), payload +0x10, SetPage
     bool bHorizontal_;                 // +0x42c — payload +0x18

@@ -77,20 +77,20 @@ void FEquipVisualSet::Clear()
     ArchIds = nullptr;
 }
 
-long FEquipVisualSet::GetInstance(int Index) const
+FlLong FEquipVisualSet::GetInstance(int Index) const
 {
     // FUN_00457f00.
     return Instances[Index];
 }
 
-void FEquipVisualSet::Populate(long RootInstance)
+void FEquipVisualSet::Populate(FlLong RootInstance)
 {
     // FUN_00457f10. operator new(0x20) + the Common ctor (0x00457f48); retail tests the
     // allocation and stores 0 on failure, which the throwing new of the port never returns.
     Summary = new HardpointSummary();
     Summary->analyze_instance(RootInstance);
     Count = Summary->get_count();
-    Instances = static_cast<long*>(operator new(static_cast<size_t>(Count) * sizeof(long)));
+    Instances = static_cast<FlLong*>(operator new(static_cast<size_t>(Count) * sizeof(FlLong)));
     ArchIds = static_cast<unsigned*>(operator new(static_cast<size_t>(Count) * sizeof(unsigned)));
     for (int Index = 0; Index < Count; ++Index)
     {
@@ -118,7 +118,7 @@ bool FEquipVisualSet::Attach(int HpIndex, Archetype::Equipment const* Equip)
 
     // 0x00458037..0x00458061: FUN_0041c540(attachment, DALib::Data, 0, 0, companion +0x20,
     // &this+0x10, 0).
-    Instances[HpIndex] = static_cast<long>(reinterpret_cast<intptr_t>(MiscUtilLoadEngineInstance(
+    Instances[HpIndex] = static_cast<FlLong>(reinterpret_cast<intptr_t>(MiscUtilLoadEngineInstance(
         Good->AttachmentArchetype.Value, DALib::Data, nullptr, nullptr,
         Archetype::CliObjMaterialPaths(Companion), &MaterialEntries, nullptr)));
 
@@ -146,7 +146,7 @@ bool FEquipVisualSet::Attach(int HpIndex, Archetype::Equipment const* Equip)
     // EngBase FUN_0661ec90 copies all 0x17 dwords): 0x004580e0 writes [0] = 0, then [4..6] and
     // [7..15]. Dwords 1..3 and 16..22 are never written by retail (stack garbage); the port
     // zeroes them.
-    unsigned long Payload[G_EngineJointPayloadDwords];
+    FlULong Payload[G_EngineJointPayloadDwords];
     memset(Payload, 0, sizeof(Payload));
     HardpointInfo const& PosInfo = Summary->get_info(HpIndex);
     memcpy(&Payload[4], &PosInfo.Position, 3 * sizeof(float));

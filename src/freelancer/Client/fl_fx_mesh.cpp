@@ -107,13 +107,13 @@ namespace
 
     struct FLFxMeshComponent : FLFxMesh
     {
-        unsigned long RefCount; // +0x14 DAComponent<FLFxMesh>
+        FlULong RefCount; // +0x14 DAComponent<FLFxMesh>
 
         FLFxMeshComponent() : RefCount(1) {}
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
     };
     FL_LAYOUT_ASSERT(offsetof(FLFxMeshComponent, EngineInstance) == 0x08, "FLFxMeshComponent instance +0x08");
     FL_LAYOUT_ASSERT(offsetof(FLFxMeshComponent, RefCount) == 0x14, "FLFxMeshComponent reference count +0x14");
@@ -142,14 +142,14 @@ namespace
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FLFxMeshComponent::AddRef()
+    FlULong DACOM_API FLFxMeshComponent::AddRef()
     {
         // LAB_004f6cd0.
         RefCount += 1;
         return RefCount;
     }
 
-    unsigned long DACOM_API FLFxMeshComponent::Release()
+    FlULong DACOM_API FLFxMeshComponent::Release()
     {
         // LAB_004f6ce0: an unsigned decrement that stops at zero; at zero the count is set back
         // to 1 and the ObjectHandle face's slot 0 (FUN_004f6bc0, the scalar deleting destructor)
@@ -233,13 +233,13 @@ namespace
 
     struct FLFxMeshFactoryComponent : FLFxMeshFactory
     {
-        unsigned long RefCount; // +0x04 DAComponent<FLFxMeshFactory>
+        FlULong RefCount; // +0x04 DAComponent<FLFxMeshFactory>
 
         FLFxMeshFactoryComponent() : RefCount(1) {}
 
         GENRESULT DACOM_API QueryInterface(const char* Iid, void** Out) override;
-        unsigned long DACOM_API AddRef() override;
-        unsigned long DACOM_API Release() override;
+        FlULong DACOM_API AddRef() override;
+        FlULong DACOM_API Release() override;
     };
     FL_LAYOUT_ASSERT(offsetof(FLFxMeshFactoryComponent, RefCount) == 0x4, "FLFxMeshFactoryComponent reference count +0x4");
     FL_LAYOUT_ASSERT(sizeof(FLFxMeshFactoryComponent) == 0x8, "FLFxMeshFactoryComponent is operator new(8)");
@@ -258,14 +258,14 @@ namespace
         return GR_INTERFACE_UNSUPPORTED;
     }
 
-    unsigned long DACOM_API FLFxMeshFactoryComponent::AddRef()
+    FlULong DACOM_API FLFxMeshFactoryComponent::AddRef()
     {
         // LAB_0051e8e0 (shared with other DAComponent<> instantiations whose count is at +4).
         RefCount += 1;
         return RefCount;
     }
 
-    unsigned long DACOM_API FLFxMeshFactoryComponent::Release()
+    FlULong DACOM_API FLFxMeshFactoryComponent::Release()
     {
         // LAB_004f6dc0: as FLFxMesh::Release, but the destructor is this face's own slot 4
         // (FUN_004f6b30: FUN_004f6bf0 restores the abstract vtable 005d9944, then the free).
@@ -298,7 +298,7 @@ namespace
 
         // 0x004f689e..0x004f68b5: Archetype::Load(path, &handle, 0); failure returns 0 with *Out
         // untouched and the new mesh never released.
-        long ArchHandle = 0;
+        FlLong ArchHandle = 0;
         if (!Archetype::Load(Path.Text, &ArchHandle, nullptr))
             return GR_OK;
 

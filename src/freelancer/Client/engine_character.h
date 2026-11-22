@@ -104,7 +104,7 @@ struct FEngineCharacterAccessoryLink
     // &MaterialPaths, 0, 0), FindHardpoint(Bone, CharacterHardpoint), then IHardpoint slot 6
     // ConnectHardpoints(hardpoint, {CharacterHardpoint, crc}, instance, {AccessoryHardpoint,
     // crc}); either failure FDUMPs (line 0x4e). Returns the instance whatever happened.
-    void* Connect(long Bone);
+    void* Connect(FlLong Bone);
 
     TString<0x80> Mesh;                                                     // +0x000
     TString<0x40> AccessoryHardpoint;                                       // +0x084
@@ -137,7 +137,7 @@ struct FEngineCharacterBody
     void StopAnimations();
     // FUN_004ca480 -- IDeformable slot 18 on the deformable into an int that starts at -1; -1
     // without a deformable.
-    long GetRootBone() const;
+    FlLong GetRootBone() const;
     // FUN_004cba10 (thiscall, RET 4) -- Out = the 12 floats IEngine slot 40
     // GetInstanceTransform answers for the root bone. Returns Out.
     FTransform* GetRootTransform(FTransform* Out) const;

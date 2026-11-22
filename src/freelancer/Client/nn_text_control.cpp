@@ -281,15 +281,15 @@ bool NnTextControl::Create(Win3D* NewParent, void* Data)
             else if (Ini->is_value("stringID"))
             {
                 // 0058a07f..0058a08f: ftol(value) into FUN_0058a5f0.
-                SetIds(static_cast<unsigned>(static_cast<long>(Ini->get_value_float(0))));
+                SetIds(static_cast<unsigned>(static_cast<FlLong>(Ini->get_value_float(0))));
             }
             else if (Ini->is_value("justification"))
             {
-                Dword358 = static_cast<long>(Ini->get_value_float(0)); // 0058a0a3..0058a0b0
+                Dword358 = static_cast<FlLong>(Ini->get_value_float(0)); // 0058a0a3..0058a0b0
             }
             else if (Ini->is_value("tooltip"))
             {
-                Dword344 = static_cast<long>(Ini->get_value_float(0)); // 0058a0c3..0058a0d2
+                Dword344 = static_cast<FlLong>(Ini->get_value_float(0)); // 0058a0c3..0058a0d2
             }
         } while (Ini->read_value()); // 0058a0d8..0058a0e2
     }
@@ -752,7 +752,7 @@ void NnTextControl::Draw()
     // 0058aa6a..0058abf7: the colour (FUN_00417780).
     if (bColourOverride != 0)
     {
-        unsigned long PackedOverride;
+        FlULong PackedOverride;
         memcpy(&PackedOverride, OverrideColour, sizeof(PackedOverride));
         FontAtlasSetDrawColor(static_cast<unsigned>(PackedOverride));
     }
@@ -800,7 +800,7 @@ void NnTextControl::Draw()
             // draws in the pulse colour (FUN_00561da0).
             if (HitTest(Ray) && Byte380 != 0)
             {
-                unsigned long Pulse = 0;
+                FlULong Pulse = 0;
                 NnUiPulseBlendArgb(&Pulse);
                 FontAtlasSetDrawColor(static_cast<unsigned>(Pulse));
             }

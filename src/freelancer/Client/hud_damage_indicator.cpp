@@ -130,7 +130,7 @@ namespace
     // below for 24 byte values -- the same truncation the double arithmetic here gives).
     void InlineColour(float Alpha, unsigned char* OutColour)
     {
-        unsigned long const Palette = G_NnPaletteArgb_679ba8;
+        FlULong const Palette = G_NnPaletteArgb_679ba8;
         int const Byte0 = static_cast<int>(Palette & 0xffu);
         int const Byte1 = static_cast<int>((Palette >> 8) & 0xffu);
         int const Byte2 = static_cast<int>((Palette >> 16) & 0xffu);
@@ -168,7 +168,7 @@ namespace
     // 0x004d6997..0x004d69f9): the same bytes 0, 2, 1, each rounded to a float first.
     void CalledColour(float Alpha, unsigned char* OutColour)
     {
-        unsigned long const Palette = G_NnPaletteArgb_679ba8;
+        FlULong const Palette = G_NnPaletteArgb_679ba8;
         int const Byte0 = static_cast<int>(Palette & 0xffu);
         int const Byte1 = static_cast<int>((Palette >> 8) & 0xffu);
         int const Byte2 = static_cast<int>((Palette >> 16) & 0xffu);

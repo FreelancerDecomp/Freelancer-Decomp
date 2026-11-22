@@ -106,7 +106,7 @@ private:
 struct FCameraRayHit
 {
     CObject* Object;            // +0x00 GetRoot of the hit part's object; null for no hit
-    long Instance;              // +0x04 the hit part's engine instance (-1 for no hit)
+    FlLong Instance;              // +0x04 the hit part's engine instance (-1 for no hit)
     Vector Point;               // +0x08 the hit point
     float Distance;             // +0x14 |Point - camera position|
 };
@@ -206,7 +206,7 @@ private:
     // corner angles otherwise, the side bars between the cuts for a watch-listed hostile, and
     // side marks for a player ship (blue when watch-listed) or a watch-listed object. Color
     // points at RGBA bytes. Nothing for a zero bracket radius. Sole caller: 0x004ec21d.
-    static void DrawContactBracket(FHudContactRecord const* Record, unsigned long const* Color,
+    static void DrawContactBracket(FHudContactRecord const* Record, FlULong const* Color,
                                    bool bHostile, bool bWatchListed);
     // FUN_004ee260 -- the waypoint and best-path markers with their labels, every scanned
     // contact's reticle / off-screen arrow and player-ship name label, then the ship's target
@@ -215,7 +215,7 @@ private:
     // FUN_004ebde0 (thiscall, RET 0xc; ECX and the third argument are never read) -- a diamond
     // of 2-wide lines through the four edge midpoints of Record's screen square, in the colour of
     // the RGBA bytes at Color. Callers: 0x004ee40a (nav waypoint), 0x004ee52d (best path).
-    static void DrawWaypointMarker(FHudContactRecord const* Record, unsigned long const* Color,
+    static void DrawWaypointMarker(FHudContactRecord const* Record, FlULong const* Color,
                                    int Unused);
     // FUN_004f0620 (thiscall, RET 4) -- the edge arrow of an off-screen waypoint record, and the
     // pick of that record when the cursor is over the arrow (DAT_00674b78 / DAT_00674b74).
@@ -356,7 +356,7 @@ void HudTargetableObjectsHideAlertsInLetterbox();
 // type bit 0x200 violet (DAT_00679b80), 0x10000000 white, 0x5000000 red (DAT_00679ba8);
 // otherwise, with the player in ObjDB bucket 1, its reputation colour (FUN_0045a4e0), else the
 // idle cyan. Callers: FUN_004ef030 (0x004ef3aa), FUN_004f0900 (0x004f0b78).
-unsigned long* HudTargetMarkerColor(unsigned long* OutArgb, IObjRW* Object);
+FlULong* HudTargetMarkerColor(FlULong* OutArgb, IObjRW* Object);
 
 // FUN_004d4220 (cdecl) -- ObjectId is the object the HUD waypoint points at: with player
 // waypoints, the first one's position is the live waypoint (FUN_004f4b90 on DAT_00674bc8,

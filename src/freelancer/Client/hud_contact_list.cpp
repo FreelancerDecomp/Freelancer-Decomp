@@ -1887,14 +1887,14 @@ void HUD_ContactList::Draw()
 
             // 0x004d2838..0x004d290b: waypoints violet, the rest by reputation; a white NPC
             // ship with no faction marks the list dirty and is not shown.
-            unsigned long Colour = G_NnPaletteArgb_679bb0;
+            FlULong Colour = G_NnPaletteArgb_679bb0;
             if (Entry.Kind == 4 || Entry.Kind == 3)
             {
                 Colour = G_NnPaletteArgb_679b80;
             }
             else
             {
-                unsigned long RepColour = 0;
+                FlULong RepColour = 0;
                 HudReputationColor(&RepColour, Player, Entry.Object());   // FUN_0045a4e0
                 Colour = RepColour;
                 if ((Colour & 0xffffffu) == (G_NnPaletteArgb_679b84 & 0xffffffu))
@@ -1926,7 +1926,7 @@ void HUD_ContactList::Draw()
                      NameTexts[Row]->HitTest(Ray)) &&
                     !HudIsMousePickBlocked())
                 {
-                    unsigned long Pulsed = 0;
+                    FlULong Pulsed = 0;
                     NnUiPulseBlendFromArgb(&Pulsed, Colour);   // FUN_00561f20
                     Colour = Pulsed;
                 }
@@ -2287,14 +2287,14 @@ void HUD_ContactList::Draw()
         }
 
         // 0x004d3a62..0x004d3c7d: the colour (no faction test in this pass).
-        unsigned long Colour = G_NnPaletteArgb_679bb0;
+        FlULong Colour = G_NnPaletteArgb_679bb0;
         if (Entry.Kind == 4 || Entry.Kind == 3)
         {
             Colour = G_NnPaletteArgb_679b80;
         }
         else
         {
-            unsigned long RepColour = 0;
+            FlULong RepColour = 0;
             HudReputationColor(&RepColour, Player, Entry.Object());
             Colour = RepColour;
         }
@@ -2310,7 +2310,7 @@ void HUD_ContactList::Draw()
                  NameTexts[Row]->HitTest(Ray)) &&
                 !HudIsMousePickBlocked())
             {
-                unsigned long Pulsed = 0;
+                FlULong Pulsed = 0;
                 NnUiPulseBlendFromArgb(&Pulsed, Colour);
                 Colour = Pulsed;
             }

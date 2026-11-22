@@ -10,7 +10,7 @@ namespace
 {
     // DAT_00615e70 (.data, 0x58 bytes): D3DFORMAT per id; ids 10..21 are FourCC codes
     // ('DXT1'..'DXT5' first). Read verbatim from the PE bytes.
-    unsigned long G_PixelFormatD3D[0x16] = {
+    FlULong G_PixelFormatD3D[0x16] = {
         0,          41,         20,         23,         24,         26,
         25,         21,         22,         0,          827611204,  844388420,
         861165636,  877942852,  894720068,  1347371332, 1414480196, 1094795588,
@@ -43,16 +43,16 @@ namespace
         {0xe, 0, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, 1}};
 }
 
-unsigned long* PixelFormatGetD3DFormats()
+FlULong* PixelFormatGetD3DFormats()
 {
     // FUN_005b7000: MOV EAX,DAT_00615e70.
     return G_PixelFormatD3D;
 }
 
-int PixelFormatFromD3D(unsigned long D3DFormat)
+int PixelFormatFromD3D(FlULong D3DFormat)
 {
     // FUN_005b7010: linear scan of the 0x16 entries, the index on a match, else 0.
-    unsigned long const* const Formats = PixelFormatGetD3DFormats();
+    FlULong const* const Formats = PixelFormatGetD3DFormats();
     for (int Index = 0; Index < 0x16; ++Index)
     {
         if (Formats[Index] == D3DFormat)
@@ -69,8 +69,8 @@ FPixelFormatDesc* PixelFormatGetDesc(int Id)
     return &G_PixelFormatDescs[Id];
 }
 
-bool PixelFormatFind(unsigned long* OutId, unsigned long Bpp, unsigned long RedBits,
-                     unsigned long GreenBits, unsigned long BlueBits, unsigned long AlphaBits)
+bool PixelFormatFind(FlULong* OutId, FlULong Bpp, FlULong RedBits,
+                     FlULong GreenBits, FlULong BlueBits, FlULong AlphaBits)
 {
     // FUN_005b7050: walk descriptors 0..8 from FUN_005b7030(0), stride 0x4c.
     FPixelFormatDesc const* Desc = PixelFormatGetDesc(0);
@@ -79,7 +79,7 @@ bool PixelFormatFind(unsigned long* OutId, unsigned long Bpp, unsigned long RedB
         if (Desc->Bpp != Bpp)
             continue;
         // 005b707c..005b708a: the low byte of +0x48 against SETNZ (AlphaBits != 0).
-        unsigned long const HasAlpha = static_cast<unsigned char>(Desc->HasAlpha);
+        FlULong const HasAlpha = static_cast<unsigned char>(Desc->HasAlpha);
         if ((AlphaBits != 0 ? 1u : 0u) != HasAlpha)
             continue;
         if (Desc->Red.Bits != RedBits)
@@ -94,6 +94,6 @@ bool PixelFormatFind(unsigned long* OutId, unsigned long Bpp, unsigned long RedB
         *OutId = Desc->Id;
         return true;
     }
-    *OutId = static_cast<unsigned long>(PixelFormatFromD3D(0));
+    *OutId = static_cast<FlULong>(PixelFormatFromD3D(0));
     return false;
 }

@@ -49,7 +49,7 @@ namespace
     struct FTexCrcQuery
     {
         char const* Name;  // +0
-        unsigned long Crc; // +4
+        FlULong Crc; // +4
     };
 
     // The `[Data] effect_shapes =` queue, a VC6 vector<CacheString> at DAT_00674f14..20.
@@ -119,7 +119,7 @@ void* TexShapeGetGpuHandle(FTextureRef const* Ref, int Frame)
     if (Ref->Texture == nullptr)
         return nullptr;
 
-    unsigned long FrameInfo[5];
+    FlULong FrameInfo[5];
     DALib::TextureLib->GetTextureFrame(Ref->Texture, Frame, FrameInfo);
     return reinterpret_cast<void*>(FrameInfo[0]);
 }
@@ -145,7 +145,7 @@ void TexShapeSetRect(FTexShape* Shape, float X, float Y, float W, float H, float
 {
     // 004256ca: Slot22(record, frame 0, out5) with no check of either the record or the
     // result. Retail leaves out5 uninitialised; the port zeroes it so a failed call reads 0.
-    unsigned long Frame[5] = {0, 0, 0, 0, 0};
+    FlULong Frame[5] = {0, 0, 0, 0, 0};
     DALib::TextureLib->GetTextureFrame(Shape->Texture, 0, Frame);
 
     // 004256e7: Pipeline slot +0xcc with the handle and three out pointers; the two sizes are
@@ -312,7 +312,7 @@ int FShapeDB::Load(char const* Path, IFileSystem* BaseDir)
     ITextureLibrary2* const Library = DALib::TextureLib;
 
     // 00425ba9: generic slot 4 is saved, cleared for the load and restored at the end.
-    unsigned long SavedSlot4 = 0;
+    FlULong SavedSlot4 = 0;
     Library->GetGenericSlot(4, &SavedSlot4);
     Library->SetGenericSlot(4, 0);
 

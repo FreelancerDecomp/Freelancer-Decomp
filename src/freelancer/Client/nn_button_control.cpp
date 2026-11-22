@@ -617,7 +617,7 @@ void NnButtonControl::Draw()
     else if ((ButtonBits & 0x02) != 0 || ((ButtonBits & 0x01) != 0 && (ButtonBits2 & 0x08) != 0))
     {
         // Focused, or hovered with the hover pulse on: two FUN_00561da0 samples.
-        unsigned long Pulse = 0;
+        FlULong Pulse = 0;
         NnUiPulseBlendArgb(&Pulse);
         memcpy(Body, &Pulse, sizeof(Body));
         NnUiPulseBlendArgb(&Pulse);
@@ -659,10 +659,10 @@ void NnButtonControl::Draw()
     {
         if (HasInstance(this))
         {
-            GlowArgb = (static_cast<unsigned long>(Glow[3]) << 24) |
-                       (static_cast<unsigned long>(Glow[0]) << 16) |
-                       (static_cast<unsigned long>(Glow[1]) << 8) |
-                       static_cast<unsigned long>(Glow[2]);
+            GlowArgb = (static_cast<FlULong>(Glow[3]) << 24) |
+                       (static_cast<FlULong>(Glow[0]) << 16) |
+                       (static_cast<FlULong>(Glow[1]) << 8) |
+                       static_cast<FlULong>(Glow[2]);
             SubmitWin3DTintedEngineInstanceWrapped(Win3DGetCamera(), MeshHolder.EngineInstance,
                                                   1, Glow, 1, 1.0f, 0); // FUN_00434630
         }

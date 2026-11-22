@@ -634,7 +634,7 @@ float BaseWalkGetInterfaceDrawOpacity()
     return G_BaseWalkInterfaceDrawOpacity;
 }
 
-unsigned long BaseWalkFadeInterfaceColor(unsigned long Argb, bool bAdditive)
+FlULong BaseWalkFadeInterfaceColor(FlULong Argb, bool bAdditive)
 {
     return FBaseWalkInterfaceFade::FadeColor(Argb, G_BaseWalkInterfaceDrawOpacity, bAdditive);
 }
