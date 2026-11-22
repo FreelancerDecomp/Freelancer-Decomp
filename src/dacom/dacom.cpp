@@ -362,7 +362,7 @@ namespace
                 return false;
             }
             fseek(File, 0, SEEK_END);
-            const FlLong FileSize = ftell(File);
+            const long FileSize = ftell(File); // the C library's long, as ftell returns it
             fseek(File, 0, SEEK_SET);
             Buffer = new char[(size_t)FileSize];
             if (fread(Buffer, 1, (size_t)FileSize, File) != (size_t)FileSize)
