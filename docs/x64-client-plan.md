@@ -286,8 +286,10 @@ without the Windows API. Milestones:
 - **M2:** every client module compiles and links on macOS (the platform layer below; DACOM's
   components from `dlopen` or registered statically). macOS then has x64 Windows' type model
   (32-bit `long`, 64-bit pointers), so the `_WIN64` paths that keep pointers out of 32-bit fields
-  (LowArena, HandleValue) become a 64-bit test; LowArena needs another strategy on Apple Silicon,
-  where a 64-bit process gets no addresses below 4 GB. Clang reports the direct pointer-to-32-bit
+  (LowArena, HandleValue) become a 64-bit test (`FL_PTR64`, #118). Apple Silicon gives a 64-bit
+  process no address below 4 GB, so there LowArena is one 2 GB reservation anywhere and the
+  32-bit fields hold offsets into it: the handle sites go through `LowArena::Encode` / `Decode`,
+  plain casts on Windows (decided 2026-11-22; checked by `src/PortTests` on Linux and macOS). Clang reports the direct pointer-to-32-bit
   casts as errors, but not the ones that narrow on purpose through `uintptr_t` / `intptr_t`
   (`PointerToDword`, `PhySys_InstanceId` and the like), so those get an audit of their own. The
   sites CodeRabbit listed on #108, #109 and #111 are the starting list.
