@@ -284,7 +284,9 @@ without the Windows API. Milestones:
   layout checks (`FL_LAYOUT_ASSERT`) apply to the 32-bit Windows build only. Third-party code
   and the Windows-only modules keep `long`.
 - **M2:** every client module compiles and links on macOS (the platform layer below; DACOM's
-  components from `dlopen` or registered statically). macOS then has x64 Windows' type model
+  components from `dlopen` or registered statically). `platform.h` has a POSIX backend
+  (`platform_posix.h`): Win32's values and layouts, paths in either separator matched without
+  regard to case, WaitForSingle/MultipleObjects semantics; checked by `src/PortTests`. macOS then has x64 Windows' type model
   (32-bit `long`, 64-bit pointers), so the `_WIN64` paths that keep pointers out of 32-bit fields
   (LowArena, HandleValue) become a 64-bit test (`FL_PTR64`, #118). Apple Silicon gives a 64-bit
   process no address below 4 GB, so there LowArena is one 2 GB reservation anywhere and the

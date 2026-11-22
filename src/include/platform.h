@@ -17,15 +17,16 @@
 // - Flag and result constants carry the Win32 values. Code that passes Win32 flags through
 //   an interface retail defined (IFileSystem) can hand them on unchanged; another backend
 //   translates them.
-// - Only Windows is implemented. Window, input, graphics, sound, registry and dialog APIs are
+// - Two backends: Win32 below, and POSIX for macOS and Linux (platform_posix.h), with the same
+//   functions, values and layouts. Window, input, graphics, sound, registry and dialog APIs are
 //   outside the layer, and so are subsystems that exist only on Windows (the MFC server UI,
 //   crash reporting through inherited handles, MemoryDiagnostics).
 //
 // Win32 equivalents are named next to each function.
 
 #if !defined(_WIN32)
-#error "platform.h: only the Win32 backend exists so far"
-#endif
+#include "platform_posix.h"
+#else
 
 #include <windows.h>
 #include <mmsystem.h> // timeGetTime; WIN32_LEAN_AND_MEAN leaves it out of windows.h
@@ -336,3 +337,5 @@ namespace Platform
 
     // Per-user folders (UserFolder) are in platform_folders.h: it needs the shell headers.
 } // namespace Platform
+
+#endif // _WIN32
