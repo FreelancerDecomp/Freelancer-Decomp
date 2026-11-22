@@ -125,8 +125,8 @@ CL_FAMILIES = [
 
 
 def parse_cl(args, base):
-    """-> dict(defines, includes, options, diagnostics) from cl arguments."""
-    defines, includes, opts, diag = {}, [], {}, set()
+    """-> dict(defines, includes, forced, options, diagnostics) from cl arguments."""
+    defines, includes, forced, opts, diag = {}, [], [], {}, set()
     i = 0
     while i < len(args):
         a = args[i]
@@ -141,7 +141,11 @@ def parse_cl(args, base):
             if p not in includes:
                 includes.append(p)
         elif a.startswith("/FI"):
-            opts["/FI" + os.path.basename(a[3:].strip('"')).lower()] = "/FI" + os.path.basename(a[3:].strip('"')).lower()
+            # Forced includes in order (the precompiled header goes in front of fl_layout.h).
+            forced.append(os.path.basename(a[3:].strip('"')).lower())
+        elif a.startswith(("/Yu", "/Yc")):
+            # The precompiled header, by name: MSBuild and CMake spell its path differently.
+            opts[a[:3]] = a[:3] + os.path.basename(a[3:].strip('"')).lower()
         elif a.startswith("/D"):
             name, _, value = a[2:].partition("=")
             defines[name] = value
@@ -156,7 +160,7 @@ def parse_cl(args, base):
             else:
                 opts[family or a] = a
         i += 1
-    return {"defines": defines, "includes": includes, "options": set(opts.values()),
+    return {"defines": defines, "includes": includes, "forced": forced, "options": set(opts.values()),
             "diagnostics": diag}
 
 
@@ -367,6 +371,8 @@ def compare_compiles(kind, a, b, report):
         # MSBuild passes the project's own dirs, CMake the same ones.
         if x["includes"] != y["includes"]:
             msgs.append("include order\n    MSBuild %s\n    CMake   %s" % (x["includes"], y["includes"]))
+        if x.get("forced", []) != y.get("forced", []):
+            msgs.append("forced includes MSBuild %s, CMake %s" % (x.get("forced"), y.get("forced")))
         if x["options"] != y["options"]:
             msgs.append("options MSBuild-only %s, CMake-only %s"
                         % (sorted(x["options"] - y["options"]), sorted(y["options"] - x["options"])))

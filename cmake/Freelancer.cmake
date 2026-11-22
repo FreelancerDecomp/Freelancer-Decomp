@@ -53,7 +53,7 @@ if(NOT FL_WINDOWS)
   # and ignored, so that a module's CMakeLists.txt has one form for every platform.
   function(fl_add_module name kind)
     cmake_parse_arguments(PARSE_ARGV 2 A
-      "RETAIL;PORT;TOOL;PORTABLE;NO_WPO;UNICODE;MFC;CONSOLE;NO_SAFESEH;NO_INCREMENTAL;EXPORTS"
+      "RETAIL;PORT;TOOL;PORTABLE;NO_WPO;UNICODE;MFC;CONSOLE;NO_SAFESEH;NO_INCREMENTAL;EXPORTS;PCH"
       "OUTPUT_NAME;WARNING_LEVEL;DEF" "SOURCES;ITEM_DEFAULTS")
     if(NOT A_PORTABLE)
       message(FATAL_ERROR "fl_add_module(${name}): not PORTABLE, so Windows-only; leave it out "
@@ -362,12 +362,14 @@ endfunction()
 #   fl_item(alchemy_math.cpp Optimization MaxSpeed BasicRuntimeChecks Default)
 #   INCLUDE_DIRECTORIES is the item's AdditionalIncludeDirectories, searched before the
 #   project's (MSBuild's "<dirs>;%(AdditionalIncludeDirectories)").
+#   PrecompiledHeader NotUsing keeps a file of a PCH module off the precompiled header.
 function(fl_item)
   set(_files)
   set(_args ${ARGN})
   while(_args)
     list(GET _args 0 _a)
-    if(_a IN_LIST _fl_item_keys OR _a STREQUAL "INCLUDE_DIRECTORIES")
+    if(_a IN_LIST _fl_item_keys OR _a STREQUAL "INCLUDE_DIRECTORIES"
+       OR _a STREQUAL "PrecompiledHeader")
       break()
     endif()
     list(APPEND _files "${_a}")
@@ -385,7 +387,13 @@ function(fl_item)
       break()
     endif()
     list(POP_FRONT _args _value)
-    _fl_item_option(_check ${_key} "${_value}")
+    if(_key STREQUAL "PrecompiledHeader")
+      if(NOT _value STREQUAL "NotUsing")
+        message(FATAL_ERROR "fl_item: PrecompiledHeader takes NotUsing only")
+      endif()
+    else()
+      _fl_item_option(_check ${_key} "${_value}")
+    endif()
     set_property(SOURCE ${_files} PROPERTY FL_${_key} "${_value}")
   endwhile()
 endfunction()
@@ -398,6 +406,10 @@ endfunction()
 # (Directory.Build.props), then the project's "%(AdditionalIncludeDirectories);<dir>" ones. They
 # go to cl as /I options in that order (target include directories would come out in another
 # order, and source ones after the target's).
+#
+# The forced includes are per source file too: fl_layout.h for every one (Directory.Build.props),
+# and in front of it, in a PCH module, the precompiled header (Directory.Build.targets: fl_pch.h,
+# built once by src\pch\fl_pch.cpp with /Yc and used by the other files with /Yu).
 function(_fl_finalize name)
   get_target_property(_early ${name} FL_INCLUDES)
   get_target_property(_late ${name} FL_INCLUDES_LATE)
@@ -407,6 +419,10 @@ function(_fl_finalize name)
     endif()
   endforeach()
   set(_common "${FL_SRC_DIR}/include" "${FL_SRC_DIR}/IVP")
+  get_target_property(_pch ${name} FL_PCH)
+  file(TO_NATIVE_PATH "${FL_SRC_DIR}/pch/fl_pch.h" _pch_header)
+  set(_pch_file "${CMAKE_CURRENT_BINARY_DIR}/fl_pch.pch")
+  file(TO_NATIVE_PATH "${_pch_file}" _pch_file_native)
 
   get_target_property(_sources ${name} SOURCES)
   foreach(_src IN LISTS _sources)
@@ -421,6 +437,19 @@ function(_fl_finalize name)
       file(TO_NATIVE_PATH "${_dir}" _dir)
       list(APPEND _opts "/I${_dir}")
     endforeach()
+    get_property(_pch_item SOURCE "${_src}" PROPERTY FL_PrecompiledHeader)
+    if(_pch AND NOT _pch_item STREQUAL "NotUsing")
+      get_filename_component(_abs "${_src}" ABSOLUTE)
+      if(_abs STREQUAL "${FL_SRC_DIR}/pch/fl_pch.cpp")
+        list(APPEND _opts "/Yc${_pch_header}")
+        set_property(SOURCE "${_src}" APPEND PROPERTY OBJECT_OUTPUTS "${_pch_file}")
+      else()
+        list(APPEND _opts "/Yu${_pch_header}")
+        set_property(SOURCE "${_src}" APPEND PROPERTY OBJECT_DEPENDS "${_pch_file}")
+      endif()
+      list(APPEND _opts "/Fp${_pch_file_native}" "/FI${_pch_header}")
+    endif()
+    list(APPEND _opts /FIfl_layout.h)
 
     set(_per_cfg)
     foreach(_cfg IN LISTS FL_CONFIGS)
@@ -464,6 +493,7 @@ endfunction()
 #               [EXPORTS]                  an exe that exports names (and so has an import library)
 #               [WARNING_LEVEL <n>]        default 3
 #               [DEF <file.def>]           ModuleDefinitionFile
+#               [PCH]                      the precompiled header (src\pch\fl_pch.h, see there)
 #               [ITEM_DEFAULTS <Key> <Value>...]  ClCompile ItemDefinitionGroup (see fl_item)
 #               SOURCES <files...>)        compile items in the order of the old .vcxproj
 #                                          (= link order = static-initialisation order)
@@ -474,7 +504,7 @@ endfunction()
 # ---------------------------------------------------------------------------------------------
 function(fl_add_module name kind)
   cmake_parse_arguments(PARSE_ARGV 2 A
-    "RETAIL;PORT;TOOL;PORTABLE;NO_WPO;UNICODE;MFC;CONSOLE;NO_SAFESEH;NO_INCREMENTAL;EXPORTS"
+    "RETAIL;PORT;TOOL;PORTABLE;NO_WPO;UNICODE;MFC;CONSOLE;NO_SAFESEH;NO_INCREMENTAL;EXPORTS;PCH"
     "OUTPUT_NAME;WARNING_LEVEL;DEF" "SOURCES;ITEM_DEFAULTS")
   if(A_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "fl_add_module(${name}): unknown arguments ${A_UNPARSED_ARGUMENTS}")
@@ -493,6 +523,10 @@ function(fl_add_module name kind)
     set(A_WARNING_LEVEL 3)
   endif()
 
+  if(A_PCH)
+    # Directory.Build.targets adds the /Yc item after the project's own: it links last.
+    list(APPEND A_SOURCES "${FL_SRC_DIR}/pch/fl_pch.cpp")
+  endif()
   if(kind STREQUAL "EXE")
     add_executable(${name} ${A_SOURCES})
   elseif(kind STREQUAL "DLL" OR kind STREQUAL "RESOURCE_DLL")
@@ -503,6 +537,7 @@ function(fl_add_module name kind)
     message(FATAL_ERROR "fl_add_module(${name}): unknown kind ${kind}")
   endif()
   set_property(TARGET ${name} PROPERTY FL_MODULE_KIND ${_module_kind})
+  set_property(TARGET ${name} PROPERTY FL_PCH ${A_PCH})
   # CMake would define <name>_EXPORTS in a DLL or an exe with exports; MSBuild defines no such
   # symbol.
   set_property(TARGET ${name} PROPERTY DEFINE_SYMBOL "")
@@ -577,13 +612,13 @@ function(fl_add_module name kind)
   # The rest of the cl options MSBuild passes (the per-item ones come from _fl_finalize).
   # Directory.Build.props: /std:c++20 with /permissive (ConformanceMode false; /std:c++20 alone
   # implies /permissive-), fl_layout.h forced into every source (FL_LAYOUT_ASSERT, the retail
-  # struct size and offset checks), C4251 / C4275 off (exported classes hold STL members and
+  # struct size and offset checks; per source, in _fl_finalize), C4251 / C4275 off (exported classes hold STL members and
   # derive from non-exported bases; their consumers do not need the dll-interface).
   set(_cl
     /W${A_WARNING_LEVEL} /WX- /diagnostics:column /Gm- /EHsc
     "$<${_fl_cfg_asan}:/fsanitize=address>"
     /GS /Zc:wchar_t /Zc:forScope /Zc:inline
-    /std:c++20 /permissive /FIfl_layout.h
+    /std:c++20 /permissive
     /external:W${A_WARNING_LEVEL} /Gd /FC /wd4251 /wd4275)
   if(FL_WIN32)
     # MSBuild passes these two for Win32 only.

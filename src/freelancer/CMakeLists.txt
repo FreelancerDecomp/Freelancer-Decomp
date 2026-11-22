@@ -4,7 +4,7 @@
 # PlayerDB creates Restart.fl from NewPlayer.fl beside the executable: it is tracked in bin\ and
 # copied into the other output directories by copy_dev_ini.py (dacom's fl_copy_dev_ini).
 
-fl_add_module(freelancer EXE RETAIL EXPORTS
+fl_add_module(freelancer EXE RETAIL PCH EXPORTS
   SOURCES
     Client/client_state.cpp
     Client/voice_profiles.cpp

@@ -1,7 +1,7 @@
 # See cmake/Freelancer.cmake. The source list is the link order, and with it the order of
 # static initialisation.
 
-fl_add_module(Common DLL RETAIL
+fl_add_module(Common DLL RETAIL PCH
   SOURCES
     common_tractorarm.cpp
     common_flashlightsetinfo.cpp
@@ -212,5 +212,10 @@ fl_add_module(Common DLL RETAIL
 
 fl_defines(Common COMMON_EXPORTS)
 fl_item(../IVP/ivp_compact_builder/ivp_surface_builder_pointsoup.cpp INCLUDE_DIRECTORIES ../qhull/vendor)
+# Off the precompiled header: the Ipion sources (third-party code that mostly does without
+# <windows.h>), and the two files that set up macros before <windows.h>.
+get_target_property(_ivp Common SOURCES)
+list(FILTER _ivp INCLUDE REGEX "^\\.\\./IVP/")
+fl_item(${_ivp} common_misc.cpp common_mpcritsec.cpp PrecompiledHeader NotUsing)
 fl_link(Common
   REFERENCES dacom DALib qhull)

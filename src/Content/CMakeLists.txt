@@ -9,7 +9,7 @@ else()
   set(_def Content.def)
 endif()
 
-fl_add_module(Content DLL RETAIL DEF ${_def}
+fl_add_module(Content DLL RETAIL PCH DEF ${_def}
   SOURCES
     Content.cpp
     ContentDataPath.cpp
